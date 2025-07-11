@@ -1086,6 +1086,126 @@
     <script src="js/designesia.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=insert_your_api_key_here&amp;libraries=places&amp;callback=initPlaces" async="" defer=""></script>
 
+    <!-- Test Form for Adding a Car -->
+<div class="container" style="max-width: 600px; margin: 2rem auto;">
+  <form id="carForm" class="form-border p-4 rounded-3 shadow-soft" style="background: #fff;" autocomplete="off">
+    <h3 class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Add Car</h3>
+    <div class="mb-3">
+      <label class="form-label">Make Name</label>
+      <input type="text" name="make_name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Model Name</label>
+      <input type="text" name="model_name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Production Year</label>
+      <input type="number" name="production_year" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Gear Type</label>
+      <input type="text" name="gear_type" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Fuel Type</label>
+      <input type="text" name="fuel_type" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Engine Capacity</label>
+      <input type="number" step="0.1" name="engine_capacity" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Car Type</label>
+      <input type="text" name="car_type" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Number of Doors</label>
+      <input type="number" name="num_doors" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Number of Passengers</label>
+      <input type="number" name="num_passengers" class="form-control" required>
+    </div>
+    <fieldset class="mb-4 p-3 rounded-3" style="border: 1px solid #eee;">
+      <legend class="form-label mb-2" style="font-size: 1.1rem; color: #031B4E;">Price Policy</legend>
+      <div class="row g-2">
+        <div class="col-12 col-md-6 mb-2">
+          <label class="form-label">1-2 days</label>
+          <input type="text" name="price_1_2" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <label class="form-label">3-7 days</label>
+          <input type="text" name="price_3_7" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <label class="form-label">8-20 days</label>
+          <input type="text" name="price_8_20" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <label class="form-label">21-45 days</label>
+          <input type="text" name="price_21_45" class="form-control" required>
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <label class="form-label">46+ days</label>
+          <input type="text" name="price_46" class="form-control" required>
+        </div>
+      </div>
+    </fieldset>
+    <button type="submit" class="btn btn-main btn-fullwidth">Add Car</button>
+  </form>
+</div>
+<!-- End Test Form -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('carForm');
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      // Build price_policy object with string values
+      const price_policy = {
+        '1-2': String(formData.get('price_1_2')),
+        '3-7': String(formData.get('price_3_7')),
+        '8-20': String(formData.get('price_8_20')),
+        '21-45': String(formData.get('price_21_45')),
+        '46+': String(formData.get('price_46')),
+      };
+      // Build car data
+      const data = {
+        make_name: formData.get('make_name'),
+        model_name: formData.get('model_name'),
+        production_year: formData.get('production_year'),
+        gear_type: formData.get('gear_type'),
+        fuel_type: formData.get('fuel_type'),
+        engine_capacity: formData.get('engine_capacity'),
+        car_type: formData.get('car_type'),
+        num_doors: formData.get('num_doors'),
+        num_passengers: formData.get('num_passengers'),
+        price_policy: price_policy
+      };
+      try {
+        const response = await fetch('http://localhost:3001/api/cars', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        if (response.ok) {
+          alert('Car added successfully!');
+          form.reset();
+        } else {
+          alert('Failed to add car.');
+        }
+      } catch (err) {
+        alert('Error adding car.');
+      }
+    });
+  }
+});
+</script>
+
 </body>
 
 </html>
