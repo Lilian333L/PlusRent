@@ -21,8 +21,6 @@ const db = new sqlite3.Database('./carrental.db', (err) => {
 });
 
 db.serialize(() => {
-  // Drop old cars table if exists
-  db.run('DROP TABLE IF EXISTS cars');
   // Create new cars table with updated fields and booked status
   db.run(`CREATE TABLE IF NOT EXISTS cars (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,6 +97,98 @@ app.post('/api/cars', async (req, res) => {
       res.json({ success: true, id: this.lastID });
     }
   );
+});
+
+// Endpoint to get all cars
+app.get('/api/cars', (req, res) => {
+  db.all('SELECT * FROM cars', [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    // Parse price_policy JSON for each car
+    const cars = rows.map(car => ({
+      ...car,
+      price_policy: car.price_policy ? JSON.parse(car.price_policy) : {}
+    }));
+    res.json(cars);
+  });
+});
+
+// Endpoint to update a car
+app.put('/api/cars/:id', (req, res) => {
+  const id = req.params.id;
+  const {
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engine_capacity,
+    car_type,
+    num_doors,
+    num_passengers,
+    price_policy,
+    booked
+  } = req.body;
+
+  if (
+    !make_name ||
+    !model_name ||
+    !production_year ||
+    !gear_type ||
+    !fuel_type ||
+    !engine_capacity ||
+    !car_type ||
+    !num_doors ||
+    !num_passengers ||
+    !price_policy ||
+    typeof booked === 'undefined'
+  ) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const pricePolicyStringified = {};
+  for (const key in price_policy) {
+    pricePolicyStringified[key] = String(price_policy[key]);
+  }
+
+  db.run(
+    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=? WHERE id=?`,
+    [
+      make_name,
+      model_name,
+      production_year,
+      gear_type,
+      fuel_type,
+      engine_capacity,
+      car_type,
+      num_doors,
+      num_passengers,
+      JSON.stringify(pricePolicyStringified),
+      booked ? 1 : 0,
+      id
+    ],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+// Add DELETE endpoint for deleting a car by id
+app.delete('/api/cars/:id', (req, res) => {
+  const id = req.params.id;
+  db.run('DELETE FROM cars WHERE id = ?', [id], function (err) {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    res.json({ success: true });
+  });
 });
 
 app.listen(PORT, () => {

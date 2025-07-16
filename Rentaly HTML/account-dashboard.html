@@ -2,7 +2,7 @@
 <html lang="zxx">
 
 <head>
-    <title>Rentaly - Multipurpose Vehicle Car Rental Website Template</title>
+    <title>Admin Panel - Car Management</title>
     <link rel="icon" href="images/icon.png" type="image/gif" sizes="16x16">
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -18,6 +18,261 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <style>
+  .admin-main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: 32px;
+    padding-right: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .admin-header {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 1.2rem;
+  }
+  .admin-flex-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .admin-btn-col {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 180px;
+    margin-top: 0.5rem;
+    margin-right: 0;
+  }
+  .admin-form-col {
+    flex: 1 1 0;
+    position: relative;
+    min-width: 340px;
+    max-width: 1100px;
+  }
+  .admin-form-panel {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.98);
+    width: 70%;
+    max-width: 98vw;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    padding: 2rem 2.5rem 2rem 2.5rem;
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
+    opacity: 0;
+    z-index: 1001;
+  }
+  .admin-form-panel.active {
+    display: block;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  /* Prevent body scroll when popup is open */
+  html.admin-popup-open, body.admin-popup-open {
+    overflow: hidden !important;
+    height: 100%;
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
+  .admin-form-panel .btn-fullwidth {
+    width: auto;
+    min-width: 160px;
+    display: block;
+    margin: 0 auto;
+  }
+  .admin-form-panel .btn {
+    display: block;
+    margin: 0 auto;
+    min-width: 160px;
+    width: auto;
+  }
+  .admin-form-panel .btn-fullwidth {
+    width: auto;
+    min-width: 160px;
+    display: block;
+    margin: 0 auto;
+  }
+  .admin-form-panel .btn-main {
+    font-size: 1.1rem;
+    padding: 0.7rem 2.2rem;
+    height: 44px;
+    border-radius: 6px;
+  }
+  .admin-form-panel .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+  }
+  .admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .admin-form-grid > div {
+    min-width: 0;
+  }
+  .admin-form-panel input,
+  .admin-form-panel select {
+    background: #fff !important;
+    height: 44px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 100%;
+  }
+  .admin-form-panel input[type="number"] {
+    height: 44px;
+  }
+  .admin-form-panel input:focus,
+  .admin-form-panel select:focus {
+    outline: 2px solid #b3c6ff;
+    border-color: #b3c6ff;
+  }
+  .admin-form-panel fieldset {
+    grid-column: 1 / -1;
+  }
+  .admin-form-panel .row.g-2 > div {
+    min-width: 0;
+  }
+  .admin-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(30, 30, 30, 0.65);
+    z-index: 1000;
+    transition: opacity 0.3s;
+  }
+  .admin-overlay.active {
+    display: block;
+  }
+  .admin-confirm-modal {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    padding: 1.2rem 1.5rem;
+    z-index: 1100;
+    min-width: 320px;
+    max-width: 400px;
+    text-align: center;
+  }
+  .admin-confirm-modal.active {
+    display: block;
+  }
+  .admin-confirm-modal button {
+    margin: 0 10px;
+    min-width: 110px;
+    height: 44px;
+    font-size: 1rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .admin-confirm-modal .btn-main, .admin-confirm-modal .btn-danger {
+    background: #031B4E;
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+  }
+  .admin-confirm-modal .btn-danger {
+    background: #e74c3c;
+  }
+  .admin-btn-col {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 180px;
+    margin-top: 0.5rem;
+    margin-right: 0;
+  }
+  .admin-flex-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .admin-flex-row + #carCards, .admin-flex-row + .row#carCards, .admin-flex-row + .row.g-4 {
+    margin-top: 1.2rem !important;
+  }
+  #carCards {
+    margin-top: 1.2rem !important;
+  }
+  /* Fix for car cards being too small after form grid change */
+  #carCards.row.g-4 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start !important;
+    align-items: stretch;
+    width: 100%;
+  }
+  #carCards.row.g-4 > .col-md-6.col-lg-4 {
+    min-width: 320px;
+    flex: 1 1 320px;
+    max-width: 320px;
+    display: flex;
+    margin: 0 16px 24px 0;
+  }
+  #carCards .card {
+    min-width: 300px;
+    width: 100%;
+    margin: 0;
+  }
+  @media (max-width: 900px) {
+    .admin-form-panel {
+      width: 98vw;
+      padding: 1.2rem 0.5rem;
+    }
+    .admin-form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .admin-form-panel {
+      width: 100vw;
+      padding: 0.5rem 0.2rem;
+    }
+    .admin-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<!-- Custom green for success alert and Booked checkbox styles -->
+<style>
+:root {
+  --admin-success-green: #28a745;
+}
+#adminCustomAlert.success {
+  background: var(--admin-success-green) !important;
+  color: #fff !important;
+}
+#adminCustomAlert.error {
+  background: #e74c3c !important;
+  color: #fff !important;
+}
+/* Remove all custom Booked checkbox and label styles */
+.admin-booked-checkbox, .admin-booked-label { }
+</style>
 </head>
 
 <body>
@@ -122,7 +377,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-									<h1>Dashboard</h1>
+									<h1>Admin Panel</h1>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -131,231 +386,216 @@
             </section>
             <!-- section close -->
 
-            <section id="section-cars" class="bg-gray-100">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-3 mb30">
-                            <div class="card p-4 rounded-5">
-                                <div class="profile_avatar">
-                                    <div class="profile_img">
-                                        <img src="images/profile/1.jpg" alt="">
-                                    </div>
-                                    <div class="profile_name">
-                                        <h4>
-                                            Monica Lucas                                                
-                                            <span class="profile_username text-gray">monica@rentaly.com</span>
-                                        </h4>
-                                    </div>
-                                </div>
-                                <div class="spacer-20"></div>
-                                <ul class="menu-col">
-                                    <li><a href="" class="active"><i class="fa fa-home"></i>Dashboard</a></li>
-                                    <li><a href="account-profile.html"><i class="fa fa-user"></i>My Profile</a></li>
-                                    <li><a href="account-booking.html"><i class="fa fa-calendar"></i>My Orders</a></li>
-                                    <li><a href="account-favorite.html"><i class="fa fa-car"></i>My Favorite Cars</a></li>
-                                    <li><a href="login.html"><i class="fa fa-sign-out"></i>Sign Out</a></li>
-                                </ul>
+            <section id="admin-add-car" class="bg-gray-100">
+              <div class="admin-main-container">
+                <h3 class="admin-header mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Manage Cars</h3>
+                <div class="admin-flex-row">
+                  <div class="admin-btn-col">
+                    <button id="showAddCarBtn" class="btn btn-main btn-lg">Add a Car</button>
+                  </div>
+                  <div class="admin-form-col">
+                    <!-- Overlay -->
+                    <div id="adminOverlay" class="admin-overlay"></div>
+                    <!-- Add Car Form Panel (popup) -->
+                    <div id="addCarPanel" class="admin-form-panel">
+                      <button class="close-btn" id="closeAddCarPanel">&times;</button>
+                      <form id="carForm" class="form-border" autocomplete="off">
+                        <h3 id="formTitle" class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Add Car</h3>
+                        <div class="admin-form-grid">
+                          <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 8px;">
+                            <!-- Booked checkbox is not present in Add, so leave empty for alignment -->
+                          </div>
+                          <div>
+                            <label class="form-label">Make Name</label>
+                            <input type="text" name="make_name" class="form-control" required>
+                          </div>
+                          <div>
+                            <label class="form-label">Model Name</label>
+                            <input type="text" name="model_name" class="form-control" required>
+                          </div>
+                          <div>
+                            <label class="form-label">Production Year</label>
+                            <select name="production_year" class="form-control" required></select>
+                          </div>
+                          <div>
+                            <label class="form-label">Gear Type</label>
+                            <select name="gear_type" class="form-control" required>
+                              <option value="Automat">Automat</option>
+                              <option value="Mecanică">Mecanică</option>
+                            </select>
+                          </div>
+                          <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;">
+                            <div>
+                              <label class="form-label">Fuel Type</label>
+                              <select name="fuel_type" class="form-control" required>
+                                <option value="Benzină">Benzină</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Electric">Electric</option>
+                              </select>
                             </div>
+                            <div>
+                              <label class="form-label">Engine Capacity</label>
+                              <input type="number" name="engine_capacity" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Car Type</label>
+                              <select name="car_type" class="form-control" required>
+                                <option value="Crossover">Crossover</option>
+                                <option value="Sedan">Sedan</option>
+                                <option value="Coupe">Coupe</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label class="form-label">Number of Doors</label>
+                              <select name="num_doors" class="form-control" required></select>
+                            </div>
+                            <div>
+                              <label class="form-label">Number of Passengers</label>
+                              <select name="num_passengers" class="form-control" required></select>
+                            </div>
+                          </div>
                         </div>
-
-                        <div class="col-lg-9">
-                            <div class="row">
-                                <div class="col-lg-3 col-6 mb25 order-sm-1">
-                                    <div class="card p-4 rounded-5">
-                                        <div class="symbol mb40">
-                                            <i class="fa id-color fa-2x fa-calendar-check-o"></i>
-                                        </div>
-                                        <span class="h1 mb0">03</span>
-                                        <span class="text-gray">Upcoming Orders</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-6 mb25 order-sm-1">
-                                    <div class="card p-4 rounded-5">
-                                        <div class="symbol mb40">
-                                            <i class="fa id-color fa-2x fa-tags"></i>
-                                        </div>
-                                        <span class="h1 mb0">12</span>
-                                        <span class="text-gray">Coupons</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-6 mb25 order-sm-1">
-                                    <div class="card p-4 rounded-5">
-                                        <div class="symbol mb40">
-                                            <i class="fa id-color fa-2x fa-calendar"></i>
-                                        </div>
-                                        <span class="h1 mb0">58</span>
-                                        <span class="text-gray">Total Orders</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-6 mb25 order-sm-1">
-                                    <div class="card p-4 rounded-5">
-                                        <div class="symbol mb40">
-                                            <i class="fa id-color fa-2x fa-calendar-times-o"></i>
-                                        </div>
-                                        <span class="h1 mb0">24</span>
-                                        <span class="text-gray">Cancel Orders</span>
-                                    </div>
-                                </div>
+                        <fieldset class="mb-4 p-3 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1.1rem; color: #031B4E;">Price Policy</legend>
+                          <div class="row g-2">
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">1-2 days</label>
+                              <input type="text" name="price_1_2" class="form-control" required>
                             </div>
-
-                            <div class="card p-4 rounded-5 mb25">
-                                <h4>My Recent Orders</h4>
-
-                                <table class="table de-table">
-                                  <thead>
-                                    <tr>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Order ID</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Car Name</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Pick Up Location</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Drop Off Location</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Pick Up Date</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Return Date</span></th>
-                                      <th scope="col"><span class="text-uppercase fs-12 text-gray">Status</span></th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr>
-                                      <td><span class="d-lg-none d-sm-block">Order ID</span><div class="badge bg-gray-100 text-dark">#01236</div></td>
-                                      <td><span class="d-lg-none d-sm-block">Car Name</span><span class="bold">Jeep Renegade</span></td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Location</span>New York</td>
-                                      <td><span class="d-lg-none d-sm-block">Drop Off Location</span>Los Angeles</td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Date</span>March 2, 2023</td>
-                                      <td><span class="d-lg-none d-sm-block">Return Date</span>March 10, 2023</td>
-                                      <td><div class="badge rounded-pill bg-success">completed</div></td>
-                                    </tr>
-                                    <tr>
-                                      <td><span class="d-lg-none d-sm-block">Order ID</span><div class="badge bg-gray-100 text-dark">#01263</div></td>
-                                      <td><span class="d-lg-none d-sm-block">Car Name</span><span class="bold">Mini Cooper</span></td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Location</span>San Fransisco</td>
-                                      <td><span class="d-lg-none d-sm-block">Drop Off Location</span>Chicago</td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Date</span>March 8, 2023</td>
-                                      <td><span class="d-lg-none d-sm-block">Return Date</span>March 10, 2023</td>
-                                      <td><div class="badge rounded-pill bg-danger">cancelled</div></td>
-                                    </tr>
-                                    <tr>
-                                      <td><span class="d-lg-none d-sm-block">Order ID</span><div class="badge bg-gray-100 text-dark">#01245</div></td>
-                                      <td><span class="d-lg-none d-sm-block">Car Name</span><span class="bold">Ferrari Enzo</span></td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Location</span>Philadelphia</td>
-                                      <td><span class="d-lg-none d-sm-block">Drop Off Location</span>Washington</td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Date</span>March 6, 2023</td>
-                                      <td><span class="d-lg-none d-sm-block">Return Date</span>March 10, 2023</td>
-                                      <td><div class="badge rounded-pill bg-warning">scheduled</div></td>
-                                    </tr>
-                                    <tr>
-                                      <td><span class="d-lg-none d-sm-block">Order ID</span><div class="badge bg-gray-100 text-dark">#01287</div></td>
-                                      <td><span class="d-lg-none d-sm-block">Car Name</span><span class="bold">Hyundai Staria</span></td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Location</span>Kansas City</td>
-                                      <td><span class="d-lg-none d-sm-block">Drop Off Location</span>Houston</td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Date</span>March 13, 2023</td>
-                                      <td><span class="d-lg-none d-sm-block">Return Date</span>March 10, 2023</td>
-                                      <td><div class="badge rounded-pill bg-success">completed</div></td>
-                                    </tr>
-                                    <tr>
-                                      <td><span class="d-lg-none d-sm-block">Order ID</span><div class="badge bg-gray-100 text-dark">#01216</div></td>
-                                      <td><span class="d-lg-none d-sm-block">Car Name</span><span class="bold">Toyota Rav 4</span></td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Location</span>Baltimore</td>
-                                      <td><span class="d-lg-none d-sm-block">Drop Off Location</span>Sacramento</td>
-                                      <td><span class="d-lg-none d-sm-block">Pick Up Date</span>March 7, 2023</td>
-                                      <td><span class="d-lg-none d-sm-block">Return Date</span>March 10, 2023</td>
-                                      <td><div class="badge rounded-pill bg-warning">scheduled</div></td>
-                                    </tr>
-                                  </tbody>
-                                </table>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">3-7 days</label>
+                              <input type="text" name="price_3_7" class="form-control" required>
                             </div>
-                            <div class="card p-4 rounded-5">
-                                <h4>My Favorites</h4>
-                                <div class="spacer-10"></div>
-                                <div class="de-item-list no-border mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/jeep-renegade.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4>Jeep Renegade</h4>
-                                            <div class="d-atr-group">
-                                                <ul class="d-atr">
-                                                    <li><span>Seats:</span>4</li>
-                                                    <li><span>Luggage:</span>2</li>
-                                                    <li><span>Doors:</span>4</li>
-                                                    <li><span>Fuel:</span>Petrol</li>
-                                                    <li><span>Horsepower:</span>500</li>
-                                                    <li><span>Engine:</span>3000</li>
-                                                    <li><span>Drive:</span>4x4</li>
-                                                    <li><span>Type:</span>Hatchback</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-price">
-                                        Daily rate from <span>$265</span>
-                                        <a class="btn-main" href="car-single.html">Rent Now</a>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-
-                                <div class="de-item-list no-border mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/bmw-m5.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4>BMW M2</h4>
-                                            <div class="d-atr-group">
-                                                <ul class="d-atr">
-                                                    <li><span>Seats:</span>4</li>
-                                                    <li><span>Luggage:</span>2</li>
-                                                    <li><span>Doors:</span>4</li>
-                                                    <li><span>Fuel:</span>Petrol</li>
-                                                    <li><span>Horsepower:</span>500</li>
-                                                    <li><span>Engine:</span>3000</li>
-                                                    <li><span>Drive:</span>4x4</li>
-                                                    <li><span>Type:</span>Hatchback</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-price">
-                                        Daily rate from <span>$244</span>
-                                        <a class="btn-main" href="car-single.html">Rent Now</a>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-
-                                <div class="de-item-list no-border mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/ferrari-enzo.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4>Ferarri Enzo</h4>
-                                            <div class="d-atr-group">
-                                                <ul class="d-atr">
-                                                    <li><span>Seats:</span>4</li>
-                                                    <li><span>Luggage:</span>2</li>
-                                                    <li><span>Doors:</span>4</li>
-                                                    <li><span>Fuel:</span>Petrol</li>
-                                                    <li><span>Horsepower:</span>500</li>
-                                                    <li><span>Engine:</span>3000</li>
-                                                    <li><span>Drive:</span>4x4</li>
-                                                    <li><span>Type:</span>Hatchback</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-price">
-                                        Daily rate from <span>$167</span>
-                                        <a class="btn-main" href="car-single.html">Rent Now</a>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">8-20 days</label>
+                              <input type="text" name="price_8_20" class="form-control" required>
                             </div>
-                        </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">21-45 days</label>
+                              <input type="text" name="price_21_45" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">46+ days</label>
+                              <input type="text" name="price_46" class="form-control" required>
+                            </div>
+                          </div>
+                        </fieldset>
+                        <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
+                      </form>
                     </div>
+                    <!-- Edit Car Form Panel (popup) -->
+                    <div id="editCarPanel" class="admin-form-panel">
+                      <button class="close-btn" id="closeEditCarPanel">&times;</button>
+                      <button id="deleteCarBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
+                        <i class="fa fa-trash"></i> Delete
+                      </button>
+                      <form id="editCarForm" class="form-border" autocomplete="off">
+                        <h3 class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Edit Car</h3>
+                        <div class="admin-form-grid">
+                          <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 8px;">
+                            <input type="checkbox" id="editBookedCheckbox" name="booked" style="margin-right: 8px; width: 20px; height: 20px;">
+                            <label for="editBookedCheckbox">Booked</label>
+                          </div>
+                          <div>
+                            <label class="form-label">Make Name</label>
+                            <input type="text" name="make_name" class="form-control" required>
+                          </div>
+                          <div>
+                            <label class="form-label">Model Name</label>
+                            <input type="text" name="model_name" class="form-control" required>
+                          </div>
+                          <div>
+                            <label class="form-label">Production Year</label>
+                            <select name="production_year" class="form-control" required></select>
+                          </div>
+                          <div>
+                            <label class="form-label">Gear Type</label>
+                            <select name="gear_type" class="form-control" required>
+                              <option value="Automat">Automat</option>
+                              <option value="Mecanică">Mecanică</option>
+                            </select>
+                          </div>
+                          <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;">
+                            <div>
+                              <label class="form-label">Fuel Type</label>
+                              <select name="fuel_type" class="form-control" required>
+                                <option value="Benzină">Benzină</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Electric">Electric</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label class="form-label">Engine Capacity</label>
+                              <input type="number" name="engine_capacity" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Car Type</label>
+                              <select name="car_type" class="form-control" required>
+                                <option value="Crossover">Crossover</option>
+                                <option value="Sedan">Sedan</option>
+                                <option value="Coupe">Coupe</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label class="form-label">Number of Doors</label>
+                              <select name="num_doors" class="form-control" required></select>
+                            </div>
+                            <div>
+                              <label class="form-label">Number of Passengers</label>
+                              <select name="num_passengers" class="form-control" required></select>
+                            </div>
+                          </div>
+                        </div>
+                        <fieldset class="mb-4 p-3 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1.1rem; color: #031B4E;">Price Policy</legend>
+                          <div class="row g-2">
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">1-2 days</label>
+                              <input type="text" name="price_1_2" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">3-7 days</label>
+                              <input type="text" name="price_3_7" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">8-20 days</label>
+                              <input type="text" name="price_8_20" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">21-45 days</label>
+                              <input type="text" name="price_21_45" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2 mb-2">
+                              <label class="form-label">46+ days</label>
+                              <input type="text" name="price_46" class="form-control" required>
+                            </div>
+                          </div>
+                        </fieldset>
+                        <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Confirm changes</button>
+                      </form>
+                    </div>
+                    <!-- Confirm Modal -->
+                    <div id="adminConfirmModal" class="admin-confirm-modal">
+                      <h4>Are you sure you want to close this form? All unsaved data will be lost.</h4>
+                      <div class="mt-4 d-flex justify-content-center gap-3">
+                        <button id="confirmCloseBtn" class="btn btn-danger">Yes, close</button>
+                        <button id="cancelCloseBtn" class="btn btn-main">Cancel</button>
+                      </div>
+                    </div>
+                    <!-- Add a confirmation modal for delete -->
+                    <div id="deleteConfirmModal" class="admin-confirm-modal">
+                      <h4>Are you sure you want to delete this car?</h4>
+                      <div class="mt-4 d-flex justify-content-center gap-3">
+                        <button id="confirmDeleteBtn" class="btn btn-danger">Yes, delete</button>
+                        <button id="cancelDeleteBtn" class="btn btn-main">Cancel</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                <div id="carCards" class="row g-4 mt-4"></div>
+              </div>
             </section>
 			
 			
@@ -442,6 +682,9 @@
         
     </div>
 
+    <!-- Custom Alert -->
+    <div id="adminCustomAlert" style="display:none;position:fixed;top:32px;left:50%;transform:translateX(-50%);z-index:2000;min-width:320px;max-width:90vw;padding:16px 32px;border-radius:8px;font-size:1.1rem;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.12);background:#031B4E;color:#fff;text-align:center;transition:opacity 0.3s;opacity:0;"></div>
+
 
     <!-- Javascript Files
     ================================================== -->
@@ -451,3 +694,323 @@
 </body>
 
 </html>
+
+<script>
+// Populate selects for years, doors, passengers
+function populateSelect(select, from, to, desc = false) {
+  select.innerHTML = '';
+  if (desc) {
+    for (let i = from; i >= to; i--) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      select.appendChild(opt);
+    }
+  } else {
+    for (let i = from; i <= to; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      select.appendChild(opt);
+    }
+  }
+}
+
+function showAlert(message, type = 'success') {
+  const alertDiv = document.getElementById('adminCustomAlert');
+  alertDiv.textContent = message;
+  alertDiv.className = type === 'success' ? 'success' : 'error';
+  alertDiv.style.display = 'block';
+  alertDiv.style.opacity = '1';
+  setTimeout(() => {
+    alertDiv.style.opacity = '0';
+    setTimeout(() => {
+      alertDiv.style.display = 'none';
+      alertDiv.className = '';
+    }, 400);
+  }, 2200);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Add Car Panel
+  const showBtn = document.getElementById('showAddCarBtn');
+  const addPanel = document.getElementById('addCarPanel');
+  const closeAddBtn = document.getElementById('closeAddCarPanel');
+  const addForm = document.getElementById('carForm');
+  const addFormSubmitBtn = document.getElementById('formSubmitBtn');
+
+  // Edit Car Panel
+  const editPanel = document.getElementById('editCarPanel');
+  const closeEditBtn = document.getElementById('closeEditCarPanel');
+  const editForm = document.getElementById('editCarForm');
+  const editFormSubmitBtn = document.getElementById('editFormSubmitBtn');
+  const editBookedCheckbox = document.getElementById('editBookedCheckbox');
+
+  // Overlay and Confirm Modal
+  const overlay = document.getElementById('adminOverlay');
+  const confirmModal = document.getElementById('adminConfirmModal');
+  const confirmCloseBtn = document.getElementById('confirmCloseBtn');
+  const cancelCloseBtn = document.getElementById('cancelCloseBtn');
+  let pendingClosePanel = null;
+
+  // Show Add Panel
+  showBtn.addEventListener('click', function () {
+    addPanel.classList.add('active');
+    editPanel.classList.remove('active');
+    overlay.classList.add('active');
+    addForm.reset();
+    document.body.classList.add('admin-popup-open');
+    document.documentElement.classList.add('admin-popup-open');
+  });
+  function closePanel(panel, form) {
+    panel.classList.remove('active');
+    overlay.classList.remove('active');
+    form.reset();
+    document.body.classList.remove('admin-popup-open');
+    document.documentElement.classList.remove('admin-popup-open');
+  }
+  function askClosePanel(panel, form) {
+    confirmModal.classList.add('active');
+    pendingClosePanel = {panel, form};
+  }
+  function handleOverlayClick(e) {
+    if (addPanel.classList.contains('active')) {
+      askClosePanel(addPanel, addForm);
+    } else if (editPanel.classList.contains('active')) {
+      askClosePanel(editPanel, editForm);
+    }
+  }
+  overlay.addEventListener('click', handleOverlayClick);
+  closeAddBtn.addEventListener('click', function () {
+    askClosePanel(addPanel, addForm);
+  });
+  closeEditBtn.addEventListener('click', function () {
+    askClosePanel(editPanel, editForm);
+  });
+  confirmCloseBtn.addEventListener('click', function () {
+    if (pendingClosePanel) {
+      closePanel(pendingClosePanel.panel, pendingClosePanel.form);
+      confirmModal.classList.remove('active');
+      pendingClosePanel = null;
+    }
+  });
+  cancelCloseBtn.addEventListener('click', function () {
+    confirmModal.classList.remove('active');
+    pendingClosePanel = null;
+  });
+
+  // Populate selects for both forms
+  populateSelect(addForm.elements['production_year'], new Date().getFullYear(), 2000, true);
+  populateSelect(addForm.elements['num_doors'], 2, 7);
+  populateSelect(addForm.elements['num_passengers'], 2, 9);
+  populateSelect(editForm.elements['production_year'], new Date().getFullYear(), 2000, true);
+  populateSelect(editForm.elements['num_doors'], 2, 7);
+  populateSelect(editForm.elements['num_passengers'], 2, 9);
+
+  // Add Car Submit
+  addForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(addForm);
+    const price_policy = {
+      '1-2': String(formData.get('price_1_2')),
+      '3-7': String(formData.get('price_3_7')),
+      '8-20': String(formData.get('price_8_20')),
+      '21-45': String(formData.get('price_21_45')),
+      '46+': String(formData.get('price_46')),
+    };
+    const data = {
+      make_name: formData.get('make_name'),
+      model_name: formData.get('model_name'),
+      production_year: formData.get('production_year'),
+      gear_type: formData.get('gear_type'),
+      fuel_type: formData.get('fuel_type'),
+      engine_capacity: formData.get('engine_capacity'),
+      car_type: formData.get('car_type'),
+      num_doors: formData.get('num_doors'),
+      num_passengers: formData.get('num_passengers'),
+      price_policy: price_policy
+    };
+    try {
+      const response = await fetch('http://localhost:3001/api/cars', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        showAlert('Car added successfully!', 'success');
+        addForm.reset();
+        closePanel(addPanel, addForm);
+        loadCars();
+      } else {
+        showAlert('Failed to add car.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error saving car.', 'error');
+    }
+  });
+
+  // Edit Car Submit
+  editForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    const price_policy = {
+      '1-2': String(formData.get('price_1_2')),
+      '3-7': String(formData.get('price_3_7')),
+      '8-20': String(formData.get('price_8_20')),
+      '21-45': String(formData.get('price_21_45')),
+      '46+': String(formData.get('price_46')),
+    };
+    const data = {
+      make_name: formData.get('make_name'),
+      model_name: formData.get('model_name'),
+      production_year: formData.get('production_year'),
+      gear_type: formData.get('gear_type'),
+      fuel_type: formData.get('fuel_type'),
+      engine_capacity: formData.get('engine_capacity'),
+      car_type: formData.get('car_type'),
+      num_doors: formData.get('num_doors'),
+      num_passengers: formData.get('num_passengers'),
+      price_policy: price_policy,
+      booked: editBookedCheckbox.checked ? 1 : 0
+    };
+    try {
+      const id = editForm.getAttribute('data-id');
+      const response = await fetch(`http://localhost:3001/api/cars/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        showAlert('Car updated successfully!', 'success');
+        editForm.reset();
+        closePanel(editPanel, editForm);
+        loadCars();
+      } else {
+        showAlert('Failed to update car.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error saving car.', 'error');
+    }
+  });
+
+  // Load and display cars as cards
+  async function loadCars() {
+    const carCards = document.getElementById('carCards');
+    carCards.innerHTML = '<div class="text-center w-100">Loading...</div>';
+    try {
+      const res = await fetch('http://localhost:3001/api/cars');
+      const cars = await res.json();
+      if (!cars.length) {
+        carCards.innerHTML = '<div class="alert alert-info w-100">No cars found.</div>';
+        return;
+      }
+      carCards.innerHTML = '';
+      cars.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 col-lg-4';
+        card.style.padding = '0';
+        card.innerHTML = `
+          <div class="card p-3 h-100 shadow-sm rounded-4">
+            <div class="d-flex justify-content-start align-items-center mb-2" style="min-height:32px;">
+              <button class="btn btn-sm btn-edit-icon editCarBtn" data-id="${car.id}" title="Edit" style="background: none; border: 1px solid gray; padding: 3px 6px; margin-right: 8px; color: gray; box-shadow: none;">
+                <i class="fa fa-pencil" style="font-size: 14px;"></i>
+              </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0">${car.make_name} ${car.model_name} (${car.production_year})</h5>
+              <span class="badge ${car.booked ? 'bg-danger' : 'bg-success'}">${car.booked ? 'Booked' : 'Available'}</span>
+            </div>
+            <ul class="list-unstyled mb-2">
+              <li><b>Gear:</b> ${car.gear_type}</li>
+              <li><b>Fuel:</b> ${car.fuel_type}</li>
+              <li><b>Engine:</b> ${car.engine_capacity}</li>
+              <li><b>Type:</b> ${car.car_type}</li>
+              <li><b>Doors:</b> ${car.num_doors}</li>
+              <li><b>Passengers:</b> ${car.num_passengers}</li>
+            </ul>
+            <div class="mb-2">
+              <b>Price Policy:</b>
+              <ul class="list-unstyled mb-0">
+                <li>1-2 days: ${car.price_policy['1-2']}</li>
+                <li>3-7 days: ${car.price_policy['3-7']}</li>
+                <li>8-20 days: ${car.price_policy['8-20']}</li>
+                <li>21-45 days: ${car.price_policy['21-45']}</li>
+                <li>46+ days: ${car.price_policy['46+']}</li>
+              </ul>
+            </div>
+          </div>
+        `;
+        carCards.appendChild(card);
+      });
+      // Add edit button listeners
+      document.querySelectorAll('.editCarBtn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const car = cars.find(c => c.id == btn.getAttribute('data-id'));
+          if (!car) return;
+          // Fill edit form
+          editForm.setAttribute('data-id', car.id);
+          editForm.elements['make_name'].value = car.make_name;
+          editForm.elements['model_name'].value = car.model_name;
+          editForm.elements['production_year'].value = car.production_year;
+          editForm.elements['gear_type'].value = car.gear_type;
+          editForm.elements['fuel_type'].value = car.fuel_type;
+          editForm.elements['engine_capacity'].value = car.engine_capacity;
+          editForm.elements['car_type'].value = car.car_type;
+          editForm.elements['num_doors'].value = car.num_doors;
+          editForm.elements['num_passengers'].value = car.num_passengers;
+          editForm.elements['price_1_2'].value = car.price_policy['1-2'];
+          editForm.elements['price_3_7'].value = car.price_policy['3-7'];
+          editForm.elements['price_8_20'].value = car.price_policy['8-20'];
+          editForm.elements['price_21_45'].value = car.price_policy['21-45'];
+          editForm.elements['price_46'].value = car.price_policy['46+'];
+          editBookedCheckbox.checked = !!car.booked;
+          addPanel.classList.remove('active');
+          editPanel.classList.add('active');
+          overlay.classList.add('active');
+        });
+      });
+    } catch (err) {
+      carCards.innerHTML = '<div class="alert alert-danger w-100">Failed to load cars.</div>';
+    }
+  }
+
+  loadCars();
+
+  // Add a confirmation modal for delete
+  const deleteCarBtn = document.getElementById('deleteCarBtn');
+  const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  let pendingDeleteCarId = null;
+  deleteCarBtn.addEventListener('click', function() {
+    deleteConfirmModal.classList.add('active');
+    pendingDeleteCarId = editForm.getAttribute('data-id');
+  });
+  confirmDeleteBtn.addEventListener('click', async function() {
+    if (!pendingDeleteCarId) return;
+    try {
+      const response = await fetch(`http://localhost:3001/api/cars/${pendingDeleteCarId}`, { method: 'DELETE' });
+      if (response.ok) {
+        showAlert('Car deleted successfully!', 'success');
+        editForm.reset();
+        closePanel(editPanel, editForm);
+        loadCars();
+      } else {
+        showAlert('Failed to delete car.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error deleting car.', 'error');
+    }
+    deleteConfirmModal.classList.remove('active');
+    pendingDeleteCarId = null;
+  });
+  cancelDeleteBtn.addEventListener('click', function() {
+    deleteConfirmModal.classList.remove('active');
+    pendingDeleteCarId = null;
+  });
+});
+</script>
