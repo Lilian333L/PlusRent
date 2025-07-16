@@ -23,7 +23,7 @@ const db = new sqlite3.Database('./carrental.db', (err) => {
 db.serialize(() => {
   // Drop old cars table if exists
   db.run('DROP TABLE IF EXISTS cars');
-  // Create new cars table with reordered columns and price_policy as string values
+  // Create new cars table with updated fields and booked status
   db.run(`CREATE TABLE IF NOT EXISTS cars (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     make_name TEXT,
@@ -31,11 +31,12 @@ db.serialize(() => {
     production_year INTEGER,
     gear_type TEXT,
     fuel_type TEXT,
-    engine_capacity REAL,
+    engine_capacity INTEGER,
     car_type TEXT,
     num_doors INTEGER,
     num_passengers INTEGER,
-    price_policy TEXT
+    price_policy TEXT,
+    booked INTEGER DEFAULT 0
   )`);
 });
 
@@ -75,10 +76,10 @@ app.post('/api/cars', async (req, res) => {
     pricePolicyStringified[key] = String(price_policy[key]);
   }
 
-  // Store in DB
+  // Store in DB, booked defaults to 0
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
     [
       make_name,
       model_name,
