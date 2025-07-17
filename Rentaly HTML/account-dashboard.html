@@ -169,7 +169,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
     padding: 1.2rem 1.5rem;
-    z-index: 1100;
+    z-index: 1200;
     min-width: 320px;
     max-width: 400px;
     text-align: center;
@@ -273,6 +273,125 @@
 /* Remove all custom Booked checkbox and label styles */
 .admin-booked-checkbox, .admin-booked-label { }
 </style>
+<!-- Add styles for image previews and remove buttons -->
+<style>
+.admin-image-preview {
+  display: inline-block;
+  margin: 0 10px 10px 0;
+  position: relative;
+}
+.admin-image-preview img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1.5px solid #e0e0e0;
+}
+.admin-image-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+/* Add spinner style */
+.admin-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #eee;
+  border-top: 3px solid #031B4E;
+  border-radius: 50%;
+  animation: admin-spin 1s linear infinite;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+@keyframes admin-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom upload button styles */
+.admin-upload-area {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.admin-upload-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 60px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  font-size: 12px;
+  pointer-events: none;
+  padding-top: 8px;
+}
+
+.admin-upload-area:hover .admin-upload-button {
+  border-color: #031B4E;
+  background: #f0f4ff;
+  color: #031B4E;
+}
+
+.admin-upload-area.has-file .admin-upload-button {
+  border-color: #28a745;
+  background: #f0fff0;
+  color: #28a745;
+}
+
+.admin-upload-icon {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.admin-upload-text {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.admin-upload-subtext {
+  font-size: 12px;
+  color: #999;
+}
+
+.admin-upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100% !important;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+</style>
 </head>
 
 <body>
@@ -327,7 +446,7 @@
                                     <li><a class="menu-item" href="index.html">Home</a></li>
                                     <li><a class="menu-item" href="cars.html">Cars</a></li>
                                     <li><a class="menu-item" href="quick-booking.html">Booking</a></li>
-                                    <li><a class="menu-item" href="account-dashboard.html">My Account</a></li>
+                                    <li><a class="menu-item" href="account-dashboard.html">Admin Panel</a></li>
                                 </ul>
                             </div>
                             <div class="de-flex-col">
@@ -402,8 +521,37 @@
                       <form id="carForm" class="form-border" autocomplete="off">
                         <h3 id="formTitle" class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Add Car</h3>
                         <div class="admin-form-grid">
-                          <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 8px;">
-                            <!-- Booked checkbox is not present in Add, so leave empty for alignment -->
+                          <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 8px; gap: 24px;">
+                            <div style="flex: 1;">
+                              <label class="form-label">Head Image</label>
+                              <div class="admin-upload-area">
+                                <div class="admin-upload-button" id="addHeadImageButton">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17,8 12,3 7,8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  <div class="admin-upload-text">Upload Head Image</div>
+                                </div>
+                                <input type="file" id="addHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
+                              </div>
+                              <div id="addHeadImagePreview" class="admin-image-preview"></div>
+                            </div>
+                            <div style="flex: 1;">
+                              <label class="form-label">Gallery Images (max 10)</label>
+                              <div class="admin-upload-area">
+                                <div class="admin-upload-button" id="addGalleryImagesButton">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17,8 12,3 7,8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  <div class="admin-upload-text">Upload Gallery Images</div>
+                                </div>
+                                <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
+                              </div>
+                              <div id="addGalleryImagesPreview"></div>
+                            </div>
                           </div>
                           <div>
                             <label class="form-label">Make Name</label>
@@ -493,6 +641,38 @@
                       <form id="editCarForm" class="form-border" autocomplete="off">
                         <h3 class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Edit Car</h3>
                         <div class="admin-form-grid">
+                          <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 8px; gap: 24px;">
+                            <div style="flex: 1;">
+                              <label class="form-label">Head Image</label>
+                              <div class="admin-upload-area">
+                                <div class="admin-upload-button" id="editHeadImageButton">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17,8 12,3 7,8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  <div class="admin-upload-text">Upload Head Image</div>
+                                </div>
+                                <input type="file" id="editHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
+                              </div>
+                              <div id="editHeadImagePreview" class="admin-image-preview"></div>
+                            </div>
+                            <div style="flex: 1;">
+                              <label class="form-label">Gallery Images (max 10)</label>
+                              <div class="admin-upload-area">
+                                <div class="admin-upload-button" id="editGalleryImagesButton">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17,8 12,3 7,8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  <div class="admin-upload-text">Upload Gallery Images</div>
+                                </div>
+                                <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
+                              </div>
+                              <div id="editGalleryImagesPreview"></div>
+                            </div>
+                          </div>
                           <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 8px;">
                             <input type="checkbox" id="editBookedCheckbox" name="booked" style="margin-right: 8px; width: 20px; height: 20px;">
                             <label for="editBookedCheckbox">Booked</label>
@@ -746,6 +926,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const editFormSubmitBtn = document.getElementById('editFormSubmitBtn');
   const editBookedCheckbox = document.getElementById('editBookedCheckbox');
 
+  // Fix: Declare edit image file variables in the correct scope
+  let editHeadImageFile = null;
+  let editGalleryImageFiles = [];
+  
+  // Get DOM elements for edit form
+  const editHeadImageInput = document.getElementById('editHeadImageInput');
+  const editGalleryImagesInput = document.getElementById('editGalleryImagesInput');
+  const editHeadImagePreview = document.getElementById('editHeadImagePreview');
+  const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+
   // Overlay and Confirm Modal
   const overlay = document.getElementById('adminOverlay');
   const confirmModal = document.getElementById('adminConfirmModal');
@@ -766,11 +956,18 @@ document.addEventListener('DOMContentLoaded', function () {
     panel.classList.remove('active');
     overlay.classList.remove('active');
     form.reset();
+    // Reset image inputs when actually closing the panel
+    if (form === editForm) {
+      resetEditImageInputs();
+    } else if (form === addForm) {
+      resetAddImageInputs();
+    }
     document.body.classList.remove('admin-popup-open');
     document.documentElement.classList.remove('admin-popup-open');
   }
   function askClosePanel(panel, form) {
     confirmModal.classList.add('active');
+    overlay.classList.add('active');
     pendingClosePanel = {panel, form};
   }
   function handleOverlayClick(e) {
@@ -796,6 +993,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   cancelCloseBtn.addEventListener('click', function () {
     confirmModal.classList.remove('active');
+    overlay.classList.remove('active');
     pendingClosePanel = null;
   });
 
@@ -807,9 +1005,112 @@ document.addEventListener('DOMContentLoaded', function () {
   populateSelect(editForm.elements['num_doors'], 2, 7);
   populateSelect(editForm.elements['num_passengers'], 2, 9);
 
-  // Add Car Submit
-  addForm.addEventListener('submit', async function (e) {
+  // Add Car form logic
+  let addUploading = false;
+  let addHeadImageFile = null;
+  let addGalleryImageFiles = [];
+  
+  // Get DOM elements for add form
+  const addHeadImageInput = document.getElementById('addHeadImageInput');
+  const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
+  const addHeadImagePreview = document.getElementById('addHeadImagePreview');
+  const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+  
+  function resetAddImageInputs() {
+    addHeadImageInput.value = '';
+    addGalleryImagesInput.value = '';
+    addHeadImagePreview.innerHTML = '';
+    addGalleryImagesPreview.innerHTML = '';
+    addHeadImageFile = null;
+    addGalleryImageFiles = [];
+    
+    // Reset button states
+    const headButtonArea = document.getElementById('addHeadImageButton').parentElement;
+    const galleryButtonArea = document.getElementById('addGalleryImagesButton').parentElement;
+    const headButton = document.getElementById('addHeadImageButton');
+    const galleryButton = document.getElementById('addGalleryImagesButton');
+    
+    headButtonArea.classList.remove('has-file');
+    headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+    
+    galleryButtonArea.classList.remove('has-file');
+    galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+  }
+  addHeadImageInput.addEventListener('change', function() {
+    addHeadImagePreview.innerHTML = '';
+    addHeadImageFile = this.files[0] || null;
+    const buttonArea = document.getElementById('addHeadImageButton').parentElement;
+    const button = document.getElementById('addHeadImageButton');
+    if (addHeadImageFile) {
+      const url = URL.createObjectURL(addHeadImageFile);
+      addHeadImagePreview.innerHTML = `<img src="${url}">`;
+      buttonArea.classList.add('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'Image Selected';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = addHeadImageFile.name;
+      }
+    } else {
+      buttonArea.classList.remove('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = 'Click to select image';
+      }
+    }
+  });
+  addGalleryImagesInput.addEventListener('change', function() {
+    let files = Array.from(this.files);
+    if (files.length + addGalleryImageFiles.length > 10) {
+      showAlert('You can only upload up to 10 gallery images.', 'error');
+      files = files.slice(0, 10 - addGalleryImageFiles.length);
+    }
+    addGalleryImageFiles = addGalleryImageFiles.concat(files).slice(0, 10);
+    const buttonArea = document.getElementById('addGalleryImagesButton').parentElement;
+    const button = document.getElementById('addGalleryImagesButton');
+    if (addGalleryImageFiles.length > 0) {
+      buttonArea.classList.add('has-file');
+      button.querySelector('.admin-upload-text').textContent = `${addGalleryImageFiles.length} Images Selected`;
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = `${addGalleryImageFiles.length} of 10 max`;
+      }
+    } else {
+      buttonArea.classList.remove('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = 'Click to select multiple images';
+      }
+    }
+    renderAddGalleryPreviews();
+  });
+  function renderAddGalleryPreviews() {
+    addGalleryImagesPreview.innerHTML = '';
+    addGalleryImageFiles.forEach((file, idx) => {
+      const url = URL.createObjectURL(file);
+      addGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${url}'><button type='button' class='admin-image-remove' data-idx='${idx}'>&times;</button></span>`;
+    });
+  }
+  addGalleryImagesPreview.addEventListener('click', function(e) {
+    if (e.target.classList.contains('admin-image-remove')) {
+      const idx = parseInt(e.target.getAttribute('data-idx'));
+      addGalleryImageFiles.splice(idx, 1);
+      renderAddGalleryPreviews();
+    }
+  });
+  // On Add Car submit, after car is created, upload images
+  addForm.onsubmit = async function(e) {
     e.preventDefault();
+    if (addUploading) return;
+    addUploading = true;
+    addFormSubmitBtn.disabled = true;
+    addFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
+    // Submit car details first
     const formData = new FormData(addForm);
     const price_policy = {
       '1-2': String(formData.get('price_1_2')),
@@ -839,8 +1140,20 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(data),
       });
       if (response.ok) {
+        const result = await response.json();
+        // Now upload images if any
+        if (addHeadImageFile || addGalleryImageFiles.length > 0) {
+          const imgForm = new FormData();
+          if (addHeadImageFile) imgForm.append('head_image', addHeadImageFile);
+          addGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
+          await fetch(`http://localhost:3001/api/cars/${result.id}/images`, {
+            method: 'POST',
+            body: imgForm
+          });
+        }
         showAlert('Car added successfully!', 'success');
         addForm.reset();
+        resetAddImageInputs();
         closePanel(addPanel, addForm);
         loadCars();
       } else {
@@ -849,7 +1162,213 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (err) {
       showAlert('Error saving car.', 'error');
     }
+    addUploading = false;
+    addFormSubmitBtn.disabled = false;
+    addFormSubmitBtn.innerHTML = 'Add Car';
+  };
+  // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
+
+  // --- Edit Car image logic ---
+  let editUploading = false;
+  function resetEditImageInputs() {
+    editHeadImageInput.value = '';
+    editGalleryImagesInput.value = '';
+    editHeadImagePreview.innerHTML = '';
+    editGalleryImagesPreview.innerHTML = '';
+    editHeadImageFile = null;
+    editGalleryImageFiles = [];
+    
+    // Reset button states
+    const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
+    const galleryButtonArea = document.getElementById('editGalleryImagesButton').parentElement;
+    const headButton = document.getElementById('editHeadImageButton');
+    const galleryButton = document.getElementById('editGalleryImagesButton');
+    
+    headButtonArea.classList.remove('has-file');
+    headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+    
+    galleryButtonArea.classList.remove('has-file');
+    galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+  }
+  function renderEditImagePreviews(car) {
+    // Head image
+    editHeadImagePreview.innerHTML = '';
+    const BASE_URL = 'http://localhost:3001';
+    if (car.head_image) {
+      let headImgSrc = car.head_image.startsWith('http') ? car.head_image : `${BASE_URL}${car.head_image}`;
+      editHeadImagePreview.innerHTML = `<img src='${headImgSrc}'>`;
+    }
+    // Gallery images
+    editGalleryImagesPreview.innerHTML = '';
+    // Fix: Ensure gallery_images is always an array
+    let galleryImages = [];
+    if (Array.isArray(car.gallery_images)) {
+      galleryImages = car.gallery_images;
+    } else if (typeof car.gallery_images === 'string' && car.gallery_images) {
+      try {
+        // Try to parse as JSON array
+        galleryImages = JSON.parse(car.gallery_images);
+        if (!Array.isArray(galleryImages)) {
+          galleryImages = [car.gallery_images];
+        }
+      } catch {
+        // Fallback: treat as single image string
+        galleryImages = [car.gallery_images];
+      }
+    }
+    galleryImages.forEach((img, idx) => {
+      let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
+      editGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${imgSrc}'><button type='button' class='admin-image-remove' data-img='${img}'>&times;</button></span>`;
+    });
+    // New uploads
+    editGalleryImageFiles.forEach((file, idx) => {
+      const url = URL.createObjectURL(file);
+      editGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${url}'><button type='button' class='admin-image-remove' data-idx='${idx}'>&times;</button></span>`;
+    });
+  }
+  editHeadImageInput.addEventListener('change', function() {
+    editHeadImagePreview.innerHTML = '';
+    editHeadImageFile = this.files[0] || null;
+    const buttonArea = document.getElementById('editHeadImageButton').parentElement;
+    const button = document.getElementById('editHeadImageButton');
+    if (editHeadImageFile) {
+      const url = URL.createObjectURL(editHeadImageFile);
+      editHeadImagePreview.innerHTML = `<img src="${url}">`;
+      buttonArea.classList.add('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'New Image Selected';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = editHeadImageFile.name;
+      }
+    } else {
+      buttonArea.classList.remove('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = 'Click to select image';
+      }
+    }
   });
+  editGalleryImagesInput.addEventListener('change', function() {
+    let files = Array.from(this.files);
+    const currentCount = editGalleryImagesPreview.querySelectorAll('img').length - editGalleryImageFiles.length;
+    if (files.length + currentCount > 10) {
+      showAlert('You can only upload up to 10 gallery images.', 'error');
+      files = files.slice(0, 10 - currentCount);
+    }
+    editGalleryImageFiles = editGalleryImageFiles.concat(files).slice(0, 10 - currentCount);
+    const buttonArea = document.getElementById('editGalleryImagesButton').parentElement;
+    const button = document.getElementById('editGalleryImagesButton');
+    if (editGalleryImageFiles.length > 0) {
+      buttonArea.classList.add('has-file');
+      button.querySelector('.admin-upload-text').textContent = `${editGalleryImageFiles.length} New Images Selected`;
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = `${editGalleryImageFiles.length} additional images`;
+      }
+    } else {
+      buttonArea.classList.remove('has-file');
+      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+      // Fix: Check if subtext element exists before setting it
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = 'Click to select multiple images';
+      }
+    }
+    renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
+  });
+  editGalleryImagesPreview.addEventListener('click', async function(e) {
+    if (e.target.classList.contains('admin-image-remove')) {
+      const img = e.target.getAttribute('data-img');
+      if (img) {
+        // Remove from server
+        const carId = editForm.getAttribute('data-id');
+        await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(img)}`, { method: 'DELETE' });
+        // Remove from preview
+        e.target.parentElement.remove();
+        loadCars();
+      } else if (e.target.hasAttribute('data-idx')) {
+        // Remove from new uploads
+        const idx = parseInt(e.target.getAttribute('data-idx'));
+        editGalleryImageFiles.splice(idx, 1);
+        renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
+      }
+    }
+  });
+  // On Edit Car submit, upload new images if any
+  editForm.onsubmit = async function(e) {
+    e.preventDefault();
+    if (editUploading) return;
+    editUploading = true;
+    editFormSubmitBtn.disabled = true;
+    editFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
+    // Submit car details first (as before)
+    const formData = new FormData(editForm);
+    const price_policy = {
+      '1-2': String(formData.get('price_1_2')),
+      '3-7': String(formData.get('price_3_7')),
+      '8-20': String(formData.get('price_8_20')),
+      '21-45': String(formData.get('price_21_45')),
+      '46+': String(formData.get('price_46')),
+    };
+    const data = {
+      make_name: formData.get('make_name'),
+      model_name: formData.get('model_name'),
+      production_year: formData.get('production_year'),
+      gear_type: formData.get('gear_type'),
+      fuel_type: formData.get('fuel_type'),
+      engine_capacity: formData.get('engine_capacity'),
+      car_type: formData.get('car_type'),
+      num_doors: formData.get('num_doors'),
+      num_passengers: formData.get('num_passengers'),
+      price_policy: price_policy,
+      booked: editBookedCheckbox.checked ? 1 : 0
+    };
+    try {
+      const id = editForm.getAttribute('data-id');
+      const response = await fetch(`http://localhost:3001/api/cars/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        // Now upload images if any
+        if (editHeadImageInput.files[0] || editGalleryImageFiles.length > 0) {
+          const imgForm = new FormData();
+          if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
+          editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
+          await fetch(`http://localhost:3001/api/cars/${id}/images`, {
+            method: 'POST',
+            body: imgForm
+          });
+        }
+        showAlert('Car updated successfully!', 'success');
+        editForm.reset();
+        resetEditImageInputs();
+        closePanel(editPanel, editForm);
+        loadCars();
+      } else {
+        showAlert('Failed to update car.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error saving car.', 'error');
+    }
+    editUploading = false;
+    editFormSubmitBtn.disabled = false;
+    editFormSubmitBtn.innerHTML = 'Confirm changes';
+  };
+  // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
+  // When opening edit form, render image previews
+  function openEditFormWithImages(car) {
+    renderEditImagePreviews(car);
+  }
+
+  // Duplicate form submission handler removed - using onsubmit handler above
 
   // Edit Car Submit
   editForm.addEventListener('submit', async function (e) {
@@ -885,6 +1404,16 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(data),
       });
       if (response.ok) {
+        // Now upload images if any
+        if (editHeadImageInput.files[0] || editGalleryImageFiles.length > 0) {
+          const imgForm = new FormData();
+          if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
+          editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
+          await fetch(`http://localhost:3001/api/cars/${id}/images`, {
+            method: 'POST',
+            body: imgForm
+          });
+        }
         showAlert('Car updated successfully!', 'success');
         editForm.reset();
         closePanel(editPanel, editForm);
@@ -913,6 +1442,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const card = document.createElement('div');
         card.className = 'col-md-6 col-lg-4';
         card.style.padding = '0';
+        
+        // Prepare head image HTML
+        const headImageHtml = car.head_image 
+          ? `<div class="mb-3">
+               <img src="http://localhost:3001/uploads/car-${car.id}/head.jpg" 
+                    alt="${car.make_name} ${car.model_name}" 
+                    style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;"
+                    onerror="this.style.display='none';">
+             </div>`
+          : '';
+        
         card.innerHTML = `
           <div class="card p-3 h-100 shadow-sm rounded-4">
             <div class="d-flex justify-content-start align-items-center mb-2" style="min-height:32px;">
@@ -920,6 +1460,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <i class="fa fa-pencil" style="font-size: 14px;"></i>
               </button>
             </div>
+            ${headImageHtml}
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h5 class="mb-0">${car.make_name} ${car.model_name} (${car.production_year})</h5>
               <span class="badge ${car.booked ? 'bg-danger' : 'bg-success'}">${car.booked ? 'Booked' : 'Available'}</span>
@@ -968,6 +1509,7 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['price_21_45'].value = car.price_policy['21-45'];
           editForm.elements['price_46'].value = car.price_policy['46+'];
           editBookedCheckbox.checked = !!car.booked;
+          openEditFormWithImages(car); // Call the new function
           addPanel.classList.remove('active');
           editPanel.classList.add('active');
           overlay.classList.add('active');

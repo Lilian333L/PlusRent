@@ -2,6 +2,9 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const axios = require('axios');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,6 +13,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // SQLite DB setup
 const db = new sqlite3.Database('./carrental.db', (err) => {
@@ -37,6 +43,29 @@ db.serialize(() => {
     booked INTEGER DEFAULT 0
   )`);
 });
+
+// Update cars table to include head_image and gallery_images if not present
+// (This is a safe migration for SQLite)
+db.serialize(() => {
+  db.run(`ALTER TABLE cars ADD COLUMN head_image TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN gallery_images TEXT`, () => {});
+});
+
+// Multer storage config for car images
+const carImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const carId = req.params.id;
+    const dir = path.join(__dirname, 'uploads', `car-${carId}`);
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const base = file.fieldname === 'head_image' ? 'head' : `gallery_${Date.now()}`;
+    cb(null, base + ext);
+  }
+});
+const upload = multer({ storage: carImageStorage });
 
 // Endpoint to add a new car
 app.post('/api/cars', async (req, res) => {
@@ -188,6 +217,62 @@ app.delete('/api/cars/:id', (req, res) => {
       return res.status(404).json({ error: 'Car not found' });
     }
     res.json({ success: true });
+  });
+});
+
+// Upload images for a car (head_image and gallery_images[])
+app.post('/api/cars/:id/images', upload.fields([
+  { name: 'head_image', maxCount: 1 },
+  { name: 'gallery_images', maxCount: 10 }
+]), (req, res) => {
+  const carId = req.params.id;
+  const headImage = req.files['head_image'] ? req.files['head_image'][0].filename : null;
+  const galleryImages = req.files['gallery_images'] ? req.files['gallery_images'].map(f => f.filename) : [];
+
+  // Update DB with new image filenames
+  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
+    if (err || !car) return res.status(404).json({ error: 'Car not found' });
+    let newHead = headImage ? `/uploads/car-${carId}/${headImage}` : car.head_image;
+    let newGallery = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    if (galleryImages.length > 0) {
+      newGallery = [...newGallery, ...galleryImages.map(f => `/uploads/car-${carId}/${f}`)].slice(0, 10);
+    }
+    db.run('UPDATE cars SET head_image=?, gallery_images=? WHERE id=?', [newHead, JSON.stringify(newGallery), carId], function (err2) {
+      if (err2) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, head_image: newHead, gallery_images: newGallery });
+    });
+  });
+});
+
+// Delete a specific image from a car
+app.delete('/api/cars/:id/images', (req, res) => {
+  const carId = req.params.id;
+  const imagePath = req.query.path;
+  
+  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
+    if (err || !car) return res.status(404).json({ error: 'Car not found' });
+    
+    let galleryImages = [];
+    try {
+      galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    } catch (e) {
+      galleryImages = [];
+    }
+    
+    // Remove the image from gallery_images array
+    const updatedGallery = galleryImages.filter(img => img !== imagePath);
+    
+    // Delete the actual file from filesystem
+    const fullPath = path.join(__dirname, imagePath);
+    fs.unlink(fullPath, (err) => {
+      if (err) console.log('Could not delete file:', err);
+    });
+    
+    // Update database
+    db.run('UPDATE cars SET gallery_images=? WHERE id=?', [JSON.stringify(updatedGallery), carId], function (err2) {
+      if (err2) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, gallery_images: updatedGallery });
+    });
   });
 });
 
