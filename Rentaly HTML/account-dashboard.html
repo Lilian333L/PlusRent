@@ -6,7 +6,7 @@
     <link rel="icon" href="images/icon.png" type="image/gif" sizes="16x16">
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Rentaly - Multipurpose Vehicle Car Rental Website Template" name="description">
+    <meta content="PlusRent - Multipurpose Vehicle Car Rental Website Template" name="description">
     <meta content="" name="keywords">
     <meta content="" name="author">
     <!-- CSS Files
@@ -61,15 +61,15 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) scale(0.98);
-    width: 70%;
-    max-width: 98vw;
+    width: 50%;
+    max-width: 90vw;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    padding: 2rem 2.5rem 2rem 2.5rem;
+    padding: 1.4rem 1.8rem 1.4rem 1.8rem;
     transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
     opacity: 0;
-    z-index: 1001;
+    z-index: 10000;
   }
   .admin-form-panel.active {
     display: block;
@@ -120,7 +120,13 @@
   .admin-form-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+    gap: 12px;
+  }
+  .admin-form-grid .five-column-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
   }
   .admin-form-grid > div {
     min-width: 0;
@@ -128,14 +134,43 @@
   .admin-form-panel input,
   .admin-form-panel select {
     background: #fff !important;
-    height: 44px;
+    height: 36px !important;
     border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 1rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
     width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
   }
   .admin-form-panel input[type="number"] {
-    height: 44px;
+    height: 36px !important;
+  }
+  .admin-form-panel .form-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 0 !important;
+    color: #333;
+  }
+  .admin-form-panel .form-text,
+  .admin-form-panel small.form-text {
+    font-size: 0.75rem !important;
+    color: #666 !important;
+    line-height: 1.2 !important;
+    margin-top: 2px !important;
+    margin-bottom: 0 !important;
+    display: block !important;
+  }
+  .admin-form-panel .form-control {
+    height: 36px !important;
+    font-size: 0.75rem;
+    padding: 0 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  .admin-form-panel input[type="date"] {
+    height: 36px !important;
+    font-size: 0.75rem;
+    padding: 0 8px;
   }
   .admin-form-panel input:focus,
   .admin-form-panel select:focus {
@@ -153,7 +188,7 @@
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(30, 30, 30, 0.65);
-    z-index: 1000;
+    z-index: 9999;
     transition: opacity 0.3s;
   }
   .admin-overlay.active {
@@ -169,7 +204,7 @@
     border-radius: 10px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
     padding: 1.2rem 1.5rem;
-    z-index: 1200;
+    z-index: 10001;
     min-width: 320px;
     max-width: 400px;
     text-align: center;
@@ -255,6 +290,29 @@
       grid-template-columns: 1fr;
     }
   }
+  
+  /* Override MDB button text-transform to use normal case */
+  .btn {
+    text-transform: none !important;
+  }
+  
+  /* Prevent body scroll when modal is open */
+  body.modal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  
+  html.modal-open {
+    overflow: hidden !important;
+  }
+  
+  /* Prevent scrolling on modal overlay */
+  .admin-overlay {
+    overflow: hidden !important;
+  }
 </style>
 
 <!-- Custom green for success alert and Booked checkbox styles -->
@@ -303,6 +361,8 @@
   align-items: center;
   justify-content: center;
   z-index: 2;
+  padding-bottom: 4px;
+  padding-left: 6px;
 }
 /* Add spinner style */
 .admin-spinner {
@@ -328,28 +388,31 @@
   justify-content: flex-start;
   width: 100%;
   margin-bottom: 10px;
-  cursor: pointer;
 }
 
-.admin-upload-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 200px;
-  height: 60px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  background: #f9f9f9;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: #666;
-  font-size: 12px;
-  pointer-events: none;
-  padding-top: 8px;
-}
+  .admin-upload-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 48px;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    background: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-size: 12px;
+    pointer-events: auto;
+    padding: 8px;
+    position: relative;
+    z-index: 1;
+    gap: 6px;
+    white-space: nowrap;
+  }
 
-.admin-upload-area:hover .admin-upload-button {
+.admin-upload-button:hover {
   border-color: #031B4E;
   background: #f0f4ff;
   color: #031B4E;
@@ -362,13 +425,17 @@
 }
 
 .admin-upload-icon {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+  display: block;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 3px;
 }
 
 .admin-upload-text {
@@ -383,13 +450,13 @@
 
 .admin-upload-input {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100% !important;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
   opacity: 0;
-  cursor: pointer;
-  z-index: 1;
+  z-index: -1;
+  pointer-events: none;
 }
 </style>
 </head>
@@ -408,7 +475,7 @@
                     <div class="topbar-left xs-hide">
                         <div class="topbar-widget">
                             <div class="topbar-widget"><a href="#"><i class="fa fa-phone"></i>+208 333 9296</a></div>
-                            <div class="topbar-widget"><a href="#"><i class="fa fa-envelope"></i>contact@rentaly.com</a></div>
+                            <div class="topbar-widget"><a href="#"><i class="fa fa-envelope"></i>contact@plusrent.com</a></div>
                             <div class="topbar-widget"><a href="#"><i class="fa fa-clock-o"></i>Mon - Fri 08.00 - 18.00</a></div>
                         </div>
                     </div>
@@ -462,7 +529,7 @@
                                         <div id="de-submenu-profile" class="de-submenu">
                                             <div class="d-name">
                                                 <h4>Monica Lucas</h4>
-                                                <span class="text-gray">monica@rentaly.com</span>
+                                                <span class="text-gray">monica@plusrent.com</span>
                                             </div>
 
                                             <div class="d-line"></div>
@@ -519,14 +586,14 @@
                     <div id="addCarPanel" class="admin-form-panel">
                       <button class="close-btn" id="closeAddCarPanel">&times;</button>
                       <form id="carForm" class="form-border" autocomplete="off">
-                        <h3 id="formTitle" class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Add Car</h3>
-                        <div class="admin-form-grid">
-                          <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 8px; gap: 24px;">
+                                                <h3 id="formTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Add Car</h3>
+                          <div class="admin-form-grid">
+                            <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
                             <div style="flex: 1;">
                               <label class="form-label">Head Image</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="addHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="17,8 12,3 7,8"></polyline>
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -541,7 +608,7 @@
                               <label class="form-label">Gallery Images (max 10)</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="addGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="17,8 12,3 7,8"></polyline>
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -572,7 +639,7 @@
                               <option value="Mecanică">Mecanică</option>
                             </select>
                           </div>
-                          <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;">
+                          <div class="five-column-grid">
                             <div>
                               <label class="form-label">Fuel Type</label>
                               <select name="fuel_type" class="form-control" required>
@@ -604,8 +671,8 @@
                             </div>
                           </div>
                         </div>
-                        <fieldset class="mb-4 p-3 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1.1rem; color: #031B4E;">Price Policy</legend>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
                           <div class="row g-2">
                             <div class="col-12 col-md-6 col-xl-2 mb-2">
                               <label class="form-label">1-2 days</label>
@@ -629,6 +696,11 @@
                             </div>
                           </div>
                         </fieldset>
+                        <div class="mb-3" style="max-width: 300px;">
+                          <label class="form-label">Booked Until (optional)</label>
+                          <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
+                          <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
+                        </div>
                         <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
                       </form>
                     </div>
@@ -636,17 +708,17 @@
                     <div id="editCarPanel" class="admin-form-panel">
                       <button class="close-btn" id="closeEditCarPanel">&times;</button>
                       <button id="deleteCarBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
-                        <i class="fa fa-trash"></i> Delete
+                        <i class="fa fa-trash"></i> Delete Car
                       </button>
                       <form id="editCarForm" class="form-border" autocomplete="off">
-                        <h3 class="mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Edit Car</h3>
-                        <div class="admin-form-grid">
-                          <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 8px; gap: 24px;">
+                                                <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Car</h3>
+                          <div class="admin-form-grid">
+                            <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
                             <div style="flex: 1;">
                               <label class="form-label">Head Image</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="editHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="17,8 12,3 7,8"></polyline>
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -661,7 +733,7 @@
                               <label class="form-label">Gallery Images (max 10)</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="editGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24">
+                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="17,8 12,3 7,8"></polyline>
                                     <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -673,9 +745,10 @@
                               <div id="editGalleryImagesPreview"></div>
                             </div>
                           </div>
-                          <div style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 8px;">
-                            <input type="checkbox" id="editBookedCheckbox" name="booked" style="margin-right: 8px; width: 20px; height: 20px;">
-                            <label for="editBookedCheckbox">Booked</label>
+                          <div style="grid-column: 1 / -1; margin-bottom: 8px; max-width: 300px;">
+                            <label class="form-label">Booked Until (optional)</label>
+                            <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
+                            <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
                           </div>
                           <div>
                             <label class="form-label">Make Name</label>
@@ -696,7 +769,7 @@
                               <option value="Mecanică">Mecanică</option>
                             </select>
                           </div>
-                          <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;">
+                          <div class="five-column-grid">
                             <div>
                               <label class="form-label">Fuel Type</label>
                               <select name="fuel_type" class="form-control" required>
@@ -728,8 +801,8 @@
                             </div>
                           </div>
                         </div>
-                        <fieldset class="mb-4 p-3 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1.1rem; color: #031B4E;">Price Policy</legend>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
                           <div class="row g-2">
                             <div class="col-12 col-md-6 col-xl-2 mb-2">
                               <label class="form-label">1-2 days</label>
@@ -760,7 +833,7 @@
                     <div id="adminConfirmModal" class="admin-confirm-modal">
                       <h4>Are you sure you want to close this form? All unsaved data will be lost.</h4>
                       <div class="mt-4 d-flex justify-content-center gap-3">
-                        <button id="confirmCloseBtn" class="btn btn-danger">Yes, close</button>
+                        <button id="confirmCloseBtn" class="btn btn-danger">Close</button>
                         <button id="cancelCloseBtn" class="btn btn-main">Cancel</button>
                       </div>
                     </div>
@@ -768,7 +841,7 @@
                     <div id="deleteConfirmModal" class="admin-confirm-modal">
                       <h4>Are you sure you want to delete this car?</h4>
                       <div class="mt-4 d-flex justify-content-center gap-3">
-                        <button id="confirmDeleteBtn" class="btn btn-danger">Yes, delete</button>
+                        <button id="confirmDeleteBtn" class="btn btn-danger">Yes Delete</button>
                         <button id="cancelDeleteBtn" class="btn btn-main">Cancel</button>
                       </div>
                     </div>
@@ -790,7 +863,7 @@
                 <div class="row g-custom-x">
                     <div class="col-lg-3">
                         <div class="widget">
-                            <h5>About Rentaly</h5>
+                            <h5>About PlusRent</h5>
                             <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs. That's why we have meticulously crafted our offerings to provide you with top-notch vehicles at minimum expense.</p>
                         </div>
                     </div>
@@ -845,7 +918,7 @@
                             <div class="de-flex">
                                 <div class="de-flex-col">
                                     <a href="index.html">
-                                        Copyright 2025 - Rentaly by Designesia
+                                        Copyright 2025 - PlusRent by Designesia
                                     </a>
                                 </div>
                                 <ul class="menu-simple">
@@ -896,6 +969,56 @@ function populateSelect(select, from, to, desc = false) {
   }
 }
 
+// Body scroll lock functions
+let scrollPosition = 0;
+
+function preventScroll(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+}
+
+function preventKeyScroll(e) {
+  // Prevent arrow keys, page up/down, home/end from scrolling
+  if ([32, 33, 34, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) {
+    e.preventDefault();
+  }
+}
+
+function lockBodyScroll() {
+  // Store current scroll position
+  scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+  
+  // Set the body top position to maintain scroll position BEFORE adding the class
+  document.body.style.top = `-${scrollPosition}px`;
+  
+  // Apply scroll lock
+  document.body.classList.add('modal-open');
+  document.documentElement.classList.add('modal-open');
+  
+  // Add event listeners to prevent scrolling
+  document.addEventListener('wheel', preventScroll, { passive: false });
+  document.addEventListener('touchmove', preventScroll, { passive: false });
+  document.addEventListener('keydown', preventKeyScroll);
+}
+
+function unlockBodyScroll() {
+  // Remove scroll lock
+  document.body.classList.remove('modal-open');
+  document.documentElement.classList.remove('modal-open');
+  
+  // Reset body top position
+  document.body.style.top = '';
+  
+  // Remove event listeners
+  document.removeEventListener('wheel', preventScroll);
+  document.removeEventListener('touchmove', preventScroll);
+  document.removeEventListener('keydown', preventKeyScroll);
+  
+  // Restore scroll position
+  window.scrollTo(0, scrollPosition);
+}
+
 function showAlert(message, type = 'success') {
   const alertDiv = document.getElementById('adminCustomAlert');
   alertDiv.textContent = message;
@@ -924,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const closeEditBtn = document.getElementById('closeEditCarPanel');
   const editForm = document.getElementById('editCarForm');
   const editFormSubmitBtn = document.getElementById('editFormSubmitBtn');
-  const editBookedCheckbox = document.getElementById('editBookedCheckbox');
+  
 
   // Fix: Declare edit image file variables in the correct scope
   let editHeadImageFile = null;
@@ -951,6 +1074,24 @@ document.addEventListener('DOMContentLoaded', function () {
     addForm.reset();
     document.body.classList.add('admin-popup-open');
     document.documentElement.classList.add('admin-popup-open');
+    lockBodyScroll();
+  });
+
+  // Upload button click handlers
+  document.getElementById('addHeadImageButton').addEventListener('click', function() {
+    document.getElementById('addHeadImageInput').click();
+  });
+  
+  document.getElementById('addGalleryImagesButton').addEventListener('click', function() {
+    document.getElementById('addGalleryImagesInput').click();
+  });
+  
+  document.getElementById('editHeadImageButton').addEventListener('click', function() {
+    document.getElementById('editHeadImageInput').click();
+  });
+  
+  document.getElementById('editGalleryImagesButton').addEventListener('click', function() {
+    document.getElementById('editGalleryImagesInput').click();
   });
   function closePanel(panel, form) {
     panel.classList.remove('active');
@@ -964,6 +1105,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     document.body.classList.remove('admin-popup-open');
     document.documentElement.classList.remove('admin-popup-open');
+    unlockBodyScroll();
   }
   function askClosePanel(panel, form) {
     confirmModal.classList.add('active');
@@ -993,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   cancelCloseBtn.addEventListener('click', function () {
     confirmModal.classList.remove('active');
-    overlay.classList.remove('active');
+    // Keep overlay active since the main modal is still open
     pendingClosePanel = null;
   });
 
@@ -1129,7 +1271,8 @@ document.addEventListener('DOMContentLoaded', function () {
       car_type: formData.get('car_type'),
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
-      price_policy: price_policy
+      price_policy: price_policy,
+      booked_until: formData.get('booked_until') || null
     };
     try {
       const response = await fetch('http://localhost:3001/api/cars', {
@@ -1164,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     addUploading = false;
     addFormSubmitBtn.disabled = false;
-    addFormSubmitBtn.innerHTML = 'Add Car';
+                            addFormSubmitBtn.innerHTML = 'Add Car';
   };
   // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
 
@@ -1325,7 +1468,7 @@ document.addEventListener('DOMContentLoaded', function () {
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
       price_policy: price_policy,
-      booked: editBookedCheckbox.checked ? 1 : 0
+      booked_until: formData.get('booked_until') || null
     };
     try {
       const id = editForm.getAttribute('data-id');
@@ -1370,61 +1513,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Duplicate form submission handler removed - using onsubmit handler above
 
-  // Edit Car Submit
-  editForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const formData = new FormData(editForm);
-    const price_policy = {
-      '1-2': String(formData.get('price_1_2')),
-      '3-7': String(formData.get('price_3_7')),
-      '8-20': String(formData.get('price_8_20')),
-      '21-45': String(formData.get('price_21_45')),
-      '46+': String(formData.get('price_46')),
-    };
-    const data = {
-      make_name: formData.get('make_name'),
-      model_name: formData.get('model_name'),
-      production_year: formData.get('production_year'),
-      gear_type: formData.get('gear_type'),
-      fuel_type: formData.get('fuel_type'),
-      engine_capacity: formData.get('engine_capacity'),
-      car_type: formData.get('car_type'),
-      num_doors: formData.get('num_doors'),
-      num_passengers: formData.get('num_passengers'),
-      price_policy: price_policy,
-      booked: editBookedCheckbox.checked ? 1 : 0
-    };
-    try {
-      const id = editForm.getAttribute('data-id');
-      const response = await fetch(`http://localhost:3001/api/cars/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        // Now upload images if any
-        if (editHeadImageInput.files[0] || editGalleryImageFiles.length > 0) {
-          const imgForm = new FormData();
-          if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
-          editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
-          await fetch(`http://localhost:3001/api/cars/${id}/images`, {
-            method: 'POST',
-            body: imgForm
-          });
-        }
-        showAlert('Car updated successfully!', 'success');
-        editForm.reset();
-        closePanel(editPanel, editForm);
-        loadCars();
-      } else {
-        showAlert('Failed to update car.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error saving car.', 'error');
-    }
-  });
+
 
   // Load and display cars as cards
   async function loadCars() {
@@ -1453,17 +1542,34 @@ document.addEventListener('DOMContentLoaded', function () {
              </div>`
           : '';
         
+        // Prepare status badge text and color
+        let badgeText = 'Available';
+        let badgeClass = 'bg-success';
+        
+        if (car.booked && car.booked_until) {
+          const bookedUntilDate = new Date(car.booked_until);
+          const formattedDate = bookedUntilDate.toLocaleDateString('en-GB', { 
+            day: 'numeric', 
+            month: 'short' 
+          });
+          badgeText = `Booked until ${formattedDate}`;
+          badgeClass = 'bg-danger';
+        } else if (car.booked) {
+          badgeText = 'Booked';
+          badgeClass = 'bg-danger';
+        }
+        
         card.innerHTML = `
-          <div class="card p-3 h-100 shadow-sm rounded-4">
+          <div class="card p-3 h-100 shadow-sm rounded-4" style="position: relative;">
+            <span class="badge ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">${badgeText}</span>
             <div class="d-flex justify-content-start align-items-center mb-2" style="min-height:32px;">
               <button class="btn btn-sm btn-edit-icon editCarBtn" data-id="${car.id}" title="Edit" style="background: none; border: 1px solid gray; padding: 3px 6px; margin-right: 8px; color: gray; box-shadow: none;">
                 <i class="fa fa-pencil" style="font-size: 14px;"></i>
               </button>
             </div>
             ${headImageHtml}
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="mb-2">
               <h5 class="mb-0">${car.make_name} ${car.model_name} (${car.production_year})</h5>
-              <span class="badge ${car.booked ? 'bg-danger' : 'bg-success'}">${car.booked ? 'Booked' : 'Available'}</span>
             </div>
             <ul class="list-unstyled mb-2">
               <li><b>Gear:</b> ${car.gear_type}</li>
@@ -1508,11 +1614,12 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['price_8_20'].value = car.price_policy['8-20'];
           editForm.elements['price_21_45'].value = car.price_policy['21-45'];
           editForm.elements['price_46'].value = car.price_policy['46+'];
-          editBookedCheckbox.checked = !!car.booked;
+          editForm.elements['booked_until'].value = car.booked_until || '';
           openEditFormWithImages(car); // Call the new function
           addPanel.classList.remove('active');
           editPanel.classList.add('active');
           overlay.classList.add('active');
+          lockBodyScroll();
         });
       });
     } catch (err) {

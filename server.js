@@ -40,7 +40,8 @@ db.serialize(() => {
     num_doors INTEGER,
     num_passengers INTEGER,
     price_policy TEXT,
-    booked INTEGER DEFAULT 0
+    booked INTEGER DEFAULT 0,
+    booked_until TEXT
   )`);
 });
 
@@ -49,6 +50,7 @@ db.serialize(() => {
 db.serialize(() => {
   db.run(`ALTER TABLE cars ADD COLUMN head_image TEXT`, () => {});
   db.run(`ALTER TABLE cars ADD COLUMN gallery_images TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN booked_until TEXT`, () => {});
 });
 
 // Multer storage config for car images
@@ -79,7 +81,8 @@ app.post('/api/cars', async (req, res) => {
     car_type,
     num_doors,
     num_passengers,
-    price_policy
+    price_policy,
+    booked_until
   } = req.body;
 
   if (
@@ -105,8 +108,8 @@ app.post('/api/cars', async (req, res) => {
 
   // Store in DB, booked defaults to 0
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)` ,
     [
       make_name,
       model_name,
@@ -117,7 +120,8 @@ app.post('/api/cars', async (req, res) => {
       car_type,
       num_doors,
       num_passengers,
-      JSON.stringify(pricePolicyStringified)
+      JSON.stringify(pricePolicyStringified),
+      booked_until || null
     ],
     function (err) {
       if (err) {
@@ -134,11 +138,33 @@ app.get('/api/cars', (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
-    // Parse price_policy JSON for each car
-    const cars = rows.map(car => ({
-      ...car,
-      price_policy: car.price_policy ? JSON.parse(car.price_policy) : {}
-    }));
+    // Parse price_policy JSON for each car and check availability
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
+    
+    const cars = rows.map(car => {
+      let isAvailable = true;
+      let bookedUntilDate = null;
+      
+      // Check if car has a booked_until date
+      if (car.booked_until) {
+        bookedUntilDate = new Date(car.booked_until);
+        bookedUntilDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
+        
+        // If current date is before or equal to booked_until date, car is not available
+        if (currentDate <= bookedUntilDate) {
+          isAvailable = false;
+        }
+      }
+      
+      return {
+        ...car,
+        price_policy: car.price_policy ? JSON.parse(car.price_policy) : {},
+        booked: isAvailable ? 0 : 1, // Override booked status based on date check
+        booked_until: car.booked_until,
+        is_available: isAvailable
+      };
+    });
     res.json(cars);
   });
 });
@@ -157,7 +183,8 @@ app.put('/api/cars/:id', (req, res) => {
     num_doors,
     num_passengers,
     price_policy,
-    booked
+    booked,
+    booked_until
   } = req.body;
 
   if (
@@ -170,8 +197,7 @@ app.put('/api/cars/:id', (req, res) => {
     !car_type ||
     !num_doors ||
     !num_passengers ||
-    !price_policy ||
-    typeof booked === 'undefined'
+    !price_policy
   ) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -181,8 +207,22 @@ app.put('/api/cars/:id', (req, res) => {
     pricePolicyStringified[key] = String(price_policy[key]);
   }
 
+  // Calculate booked status based on booked_until date
+  let bookedStatus = 0;
+  if (booked_until) {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const bookedUntilDate = new Date(booked_until);
+    bookedUntilDate.setHours(0, 0, 0, 0);
+    
+    // If current date is before or equal to booked_until date, car is booked
+    if (currentDate <= bookedUntilDate) {
+      bookedStatus = 1;
+    }
+  }
+
   db.run(
-    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=? WHERE id=?`,
+    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=? WHERE id=?`,
     [
       make_name,
       model_name,
@@ -194,7 +234,8 @@ app.put('/api/cars/:id', (req, res) => {
       num_doors,
       num_passengers,
       JSON.stringify(pricePolicyStringified),
-      booked ? 1 : 0,
+      bookedStatus,
+      booked_until || null,
       id
     ],
     function (err) {
