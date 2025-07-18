@@ -61,8 +61,11 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) scale(0.98);
-    width: 50%;
-    max-width: 90vw;
+    width: 90%;
+    max-width: 1200px;
+    min-width: 320px;
+    max-height: 90vh;
+    overflow-y: auto;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.18);
@@ -119,13 +122,13 @@
   }
   .admin-form-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
   }
   .admin-form-grid .five-column-grid {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 12px;
   }
   .admin-form-grid > div {
@@ -274,20 +277,50 @@
   }
   @media (max-width: 900px) {
     .admin-form-panel {
-      width: 98vw;
-      padding: 1.2rem 0.5rem;
+      width: 95vw;
+      padding: 1.2rem 1rem;
+      max-height: 95vh;
     }
     .admin-form-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+    .admin-form-grid .five-column-grid {
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
   }
   @media (max-width: 600px) {
     .admin-form-panel {
-      width: 100vw;
-      padding: 0.5rem 0.2rem;
+      width: 98vw;
+      padding: 1rem 0.8rem;
+      max-height: 98vh;
     }
     .admin-form-grid {
       grid-template-columns: 1fr;
+    }
+    .admin-form-grid .five-column-grid {
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+  }
+  @media (max-width: 480px) {
+    .admin-form-panel {
+      width: 100vw;
+      padding: 0.8rem 0.6rem;
+      max-height: 100vh;
+      border-radius: 0;
+    }
+    .admin-form-grid {
+      grid-template-columns: 1fr;
+    }
+    .admin-form-grid .five-column-grid {
+      grid-template-columns: 1fr;
+    }
+    /* Stack image upload sections vertically on mobile */
+    .admin-form-grid > div[style*="display: flex"] {
+      flex-direction: column !important;
+    }
+    .admin-form-grid > div[style*="display: flex"] > div {
+      width: 100% !important;
+      margin-bottom: 16px;
     }
   }
   
@@ -461,6 +494,20 @@
   border: 1.5px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+
+@media (max-width: 600px) {
+  .admin-image-preview img {
+    width: 120px;
+    height: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-image-preview img {
+    width: 100px;
+    height: 90px;
+  }
+}
 .admin-image-remove {
   position: absolute;
   top: -8px;
@@ -511,7 +558,8 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 180px;
+    width: 100%;
+    max-width: 180px;
     height: 48px;
     border: 2px dashed #ccc;
     border-radius: 6px;
@@ -717,7 +765,7 @@
                 <h3 class="admin-header mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Manage Cars</h3>
                 <div class="admin-flex-row">
                   <div class="admin-btn-col">
-                    <button id="showAddCarBtn" class="btn btn-main btn-lg">Add a Car</button>
+                    <button id="showAddCarBtn" type="button" class="btn btn-main btn-lg">Add a Car</button>
                   </div>
                   <div class="admin-form-col">
                     <!-- Overlay -->
@@ -775,15 +823,15 @@
                           <div>
                             <label class="form-label">Gear Type</label>
                             <select name="gear_type" class="form-control" required>
-                              <option value="Automat">Automat</option>
-                              <option value="Mecanică">Mecanică</option>
+                              <option value="Automatic">Automatic</option>
+                              <option value="Manual">Manual</option>
                             </select>
                           </div>
                           <div class="five-column-grid">
                             <div>
                               <label class="form-label">Fuel Type</label>
                               <select name="fuel_type" class="form-control" required>
-                                <option value="Benzină">Benzină</option>
+                                <option value="Gasoline">Gasoline</option>
                                 <option value="Diesel">Diesel</option>
                                 <option value="Hybrid">Hybrid</option>
                                 <option value="Electric">Electric</option>
@@ -791,7 +839,7 @@
                             </div>
                             <div>
                               <label class="form-label">Engine Capacity</label>
-                              <input type="number" name="engine_capacity" class="form-control" required>
+                              <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
                             </div>
                             <div>
                               <label class="form-label">Car Type</label>
@@ -905,15 +953,15 @@
                           <div>
                             <label class="form-label">Gear Type</label>
                             <select name="gear_type" class="form-control" required>
-                              <option value="Automat">Automat</option>
-                              <option value="Mecanică">Mecanică</option>
+                              <option value="Automatic">Automatic</option>
+                              <option value="Manual">Manual</option>
                             </select>
                           </div>
                           <div class="five-column-grid">
                             <div>
                               <label class="form-label">Fuel Type</label>
                               <select name="fuel_type" class="form-control" required>
-                                <option value="Benzină">Benzină</option>
+                                <option value="Gasoline">Gasoline</option>
                                 <option value="Diesel">Diesel</option>
                                 <option value="Hybrid">Hybrid</option>
                                 <option value="Electric">Electric</option>
@@ -921,7 +969,7 @@
                             </div>
                             <div>
                               <label class="form-label">Engine Capacity</label>
-                              <input type="number" name="engine_capacity" class="form-control" required>
+                              <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
                             </div>
                             <div>
                               <label class="form-label">Car Type</label>
@@ -1076,7 +1124,7 @@
     </div>
 
     <!-- Custom Alert -->
-    <div id="adminCustomAlert" style="display:none;position:fixed;top:32px;left:50%;transform:translateX(-50%);z-index:2000;min-width:320px;max-width:90vw;padding:16px 32px;border-radius:8px;font-size:1.1rem;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.12);background:#031B4E;color:#fff;text-align:center;transition:opacity 0.3s;opacity:0;"></div>
+    <div id="adminCustomAlert" style="display:none;position:fixed;top:32px;left:50%;transform:translateX(-50%);z-index:10002;min-width:320px;max-width:90vw;padding:16px 32px;border-radius:8px;font-size:1.1rem;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.12);background:#031B4E;color:#fff;text-align:center;transition:opacity 0.3s;opacity:0;"></div>
 
 
     <!-- Javascript Files
@@ -1126,7 +1174,12 @@ function preventScroll(e) {
 
 function preventKeyScroll(e) {
   // Prevent arrow keys, page up/down, home/end from scrolling
+  // But allow navigation keys when typing in input fields
   if ([32, 33, 34, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) {
+    // Allow spacebar and arrow keys in input fields, textareas, and other form elements
+    if ((e.keyCode === 32 || e.keyCode === 37 || e.keyCode === 39) && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true')) {
+      return; // Don't prevent default for spacebar and left/right arrows in input fields
+    }
     e.preventDefault();
   }
 }
@@ -1283,7 +1336,7 @@ function createCarousel(containerId, images, isEdit = false, preservePosition = 
       let translateX;
       if (finalPosition === newMaxIndex && images.length > imagesPerView) {
         const halfImageWidth = imageWidth * 0.5;
-        const reducedSpace = halfImageWidth * 0.55;
+        const reducedSpace = halfImageWidth;
         translateX = -(images.length - imagesPerView) * imageWidth - reducedSpace;
       } else {
         translateX = -finalPosition * imageWidth;
@@ -1444,21 +1497,31 @@ async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
     return;
   }
   
+
+  
   // Handle edit mode - remove from server if it's an existing image
   if (isEdit && containerId === 'editGalleryImagesPreview') {
     if (imageToRemove.isExisting) {
-      // Remove from server
+      // Remove from server with proper type parameter
       const editForm = document.getElementById('editCarForm');
       const carId = editForm.getAttribute('data-id');
       try {
-        await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}`, { method: 'DELETE' });
-        // Remove from currentGalleryImages array
-        const imageIndex = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
-        if (imageIndex !== -1) {
-          currentGalleryImages.splice(imageIndex, 1);
+        const response = await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}&type=gallery`, { method: 'DELETE' });
+        if (response.ok) {
+          // Remove from currentGalleryImages array
+          const imageIndex = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
+          if (imageIndex !== -1) {
+            currentGalleryImages.splice(imageIndex, 1);
+          }
+          showAlert('Image deleted successfully!', 'success');
+        } else {
+          showAlert('Failed to delete image from server.', 'error');
+          return;
         }
       } catch (error) {
         console.error('Error removing image from server:', error);
+        showAlert('Error deleting image.', 'error');
+        return;
       }
     } else {
       // Remove from new uploads array
@@ -1469,6 +1532,28 @@ async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
           img.fileIndex--;
         }
       });
+    }
+  } else if (isEdit && containerId === 'editHeadImagePreview') {
+    if (imageToRemove.isExisting) {
+      // Remove head image from server
+      const editForm = document.getElementById('editCarForm');
+      const carId = editForm.getAttribute('data-id');
+      try {
+        const response = await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}&type=head`, { method: 'DELETE' });
+        if (response.ok) {
+          showAlert('Head image deleted successfully!', 'success');
+        } else {
+          showAlert('Failed to delete head image from server.', 'error');
+          return;
+        }
+      } catch (error) {
+        console.error('Error removing head image from server:', error);
+        showAlert('Error deleting head image.', 'error');
+        return;
+      }
+    } else {
+      // Remove from new uploads
+      editHeadImageFile = null;
     }
   } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
     // Remove from add files array
@@ -1482,6 +1567,9 @@ async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
       addGalleryImageFiles.splice(imageIndex, 1);
       console.log('New array length:', addGalleryImageFiles.length);
     }
+  } else if (!isEdit && containerId === 'addHeadImagePreview') {
+    // Remove from add head image
+    addHeadImageFile = null;
   }
   
   // Remove from state
@@ -1530,37 +1618,65 @@ async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
   if (state.currentIndex < 0) state.currentIndex = 0;
   if (state.currentIndex > state.maxIndex) state.currentIndex = state.maxIndex;
   
-  // Recreate carousel with updated data
-  if (state.totalImages > 0) {
-    // For edit mode, rebuild the images array from current data
-    if (isEdit && containerId === 'editGalleryImagesPreview') {
-      const BASE_URL = 'http://localhost:3001';
-      const allImages = [];
-      
-      // Add new uploads first (so they appear at the beginning)
-      editGalleryImageFiles.forEach((file, idx) => {
-        const url = URL.createObjectURL(file);
-        allImages.push({ src: url, isExisting: false, fileIndex: idx });
-      });
-      
-      // Add existing images after new uploads
-      currentGalleryImages.forEach((img, idx) => {
-        let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
-        allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
-      });
-      
-      createCarousel(containerId, allImages, isEdit, true);
-    } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
-      // For add mode, use the global addGalleryImageFiles
-      console.log('Recreating carousel with', addGalleryImageFiles.length, 'files');
-      const images = addGalleryImageFiles.map((file, idx) => ({
-        src: URL.createObjectURL(file),
-        fileIndex: idx
-      }));
-      createCarousel(containerId, images, isEdit, true);
-    } else {
-      createCarousel(containerId, state.images, isEdit, true);
-    }
+      // Recreate carousel with updated data
+    if (state.totalImages > 0) {
+      // For edit mode, rebuild the images array from current data
+      if (isEdit && containerId === 'editGalleryImagesPreview') {
+        const BASE_URL = 'http://localhost:3001';
+        const allImages = [];
+        
+        // Add new uploads first (so they appear at the beginning)
+        editGalleryImageFiles.forEach((file, idx) => {
+          const url = URL.createObjectURL(file);
+          allImages.push({ src: url, isExisting: false, fileIndex: idx });
+        });
+        
+        // Add existing images after new uploads
+        currentGalleryImages.forEach((img, idx) => {
+          let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
+          allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
+        });
+        
+        createCarousel(containerId, allImages, isEdit, true);
+      } else if (isEdit && containerId === 'editHeadImagePreview') {
+        // For head image, clear the preview and reset button state
+        document.getElementById(containerId).innerHTML = '';
+        const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
+        const headButton = document.getElementById('editHeadImageButton');
+        headButtonArea.classList.remove('has-file');
+        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+        const subtext = headButton.querySelector('.admin-upload-subtext');
+        if (subtext) {
+          subtext.textContent = 'Click to select image';
+        }
+        editHeadImageFile = null;
+        delete window.carouselStates[containerId];
+        return;
+      } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
+        // For add mode, use the global addGalleryImageFiles
+        console.log('Recreating carousel with', addGalleryImageFiles.length, 'files');
+        const images = addGalleryImageFiles.map((file, idx) => ({
+          src: URL.createObjectURL(file),
+          fileIndex: idx
+        }));
+        createCarousel(containerId, images, isEdit, true);
+      } else if (!isEdit && containerId === 'addHeadImagePreview') {
+        // For add head image, clear the preview and reset button state
+        document.getElementById(containerId).innerHTML = '';
+        const headButtonArea = document.getElementById('addHeadImageButton').parentElement;
+        const headButton = document.getElementById('addHeadImageButton');
+        headButtonArea.classList.remove('has-file');
+        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+        const subtext = headButton.querySelector('.admin-upload-subtext');
+        if (subtext) {
+          subtext.textContent = 'Click to select image';
+        }
+        addHeadImageFile = null;
+        delete window.carouselStates[containerId];
+        return;
+      } else {
+        createCarousel(containerId, state.images, isEdit, true);
+      }
     
     // Position is now preserved directly in createCarousel function
     // Small delay to ensure DOM is fully updated before updating button states
@@ -1612,6 +1728,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Function to delete head image
+  async function deleteHeadImage(imagePath) {
+    const editForm = document.getElementById('editCarForm');
+    const carId = editForm.getAttribute('data-id');
+    
+    try {
+      const response = await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=head`, { method: 'DELETE' });
+      
+      if (response.ok) {
+        // Clear the head image preview
+        editHeadImagePreview.innerHTML = '';
+        
+        // Reset the head image button state
+        const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
+        const headButton = document.getElementById('editHeadImageButton');
+        headButtonArea.classList.remove('has-file');
+        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
+        const subtext = headButton.querySelector('.admin-upload-subtext');
+        if (subtext) {
+          subtext.textContent = 'Click to select image';
+        }
+        
+        showAlert('Head image deleted successfully!', 'success');
+      } else {
+        showAlert('Failed to delete head image.', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting head image:', error);
+      showAlert('Error deleting head image.', 'error');
+    }
+  }
+
+  // Make deleteHeadImage function globally accessible
+  window.deleteHeadImage = deleteHeadImage;
+
   // Overlay and Confirm Modal
   const overlay = document.getElementById('adminOverlay');
   const confirmModal = document.getElementById('adminConfirmModal');
@@ -1620,7 +1771,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let pendingClosePanel = null;
 
   // Show Add Panel
-  showBtn.addEventListener('click', function () {
+  showBtn.addEventListener('click', function (e) {
+    e.preventDefault();
     addPanel.classList.add('active');
     editPanel.classList.remove('active');
     overlay.classList.add('active');
@@ -1700,6 +1852,38 @@ document.addEventListener('DOMContentLoaded', function () {
   populateSelect(editForm.elements['num_doors'], 2, 7);
   populateSelect(editForm.elements['num_passengers'], 2, 9);
 
+  // Handle fuel type changes for engine capacity
+  function handleFuelTypeChange(form, isEdit = false) {
+    const fuelTypeSelect = form.elements['fuel_type'];
+    const engineCapacityInput = form.elements['engine_capacity'];
+    
+    if (fuelTypeSelect.value === 'Electric') {
+      engineCapacityInput.disabled = true;
+      engineCapacityInput.value = '';
+      engineCapacityInput.placeholder = 'Electric';
+      engineCapacityInput.style.opacity = '0.5';
+      engineCapacityInput.style.cursor = 'not-allowed';
+    } else {
+      engineCapacityInput.disabled = false;
+      engineCapacityInput.placeholder = '';
+      engineCapacityInput.style.opacity = '1';
+      engineCapacityInput.style.cursor = 'text';
+    }
+  }
+
+  // Add event listeners for fuel type changes
+  addForm.elements['fuel_type'].addEventListener('change', function() {
+    handleFuelTypeChange(addForm, false);
+  });
+
+  editForm.elements['fuel_type'].addEventListener('change', function() {
+    handleFuelTypeChange(editForm, true);
+  });
+
+  // Initial check for both forms
+  handleFuelTypeChange(addForm, false);
+  handleFuelTypeChange(editForm, true);
+
   // Add Car form logic
   let addUploading = false;
   let addHeadImageFile = null;
@@ -1730,6 +1914,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     galleryButtonArea.classList.remove('has-file');
     galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+    
+    // Reset engine capacity field state
+    handleFuelTypeChange(addForm, false);
   }
   addHeadImageInput.addEventListener('change', function() {
     addHeadImagePreview.innerHTML = '';
@@ -1738,7 +1925,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.getElementById('addHeadImageButton');
     if (addHeadImageFile) {
       const url = URL.createObjectURL(addHeadImageFile);
-      addHeadImagePreview.innerHTML = `<img src="${url}">`;
+      addHeadImagePreview.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${url}" style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <button type="button" class="admin-carousel-remove" onclick="addHeadImageFile = null; addHeadImagePreview.innerHTML = ''; this.parentElement.remove();" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
+        </div>
+      `;
       buttonArea.classList.add('has-file');
       button.querySelector('.admin-upload-text').textContent = 'Image Selected';
       // Fix: Check if subtext element exists before setting it
@@ -1830,6 +2022,17 @@ document.addEventListener('DOMContentLoaded', function () {
   addForm.onsubmit = async function(e) {
     e.preventDefault();
     if (addUploading) return;
+    
+    // Validate engine capacity for non-electric cars
+    const validationFormData = new FormData(addForm);
+    const fuelType = validationFormData.get('fuel_type');
+    const engineCapacity = validationFormData.get('engine_capacity');
+    
+    if (fuelType !== 'Electric' && (!engineCapacity || engineCapacity.trim() === '')) {
+      showAlert('Engine capacity is required for non-electric cars.', 'error');
+      return;
+    }
+    
     addUploading = true;
     addFormSubmitBtn.disabled = true;
     addFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
@@ -1848,7 +2051,7 @@ document.addEventListener('DOMContentLoaded', function () {
       production_year: formData.get('production_year'),
       gear_type: formData.get('gear_type'),
       fuel_type: formData.get('fuel_type'),
-      engine_capacity: formData.get('engine_capacity'),
+      engine_capacity: formData.get('fuel_type') === 'Electric' ? null : formData.get('engine_capacity'),
       car_type: formData.get('car_type'),
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
@@ -1915,6 +2118,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     galleryButtonArea.classList.remove('has-file');
     galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+    
+    // Reset engine capacity field state
+    handleFuelTypeChange(editForm, true);
   }
   function renderEditImagePreviews(car) {
     // Head image
@@ -1922,7 +2128,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const BASE_URL = 'http://localhost:3001';
     if (car.head_image) {
       let headImgSrc = car.head_image.startsWith('http') ? car.head_image : `${BASE_URL}${car.head_image}`;
-      editHeadImagePreview.innerHTML = `<img src='${headImgSrc}'>`;
+      editHeadImagePreview.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src='${headImgSrc}' style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <button type="button" class="admin-carousel-remove" onclick="deleteHeadImage('${car.head_image}')" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
+        </div>
+      `;
     }
     // Gallery images
     editGalleryImagesPreview.innerHTML = '';
@@ -1982,7 +2193,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.getElementById('editHeadImageButton');
     if (editHeadImageFile) {
       const url = URL.createObjectURL(editHeadImageFile);
-      editHeadImagePreview.innerHTML = `<img src="${url}">`;
+      editHeadImagePreview.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${url}" style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <button type="button" class="admin-carousel-remove" onclick="editHeadImageFile = null; editHeadImagePreview.innerHTML = ''; this.parentElement.remove();" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
+        </div>
+      `;
       buttonArea.classList.add('has-file');
       button.querySelector('.admin-upload-text').textContent = 'New Image Selected';
       // Fix: Check if subtext element exists before setting it
@@ -2045,6 +2261,17 @@ document.addEventListener('DOMContentLoaded', function () {
   editForm.onsubmit = async function(e) {
     e.preventDefault();
     if (editUploading) return;
+    
+    // Validate engine capacity for non-electric cars
+    const validationFormData = new FormData(editForm);
+    const fuelType = validationFormData.get('fuel_type');
+    const engineCapacity = validationFormData.get('engine_capacity');
+    
+    if (fuelType !== 'Electric' && (!engineCapacity || engineCapacity.trim() === '')) {
+      showAlert('Engine capacity is required for non-electric cars.', 'error');
+      return;
+    }
+    
     editUploading = true;
     editFormSubmitBtn.disabled = true;
     editFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
@@ -2081,7 +2308,7 @@ document.addEventListener('DOMContentLoaded', function () {
       production_year: formData.get('production_year'),
       gear_type: formData.get('gear_type'),
       fuel_type: formData.get('fuel_type'),
-      engine_capacity: formData.get('engine_capacity'),
+      engine_capacity: formData.get('fuel_type') === 'Electric' ? null : formData.get('engine_capacity'),
       car_type: formData.get('car_type'),
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
@@ -2154,7 +2381,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Prepare head image HTML
         const headImageHtml = car.head_image 
           ? `<div class="mb-3">
-               <img src="http://localhost:3001/uploads/car-${car.id}/head.jpg" 
+               <img src="http://localhost:3001${car.head_image}" 
                     alt="${car.make_name} ${car.model_name}" 
                     style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;"
                     onerror="this.style.display='none';">
@@ -2178,38 +2405,85 @@ document.addEventListener('DOMContentLoaded', function () {
           badgeClass = 'bg-danger';
         }
         
-        card.innerHTML = `
-          <div class="card p-3 h-100 shadow-sm rounded-4" style="position: relative;">
-            <span class="badge ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">${badgeText}</span>
-            <div class="d-flex justify-content-start align-items-center mb-2" style="min-height:32px;">
-              <button class="btn btn-sm btn-edit-icon editCarBtn" data-id="${car.id}" title="Edit" style="background: none; border: 1px solid gray; padding: 3px 6px; margin-right: 8px; color: gray; box-shadow: none;">
-                <i class="fa fa-pencil" style="font-size: 14px;"></i>
-              </button>
-            </div>
-            ${headImageHtml}
-            <div class="mb-2">
-              <h5 class="mb-0">${car.make_name} ${car.model_name} (${car.production_year})</h5>
-            </div>
-            <ul class="list-unstyled mb-2">
-              <li><b>Gear:</b> ${car.gear_type}</li>
-              <li><b>Fuel:</b> ${car.fuel_type}</li>
-              <li><b>Engine:</b> ${car.engine_capacity}</li>
-              <li><b>Type:</b> ${car.car_type}</li>
-              <li><b>Doors:</b> ${car.num_doors}</li>
-              <li><b>Passengers:</b> ${car.num_passengers}</li>
-            </ul>
-            <div class="mb-2">
-              <b>Price Policy:</b>
-              <ul class="list-unstyled mb-0">
-                <li>1-2 days: ${car.price_policy['1-2']}</li>
-                <li>3-7 days: ${car.price_policy['3-7']}</li>
-                <li>8-20 days: ${car.price_policy['8-20']}</li>
-                <li>21-45 days: ${car.price_policy['21-45']}</li>
-                <li>46+ days: ${car.price_policy['46+']}</li>
-              </ul>
-            </div>
-          </div>
-        `;
+                 card.innerHTML = `
+           <div class="card p-3 h-100 shadow-sm rounded-4" style="position: relative;">
+             <span class="badge ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">${badgeText}</span>
+             
+             <!-- Edit button at top left -->
+             <div class="d-flex justify-content-start mb-2">
+               <button class="btn btn-sm editCarBtn" data-id="${car.id}" title="Edit Car" style="background: none; border: 1px solid gray; padding: 3px 6px; color: gray; box-shadow: none;">
+                 <i class="fa fa-pencil" style="font-size: 14px;"></i>
+               </button>
+             </div>
+             
+             <!-- Car image -->
+             ${headImageHtml}
+             
+             <!-- Header with car name below image -->
+             <div class="mb-3">
+               <h4 class="mb-0 text-primary text-center">${car.make_name} ${car.model_name}</h4>
+             </div>
+             
+             <!-- Car details -->
+             <div class="mb-3">
+               <div class="row g-2 mb-2">
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Year:</strong> ${car.production_year}</div>
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Type:</strong> ${car.car_type}</div>
+               </div>
+               <div class="row g-2 mb-2">
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Gear:</strong> ${car.gear_type}</div>
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Fuel:</strong> ${car.fuel_type}</div>
+               </div>
+               <div class="row g-2 mb-2">
+                 <div class="col-6" style="font-size: 0.875rem;">${car.fuel_type === 'Electric' ? '<strong>Power:</strong> Electric' : `<strong>Engine:</strong> ${car.engine_capacity}L`}</div>
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Doors:</strong> ${car.num_doors}</div>
+               </div>
+               <div class="row g-2">
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Passengers:</strong> ${car.num_passengers}</div>
+                 <div class="col-6"></div>
+               </div>
+             </div>
+             
+             <!-- Price policy -->
+             <div class="mt-auto">
+               <h6 class="mb-2 text-primary">Pricing (€/day)</h6>
+               <div class="row g-1 mb-2">
+                 <div class="col-6">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">1-2 days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['1-2']}€</div>
+                   </div>
+                 </div>
+                 <div class="col-6">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">3-7 days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['3-7']}€</div>
+                   </div>
+                 </div>
+               </div>
+               <div class="row g-1 mb-2">
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">8-20 days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['8-20']}€</div>
+                   </div>
+                 </div>
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">21-45 days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['21-45']}€</div>
+                   </div>
+                 </div>
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">46+ days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['46+']}€</div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         `;
         carCards.appendChild(card);
       });
       // Add edit button listeners
@@ -2224,7 +2498,7 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['production_year'].value = car.production_year;
           editForm.elements['gear_type'].value = car.gear_type;
           editForm.elements['fuel_type'].value = car.fuel_type;
-          editForm.elements['engine_capacity'].value = car.engine_capacity;
+          editForm.elements['engine_capacity'].value = car.engine_capacity || '';
           editForm.elements['car_type'].value = car.car_type;
           editForm.elements['num_doors'].value = car.num_doors;
           editForm.elements['num_passengers'].value = car.num_passengers;
@@ -2235,6 +2509,8 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['price_46'].value = car.price_policy['46+'];
           editForm.elements['booked_until'].value = car.booked_until || '';
           openEditFormWithImages(car); // Call the new function
+          // Handle fuel type state for engine capacity
+          handleFuelTypeChange(editForm, true);
           addPanel.classList.remove('active');
           editPanel.classList.add('active');
           overlay.classList.add('active');

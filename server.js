@@ -35,7 +35,7 @@ db.serialize(() => {
     production_year INTEGER,
     gear_type TEXT,
     fuel_type TEXT,
-    engine_capacity INTEGER,
+    engine_capacity REAL NULL,
     car_type TEXT,
     num_doors INTEGER,
     num_passengers INTEGER,
@@ -51,6 +51,82 @@ db.serialize(() => {
   db.run(`ALTER TABLE cars ADD COLUMN head_image TEXT`, () => {});
   db.run(`ALTER TABLE cars ADD COLUMN gallery_images TEXT`, () => {});
   db.run(`ALTER TABLE cars ADD COLUMN booked_until TEXT`, () => {});
+  
+  // Migration to update engine_capacity column type from INTEGER to REAL
+  db.get(`PRAGMA table_info(cars)`, (err, info) => {
+    if (err) {
+      console.log('Migration warning: Could not check table info:', err);
+      return;
+    }
+    
+    // Check if we need to migrate the engine_capacity column
+    db.all(`PRAGMA table_info(cars)`, [], (err, columns) => {
+      if (err) {
+        console.log('Migration warning: Could not check columns:', err);
+        return;
+      }
+      
+      const engineCapacityColumn = columns.find(col => col.name === 'engine_capacity');
+      
+      if (engineCapacityColumn && engineCapacityColumn.type === 'INTEGER') {
+        console.log('Migrating engine_capacity from INTEGER to REAL...');
+        
+        // Create new table with REAL engine_capacity
+        db.run(`CREATE TABLE cars_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          make_name TEXT,
+          model_name TEXT,
+          production_year INTEGER,
+          gear_type TEXT,
+          fuel_type TEXT,
+          engine_capacity REAL NULL,
+          car_type TEXT,
+          num_doors INTEGER,
+          num_passengers INTEGER,
+          price_policy TEXT,
+          booked INTEGER DEFAULT 0,
+          booked_until TEXT,
+          head_image TEXT,
+          gallery_images TEXT
+        )`, (err) => {
+          if (err) {
+            console.log('Migration error: Could not create new table:', err);
+            return;
+          }
+          
+          // Copy data from old table to new table
+          db.run(`INSERT INTO cars_new (id, make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, head_image, gallery_images)
+                  SELECT id, make_name, model_name, production_year, gear_type, fuel_type, CAST(engine_capacity AS REAL), car_type, num_doors, num_passengers, price_policy, booked, booked_until, head_image, gallery_images
+                  FROM cars`, (err) => {
+            if (err) {
+              console.log('Migration error: Could not copy data:', err);
+              return;
+            }
+            
+            // Drop old table
+            db.run(`DROP TABLE cars`, (err) => {
+              if (err) {
+                console.log('Migration error: Could not drop old table:', err);
+                return;
+              }
+              
+              // Rename new table to cars
+              db.run(`ALTER TABLE cars_new RENAME TO cars`, (err) => {
+                if (err) {
+                  console.log('Migration error: Could not rename table:', err);
+                  return;
+                }
+                
+                console.log('Migration completed: Engine capacity now accepts decimal values');
+              });
+            });
+          });
+        });
+      } else {
+        console.log('Migration completed: Engine capacity already supports decimal values');
+      }
+    });
+  });
 });
 
 // Multer storage config for car images
@@ -85,19 +161,33 @@ app.post('/api/cars', async (req, res) => {
     booked_until
   } = req.body;
 
+  // For electric cars, engine_capacity can be null
+  const isElectric = fuel_type === 'Electric';
+
   if (
     !make_name ||
     !model_name ||
     !production_year ||
     !gear_type ||
     !fuel_type ||
-    !engine_capacity ||
+    (!isElectric && !engine_capacity) ||
     !car_type ||
     !num_doors ||
     !num_passengers ||
     !price_policy
   ) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let engineCapacityValue = null;
+  
+  // Only validate and convert engine_capacity for non-electric cars
+  if (!isElectric) {
+    // Parse engine_capacity as a float to support decimal values
+    engineCapacityValue = parseFloat(engine_capacity);
+    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
+      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
+    }
   }
 
   // Convert all price_policy values to strings
@@ -116,7 +206,7 @@ app.post('/api/cars', async (req, res) => {
       production_year,
       gear_type,
       fuel_type,
-      engine_capacity,
+      engineCapacityValue,
       car_type,
       num_doors,
       num_passengers,
@@ -188,19 +278,33 @@ app.put('/api/cars/:id', (req, res) => {
     gallery_images
   } = req.body;
 
+  // For electric cars, engine_capacity can be null
+  const isElectric = fuel_type === 'Electric';
+
   if (
     !make_name ||
     !model_name ||
     !production_year ||
     !gear_type ||
     !fuel_type ||
-    !engine_capacity ||
+    (!isElectric && !engine_capacity) ||
     !car_type ||
     !num_doors ||
     !num_passengers ||
     !price_policy
   ) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let engineCapacityValue = null;
+  
+  // Only validate and convert engine_capacity for non-electric cars
+  if (!isElectric) {
+    // Parse engine_capacity as a float to support decimal values
+    engineCapacityValue = parseFloat(engine_capacity);
+    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
+      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
+    }
   }
 
   const pricePolicyStringified = {};
@@ -230,7 +334,7 @@ app.put('/api/cars/:id', (req, res) => {
       production_year,
       gear_type,
       fuel_type,
-      engine_capacity,
+      engineCapacityValue,
       car_type,
       num_doors,
       num_passengers,
@@ -262,26 +366,26 @@ app.delete('/api/cars/:id', (req, res) => {
       return res.status(404).json({ error: 'Car not found' });
     }
     
-    // Delete the car from database
+    // Delete the car from database first
     db.run('DELETE FROM cars WHERE id = ?', [id], function (dbErr) {
       if (dbErr) {
         return res.status(500).json({ error: 'Database error' });
       }
       
-      // Delete all associated files and directory
+      // Only after successful database deletion, delete all associated files and directory
       const carDir = path.join(__dirname, 'uploads', `car-${id}`);
       
       // Remove the entire car directory and all its contents
       fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
         if (fsErr) {
-          console.log('Could not delete car directory:', fsErr);
-          // Don't fail the request if file deletion fails
+          console.log(`Warning: Could not delete car directory ${carDir}:`, fsErr);
+          // Don't fail the request if file deletion fails, but log the issue
         } else {
           console.log(`Successfully deleted car directory: ${carDir}`);
         }
       });
       
-      res.json({ success: true });
+      res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
     });
   });
 });
@@ -314,41 +418,81 @@ app.post('/api/cars/:id/images', upload.fields([
 app.delete('/api/cars/:id/images', (req, res) => {
   const carId = req.params.id;
   const imagePath = req.query.path;
+  const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
+  
+  if (!imagePath) {
+    return res.status(400).json({ error: 'Image path is required' });
+  }
   
   db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
     if (err || !car) return res.status(404).json({ error: 'Car not found' });
     
-    let galleryImages = [];
-    try {
-      galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    } catch (e) {
-      galleryImages = [];
+    let updateQuery = '';
+    let updateParams = [];
+    
+    if (imageType === 'head') {
+      // Handle head image deletion
+      if (car.head_image !== imagePath) {
+        return res.status(400).json({ error: 'Head image path does not match' });
+      }
+      updateQuery = 'UPDATE cars SET head_image=NULL WHERE id=?';
+      updateParams = [carId];
+    } else {
+      // Handle gallery image deletion
+      let galleryImages = [];
+      try {
+        galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+      } catch (e) {
+        galleryImages = [];
+      }
+      
+      // Check if the image exists in the gallery
+      if (!galleryImages.includes(imagePath)) {
+        return res.status(400).json({ error: 'Image not found in gallery' });
+      }
+      
+      // Remove the image from gallery_images array
+      const updatedGallery = galleryImages.filter(img => img !== imagePath);
+      updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';
+      updateParams = [JSON.stringify(updatedGallery), carId];
     }
     
-    // Remove the image from gallery_images array
-    const updatedGallery = galleryImages.filter(img => img !== imagePath);
-    
-    // Delete the actual file from filesystem
-    let filePath = imagePath;
-    // Handle full URLs - extract just the path part
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      const url = new URL(filePath);
-      filePath = url.pathname;
-    }
-    // Remove leading slash if present
-    if (filePath.startsWith('/')) {
-      filePath = filePath.substring(1);
-    }
-    
-    const fullPath = path.join(__dirname, filePath);
-    fs.unlink(fullPath, (err) => {
-      if (err) console.log('Could not delete file:', err);
-    });
-    
-    // Update database
-    db.run('UPDATE cars SET gallery_images=? WHERE id=?', [JSON.stringify(updatedGallery), carId], function (err2) {
-      if (err2) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, gallery_images: updatedGallery });
+    // Update database first
+    db.run(updateQuery, updateParams, function (err2) {
+      if (err2) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Only after successful database update, delete the actual file from filesystem
+      let filePath = imagePath;
+      // Handle full URLs - extract just the path part
+      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+        const url = new URL(filePath);
+        filePath = url.pathname;
+      }
+      // Remove leading slash if present
+      if (filePath.startsWith('/')) {
+        filePath = filePath.substring(1);
+      }
+      
+      const fullPath = path.join(__dirname, filePath);
+      fs.unlink(fullPath, (fileErr) => {
+        if (fileErr) {
+          console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
+          // Don't fail the request if file deletion fails, but log the issue
+        } else {
+          console.log(`Successfully deleted file: ${fullPath}`);
+        }
+      });
+      
+      // Return success response
+      if (imageType === 'head') {
+        res.json({ success: true, message: 'Head image deleted successfully' });
+      } else {
+        // Get updated gallery images for response
+        const updatedGallery = JSON.parse(updateParams[0]);
+        res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
+      }
     });
   });
 });
