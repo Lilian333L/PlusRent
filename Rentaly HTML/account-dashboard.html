@@ -2435,13 +2435,15 @@ document.addEventListener('DOMContentLoaded', function () {
                  <div class="col-6" style="font-size: 0.875rem;"><strong>Fuel:</strong> ${car.fuel_type}</div>
                </div>
                <div class="row g-2 mb-2">
-                 <div class="col-6" style="font-size: 0.875rem;">${car.fuel_type === 'Electric' ? '<strong>Power:</strong> Electric' : `<strong>Engine:</strong> ${car.engine_capacity}L`}</div>
                  <div class="col-6" style="font-size: 0.875rem;"><strong>Doors:</strong> ${car.num_doors}</div>
-               </div>
-               <div class="row g-2">
                  <div class="col-6" style="font-size: 0.875rem;"><strong>Passengers:</strong> ${car.num_passengers}</div>
+               </div>
+               ${car.fuel_type !== 'Electric' ? `
+               <div class="row g-2 mb-2">
+                 <div class="col-6" style="font-size: 0.875rem;"><strong>Engine capacity:</strong> ${car.engine_capacity}</div>
                  <div class="col-6"></div>
                </div>
+               ` : ''}
              </div>
              
              <!-- Price policy -->
