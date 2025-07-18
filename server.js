@@ -184,7 +184,8 @@ app.put('/api/cars/:id', (req, res) => {
     num_passengers,
     price_policy,
     booked,
-    booked_until
+    booked_until,
+    gallery_images
   } = req.body;
 
   if (
@@ -222,7 +223,7 @@ app.put('/api/cars/:id', (req, res) => {
   }
 
   db.run(
-    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=? WHERE id=?`,
+    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=? WHERE id=?`,
     [
       make_name,
       model_name,
@@ -236,6 +237,7 @@ app.put('/api/cars/:id', (req, res) => {
       JSON.stringify(pricePolicyStringified),
       bookedStatus,
       booked_until || null,
+      gallery_images ? JSON.stringify(gallery_images) : null,
       id
     ],
     function (err) {
@@ -250,14 +252,37 @@ app.put('/api/cars/:id', (req, res) => {
 // Add DELETE endpoint for deleting a car by id
 app.delete('/api/cars/:id', (req, res) => {
   const id = req.params.id;
-  db.run('DELETE FROM cars WHERE id = ?', [id], function (err) {
+  
+  // First, get the car data to check for images
+  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
-    if (this.changes === 0) {
+    if (!car) {
       return res.status(404).json({ error: 'Car not found' });
     }
-    res.json({ success: true });
+    
+    // Delete the car from database
+    db.run('DELETE FROM cars WHERE id = ?', [id], function (dbErr) {
+      if (dbErr) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Delete all associated files and directory
+      const carDir = path.join(__dirname, 'uploads', `car-${id}`);
+      
+      // Remove the entire car directory and all its contents
+      fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
+        if (fsErr) {
+          console.log('Could not delete car directory:', fsErr);
+          // Don't fail the request if file deletion fails
+        } else {
+          console.log(`Successfully deleted car directory: ${carDir}`);
+        }
+      });
+      
+      res.json({ success: true });
+    });
   });
 });
 
@@ -304,7 +329,18 @@ app.delete('/api/cars/:id/images', (req, res) => {
     const updatedGallery = galleryImages.filter(img => img !== imagePath);
     
     // Delete the actual file from filesystem
-    const fullPath = path.join(__dirname, imagePath);
+    let filePath = imagePath;
+    // Handle full URLs - extract just the path part
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      const url = new URL(filePath);
+      filePath = url.pathname;
+    }
+    // Remove leading slash if present
+    if (filePath.startsWith('/')) {
+      filePath = filePath.substring(1);
+    }
+    
+    const fullPath = path.join(__dirname, filePath);
     fs.unlink(fullPath, (err) => {
       if (err) console.log('Could not delete file:', err);
     });

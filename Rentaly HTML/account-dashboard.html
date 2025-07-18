@@ -313,6 +313,121 @@
   .admin-overlay {
     overflow: hidden !important;
   }
+  
+  /* Gallery Carousel Styles */
+  .admin-gallery-carousel {
+    position: relative;
+    max-width: 100%;
+    margin-top: 8px;
+  }
+  
+  .admin-carousel-container {
+    position: relative;
+    overflow: visible; /* Allow buttons to overflow outside */
+    border-radius: 8px;
+    background: #f8f9fa;
+  }
+  
+  .admin-carousel-track-wrapper {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  
+  .admin-carousel-track {
+    display: flex;
+    transition: transform 0.3s ease;
+    gap: 10px;
+    padding: 10px 3px 10px 10px; /* Balanced right padding - middle ground */
+  }
+  
+  .admin-carousel-image-item {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 0;
+  }
+  
+  .admin-carousel-image-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: block;
+  }
+  
+  .admin-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    z-index: 10;
+  }
+  
+  .admin-carousel-nav:hover {
+    background: rgba(0,0,0,1);
+  }
+  
+  .admin-carousel-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  
+  .admin-carousel-prev {
+    left: -16px; /* Half of button width (32px / 2 = 16px) outside */
+  }
+  
+  .admin-carousel-next {
+    right: -16px; /* Half of button width (32px / 2 = 16px) outside */
+  }
+  
+  .admin-carousel-counter {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .admin-carousel-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgb(248 67 61 / 90%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 15px;
+    padding-bottom: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s;
+    backdrop-filter: blur(2px);
+  }
+  
+  .admin-carousel-remove:hover {
+    transform: scale(1.1);
+  }
 </style>
 
 <!-- Custom green for success alert and Booked checkbox styles -->
@@ -339,11 +454,12 @@
   position: relative;
 }
 .admin-image-preview img {
-  width: 100px;
-  height: 100px;
+  width: 160px;
+  height: 150px;
   object-fit: cover;
   border-radius: 6px;
   border: 1.5px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .admin-image-remove {
   position: absolute;
@@ -410,6 +526,8 @@
     z-index: 1;
     gap: 6px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 .admin-upload-button:hover {
@@ -422,6 +540,20 @@
   border-color: #28a745;
   background: #f0fff0;
   color: #28a745;
+}
+
+.admin-upload-area.disabled .admin-upload-button {
+  border-color: #ccc;
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-upload-area.disabled .admin-upload-button:hover {
+  border-color: #ccc;
+  background: #f5f5f5;
+  color: #999;
 }
 
 .admin-upload-icon {
@@ -441,11 +573,19 @@
 .admin-upload-text {
   font-weight: 500;
   margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .admin-upload-subtext {
   font-size: 12px;
   color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .admin-upload-input {
@@ -949,6 +1089,12 @@
 </html>
 
 <script>
+// Global variables
+let currentGalleryImages = []; // Track current gallery images for edit mode
+let editGalleryImageFiles = []; // Track new gallery image files for edit mode
+let addGalleryImageFiles = []; // Track gallery image files for add mode
+let isProcessingFiles = false; // Prevent duplicate file processing
+
 // Populate selects for years, doors, passengers
 function populateSelect(select, from, to, desc = false) {
   select.innerHTML = '';
@@ -1034,6 +1180,404 @@ function showAlert(message, type = 'success') {
   }, 2200);
 }
 
+// Gallery upload button state management
+function updateGalleryUploadButton(containerId, isEdit = false) {
+  const maxImages = 10;
+  let currentCount = 0;
+  let buttonId, inputId;
+  
+  if (isEdit) {
+    buttonId = 'editGalleryImagesButton';
+    inputId = 'editGalleryImagesInput';
+    currentCount = currentGalleryImages.length + editGalleryImageFiles.length;
+  } else {
+    buttonId = 'addGalleryImagesButton';
+    inputId = 'addGalleryImagesInput';
+    currentCount = addGalleryImageFiles.length;
+  }
+  
+  console.log('updateGalleryUploadButton called:', containerId, 'isEdit:', isEdit, 'currentCount:', currentCount);
+  
+  const button = document.getElementById(buttonId);
+  const input = document.getElementById(inputId);
+  const buttonArea = button.parentElement;
+  
+  if (currentCount >= maxImages) {
+    button.disabled = true;
+    input.disabled = true;
+    buttonArea.classList.add('disabled');
+    button.querySelector('.admin-upload-text').textContent = `Max ${maxImages} Images`;
+    const subtext = button.querySelector('.admin-upload-subtext');
+    if (subtext) {
+      subtext.textContent = 'Remove to add more';
+    }
+  } else {
+    button.disabled = false;
+    input.disabled = false;
+    buttonArea.classList.remove('disabled');
+    if (currentCount > 0) {
+      button.querySelector('.admin-upload-text').textContent = isEdit ? 
+        `${editGalleryImageFiles.length} New Images Selected` : 
+        `${currentCount} Images Selected`;
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = `${currentCount} of ${maxImages} max`;
+      }
+    } else {
+      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
+      const subtext = button.querySelector('.admin-upload-subtext');
+      if (subtext) {
+        subtext.textContent = 'Click to select images';
+      }
+    }
+  }
+}
+
+// Gallery Carousel Functions
+function createCarousel(containerId, images, isEdit = false, preservePosition = false) {
+  const container = document.getElementById(containerId);
+  if (!images || images.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Show 2.5 images per view (continuous scroll)
+  const imagesPerView = 2.5;
+  const imageWidth = 100 / imagesPerView; // Each image takes up 40% width (100/2.5)
+
+  // Preserve current position if requested and state exists
+  const existingState = window.carouselStates && window.carouselStates[containerId];
+  const currentPosition = preservePosition && existingState ? existingState.currentIndex : 0;
+
+  // Check if carousel already exists
+  const existingCarousel = container.querySelector('.admin-gallery-carousel');
+  const existingTrack = document.getElementById(containerId + 'Track');
+  
+  if (existingCarousel && existingTrack && preservePosition) {
+    // Update existing carousel without destroying the container
+    const newImagesHTML = images.map((img, index) => `
+      <div class="admin-carousel-image-item" style="flex: 0 0 ${imageWidth}%;">
+        <img src="${img.src}" alt="Gallery Image ${index + 1}">
+        <button type="button" class="admin-carousel-remove" data-container="${containerId}" data-index="${index}" data-is-edit="${isEdit}">×</button>
+      </div>
+    `).join('');
+    
+    // Update only the track content
+    existingTrack.innerHTML = newImagesHTML;
+    
+    // Update carousel state
+    if (!window.carouselStates) window.carouselStates = {};
+    const newMaxIndex = Math.max(0, images.length - Math.floor(imagesPerView));
+    const finalPosition = Math.min(currentPosition, newMaxIndex);
+    
+    window.carouselStates[containerId] = {
+      currentIndex: finalPosition,
+      totalImages: images.length,
+      images: images,
+      imagesPerView: imagesPerView,
+      maxIndex: newMaxIndex
+    };
+    
+    // Apply position if needed
+    if (finalPosition > 0) {
+      let translateX;
+      if (finalPosition === newMaxIndex && images.length > imagesPerView) {
+        const halfImageWidth = imageWidth * 0.5;
+        const reducedSpace = halfImageWidth * 0.55;
+        translateX = -(images.length - imagesPerView) * imageWidth - reducedSpace;
+      } else {
+        translateX = -finalPosition * imageWidth;
+      }
+      existingTrack.style.transform = `translateX(${translateX}%)`;
+    }
+  } else {
+    // Create new carousel (first time or when not preserving position)
+    const carouselHTML = `
+      <div class="admin-gallery-carousel">
+        <div class="admin-carousel-container">
+          <div class="admin-carousel-track-wrapper">
+            <div class="admin-carousel-track" id="${containerId}Track">
+              ${images.map((img, index) => `
+                <div class="admin-carousel-image-item" style="flex: 0 0 ${imageWidth}%;">
+                  <img src="${img.src}" alt="Gallery Image ${index + 1}">
+                  <button type="button" class="admin-carousel-remove" data-container="${containerId}" data-index="${index}" data-is-edit="${isEdit}">×</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <button type="button" class="admin-carousel-nav admin-carousel-prev" id="${containerId}Prev" onclick="moveCarousel('${containerId}', -1)">‹</button>
+          <button type="button" class="admin-carousel-nav admin-carousel-next" id="${containerId}Next" onclick="moveCarousel('${containerId}', 1)">›</button>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = carouselHTML;
+    
+    // Initialize carousel state
+    if (!window.carouselStates) window.carouselStates = {};
+    const newMaxIndex = Math.max(0, images.length - Math.floor(imagesPerView));
+    const finalPosition = Math.min(currentPosition, newMaxIndex);
+    
+    window.carouselStates[containerId] = {
+      currentIndex: finalPosition,
+      totalImages: images.length,
+      images: images,
+      imagesPerView: imagesPerView,
+      maxIndex: newMaxIndex
+    };
+    
+    // Apply initial position if not at the beginning
+    if (finalPosition > 0) {
+      const track = document.getElementById(containerId + 'Track');
+      let translateX;
+      if (finalPosition === newMaxIndex && images.length > imagesPerView) {
+        const halfImageWidth = imageWidth * 0.5;
+        const reducedSpace = halfImageWidth * 0.55;
+        translateX = -(images.length - imagesPerView) * imageWidth - reducedSpace;
+      } else {
+        translateX = -finalPosition * imageWidth;
+      }
+      track.style.transform = `translateX(${translateX}%)`;
+    }
+  }
+  
+
+  
+  updateCarouselButtons(containerId);
+}
+
+function moveCarousel(containerId, direction) {
+  const state = window.carouselStates[containerId];
+  if (!state) {
+    console.log('No carousel state found for:', containerId);
+    return;
+  }
+  
+  console.log('Manual scroll - currentIndex:', state.currentIndex, 'direction:', direction, 'maxIndex:', state.maxIndex, 'totalImages:', state.totalImages);
+  
+  const newIndex = state.currentIndex + direction;
+  if (newIndex < 0 || newIndex > state.maxIndex) {
+    console.log('Manual scroll blocked - newIndex would be:', newIndex, 'maxIndex:', state.maxIndex, 'reason:', newIndex < 0 ? 'below minimum' : 'above maximum');
+    return;
+  }
+  
+  state.currentIndex = newIndex;
+  console.log('Manual scroll applied - newCurrentIndex:', state.currentIndex);
+  
+  const track = document.getElementById(containerId + 'Track');
+  const imageWidth = 100 / state.imagesPerView;
+  
+  // Special handling for the last image - don't leave space for non-existent next image
+  let translateX;
+  if (newIndex === state.maxIndex && state.totalImages > state.imagesPerView) {
+    // For the last position, move a bit less than half an image space
+    const halfImageWidth = imageWidth * 0.5;
+    const reducedSpace = halfImageWidth * 0.35;
+    translateX = -(state.totalImages - state.imagesPerView) * imageWidth - reducedSpace;
+  } else {
+    translateX = -newIndex * imageWidth;
+  }
+  
+  track.style.transform = `translateX(${translateX}%)`;
+  
+  updateCarouselButtons(containerId);
+}
+
+function updateCarouselButtons(containerId) {
+  const state = window.carouselStates[containerId];
+  if (!state) return;
+  
+  const prevBtn = document.getElementById(containerId + 'Prev');
+  const nextBtn = document.getElementById(containerId + 'Next');
+  
+  // Debug logging
+  console.log('updateCarouselButtons - containerId:', containerId, 'currentIndex:', state.currentIndex, 'maxIndex:', state.maxIndex, 'totalImages:', state.totalImages);
+  
+  // More robust button state logic
+  const canGoPrevious = state.currentIndex > 0 && state.totalImages > state.imagesPerView;
+  const canGoNext = state.currentIndex < state.maxIndex && state.totalImages > state.imagesPerView;
+  
+  if (prevBtn) {
+    prevBtn.disabled = !canGoPrevious;
+    console.log('Previous button disabled:', !canGoPrevious);
+  }
+  if (nextBtn) {
+    nextBtn.disabled = !canGoNext;
+    console.log('Next button disabled:', !canGoNext);
+  }
+}
+
+function scrollCarouselToEnd(containerId) {
+  const state = window.carouselStates[containerId];
+  if (!state) return;
+  
+  // Move to the last position
+  state.currentIndex = state.maxIndex;
+  
+  const track = document.getElementById(containerId + 'Track');
+  const imageWidth = 100 / state.imagesPerView;
+  
+  // Apply the same logic as in moveCarousel for the last image
+  let translateX;
+  if (state.currentIndex === state.maxIndex && state.totalImages > state.imagesPerView) {
+    // For the last position, move a bit less than half an image space
+    const halfImageWidth = imageWidth * 0.5;
+    const reducedSpace = halfImageWidth * 0.7;
+    translateX = -(state.totalImages - state.imagesPerView) * imageWidth - reducedSpace;
+  } else {
+    translateX = -state.currentIndex * imageWidth;
+  }
+  
+  track.style.transform = `translateX(${translateX}%)`;
+  updateCarouselButtons(containerId);
+}
+
+
+
+async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
+  const state = window.carouselStates[containerId];
+  if (!state) return;
+  
+  const imageToRemove = state.images[imageIndex];
+  if (!imageToRemove) {
+    console.error('Image to remove not found at index:', imageIndex);
+    return;
+  }
+  
+  // Handle edit mode - remove from server if it's an existing image
+  if (isEdit && containerId === 'editGalleryImagesPreview') {
+    if (imageToRemove.isExisting) {
+      // Remove from server
+      const editForm = document.getElementById('editCarForm');
+      const carId = editForm.getAttribute('data-id');
+      try {
+        await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}`, { method: 'DELETE' });
+        // Remove from currentGalleryImages array
+        const imageIndex = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
+        if (imageIndex !== -1) {
+          currentGalleryImages.splice(imageIndex, 1);
+        }
+      } catch (error) {
+        console.error('Error removing image from server:', error);
+      }
+    } else {
+      // Remove from new uploads array
+      editGalleryImageFiles.splice(imageToRemove.fileIndex, 1);
+      // Update file indices for remaining new uploads
+      state.images.forEach((img, idx) => {
+        if (!img.isExisting && img.fileIndex > imageToRemove.fileIndex) {
+          img.fileIndex--;
+        }
+      });
+    }
+  } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
+    // Remove from add files array
+    if (imageToRemove && imageToRemove.fileIndex !== undefined) {
+      console.log('Removing image at fileIndex:', imageToRemove.fileIndex, 'Current array length:', addGalleryImageFiles.length);
+      addGalleryImageFiles.splice(imageToRemove.fileIndex, 1);
+      console.log('New array length:', addGalleryImageFiles.length);
+    } else {
+      // Fallback: remove by image index if fileIndex is not available
+      console.log('Fallback removal at imageIndex:', imageIndex, 'Current array length:', addGalleryImageFiles.length);
+      addGalleryImageFiles.splice(imageIndex, 1);
+      console.log('New array length:', addGalleryImageFiles.length);
+    }
+  }
+  
+  // Remove from state
+  state.images.splice(imageIndex, 1);
+  state.totalImages = state.images.length;
+  
+  // Recalculate max index
+  state.maxIndex = Math.max(0, state.totalImages - Math.floor(state.imagesPerView));
+  
+  // Calculate new position based on deletion logic
+  console.log('Before deletion - currentIndex:', state.currentIndex, 'imageIndex:', imageIndex, 'totalImages:', state.totalImages, 'maxIndex:', state.maxIndex);
+  
+  let newPosition;
+  
+  // Special case: if we have 2 or fewer images left, always go to position 0
+  if (state.totalImages <= 2) {
+    newPosition = 0;
+    console.log('Only 2 or fewer images left, resetting to position 0');
+    // Force the carousel to actually move to position 0 by triggering the visual reset
+    setTimeout(() => {
+      const track = document.getElementById(containerId + 'Track');
+      if (track) {
+        track.style.transform = 'translateX(0%)';
+        console.log('Forced carousel reset to position 0');
+      }
+    }, 50);
+  } else {
+    // Simple logic: if we delete an image at or before our current position, move back one
+    if (imageIndex <= state.currentIndex) {
+      newPosition = Math.max(0, state.currentIndex - 1);
+    } else {
+      // If we delete an image after our current position, stay where we are
+      newPosition = state.currentIndex;
+    }
+    
+    // Make sure the new position doesn't exceed the maximum
+    newPosition = Math.min(newPosition, state.maxIndex);
+  }
+  
+  console.log('After deletion - newPosition:', newPosition, 'newMaxIndex:', state.maxIndex, 'newTotalImages:', state.totalImages);
+  
+  // Update the state with the new position
+  state.currentIndex = newPosition;
+  
+  // Additional validation to ensure state consistency
+  if (state.currentIndex < 0) state.currentIndex = 0;
+  if (state.currentIndex > state.maxIndex) state.currentIndex = state.maxIndex;
+  
+  // Recreate carousel with updated data
+  if (state.totalImages > 0) {
+    // For edit mode, rebuild the images array from current data
+    if (isEdit && containerId === 'editGalleryImagesPreview') {
+      const BASE_URL = 'http://localhost:3001';
+      const allImages = [];
+      
+      // Add new uploads first (so they appear at the beginning)
+      editGalleryImageFiles.forEach((file, idx) => {
+        const url = URL.createObjectURL(file);
+        allImages.push({ src: url, isExisting: false, fileIndex: idx });
+      });
+      
+      // Add existing images after new uploads
+      currentGalleryImages.forEach((img, idx) => {
+        let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
+        allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
+      });
+      
+      createCarousel(containerId, allImages, isEdit, true);
+    } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
+      // For add mode, use the global addGalleryImageFiles
+      console.log('Recreating carousel with', addGalleryImageFiles.length, 'files');
+      const images = addGalleryImageFiles.map((file, idx) => ({
+        src: URL.createObjectURL(file),
+        fileIndex: idx
+      }));
+      createCarousel(containerId, images, isEdit, true);
+    } else {
+      createCarousel(containerId, state.images, isEdit, true);
+    }
+    
+    // Position is now preserved directly in createCarousel function
+    // Small delay to ensure DOM is fully updated before updating button states
+    setTimeout(() => {
+      updateCarouselButtons(containerId);
+    }, 10);
+  } else {
+    document.getElementById(containerId).innerHTML = '';
+    delete window.carouselStates[containerId];
+  }
+  
+  // Update button state after removal (with small delay to ensure DOM is updated)
+  setTimeout(() => {
+    updateGalleryUploadButton(containerId, isEdit);
+  }, 0);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   // Add Car Panel
   const showBtn = document.getElementById('showAddCarBtn');
@@ -1051,13 +1595,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Fix: Declare edit image file variables in the correct scope
   let editHeadImageFile = null;
-  let editGalleryImageFiles = [];
   
   // Get DOM elements for edit form
   const editHeadImageInput = document.getElementById('editHeadImageInput');
   const editGalleryImagesInput = document.getElementById('editGalleryImagesInput');
   const editHeadImagePreview = document.getElementById('editHeadImagePreview');
   const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+
+  // Global event listener for carousel remove buttons
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('admin-carousel-remove')) {
+      const containerId = e.target.getAttribute('data-container');
+      const imageIndex = parseInt(e.target.getAttribute('data-index'));
+      const isEdit = e.target.getAttribute('data-is-edit') === 'true';
+      removeCarouselImage(containerId, imageIndex, isEdit);
+    }
+  });
 
   // Overlay and Confirm Modal
   const overlay = document.getElementById('adminOverlay');
@@ -1150,7 +1703,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Add Car form logic
   let addUploading = false;
   let addHeadImageFile = null;
-  let addGalleryImageFiles = [];
   
   // Get DOM elements for add form
   const addHeadImageInput = document.getElementById('addHeadImageInput');
@@ -1167,6 +1719,7 @@ document.addEventListener('DOMContentLoaded', function () {
     addGalleryImageFiles = [];
     
     // Reset button states
+    updateGalleryUploadButton('addGalleryImagesPreview', false);
     const headButtonArea = document.getElementById('addHeadImageButton').parentElement;
     const galleryButtonArea = document.getElementById('addGalleryImagesButton').parentElement;
     const headButton = document.getElementById('addHeadImageButton');
@@ -1204,47 +1757,75 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   addGalleryImagesInput.addEventListener('change', function() {
+    if (this.files.length === 0 || isProcessingFiles) return; // No files selected or already processing
+    
+    const currentCount = addGalleryImageFiles.length;
+    
+    // Check if we're already at the limit
+    if (currentCount >= 10) {
+      showAlert('You already have the maximum of 10 gallery images.', 'error');
+      this.value = ''; // Clear the input
+      return;
+    }
+    
+    isProcessingFiles = true;
+    
     let files = Array.from(this.files);
-    if (files.length + addGalleryImageFiles.length > 10) {
-      showAlert('You can only upload up to 10 gallery images.', 'error');
-      files = files.slice(0, 10 - addGalleryImageFiles.length);
+    const availableSlots = 10 - currentCount;
+    
+    console.log('Processing files:', files.length, 'Current count:', currentCount, 'Available slots:', availableSlots);
+    
+    if (files.length > availableSlots) {
+      showAlert(`You can only upload ${availableSlots} more image(s). Maximum is 10.`, 'error');
+      files = files.slice(0, availableSlots);
     }
-    addGalleryImageFiles = addGalleryImageFiles.concat(files).slice(0, 10);
-    const buttonArea = document.getElementById('addGalleryImagesButton').parentElement;
-    const button = document.getElementById('addGalleryImagesButton');
-    if (addGalleryImageFiles.length > 0) {
+    
+    // Only add files if there are any to add and we have available slots
+    if (files.length > 0 && currentCount < 10) {
+      // Add new files to the beginning of the array
+      addGalleryImageFiles = files.concat(addGalleryImageFiles);
+      console.log('New total count:', addGalleryImageFiles.length);
+      
+      const buttonArea = document.getElementById('addGalleryImagesButton').parentElement;
       buttonArea.classList.add('has-file');
-      button.querySelector('.admin-upload-text').textContent = `${addGalleryImageFiles.length} Images Selected`;
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = `${addGalleryImageFiles.length} of 10 max`;
-      }
-    } else {
-      buttonArea.classList.remove('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = 'Click to select multiple images';
-      }
-    }
-    renderAddGalleryPreviews();
-  });
-  function renderAddGalleryPreviews() {
-    addGalleryImagesPreview.innerHTML = '';
-    addGalleryImageFiles.forEach((file, idx) => {
-      const url = URL.createObjectURL(file);
-      addGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${url}'><button type='button' class='admin-image-remove' data-idx='${idx}'>&times;</button></span>`;
-    });
-  }
-  addGalleryImagesPreview.addEventListener('click', function(e) {
-    if (e.target.classList.contains('admin-image-remove')) {
-      const idx = parseInt(e.target.getAttribute('data-idx'));
-      addGalleryImageFiles.splice(idx, 1);
+      updateGalleryUploadButton('addGalleryImagesPreview', false);
       renderAddGalleryPreviews();
     }
+    
+    // Clear the input to allow re-selecting the same files
+    this.value = '';
+    
+    // Reset processing flag after a short delay
+    setTimeout(() => {
+      isProcessingFiles = false;
+    }, 100);
   });
+  function renderAddGalleryPreviews() {
+    if (addGalleryImageFiles.length === 0) {
+      addGalleryImagesPreview.innerHTML = '';
+      updateGalleryUploadButton('addGalleryImagesPreview', false);
+      return;
+    }
+    
+    const images = addGalleryImageFiles.map((file, idx) => ({
+      src: URL.createObjectURL(file),
+      fileIndex: idx
+    }));
+    
+    // Check if carousel already exists to preserve position during recreation
+    const existingCarousel = window.carouselStates && window.carouselStates['addGalleryImagesPreview'];
+    
+    if (existingCarousel) {
+      // New images are at the beginning, so reset to start to show them
+      createCarousel('addGalleryImagesPreview', images, false, false);
+    } else {
+      // First time creating carousel - start at beginning (new images are there)
+      createCarousel('addGalleryImagesPreview', images, false);
+    }
+    
+    updateGalleryUploadButton('addGalleryImagesPreview', false);
+  }
+  // Gallery image removal is now handled by the carousel
   // On Add Car submit, after car is created, upload images
   addForm.onsubmit = async function(e) {
     e.preventDefault();
@@ -1320,8 +1901,10 @@ document.addEventListener('DOMContentLoaded', function () {
     editGalleryImagesPreview.innerHTML = '';
     editHeadImageFile = null;
     editGalleryImageFiles = [];
+    currentGalleryImages = [];
     
     // Reset button states
+    updateGalleryUploadButton('editGalleryImagesPreview', true);
     const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
     const galleryButtonArea = document.getElementById('editGalleryImagesButton').parentElement;
     const headButton = document.getElementById('editHeadImageButton');
@@ -1343,31 +1926,54 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // Gallery images
     editGalleryImagesPreview.innerHTML = '';
-    // Fix: Ensure gallery_images is always an array
-    let galleryImages = [];
+    // Fix: Ensure gallery_images is always an array and update global variable
+    currentGalleryImages = [];
     if (Array.isArray(car.gallery_images)) {
-      galleryImages = car.gallery_images;
+      currentGalleryImages = car.gallery_images;
     } else if (typeof car.gallery_images === 'string' && car.gallery_images) {
       try {
         // Try to parse as JSON array
-        galleryImages = JSON.parse(car.gallery_images);
-        if (!Array.isArray(galleryImages)) {
-          galleryImages = [car.gallery_images];
+        currentGalleryImages = JSON.parse(car.gallery_images);
+        if (!Array.isArray(currentGalleryImages)) {
+          currentGalleryImages = [car.gallery_images];
         }
       } catch {
         // Fallback: treat as single image string
-        galleryImages = [car.gallery_images];
+        currentGalleryImages = [car.gallery_images];
       }
     }
-    galleryImages.forEach((img, idx) => {
-      let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
-      editGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${imgSrc}'><button type='button' class='admin-image-remove' data-img='${img}'>&times;</button></span>`;
-    });
-    // New uploads
+    // Combine existing images and new uploads for carousel
+    const allImages = [];
+    
+    // Add new uploads first (so they appear at the beginning)
     editGalleryImageFiles.forEach((file, idx) => {
       const url = URL.createObjectURL(file);
-      editGalleryImagesPreview.innerHTML += `<span class='admin-image-preview'><img src='${url}'><button type='button' class='admin-image-remove' data-idx='${idx}'>&times;</button></span>`;
+      allImages.push({ src: url, isExisting: false, fileIndex: idx });
     });
+    
+    // Add existing images after new uploads
+    currentGalleryImages.forEach((img, idx) => {
+      let imgSrc = img.startsWith('http') ? img : `${BASE_URL}${img}`;
+      allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
+    });
+    
+    // Create carousel if there are images
+    if (allImages.length > 0) {
+      const hasNewImages = editGalleryImageFiles.length > 0;
+      
+      if (hasNewImages) {
+        // New images added at the beginning - reset to start to show them
+        createCarousel('editGalleryImagesPreview', allImages, true, false);
+      } else {
+        // No new images - preserve current position
+        createCarousel('editGalleryImagesPreview', allImages, true, true);
+      }
+    } else {
+      editGalleryImagesPreview.innerHTML = '';
+    }
+    
+    // Update button state
+    updateGalleryUploadButton('editGalleryImagesPreview', true);
   }
   editHeadImageInput.addEventListener('change', function() {
     editHeadImagePreview.innerHTML = '';
@@ -1395,52 +2001,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   editGalleryImagesInput.addEventListener('change', function() {
+    if (this.files.length === 0 || isProcessingFiles) return; // No files selected or already processing
+    
+    const currentCount = currentGalleryImages.length + editGalleryImageFiles.length;
+    
+    // Check if we're already at the limit
+    if (currentCount >= 10) {
+      showAlert('You already have the maximum of 10 gallery images.', 'error');
+      this.value = ''; // Clear the input
+      return;
+    }
+    
+    isProcessingFiles = true;
+    
     let files = Array.from(this.files);
-    const currentCount = editGalleryImagesPreview.querySelectorAll('img').length - editGalleryImageFiles.length;
-    if (files.length + currentCount > 10) {
-      showAlert('You can only upload up to 10 gallery images.', 'error');
-      files = files.slice(0, 10 - currentCount);
+    const availableSlots = 10 - currentCount;
+    
+    if (files.length > availableSlots) {
+      showAlert(`You can only upload ${availableSlots} more image(s). Maximum is 10.`, 'error');
+      files = files.slice(0, availableSlots);
     }
-    editGalleryImageFiles = editGalleryImageFiles.concat(files).slice(0, 10 - currentCount);
-    const buttonArea = document.getElementById('editGalleryImagesButton').parentElement;
-    const button = document.getElementById('editGalleryImagesButton');
-    if (editGalleryImageFiles.length > 0) {
+    
+    // Only add files if there are any to add and we have available slots
+    if (files.length > 0 && currentCount < 10) {
+      // Add new files to the beginning of the array
+      editGalleryImageFiles = files.concat(editGalleryImageFiles);
+      const buttonArea = document.getElementById('editGalleryImagesButton').parentElement;
       buttonArea.classList.add('has-file');
-      button.querySelector('.admin-upload-text').textContent = `${editGalleryImageFiles.length} New Images Selected`;
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = `${editGalleryImageFiles.length} additional images`;
-      }
-    } else {
-      buttonArea.classList.remove('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = 'Click to select multiple images';
-      }
+      updateGalleryUploadButton('editGalleryImagesPreview', true);
+      renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
     }
-    renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
+    
+    // Clear the input to allow re-selecting the same files
+    this.value = '';
+    
+    // Reset processing flag after a short delay
+    setTimeout(() => {
+      isProcessingFiles = false;
+    }, 100);
   });
-  editGalleryImagesPreview.addEventListener('click', async function(e) {
-    if (e.target.classList.contains('admin-image-remove')) {
-      const img = e.target.getAttribute('data-img');
-      if (img) {
-        // Remove from server
-        const carId = editForm.getAttribute('data-id');
-        await fetch(`http://localhost:3001/api/cars/${carId}/images?path=${encodeURIComponent(img)}`, { method: 'DELETE' });
-        // Remove from preview
-        e.target.parentElement.remove();
-        loadCars();
-      } else if (e.target.hasAttribute('data-idx')) {
-        // Remove from new uploads
-        const idx = parseInt(e.target.getAttribute('data-idx'));
-        editGalleryImageFiles.splice(idx, 1);
-        renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
-      }
-    }
-  });
+  // Gallery image removal is now handled by the carousel
   // On Edit Car submit, upload new images if any
   editForm.onsubmit = async function(e) {
     e.preventDefault();
@@ -1457,6 +2057,24 @@ document.addEventListener('DOMContentLoaded', function () {
       '21-45': String(formData.get('price_21_45')),
       '46+': String(formData.get('price_46')),
     };
+    // Clean gallery image URLs - remove base URL to get relative paths
+    console.log('Original currentGalleryImages:', currentGalleryImages);
+    const cleanGalleryImages = currentGalleryImages.map(img => {
+      // Handle various URL formats
+      if (img.startsWith('http://localhost:3001')) {
+        return img.replace('http://localhost:3001', '');
+      }
+      if (img.startsWith('http:/localhost:3001')) {
+        return img.replace('http:/localhost:3001', '');
+      }
+      if (img.startsWith('localhost:3001')) {
+        return img.replace('localhost:3001', '');
+      }
+      // If it's already a relative path, return as is
+      return img;
+    });
+    console.log('Cleaned gallery images:', cleanGalleryImages);
+    
     const data = {
       make_name: formData.get('make_name'),
       model_name: formData.get('model_name'),
@@ -1468,7 +2086,8 @@ document.addEventListener('DOMContentLoaded', function () {
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
       price_policy: price_policy,
-      booked_until: formData.get('booked_until') || null
+      booked_until: formData.get('booked_until') || null,
+      gallery_images: cleanGalleryImages // Send the cleaned gallery images list
     };
     try {
       const id = editForm.getAttribute('data-id');
