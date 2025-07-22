@@ -18,6 +18,8 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 </head>
 
 <body>
@@ -163,7 +165,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-									<h1>Vehicle Fleet</h1>
+									<h1 id="car-title">Vehicle Fleet</h1>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -176,101 +178,29 @@
                 <div class="container">
                     <div class="row g-5">
                         <div class="col-lg-6">
-                            <div id="slider-carousel" class="owl-carousel">
-                                <div class="item">
-                                    <img src="images/car-single/1.jpg" alt="">
-                                </div>
-                                <div class="item">
-                                    <img src="images/car-single/2.jpg" alt="">
-                                </div>
-                                <div class="item">
-                                    <img src="images/car-single/3.jpg" alt="">
-                                </div>
-                                <div class="item">
-                                    <img src="images/car-single/4.jpg" alt="">
-                                </div>
-                            </div>
+                            <div id="car-images" class="slick-slider"></div>
+                            <div id="car-thumbs" class="slick-slider" style="margin-top: 12px;"></div>
                         </div>
 
                         <div class="col-lg-3">
-                            <h3>BMW M2 2020</h3>
-                            <p>The BMW M2 is the high-performance version of the 2 Series 2-door coupé. The first generation of the M2 is the F87 coupé and is powered by turbocharged.</p>
+                            <h3 id="car-name"></h3>
+                            <p id="car-description"></p>
 
                             <div class="spacer-10"></div>
 
                             <h4>Specifications</h4>
-                            <div class="de-spec">
-                                <div class="d-row">
-                                    <span class="d-title">Body</span>
-                                    <spam class="d-value">Sedan</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Seat</span>
-                                    <spam class="d-value">2 seats</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Door</span>
-                                    <spam class="d-value">2 doors</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Luggage</span>
-                                    <spam class="d-value">150</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Fuel Type</span>
-                                    <spam class="d-value">Hybird</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Engine</span>
-                                    <spam class="d-value">3000</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Year</span>
-                                    <spam class="d-value">2020</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Mileage</span>
-                                    <spam class="d-value">200</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Transmission</span>
-                                    <spam class="d-value">Automatic</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Drive</span>
-                                    <spam class="d-value">4WD</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Fuel Economy</span>
-                                    <spam class="d-value">18.5</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Exterior Color</span>
-                                    <spam class="d-value">Blue Metalic</spam>
-                                </div>
-                                <div class="d-row">
-                                    <span class="d-title">Interior Color</span>
-                                    <spam class="d-value">Black</spam>
-                                </div>
-                            </div>
+                            <div class="de-spec" id="car-specs"></div>
 
                             <div class="spacer-single"></div>
 
                             <h4>Features</h4>
-                            <ul class="ul-style-2">
-                                <li>Bluetooth</li>
-                                <li>Multimedia Player</li>
-                                <li>Central Lock</li>
-                                <li>Sunroof</li>
-                            </ul>
+                            <ul class="ul-style-2" id="car-features"></ul>
                         </div>
 
                         <div class="col-lg-3">
-                            <div class="de-price text-center">
-                                Daily rate
-                                <h3>$265</h3>
-                            </div>
+                            <div class="de-price text-center" id="car-price"></div>
                             <div class="spacer-30"></div>
+                            <!-- Booking form can remain as is or be enhanced to use car data -->
                             <div class="de-box mb25">
                                 <form name="contactForm" id='contact_form' method="post">
                                     <h4>Booking this car</h4>
@@ -529,7 +459,122 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
+    <script src="js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', async function() {
+  // Get car ID from URL, e.g. car-single.html?id=123
+  const urlParams = new URLSearchParams(window.location.search);
+  const carId = urlParams.get('id');
+  if (!carId) {
+    document.getElementById('car-title').textContent = 'Car not found';
+    return;
+  }
 
+  // Fetch car data
+  let car;
+  try {
+    const res = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
+    if (!res.ok) throw new Error('Not found');
+    car = await res.json();
+  } catch (e) {
+    document.getElementById('car-title').textContent = 'Car not found';
+    return;
+  }
+console.log(car);
+  // Images
+  const imagesDiv = document.getElementById('car-images');
+  const thumbsDiv = document.getElementById('car-thumbs');
+  if (car.gallery_images && car.gallery_images.length) {
+    imagesDiv.innerHTML = car.gallery_images.map(img =>
+      `<div><img src="${window.API_BASE_URL}${img}" alt=""></div>`
+    ).join('');
+    thumbsDiv.innerHTML = car.gallery_images.map(img =>
+      `<div><img src="${window.API_BASE_URL}${img}" alt="" style="height:80px;width:auto;object-fit:cover;border-radius:4px;"></div>`
+    ).join('');
+    if (window.jQuery && $('#car-images').slick && $('#car-thumbs').slick) {
+      $('#car-images').slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: true,
+        fade: false,
+        asNavFor: '#car-thumbs',
+        adaptiveHeight: false
+      });
+      $('#car-thumbs').slick({
+        slidesToShow: Math.min(car.gallery_images.length, 5),
+        slidesToScroll: 1,
+        asNavFor: '#car-images',
+        dots: false,
+        centerMode: false,
+        focusOnSelect: true,
+        arrows: false
+      });
+    }
+  } else {
+    imagesDiv.innerHTML = '<div><img src="images/car-single/1.jpg" alt="No image"></div>';
+    thumbsDiv.innerHTML = '';
+  }
+
+  // Name, description, price
+  document.getElementById('car-title').textContent = `${car.make_name} ${car.model_name} ${car.production_year}`;
+  document.getElementById('car-name').textContent = `${car.make_name} ${car.model_name}`;
+  document.getElementById('car-description').textContent = car.description || '';
+  document.getElementById('car-price').innerHTML = `Daily rate <h3>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</h3>`;
+
+  // Specs
+  document.getElementById('car-specs').innerHTML = `
+    <div class="d-row"><span class="d-title">Body</span><span class="d-value">${car.car_type || ''}</span></div>
+    <div class="d-row"><span class="d-title">Seat</span><span class="d-value">${car.num_passengers || ''} seats</span></div>
+    <div class="d-row"><span class="d-title">Door</span><span class="d-value">${car.num_doors || ''} doors</span></div>
+    <div class="d-row"><span class="d-title">Luggage</span><span class="d-value">${car.luggage || ''}</span></div>
+    <div class="d-row"><span class="d-title">Fuel Type</span><span class="d-value">${car.fuel_type || ''}</span></div>
+    <div class="d-row"><span class="d-title">Engine</span><span class="d-value">${car.engine_capacity || ''}</span></div>
+    <div class="d-row"><span class="d-title">Year</span><span class="d-value">${car.production_year || ''}</span></div>
+    <div class="d-row"><span class="d-title">Mileage</span><span class="d-value">${car.mileage || ''}</span></div>
+    <div class="d-row"><span class="d-title">Transmission</span><span class="d-value">${car.gear_type || ''}</span></div>
+    <div class="d-row"><span class="d-title">Drive</span><span class="d-value">${car.drive || ''}</span></div>
+    <div class="d-row"><span class="d-title">Fuel Economy</span><span class="d-value">${car.fuel_economy || ''}</span></div>
+    <div class="d-row"><span class="d-title">Exterior Color</span><span class="d-value">${car.exterior_color || ''}</span></div>
+    <div class="d-row"><span class="d-title">Interior Color</span><span class="d-value">${car.interior_color || ''}</span></div>
+  `;
+
+  // Features
+  document.getElementById('car-features').innerHTML = (car.features || []).map(f => `<li>${f}</li>`).join('');
+});
+</script>
+<style>
+/* Main Slick slider image size */
+#car-images, #car-images .slick-slider, #car-images .slick-list, #car-images .slick-track {
+  width: 100%;
+  /* max-width: 480px; */
+  margin: 0 auto;
+}
+#car-images .slick-slide img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+#car-thumbs {
+  width: 100%;
+  /* max-width: 480px; */
+  margin: 0 auto;
+}
+#car-thumbs .slick-slide {
+  padding: 0 2px;
+}
+#car-thumbs img {
+  border: 2px solid #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+#car-thumbs .slick-current img {
+  border-color: #007bff;
+}
+</style>
 </body>
 
 </html>
