@@ -145,6 +145,22 @@ const carImageStorage = multer.diskStorage({
 });
 const upload = multer({ storage: carImageStorage });
 
+// Endpoint to get a single car by ID
+app.get('/api/cars/:id', (req, res) => {
+  const id = req.params.id;
+  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+    car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    res.json(car);
+  });
+});
+
 // Endpoint to add a new car
 app.post('/api/cars', async (req, res) => {
   const {
