@@ -485,35 +485,47 @@ console.log(car);
   // Images
   const imagesDiv = document.getElementById('car-images');
   const thumbsDiv = document.getElementById('car-thumbs');
+
+  let mainImages = [];
+  let thumbImages = [];
+
   if (car.gallery_images && car.gallery_images.length) {
-    imagesDiv.innerHTML = car.gallery_images.map(img =>
-      `<div><img src="${window.API_BASE_URL}${img}" alt=""></div>`
-    ).join('');
-    thumbsDiv.innerHTML = car.gallery_images.map(img =>
-      `<div><img src="${window.API_BASE_URL}${img}" alt="" style="height:80px;width:auto;object-fit:cover;border-radius:4px;"></div>`
-    ).join('');
-    if (window.jQuery && $('#car-images').slick && $('#car-thumbs').slick) {
-      $('#car-images').slick({
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        arrows: true,
-        fade: false,
-        asNavFor: '#car-thumbs',
-        adaptiveHeight: false
-      });
-      $('#car-thumbs').slick({
-        slidesToShow: Math.min(car.gallery_images.length, 5),
-        slidesToScroll: 1,
-        asNavFor: '#car-images',
-        dots: false,
-        centerMode: false,
-        focusOnSelect: true,
-        arrows: false
-      });
-    }
+    mainImages = car.gallery_images.map(img => `${window.API_BASE_URL}${img}`);
+    thumbImages = mainImages;
+  } else if (car.head_image) {
+    mainImages = [window.API_BASE_URL + car.head_image];
+    thumbImages = mainImages;
   } else {
-    imagesDiv.innerHTML = '<div><img src="images/car-single/1.jpg" alt="No image"></div>';
-    thumbsDiv.innerHTML = '';
+    mainImages = ['images/car-single/placeholder.jpg'];
+    thumbImages = mainImages;
+  }
+
+  imagesDiv.innerHTML = mainImages.map(img =>
+    `<div><img src="${img}" alt=""></div>`
+  ).join('');
+  thumbsDiv.innerHTML = thumbImages.map(img =>
+    `<div><img src="${img}" alt="" style="height:80px;width:auto;object-fit:cover;border-radius:4px;"></div>`
+  ).join('');
+
+  // Always initialize Slick, even for one image
+  if (window.jQuery && $('#car-images').slick && $('#car-thumbs').slick) {
+    $('#car-images').slick({
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: true,
+      fade: false,
+      asNavFor: '#car-thumbs',
+      adaptiveHeight: false
+    });
+    $('#car-thumbs').slick({
+      slidesToShow: Math.min(thumbImages.length, 5),
+      slidesToScroll: 1,
+      asNavFor: '#car-images',
+      dots: false,
+      centerMode: false,
+      focusOnSelect: true,
+      arrows: false
+    });
   }
 
   // Name, description, price

@@ -238,40 +238,63 @@ app.post('/api/cars', async (req, res) => {
   );
 });
 
-// Endpoint to get all cars
+// Enhanced GET /api/cars with filtering
 app.get('/api/cars', (req, res) => {
-  db.all('SELECT * FROM cars', [], (err, rows) => {
+  const filters = [];
+  const params = [];
+
+  if (req.query.make_name && req.query.make_name !== '') {
+    filters.push('make_name = ?');
+    params.push(req.query.make_name);
+  }
+  if (req.query.model_name && req.query.model_name !== '') {
+    filters.push('model_name = ?');
+    params.push(req.query.model_name);
+  }
+  if (req.query.gear_type && req.query.gear_type !== '') {
+    filters.push('gear_type = ?');
+    params.push(req.query.gear_type);
+  }
+  if (req.query.fuel_type && req.query.fuel_type !== '') {
+    filters.push('fuel_type = ?');
+    params.push(req.query.fuel_type);
+  }
+  if (req.query.car_type && req.query.car_type !== '') {
+    filters.push('car_type = ?');
+    params.push(req.query.car_type);
+  }
+  if (req.query.num_doors && req.query.num_doors !== '') {
+    filters.push('num_doors = ?');
+    params.push(req.query.num_doors);
+  }
+  if (req.query.num_passengers && req.query.num_passengers !== '') {
+    filters.push('num_passengers = ?');
+    params.push(req.query.num_passengers);
+  }
+  if (req.query.min_year && req.query.min_year !== '') {
+    filters.push('production_year >= ?');
+    params.push(req.query.min_year);
+  }
+  if (req.query.max_year && req.query.max_year !== '') {
+    filters.push('production_year <= ?');
+    params.push(req.query.max_year);
+  }
+
+  let sql = 'SELECT * FROM cars';
+  if (filters.length > 0) {
+    sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  db.all(sql, params, (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
-    // Parse price_policy JSON for each car and check availability
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
-    
-    const cars = rows.map(car => {
-      let isAvailable = true;
-      let bookedUntilDate = null;
-      
-      // Check if car has a booked_until date
-      if (car.booked_until) {
-        bookedUntilDate = new Date(car.booked_until);
-        bookedUntilDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
-        
-        // If current date is before or equal to booked_until date, car is not available
-        if (currentDate <= bookedUntilDate) {
-          isAvailable = false;
-        }
-      }
-      
-      return {
-        ...car,
-        price_policy: car.price_policy ? JSON.parse(car.price_policy) : {},
-        booked: isAvailable ? 0 : 1, // Override booked status based on date check
-        booked_until: car.booked_until,
-        is_available: isAvailable
-      };
+    // Parse price_policy and gallery_images for each car
+    rows.forEach(car => {
+      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     });
-    res.json(cars);
+    res.json(rows);
   });
 });
 
