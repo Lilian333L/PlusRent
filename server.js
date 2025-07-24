@@ -243,34 +243,28 @@ app.get('/api/cars', (req, res) => {
   const filters = [];
   const params = [];
 
-  if (req.query.make_name && req.query.make_name !== '') {
-    filters.push('make_name = ?');
-    params.push(req.query.make_name);
+  // Helper to add single or multi-value filter (case-insensitive)
+  function addFilter(field, param) {
+    if (req.query[param] && req.query[param] !== '') {
+      const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
+      if (values.length > 1) {
+        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
+        params.push(...values);
+      } else {
+        filters.push(`${field} = ? COLLATE NOCASE`);
+        params.push(values[0]);
+      }
+    }
   }
-  if (req.query.model_name && req.query.model_name !== '') {
-    filters.push('model_name = ?');
-    params.push(req.query.model_name);
-  }
-  if (req.query.gear_type && req.query.gear_type !== '') {
-    filters.push('gear_type = ?');
-    params.push(req.query.gear_type);
-  }
-  if (req.query.fuel_type && req.query.fuel_type !== '') {
-    filters.push('fuel_type = ?');
-    params.push(req.query.fuel_type);
-  }
-  if (req.query.car_type && req.query.car_type !== '') {
-    filters.push('car_type = ?');
-    params.push(req.query.car_type);
-  }
-  if (req.query.num_doors && req.query.num_doors !== '') {
-    filters.push('num_doors = ?');
-    params.push(req.query.num_doors);
-  }
-  if (req.query.num_passengers && req.query.num_passengers !== '') {
-    filters.push('num_passengers = ?');
-    params.push(req.query.num_passengers);
-  }
+
+  addFilter('make_name', 'make_name');
+  addFilter('model_name', 'model_name');
+  addFilter('gear_type', 'gear_type');
+  addFilter('fuel_type', 'fuel_type');
+  addFilter('car_type', 'car_type');
+  addFilter('num_doors', 'num_doors');
+  addFilter('num_passengers', 'num_passengers');
+
   if (req.query.min_year && req.query.min_year !== '') {
     filters.push('production_year >= ?');
     params.push(req.query.min_year);
