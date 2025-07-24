@@ -484,12 +484,13 @@ app.delete('/api/cars/:id/images', (req, res) => {
       } catch (e) {
         galleryImages = [];
       }
-      
+      // Debug logs for troubleshooting
+      console.log('Gallery images in DB:', galleryImages);
+      console.log('Requested to delete:', imagePath);
       // Check if the image exists in the gallery
       if (!galleryImages.includes(imagePath)) {
         return res.status(400).json({ error: 'Image not found in gallery' });
       }
-      
       // Remove the image from gallery_images array
       const updatedGallery = galleryImages.filter(img => img !== imagePath);
       updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';

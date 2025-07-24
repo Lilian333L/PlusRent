@@ -1146,6 +1146,9 @@ let editGalleryImageFiles = []; // Track new gallery image files for edit mode
 let addGalleryImageFiles = []; // Track gallery image files for add mode
 let isProcessingFiles = false; // Prevent duplicate file processing
 
+// Add after editGalleryImageFiles and editHeadImageFile declarations:
+let imagesToDelete = [];
+
 // Populate selects for years, doors, passengers
 function populateSelect(select, from, to, desc = false) {
   select.innerHTML = '';
@@ -1169,11 +1172,11 @@ function populateSelect(select, from, to, desc = false) {
 // Body scroll lock functions
 let scrollPosition = 0;
 
-// function preventScroll(e) {
-//   e.preventDefault();
-//   e.stopPropagation();
-//   return false;
-// }
+function preventScroll(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+}
 
 function preventKeyScroll(e) {
   // Prevent arrow keys, page up/down, home/end from scrolling
@@ -1199,7 +1202,7 @@ function lockBodyScroll() {
   document.documentElement.classList.add('modal-open');
   
   // Add event listeners to prevent scrolling
-  document.addEventListener('wheel', preventScroll, { passive: false });
+  //document.addEventListener('wheel', preventScroll, { passive: false });
   document.addEventListener('touchmove', preventScroll, { passive: false });
   document.addEventListener('keydown', preventKeyScroll);
 }
@@ -1213,7 +1216,7 @@ function unlockBodyScroll() {
   document.body.style.top = '';
   
   // Remove event listeners
-  document.removeEventListener('wheel', preventScroll);
+  //document.removeEventListener('wheel', preventScroll);
   document.removeEventListener('touchmove', preventScroll);
   document.removeEventListener('keydown', preventKeyScroll);
   
@@ -1502,34 +1505,28 @@ async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
   
 
   
-  // Handle edit mode - remove from server if it's an existing image
+  // Handle edit mode - stage deletion locally
   if (isEdit && containerId === 'editGalleryImagesPreview') {
     if (imageToRemove.isExisting) {
-      // Remove from server with proper type parameter
-      const editForm = document.getElementById('editCarForm');
-      const carId = editForm.getAttribute('data-id');
-      try {
-        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}&type=gallery`, { method: 'DELETE' });
-        if (response.ok) {
-          // Remove from currentGalleryImages array
-          const imageIndex = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
-          if (imageIndex !== -1) {
-            currentGalleryImages.splice(imageIndex, 1);
-          }
-          showAlert('Image deleted successfully!', 'success');
-        } else {
-          showAlert('Failed to delete image from server.', 'error');
-          return;
-        }
-      } catch (error) {
-        console.error('Error removing image from server:', error);
-        showAlert('Error deleting image.', 'error');
+      // Only allow deletion if the image exists in the currentGalleryImages array
+      if (currentGalleryImages.includes(imageToRemove.originalPath)) {
+        imagesToDelete.push(imageToRemove.originalPath);
+        // Remove from currentGalleryImages immediately for UI
+        const idx = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
+        if (idx !== -1) currentGalleryImages.splice(idx, 1);
+      } else {
+        showAlert('Image not found in backend. Refreshing images...', 'error');
+        const carId = editForm.getAttribute('data-id');
+        fetch(`${window.API_BASE_URL}/api/cars/${carId}`)
+          .then(res => res.json())
+          .then(car => {
+            openEditFormWithImages(car);
+          });
         return;
       }
     } else {
       // Remove from new uploads array
       editGalleryImageFiles.splice(imageToRemove.fileIndex, 1);
-      // Update file indices for remaining new uploads
       state.images.forEach((img, idx) => {
         if (!img.isExisting && img.fileIndex > imageToRemove.fileIndex) {
           img.fileIndex--;
@@ -1811,6 +1808,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Reset image inputs when actually closing the panel
     if (form === editForm) {
       resetEditImageInputs();
+      imagesToDelete = [];
+      // Restore original images for next open
+      if (editForm._originalHeadImage !== undefined) {
+        car = { head_image: editForm._originalHeadImage, gallery_images: editForm._originalGalleryImages };
+        currentGalleryImages = Array.isArray(car.gallery_images) ? [...car.gallery_images] : (car.gallery_images ? [car.gallery_images] : []);
+        renderEditImagePreviews(car);
+      }
     } else if (form === addForm) {
       resetAddImageInputs();
     }
@@ -2328,6 +2332,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     try {
       const id = editForm.getAttribute('data-id');
+      let imageUploadError = false;
+      // 1. Process deletions FIRST
+      for (const imgPath of imagesToDelete) {
+        try {
+          const delResp = await fetch(`${window.API_BASE_URL}/api/cars/${id}/images?path=${encodeURIComponent(imgPath)}&type=gallery`, { method: 'DELETE' });
+          if (!delResp.ok) imageUploadError = true;
+        } catch (delErr) {
+          imageUploadError = true;
+          console.error('Image delete error:', delErr);
+        }
+      }
+      // 2. Then send the PUT update
       const response = await fetch(`${window.API_BASE_URL}/api/cars/${id}`, {
         method: 'PUT',
         headers: {
@@ -2336,17 +2352,24 @@ document.addEventListener('DOMContentLoaded', function () {
         body: JSON.stringify(data),
       });
       if (response.ok) {
-        // Now upload images if any
+        // 3. Then process new uploads
         if (editHeadImageInput.files[0] || editGalleryImageFiles.length > 0) {
-          const imgForm = new FormData();
-          if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
-          editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
-          await fetch(`${window.API_BASE_URL}/api/cars/${id}/images`, {
-            method: 'POST',
-            body: imgForm
-          });
+          try {
+            const imgForm = new FormData();
+            if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
+            editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
+            const imgResp = await fetch(`${window.API_BASE_URL}/api/cars/${id}/images`, {
+              method: 'POST',
+              body: imgForm
+            });
+            if (!imgResp.ok) imageUploadError = true;
+          } catch (imgErr) {
+            imageUploadError = true;
+            console.error('Image upload error:', imgErr);
+          }
         }
-        showAlert('Car updated successfully!', 'success');
+        imagesToDelete = [];
+        showAlert('Car updated successfully!' + (imageUploadError ? ' (Some images may not have uploaded or deleted)' : ''), imageUploadError ? 'error' : 'success');
         editForm.reset();
         resetEditImageInputs();
         closePanel(editPanel, editForm);
@@ -2355,7 +2378,8 @@ document.addEventListener('DOMContentLoaded', function () {
         showAlert('Failed to update car.', 'error');
       }
     } catch (err) {
-      showAlert('Error saving car.', 'error');
+      console.error('Unexpected error during car update:', err);
+      showAlert('Unexpected error. Please try again.', 'error');
     }
     editUploading = false;
     editFormSubmitBtn.disabled = false;
@@ -2364,6 +2388,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
   // When opening edit form, render image previews
   function openEditFormWithImages(car) {
+    // Reset all local image state to match backend
+    editGalleryImageFiles = [];
+    editHeadImageFile = null;
+    imagesToDelete = [];
+    currentGalleryImages = Array.isArray(car.gallery_images) ? [...car.gallery_images] : (car.gallery_images ? [car.gallery_images] : []);
+    console.log('Gallery images in modal (from backend):', currentGalleryImages);
     renderEditImagePreviews(car);
   }
 
@@ -2500,9 +2530,22 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       // Add edit button listeners
       document.querySelectorAll('.editCarBtn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const car = cars.find(c => c.id == btn.getAttribute('data-id'));
-          if (!car) return;
+        btn.addEventListener('click', async function () {
+          const carId = btn.getAttribute('data-id');
+          let car = null;
+          try {
+            const res = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
+            if (res.ok) {
+              car = await res.json();
+            }
+          } catch (err) {
+            showAlert('Failed to load car data.', 'error');
+            return;
+          }
+          if (!car) {
+            showAlert('Car not found.', 'error');
+            return;
+          }
           // Fill edit form
           editForm.setAttribute('data-id', car.id);
           editForm.elements['make_name'].value = car.make_name;
@@ -2520,7 +2563,7 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['price_21_45'].value = car.price_policy['21-45'];
           editForm.elements['price_46'].value = car.price_policy['46+'];
           editForm.elements['booked_until'].value = car.booked_until || '';
-          openEditFormWithImages(car); // Call the new function
+          openEditFormWithImages(car);
           // Handle fuel type state for engine capacity
           handleFuelTypeChange(editForm, true);
           addPanel.classList.remove('active');
