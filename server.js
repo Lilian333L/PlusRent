@@ -273,6 +273,15 @@ app.get('/api/cars', (req, res) => {
     filters.push('production_year <= ?');
     params.push(req.query.max_year);
   }
+  // Price filtering (by daily rate for 1-2 days)
+  if (req.query.min_price && req.query.min_price !== '') {
+    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
+    params.push(req.query.min_price);
+  }
+  if (req.query.max_price && req.query.max_price !== '') {
+    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
+    params.push(req.query.max_price);
+  }
 
   let sql = 'SELECT * FROM cars';
   if (filters.length > 0) {

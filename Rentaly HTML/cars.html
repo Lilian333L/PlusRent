@@ -18,6 +18,8 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <!-- Ensure config.js is loaded first -->
+    <script src="js/config.js"></script>
 </head>
 
 <body>
@@ -107,68 +109,438 @@
             </section>
             <!-- section close -->
 
-            <!-- Filter Bar -->
-<div class="container mb-4 mt-4">
-  <form id="carFilterForm" class="row g-2 align-items-end" method="get" action="cars">
-    <div class="col-md-2">
-      <label for="filterMake" class="form-label">Make</label>
-      <select id="filterMake" class="form-select" name="make_name">
-        <option value="">All</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label for="filterGear" class="form-label">Gear</label>
-      <select id="filterGear" class="form-select" name="gear_type">
-        <option value="">All</option>
-        <option value="Automatic">Automatic</option>
-        <option value="Manual">Manual</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label for="filterFuel" class="form-label">Fuel</label>
-      <select id="filterFuel" class="form-select" name="fuel_type">
-        <option value="">All</option>
-        <option value="Gasoline">Gasoline</option>
-        <option value="Diesel">Diesel</option>
-        <option value="Electric">Electric</option>
-        <option value="Hybrid">Hybrid</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label for="filterCarType" class="form-label">Type</label>
-      <select id="filterCarType" class="form-select" name="car_type">
-        <option value="">All</option>
-        <option value="Sedan">Sedan</option>
-        <option value="Crossover">Crossover</option>
-        <option value="Minivan">Minivan</option>
-        <option value="Hatchback">Hatchback</option>
-        <option value="Coupe">Coupe</option>
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label for="filterYear" class="form-label">Year</label>
-      <div class="d-flex align-items-center">
-        <input type="number" id="filterMinYear" class="form-control" name="min_year" placeholder="From" min="2000" max="2100" style="width: 48%; margin-right: 4%;">
-        <input type="number" id="filterMaxYear" class="form-control" name="max_year" placeholder="To" min="2000" max="2100" style="width: 48%;">
+            <!-- Sidebar filter and car list layout -->
+<div class="container cars-main-container">
+                    <div class="row">
+    <div class="col-lg-3 col-md-4 small-sidebar">
+      <div class="filter-sidebar">
+        <div class="filter-title">
+          Filter
+          <a class="filter-clear" id="clear-filters-link">Clear all filters</a>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Make</h6>
+          <div id="filter-make-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Gear</h6>
+          <div id="filter-gear-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Fuel</h6>
+          <div id="filter-fuel-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Type</h6>
+          <div id="filter-type-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Doors</h6>
+          <div id="filter-doors-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Passengers</h6>
+          <div id="filter-passengers-options"></div>
+        </div>
+        <hr class="filter-divider">
+        <div class="filter-category">
+          <h6 class="filter-section-title">Price</h6>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;">
+            <span>-</span>
+            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;">
+          </div>
+        </div>
       </div>
     </div>
-    <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">Filter</button>
-    </div>
-  </form>
-</div>
+    <div class="col-lg-9 col-md-8">
+      <div class="row car-list-row" id="car-list"></div>
+                                        </div>
+                                    </div>
+                                </div>
 
-            <section id="section-cars">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="row" id="car-list">
-                                <!-- Car cards will be inserted here dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+<style>
+@media (min-width: 992px) {
+  .col-lg-9 {
+    width: 82%;
+    flex: 0 0 82%;
+    max-width: 82%;
+  }
+}
+.cars-main-container {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+.small-sidebar {
+  max-width: 18%;
+}
+.filter-sidebar {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  /* padding: 1.5rem 1.2rem 1.2rem 1.2rem; */
+  min-width: 220px;
+  max-width: 260px;
+}
+.filter-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.01em;
+}
+.filter-clear {
+  float: right;
+  color: #1976d2;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+.filter-divider {
+  border: none;
+  border-top: 1.5px solid #9e9797;
+  margin: 1.1rem 0 1.1rem 0;
+}
+.filter-section-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 1.2rem;
+  letter-spacing: 0.01em;
+}
+.filter-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 2px;
+  margin-bottom: 6px;
+}
+.filter-option-row label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  flex: 1 1 auto;
+}
+.filter-option-row input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  accent-color: #1976d2;
+}
+.option-label {
+  margin-right: 8px;
+}
+.option-count {
+  color: #222;
+  font-size: 1rem;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: right;
+  margin-left: 10px;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  display: inline-block;
+}
+.car-list-row {
+  margin-left: 0;
+  margin-right: 0;
+  gap: 1.5rem 0;
+}
+.car-list-row > .col-xl-4, .car-list-row > .col-lg-6 {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 24px;
+  max-width: 320px;
+  flex: 1 1 260px;
+  min-width: 240px;
+}
+.de-item.mb30 {
+  transition: box-shadow 0.25s, transform 0.25s;
+  margin-bottom: 0 !important;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 0.7rem 0.7rem 1.1rem 0.7rem;
+}
+.car-unavailable {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.7);
+}
+.img-unavailable img{
+    filter: grayscale(0.22) brightness(0.96);
+}
+.btn-main.disabled, .btn-main[aria-disabled="true"] {
+  background: #aaa !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+.booked-until-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(60,60,60,0.82);
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  pointer-events: none;
+}
+.d-img {
+  position: relative;
+}
+
+.unavailable-badge {
+  position: absolute;
+  top: 0px;
+  right: 0;
+  background: #ff6b5b;
+  color: #fff;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 5px 14px 4px 14px;
+  border-radius: 7px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  pointer-events: none;
+  border: none;
+}
+.btn-unavailable {
+  background: #ececec !important;
+  color: #888 !important;
+  border: 2px solid #ececec !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  font-weight: 700;
+  border-radius: 8px;
+  /* padding: 0.7rem 2.2rem; */
+  margin-top: 0.7rem;
+  display: inline-block;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.btn-main {
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+}
+.filter-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 2px;
+  margin-bottom: 2px;
+}
+.option-label {
+  margin-right: 8px;
+}
+
+@media (max-width: 991px) {
+  .small-sidebar { max-width: 100%; margin-bottom: 2rem; }
+  .cars-main-container { padding-left: 0.5rem; padding-right: 0.5rem; }
+}
+@media (max-width: 600px) {
+  .car-list-row > .col-xl-4, .car-list-row > .col-lg-6 {
+    min-width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .cars-main-container { padding-left: 0.2rem; padding-right: 0.2rem; }
+}
+</style>
+
+<script>
+// Helper: get all unique values for a field from cars array
+function getUniqueOptions(cars, field) {
+  return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
+}
+
+// Render checkboxes for a filter category
+function renderFilterOptions(containerId, options, selectedValues, allCarsFull, currentFilters, field) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = options.map(opt => {
+    const newFilters = { ...currentFilters };
+    const alreadySelected = selectedValues.includes(String(opt));
+    let filterVals = alreadySelected ? selectedValues : [...selectedValues, String(opt)];
+    newFilters[field] = filterVals;
+    const count = allCarsFull.filter(car => {
+      for (const key in newFilters) {
+        if (!newFilters[key] || !newFilters[key].length) continue;
+        if (!newFilters[key].includes(String(car[key]))) return false;
+      }
+      return true;
+    }).length;
+    return `
+      <div class="filter-option-row">
+        <label>
+          <input type="checkbox" value="${opt}" ${selectedValues.includes(String(opt)) ? 'checked' : ''}>
+          <span class="option-label">${opt}</span>
+        </label>
+        <span class="option-count">${count}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function getCurrentSidebarFilters() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    make_name: params.get('make_name') ? params.get('make_name').split(',') : [],
+    gear_type: params.get('gear_type') ? params.get('gear_type').split(',') : [],
+    fuel_type: params.get('fuel_type') ? params.get('fuel_type').split(',') : [],
+    car_type: params.get('car_type') ? params.get('car_type').split(',') : [],
+    num_doors: params.get('num_doors') ? params.get('num_doors').split(',') : [],
+    num_passengers: params.get('num_passengers') ? params.get('num_passengers').split(',') : [],
+    // price is not included in count logic for now
+  };
+}
+
+// Get selected values from all checkboxes in a container
+function getSelectedValues(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);
+}
+
+// Update URL and fetch cars
+function updateFiltersAndFetch() {
+  const make = getSelectedValues('filter-make-options');
+  const gear = getSelectedValues('filter-gear-options');
+  const fuel = getSelectedValues('filter-fuel-options');
+  const type = getSelectedValues('filter-type-options');
+  const doors = getSelectedValues('filter-doors-options');
+  const passengers = getSelectedValues('filter-passengers-options');
+  const priceMin = document.getElementById('filter-price-min').value;
+  const priceMax = document.getElementById('filter-price-max').value;
+  const params = new URLSearchParams();
+  if (make.length) params.set('make_name', make.join(','));
+  if (gear.length) params.set('gear_type', gear.join(','));
+  if (fuel.length) params.set('fuel_type', fuel.join(','));
+  if (type.length) params.set('car_type', type.join(','));
+  if (doors.length) params.set('num_doors', doors.join(','));
+  if (passengers.length) params.set('num_passengers', passengers.join(','));
+  if (priceMin) params.set('min_price', priceMin);
+  if (priceMax) params.set('max_price', priceMax);
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.history.pushState({}, '', newUrl);
+  fetchAndRenderCars();
+}
+
+// Fetch and render cars based on current filters
+async function fetchAndRenderCars() {
+  const carListDiv = document.getElementById('car-list');
+  const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
+  const cars = await res.json();
+  if (!cars.length) {
+    carListDiv.innerHTML = '<div>No cars available.</div>';
+    renderSidebarOptions([]); // This will now be handled by renderSidebarOptions
+    return;
+  }
+  carListDiv.innerHTML = cars.map(car => {
+    const isUnavailable = car.booked_until && !car.is_available;
+    let badge = '';
+    if (isUnavailable && car.booked_until) {
+      const d = new Date(car.booked_until);
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
+      badge = `<div class="unavailable-badge">UNAVAILABLE UNTIL ${formatted}</div>`;
+    }
+    return `
+      <div class="col-xl-4 col-lg-6">
+        <div class="de-item mb30">
+          <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
+            <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
+            ${badge}
+          </div>
+          <div class="d-info">
+            <div class="d-text">
+              <h4>${car.make_name}</h4>
+              <p>${car.model_name}</p>
+              <div class="d-item_like">
+                <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
+              </div>
+              <div class="d-atr-group">
+                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">${car.num_passengers || '-'}</span>
+                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">${car.num_doors || '-'}</span>
+                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">${car.car_type || '-'}</span>
+              </div>
+              <div class="d-price">
+                Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span>
+                ${isUnavailable
+                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true">Not Available</span>'
+                  : `<a class="btn-main" href="car-single?id=${car.id}">Rent Now</a>`}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
+}
+
+// Render sidebar options and attach event listeners
+function renderSidebarOptions(allCarsFull) {
+  const params = new URLSearchParams(window.location.search);
+  const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
+  const selectedGears = params.get('gear_type') ? params.get('gear_type').split(',') : [];
+  const selectedFuels = params.get('fuel_type') ? params.get('fuel_type').split(',') : [];
+  const selectedTypes = params.get('car_type') ? params.get('car_type').split(',') : [];
+  const selectedDoors = params.get('num_doors') ? params.get('num_doors').split(',') : [];
+  const selectedPassengers = params.get('num_passengers') ? params.get('num_passengers').split(',') : [];
+  const priceMin = params.get('min_price') ? params.get('min_price') : '';
+  const priceMax = params.get('max_price') ? params.get('max_price') : '';
+  const currentFilters = getCurrentSidebarFilters();
+
+  renderFilterOptions('filter-make-options', getUniqueOptions(allCarsFull, 'make_name'), selectedMakes, allCarsFull, currentFilters, 'make_name');
+  renderFilterOptions('filter-gear-options', getUniqueOptions(allCarsFull, 'gear_type'), selectedGears, allCarsFull, currentFilters, 'gear_type');
+  renderFilterOptions('filter-fuel-options', getUniqueOptions(allCarsFull, 'fuel_type'), selectedFuels, allCarsFull, currentFilters, 'fuel_type');
+  renderFilterOptions('filter-type-options', getUniqueOptions(allCarsFull, 'car_type'), selectedTypes, allCarsFull, currentFilters, 'car_type');
+  renderFilterOptions('filter-doors-options', getUniqueOptions(allCarsFull, 'num_doors'), selectedDoors, allCarsFull, currentFilters, 'num_doors');
+  renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsFull, 'num_passengers'), selectedPassengers, allCarsFull, currentFilters, 'num_passengers');
+  document.getElementById('filter-price-min').value = priceMin;
+  document.getElementById('filter-price-max').value = priceMax;
+
+  // Attach change listeners
+  ['filter-make-options','filter-gear-options','filter-fuel-options','filter-type-options','filter-doors-options','filter-passengers-options'].forEach(id => {
+    document.getElementById(id).querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', updateFiltersAndFetch);
+    });
+  });
+  document.getElementById('filter-price-min').addEventListener('change', updateFiltersAndFetch);
+  document.getElementById('filter-price-max').addEventListener('change', updateFiltersAndFetch);
+}
+
+// Initial load
+// On page load, fetch all cars once for sidebar options
+let allCarsFullCache = [];
+fetch(`${window.API_BASE_URL}/api/cars`).then(res => res.json()).then(allCarsFull => {
+  allCarsFullCache = allCarsFull;
+  renderSidebarOptions(allCarsFull);
+});
+
+window.addEventListener('popstate', fetchAndRenderCars);
+document.addEventListener('DOMContentLoaded', fetchAndRenderCars);
+
+document.getElementById('clear-filters-link').addEventListener('click', function(e) {
+  e.preventDefault();
+  window.history.pushState({}, '', window.location.pathname);
+  fetchAndRenderCars();
+  renderSidebarOptions(allCarsFullCache);
+});
+</script>
 			
 			
         </div>
@@ -259,110 +631,7 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
-    <script src="js/config.js"></script>
     <script>
-let allMakes = [];
-
-// Helper: get current filter values as an object
-function getFilterValues() {
-  return {
-    make_name: document.getElementById('filterMake').value,
-    gear_type: document.getElementById('filterGear').value,
-    fuel_type: document.getElementById('filterFuel').value,
-    car_type: document.getElementById('filterCarType').value,
-    min_year: document.getElementById('filterMinYear').value,
-    max_year: document.getElementById('filterMaxYear').value
-  };
-}
-
-// Helper: set filter values from URL
-function setFilterValuesFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('make_name')) document.getElementById('filterMake').value = params.get('make_name');
-  if (params.get('gear_type')) document.getElementById('filterGear').value = params.get('gear_type');
-  if (params.get('fuel_type')) document.getElementById('filterFuel').value = params.get('fuel_type');
-  if (params.get('car_type')) document.getElementById('filterCarType').value = params.get('car_type');
-  if (params.get('min_year')) document.getElementById('filterMinYear').value = params.get('min_year');
-  if (params.get('max_year')) document.getElementById('filterMaxYear').value = params.get('max_year');
-}
-
-// Fetch and render car list based on current URL query string
-async function fetchAndRenderCars() {
-  const carListDiv = document.getElementById('car-list');
-  const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
-  const cars = await res.json();
-  if (!cars.length) {
-    carListDiv.innerHTML = '<div>No cars available.</div>';
-    return;
-  }
-  carListDiv.innerHTML = cars.map(car => `
-    <div class="col-lg-3 mb-4">
-      <div class="de-item mb30">
-        <div class="d-img">
-          <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
-        </div>
-        <div class="d-info">
-          <div class="d-text">
-            <h4>${car.make_name}</h4>
-            <p>${car.model_name}</p>
-            <div class="d-item_like">
-              <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-            </div>
-            <div class="d-atr-group">
-              <span class="d-atr"><img src="images/icons/1-green.svg" alt="">${car.num_passengers || '-'}</span>
-              <span class="d-atr"><img src="images/icons/2-green.svg" alt="">${car.num_doors || '-'}</span>
-              <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
-              <span class="d-atr"><img src="images/icons/4-green.svg" alt="">${car.car_type || '-'}</span>
-            </div>
-            <div class="d-price">
-              Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span>
-              <a class="btn-main" href="car-single?id=${car.id}">Rent Now</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-document.addEventListener('DOMContentLoaded', async function() {
-  const filterForm = document.getElementById('carFilterForm');
-  const filterMake = document.getElementById('filterMake');
-
-  // 1. Fetch all makes (from all cars) ONCE
-  const allCarsRes = await fetch(`${window.API_BASE_URL}/api/cars`);
-  const allCars = await allCarsRes.json();
-  allMakes = Array.from(new Set(allCars.map(car => car.make_name))).sort();
-  filterMake.innerHTML = '<option value="">All</option>' + allMakes.map(make => `<option value="${make}">${make}</option>`).join('');
-
-  // 2. Set filter values from URL
-  setFilterValuesFromURL();
-
-  // 3. Fetch and render filtered cars
-  await fetchAndRenderCars();
-
-  // 4. Intercept filter form submit to use AJAX and update URL
-  filterForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Build new query string from filter values
-    const filters = getFilterValues();
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, val]) => {
-      if (val) params.set(key, val);
-    });
-    // Update URL without reloading
-    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-    window.history.pushState({}, '', newUrl);
-    // Fetch and render cars
-    fetchAndRenderCars();
-  });
-
-  // 5. Handle browser back/forward navigation
-  window.addEventListener('popstate', function() {
-    setFilterValuesFromURL();
-    fetchAndRenderCars();
-  });
-});
     </script>
 </body>
 
