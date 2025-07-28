@@ -60,6 +60,19 @@ i18next.on('languageChanged', () => {
   updateContent();
   localStorage.setItem('lang', i18next.language);
   updateLangPickerUI();
+  
+  // Send language change message to spinning wheel iframe
+  const wheelIframe = document.querySelector('.wheel-container iframe');
+  if (wheelIframe && wheelIframe.contentWindow) {
+    try {
+      wheelIframe.contentWindow.postMessage({
+        type: 'languageChange',
+        language: i18next.language
+      }, '*');
+    } catch (e) {
+      console.log('Could not send message to iframe:', e);
+    }
+  }
 });
 
 function updateLangPickerUI() {
