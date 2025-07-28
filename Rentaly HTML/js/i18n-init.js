@@ -64,13 +64,13 @@ i18next.on('languageChanged', () => {
 
 function updateLangPickerUI() {
   var lang = i18next.language || defaultLang;
-  var flag = '🇷🇴', name = 'Română';
-  if (lang === 'en') { flag = '🇬🇧'; name = 'English'; }
-  if (lang === 'ru') { flag = '🇷🇺'; name = 'Русский'; }
+  var flag = '🇷🇴', code = 'RO';
+  if (lang === 'en') { flag = '🇬🇧'; code = 'EN'; }
+  if (lang === 'ru') { flag = '🇷🇺'; code = 'RU'; }
   var flagEl = document.getElementById('langFlag');
-  var nameEl = document.getElementById('langName');
+  var codeEl = document.getElementById('langCode');
   if (flagEl) flagEl.textContent = flag;
-  if (nameEl) nameEl.textContent = name;
+  if (codeEl) codeEl.textContent = code;
   // Highlight selected in dropdown
   var opts = document.querySelectorAll('.lang-option');
   opts.forEach(function(opt) {
