@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Wheel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .spinning-wheel-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .wheel-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .wheel-content {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+            }
+        }
+
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .wheel-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            padding: 8px;
+            background: linear-gradient(45deg, #20b2aa, #1e90ff, #20b2aa);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .wheel-border {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: white;
+            padding: 4px;
+            box-shadow: 0 0 30px rgba(32, 178, 170, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        .wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: center;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .segment-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .segment-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+            display: block;
+        }
+
+        .segment-text {
+            font-size: 20px;
+            line-height: 1;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 8px;
+            border-radius: 8px;
+            white-space: nowrap;
+            min-width: 40px;
+        }
+
+        .center-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .center-button:hover {
+            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .center-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .center-icon {
+            font-size: 2rem;
+            color: white;
+            display: block;
+        }
+
+        .arrow-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            animation: arrowPulse 2s ease-in-out infinite;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 40px solid #ff4757;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+            position: relative;
+        }
+
+
+
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .reset-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.4);
+        }
+
+        .reset-icon {
+            font-size: 1.2rem;
+        }
+
+        .info-section {
+            flex: 1;
+            max-width: 500px;
+            min-height: 400px;
+        }
+
+        .instructions-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .instructions-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-step:hover {
+            background: rgba(32, 178, 170, 0.1);
+            transform: translateX(5px);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(32, 178, 170, 0.3);
+        }
+
+        .step-text {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            padding-top: 0.25rem;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #ff6b6b, #ffa502);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .congratulations {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .you-won {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .prize-display {
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            margin-bottom: 1rem;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-text {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .discount-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .book-now-button {
+            background: white;
+            color: #ff6b6b;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .book-now-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .center-button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .center-icon {
+                font-size: 1.5rem;
+            }
+
+            .arrow {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 25px solid #ff4757;
+            }
+
+            .instructions-card,
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .congratulations {
+                font-size: 1.5rem;
+            }
+
+            .prize-display {
+                font-size: 1.2rem;
+                padding: 0.75rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="spinning-wheel-container">
+        <div class="wheel-content">
+            <!-- Left Side - Wheel -->
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <!-- Outer glow ring -->
+                    <div class="wheel-glow">
+                        <div class="wheel-border">
+                            <!-- Main wheel -->
+                            <div class="wheel" id="wheel">
+                                <!-- Wheel segments will be generated by JavaScript -->
+                            </div>
+
+                            <!-- Center button -->
+                            <button class="center-button" id="centerButton">
+                                <span class="center-icon">🎁</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Arrow pointer -->
+                    <div class="arrow-pointer">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+
+                <!-- Spin again button -->
+                <button class="reset-button" id="resetButton" style="display: none;">
+                    <span class="reset-icon">🔄</span>
+                    <span id="spinAgainText">Spin Again (New Visit)</span>
+                </button>
+            </div>
+
+            <!-- Right Side - Instructions/Result -->
+            <div class="info-section">
+                <div class="instructions-card" id="instructionsCard">
+                    <h3 class="instructions-title" id="howToPlayTitle">How to Play</h3>
+                    <ul class="instructions-list">
+                        <li class="instruction-step">
+                            <span class="step-number">1</span>
+                            <span class="step-text" id="step1Text">Press the button in the center of the wheel</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">2</span>
+                            <span class="step-text" id="step2Text">Watch the wheel spin and stop on your prize</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">3</span>
+                            <span class="step-text" id="step3Text">Copy your discount code</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">4</span>
+                            <span class="step-text" id="step4Text">Use it when you make your next reservation</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="result-card" id="resultCard">
+                    <div class="trophy-icon">🏆</div>
+                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS! 🎉</h3>
+                    <p class="you-won" id="youWonText">You won</p>
+                    <div class="prize-display" id="prizeDisplay">0 FREE DAYS</div>
+                    <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode">SPIN0FREE</span></p>
+                    <button class="book-now-button" id="bookNowButton">Book Now & Apply Bonus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language configuration
+        let currentLanguage = 'en';
+        let translations = {};
+
+        // Language detection and loading
+        async function loadLanguage() {
+            // Try to get language from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const langParam = urlParams.get('lang');
+            
+            // Try to get language from localStorage
+            const storedLang = localStorage.getItem('lang');
+            
+            // Try to get language from parent window if embedded
+            let parentLang = null;
+            try {
+                if (window.parent && window.parent !== window) {
+                    // Try to access parent's i18next language
+                    if (window.parent.i18next && window.parent.i18next.language) {
+                        parentLang = window.parent.i18next.language;
+                    }
+                    // Try to access parent's localStorage
+                    if (!parentLang) {
+                        parentLang = window.parent.localStorage.getItem('lang');
+                    }
+                }
+            } catch (e) {
+                // Cross-origin restriction, ignore
+            }
+
+            // Determine language priority
+            const lang = langParam || parentLang || storedLang || 'en';
+            currentLanguage = lang;
+
+            // Load translation file
+            try {
+                const response = await fetch(`js/locales/${lang}.json`);
+                if (response.ok) {
+                    translations = await response.json();
+                    updateTexts();
+                } else {
+                    // Fallback to English
+                    const enResponse = await fetch('js/locales/en.json');
+                    translations = await enResponse.json();
+                    updateTexts();
+                }
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                // Use default English texts
+                translations = {
+                    wheel: {
+                        how_to_play: "How to Play",
+                        step1: "Press the button in the center of the wheel",
+                        step2: "Watch the wheel spin and stop on your prize",
+                        step3: "Copy your discount code",
+                        step4: "Use it when you make your next reservation",
+                        congratulations: "CONGRATULATIONS! 🎉",
+                        you_won: "You won",
+                        free_days: "FREE DAYS",
+                        use_code: "Use code:",
+                        book_now: "Book Now & Apply Bonus",
+                        spin_again: "Spin Again (New Visit)",
+                        wheel_segments: {
+                            "1_day": "1 FREE DAY",
+                            "2_days": "2 FREE DAYS",
+                            "3_days": "3 FREE DAYS",
+                            "4_days": "4 FREE DAYS"
+                        }
+                    }
+                };
+                updateTexts();
+            }
+        }
+
+        // Update all text elements with translations
+        function updateTexts() {
+            const wheel = translations.wheel || {};
+            
+            // Update instruction texts
+            document.getElementById('howToPlayTitle').textContent = wheel.how_to_play || "How to Play";
+            document.getElementById('step1Text').textContent = wheel.step1 || "Press the button in the center of the wheel";
+            document.getElementById('step2Text').textContent = wheel.step2 || "Watch the wheel spin and stop on your prize";
+            document.getElementById('step3Text').textContent = wheel.step3 || "Copy your discount code";
+            document.getElementById('step4Text').textContent = wheel.step4 || "Use it when you make your next reservation";
+            
+            // Update result texts
+            document.getElementById('congratulationsText').textContent = wheel.congratulations || "CONGRATULATIONS! 🎉";
+            document.getElementById('youWonText').textContent = wheel.you_won || "You won";
+            document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
+            document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
+            document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
+            
+            // Update wheel segments
+            updateWheelSegments();
+        }
+
+        // Wheel segments configuration with translations
+        function getWheelSegments() {
+            const wheelSegments = translations.wheel?.wheel_segments || {
+                "1_day": "1",
+                "2_days": "2",
+                "3_days": "3",
+                "4_days": "4"
+            };
+
+            return [
+                { id: 1, days: 1, color: '#FF6B6B', icon: '🎁', text: wheelSegments["1_day"], gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%)' },
+                { id: 2, days: 2, color: '#4ECDC4', icon: '🚗', text: wheelSegments["2_days"], gradient: 'linear-gradient(135deg, #4ECDC4 0%, #26d0ce 100%)' },
+                { id: 3, days: 3, color: '#F7DC6F', icon: '🏆', text: wheelSegments["3_days"], gradient: 'linear-gradient(135deg, #F7DC6F 0%, #ffa502 100%)' },
+                { id: 4, days: 4, color: '#A8E6CF', icon: '💎', text: wheelSegments["4_days"], gradient: 'linear-gradient(135deg, #A8E6CF 0%, #7fcdcd 100%)' }
+            ];
+        }
+
+        let isSpinning = false;
+        let hasSpun = false;
+        let currentRotation = 0;
+
+        const wheel = document.getElementById('wheel');
+        const centerButton = document.getElementById('centerButton');
+        const resetButton = document.getElementById('resetButton');
+        const instructionsCard = document.getElementById('instructionsCard');
+        const resultCard = document.getElementById('resultCard');
+        const prizeDisplay = document.getElementById('prizeDisplay');
+        const discountCode = document.getElementById('discountCode');
+
+        // Create wheel segments
+        function createWheelSegments() {
+            wheel.innerHTML = '';
+            const wheelSegments = getWheelSegments();
+            
+            wheelSegments.forEach((segment, index) => {
+                const segmentElement = document.createElement('div');
+                segmentElement.className = 'wheel-segment';
+                segmentElement.style.transform = `rotate(${index * 90}deg)`;
+                segmentElement.style.background = segment.gradient;
+
+                segmentElement.innerHTML = `
+                    <div class="segment-content">
+                        <div class="segment-icon">${segment.icon}</div>
+                        <div class="segment-text">${segment.text}</div>
+                    </div>
+                `;
+
+                wheel.appendChild(segmentElement);
+            });
+        }
+
+        // Update wheel segments with new translations
+        function updateWheelSegments() {
+            createWheelSegments();
+        }
+
+        // Create particles effect
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: fixed;
+                    width: 8px;
+                    height: 8px;
+                    background: #ffd700;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1000;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                `;
+                document.body.appendChild(particle);
+
+                const randomX = (Math.random() - 0.5) * 400;
+                const randomY = (Math.random() - 0.5) * 400;
+
+                particle.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${randomX}px), calc(-50% + ${randomY}px)) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 2000,
+                    easing: 'ease-out'
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        // Spin the wheel
+        function spinWheel() {
+            if (isSpinning || hasSpun) return;
+
+            isSpinning = true;
+            centerButton.disabled = true;
+            centerButton.querySelector('.center-icon').textContent = '🔄';
+
+            // Create particle effects
+            createParticles();
+
+            // Calculate random spin
+            const randomRotation = Math.random() * 360;
+            const fullRotations = (Math.floor(Math.random() * 4) + 5) * 360;
+            const totalRotation = currentRotation + fullRotations + randomRotation;
+
+            // Animate wheel spinning
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            // Calculate winning segment
+            setTimeout(() => {
+                const normalizedRotation = (totalRotation % 360 + 360) % 360;
+                const segmentAngle = 90;
+                const adjustedRotation = (normalizedRotation + 45) % 360;
+                const segmentIndex = Math.floor(adjustedRotation / segmentAngle);
+                const wheelSegments = getWheelSegments();
+                const winningSegment = wheelSegments[segmentIndex];
+
+                // Show results
+                currentRotation = totalRotation;
+                isSpinning = false;
+                hasSpun = true;
+                centerButton.disabled = false;
+                centerButton.querySelector('.center-icon').textContent = '🎁';
+
+                // Update result card with translated text
+                const freeDaysText = translations.wheel?.free_days || "FREE DAYS";
+                prizeDisplay.textContent = `${winningSegment.days} ${freeDaysText}`;
+                discountCode.textContent = `SPIN${winningSegment.days}FREE`;
+
+                // Show result card
+                instructionsCard.style.display = 'none';
+                resultCard.classList.add('show');
+
+                // Show reset button
+                resetButton.style.display = 'flex';
+            }, 4000);
+        }
+
+        // Reset wheel
+        function resetWheel() {
+            hasSpun = false;
+            currentRotation = 0;
+            wheel.style.transform = 'rotate(0deg)';
+            instructionsCard.style.display = 'block';
+            resultCard.classList.remove('show');
+            resetButton.style.display = 'none';
+        }
+
+        // Event listeners
+        centerButton.addEventListener('click', spinWheel);
+        resetButton.addEventListener('click', resetWheel);
+
+        // Initialize wheel and load language
+        loadLanguage().then(() => {
+            createWheelSegments();
+        });
+
+        // Listen for language changes from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'languageChange') {
+                currentLanguage = event.data.language;
+                loadLanguage();
+            }
+        });
+
+        // Also listen for storage changes (when parent changes localStorage)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'lang') {
+                currentLanguage = event.newValue;
+                loadLanguage();
+            }
+        });
+
+        // Try to get language from parent on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                try {
+                    if (window.parent && window.parent !== window) {
+                        // Try to get language from parent's i18next
+                        if (window.parent.i18next && window.parent.i18next.language) {
+                            currentLanguage = window.parent.i18next.language;
+                            loadLanguage();
+                        }
+                        // Try to get from parent's localStorage
+                        else if (window.parent.localStorage.getItem('lang')) {
+                            currentLanguage = window.parent.localStorage.getItem('lang');
+                            loadLanguage();
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin restriction, ignore
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html> 
