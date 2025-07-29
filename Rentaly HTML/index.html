@@ -18,6 +18,7 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <script src="js/config.js"></script>
 
     <!-- Custom Language Picker Styles -->
     <style>
@@ -29,7 +30,7 @@
         padding: 4px 12px;
         border-radius: 4px;
         border: 1px solid #e0e0e0;
-        background: #fff;
+        background: #f6f6f6;
         cursor: pointer;
         font-weight: 500;
         font-size: 14px;
@@ -90,11 +91,357 @@
         display: inline-block;
         text-align: center;
       }
+      .lang-globe {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+      }
+      .lang-code {
+        font-weight: 600;
+        margin: 0 2px 0 2px;
+      }
       @media (max-width: 600px) {
         .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
         .lang-picker-dropdown { min-width: 80px; }
         .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
         .lang-flag { font-size: 15px; width: 15px; }
+      }
+
+      /* Spinning Wheel Section Styles */
+      #section-spinning-wheel {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      #section-spinning-wheel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 20% 20%, rgba(32, 178, 170, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(30, 144, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 40% 60%, rgba(72, 209, 204, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+      }
+
+      #section-spinning-wheel .container {
+        position: relative;
+        z-index: 10;
+      }
+
+      #section-spinning-wheel h2 {
+        color: #333 !important;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      #section-spinning-wheel h2 span {
+        font-size: 2rem;
+      }
+
+      #section-spinning-wheel p {
+        color: #666 !important;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .wheel-container {
+        transition: all 0.3s ease;
+        border: 3px solid rgba(255, 255, 255, 0.8);
+      }
+
+      .wheel-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+      }
+
+      .wheel-container iframe {
+        transition: all 0.3s ease;
+      }
+
+      /* Loading state for iframe */
+      .wheel-container.loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .wheel-container.loading::before {
+        content: 'Loading Spinning Wheel...';
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        #section-spinning-wheel h2 {
+          font-size: 2rem;
+        }
+        
+        #section-spinning-wheel h2 span {
+          font-size: 1.5rem;
+        }
+        
+        .wheel-container {
+          height: 400px !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #section-spinning-wheel h2 {
+          font-size: 1.5rem;
+        }
+        
+        #section-spinning-wheel h2 span {
+          font-size: 1.2rem;
+        }
+        
+        .wheel-container {
+          height: 350px !important;
+        }
+      }
+      /* --- Fleet Car Grid: Match Cars Page --- */
+      .fleet-car-grid.car-list-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-right: 0;
+        gap: 1.5rem 0;
+      }
+      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-6 {
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 24px;
+        max-width: 320px;
+        flex: 1 1 260px;
+        min-width: 240px;
+        display: flex;
+      }
+      .de-item.mb30 {
+        transition: box-shadow 0.25s, transform 0.25s;
+        margin-bottom: 0 !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 0.7rem 0.7rem 1.1rem 0.7rem;
+        background: #fff;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .car-unavailable {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(0.7);
+      }
+      .img-unavailable img {
+        filter: grayscale(0.22) brightness(0.96);
+      }
+      .unavailable-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(60,60,60,0.82);
+        color: #fff;
+        font-size: 0.98rem;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        pointer-events: none;
+      }
+      .d-img {
+        position: relative;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .d-img img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        max-height: 160px;
+      }
+      .d-info {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .d-text {
+        flex: 1 1 auto;
+      }
+      .d-item_like {
+        margin-bottom: 0.5rem;
+      }
+      .d-atr-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.7rem;
+        font-size: 0.98rem;
+      }
+      .d-atr img {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      .d-price {
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+        color: #1976d2;
+      }
+      .btn-main {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: center;
+      }
+      @media (max-width: 991px) {
+        .fleet-car-grid.car-list-row {
+          flex-direction: row;
+        }
+      }
+      @media (max-width: 600px) {
+        .fleet-car-grid {
+          grid-template-columns: 1fr;
+        }
+        .fleet-car-card {
+          padding: 1rem 0.5rem 1.2rem 0.5rem;
+        }
+      }
+      /* --- Fleet Car Grid: Scoped to Fleet Section Only --- */
+      #section-cars .fleet-car-grid.car-list-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-right: 0;
+        gap: 1.5rem 0;
+      }
+      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 24px;
+        max-width: 320px;
+        flex: 1 1 260px;
+        min-width: 240px;
+        display: flex;
+      }
+      #section-cars .de-item.mb30 {
+        transition: box-shadow 0.25s, transform 0.25s;
+        margin-bottom: 0 !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 0.7rem 0.7rem 1.1rem 0.7rem;
+        background: #fff;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      #section-cars .car-unavailable {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(0.7);
+      }
+      #section-cars .img-unavailable img {
+        filter: grayscale(0.22) brightness(0.96);
+      }
+      #section-cars .unavailable-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(60,60,60,0.82);
+        color: #fff;
+        font-size: 0.98rem;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        pointer-events: none;
+      }
+      #section-cars .d-img {
+        position: relative;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #section-cars .d-img img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        max-height: 160px;
+      }
+      #section-cars .d-info {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      #section-cars .d-text {
+        flex: 1 1 auto;
+      }
+      #section-cars .d-item_like {
+        margin-bottom: 0.5rem;
+      }
+      #section-cars .d-atr-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.7rem;
+        font-size: 0.98rem;
+      }
+      #section-cars .d-atr img {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      #section-cars .d-price {
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+        color: #1976d2;
+      }
+      #section-cars .btn-main {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: center;
+      }
+      @media (max-width: 991px) {
+        #section-cars .fleet-car-grid.car-list-row {
+          flex-direction: row;
+        }
+      }
+      @media (max-width: 600px) {
+        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+          min-width: 100%;
+          max-width: 100%;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        #section-cars .de-item.mb30 {
+          padding: 1rem 0.5rem 1.2rem 0.5rem;
+        }
       }
     </style>
 </head>
@@ -155,19 +502,22 @@
                                 </ul>
                             </div>
                             <div class="de-flex-col">
-                                <div class="menu_side_area">
-                                    <a href="login.html" class="btn-main" data-i18n="menu.sign_in"></a>
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <a href="login.html" class="btn-main" data-i18n="menu.sign_in" style="min-width:100px;text-align:center;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0 24px;align-self:center;"></a>
                                     <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
                                         <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langName">Română</span>
-                                        <svg width="13" height="13" viewBox="0 0 20 20" style="margin-left:5px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                                       </button>
                                       <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> Română</li>
-                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> English</li>
-                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> Русский</li>
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
                                       </ul>
                                     </div>
                                     <span id="menu-btn"></span>
@@ -371,7 +721,7 @@
                                         </div>
 
                                         <div class="col-lg-12">
-                                            <input type='submit' id='send_message' value='' class="btn-main pull-right" data-i18n="hero.find_vehicle">
+                                            <input type='submit' id='send_message' value='Find a Vehicle' class="btn-main" style="display:block;margin:24px auto 0 auto;max-width:400px;width:100%;">
                                         </div>
 
                                     </div>
@@ -615,171 +965,13 @@
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6 offset-lg-3 text-center">
-                                                    <h2 data-i18n="fleet.title"></h2>
-                        <p data-i18n="fleet.description"></p>
+                            <h2 data-i18n="fleet.title"></h2>
+                            <p data-i18n="fleet.description"></p>
                             <div class="spacer-20"></div>
                         </div>
-
-                        <div id="items-carousel" class="owl-carousel wow fadeIn">
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/jeep-renegade.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.jeep_renegade"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>74</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">SUV</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$265</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/bmw-m5.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.bmw_m2"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>36</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">Sedan</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$244</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/ferrari-enzo.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.ferrari_enzo"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>85</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">Exotic Car</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$167</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/ford-raptor.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.ford_raptor"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>59</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">Truck</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$147</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/mini-cooper.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.mini_cooper"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>19</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">Hatchback</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$238</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-12">
-                                <div class="de-item mb30">
-                                    <div class="d-img">
-                                        <img src="images/cars/vw-polo.jpg" class="img-fluid" alt="">
-                                    </div>
-                                    <div class="d-info">
-                                        <div class="d-text">
-                                            <h4 data-i18n="cars.vw_polo"></h4>
-                                            <div class="d-item_like">
-                                                <i class="fa fa-heart"></i><span>79</span>
-                                            </div>
-                                            <div class="d-atr-group">
-                                                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">5</span>
-                                                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">2</span>
-                                                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">4</span>
-                                                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">Hatchback</span>
-                                            </div>
-                                                                                          <div class="d-price">
-                                                 <span data-i18n="cars.daily_rate"></span> <span>$106</span>
-                                                 <a class="btn-main" href="car-single.html" data-i18n="cars.rent_now"></a>
-                                              </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
+                        <div class="clearfix"></div>
+                        <!-- Dynamic car grid will be rendered here -->
+                        <div id="fleet-car-grid" class="fleet-car-grid"></div>
                     </div>
                 </div>
             </section>
@@ -808,126 +1000,6 @@
                             <p data-i18n="features.free_pickup_desc"></p>
                     </div>
                 </div>
-                </div>
-            </section>
-
-            <section id="section-news">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 offset-lg-3 text-center">
-                                                    <h2 data-i18n="news.title"></h2>
-                        <p data-i18n="news.description"></p>
-                            <div class="spacer-20"></div>
-                        </div>
-                        
-                        <div class="col-lg-4 mb10">
-                            <div class="bloglist s2 item">
-                                <div class="post-content">
-                                    <div class="post-image">
-                                        <div class="date-box">
-                                            <div class="m">10</div>
-                                            <div class="d">MAR</div>
-                                        </div>
-                                        <img alt="" src="images/news/pic-blog-1.jpg" class="lazy">
-                                    </div>
-                                    <div class="post-text">                         
-                                                                        <h4><a href="news-single.html" data-i18n="news.article1_title"><span></span></a></h4>
-                                <p data-i18n="news.article1_desc"></p>
-                                <a class="btn-main" href="#" data-i18n="news.read_more"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                                
-                        <div class="col-lg-4 mb10">
-                            <div class="bloglist s2 item">
-                                <div class="post-content">
-                                    <div class="post-image">
-                                        <div class="date-box">
-                                            <div class="m">12</div>
-                                            <div class="d">MAR</div>
-                                        </div>
-                                        <img alt="" src="images/news/pic-blog-2.jpg" class="lazy">
-                                    </div>
-                                    <div class="post-text">                           
-                                                                        <h4><a href="news-single.html" data-i18n="news.article2_title"><span></span></a></h4>
-                                <p data-i18n="news.article2_desc"></p>
-                                <a class="btn-main" href="#" data-i18n="news.read_more"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                                
-                        <div class="col-lg-4 mb10">
-                            <div class="bloglist s2 item">
-                                <div class="post-content">
-                                    <div class="post-image">
-                                        <div class="date-box">
-                                            <div class="m">14</div>
-                                            <div class="d">MAR</div>
-                                        </div>
-                                        <img alt="" src="images/news/pic-blog-3.jpg" class="lazy">
-                                    </div>
-                                    <div class="post-text">                            
-                                                                        <h4><a href="news-single.html" data-i18n="news.article3_title"><span></span></a></h4>
-                                <p data-i18n="news.article3_desc"></p>
-                                <a class="btn-main" href="#" data-i18n="news.read_more"></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="section-testimonials" class="no-top no-bottom">
-                <div class="container-fluid">
-                    <div class="row g-2 p-2 align-items-center">
-
-                        <div class="col-md-4">
-                            <div class="de-image-text">
-                                <div class="d-text">
-                                    <div class="d-quote id-color"><i class="fa fa-quote-right"></i></div>
-                                    <h4 data-i18n="testimonials.title"></h4>
-                                    <blockquote>
-                                       <span data-i18n="testimonials.testimonial1"></span>
-                                       <span class="by" data-i18n="testimonials.author1"></span>
-                                   </blockquote>
-                                </div> 
-                                <img src="images/testimonial/1.jpg" class="img-fluid" alt="">
-                            </div>
-                        </div>
-
-
-                        <div class="col-md-4">
-                            <div class="de-image-text">
-                                <div class="d-text">
-                                    <div class="d-quote id-color"><i class="fa fa-quote-right"></i></div>
-                                    <h4 data-i18n="testimonials.title"></h4>
-                                    <blockquote>
-                                       <span data-i18n="testimonials.testimonial2"></span>
-                                       <span class="by" data-i18n="testimonials.author2"></span>
-                                   </blockquote>
-                                </div>
-                                <img src="images/testimonial/2.jpg" class="img-fluid" alt="">
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="de-image-text">
-                                <div class="d-text">
-                                    <div class="d-quote id-color"><i class="fa fa-quote-right"></i></div>
-                                    <h4 data-i18n="testimonials.title"></h4>
-                                    <blockquote>
-                                       <span data-i18n="testimonials.testimonial3"></span>
-                                       <span class="by" data-i18n="testimonials.author3"></span>
-                                   </blockquote>
-                                </div>
-                                <img src="images/testimonial/3.jpg" class="img-fluid" alt="">
-                            </div>
-                        </div>
-
-                    </div>
                 </div>
             </section>
 
@@ -1010,6 +1082,60 @@
                         </div>
                     </div>
                 </div>
+                </div>
+            </section>
+
+            <!-- React Spinning Wheel Section -->
+            <section id="section-spinning-wheel" class="py-16 bg-gradient-to-br from-blue-50 via-white to-cyan-50 relative overflow-hidden">
+                <!-- Background decorations -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-10 left-10 w-20 h-20 bg-[#20b2aa] rounded-full"></div>
+                    <div class="absolute top-32 right-20 w-16 h-16 bg-[#1e90ff] rounded-full"></div>
+                    <div class="absolute bottom-20 left-1/3 w-12 h-12 bg-[#48d1cc] rounded-full"></div>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 text-center mb-5">
+                            <div class="spacer-single"></div>
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-2">
+                                <span class="text-[#20b2aa] text-2xl">✨</span>
+                                <span data-i18n="wheel.title">Spin & Win Free Days!</span>
+                                <span class="text-[#1e90ff] text-2xl">✨</span>
+                            </h2>
+                            <p class="text-lg text-gray-600 max-w-2xl mx-auto" data-i18n="wheel.subtitle">
+                                Take a chance and spin the wheel to win free rental days! Each spin gives you an equal chance to win amazing prizes.
+                            </p>
+                            <div class="spacer-single"></div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                            <!-- Standalone Spinning Wheel -->
+                            <div class="wheel-container" style="height: 600px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); background: #f8f9fa;">
+                                <iframe 
+                                    id="wheelIframe"
+                                    src="spinning-wheel-standalone.html" 
+                                    width="100%" 
+                                    height="100%" 
+                                    frameborder="0"
+                                    style="border-radius: 20px;"
+                                    title="Spinning Wheel Component"
+                                ></iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
+                        <div class="col-lg-12 text-center">
+                            <div class="spacer-single"></div>
+                            <p class="text-sm text-gray-500">
+                                <i class="fa fa-info-circle"></i> 
+                                <span data-i18n="wheel.disclaimer">One spin per visit. Prizes are valid for new bookings only.</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
             
@@ -1102,6 +1228,136 @@
     <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
     <script src="js/i18n-init.js"></script>
+
+    <!-- Spinning Wheel Integration Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle spinning wheel iframe loading
+            const wheelContainer = document.querySelector('.wheel-container');
+            const wheelIframe = document.getElementById('wheelIframe');
+            
+            if (wheelContainer && wheelIframe) {
+                // Function to update iframe with current language
+                function updateWheelLanguage() {
+                    const currentLang = i18next.language || 'en';
+                    const newSrc = `spinning-wheel-standalone.html?lang=${currentLang}`;
+                    
+                    if (wheelIframe.src !== newSrc) {
+                        wheelIframe.src = newSrc;
+                    }
+                }
+                
+                // Add loading class initially
+                wheelContainer.classList.add('loading');
+                
+                // Handle iframe load event
+                wheelIframe.addEventListener('load', function() {
+                    wheelContainer.classList.remove('loading');
+                    console.log('Spinning wheel loaded successfully!');
+                });
+                
+                // Handle iframe error
+                wheelIframe.addEventListener('error', function() {
+                    wheelContainer.classList.remove('loading');
+                    wheelContainer.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; text-align: center;">
+                            <div>
+                                <i class="fa fa-exclamation-triangle" style="font-size: 3rem; color: #ff6b6b; margin-bottom: 1rem;"></i>
+                                <h4>Spinning Wheel Unavailable</h4>
+                                <p>The spinning wheel file could not be loaded</p>
+                                <button onclick="location.reload()" class="btn-main" style="margin-top: 1rem;">
+                                    <i class="fa fa-refresh"></i> Retry
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Update wheel language when i18next language changes
+                i18next.on('languageChanged', function() {
+                    updateWheelLanguage();
+                });
+                
+                // Initial language update
+                updateWheelLanguage();
+                
+                // Add smooth scroll to spinning wheel section
+                const scrollToWheel = function() {
+                    const wheelSection = document.getElementById('section-spinning-wheel');
+                    if (wheelSection) {
+                        wheelSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                };
+                
+                // Add click handler to any element with data-scroll-to-wheel attribute
+                document.querySelectorAll('[data-scroll-to-wheel]').forEach(element => {
+                    element.addEventListener('click', scrollToWheel);
+                });
+            }
+        });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const grid = document.getElementById('fleet-car-grid');
+        if (!grid) return;
+        grid.className = 'fleet-car-grid car-list-row';
+        grid.innerHTML = '<div style="text-align:center;padding:2em;">Loading...</div>';
+        fetch(window.API_BASE_URL + '/api/cars')
+          .then(res => res.json())
+          .then(cars => {
+            if (!cars.length) {
+              grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
+              return;
+            }
+            grid.innerHTML = cars.map(car => {
+              const isUnavailable = car.booked_until && !car.is_available;
+              let badge = '';
+              if (isUnavailable && car.booked_until) {
+                const d = new Date(car.booked_until);
+                const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
+                badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\">UNAVAILABLE UNTIL ${formatted}</div>`;
+              }
+              return `
+                <div class=\"col-xl-4 col-lg-6\">
+                  <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}\">
+                    <div class=\"d-img${isUnavailable ? ' img-unavailable' : ''}\">
+                      <img src=\"${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}\" class=\"img-fluid\" alt=\"\">
+                      ${badge}
+                    </div>
+                    <div class=\"d-info\">
+                      <div class=\"d-text\">
+                        <h4>${car.make_name}</h4>
+                        <p>${car.model_name}</p>
+                        <div class=\"d-item_like\">
+                          <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
+                        </div>
+                        <div class=\"d-atr-group\">
+                          <span class=\"d-atr\"><img src=\"images/icons/1-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_passengers\"></span> ${car.num_passengers || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/2-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_doors\"></span> ${car.num_doors || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/3-green.svg\" alt=\"\">${car.luggage || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/4-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_type\"></span> ${car.car_type || '-'}</span>
+                        </div>
+                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+                        ${isUnavailable
+                          ? '<span class=\"btn-main btn-unavailable\" tabindex=\"-1\" aria-disabled=\"true\" data-i18n=\"cars.not_available\">Not Available</span>'
+                          : `<a class=\"btn-main\" href=\"car-single.html?id=${car.id}\" data-i18n=\"cars.rent_now\">Rent Now</a>`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          })
+          .catch(() => {
+            grid.innerHTML = '<div style="color:red;text-align:center;">Failed to load cars.</div>';
+          });
+      });
+    </script>
 
 </body>
 

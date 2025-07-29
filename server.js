@@ -17,6 +17,15 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve static files from Rentaly HTML directory
+app.use('/Rentaly%20HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
+app.use('/Rentaly HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
+
+// Root route to serve the main index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
+});
+
 // SQLite DB setup
 const db = new sqlite3.Database('./carrental.db', (err) => {
   if (err) {
