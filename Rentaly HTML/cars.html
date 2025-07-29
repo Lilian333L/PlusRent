@@ -10,7 +10,6 @@
     <meta content="" name="keywords">
     <meta content="" name="author">
     <!-- CSS Files
-    ================================================== -->
     <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
     <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
     <link href="css/plugins.css" rel="stylesheet" type="text/css">
@@ -20,6 +19,99 @@
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
     <!-- Ensure config.js is loaded first -->
     <script src="js/config.js"></script>
+    <!-- i18n dependencies -->
+    <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+    <script src="js/i18n-init.js"></script>
+    <style>
+      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+      .lang-picker-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        background: #f6f6f6;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        min-width: 80px;
+        height: 36px;
+        line-height: 1.2;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        margin-left: 0;
+      }
+      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
+        outline: none;
+        border-color: #f0c040;
+        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+      }
+      .lang-picker-dropdown {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 0;
+        margin: 0;
+        min-width: 120px;
+        list-style: none;
+      }
+      .lang-picker-dropdown.open { display: block; }
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        background: none;
+        border: none;
+        transition: background 0.15s, color 0.15s;
+        height: 32px;
+        line-height: 1.2;
+      }
+      .lang-option:focus, .lang-option:hover {
+        background: #f0c04022;
+        color: #031B4E;
+        outline: none;
+      }
+      .lang-option.selected {
+        background: #f0c04044;
+        color: #031B4E;
+        font-weight: 600;
+      }
+      .lang-flag {
+        font-size: 18px;
+        width: 20px;
+        display: inline-block;
+        text-align: center;
+      }
+      .lang-globe {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+      }
+      .lang-code {
+        font-weight: 600;
+        margin: 0 2px 0 2px;
+      }
+      @media (max-width: 600px) {
+        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
+        .lang-picker-dropdown { min-width: 80px; }
+        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
+        .lang-flag { font-size: 15px; width: 15px; }
+      }
+    </style>
 </head>
 
 <body>
@@ -71,15 +163,31 @@
                             </div>
                             <div class="de-flex-col header-col-mid">
                                 <ul id="mainmenu">
-                                    <li><a class="menu-item" href="index.html">Home</a></li>
-                                    <li><a class="menu-item" href="cars.html">Cars</a></li>
-                                    <li><a class="menu-item" href="quick-booking.html">Booking</a></li>
-                                    <li><a class="menu-item" href="account-dashboard.html">Admin Panel</a></li>
+                                    <li><a class="menu-item" href="index.html" data-i18n="menu.home"></a></li>
+                                    <li><a class="menu-item" href="cars.html" data-i18n="menu.cars"></a></li>
+                                    <li><a class="menu-item" href="quick-booking.html" data-i18n="menu.booking"></a></li>
+                                    <li><a class="menu-item" href="account-dashboard.html" data-i18n="menu.admin_panel"></a></li>
                                 </ul>
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area">
-                                    <a href="login.html" class="btn-main">Sign In</a>
+                                    <a href="login.html" class="btn-main" data-i18n="menu.sign_in"></a>
+                                    <!-- Language Picker -->
+                                    <div class="lang-picker-wrapper">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
+                                        <span class="lang-flag" id="langFlag"></span>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                      </button>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
+                                      </ul>
+                                    </div>
                                     <span id="menu-btn"></span>
                                 </div>
                             </div>
@@ -100,7 +208,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-									<h1>Cars</h1>
+									<h1 data-i18n="menu.cars"></h1>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -128,49 +236,53 @@
       <div class="filter-sidebar">
         <div class="filter-title">
           Filter
-          <a class="filter-clear" id="clear-filters-link">Clear all filters</a>
-                                    </div>
+
+          <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Clear all filters</a>
+        </div>
+
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Make</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
           <div id="filter-make-options"></div>
                                     </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Gear</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
           <div id="filter-gear-options"></div>
                                     </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Fuel</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
           <div id="filter-fuel-options"></div>
                                 </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Type</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
           <div id="filter-type-options"></div>
                             </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Doors</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
           <div id="filter-doors-options"></div>
                                     </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Passengers</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
           <div id="filter-passengers-options"></div>
                                     </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Price</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;">
+            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;" data-i18n="cars.filter_price_from">
             <span>-</span>
-            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;" data-i18n="cars.filter_price_to">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="col-lg-9 col-md-8">
       <div class="row car-list-row" id="car-list"></div>
                                         </div>
@@ -570,19 +682,20 @@ async function fetchAndRenderCars() {
   const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
   const cars = await res.json();
   if (!cars.length) {
-      carListDiv.innerHTML = '<div>No cars available.</div>';
-      renderSidebarOptions([]); // This will now be handled by renderSidebarOptions
-      return;
-    }
-    carListDiv.innerHTML = cars.map(car => {
-      console.log(car.num_doors);
+
+    carListDiv.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
+    renderSidebarOptions([]); // This will now be handled by renderSidebarOptions
+    return;
+  }
+  carListDiv.innerHTML = cars.map(car => {
+
     const isUnavailable = car.booked_until && !car.is_available;
     let badge = '';
     if (isUnavailable && car.booked_until) {
       const d = new Date(car.booked_until);
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-      badge = `<div class="unavailable-badge">UNAVAILABLE UNTIL ${formatted}</div>`;
+      badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until">UNAVAILABLE UNTIL ${formatted}</div>`;
     }
     return `
                                 <div class="col-xl-4 col-lg-6">
@@ -597,43 +710,23 @@ async function fetchAndRenderCars() {
               <p>${car.model_name}</p>
                                                 <div class="d-item_like">
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-                                        </div>
-                                        <div class="d-atr-group">
-                <span class="d-atr">
-                  <!-- Turquoise passengers icon -->
-                  <svg width="16" viewBox="0 0 24 24" fill="none" stroke="#1DE9B6" >
-                    <path d="M16.5 6a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0M18 6A6 6 0 1 0 6 6a6 6 0 0 0 12 0M3 23.25a9 9 0 1 1 18 0 .75.75 0 0 0 1.5 0c0-5.799-4.701-10.5-10.5-10.5S1.5 17.451 1.5 23.25a.75.75 0 0 0 1.5 0"/>
-                  </svg>
-                  ${car.num_passengers || '-'}
-                </span>
-                <span class="d-atr">
-                  <!-- Turquoise gear type icon -->
-                  <svg width="16px" viewBox="0 0 24 24" fill="none" stroke="#1DE9B6">
-                    <path d="M1.5 6.75v-3a.75.75 0 0 0-1.5 0v3a.75.75 0 0 0 1.5 0m2.85-.45-2.25-3a.75.75 0 1 0-1.2.9l2.25 3a.75.75 0 1 0 1.2-.9m18.9 13.95h-3L21 21v-.75A2.25 2.25 0 0 1 23.25 18l-.75-.75v6a.75.75 0 0 0 1.5 0v-6a.75.75 0 0 0-.75-.75 3.75 3.75 0 0 0-3.75 3.75V21c0 .414.336.75.75.75h3a.75.75 0 0 0 0-1.5M18.024 2.056A.75.75 0 1 1 18.75 3v1.5a.75.75 0 1 1-.722.95.75.75 0 1 0-1.446.4A2.25 2.25 0 1 0 18.75 3c-1 0-1 1.5 0 1.5a2.25 2.25 0 1 0-2.174-2.832.75.75 0 0 0 1.448.388M12 18.75a.75.75 0 0 1 1.5 0c0 .315-.107.622-.304.868l-2.532 3.163A.75.75 0 0 0 11.25 24h3a.75.75 0 0 0 0-1.5h-3l.586 1.219 2.532-3.164c.41-.513.632-1.15.632-1.805a2.25 2.25 0 0 0-4.5 0 .75.75 0 0 0 1.5 0M8.25 1.5H9v5.25a.75.75 0 0 0 1.5 0V1.5A1.5 1.5 0 0 0 9 0h-.75a.75.75 0 0 0 0 1.5m0 6h3a.75.75 0 0 0 0-1.5h-3a.75.75 0 0 0 0 1.5m-6-7.5H.75A.75.75 0 0 0 0 .75v3c0 .414.336.75.75.75h1.5a2.25 2.25 0 0 0 0-4.5m0 1.5a.75.75 0 0 1 0 1.5H.75l.75.75v-3l-.75.75zm8.25 11.25v-3a.75.75 0 0 0-1.5 0v3a.75.75 0 0 0 1.5 0m1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5a.75.75 0 0 0-1.5 0m7.5 0v-3a.75.75 0 0 0-1.5 0v3a.75.75 0 0 0 1.5 0m3 1.5A2.25 2.25 0 0 0 20.25 12h-15A2.25 2.25 0 0 1 3 9.75a.75.75 0 0 0-1.5 0 3.75 3.75 0 0 0 3.75 3.75h15a.75.75 0 0 1 .75.75.75.75 0 0 0 1.5 0"/>
-                  </svg>
-                  ${car.gear_type || '-'}
-                </span>
-                <span class="d-atr">
-                  <!-- Turquoise door icon -->
-                  <svg width="16px" height="16px" viewBox="-1 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="car-door-2" transform="translate(-3 -2)"> <path id="secondary" fill="#ffffff" d="M20,11v9a1,1,0,0,1-1,1H12a6.09,6.09,0,0,0-1.84-3.07,6.17,6.17,0,0,0-3.24-1.51l-2.06-.3a1,1,0,0,1-.86-1V11Z"></path> <path id="primary" d="M14,15h2M11.71,3.29,4,11v4.13a1,1,0,0,0,.86,1l2.06.3A6.11,6.11,0,0,1,12,21h7a1,1,0,0,0,1-1V4a1,1,0,0,0-1-1H12.41A1,1,0,0,0,11.71,3.29ZM4,11H20" fill="none" stroke="#1de9b6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path> </g> </g></svg>
-                  ${car.num_doors || '-'}
-                </span>
-                <span class="d-atr">
-                  <!-- Turquoise car icon -->
-                  <svg width="16px" viewBox="200 30.5 680 900" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="2.1100000000000003"></g><g id="SVGRepo_iconCarrier"><path d="M705.638866 559.639753v-52.882555h111.674039V462.683177l-576.002939-18.620177v68.571779h119.510814v54.857422h-119.510814v98.931444h576.002939v-106.783892zM330.790259 251.732876l-13.07174 62.694198h428.420798l-20.908515-52.255614z" fill="#ffff"></path><path d="M275.901489 461.131496a15.673549 15.673549 0 0 1-15.219016-19.497896l44.309124-175.872897c4.670718-16.159429 21.645172-27.083893 41.440864-27.083893h362.49785c19.795693 0 36.770147 10.924464 41.299802 26.550992l15.861632 62.944974a15.673549 15.673549 0 1 1-30.406685 7.648692l-15.72057-62.412073c-0.376165-0.564248-4.404267-3.385487-11.049853-3.385487H346.432461c-6.645585 0-10.658014 2.836912-11.222261 4.012429l-44.121041 175.261629a15.689223 15.689223 0 0 1-15.18767 11.83353zM779.445609 461.131496c-7.006077 0-13.385211-4.733412-15.187669-11.849204l-14.921219-59.26169a15.673549 15.673549 0 1 1 30.406686-7.648692l14.921219 59.26169a15.673549 15.673549 0 0 1-15.219017 19.497896zM334.959423 785.338864c-36.25292 0-65.75054-29.356558-65.750539-65.452742v-45.296558a15.673549 15.673549 0 0 1 31.347098 0v45.296558c0 18.808259 15.422773 34.105643 34.403441 34.105643 18.964995 0 34.387767-15.297384 34.387768-34.105643v-45.296558a15.673549 15.673549 0 0 1 31.347098 0v45.296558c0.015674 36.096184-29.481946 65.452742-65.734866 65.452742zM720.387675 785.338864c-36.25292 0-65.75054-29.356558-65.750539-65.452742v-45.296558a15.673549 15.673549 0 0 1 31.347099 0v45.296558c0 18.808259 15.422773 34.105643 34.40344 34.105643s34.403441-15.297384 34.403441-34.105643v-45.296558a15.673549 15.673549 0 0 1 31.347099 0v45.296558c0 36.096184-29.49762 65.452742-65.75054 65.452742z" fill="#1de9b6"></path><path d="M800.824331 462.667503v190.261216H254.538442V462.667503h546.285889m7.366568-31.347098H247.1562c-13.244149 0-23.964857 10.736381-23.964857 23.964857v228.990556h608.980086v-228.990556a23.980531 23.980531 0 0 0-23.98053-23.964857z" fill="#1de9b6"></path><path d="M815.776897 621.409211H535.643549a15.673549 15.673549 0 0 1 0-31.347098h280.133348a15.673549 15.673549 0 0 1 0 31.347098zM488.513186 621.409211h-6.363461a15.673549 15.673549 0 0 1 0-31.347098h6.363461a15.673549 15.673549 0 0 1 0 31.347098zM415.944653 621.409211H246.591952a15.673549 15.673549 0 0 1 0-31.347098h169.352701a15.673549 15.673549 0 0 1 0 31.347098z" fill="#1de9b6"></path><path d="M735.559671 333.376395H311.527467a15.673549 15.673549 0 0 1 0-31.347099H735.559671a15.673549 15.673549 0 0 1 0 31.347099z" fill="#1de9b6"></path><path d="M422.323787 413.06072a15.673549 15.673549 0 0 1-9.466823-28.181042l45.798111-34.638544a15.673549 15.673549 0 0 1 18.9023 25.014985l-45.798111 34.638544a15.610855 15.610855 0 0 1-9.435477 3.166057z" fill="#1de9b6"></path><path d="M559.937551 413.06072a15.673549 15.673549 0 0 1-9.466824-28.181042l45.798111-34.638544a15.673549 15.673549 0 1 1 18.902301 25.014985l-45.798112 34.638544a15.610855 15.610855 0 0 1-9.435476 3.166057z" fill="#1de9b6"></path><path d="M340.821331 513.606539v28.447492H254.538442v-28.447492h86.282889m9.686253-31.347099H223.191343v91.14169h127.316241c11.958918 0 21.660845-9.701927 21.660845-21.660846v-47.819999c0-11.958918-9.701927-21.660845-21.660845-21.660845z" fill="#1de9b6"></path><path d="M800.824331 513.606539v28.447492h-86.282889v-28.447492h86.282889m31.347098-31.347099h-127.316241c-11.958918 0-21.660845 9.701927-21.660845 21.660845v47.819999c0 11.958918 9.701927 21.660845 21.660845 21.660846h127.316241v-91.14169z" fill="#1de9b6"></path></g></svg>
-                  <strong>${car.car_type || '-'}</strong>
-                </span>
-                                                </div>
-                                                <div class="d-price">
-                Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span>
-                ${isUnavailable
-                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true">Not Available</span>'
-                  : `<a class="btn-main" href="car-single?id=${car.id}">Rent Now</a>`}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
+              </div>
+              <div class="d-atr-group">
+                <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
+                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
+                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
+              </div>
+              <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+              ${isUnavailable
+                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true" data-i18n="cars.not_available">Not Available</span>'
+                  : `<a class="btn-main" href="car-single?id=${car.id}" data-i18n="cars.rent_now">Rent Now</a>`}
+            </div>
+          </div>
+        </div>
+      </div>
+
     `;
   }).join('');
   renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
@@ -794,7 +887,6 @@ if (openFilterBtn && filterSidebar && filterOverlay) {
 
 
     <!-- Javascript Files
-    ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script>
