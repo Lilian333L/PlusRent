@@ -20,6 +20,99 @@
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
     <!-- Ensure config.js is loaded first -->
     <script src="js/config.js"></script>
+    <!-- i18n dependencies -->
+    <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+    <script src="js/i18n-init.js"></script>
+    <style>
+      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+      .lang-picker-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        background: #f6f6f6;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        min-width: 80px;
+        height: 36px;
+        line-height: 1.2;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        margin-left: 0;
+      }
+      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
+        outline: none;
+        border-color: #f0c040;
+        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+      }
+      .lang-picker-dropdown {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 0;
+        margin: 0;
+        min-width: 120px;
+        list-style: none;
+      }
+      .lang-picker-dropdown.open { display: block; }
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        background: none;
+        border: none;
+        transition: background 0.15s, color 0.15s;
+        height: 32px;
+        line-height: 1.2;
+      }
+      .lang-option:focus, .lang-option:hover {
+        background: #f0c04022;
+        color: #031B4E;
+        outline: none;
+      }
+      .lang-option.selected {
+        background: #f0c04044;
+        color: #031B4E;
+        font-weight: 600;
+      }
+      .lang-flag {
+        font-size: 18px;
+        width: 20px;
+        display: inline-block;
+        text-align: center;
+      }
+      .lang-globe {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+      }
+      .lang-code {
+        font-weight: 600;
+        margin: 0 2px 0 2px;
+      }
+      @media (max-width: 600px) {
+        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
+        .lang-picker-dropdown { min-width: 80px; }
+        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
+        .lang-flag { font-size: 15px; width: 15px; }
+      }
+    </style>
 </head>
 
 <body>
@@ -71,15 +164,31 @@
                             </div>
                             <div class="de-flex-col header-col-mid">
                                 <ul id="mainmenu">
-                                    <li><a class="menu-item" href="index.html">Home</a></li>
-                                    <li><a class="menu-item" href="cars.html">Cars</a></li>
-                                    <li><a class="menu-item" href="quick-booking.html">Booking</a></li>
-                                    <li><a class="menu-item" href="account-dashboard.html">Admin Panel</a></li>
+                                    <li><a class="menu-item" href="index.html" data-i18n="menu.home"></a></li>
+                                    <li><a class="menu-item" href="cars.html" data-i18n="menu.cars"></a></li>
+                                    <li><a class="menu-item" href="quick-booking.html" data-i18n="menu.booking"></a></li>
+                                    <li><a class="menu-item" href="account-dashboard.html" data-i18n="menu.admin_panel"></a></li>
                                 </ul>
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area">
-                                    <a href="login.html" class="btn-main">Sign In</a>
+                                    <a href="login.html" class="btn-main" data-i18n="menu.sign_in"></a>
+                                    <!-- Language Picker -->
+                                    <div class="lang-picker-wrapper">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
+                                        <span class="lang-flag" id="langFlag"></span>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                      </button>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
+                                      </ul>
+                                    </div>
                                     <span id="menu-btn"></span>
                                 </div>
                             </div>
@@ -100,7 +209,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-12 text-center">
-									<h1>Cars</h1>
+									<h1 data-i18n="menu.cars"></h1>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -116,45 +225,45 @@
       <div class="filter-sidebar">
         <div class="filter-title">
           Filter
-          <a class="filter-clear" id="clear-filters-link">Clear all filters</a>
+          <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Clear all filters</a>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Make</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
           <div id="filter-make-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Gear</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
           <div id="filter-gear-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Fuel</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
           <div id="filter-fuel-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Type</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
           <div id="filter-type-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Doors</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
           <div id="filter-doors-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Passengers</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
           <div id="filter-passengers-options"></div>
         </div>
         <hr class="filter-divider">
         <div class="filter-category">
-          <h6 class="filter-section-title">Price</h6>
+          <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;">
+            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;" data-i18n="cars.filter_price_from">
             <span>-</span>
-            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;">
+            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;" data-i18n="cars.filter_price_to">
           </div>
         </div>
       </div>
@@ -443,7 +552,7 @@ async function fetchAndRenderCars() {
   const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
   const cars = await res.json();
   if (!cars.length) {
-    carListDiv.innerHTML = '<div>No cars available.</div>';
+    carListDiv.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
     renderSidebarOptions([]); // This will now be handled by renderSidebarOptions
     return;
   }
@@ -454,7 +563,7 @@ async function fetchAndRenderCars() {
       const d = new Date(car.booked_until);
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-      badge = `<div class="unavailable-badge">UNAVAILABLE UNTIL ${formatted}</div>`;
+      badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until">UNAVAILABLE UNTIL ${formatted}</div>`;
     }
     return `
       <div class="col-xl-4 col-lg-6">
@@ -471,17 +580,15 @@ async function fetchAndRenderCars() {
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
               </div>
               <div class="d-atr-group">
-                <span class="d-atr"><img src="images/icons/1-green.svg" alt="">${car.num_passengers || '-'}</span>
-                <span class="d-atr"><img src="images/icons/2-green.svg" alt="">${car.num_doors || '-'}</span>
+                <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
+                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
                 <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt="">${car.car_type || '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
               </div>
-              <div class="d-price">
-                Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span>
-                ${isUnavailable
-                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true">Not Available</span>'
-                  : `<a class="btn-main" href="car-single?id=${car.id}">Rent Now</a>`}
-              </div>
+              <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+              ${isUnavailable
+                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true" data-i18n="cars.not_available">Not Available</span>'
+                  : `<a class="btn-main" href="car-single?id=${car.id}" data-i18n="cars.rent_now">Rent Now</a>`}
             </div>
           </div>
         </div>
