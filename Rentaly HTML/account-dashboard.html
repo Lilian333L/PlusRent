@@ -513,17 +513,80 @@
   }
   
   .admin-upload-input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
+    display: none;
   }
   
   .admin-image-preview {
     margin-top: 8px;
+  }
+  
+  /* Tab Styles */
+  .admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .admin-tab-btn {
+    padding: 12px 24px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #666;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .admin-tab-btn.active {
+    border-color: #007bff;
+    background: #007bff;
+    color: white;
+  }
+  
+  .admin-tab-btn:hover:not(.active) {
+    border-color: #007bff;
+    color: #007bff;
+  }
+  
+  .admin-tab-content {
+    display: none;
+  }
+  
+  .admin-tab-content.active {
+    display: block;
+  }
+  
+  /* Coupon Card Styles */
+  .coupon-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+  }
+  
+  .coupon-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .coupon-status.active {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .coupon-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  .coupon-status.expired {
+    background: #fff3cd;
+    color: #856404;
   }
 </style>
 
@@ -658,382 +721,477 @@
 
             <section id="admin-add-car" class="bg-gray-100">
               <div class="admin-main-container">
-                <h3 class="admin-header mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Manage Cars</h3>
-                <div class="admin-flex-row">
-                  <div class="admin-btn-col">
-                    <button id="showAddCarBtn" type="button" class="btn btn-main btn-lg">Add a Car</button>
-                  </div>
-                  <div class="admin-form-col">
-                    <!-- Overlay -->
-                    <div id="adminOverlay" class="admin-overlay"></div>
-                    <!-- Add Car Form Panel (popup) -->
-                    <div id="addCarPanel" class="admin-form-panel">
-                      <button class="close-btn" id="closeAddCarPanel">&times;</button>
-                      <form id="carForm" class="form-border" autocomplete="off">
-                                                <h3 id="formTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Add Car</h3>
-                          <div class="admin-form-grid">
-                            <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
-                            <div style="flex: 1;">
-                              <label class="form-label">Head Image</label>
-                              <div class="admin-upload-area">
-                                <div class="admin-upload-button" id="addHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
-                                  <div class="admin-upload-text">Upload Head Image</div>
-                                </div>
-                                <input type="file" id="addHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
-                              </div>
-                              <div id="addHeadImagePreview" class="admin-image-preview"></div>
-                            </div>
-                            <div style="flex: 1;">
-                              <label class="form-label">Gallery Images (max 10)</label>
-                              <div class="admin-upload-area">
-                                <div class="admin-upload-button" id="addGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
-                                  <div class="admin-upload-text">Upload Gallery Images</div>
-                                </div>
-                                <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
-                              </div>
-                              <div id="addGalleryImagesPreview"></div>
-                            </div>
-                          </div>
-                          <div>
-                            <label class="form-label">Make Name</label>
-                            <input type="text" name="make_name" class="form-control" required>
-                          </div>
-                          <div>
-                            <label class="form-label">Model Name</label>
-                            <input type="text" name="model_name" class="form-control" required>
-                          </div>
-                          <div>
-                            <label class="form-label">Production Year</label>
-                            <select name="production_year" class="form-control" required></select>
-                          </div>
-                          <div>
-                            <label class="form-label">Gear Type</label>
-                            <select name="gear_type" class="form-control" required>
-                              <option value="Automatic">Automatic</option>
-                              <option value="Manual">Manual</option>
-                            </select>
-                          </div>
-                          <div class="five-column-grid">
-                            <div>
-                              <label class="form-label">Fuel Type</label>
-                              <select name="fuel_type" class="form-control" required>
-                                <option value="Gasoline">Gasoline</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Hybrid">Hybrid</option>
-                                <option value="Electric">Electric</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label class="form-label">Engine Capacity</label>
-                              <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
-                            </div>
-                            <div>
-                              <label class="form-label">Car Type</label>
-                              <select name="car_type" class="form-control" required>
-                                <option value="Crossover">Crossover</option>
-                                <option value="Sedan">Sedan</option>
-                                <option value="Coupe">Coupe</option>
-                                <option value="Minivan">Minivan</option>
-                                <option value="Hatchback">Hatchback</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label class="form-label">Number of Doors</label>
-                              <select name="num_doors" class="form-control" required></select>
-                            </div>
-                            <div>
-                              <label class="form-label">Number of Passengers</label>
-                              <select name="num_passengers" class="form-control" required></select>
-                            </div>
-                          </div>
-                        </div>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
-                          <div class="row g-2">
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">1-2 days</label>
-                              <input type="text" name="price_1_2" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">3-7 days</label>
-                              <input type="text" name="price_3_7" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">8-20 days</label>
-                              <input type="text" name="price_8_20" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">21-45 days</label>
-                              <input type="text" name="price_21_45" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">46+ days</label>
-                              <input type="text" name="price_46" class="form-control" required>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <div class="mb-3" style="max-width: 300px;">
-                          <label class="form-label">Booked Until (optional)</label>
-                          <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
-                          <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
-                        </div>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
-                          <div class="admin-form-grid">
-                            <div>
-                              <label class="form-label">Luggage Capacity</label>
-                              <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
-                            </div>
-                            <div>
-                              <label class="form-label">Mileage (km)</label>
-                              <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
-                            </div>
-                            <div>
-                              <label class="form-label">Drive Type</label>
-                              <select name="drive" class="form-control">
-                                <option value="">Select drive type</option>
-                                <option value="Front Wheel Drive">Front Wheel Drive</option>
-                                <option value="Rear Wheel Drive">Rear Wheel Drive</option>
-                                <option value="All Wheel Drive">All Wheel Drive</option>
-                                <option value="4 Wheel Drive">4 Wheel Drive</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
-                              <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
-                            </div>
-                            <div>
-                              <label class="form-label">Exterior Color</label>
-                              <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
-                            </div>
-                            <div>
-                              <label class="form-label">Interior Color</label>
-                              <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
-                          <div class="admin-form-grid">
-                            <div>
-                              <label class="form-label">RCA Insurance Price (€/day)</label>
-                              <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
-                            </div>
-                            <div>
-                              <label class="form-label">Casco Insurance Price (€/day)</label>
-                              <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                        <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
-                      </form>
+                <h3 class="admin-header mb-4" style="font-family: var(--title-font); font-weight: 600; color: #031B4E;">Admin Panel</h3>
+                
+                <!-- Tab Navigation -->
+                <div class="admin-tabs mb-4">
+                  <button class="admin-tab-btn active" data-tab="cars">Manage Cars</button>
+                  <button class="admin-tab-btn" data-tab="coupons">Manage Coupon Codes</button>
+                </div>
+                
+                <!-- Cars Tab Content -->
+                <div id="cars-tab" class="admin-tab-content active">
+                  <div class="admin-flex-row">
+                    <div class="admin-btn-col">
+                      <button id="showAddCarBtn" type="button" class="btn btn-main btn-lg">Add a Car</button>
                     </div>
-                    <!-- Edit Car Form Panel (popup) -->
-                    <div id="editCarPanel" class="admin-form-panel">
-                      <button class="close-btn" id="closeEditCarPanel">&times;</button>
-                      <button id="deleteCarBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
-                        <i class="fa fa-trash"></i> Delete Car
-                      </button>
-                      <form id="editCarForm" class="form-border" autocomplete="off">
-                                                <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Car</h3>
-                          <div class="admin-form-grid">
-                            <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
-                            <div style="flex: 1;">
-                              <label class="form-label">Head Image</label>
-                              <div class="admin-upload-area">
-                                <div class="admin-upload-button" id="editHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
-                                  <div class="admin-upload-text">Upload Head Image</div>
+                    <div class="admin-form-col">
+                      <!-- Overlay -->
+                      <div id="adminOverlay" class="admin-overlay"></div>
+                      <!-- Add Car Form Panel (popup) -->
+                      <div id="addCarPanel" class="admin-form-panel">
+                        <button class="close-btn" id="closeAddCarPanel">&times;</button>
+                        <form id="carForm" class="form-border" autocomplete="off">
+                                                  <h3 id="formTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Add Car</h3>
+                            <div class="admin-form-grid">
+                              <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
+                              <div style="flex: 1;">
+                                <label class="form-label">Head Image</label>
+                                <div class="admin-upload-area">
+                                  <div class="admin-upload-button" id="addHeadImageButton">
+                                    <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                      <polyline points="17,8 12,3 7,8"></polyline>
+                                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="admin-upload-text">Upload Head Image</div>
+                                  </div>
+                                  <input type="file" id="addHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
                                 </div>
-                                <input type="file" id="editHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
+                                <div id="addHeadImagePreview" class="admin-image-preview"></div>
                               </div>
-                              <div id="editHeadImagePreview" class="admin-image-preview"></div>
+                              <div style="flex: 1;">
+                                <label class="form-label">Gallery Images (max 10)</label>
+                                <div class="admin-upload-area">
+                                  <div class="admin-upload-button" id="addGalleryImagesButton">
+                                    <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                      <polyline points="17,8 12,3 7,8"></polyline>
+                                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="admin-upload-text">Upload Gallery Images</div>
+                                  </div>
+                                  <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
+                                </div>
+                                <div id="addGalleryImagesPreview"></div>
+                              </div>
                             </div>
-                            <div style="flex: 1;">
-                              <label class="form-label">Gallery Images (max 10)</label>
-                              <div class="admin-upload-area">
-                                <div class="admin-upload-button" id="editGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
-                                  <div class="admin-upload-text">Upload Gallery Images</div>
-                                </div>
-                                <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
+                            <div>
+                              <label class="form-label">Make Name</label>
+                              <input type="text" name="make_name" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Model Name</label>
+                              <input type="text" name="model_name" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Production Year</label>
+                              <select name="production_year" class="form-control" required></select>
+                            </div>
+                            <div>
+                              <label class="form-label">Gear Type</label>
+                              <select name="gear_type" class="form-control" required>
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                              </select>
+                            </div>
+                            <div class="five-column-grid">
+                              <div>
+                                <label class="form-label">Fuel Type</label>
+                                <select name="fuel_type" class="form-control" required>
+                                  <option value="Gasoline">Gasoline</option>
+                                  <option value="Diesel">Diesel</option>
+                                  <option value="Hybrid">Hybrid</option>
+                                  <option value="Electric">Electric</option>
+                                </select>
                               </div>
-                              <div id="editGalleryImagesPreview"></div>
+                              <div>
+                                <label class="form-label">Engine Capacity</label>
+                                <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Car Type</label>
+                                <select name="car_type" class="form-control" required>
+                                  <option value="Crossover">Crossover</option>
+                                  <option value="Sedan">Sedan</option>
+                                  <option value="Coupe">Coupe</option>
+                                  <option value="Minivan">Minivan</option>
+                                  <option value="Hatchback">Hatchback</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label">Number of Doors</label>
+                                <select name="num_doors" class="form-control" required></select>
+                              </div>
+                              <div>
+                                <label class="form-label">Number of Passengers</label>
+                                <select name="num_passengers" class="form-control" required></select>
+                              </div>
                             </div>
                           </div>
-                          <div style="grid-column: 1 / -1; margin-bottom: 8px; max-width: 300px;">
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
+                            <div class="row g-2">
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">1-2 days</label>
+                                <input type="text" name="price_1_2" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">3-7 days</label>
+                                <input type="text" name="price_3_7" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">8-20 days</label>
+                                <input type="text" name="price_8_20" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">21-45 days</label>
+                                <input type="text" name="price_21_45" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">46+ days</label>
+                                <input type="text" name="price_46" class="form-control" required>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <div class="mb-3" style="max-width: 300px;">
                             <label class="form-label">Booked Until (optional)</label>
                             <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
                             <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
                           </div>
-                          <div>
-                            <label class="form-label">Make Name</label>
-                            <input type="text" name="make_name" class="form-control" required>
-                          </div>
-                          <div>
-                            <label class="form-label">Model Name</label>
-                            <input type="text" name="model_name" class="form-control" required>
-                          </div>
-                          <div>
-                            <label class="form-label">Production Year</label>
-                            <select name="production_year" class="form-control" required></select>
-                          </div>
-                          <div>
-                            <label class="form-label">Gear Type</label>
-                            <select name="gear_type" class="form-control" required>
-                              <option value="Automatic">Automatic</option>
-                              <option value="Manual">Manual</option>
-                            </select>
-                          </div>
-                          <div class="five-column-grid">
-                            <div>
-                              <label class="form-label">Fuel Type</label>
-                              <select name="fuel_type" class="form-control" required>
-                                <option value="Gasoline">Gasoline</option>
-                                <option value="Diesel">Diesel</option>
-                                <option value="Hybrid">Hybrid</option>
-                                <option value="Electric">Electric</option>
-                              </select>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">Luggage Capacity</label>
+                                <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                              </div>
+                              <div>
+                                <label class="form-label">Mileage (km)</label>
+                                <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Drive Type</label>
+                                <select name="drive" class="form-control">
+                                  <option value="">Select drive type</option>
+                                  <option value="Front Wheel Drive">Front Wheel Drive</option>
+                                  <option value="Rear Wheel Drive">Rear Wheel Drive</option>
+                                  <option value="All Wheel Drive">All Wheel Drive</option>
+                                  <option value="4 Wheel Drive">4 Wheel Drive</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
+                                <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Exterior Color</label>
+                                <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
+                              </div>
+                              <div>
+                                <label class="form-label">Interior Color</label>
+                                <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
+                              </div>
                             </div>
-                            <div>
-                              <label class="form-label">Engine Capacity</label>
-                              <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">RCA Insurance Price (€/day)</label>
+                                <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
+                              </div>
+                              <div>
+                                <label class="form-label">Casco Insurance Price (€/day)</label>
+                                <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
+                              </div>
                             </div>
-                            <div>
-                              <label class="form-label">Car Type</label>
-                              <select name="car_type" class="form-control" required>
-                                <option value="Crossover">Crossover</option>
-                                <option value="Sedan">Sedan</option>
-                                <option value="Coupe">Coupe</option>
-                                <option value="Minivan">Minivan</option>
-                                <option value="Hatchback">Hatchback</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label class="form-label">Number of Doors</label>
-                              <select name="num_doors" class="form-control" required></select>
-                            </div>
-                            <div>
-                              <label class="form-label">Number of Passengers</label>
-                              <select name="num_passengers" class="form-control" required></select>
-                            </div>
-                          </div>
-                        </div>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
-                          <div class="row g-2">
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">1-2 days</label>
-                              <input type="text" name="price_1_2" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">3-7 days</label>
-                              <input type="text" name="price_3_7" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">8-20 days</label>
-                              <input type="text" name="price_8_20" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">21-45 days</label>
-                              <input type="text" name="price_21_45" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-6 col-xl-2 mb-2">
-                              <label class="form-label">46+ days</label>
-                              <input type="text" name="price_46" class="form-control" required>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
-                          <div class="admin-form-grid">
-                            <div>
-                              <label class="form-label">Luggage Capacity</label>
-                              <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
-                            </div>
-                            <div>
-                              <label class="form-label">Mileage (km)</label>
-                              <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
-                            </div>
-                            <div>
-                              <label class="form-label">Drive Type</label>
-                              <select name="drive" class="form-control">
-                                <option value="">Select drive type</option>
-                                <option value="Front Wheel Drive">Front Wheel Drive</option>
-                                <option value="Rear Wheel Drive">Rear Wheel Drive</option>
-                                <option value="All Wheel Drive">All Wheel Drive</option>
-                                <option value="4 Wheel Drive">4 Wheel Drive</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
-                              <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
-                            </div>
-                            <div>
-                              <label class="form-label">Exterior Color</label>
-                              <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
-                            </div>
-                            <div>
-                              <label class="form-label">Interior Color</label>
-                              <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
-                          <div class="admin-form-grid">
-                            <div>
-                              <label class="form-label">RCA Insurance Price (€/day)</label>
-                              <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
-                            </div>
-                            <div>
-                              <label class="form-label">Casco Insurance Price (€/day)</label>
-                              <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                        <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Confirm changes</button>
-                      </form>
-                    </div>
-                    <!-- Confirm Modal -->
-                    <div id="adminConfirmModal" class="admin-confirm-modal">
-                      <h4>Are you sure you want to close this form? All unsaved data will be lost.</h4>
-                      <div class="mt-4 d-flex justify-content-center gap-3">
-                        <button id="confirmCloseBtn" class="btn btn-danger">Close</button>
-                        <button id="cancelCloseBtn" class="btn btn-main">Cancel</button>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
+                        </form>
                       </div>
+                      <!-- Edit Car Form Panel (popup) -->
+                      <div id="editCarPanel" class="admin-form-panel">
+                        <button class="close-btn" id="closeEditCarPanel">&times;</button>
+                        <button id="deleteCarBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
+                          <i class="fa fa-trash"></i> Delete Car
+                        </button>
+                        <form id="editCarForm" class="form-border" autocomplete="off">
+                                                  <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Car</h3>
+                            <div class="admin-form-grid">
+                              <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
+                              <div style="flex: 1;">
+                                <label class="form-label">Head Image</label>
+                                <div class="admin-upload-area">
+                                  <div class="admin-upload-button" id="editHeadImageButton">
+                                    <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                      <polyline points="17,8 12,3 7,8"></polyline>
+                                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="admin-upload-text">Upload Head Image</div>
+                                  </div>
+                                  <input type="file" id="editHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
+                                </div>
+                                <div id="editHeadImagePreview" class="admin-image-preview"></div>
+                              </div>
+                              <div style="flex: 1;">
+                                <label class="form-label">Gallery Images (max 10)</label>
+                                <div class="admin-upload-area">
+                                  <div class="admin-upload-button" id="editGalleryImagesButton">
+                                    <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
+                                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                      <polyline points="17,8 12,3 7,8"></polyline>
+                                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <div class="admin-upload-text">Upload Gallery Images</div>
+                                  </div>
+                                  <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
+                                </div>
+                                <div id="editGalleryImagesPreview"></div>
+                              </div>
+                            </div>
+                            <div style="grid-column: 1 / -1; margin-bottom: 8px; max-width: 300px;">
+                              <label class="form-label">Booked Until (optional)</label>
+                              <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
+                              <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
+                            </div>
+                            <div>
+                              <label class="form-label">Make Name</label>
+                              <input type="text" name="make_name" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Model Name</label>
+                              <input type="text" name="model_name" class="form-control" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Production Year</label>
+                              <select name="production_year" class="form-control" required></select>
+                            </div>
+                            <div>
+                              <label class="form-label">Gear Type</label>
+                              <select name="gear_type" class="form-control" required>
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                              </select>
+                            </div>
+                            <div class="five-column-grid">
+                              <div>
+                                <label class="form-label">Fuel Type</label>
+                                <select name="fuel_type" class="form-control" required>
+                                  <option value="Gasoline">Gasoline</option>
+                                  <option value="Diesel">Diesel</option>
+                                  <option value="Hybrid">Hybrid</option>
+                                  <option value="Electric">Electric</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label">Engine Capacity</label>
+                                <input type="number" name="engine_capacity" class="form-control" step="0.1" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Car Type</label>
+                                <select name="car_type" class="form-control" required>
+                                  <option value="Crossover">Crossover</option>
+                                  <option value="Sedan">Sedan</option>
+                                  <option value="Coupe">Coupe</option>
+                                  <option value="Minivan">Minivan</option>
+                                  <option value="Hatchback">Hatchback</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label">Number of Doors</label>
+                                <select name="num_doors" class="form-control" required></select>
+                              </div>
+                              <div>
+                                <label class="form-label">Number of Passengers</label>
+                                <select name="num_passengers" class="form-control" required></select>
+                              </div>
+                            </div>
+                          </div>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Price Policy</legend>
+                            <div class="row g-2">
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">1-2 days</label>
+                                <input type="text" name="price_1_2" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">3-7 days</label>
+                                <input type="text" name="price_3_7" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">8-20 days</label>
+                                <input type="text" name="price_8_20" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">21-45 days</label>
+                                <input type="text" name="price_21_45" class="form-control" required>
+                              </div>
+                              <div class="col-12 col-md-6 col-xl-2 mb-2">
+                                <label class="form-label">46+ days</label>
+                                <input type="text" name="price_46" class="form-control" required>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">Luggage Capacity</label>
+                                <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                              </div>
+                              <div>
+                                <label class="form-label">Mileage (km)</label>
+                                <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Drive Type</label>
+                                <select name="drive" class="form-control">
+                                  <option value="">Select drive type</option>
+                                  <option value="Front Wheel Drive">Front Wheel Drive</option>
+                                  <option value="Rear Wheel Drive">Rear Wheel Drive</option>
+                                  <option value="All Wheel Drive">All Wheel Drive</option>
+                                  <option value="4 Wheel Drive">4 Wheel Drive</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
+                                <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
+                              </div>
+                              <div>
+                                <label class="form-label">Exterior Color</label>
+                                <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
+                              </div>
+                              <div>
+                                <label class="form-label">Interior Color</label>
+                                <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">RCA Insurance Price (€/day)</label>
+                                <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
+                              </div>
+                              <div>
+                                <label class="form-label">Casco Insurance Price (€/day)</label>
+                                <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Confirm changes</button>
+                        </form>
+                      </div>
+                      <!-- Confirm Modal -->
+                      <div id="adminConfirmModal" class="admin-confirm-modal">
+                        <h4>Are you sure you want to close this form? All unsaved data will be lost.</h4>
+                        <div class="mt-4 d-flex justify-content-center gap-3">
+                          <button id="confirmCloseBtn" class="btn btn-danger">Close</button>
+                          <button id="cancelCloseBtn" class="btn btn-main">Cancel</button>
+                        </div>
+                      </div>
+                      <!-- Add a confirmation modal for delete -->
+                      <div id="deleteConfirmModal" class="admin-confirm-modal">
+                        <h4>Are you sure you want to delete this car?</h4>
+                        <div class="mt-4 d-flex justify-content-center gap-3">
+                          <button id="confirmDeleteBtn" class="btn btn-danger">Yes Delete</button>
+                          <button id="cancelDeleteBtn" class="btn btn-main">Cancel</button>
+                        </div>
+                      </div>
+                      
+
                     </div>
-                    <!-- Add a confirmation modal for delete -->
-                    <div id="deleteConfirmModal" class="admin-confirm-modal">
-                      <h4>Are you sure you want to delete this car?</h4>
-                      <div class="mt-4 d-flex justify-content-center gap-3">
-                        <button id="confirmDeleteBtn" class="btn btn-danger">Yes Delete</button>
-                        <button id="cancelDeleteBtn" class="btn btn-main">Cancel</button>
+                  </div>
+                  <div id="carCards" class="row g-4 mt-4"></div>
+                </div>
+                
+                <!-- Coupon Codes Tab Content -->
+                <div id="coupons-tab" class="admin-tab-content">
+                  <div class="admin-flex-row">
+                    <div class="admin-btn-col">
+                      <button id="showAddCouponBtn" type="button" class="btn btn-main btn-lg">Add Coupon Code</button>
+                    </div>
+                    <div class="admin-form-col">
+                      <!-- Overlay -->
+                      <div id="couponOverlay" class="admin-overlay"></div>
+                      <!-- Add Coupon Form Panel (popup) -->
+                      <div id="addCouponPanel" class="admin-form-panel">
+                        <button class="close-btn" id="closeAddCouponPanel">&times;</button>
+                        <form id="couponForm" class="form-border" autocomplete="off">
+                          <h3 id="couponFormTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Add Coupon Code</h3>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">Coupon Code</label>
+                              <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Discount Percentage</label>
+                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Description</label>
+                              <textarea name="description" class="form-control" placeholder="e.g., Welcome discount for new customers" rows="3"></textarea>
+                            </div>
+                            <div>
+                              <label class="form-label">Expiry Date (Optional)</label>
+                              <input type="datetime-local" name="expires_at" class="form-control">
+                            </div>
+                            <div>
+                              <label class="form-label">Status</label>
+                              <select name="is_active" class="form-control" required>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button type="submit" id="couponFormSubmitBtn" class="btn btn-main">Add Coupon</button>
+                        </form>
+                      </div>
+                      <!-- Edit Coupon Form Panel (popup) -->
+                      <div id="editCouponPanel" class="admin-form-panel">
+                        <button class="close-btn" id="closeEditCouponPanel">&times;</button>
+                        <button id="deleteCouponBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
+                          <i class="fa fa-trash"></i> Delete Coupon
+                        </button>
+                        <form id="editCouponForm" class="form-border" autocomplete="off">
+                          <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Coupon Code</h3>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">Coupon Code</label>
+                              <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Discount Percentage</label>
+                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Description</label>
+                              <textarea name="description" class="form-control" placeholder="e.g., Welcome discount for new customers" rows="3"></textarea>
+                            </div>
+                            <div>
+                              <label class="form-label">Expiry Date (Optional)</label>
+                              <input type="datetime-local" name="expires_at" class="form-control">
+                            </div>
+                            <div>
+                              <label class="form-label">Status</label>
+                              <select name="is_active" class="form-control" required>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                              </select>
+                            </div>
+                          </div>
+                          <button type="submit" id="editCouponFormSubmitBtn" class="btn btn-main">Update Coupon</button>
+                        </form>
                       </div>
                     </div>
                   </div>
+                  <div id="couponCards" class="row g-4 mt-4"></div>
                 </div>
-                <div id="carCards" class="row g-4 mt-4"></div>
               </div>
             </section>
 			
@@ -2687,5 +2845,279 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteConfirmModal.classList.remove('active');
     pendingDeleteCarId = null;
   });
+  
+  // Tab Functionality
+  const tabButtons = document.querySelectorAll('.admin-tab-btn');
+  const tabContents = document.querySelectorAll('.admin-tab-content');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.getAttribute('data-tab');
+      
+      // Update active tab button
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      
+      // Update active tab content
+      tabContents.forEach(content => content.classList.remove('active'));
+      document.getElementById(targetTab + '-tab').classList.add('active');
+    });
+  });
+  
+  // Coupon Management
+  const showAddCouponBtn = document.getElementById('showAddCouponBtn');
+  const addCouponPanel = document.getElementById('addCouponPanel');
+  const editCouponPanel = document.getElementById('editCouponPanel');
+  const couponOverlay = document.getElementById('couponOverlay');
+  const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
+  const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
+  const couponForm = document.getElementById('couponForm');
+  const editCouponForm = document.getElementById('editCouponForm');
+  const couponCards = document.getElementById('couponCards');
+  
+  // Show add coupon panel
+  showAddCouponBtn.addEventListener('click', () => {
+    addCouponPanel.classList.add('active');
+    couponOverlay.classList.add('active');
+    lockBodyScroll();
+  });
+  
+  // Close panels
+  closeAddCouponPanel.addEventListener('click', () => {
+    addCouponPanel.classList.remove('active');
+    couponOverlay.classList.remove('active');
+    couponForm.reset();
+    unlockBodyScroll();
+  });
+  
+  closeEditCouponPanel.addEventListener('click', () => {
+    editCouponPanel.classList.remove('active');
+    couponOverlay.classList.remove('active');
+    editCouponForm.reset();
+    unlockBodyScroll();
+  });
+  
+  // Close coupon panels when clicking overlay
+  couponOverlay.addEventListener('click', () => {
+    addCouponPanel.classList.remove('active');
+    editCouponPanel.classList.remove('active');
+    couponOverlay.classList.remove('active');
+    couponForm.reset();
+    editCouponForm.reset();
+    unlockBodyScroll();
+  });
+  
+  // Add coupon form submission
+  couponForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(couponForm);
+    
+    const data = {
+      code: formData.get('code'),
+      discount_percentage: formData.get('discount_percentage'),
+      description: formData.get('description') || null,
+      expires_at: formData.get('expires_at') || null,
+      is_active: parseInt(formData.get('is_active'))
+    };
+    
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
+        showAlert('Coupon added successfully!', 'success');
+        couponForm.reset();
+        addCouponPanel.classList.remove('active');
+        couponOverlay.classList.remove('active');
+        unlockBodyScroll();
+        loadCoupons();
+      } else {
+        const error = await response.json();
+        showAlert(error.error || 'Failed to add coupon.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error adding coupon.', 'error');
+    }
+  });
+  
+  // Load and display coupons
+  async function loadCoupons() {
+    couponCards.innerHTML = '<div class="text-center w-100">Loading...</div>';
+    try {
+      const res = await fetch(`${window.API_BASE_URL}/api/coupons`);
+      const coupons = await res.json();
+      
+      if (!coupons.length) {
+        couponCards.innerHTML = '<div class="alert alert-info w-100">No coupon codes found.</div>';
+        return;
+      }
+      
+      couponCards.innerHTML = '';
+      coupons.forEach(coupon => {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 col-lg-6 mb-4';
+        
+        // Determine status
+        let statusClass = 'active';
+        let statusText = 'Active';
+        
+        if (!coupon.is_active) {
+          statusClass = 'inactive';
+          statusText = 'Inactive';
+        } else if (coupon.expires_at) {
+          const now = new Date();
+          const expiryDate = new Date(coupon.expires_at);
+          if (now > expiryDate) {
+            statusClass = 'expired';
+            statusText = 'Expired';
+          }
+        }
+        
+        // Format expiry date
+        const expiryDate = coupon.expires_at ? new Date(coupon.expires_at).toLocaleString() : 'No expiry';
+        
+        card.innerHTML = `
+          <div class="coupon-card">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="mb-0 text-primary">${coupon.code}</h5>
+              <span class="coupon-status ${statusClass}">${statusText}</span>
+            </div>
+            <div class="mb-3">
+              <div class="row g-2 mb-2">
+                <div class="col-6"><strong>Discount:</strong> ${coupon.discount_percentage}%</div>
+                <div class="col-6"><strong>Created:</strong> ${new Date(coupon.created_at).toLocaleDateString()}</div>
+              </div>
+              ${coupon.description ? `<div class="mb-2"><strong>Description:</strong> ${coupon.description}</div>` : ''}
+              <div class="mb-2"><strong>Expires:</strong> ${expiryDate}</div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-sm editCouponBtn" data-id="${coupon.id}" title="Edit Coupon" style="background: none; border: 1px solid gray; padding: 3px 6px; color: gray; box-shadow: none;">
+                <i class="fa fa-pencil" style="font-size: 14px;"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        couponCards.appendChild(card);
+      });
+      
+      // Add edit button listeners
+      document.querySelectorAll('.editCouponBtn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+          const couponId = btn.getAttribute('data-id');
+          let coupon = null;
+          try {
+            const res = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
+            if (res.ok) {
+              coupon = await res.json();
+            }
+          } catch (err) {
+            showAlert('Failed to load coupon data.', 'error');
+            return;
+          }
+          if (!coupon) {
+            showAlert('Coupon not found.', 'error');
+            return;
+          }
+          
+          // Fill edit form
+          editCouponForm.setAttribute('data-id', coupon.id);
+          editCouponForm.elements['code'].value = coupon.code;
+          editCouponForm.elements['discount_percentage'].value = coupon.discount_percentage;
+          editCouponForm.elements['description'].value = coupon.description || '';
+          editCouponForm.elements['is_active'].value = coupon.is_active;
+          editCouponForm.elements['expires_at'].value = coupon.expires_at ? coupon.expires_at.slice(0, 16) : '';
+          
+          addCouponPanel.classList.remove('active');
+          editCouponPanel.classList.add('active');
+          couponOverlay.classList.add('active');
+          lockBodyScroll();
+        });
+      });
+    } catch (err) {
+      couponCards.innerHTML = '<div class="alert alert-danger w-100">Failed to load coupons.</div>';
+    }
+  }
+  
+  // Edit coupon form submission
+  editCouponForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(editCouponForm);
+    const id = editCouponForm.getAttribute('data-id');
+    
+    const data = {
+      code: formData.get('code'),
+      discount_percentage: formData.get('discount_percentage'),
+      description: formData.get('description') || null,
+      expires_at: formData.get('expires_at') || null,
+      is_active: parseInt(formData.get('is_active'))
+    };
+    
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/coupons/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
+        showAlert('Coupon updated successfully!', 'success');
+        editCouponForm.reset();
+        editCouponPanel.classList.remove('active');
+        couponOverlay.classList.remove('active');
+        unlockBodyScroll();
+        loadCoupons();
+      } else {
+        const error = await response.json();
+        showAlert(error.error || 'Failed to update coupon.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error updating coupon.', 'error');
+    }
+  });
+  
+  // Delete coupon functionality
+  const deleteCouponBtn = document.getElementById('deleteCouponBtn');
+  let pendingDeleteCouponId = null;
+  
+  deleteCouponBtn.addEventListener('click', function() {
+    const couponId = editCouponForm.getAttribute('data-id');
+    if (!couponId) {
+      showAlert('No coupon selected for deletion.', 'error');
+      return;
+    }
+    
+    if (confirm('Are you sure you want to delete this coupon code? This action cannot be undone.')) {
+      deleteCoupon(couponId);
+    }
+  });
+  
+  async function deleteCoupon(couponId) {
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, { method: 'DELETE' });
+      if (response.ok) {
+        showAlert('Coupon deleted successfully!', 'success');
+        editCouponForm.reset();
+        editCouponPanel.classList.remove('active');
+        couponOverlay.classList.remove('active');
+        unlockBodyScroll();
+        loadCoupons();
+      } else {
+        showAlert('Failed to delete coupon.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error deleting coupon.', 'error');
+    }
+  }
+  
+  // Load coupons on page load
+  loadCoupons();
 });
 </script>
