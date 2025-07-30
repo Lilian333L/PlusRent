@@ -164,28 +164,31 @@ class PriceCalculator {
   }
 
   // Validate discount code
-  validateDiscountCode(code) {
-    return this.discountRates.hasOwnProperty(code);
+  async validateDiscountCode(code) {
+    if (!code || code.trim() === '') {
+      return { valid: false, message: 'Please enter a discount code' };
+    }
+    
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code.trim()}`);
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error validating discount code:', error);
+      return { valid: false, message: 'Error validating discount code' };
+    }
   }
 
-  // Get available discount codes
+  // Get available discount codes (for reference)
   getAvailableDiscountCodes() {
     return Object.keys(this.discountRates);
   }
 
-  // Update price display in the UI
+  // Update the price display
   updatePriceDisplay(priceData) {
     const priceContainer = document.getElementById('price-breakdown');
-    if (!priceContainer) return;
-
-    // If no price data, show placeholder
-    if (!priceData) {
-      priceContainer.innerHTML = `
-        <h3 style="font-weight: 700; text-align: center; margin-bottom: 18px;">Final Price</h3>
-        <div style="font-size: 16px; text-align: center; color: #666;">
-          <p>Please fill in the dates and times to see the price breakdown</p>
-        </div>
-      `;
+    if (!priceContainer) {
+      console.log('Price breakdown container not found');
       return;
     }
 
@@ -197,11 +200,21 @@ class PriceCalculator {
     html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Total days</span><span>x ${priceData.days}</span></div>`;
     
     // Add breakdown items that have costs
-    Object.entries(priceData.breakdown).forEach(([label, value]) => {
-      if (value !== 'Included' && value !== 'None' && label !== 'Price per day' && label !== 'Total days') {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${label}</span><span>${value}</span></div>`;
-      }
-    });
+    if (priceData.locationFee > 0) {
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Location fee</span><span>${priceData.locationFee}€</span></div>`;
+    }
+    
+    if (priceData.insuranceCost > 0) {
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Insurance (${priceData.insuranceType})</span><span>${priceData.insuranceCost}€</span></div>`;
+    }
+    
+    if (priceData.outsideHoursFees > 0) {
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours fees</span><span>${priceData.outsideHoursFees}€</span></div>`;
+    }
+    
+    if (priceData.discountAmount > 0) {
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Discount (${priceData.discountPercentage}%)</span><span>-${priceData.discountAmount.toFixed(2)}€</span></div>`;
+    }
     
     // Add total
     html += '<div style="border-top: 1px solid #ddd; margin: 12px 0;"></div>';
@@ -211,87 +224,74 @@ class PriceCalculator {
     priceContainer.innerHTML = html;
   }
 
-  // Initialize calculator with form event listeners
-  init() {
-    console.log('Price calculator initializing...');
-    const form = document.getElementById('contact_form');
-    if (!form) {
-      console.log('Contact form not found');
-      return;
-    }
-    console.log('Contact form found, setting up event listeners...');
-
-    // Add comprehensive event listeners to form fields
-    const priceFields = [
-      'date-picker',
-      'pickup-time', 
-      'date-picker-2',
-      'collection-time',
+  // Initialize the price calculator
+  async init() {
+    console.log('Initializing price calculator...');
+    
+    // Add event listeners to all form fields
+    const formFields = [
+      'date-picker', 'pickup-time', 'date-picker-2', 'collection-time',
       'discount_code'
     ];
-
-    priceFields.forEach(fieldId => {
+    
+    formFields.forEach(fieldId => {
       const field = document.getElementById(fieldId);
       if (field) {
-        console.log(`Setting up listeners for field: ${fieldId}`);
-        // Listen to all possible input events
-        const events = ['input', 'change', 'keyup', 'paste', 'cut', 'blur', 'focus'];
-        events.forEach(eventType => {
+        ['input', 'change', 'keyup', 'paste', 'cut', 'blur', 'focus'].forEach(eventType => {
           field.addEventListener(eventType, () => this.debouncedRecalculate());
         });
-      } else {
-        console.log(`Field not found: ${fieldId}`);
       }
     });
-
-    // Add event listeners to radio buttons
+    
+    // Add event listeners to radio button groups
     const radioGroups = ['pickup_location', 'insurance_type'];
     radioGroups.forEach(groupName => {
       const radios = document.querySelectorAll(`input[name="${groupName}"]`);
-      console.log(`Found ${radios.length} radio buttons for ${groupName}`);
       radios.forEach(radio => {
-        radio.addEventListener('change', () => this.recalculatePrice());
-        radio.addEventListener('click', () => this.recalculatePrice());
+        radio.addEventListener('change', () => this.debouncedRecalculate());
+        radio.addEventListener('click', () => this.debouncedRecalculate());
       });
     });
-
-    // Also listen to form-level events
-    form.addEventListener('input', () => this.debouncedRecalculate());
-    form.addEventListener('change', () => this.recalculatePrice());
-
+    
+    // Add form-level event listeners
+    const form = document.getElementById('contact_form');
+    if (form) {
+      form.addEventListener('input', () => this.debouncedRecalculate());
+      form.addEventListener('change', () => this.debouncedRecalculate());
+    }
+    
+    console.log('Event listeners added, showing default calculation...');
+    
     // Show default calculation
-    this.showDefaultCalculation();
-    console.log('Price calculator initialized successfully');
+    await this.showDefaultCalculation();
+    
+    console.log('Price calculator initialization complete');
   }
 
-  // Show default calculation with default values
-  showDefaultCalculation() {
-    // Get default dates from date pickers or use today/tomorrow
+  // Show default calculation on page load
+  async showDefaultCalculation() {
+    console.log('Showing default calculation...');
+    
+    // Set default values
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     
-    const defaultPickupDate = document.getElementById('date-picker')?.value || this.formatDate(today);
-    const defaultReturnDate = document.getElementById('date-picker-2')?.value || this.formatDate(tomorrow);
-    const defaultPickupTime = document.getElementById('pickup-time')?.value || '09:00';
-    const defaultReturnTime = document.getElementById('collection-time')?.value || '09:00';
+    const datePicker = document.getElementById('date-picker');
+    const datePicker2 = document.getElementById('date-picker-2');
+    const pickupTime = document.getElementById('pickup-time');
+    const returnTime = document.getElementById('collection-time');
     
-    // Set default radio button selections
+    if (datePicker) datePicker.value = this.formatDate(today);
+    if (datePicker2) datePicker2.value = this.formatDate(tomorrow);
+    if (pickupTime) pickupTime.value = '09:00';
+    if (returnTime) returnTime.value = '09:00';
+    
+    // Set default radio selections
     this.setDefaultRadioSelections();
     
-    const defaultRentalData = {
-      pickupDate: defaultPickupDate,
-      pickupTime: defaultPickupTime,
-      returnDate: defaultReturnDate,
-      returnTime: defaultReturnTime,
-      pickupLocation: 'Our Office',
-      insuranceType: 'RCA',
-      discountCode: ''
-    };
-
-    console.log('Showing default calculation with:', defaultRentalData);
-    const priceData = this.calculatePrice(defaultRentalData);
-    this.updatePriceDisplay(priceData);
+    // Calculate and display price
+    await this.recalculatePrice();
   }
 
   // Set default radio button selections
@@ -317,77 +317,103 @@ class PriceCalculator {
     return `${year}-${month}-${day}`;
   }
 
-  // Debounced recalculation to prevent too many calculations
+  // Debounced recalculate function
   debouncedRecalculate() {
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-    }
-    this.debounceTimer = setTimeout(() => {
-      this.recalculatePrice();
-    }, 100); // 100ms delay
+    clearTimeout(this.recalculateTimeout);
+    this.recalculateTimeout = setTimeout(() => {
+      this.recalculatePrice().catch(error => {
+        console.error('Error in recalculatePrice:', error);
+      });
+    }, 100);
   }
 
   // Recalculate price based on current form values
-  recalculatePrice() {
+  async recalculatePrice() {
     console.log('Recalculating price...');
-    const form = document.getElementById('contact_form');
-    if (!form) {
-      console.log('Form not found in recalculatePrice');
-      return;
-    }
-
-    // Get form data with fallbacks to default values
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
     
-    const pickupDate = document.getElementById('date-picker')?.value || this.formatDate(today);
+    // Get form values with fallbacks
+    const pickupDate = document.getElementById('date-picker')?.value || this.formatDate(new Date());
+    const returnDate = document.getElementById('date-picker-2')?.value || this.formatDate(new Date(Date.now() + 24*60*60*1000));
     const pickupTime = document.getElementById('pickup-time')?.value || '09:00';
-    const returnDate = document.getElementById('date-picker-2')?.value || this.formatDate(tomorrow);
     const returnTime = document.getElementById('collection-time')?.value || '09:00';
     const pickupLocation = this.getSelectedRadioValue('pickup_location') || 'Our Office';
     const insuranceType = this.getSelectedRadioValue('insurance_type') || 'RCA';
     const discountCode = document.querySelector('input[name="discount_code"]')?.value || '';
 
-    console.log('Form values:', { pickupDate, pickupTime, returnDate, returnTime, pickupLocation, insuranceType, discountCode });
-
-    // Handle discount code validation
-    if (discountCode) {
-      this.handleDiscountCode(discountCode);
-    } else {
-      this.hideDiscountMessage();
-    }
-
-    const rentalData = {
-      pickupDate,
-      pickupTime,
-      returnDate,
-      returnTime,
-      pickupLocation,
-      insuranceType,
-      discountCode
-    };
-
-    // Always calculate price (no validation needed since we have defaults)
-    const priceData = this.calculatePrice(rentalData);
-    console.log('Calculated price data:', priceData);
+    // Calculate days
+    const days = this.calculateDays(pickupDate, returnDate);
     
-    // Update display
+    // Calculate base price
+    const basePrice = this.calculateBasePrice(days);
+    
+    // Calculate location fee
+    const locationFee = this.calculateLocationFee(pickupLocation);
+    
+    // Calculate insurance cost
+    const insuranceCost = this.calculateInsuranceCost(insuranceType, days);
+    
+    // Calculate outside hours fees
+    const outsideHoursFees = this.calculateOutsideHoursFees(pickupTime, returnTime);
+    
+    // Calculate subtotal
+    const subtotal = basePrice + locationFee + insuranceCost + outsideHoursFees;
+    
+    // Apply discount
+    let finalPrice = subtotal;
+    let discountAmount = 0;
+    let discountPercentage = 0;
+    
+    if (discountCode) {
+      const validationResult = await this.validateDiscountCode(discountCode);
+      if (validationResult.valid) {
+        discountPercentage = validationResult.discount_percentage;
+        discountAmount = subtotal * (discountPercentage / 100);
+        finalPrice = subtotal - discountAmount;
+      }
+    }
+    
+    const priceData = {
+      days,
+      basePrice,
+      locationFee,
+      insuranceCost,
+      outsideHoursFees,
+      subtotal,
+      discountAmount,
+      discountPercentage,
+      finalPrice,
+      discountCode,
+      pickupLocation,
+      insuranceType
+    };
+    
     this.updatePriceDisplay(priceData);
+    this.handleDiscountCode(discountCode);
   }
 
   // Handle discount code validation and updates
-  handleDiscountCode(code) {
-    if (code && !this.validateDiscountCode(code)) {
+  async handleDiscountCode(code) {
+    if (!code || code.trim() === '') {
+      // Clear any previous error styling
+      const discountField = document.querySelector('input[name="discount_code"]');
+      if (discountField) {
+        discountField.style.borderColor = '#ddd';
+      }
+      this.hideDiscountMessage();
+      return;
+    }
+    
+    const validationResult = await this.validateDiscountCode(code);
+    if (!validationResult.valid) {
       // Show invalid discount code message
       const discountField = document.querySelector('input[name="discount_code"]');
       if (discountField) {
         discountField.style.borderColor = '#ff4444';
         // Add a small tooltip or message
-        this.showDiscountMessage('Invalid discount code', 'error');
+        this.showDiscountMessage(validationResult.message, 'error');
       }
     } else {
-      // Clear error styling
+      // Valid code - clear error styling
       const discountField = document.querySelector('input[name="discount_code"]');
       if (discountField) {
         discountField.style.borderColor = '#ddd';

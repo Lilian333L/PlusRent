@@ -450,13 +450,17 @@ console.log(car);
   // Initialize price calculator after car data is loaded
   if (window.priceCalculator) {
     window.priceCalculator.updateCarData(car);
-    window.priceCalculator.init();
+    window.priceCalculator.init().catch(error => {
+      console.error('Error initializing price calculator:', error);
+    });
   } else {
     // If price calculator hasn't loaded yet, wait a bit and try again
-    setTimeout(() => {
+    setTimeout(async () => {
       if (window.priceCalculator) {
         window.priceCalculator.updateCarData(car);
-        window.priceCalculator.init();
+        await window.priceCalculator.init().catch(error => {
+          console.error('Error initializing price calculator:', error);
+        });
       }
     }, 100);
   }
