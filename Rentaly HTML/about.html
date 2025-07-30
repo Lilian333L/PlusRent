@@ -18,6 +18,98 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <script src="js/config.js"></script>
+
+    <!-- Custom Language Picker Styles -->
+    <style>
+      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+      .lang-picker-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        background: #f6f6f6;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        min-width: 80px;
+        height: 36px;
+        line-height: 1.2;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        margin-left: 0;
+      }
+      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
+        outline: none;
+        border-color: #f0c040;
+        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+      }
+      .lang-picker-dropdown {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 0;
+        margin: 0;
+        min-width: 120px;
+        list-style: none;
+      }
+      .lang-picker-dropdown.open { display: block; }
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        background: none;
+        border: none;
+        transition: background 0.15s, color 0.15s;
+        height: 32px;
+        line-height: 1.2;
+      }
+      .lang-option:focus, .lang-option:hover {
+        background: #f0c04022;
+        color: #031B4E;
+        outline: none;
+      }
+      .lang-option.selected {
+        background: #f0c04044;
+        color: #031B4E;
+        font-weight: 600;
+      }
+      .lang-flag {
+        font-size: 18px;
+        width: 20px;
+        display: inline-block;
+        text-align: center;
+      }
+      .lang-globe {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+      }
+      .lang-code {
+        font-weight: 600;
+        margin: 0 2px 0 2px;
+      }
+      @media (max-width: 600px) {
+        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
+        .lang-picker-dropdown { min-width: 80px; }
+        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
+        .lang-flag { font-size: 15px; width: 15px; }
+      }
+    </style>
 </head>
 
 <body>
@@ -70,84 +162,29 @@
                             <div class="de-flex-col header-col-mid">
                                 <ul id="mainmenu">
                                     <li><a class="menu-item" href="index.html" data-i18n="menu.home"></a></li>
-                                    <li><a class="menu-item" href="cars.html" data-i18n="menu.cars"></a>
-                                        <ul>
-                                            <li><a class="menu-item" href="cars.html" data-i18n="badge.cars_list1">Cars List 1</a></li>
-                                            <li><a class="menu-item" href="02_dark-cars.html" data-i18n="badge.cars_list1_dark">Cars List 1 Dark</a></li>
-                                            <li><a class="menu-item" href="cars-list.html" data-i18n="badge.cars_list2">Cars List 2</a></li>
-                                            <li><a class="menu-item" href="02_dark-cars-list.html" data-i18n="badge.cars_list2_dark">Cars List 2 Dark</a></li>
-                                            <li><a class="menu-item" href="car-single.html" data-i18n="badge.cars_single">Cars Single</a></li>
-                                            <li><a class="menu-item" href="02_dark-car-single.html" data-i18n="badge.cars_single_dark">Cars Single Dark</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="menu-item" href="quick-booking.html" data-i18n="menu.booking">Booking</a>
-                                        <ul>
-                                            <li><a class="menu-item new" href="quick-booking.html" data-i18n="badge.quick_booking">Quick Booking</a></li>
-                                            <li><a class="menu-item" href="booking.html" data-i18n="badge.booking">Booking</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="menu-item" href="account-dashboard.html" data-i18n="menu.admin_panel">My Account</a>
-                                        <ul>
-                                            <li><a class="menu-item" href="account-dashboard.html" data-i18n="badge.dashboard">Dashboard</a></li>
-                                            <li><a class="menu-item" href="account-profile.html" data-i18n="badge.my_profile">My Profile</a></li>
-                                            <li><a class="menu-item" href="account-booking.html" data-i18n="badge.my_orders">My Orders</a></li>
-                                            <li><a class="menu-item" href="account-favorite.html" data-i18n="badge.my_favorite_cars">My Favorite Cars</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="menu-item" href="#" data-i18n="badge.pages">Pages</a>
-                                        <ul>
-                                            <li><a class="menu-item" href="about.html" data-i18n="badge.about_us">About Us</a></li>
-                                            <li><a class="menu-item" href="contact.html" data-i18n="badge.contact">Contact</a></li>
-                                            <li><a class="menu-item" href="login.html" data-i18n="badge.login">Login</a></li>
-                                            <li><a class="menu-item" href="register.html" data-i18n="badge.register">Register</a></li>
-                                            <li><a class="menu-item" href="404.html" data-i18n="badge.page_404">Page 404</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="menu-item" href="#" data-i18n="badge.news">News</a>
-                                        <ul>
-                                            <li><a class="menu-item" href="news-standart-right-sidebar.html" data-i18n="badge.news_standard">News Standard</a>
-                                                <ul>
-                                                    <li><a class="menu-item" href="news-standart-right-sidebar.html" data-i18n="badge.right_sidebar">Right Sidebar</a></li>
-                                                    <li><a class="menu-item" href="news-standart-left-sidebar.html" data-i18n="badge.left_sidebar">Left Sidebar</a></li>
-                                                    <li><a class="menu-item" href="news-standart-no-sidebar.html" data-i18n="badge.no_sidebar">No Sidebar</a></li>
-                                                </ul>
-                                            </li>
-                                            <li><a class="menu-item" href="news-grid-right-sidebar.html" data-i18n="badge.news_grid">News Grid</a>
-                                                <ul>
-                                                    <li><a class="menu-item" href="news-grid-right-sidebar.html" data-i18n="badge.right_sidebar">Right Sidebar</a></li>
-                                                    <li><a class="menu-item" href="news-grid-left-sidebar.html" data-i18n="badge.left_sidebar">Left Sidebar</a></li>
-                                                    <li><a class="menu-item" href="news-grid-no-sidebar.html" data-i18n="badge.no_sidebar">No Sidebar</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="menu-item" href="#" data-i18n="badge.elements">Elements</a>
-                                        <ul>
-                                            <li><a class="menu-item" href="preloader.html" data-i18n="badge.preloader">Preloader</a></li>
-                                            <li><a class="menu-item" href="icon-boxes.html" data-i18n="badge.icon_boxes">Icon Boxes</a></li>
-                                            <li><a class="menu-item" href="badge.html" data-i18n="badge.badge">Badge</a></li>
-                                            <li><a class="menu-item" href="counters.html" data-i18n="badge.counters">Counters</a></li>
-                                            <li><a class="menu-item" href="gallery-popup.html" data-i18n="badge.gallery_popup">Gallery Popup</a></li>
-                                            <li><a class="menu-item" href="icons-elegant.html" data-i18n="badge.icons_elegant">Icons Elegant</a></li>
-                                            <li><a class="menu-item" href="icons-etline.html" data-i18n="badge.icons_etline">Icons Etline</a></li>
-                                            <li><a class="menu-item" href="icons-font-awesome.html" data-i18n="badge.icons_font_awesome">Icons Font Awesome</a></li>
-                                            <li><a class="menu-item" href="map.html" data-i18n="badge.map">Map</a></li>
-                                            <li><a class="menu-item" href="modal.html" data-i18n="badge.modal">Modal</a></li>
-                                            <li><a class="menu-item" href="popover.html" data-i18n="badge.popover">Popover</a></li>
-                                            <li><a class="menu-item" href="tabs.html" data-i18n="badge.tabs">Tabs</a></li>
-                                            <li><a class="menu-item" href="tooltips.html" data-i18n="badge.tooltips">Tooltips</a></li>
-                                        </ul>
-                                    </li>
+                                    <li><a class="menu-item" href="cars.html" data-i18n="menu.cars"></a></li>
+                                    <li><a class="menu-item" href="about.html" data-i18n="menu.about"></a></li>
+                                    <li><a class="menu-item" href="contact.html" data-i18n="menu.contact"></a></li>
                                 </ul>
                             </div>
                             <div class="de-flex-col">
-                                <div class="menu_side_area">
-                                    <!-- Language Switcher -->
-                                    <select id="languageSwitcher" style="margin-left: 20px;">
-                                      <option value="en">English</option>
-                                      <option value="ro">Română</option>
-                                      <option value="ru">Русский</option>
-                                    </select>
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Language Picker -->
+                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
+                                        <span class="lang-flag" id="langFlag"></span>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                      </button>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
+                                      </ul>
+                                    </div>
                                     <span id="menu-btn"></span>
                                 </div>
                             </div>
@@ -181,7 +218,9 @@
                 <div class="container">
                     <div class="row g-5">
                         <div class="col-lg-6 wow fadeInRight">
-                            <h2 data-i18n="about.offer">We offer customers a wide range of <span class="id-color" data-i18n="about.commercial_cars">commercial cars</span> and <span class="id-color" data-i18n="about.luxury_cars">luxury cars</span> for any occasion.</h2>
+                            <h2>
+                              We offer customers a wide range of <span class="id-color" data-i18n="about.commercial_cars">commercial cars</span> and <span class="id-color" data-i18n="about.luxury_cars">luxury cars</span> for any occasion.
+                            </h2>
                         </div>
                         <div class="col-lg-6 wow fadeInRight" data-wow-delay=".25s">
                             <p data-i18n="about.lorem">Lorem ipsum non aliquip esse do eu ad amet laboris do labore reprehenderit mollit exercitation cillum irure fugiat magna laboris aliquip adipisicing consectetur officia dolor minim ea enim amet in ut non non excepteur anim magna dolor nostrud commodo qui irure deserunt adipisicing nisi ex nostrud sunt officia in aliquip velit anim id aliqua qui do sed non ad qui sed in eu in aliqua sunt pariatur occaecat in ullamco deserunt dolor consectetur laborum non duis occaecat nulla ut sed qui sunt id ex sint sed eu excepteur minim nulla minim excepteur exercitation.</p>
@@ -217,106 +256,7 @@
                 </div>
             </section>
 
-            <section aria-label="section" class="jarallax text-light">
-                <img src="images/background/8.jpg" class="jarallax-img" alt="">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12 text-center">
-                            <h2 data-i18n="about.board">Board of Directors</h2>
-                            <div class="spacer-20"></div>
-                        </div>
 
-                        <div class="col-lg-3 col-md-6 col-sm-6 mb30">
-                            <div class="f-profile text-center">
-                                <div class="fp-wrap f-invert">
-                                    <div class="fpw-overlay">
-                                        <div class="fpwo-wrap">
-                                            <div class="fpwow-icons">
-                                                <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-linkedin fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>                                  
-                                    <div class="fpw-overlay-btm"></div>
-                                    <img src="images/team/1.jpg" class="fp-image img-fluid" alt="">
-                                </div>
-
-                                <h4 data-i18n="about.fynley">Fynley Wilkinson</h4>
-                                <span data-i18n="about.cco">Chief Creative Officer</span>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 col-sm-6 mb30">
-                            <div class="f-profile text-center">
-                                <div class="fp-wrap f-invert">
-                                    <div class="fpw-overlay">
-                                        <div class="fpwo-wrap">
-                                            <div class="fpwow-icons">
-                                                <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-linkedin fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>                                  
-                                    <div class="fpw-overlay-btm"></div>
-                                    <img src="images/team/2.jpg" class="fp-image img-fluid" alt="">
-                                </div>
-
-                                <h4 data-i18n="about.peter">Peter Welsh</h4>
-                                <span data-i18n="about.cto">Chief Technology Officer</span>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 col-sm-6 mb30">
-                            <div class="f-profile text-center">
-                                <div class="fp-wrap f-invert">
-                                    <div class="fpw-overlay">
-                                        <div class="fpwo-wrap">
-                                            <div class="fpwow-icons">
-                                                <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-linkedin fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>                                  
-                                    <div class="fpw-overlay-btm"></div>
-                                    <img src="images/team/3.jpg" class="fp-image img-fluid" alt="">
-                                </div>
-
-                                <h4 data-i18n="about.john">John Shepard</h4>
-                                <span data-i18n="about.ceo">Chief Executive Officer</span>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-3 col-md-6 col-sm-6 mb30">
-                            <div class="f-profile text-center">
-                                <div class="fp-wrap f-invert">
-                                    <div class="fpw-overlay">
-                                        <div class="fpwo-wrap">
-                                            <div class="fpwow-icons">
-                                                <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-linkedin fa-lg"></i></a>
-                                                <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>                                  
-                                    <div class="fpw-overlay-btm"></div>
-                                    <img src="images/team/4.jpg" class="fp-image img-fluid" alt="">
-                                </div>
-
-                                <h4 data-i18n="about.robyn">Robyn Peel</h4>
-                                <span data-i18n="about.dof">Director of Finance</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
 
             <section aria-label="section">
                 <div class="container">
@@ -365,38 +305,6 @@
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <section id="section-img-with-tab">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-5 offset-lg-7">
-                            
-                            <h2 data-i18n="about.quality_for_clients">Only Quality For Clients</h2>
-                            <div class="spacer-20"></div>
-                            
-                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                              <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" data-i18n="about.luxury">Luxury</button>
-                              </li>
-                              <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-i18n="about.comfort">Comfort</button>
-                              </li>
-                              <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false" data-i18n="about.prestige">Prestige</button>
-                              </li>
-                            </ul>
-                            <div class="tab-content" id="pills-tabContent">
-                              <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab"><p data-i18n="about.luxury_desc">We offer a meticulously curated collection of the most sought-after luxury vehicles on the market. Whether you prefer the sporty allure of a high-performance sports car, the sophistication of a sleek and luxurious sedan, or the versatility of a premium SUV, we have the perfect car to match your discerning taste.</p></div>
-                              <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab"><p data-i18n="about.comfort_desc">We prioritize your comfort and convenience throughout your journey. We understand that a comfortable ride can make a world of difference, whether you're embarking on a business trip or enjoying a leisurely vacation. That's why we offer a wide range of well-maintained, comfortable cars that cater to your specific needs.</p></div>
-                              <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab"><p data-i18n="about.prestige_desc">We understand that prestige goes beyond luxury. It's about making a statement, embracing sophistication, and indulging in the finer things in life. That's why we offer an exclusive selection of prestigious cars that exude elegance, style, and status.</p></div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-
-                <div class="image-container col-md-6 pull-right" data-bgimage="url(images/background/5.jpg) center"></div>
             </section>
 
             <section id="section-call-to-action" class="bg-color-2 pt60 pb60 text-light">
