@@ -1288,6 +1288,56 @@
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
+    <script>
+        // Authentication check
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('adminToken');
+            const user = localStorage.getItem('adminUser');
+            
+            if (!token || !user) {
+                // Redirect to login if not authenticated
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Verify token is still valid
+            fetch(`${window.API_BASE_URL}/api/auth/verify`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Token is invalid, redirect to login
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    window.location.href = 'login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Token verification error:', error);
+                // Network error, but we'll allow access for now
+            });
+            
+            // Add logout functionality
+            const logoutBtn = document.createElement('button');
+            logoutBtn.textContent = 'Logout';
+            logoutBtn.className = 'btn-main';
+            logoutBtn.style.position = 'fixed';
+            logoutBtn.style.top = '20px';
+            logoutBtn.style.right = '20px';
+            logoutBtn.style.zIndex = '10001';
+            
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = 'login.html';
+            });
+            
+            document.body.appendChild(logoutBtn);
+        });
+    </script>
 
 </body>
 

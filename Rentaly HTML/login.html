@@ -97,27 +97,23 @@
                             <div class="row align-items-center">
                                 <div class="col-lg-4 offset-lg-4">
                                     <div class="padding40 rounded-3 shadow-soft" data-bgcolor="#ffffff">
-                                        <h4>Login</h4>
+                                        <h4>Admin Login</h4>
                                         <div class="spacer-10"></div>
-                                        <form id="form_register" class="form-border" method="post" action="account-dashboard.html">
+                                        <div id="login-message" class="alert" style="display: none;"></div>
+                                        <form id="login-form" class="form-border">
                                             <div class="field-set">
-                                                <input type="text" name="name" id="name" class="form-control" placeholder="Your Name" />
+                                                <input type="text" name="username" id="username" class="form-control" placeholder="Username" required />
                                             </div>
                                             <div class="field-set">
-                                                <input type="text" name="name" id="name" class="form-control" placeholder="Your Name" />
+                                                <input type="password" name="password" id="password" class="form-control" placeholder="Password" required />
                                             </div>
                                             <div id="submit">
-                                                <input type="submit" id="send_message" value="Sign In" class="btn-main btn-fullwidth rounded-3" />
+                                                <button type="submit" id="login-btn" class="btn-main btn-fullwidth rounded-3">Sign In</button>
                                             </div>
                                         </form>
-                                        <div class="title-line">Or&nbsp;sign&nbsp;up&nbsp;with</div>
-                                        <div class="row g-2">
-                                            <div class="col-lg-6">
-                                                <a class="btn-sc btn-fullwidth mb10" href="#"><img src="images/svg/google_icon.svg" alt="">Google</a>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <a class="btn-sc btn-fullwidth mb10" href="#"><img src="images/svg/facebook_icon.svg" alt="">Facebook</a>
-                                            </div>
+                                        <div class="spacer-20"></div>
+                                        <div class="text-center">
+                                            <small class="text-muted">Default credentials: admin / admin123</small>
                                         </div>
                                     </div>
                                 </div>
@@ -132,6 +128,75 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const loginMessage = document.getElementById('login-message');
+            const loginBtn = document.getElementById('login-btn');
+
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (!username || !password) {
+                    showMessage('Please fill in all fields', 'danger');
+                    return;
+                }
+
+                // Disable button and show loading
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Signing In...';
+
+                try {
+                    const response = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store token in localStorage
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminUser', JSON.stringify(data.user));
+                        
+                        showMessage('Login successful! Redirecting...', 'success');
+                        
+                        // Redirect to admin dashboard
+                        setTimeout(() => {
+                            window.location.href = 'account-dashboard.html';
+                        }, 1000);
+                    } else {
+                        showMessage(data.error || 'Login failed', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showMessage('Network error. Please try again.', 'danger');
+                } finally {
+                    // Re-enable button
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            });
+
+            function showMessage(message, type) {
+                loginMessage.textContent = message;
+                loginMessage.className = `alert alert-${type}`;
+                loginMessage.style.display = 'block';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    loginMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
 
 </body>
 
