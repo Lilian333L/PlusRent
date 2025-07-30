@@ -1,10 +1,14 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
-const axios = require('axios');
-const multer = require('multer');
-const fs = require('fs');
 const path = require('path');
+
+// Import database configuration
+const { initializeDatabase } = require('./config/database');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const carRoutes = require('./routes/cars');
+const couponRoutes = require('./routes/coupons');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,788 +21,121 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve static files from Rentaly HTML directory
+// Redirect old URLs to clean URLs
+app.get('/Rentaly%20HTML/cars.html', (req, res) => {
+  res.redirect(301, '/cars.html');
+});
+
+app.get('/Rentaly%20HTML/car-single.html', (req, res) => {
+  res.redirect(301, '/car-single.html');
+});
+
+app.get('/Rentaly%20HTML/login.html', (req, res) => {
+  res.redirect(301, '/login.html');
+});
+
+app.get('/Rentaly%20HTML/account-dashboard.html', (req, res) => {
+  res.redirect(301, '/account-dashboard.html');
+});
+
+app.get('/Rentaly%20HTML/about.html', (req, res) => {
+  res.redirect(301, '/about.html');
+});
+
+app.get('/Rentaly%20HTML/contact.html', (req, res) => {
+  res.redirect(301, '/contact.html');
+});
+
+app.get('/Rentaly%20HTML/booking.html', (req, res) => {
+  res.redirect(301, '/booking.html');
+});
+
+app.get('/Rentaly%20HTML/quick-booking.html', (req, res) => {
+  res.redirect(301, '/quick-booking.html');
+});
+
+app.get('/Rentaly%20HTML/index.html', (req, res) => {
+  res.redirect(301, '/');
+});
+
+app.get('/Rentaly%20HTML/spinning-wheel-standalone.html', (req, res) => {
+  res.redirect(301, '/spinning-wheel-standalone.html');
+});
+
+// Serve HTML files from root path for better URLs
+app.get('/cars.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'cars.html'));
+});
+
+app.get('/car-single.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'car-single.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'login.html'));
+});
+
+app.get('/account-dashboard.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'account-dashboard.html'));
+});
+
+app.get('/about.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'about.html'));
+});
+
+app.get('/contact.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'contact.html'));
+});
+
+app.get('/booking.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'booking.html'));
+});
+
+app.get('/quick-booking.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'quick-booking.html'));
+});
+
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
+});
+
+app.get('/spinning-wheel-standalone.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'spinning-wheel-standalone.html'));
+});
+
+// Serve static files from Rentaly HTML directory (for CSS, JS, images)
 app.use('/Rentaly%20HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
 app.use('/Rentaly HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
+
+// Serve static assets from root path for clean URLs
+app.use('/css', express.static(path.join(__dirname, 'Rentaly HTML', 'css')));
+app.use('/js', express.static(path.join(__dirname, 'Rentaly HTML', 'js')));
+app.use('/images', express.static(path.join(__dirname, 'Rentaly HTML', 'images')));
+app.use('/fonts', express.static(path.join(__dirname, 'Rentaly HTML', 'fonts')));
+app.use('/vendor', express.static(path.join(__dirname, 'Rentaly HTML', 'vendor')));
 
 // Root route to serve the main index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
 });
 
-// SQLite DB setup
-const db = new sqlite3.Database('./carrental.db', (err) => {
-  if (err) {
-    console.error('Could not connect to database', err);
-  } else {
-    console.log('Connected to SQLite database');
-  }
-});
+// Initialize database
+initializeDatabase();
 
-db.serialize(() => {
-  // Create new cars table with updated fields and booked status
-  db.run(`CREATE TABLE IF NOT EXISTS cars (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    make_name TEXT,
-    model_name TEXT,
-    production_year INTEGER,
-    gear_type TEXT,
-    fuel_type TEXT,
-    engine_capacity REAL NULL,
-    car_type TEXT,
-    num_doors INTEGER,
-    num_passengers INTEGER,
-    price_policy TEXT,
-    booked INTEGER DEFAULT 0,
-    booked_until TEXT,
-    head_image TEXT,
-    gallery_images TEXT,
-    luggage TEXT,
-    mileage INTEGER,
-    drive TEXT,
-    fuel_economy REAL,
-    exterior_color TEXT,
-    interior_color TEXT,
-    rca_insurance_price REAL,
-    casco_insurance_price REAL
-  )`);
-
-  // Create coupon codes table
-  db.run(`CREATE TABLE IF NOT EXISTS coupon_codes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    code TEXT UNIQUE NOT NULL,
-    discount_percentage REAL NOT NULL,
-    description TEXT,
-    is_active INTEGER DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME
-  )`);
-});
-
-// Update cars table to include head_image and gallery_images if not present
-// (This is a safe migration for SQLite)
-db.serialize(() => {
-  db.run(`ALTER TABLE cars ADD COLUMN head_image TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN gallery_images TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN booked_until TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN luggage TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN mileage INTEGER`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN drive TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN fuel_economy REAL`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN exterior_color TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN interior_color TEXT`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN rca_insurance_price REAL`, () => {});
-  db.run(`ALTER TABLE cars ADD COLUMN casco_insurance_price REAL`, () => {});
-  
-  // Migration to update engine_capacity column type from INTEGER to REAL
-  db.get(`PRAGMA table_info(cars)`, (err, info) => {
-    if (err) {
-      console.log('Migration warning: Could not check table info:', err);
-      return;
-    }
-    
-    // Check if we need to migrate the engine_capacity column
-    db.all(`PRAGMA table_info(cars)`, [], (err, columns) => {
-      if (err) {
-        console.log('Migration warning: Could not check columns:', err);
-        return;
-      }
-      
-      const engineCapacityColumn = columns.find(col => col.name === 'engine_capacity');
-      
-      if (engineCapacityColumn && engineCapacityColumn.type === 'INTEGER') {
-        console.log('Migrating engine_capacity from INTEGER to REAL...');
-        
-        // Create new table with REAL engine_capacity
-        db.run(`CREATE TABLE cars_new (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          make_name TEXT,
-          model_name TEXT,
-          production_year INTEGER,
-          gear_type TEXT,
-          fuel_type TEXT,
-          engine_capacity REAL NULL,
-          car_type TEXT,
-          num_doors INTEGER,
-          num_passengers INTEGER,
-          price_policy TEXT,
-          booked INTEGER DEFAULT 0,
-          booked_until TEXT,
-          head_image TEXT,
-          gallery_images TEXT
-        )`, (err) => {
-          if (err) {
-            console.log('Migration error: Could not create new table:', err);
-            return;
-          }
-          
-          // Copy data from old table to new table
-          db.run(`INSERT INTO cars_new (id, make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, head_image, gallery_images)
-                  SELECT id, make_name, model_name, production_year, gear_type, fuel_type, CAST(engine_capacity AS REAL), car_type, num_doors, num_passengers, price_policy, booked, booked_until, head_image, gallery_images
-                  FROM cars`, (err) => {
-            if (err) {
-              console.log('Migration error: Could not copy data:', err);
-              return;
-            }
-            
-            // Drop old table
-            db.run(`DROP TABLE cars`, (err) => {
-              if (err) {
-                console.log('Migration error: Could not drop old table:', err);
-                return;
-              }
-              
-              // Rename new table to cars
-              db.run(`ALTER TABLE cars_new RENAME TO cars`, (err) => {
-                if (err) {
-                  console.log('Migration error: Could not rename table:', err);
-                  return;
-                }
-                
-                console.log('Migration completed: Engine capacity now accepts decimal values');
-              });
-            });
-          });
-        });
-      } else {
-        console.log('Migration completed: Engine capacity already supports decimal values');
-      }
-    });
-  });
-});
-
-// Multer storage config for car images
-const carImageStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const carId = req.params.id;
-    const dir = path.join(__dirname, 'uploads', `car-${carId}`);
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const base = file.fieldname === 'head_image' ? 'head' : `gallery_${Date.now()}`;
-    cb(null, base + ext);
-  }
-});
-const upload = multer({ storage: carImageStorage });
-
-// Endpoint to get a single car by ID
-app.get('/api/cars/:id', (req, res) => {
-  const id = req.params.id;
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-    car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    res.json(car);
-  });
-});
-
-// Endpoint to add a new car
-app.post('/api/cars', async (req, res) => {
-  const {
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engine_capacity,
-    car_type,
-    num_doors,
-    num_passengers,
-    price_policy,
-    booked_until,
-    luggage,
-    mileage,
-    drive,
-    fuel_economy,
-    exterior_color,
-    interior_color,
-    rca_insurance_price,
-    casco_insurance_price
-  } = req.body;
-
-  // For electric cars, engine_capacity can be null
-  const isElectric = fuel_type === 'Electric';
-
-  if (
-    !make_name ||
-    !model_name ||
-    !production_year ||
-    !gear_type ||
-    !fuel_type ||
-    (!isElectric && !engine_capacity) ||
-    !car_type ||
-    !num_doors ||
-    !num_passengers ||
-    !price_policy ||
-    !rca_insurance_price ||
-    !casco_insurance_price
-  ) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  let engineCapacityValue = null;
-  
-  // Only validate and convert engine_capacity for non-electric cars
-  if (!isElectric) {
-    // Parse engine_capacity as a float to support decimal values
-    engineCapacityValue = parseFloat(engine_capacity);
-    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
-      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
-    }
-  }
-
-  // Convert all price_policy values to strings
-  const pricePolicyStringified = {};
-  for (const key in price_policy) {
-    pricePolicyStringified[key] = String(price_policy[key]);
-  }
-
-  // Parse optional numeric fields
-  const mileageValue = mileage ? parseInt(mileage) : null;
-  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
-  const rcaInsuranceValue = parseFloat(rca_insurance_price);
-  const cascoInsuranceValue = parseFloat(casco_insurance_price);
-
-  // Store in DB, booked defaults to 0
-  db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
-    [
-      make_name,
-      model_name,
-      production_year,
-      gear_type,
-      fuel_type,
-      engineCapacityValue,
-      car_type,
-      num_doors,
-      num_passengers,
-      JSON.stringify(pricePolicyStringified),
-      booked_until || null,
-      luggage || null,
-      mileageValue,
-      drive || null,
-      fuelEconomyValue,
-      exterior_color || null,
-      interior_color || null,
-      rcaInsuranceValue,
-      cascoInsuranceValue
-    ],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ success: true, id: this.lastID });
-    }
-  );
-});
-
-// Enhanced GET /api/cars with filtering
-app.get('/api/cars', (req, res) => {
-  const filters = [];
-  const params = [];
-
-  // Helper to add single or multi-value filter (case-insensitive)
-  function addFilter(field, param) {
-    if (req.query[param] && req.query[param] !== '') {
-      const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
-      if (values.length > 1) {
-        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
-        params.push(...values);
-      } else {
-        filters.push(`${field} = ? COLLATE NOCASE`);
-        params.push(values[0]);
-      }
-    }
-  }
-
-  addFilter('make_name', 'make_name');
-  addFilter('model_name', 'model_name');
-  addFilter('gear_type', 'gear_type');
-  addFilter('fuel_type', 'fuel_type');
-  addFilter('car_type', 'car_type');
-  addFilter('num_doors', 'num_doors');
-  addFilter('num_passengers', 'num_passengers');
-
-  if (req.query.min_year && req.query.min_year !== '') {
-    filters.push('production_year >= ?');
-    params.push(req.query.min_year);
-  }
-  if (req.query.max_year && req.query.max_year !== '') {
-    filters.push('production_year <= ?');
-    params.push(req.query.max_year);
-  }
-  // Price filtering (by daily rate for 1-2 days)
-  if (req.query.min_price && req.query.min_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
-    params.push(req.query.min_price);
-  }
-  if (req.query.max_price && req.query.max_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
-    params.push(req.query.max_price);
-  }
-
-  let sql = 'SELECT * FROM cars';
-  if (filters.length > 0) {
-    sql += ' WHERE ' + filters.join(' AND ');
-  }
-
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    // Parse price_policy and gallery_images for each car
-    rows.forEach(car => {
-      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    });
-    res.json(rows);
-  });
-});
-
-// Endpoint to update a car
-app.put('/api/cars/:id', (req, res) => {
-  const id = req.params.id;
-  const {
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engine_capacity,
-    car_type,
-    num_doors,
-    num_passengers,
-    price_policy,
-    booked,
-    booked_until,
-    gallery_images,
-    luggage,
-    mileage,
-    drive,
-    fuel_economy,
-    exterior_color,
-    interior_color,
-    rca_insurance_price,
-    casco_insurance_price
-  } = req.body;
-
-  console.log('PUT /api/cars/:id - Request body:', req.body);
-
-  // For electric cars, engine_capacity can be null
-  const isElectric = fuel_type === 'Electric';
-
-  if (
-    !make_name ||
-    !model_name ||
-    !production_year ||
-    !gear_type ||
-    !fuel_type ||
-    (!isElectric && engine_capacity === undefined) ||
-    !car_type ||
-    !num_doors ||
-    !num_passengers ||
-    !price_policy ||
-    !rca_insurance_price ||
-    !casco_insurance_price
-  ) {
-    console.log('Validation failed:', {
-      make_name, model_name, production_year, gear_type, fuel_type,
-      engine_capacity, car_type, num_doors, num_passengers, price_policy
-    });
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  let engineCapacityValue = null;
-  
-  // Only validate and convert engine_capacity for non-electric cars
-  if (!isElectric && engine_capacity !== undefined && engine_capacity !== '') {
-    // Parse engine_capacity as a float to support decimal values
-    engineCapacityValue = parseFloat(engine_capacity);
-    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
-      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
-    }
-  }
-
-  const pricePolicyStringified = {};
-  for (const key in price_policy) {
-    pricePolicyStringified[key] = String(price_policy[key]);
-  }
-
-  // Parse optional numeric fields
-  const mileageValue = mileage ? parseInt(mileage) : null;
-  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
-  const rcaInsuranceValue = parseFloat(rca_insurance_price);
-  const cascoInsuranceValue = parseFloat(casco_insurance_price);
-
-  // Calculate booked status based on booked_until date
-  let bookedStatus = 0;
-  if (booked_until) {
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-    const bookedUntilDate = new Date(booked_until);
-    bookedUntilDate.setHours(0, 0, 0, 0);
-    
-    // If current date is before or equal to booked_until date, car is booked
-    if (currentDate <= bookedUntilDate) {
-      bookedStatus = 1;
-    }
-  }
-
-  const updateParams = [
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engineCapacityValue,
-    car_type,
-    num_doors,
-    num_passengers,
-    JSON.stringify(pricePolicyStringified),
-    bookedStatus,
-    booked_until || null,
-    gallery_images ? JSON.stringify(gallery_images) : null,
-    luggage || null,
-    mileageValue,
-    drive || null,
-    fuelEconomyValue,
-    exterior_color || null,
-    interior_color || null,
-    rcaInsuranceValue,
-    cascoInsuranceValue,
-    id
-  ];
-
-  console.log('Update params:', updateParams);
-
-  db.run(
-    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
-    updateParams,
-    function (err) {
-      if (err) {
-        console.error('Database error in PUT /api/cars/:id:', err);
-        return res.status(500).json({ error: 'Database error: ' + err.message });
-      }
-      res.json({ success: true });
-    }
-  );
-});
-
-// Add DELETE endpoint for deleting a car by id
-app.delete('/api/cars/:id', (req, res) => {
-  const id = req.params.id;
-  
-  // First, get the car data to check for images
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    
-    // Delete the car from database first
-    db.run('DELETE FROM cars WHERE id = ?', [id], function (dbErr) {
-      if (dbErr) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Only after successful database deletion, delete all associated files and directory
-      const carDir = path.join(__dirname, 'uploads', `car-${id}`);
-      
-      // Remove the entire car directory and all its contents
-      fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
-        if (fsErr) {
-          console.log(`Warning: Could not delete car directory ${carDir}:`, fsErr);
-          // Don't fail the request if file deletion fails, but log the issue
-        } else {
-          console.log(`Successfully deleted car directory: ${carDir}`);
-        }
-      });
-      
-      res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
-    });
-  });
-});
-
-// Upload images for a car (head_image and gallery_images[])
-app.post('/api/cars/:id/images', upload.fields([
-  { name: 'head_image', maxCount: 1 },
-  { name: 'gallery_images', maxCount: 10 }
-]), (req, res) => {
-  const carId = req.params.id;
-  const headImage = req.files['head_image'] ? req.files['head_image'][0].filename : null;
-  const galleryImages = req.files['gallery_images'] ? req.files['gallery_images'].map(f => f.filename) : [];
-
-  // Update DB with new image filenames
-  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err || !car) return res.status(404).json({ error: 'Car not found' });
-    let newHead = headImage ? `/uploads/car-${carId}/${headImage}` : car.head_image;
-    let newGallery = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    if (galleryImages.length > 0) {
-      newGallery = [...newGallery, ...galleryImages.map(f => `/uploads/car-${carId}/${f}`)].slice(0, 10);
-      // Remove duplicates
-      newGallery = [...new Set(newGallery)];
-    }
-    db.run('UPDATE cars SET head_image=?, gallery_images=? WHERE id=?', [newHead, JSON.stringify(newGallery), carId], function (err2) {
-      if (err2) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, head_image: newHead, gallery_images: newGallery });
-    });
-  });
-});
-
-// Delete a specific image from a car
-app.delete('/api/cars/:id/images', (req, res) => {
-  const carId = req.params.id;
-  const imagePath = req.query.path;
-  const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
-  
-  console.log('DELETE /api/cars/:id/images - Request:', { carId, imagePath, imageType });
-  
-  if (!imagePath) {
-    return res.status(400).json({ error: 'Image path is required' });
-  }
-  
-  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err) {
-      console.error('Database error in image deletion:', err);
-      return res.status(500).json({ error: 'Database error: ' + err.message });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    
-    console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
-    
-    let updateQuery = '';
-    let updateParams = [];
-    
-    if (imageType === 'head') {
-      // Handle head image deletion
-      if (car.head_image !== imagePath) {
-        console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
-        return res.status(400).json({ error: 'Head image path does not match' });
-      }
-      updateQuery = 'UPDATE cars SET head_image=NULL WHERE id=?';
-      updateParams = [carId];
-    } else {
-      // Handle gallery image deletion
-      let galleryImages = [];
-      try {
-        galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-        // Ensure it's an array
-        if (!Array.isArray(galleryImages)) {
-          console.log('Gallery images is not an array, converting:', galleryImages);
-          galleryImages = [];
-        }
-      } catch (e) {
-        console.error('Error parsing gallery_images:', e);
-        galleryImages = [];
-      }
-      // Debug logs for troubleshooting
-      console.log('Gallery images in DB:', galleryImages);
-      console.log('Requested to delete:', imagePath);
-      // Check if the image exists in the gallery
-      if (!galleryImages.includes(imagePath)) {
-        console.log('Image not found in gallery:', imagePath);
-        return res.status(400).json({ error: 'Image not found in gallery' });
-      }
-      // Remove the image from gallery_images array
-      const updatedGallery = galleryImages.filter(img => img !== imagePath);
-      // Also remove any duplicates that might exist
-      const uniqueGallery = [...new Set(updatedGallery)];
-      console.log('Updated gallery (after removal):', uniqueGallery);
-      updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';
-      updateParams = [JSON.stringify(uniqueGallery), carId];
-    }
-    
-    console.log('Update query:', updateQuery);
-    console.log('Update params:', updateParams);
-    
-    // Update database first
-    db.run(updateQuery, updateParams, function (err2) {
-      if (err2) {
-        console.error('Database error in image deletion update:', err2);
-        return res.status(500).json({ error: 'Database error: ' + err2.message });
-      }
-      
-      // Only after successful database update, delete the actual file from filesystem
-      let filePath = imagePath;
-      // Handle full URLs - extract just the path part
-      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-        const url = new URL(filePath);
-        filePath = url.pathname;
-      }
-      // Remove leading slash if present
-      if (filePath.startsWith('/')) {
-        filePath = filePath.substring(1);
-      }
-      
-      const fullPath = path.join(__dirname, filePath);
-      console.log('Attempting to delete file:', fullPath);
-      
-      fs.unlink(fullPath, (fileErr) => {
-        if (fileErr) {
-          console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
-          // Don't fail the request if file deletion fails, but log the issue
-        } else {
-          console.log(`Successfully deleted file: ${fullPath}`);
-        }
-      });
-      
-      // Return success response
-      if (imageType === 'head') {
-        res.json({ success: true, message: 'Head image deleted successfully' });
-      } else {
-        // Get updated gallery images for response
-        const updatedGallery = JSON.parse(updateParams[0]);
-        res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
-      }
-    });
-  });
-});
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/cars', carRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Test endpoint to check database connection
 app.get('/api/test', (req, res) => {
+  const { db } = require('./config/database');
   db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
     if (err) {
       console.error('Database test error:', err);
       return res.status(500).json({ error: 'Database connection failed: ' + err.message });
     }
     res.json({ success: true, message: 'Database connection working', carCount: result.count });
-  });
-});
-
-// Coupon Codes API Endpoints
-
-// Get all coupon codes
-app.get('/api/coupons', (req, res) => {
-  db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(rows);
-  });
-});
-
-// Get single coupon code
-app.get('/api/coupons/:id', (req, res) => {
-  const id = req.params.id;
-  db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    res.json(coupon);
-  });
-});
-
-// Add new coupon code
-app.post('/api/coupons', (req, res) => {
-  const { code, discount_percentage, description, expires_at } = req.body;
-
-  if (!code || !discount_percentage) {
-    return res.status(400).json({ error: 'Code and discount percentage are required' });
-  }
-
-  const discountValue = parseFloat(discount_percentage);
-  if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
-    return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
-  }
-
-  db.run(
-    'INSERT INTO coupon_codes (code, discount_percentage, description, expires_at) VALUES (?, ?, ?, ?)',
-    [code.toUpperCase(), discountValue, description || null, expires_at || null],
-    function (err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ success: true, id: this.lastID });
-    }
-  );
-});
-
-// Update coupon code
-app.put('/api/coupons/:id', (req, res) => {
-  const id = req.params.id;
-  const { code, discount_percentage, description, is_active, expires_at } = req.body;
-
-  if (!code || !discount_percentage) {
-    return res.status(400).json({ error: 'Code and discount percentage are required' });
-  }
-
-  const discountValue = parseFloat(discount_percentage);
-  if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
-    return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
-  }
-
-  db.run(
-    'UPDATE coupon_codes SET code=?, discount_percentage=?, description=?, is_active=?, expires_at=? WHERE id=?',
-    [code.toUpperCase(), discountValue, description || null, is_active ? 1 : 0, expires_at || null, id],
-    function (err) {
-      if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json({ success: true });
-    }
-  );
-});
-
-// Delete coupon code
-app.delete('/api/coupons/:id', (req, res) => {
-  const id = req.params.id;
-  
-  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], function (err) {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json({ success: true });
-  });
-});
-
-// Validate coupon code (for price calculator)
-app.get('/api/coupons/validate/:code', (req, res) => {
-  const code = req.params.code.toUpperCase();
-  
-  db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (!coupon) {
-      return res.json({ valid: false, message: 'Invalid coupon code' });
-    }
-    
-    // Check if coupon has expired
-    if (coupon.expires_at) {
-      const now = new Date();
-      const expiryDate = new Date(coupon.expires_at);
-      if (now > expiryDate) {
-        return res.json({ valid: false, message: 'Coupon has expired' });
-      }
-    }
-    
-    res.json({ 
-      valid: true, 
-      discount_percentage: coupon.discount_percentage,
-      description: coupon.description 
-    });
   });
 });
 

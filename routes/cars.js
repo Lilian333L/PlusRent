@@ -1,0 +1,507 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const { db } = require('../config/database');
+
+// Multer storage config for car images
+const carImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const carId = req.params.id;
+    const dir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const base = file.fieldname === 'head_image' ? 'head' : `gallery_${Date.now()}`;
+    cb(null, base + ext);
+  }
+});
+const upload = multer({ storage: carImageStorage });
+
+// Get all cars with filtering
+router.get('/', (req, res) => {
+  const filters = [];
+  const params = [];
+
+  // Helper to add single or multi-value filter (case-insensitive)
+  function addFilter(field, param) {
+    if (req.query[param] && req.query[param] !== '') {
+      const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
+      if (values.length > 1) {
+        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
+        params.push(...values);
+      } else {
+        filters.push(`${field} = ? COLLATE NOCASE`);
+        params.push(values[0]);
+      }
+    }
+  }
+
+  addFilter('make_name', 'make_name');
+  addFilter('model_name', 'model_name');
+  addFilter('gear_type', 'gear_type');
+  addFilter('fuel_type', 'fuel_type');
+  addFilter('car_type', 'car_type');
+  addFilter('num_doors', 'num_doors');
+  addFilter('num_passengers', 'num_passengers');
+
+  if (req.query.min_year && req.query.min_year !== '') {
+    filters.push('production_year >= ?');
+    params.push(req.query.min_year);
+  }
+  if (req.query.max_year && req.query.max_year !== '') {
+    filters.push('production_year <= ?');
+    params.push(req.query.max_year);
+  }
+  // Price filtering (by daily rate for 1-2 days)
+  if (req.query.min_price && req.query.min_price !== '') {
+    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
+    params.push(req.query.min_price);
+  }
+  if (req.query.max_price && req.query.max_price !== '') {
+    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
+    params.push(req.query.max_price);
+  }
+
+  let sql = 'SELECT * FROM cars';
+  if (filters.length > 0) {
+    sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    // Parse price_policy and gallery_images for each car
+    rows.forEach(car => {
+      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    });
+    res.json(rows);
+  });
+});
+
+// Get single car by ID
+router.get('/:id', (req, res) => {
+  const id = req.params.id;
+  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+    car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    res.json(car);
+  });
+});
+
+// Add new car
+router.post('/', async (req, res) => {
+  const {
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engine_capacity,
+    car_type,
+    num_doors,
+    num_passengers,
+    price_policy,
+    booked_until,
+    luggage,
+    mileage,
+    drive,
+    fuel_economy,
+    exterior_color,
+    interior_color,
+    rca_insurance_price,
+    casco_insurance_price
+  } = req.body;
+
+  // For electric cars, engine_capacity can be null
+  const isElectric = fuel_type === 'Electric';
+
+  if (
+    !make_name ||
+    !model_name ||
+    !production_year ||
+    !gear_type ||
+    !fuel_type ||
+    (!isElectric && !engine_capacity) ||
+    !car_type ||
+    !num_doors ||
+    !num_passengers ||
+    !price_policy ||
+    !rca_insurance_price ||
+    !casco_insurance_price
+  ) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let engineCapacityValue = null;
+  
+  // Only validate and convert engine_capacity for non-electric cars
+  if (!isElectric) {
+    // Parse engine_capacity as a float to support decimal values
+    engineCapacityValue = parseFloat(engine_capacity);
+    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
+      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
+    }
+  }
+
+  // Convert all price_policy values to strings
+  const pricePolicyStringified = {};
+  for (const key in price_policy) {
+    pricePolicyStringified[key] = String(price_policy[key]);
+  }
+
+  // Parse optional numeric fields
+  const mileageValue = mileage ? parseInt(mileage) : null;
+  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
+  const rcaInsuranceValue = parseFloat(rca_insurance_price);
+  const cascoInsuranceValue = parseFloat(casco_insurance_price);
+
+  // Store in DB, booked defaults to 0
+  db.run(
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    [
+      make_name,
+      model_name,
+      production_year,
+      gear_type,
+      fuel_type,
+      engineCapacityValue,
+      car_type,
+      num_doors,
+      num_passengers,
+      JSON.stringify(pricePolicyStringified),
+      booked_until || null,
+      luggage || null,
+      mileageValue,
+      drive || null,
+      fuelEconomyValue,
+      exterior_color || null,
+      interior_color || null,
+      rcaInsuranceValue,
+      cascoInsuranceValue
+    ],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json({ success: true, id: this.lastID });
+    }
+  );
+});
+
+// Update car
+router.put('/:id', (req, res) => {
+  const id = req.params.id;
+  const {
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engine_capacity,
+    car_type,
+    num_doors,
+    num_passengers,
+    price_policy,
+    booked,
+    booked_until,
+    gallery_images,
+    luggage,
+    mileage,
+    drive,
+    fuel_economy,
+    exterior_color,
+    interior_color,
+    rca_insurance_price,
+    casco_insurance_price
+  } = req.body;
+
+  console.log('PUT /api/cars/:id - Request body:', req.body);
+
+  // For electric cars, engine_capacity can be null
+  const isElectric = fuel_type === 'Electric';
+
+  if (
+    !make_name ||
+    !model_name ||
+    !production_year ||
+    !gear_type ||
+    !fuel_type ||
+    (!isElectric && engine_capacity === undefined) ||
+    !car_type ||
+    !num_doors ||
+    !num_passengers ||
+    !price_policy ||
+    !rca_insurance_price ||
+    !casco_insurance_price
+  ) {
+    console.log('Validation failed:', {
+      make_name, model_name, production_year, gear_type, fuel_type,
+      engine_capacity, car_type, num_doors, num_passengers, price_policy
+    });
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let engineCapacityValue = null;
+  
+  // Only validate and convert engine_capacity for non-electric cars
+  if (!isElectric && engine_capacity !== undefined && engine_capacity !== '') {
+    // Parse engine_capacity as a float to support decimal values
+    engineCapacityValue = parseFloat(engine_capacity);
+    if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
+      return res.status(400).json({ error: 'Engine capacity must be a positive number' });
+    }
+  }
+
+  const pricePolicyStringified = {};
+  for (const key in price_policy) {
+    pricePolicyStringified[key] = String(price_policy[key]);
+  }
+
+  // Parse optional numeric fields
+  const mileageValue = mileage ? parseInt(mileage) : null;
+  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
+  const rcaInsuranceValue = parseFloat(rca_insurance_price);
+  const cascoInsuranceValue = parseFloat(casco_insurance_price);
+
+  // Calculate booked status based on booked_until date
+  let bookedStatus = 0;
+  if (booked_until) {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const bookedUntilDate = new Date(booked_until);
+    bookedUntilDate.setHours(0, 0, 0, 0);
+    
+    // If current date is before or equal to booked_until date, car is booked
+    if (currentDate <= bookedUntilDate) {
+      bookedStatus = 1;
+    }
+  }
+
+  const updateParams = [
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engineCapacityValue,
+    car_type,
+    num_doors,
+    num_passengers,
+    JSON.stringify(pricePolicyStringified),
+    bookedStatus,
+    booked_until || null,
+    gallery_images ? JSON.stringify(gallery_images) : null,
+    luggage || null,
+    mileageValue,
+    drive || null,
+    fuelEconomyValue,
+    exterior_color || null,
+    interior_color || null,
+    rcaInsuranceValue,
+    cascoInsuranceValue,
+    id
+  ];
+
+  console.log('Update params:', updateParams);
+
+  db.run(
+    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
+    updateParams,
+    function (err) {
+      if (err) {
+        console.error('Database error in PUT /api/cars/:id:', err);
+        return res.status(500).json({ error: 'Database error: ' + err.message });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+// Delete car
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  
+  // First, get the car data to check for images
+  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    // Delete the car from database first
+    db.run('DELETE FROM cars WHERE id = ?', [id], function (dbErr) {
+      if (dbErr) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Only after successful database deletion, delete all associated files and directory
+      const carDir = path.join(__dirname, '..', 'uploads', `car-${id}`);
+      
+      // Remove the entire car directory and all its contents
+      fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
+        if (fsErr) {
+          console.log(`Warning: Could not delete car directory ${carDir}:`, fsErr);
+          // Don't fail the request if file deletion fails, but log the issue
+        } else {
+          console.log(`Successfully deleted car directory: ${carDir}`);
+        }
+      });
+      
+      res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
+    });
+  });
+});
+
+// Upload images for a car
+router.post('/:id/images', upload.fields([
+  { name: 'head_image', maxCount: 1 },
+  { name: 'gallery_images', maxCount: 10 }
+]), (req, res) => {
+  const carId = req.params.id;
+  const headImage = req.files['head_image'] ? req.files['head_image'][0].filename : null;
+  const galleryImages = req.files['gallery_images'] ? req.files['gallery_images'].map(f => f.filename) : [];
+
+  // Update DB with new image filenames
+  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
+    if (err || !car) return res.status(404).json({ error: 'Car not found' });
+    let newHead = headImage ? `/uploads/car-${carId}/${headImage}` : car.head_image;
+    let newGallery = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    if (galleryImages.length > 0) {
+      newGallery = [...newGallery, ...galleryImages.map(f => `/uploads/car-${carId}/${f}`)].slice(0, 10);
+      // Remove duplicates
+      newGallery = [...new Set(newGallery)];
+    }
+    db.run('UPDATE cars SET head_image=?, gallery_images=? WHERE id=?', [newHead, JSON.stringify(newGallery), carId], function (err2) {
+      if (err2) return res.status(500).json({ error: 'DB error' });
+      res.json({ success: true, head_image: newHead, gallery_images: newGallery });
+    });
+  });
+});
+
+// Delete a specific image from a car
+router.delete('/:id/images', (req, res) => {
+  const carId = req.params.id;
+  const imagePath = req.query.path;
+  const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
+  
+  console.log('DELETE /api/cars/:id/images - Request:', { carId, imagePath, imageType });
+  
+  if (!imagePath) {
+    return res.status(400).json({ error: 'Image path is required' });
+  }
+  
+  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
+    if (err) {
+      console.error('Database error in image deletion:', err);
+      return res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
+    
+    let updateQuery = '';
+    let updateParams = [];
+    
+    if (imageType === 'head') {
+      // Handle head image deletion
+      if (car.head_image !== imagePath) {
+        console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
+        return res.status(400).json({ error: 'Head image path does not match' });
+      }
+      updateQuery = 'UPDATE cars SET head_image=NULL WHERE id=?';
+      updateParams = [carId];
+    } else {
+      // Handle gallery image deletion
+      let galleryImages = [];
+      try {
+        galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+        // Ensure it's an array
+        if (!Array.isArray(galleryImages)) {
+          console.log('Gallery images is not an array, converting:', galleryImages);
+          galleryImages = [];
+        }
+      } catch (e) {
+        console.error('Error parsing gallery_images:', e);
+        galleryImages = [];
+      }
+      // Debug logs for troubleshooting
+      console.log('Gallery images in DB:', galleryImages);
+      console.log('Requested to delete:', imagePath);
+      // Check if the image exists in the gallery
+      if (!galleryImages.includes(imagePath)) {
+        console.log('Image not found in gallery:', imagePath);
+        return res.status(400).json({ error: 'Image not found in gallery' });
+      }
+      // Remove the image from gallery_images array
+      const updatedGallery = galleryImages.filter(img => img !== imagePath);
+      // Also remove any duplicates that might exist
+      const uniqueGallery = [...new Set(updatedGallery)];
+      console.log('Updated gallery (after removal):', uniqueGallery);
+      updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';
+      updateParams = [JSON.stringify(uniqueGallery), carId];
+    }
+    
+    console.log('Update query:', updateQuery);
+    console.log('Update params:', updateParams);
+    
+    // Update database first
+    db.run(updateQuery, updateParams, function (err2) {
+      if (err2) {
+        console.error('Database error in image deletion update:', err2);
+        return res.status(500).json({ error: 'Database error: ' + err2.message });
+      }
+      
+      // Only after successful database update, delete the actual file from filesystem
+      let filePath = imagePath;
+      // Handle full URLs - extract just the path part
+      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+        const url = new URL(filePath);
+        filePath = url.pathname;
+      }
+      // Remove leading slash if present
+      if (filePath.startsWith('/')) {
+        filePath = filePath.substring(1);
+      }
+      
+      const fullPath = path.join(__dirname, '..', filePath);
+      console.log('Attempting to delete file:', fullPath);
+      
+      fs.unlink(fullPath, (fileErr) => {
+        if (fileErr) {
+          console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
+          // Don't fail the request if file deletion fails, but log the issue
+        } else {
+          console.log(`Successfully deleted file: ${fullPath}`);
+        }
+      });
+      
+      // Return success response
+      if (imageType === 'head') {
+        res.json({ success: true, message: 'Head image deleted successfully' });
+      } else {
+        // Get updated gallery images for response
+        const updatedGallery = JSON.parse(updateParams[0]);
+        res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
+      }
+    });
+  });
+});
+
+module.exports = router; 
