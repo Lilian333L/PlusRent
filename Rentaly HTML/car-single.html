@@ -235,15 +235,8 @@
                                         </div>
                                     </div>
                                     <div class="mb20" style="margin-top: 32px;">
-                                        <h3 style="font-weight: 700; text-align: center; margin-bottom: 18px;">Final Price</h3>
-                                        <div style="font-size: 16px;">
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Price per day</span><span>60€</span></div>
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Total days</span><span>x 2</span></div>
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Night pick-up fee</span><span>+ 20 €</span></div>
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Night return fee</span><span>+ 20 €</span></div>
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Delivery to Iasi Airport</span><span>+ 150 €</span></div>
-                                            <div style="border-top: 1px solid #ddd; margin: 12px 0;"></div>
-                                            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px;"><span>Total price:</span><span>310 €</span></div>
+                                        <div id="price-breakdown">
+                                            <!-- Price breakdown will be populated dynamically by the price calculator -->
                                         </div>
                                     </div>
                                     <input type='submit' id='send_message' value='Book Now' class="btn-main btn-fullwidth" style="margin-top: 20px; border-radius: 8px; padding: 12px; font-weight: 600;">
@@ -359,6 +352,7 @@
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/price-calculator.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     <script>
 document.addEventListener('DOMContentLoaded', async function() {
@@ -435,23 +429,37 @@ console.log(car);
 
   // Specs
   document.getElementById('car-specs').innerHTML = `
-    <div class="d-row"><span class="d-title">Body</span><span class="d-value">${car.car_type || ''}</span></div>
-    <div class="d-row"><span class="d-title">Seat</span><span class="d-value">${car.num_passengers || ''} seats</span></div>
-    <div class="d-row"><span class="d-title">Door</span><span class="d-value">${car.num_doors || ''} doors</span></div>
-    <div class="d-row"><span class="d-title">Luggage</span><span class="d-value">${car.luggage || ''}</span></div>
-    <div class="d-row"><span class="d-title">Fuel Type</span><span class="d-value">${car.fuel_type || ''}</span></div>
-    <div class="d-row"><span class="d-title">Engine</span><span class="d-value">${car.engine_capacity || ''}</span></div>
-    <div class="d-row"><span class="d-title">Year</span><span class="d-value">${car.production_year || ''}</span></div>
-    <div class="d-row"><span class="d-title">Mileage</span><span class="d-value">${car.mileage || ''}</span></div>
+    <div class="d-row"><span class="d-title">Body</span><span class="d-value">${car.car_type || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Seat</span><span class="d-value">${car.num_passengers || '-'} seats</span></div>
+    <div class="d-row"><span class="d-title">Door</span><span class="d-value">${car.num_doors || '-'} doors</span></div>
+    <div class="d-row"><span class="d-title">Luggage</span><span class="d-value">${car.luggage || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Fuel Type</span><span class="d-value">${car.fuel_type || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Engine</span><span class="d-value">${car.engine_capacity || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Year</span><span class="d-value">${car.production_year || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Mileage</span><span class="d-value">${car.mileage ? car.mileage + ' km' : '-'}</span></div>
     <div class="d-row"><span class="d-title">Transmission</span><span class="d-value">${car.gear_type || ''}</span></div>
-    <div class="d-row"><span class="d-title">Drive</span><span class="d-value">${car.drive || ''}</span></div>
-    <div class="d-row"><span class="d-title">Fuel Economy</span><span class="d-value">${car.fuel_economy || ''}</span></div>
-    <div class="d-row"><span class="d-title">Exterior Color</span><span class="d-value">${car.exterior_color || ''}</span></div>
-    <div class="d-row"><span class="d-title">Interior Color</span><span class="d-value">${car.interior_color || ''}</span></div>
+    <div class="d-row"><span class="d-title">Drive</span><span class="d-value">${car.drive || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Fuel Economy</span><span class="d-value">${car.fuel_economy ? (car.fuel_type === 'Electric' ? car.fuel_economy + ' kWh/100km' : car.fuel_economy + ' L/100km') : '-'}</span></div>
+    <div class="d-row"><span class="d-title">Exterior Color</span><span class="d-value">${car.exterior_color || '-'}</span></div>
+    <div class="d-row"><span class="d-title">Interior Color</span><span class="d-value">${car.interior_color || '-'}</span></div>
   `;
 
   // Features
   document.getElementById('car-features').innerHTML = (car.features || []).map(f => `<li>${f}</li>`).join('');
+  
+  // Initialize price calculator after car data is loaded
+  if (window.priceCalculator) {
+    window.priceCalculator.updateCarData(car);
+    window.priceCalculator.init();
+  } else {
+    // If price calculator hasn't loaded yet, wait a bit and try again
+    setTimeout(() => {
+      if (window.priceCalculator) {
+        window.priceCalculator.updateCarData(car);
+        window.priceCalculator.init();
+      }
+    }, 100);
+  }
 });
 </script>
 <style>
