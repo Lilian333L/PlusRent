@@ -50,9 +50,7 @@ app.get('/Rentaly%20HTML/booking.html', (req, res) => {
   res.redirect(301, '/booking.html');
 });
 
-app.get('/Rentaly%20HTML/quick-booking.html', (req, res) => {
-  res.redirect(301, '/quick-booking.html');
-});
+
 
 app.get('/Rentaly%20HTML/index.html', (req, res) => {
   res.redirect(301, '/');
@@ -91,9 +89,7 @@ app.get('/booking.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'booking.html'));
 });
 
-app.get('/quick-booking.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'quick-booking.html'));
-});
+
 
 app.get('/index.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
