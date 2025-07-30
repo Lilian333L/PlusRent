@@ -463,6 +463,68 @@
   .admin-carousel-remove:hover {
     transform: scale(1.1);
   }
+  
+  /* Upload Button Styles */
+  .admin-upload-area {
+    position: relative;
+    margin-bottom: 8px;
+  }
+  
+  .admin-upload-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 60px;
+    border: 2px dashed #ccc;
+    border-radius: 6px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 8px;
+  }
+  
+  .admin-upload-button:hover {
+    border-color: #007bff;
+    background: #f0f8ff;
+  }
+  
+  .admin-upload-icon {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 4px;
+    color: #666;
+  }
+  
+  .admin-upload-text {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #333;
+    text-align: center;
+    margin: 0;
+  }
+  
+  .admin-upload-subtext {
+    font-size: 0.65rem;
+    color: #666;
+    text-align: center;
+    margin: 2px 0 0 0;
+  }
+  
+  .admin-upload-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  
+  .admin-image-preview {
+    margin-top: 8px;
+  }
 </style>
 
 <!-- Custom green for success alert and Booked checkbox styles -->
@@ -725,6 +787,55 @@
                           <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
                           <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
                         </div>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">Luggage Capacity</label>
+                              <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                            </div>
+                            <div>
+                              <label class="form-label">Mileage (km)</label>
+                              <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
+                            </div>
+                            <div>
+                              <label class="form-label">Drive Type</label>
+                              <select name="drive" class="form-control">
+                                <option value="">Select drive type</option>
+                                <option value="Front Wheel Drive">Front Wheel Drive</option>
+                                <option value="Rear Wheel Drive">Rear Wheel Drive</option>
+                                <option value="All Wheel Drive">All Wheel Drive</option>
+                                <option value="4 Wheel Drive">4 Wheel Drive</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
+                              <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
+                            </div>
+                            <div>
+                              <label class="form-label">Exterior Color</label>
+                              <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
+                            </div>
+                            <div>
+                              <label class="form-label">Interior Color</label>
+                              <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
+                            </div>
+                          </div>
+                        </fieldset>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">RCA Insurance Price (€/day)</label>
+                              <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Casco Insurance Price (€/day)</label>
+                              <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
+                            </div>
+                          </div>
+                        </fieldset>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
                         <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
                       </form>
                     </div>
@@ -852,6 +963,55 @@
                             </div>
                           </div>
                         </fieldset>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">Luggage Capacity</label>
+                              <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                            </div>
+                            <div>
+                              <label class="form-label">Mileage (km)</label>
+                              <input type="number" name="mileage" class="form-control" placeholder="e.g., 50000" min="0">
+                            </div>
+                            <div>
+                              <label class="form-label">Drive Type</label>
+                              <select name="drive" class="form-control">
+                                <option value="">Select drive type</option>
+                                <option value="Front Wheel Drive">Front Wheel Drive</option>
+                                <option value="Rear Wheel Drive">Rear Wheel Drive</option>
+                                <option value="All Wheel Drive">All Wheel Drive</option>
+                                <option value="4 Wheel Drive">4 Wheel Drive</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
+                              <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
+                            </div>
+                            <div>
+                              <label class="form-label">Exterior Color</label>
+                              <input type="text" name="exterior_color" class="form-control" placeholder="e.g., Pearl White">
+                            </div>
+                            <div>
+                              <label class="form-label">Interior Color</label>
+                              <input type="text" name="interior_color" class="form-control" placeholder="e.g., Black Leather">
+                            </div>
+                          </div>
+                        </fieldset>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                          <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Insurance Pricing (Required)</legend>
+                          <div class="admin-form-grid">
+                            <div>
+                              <label class="form-label">RCA Insurance Price (€/day)</label>
+                              <input type="number" name="rca_insurance_price" class="form-control" placeholder="e.g., 15" step="0.01" min="0" required>
+                            </div>
+                            <div>
+                              <label class="form-label">Casco Insurance Price (€/day)</label>
+                              <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0" required>
+                            </div>
+                          </div>
+                        </fieldset>
+                        <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
                         <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Confirm changes</button>
                       </form>
                     </div>
@@ -1706,6 +1866,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function handleFuelTypeChange(form, isEdit = false) {
     const fuelTypeSelect = form.elements['fuel_type'];
     const engineCapacityInput = form.elements['engine_capacity'];
+    const fuelEconomyLabel = form.querySelector('#fuel-economy-label');
+    const fuelEconomyInput = form.elements['fuel_economy'];
     
     if (fuelTypeSelect.value === 'Electric') {
       engineCapacityInput.disabled = true;
@@ -1713,11 +1875,27 @@ document.addEventListener('DOMContentLoaded', function () {
       engineCapacityInput.placeholder = 'Electric';
       engineCapacityInput.style.opacity = '0.5';
       engineCapacityInput.style.cursor = 'not-allowed';
+      
+      // Update fuel economy label for electric cars
+      if (fuelEconomyLabel) {
+        fuelEconomyLabel.textContent = 'Energy Efficiency (kWh/100km)';
+      }
+      if (fuelEconomyInput) {
+        fuelEconomyInput.placeholder = 'e.g., 15.5';
+      }
     } else {
       engineCapacityInput.disabled = false;
       engineCapacityInput.placeholder = '';
       engineCapacityInput.style.opacity = '1';
       engineCapacityInput.style.cursor = 'text';
+      
+      // Update fuel economy label for fuel-powered cars
+      if (fuelEconomyLabel) {
+        fuelEconomyLabel.textContent = 'Fuel Economy (L/100km)';
+      }
+      if (fuelEconomyInput) {
+        fuelEconomyInput.placeholder = 'e.g., 7.5';
+      }
     }
   }
 
@@ -1906,8 +2084,19 @@ document.addEventListener('DOMContentLoaded', function () {
       num_doors: formData.get('num_doors'),
       num_passengers: formData.get('num_passengers'),
       price_policy: price_policy,
-      booked_until: formData.get('booked_until') || null
+      booked_until: formData.get('booked_until') || null,
+      luggage: formData.get('luggage') || null,
+      mileage: formData.get('mileage') || null,
+      drive: formData.get('drive') || null,
+      fuel_economy: formData.get('fuel_economy') || null,
+      exterior_color: formData.get('exterior_color') || null,
+      interior_color: formData.get('interior_color') || null,
+      rca_insurance_price: formData.get('rca_insurance_price'),
+      casco_insurance_price: formData.get('casco_insurance_price')
     };
+    
+    console.log('Submitting car data:', data);
+    
     try {
       const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
         method: 'POST',
@@ -1937,6 +2126,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showAlert('Failed to add car.', 'error');
       }
     } catch (err) {
+      console.error('Error saving car:', err);
       showAlert('Error saving car.', 'error');
     }
     addUploading = false;
@@ -2164,7 +2354,15 @@ document.addEventListener('DOMContentLoaded', function () {
       num_passengers: formData.get('num_passengers'),
       price_policy: price_policy,
       booked_until: formData.get('booked_until') || null,
-      gallery_images: cleanGalleryImages // Send the cleaned gallery images list
+      gallery_images: cleanGalleryImages, // Send the cleaned gallery images list
+      luggage: formData.get('luggage') || null,
+      mileage: formData.get('mileage') || null,
+      drive: formData.get('drive') || null,
+      fuel_economy: formData.get('fuel_economy') || null,
+      exterior_color: formData.get('exterior_color') || null,
+      interior_color: formData.get('interior_color') || null,
+      rca_insurance_price: formData.get('rca_insurance_price'),
+      casco_insurance_price: formData.get('casco_insurance_price')
     };
     try {
       const id = editForm.getAttribute('data-id');
@@ -2242,8 +2440,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const carCards = document.getElementById('carCards');
     carCards.innerHTML = '<div class="text-center w-100">Loading...</div>';
     try {
+      console.log('Loading cars from:', `${window.API_BASE_URL}/api/cars`);
       const res = await fetch(`${window.API_BASE_URL}/api/cars`);
+      console.log('Response status:', res.status);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
       const cars = await res.json();
+      console.log('Loaded cars:', cars.length);
       if (!cars.length) {
         carCards.innerHTML = '<div class="alert alert-info w-100">No cars found.</div>';
         return;
@@ -2358,6 +2562,34 @@ document.addEventListener('DOMContentLoaded', function () {
                    </div>
                  </div>
                </div>
+               <div class="row g-1 mb-2">
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">21-45 days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['21-45']}€</div>
+                   </div>
+                 </div>
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">46+ days</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['46+']}€</div>
+                   </div>
+                 </div>
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">RCA</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.rca_insurance_price ? car.rca_insurance_price + '€' : '-'}</div>
+                   </div>
+                 </div>
+               </div>
+               <div class="row g-1">
+                 <div class="col-4">
+                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
+                     <div style="font-size: 0.7rem; color: #666;">Casco</div>
+                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.casco_insurance_price ? car.casco_insurance_price + '€' : '-'}</div>
+                   </div>
+                 </div>
+               </div>
              </div>
            </div>
          `;
@@ -2398,6 +2630,14 @@ document.addEventListener('DOMContentLoaded', function () {
           editForm.elements['price_21_45'].value = car.price_policy['21-45'];
           editForm.elements['price_46'].value = car.price_policy['46+'];
           editForm.elements['booked_until'].value = car.booked_until || '';
+          editForm.elements['luggage'].value = car.luggage || '';
+          editForm.elements['mileage'].value = car.mileage || '';
+          editForm.elements['drive'].value = car.drive || '';
+          editForm.elements['fuel_economy'].value = car.fuel_economy || '';
+          editForm.elements['exterior_color'].value = car.exterior_color || '';
+          editForm.elements['interior_color'].value = car.interior_color || '';
+          editForm.elements['rca_insurance_price'].value = car.rca_insurance_price || '';
+          editForm.elements['casco_insurance_price'].value = car.casco_insurance_price || '';
           openEditFormWithImages(car);
           // Handle fuel type state for engine capacity
           handleFuelTypeChange(editForm, true);
@@ -2408,6 +2648,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
     } catch (err) {
+      console.error('Error loading cars:', err);
       carCards.innerHTML = '<div class="alert alert-danger w-100">Failed to load cars.</div>';
     }
   }

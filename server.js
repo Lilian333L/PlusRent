@@ -50,7 +50,17 @@ db.serialize(() => {
     num_passengers INTEGER,
     price_policy TEXT,
     booked INTEGER DEFAULT 0,
-    booked_until TEXT
+    booked_until TEXT,
+    head_image TEXT,
+    gallery_images TEXT,
+    luggage TEXT,
+    mileage INTEGER,
+    drive TEXT,
+    fuel_economy REAL,
+    exterior_color TEXT,
+    interior_color TEXT,
+    rca_insurance_price REAL,
+    casco_insurance_price REAL
   )`);
 });
 
@@ -60,6 +70,14 @@ db.serialize(() => {
   db.run(`ALTER TABLE cars ADD COLUMN head_image TEXT`, () => {});
   db.run(`ALTER TABLE cars ADD COLUMN gallery_images TEXT`, () => {});
   db.run(`ALTER TABLE cars ADD COLUMN booked_until TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN luggage TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN mileage INTEGER`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN drive TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN fuel_economy REAL`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN exterior_color TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN interior_color TEXT`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN rca_insurance_price REAL`, () => {});
+  db.run(`ALTER TABLE cars ADD COLUMN casco_insurance_price REAL`, () => {});
   
   // Migration to update engine_capacity column type from INTEGER to REAL
   db.get(`PRAGMA table_info(cars)`, (err, info) => {
@@ -183,7 +201,15 @@ app.post('/api/cars', async (req, res) => {
     num_doors,
     num_passengers,
     price_policy,
-    booked_until
+    booked_until,
+    luggage,
+    mileage,
+    drive,
+    fuel_economy,
+    exterior_color,
+    interior_color,
+    rca_insurance_price,
+    casco_insurance_price
   } = req.body;
 
   // For electric cars, engine_capacity can be null
@@ -199,7 +225,9 @@ app.post('/api/cars', async (req, res) => {
     !car_type ||
     !num_doors ||
     !num_passengers ||
-    !price_policy
+    !price_policy ||
+    !rca_insurance_price ||
+    !casco_insurance_price
   ) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -221,10 +249,16 @@ app.post('/api/cars', async (req, res) => {
     pricePolicyStringified[key] = String(price_policy[key]);
   }
 
+  // Parse optional numeric fields
+  const mileageValue = mileage ? parseInt(mileage) : null;
+  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
+  const rcaInsuranceValue = parseFloat(rca_insurance_price);
+  const cascoInsuranceValue = parseFloat(casco_insurance_price);
+
   // Store in DB, booked defaults to 0
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
     [
       make_name,
       model_name,
@@ -236,7 +270,15 @@ app.post('/api/cars', async (req, res) => {
       num_doors,
       num_passengers,
       JSON.stringify(pricePolicyStringified),
-      booked_until || null
+      booked_until || null,
+      luggage || null,
+      mileageValue,
+      drive || null,
+      fuelEconomyValue,
+      exterior_color || null,
+      interior_color || null,
+      rcaInsuranceValue,
+      cascoInsuranceValue
     ],
     function (err) {
       if (err) {
@@ -326,8 +368,18 @@ app.put('/api/cars/:id', (req, res) => {
     price_policy,
     booked,
     booked_until,
-    gallery_images
+    gallery_images,
+    luggage,
+    mileage,
+    drive,
+    fuel_economy,
+    exterior_color,
+    interior_color,
+    rca_insurance_price,
+    casco_insurance_price
   } = req.body;
+
+  console.log('PUT /api/cars/:id - Request body:', req.body);
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -338,19 +390,25 @@ app.put('/api/cars/:id', (req, res) => {
     !production_year ||
     !gear_type ||
     !fuel_type ||
-    (!isElectric && !engine_capacity) ||
+    (!isElectric && engine_capacity === undefined) ||
     !car_type ||
     !num_doors ||
     !num_passengers ||
-    !price_policy
+    !price_policy ||
+    !rca_insurance_price ||
+    !casco_insurance_price
   ) {
+    console.log('Validation failed:', {
+      make_name, model_name, production_year, gear_type, fuel_type,
+      engine_capacity, car_type, num_doors, num_passengers, price_policy
+    });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   let engineCapacityValue = null;
   
   // Only validate and convert engine_capacity for non-electric cars
-  if (!isElectric) {
+  if (!isElectric && engine_capacity !== undefined && engine_capacity !== '') {
     // Parse engine_capacity as a float to support decimal values
     engineCapacityValue = parseFloat(engine_capacity);
     if (isNaN(engineCapacityValue) || engineCapacityValue <= 0) {
@@ -362,6 +420,12 @@ app.put('/api/cars/:id', (req, res) => {
   for (const key in price_policy) {
     pricePolicyStringified[key] = String(price_policy[key]);
   }
+
+  // Parse optional numeric fields
+  const mileageValue = mileage ? parseInt(mileage) : null;
+  const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
+  const rcaInsuranceValue = parseFloat(rca_insurance_price);
+  const cascoInsuranceValue = parseFloat(casco_insurance_price);
 
   // Calculate booked status based on booked_until date
   let bookedStatus = 0;
@@ -377,27 +441,40 @@ app.put('/api/cars/:id', (req, res) => {
     }
   }
 
+  const updateParams = [
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engineCapacityValue,
+    car_type,
+    num_doors,
+    num_passengers,
+    JSON.stringify(pricePolicyStringified),
+    bookedStatus,
+    booked_until || null,
+    gallery_images ? JSON.stringify(gallery_images) : null,
+    luggage || null,
+    mileageValue,
+    drive || null,
+    fuelEconomyValue,
+    exterior_color || null,
+    interior_color || null,
+    rcaInsuranceValue,
+    cascoInsuranceValue,
+    id
+  ];
+
+  console.log('Update params:', updateParams);
+
   db.run(
-    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=? WHERE id=?`,
-    [
-      make_name,
-      model_name,
-      production_year,
-      gear_type,
-      fuel_type,
-      engineCapacityValue,
-      car_type,
-      num_doors,
-      num_passengers,
-      JSON.stringify(pricePolicyStringified),
-      bookedStatus,
-      booked_until || null,
-      gallery_images ? JSON.stringify(gallery_images) : null,
-      id
-    ],
+    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
+    updateParams,
     function (err) {
       if (err) {
-        return res.status(500).json({ error: 'Database error' });
+        console.error('Database error in PUT /api/cars/:id:', err);
+        return res.status(500).json({ error: 'Database error: ' + err.message });
       }
       res.json({ success: true });
     }
@@ -457,6 +534,8 @@ app.post('/api/cars/:id/images', upload.fields([
     let newGallery = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     if (galleryImages.length > 0) {
       newGallery = [...newGallery, ...galleryImages.map(f => `/uploads/car-${carId}/${f}`)].slice(0, 10);
+      // Remove duplicates
+      newGallery = [...new Set(newGallery)];
     }
     db.run('UPDATE cars SET head_image=?, gallery_images=? WHERE id=?', [newHead, JSON.stringify(newGallery), carId], function (err2) {
       if (err2) return res.status(500).json({ error: 'DB error' });
@@ -471,12 +550,22 @@ app.delete('/api/cars/:id/images', (req, res) => {
   const imagePath = req.query.path;
   const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
   
+  console.log('DELETE /api/cars/:id/images - Request:', { carId, imagePath, imageType });
+  
   if (!imagePath) {
     return res.status(400).json({ error: 'Image path is required' });
   }
   
   db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err || !car) return res.status(404).json({ error: 'Car not found' });
+    if (err) {
+      console.error('Database error in image deletion:', err);
+      return res.status(500).json({ error: 'Database error: ' + err.message });
+    }
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
     
     let updateQuery = '';
     let updateParams = [];
@@ -484,6 +573,7 @@ app.delete('/api/cars/:id/images', (req, res) => {
     if (imageType === 'head') {
       // Handle head image deletion
       if (car.head_image !== imagePath) {
+        console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
         return res.status(400).json({ error: 'Head image path does not match' });
       }
       updateQuery = 'UPDATE cars SET head_image=NULL WHERE id=?';
@@ -493,7 +583,13 @@ app.delete('/api/cars/:id/images', (req, res) => {
       let galleryImages = [];
       try {
         galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+        // Ensure it's an array
+        if (!Array.isArray(galleryImages)) {
+          console.log('Gallery images is not an array, converting:', galleryImages);
+          galleryImages = [];
+        }
       } catch (e) {
+        console.error('Error parsing gallery_images:', e);
         galleryImages = [];
       }
       // Debug logs for troubleshooting
@@ -501,18 +597,26 @@ app.delete('/api/cars/:id/images', (req, res) => {
       console.log('Requested to delete:', imagePath);
       // Check if the image exists in the gallery
       if (!galleryImages.includes(imagePath)) {
+        console.log('Image not found in gallery:', imagePath);
         return res.status(400).json({ error: 'Image not found in gallery' });
       }
       // Remove the image from gallery_images array
       const updatedGallery = galleryImages.filter(img => img !== imagePath);
+      // Also remove any duplicates that might exist
+      const uniqueGallery = [...new Set(updatedGallery)];
+      console.log('Updated gallery (after removal):', uniqueGallery);
       updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';
-      updateParams = [JSON.stringify(updatedGallery), carId];
+      updateParams = [JSON.stringify(uniqueGallery), carId];
     }
+    
+    console.log('Update query:', updateQuery);
+    console.log('Update params:', updateParams);
     
     // Update database first
     db.run(updateQuery, updateParams, function (err2) {
       if (err2) {
-        return res.status(500).json({ error: 'Database error' });
+        console.error('Database error in image deletion update:', err2);
+        return res.status(500).json({ error: 'Database error: ' + err2.message });
       }
       
       // Only after successful database update, delete the actual file from filesystem
@@ -528,6 +632,8 @@ app.delete('/api/cars/:id/images', (req, res) => {
       }
       
       const fullPath = path.join(__dirname, filePath);
+      console.log('Attempting to delete file:', fullPath);
+      
       fs.unlink(fullPath, (fileErr) => {
         if (fileErr) {
           console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
@@ -546,6 +652,17 @@ app.delete('/api/cars/:id/images', (req, res) => {
         res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
       }
     });
+  });
+});
+
+// Test endpoint to check database connection
+app.get('/api/test', (req, res) => {
+  db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
+    if (err) {
+      console.error('Database test error:', err);
+      return res.status(500).json({ error: 'Database connection failed: ' + err.message });
+    }
+    res.json({ success: true, message: 'Database connection working', carCount: result.count });
   });
 });
 

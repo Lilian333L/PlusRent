@@ -226,37 +226,37 @@
         <div class="filter-title">
           Filter
           <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Clear all filters</a>
-        </div>
+                                    </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
           <div id="filter-make-options"></div>
-        </div>
+                                    </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
           <div id="filter-gear-options"></div>
-        </div>
+                                    </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
           <div id="filter-fuel-options"></div>
-        </div>
+                                    </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
           <div id="filter-type-options"></div>
-        </div>
+                                </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
           <div id="filter-doors-options"></div>
-        </div>
+                            </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
           <div id="filter-passengers-options"></div>
-        </div>
+                                    </div>
         <hr class="filter-divider">
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
@@ -264,10 +264,10 @@
             <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;" data-i18n="cars.filter_price_from">
             <span>-</span>
             <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;" data-i18n="cars.filter_price_to">
-          </div>
-        </div>
-      </div>
-    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
     <div class="col-lg-9 col-md-8">
       <div class="row car-list-row" id="car-list"></div>
                                         </div>
@@ -499,7 +499,7 @@ function renderFilterOptions(containerId, options, selectedValues, allCarsFull, 
           <span class="option-label">${opt}</span>
         </label>
         <span class="option-count">${count}</span>
-      </div>
+                                        </div>
     `;
   }).join('');
 }
@@ -566,33 +566,33 @@ async function fetchAndRenderCars() {
       badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until">UNAVAILABLE UNTIL ${formatted}</div>`;
     }
     return `
-      <div class="col-xl-4 col-lg-6">
-        <div class="de-item mb30">
+                                <div class="col-xl-4 col-lg-6">
+                                    <div class="de-item mb30">
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
             <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
             ${badge}
-          </div>
-          <div class="d-info">
-            <div class="d-text">
+                                        </div>
+                                        <div class="d-info">
+                                            <div class="d-text">
               <h4>${car.make_name}</h4>
               <p>${car.model_name}</p>
-              <div class="d-item_like">
+                                                <div class="d-item_like">
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-              </div>
-              <div class="d-atr-group">
+                                        </div>
+                                        <div class="d-atr-group">
                 <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
                 <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
                 <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
                 <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
-              </div>
+                                                </div>
               <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
               ${isUnavailable
                   ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true" data-i18n="cars.not_available">Not Available</span>'
                   : `<a class="btn-main" href="car-single?id=${car.id}" data-i18n="cars.rent_now">Rent Now</a>`}
-            </div>
-          </div>
-        </div>
-      </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
     `;
   }).join('');
   renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
