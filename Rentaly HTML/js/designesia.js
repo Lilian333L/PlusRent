@@ -56,22 +56,22 @@
      /* --------------------------------------------------
       * header | sticky
       * --------------------------------------------------*/
-     function header_sticky() {
-         jQuery("header").addClass("clone", 1000, "easeOutBounce");
-         var $document = $(document);
-         var vscroll = 0;
-         var header = jQuery("header.autoshow");
-         if ($document.scrollTop() >= 50 && vscroll == 0) {
-             header.removeClass("scrollOff");
-             header.addClass("scrollOn");
-             header.css("height", "auto");
-             vscroll = 1;
-         } else {
-             header.removeClass("scrollOn");
-             header.addClass("scrollOff");
-             vscroll = 0;
-         }
-     }
+    //  function header_sticky() {
+    //      jQuery("header").addClass("clone", 1000, "easeOutBounce");
+    //      var $document = $(document);
+    //      var vscroll = 0;
+    //      var header = jQuery("header.autoshow");
+    //      if ($document.scrollTop() >= 50 && vscroll == 0) {
+    //          header.removeClass("scrollOff");
+    //          header.addClass("scrollOn");
+    //          header.css("height", "auto");
+    //          vscroll = 1;
+    //      } else {
+    //          header.removeClass("scrollOn");
+    //          header.addClass("scrollOff");
+    //          vscroll = 0;
+    //      }
+    //  }
      /* --------------------------------------------------
       * plugin | magnificPopup
       * --------------------------------------------------*/
@@ -2006,7 +2006,7 @@
           * --------------------------------------------------*/
          jQuery(window).on("scroll", function() {
              /* functions */
-             header_sticky();
+            //  header_sticky();
              de_counter();
              de_progress();
              init();
@@ -2131,28 +2131,28 @@
      });
 
     // scroll magic begin
-    var new_scroll_position = 0;
-    var last_scroll_position;
-    var header = $("header");
+    // var new_scroll_position = 0;
+    // var last_scroll_position;
+    // var header = $("header");
 
-    jQuery(window).on("scroll", function() {
-      last_scroll_position = window.scrollY;
+    // jQuery(window).on("scroll", function() {
+    //   last_scroll_position = window.scrollY;
 
-      // Scrolling down
-      if (new_scroll_position < last_scroll_position && last_scroll_position > 80) {
-        // header.removeClass('slideDown').addClass('nav-up');
-        header.addClass("scroll-down");
-        header.removeClass("nav-up");
+    //   // Scrolling down
+    //   if (new_scroll_position < last_scroll_position && last_scroll_position > 80) {
+    //     // header.removeClass('slideDown').addClass('nav-up');
+    //     header.addClass("scroll-down");
+    //     header.removeClass("nav-up");
 
-      // Scrolling up
-      } else if (new_scroll_position > last_scroll_position) {
-        // header.removeClass('nav-up').addClass('slideDown');
-        header.removeClass("scroll-down");
-        header.addClass("nav-up");
-      }
+    //   // Scrolling up
+    //   } else if (new_scroll_position > last_scroll_position) {
+    //     // header.removeClass('nav-up').addClass('slideDown');
+    //     header.removeClass("scroll-down");
+    //     header.addClass("nav-up");
+    //   }
 
-      new_scroll_position = last_scroll_position;
-    });
+    //   new_scroll_position = last_scroll_position;
+    // });
     // scroll magic end
 
     $(window).on('load', function() {
