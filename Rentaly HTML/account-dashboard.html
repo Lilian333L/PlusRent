@@ -90,16 +90,16 @@
   }
   .admin-form-panel .btn-fullwidth {
     width: auto;
-    min-width: 160px;
+    /* min-width: 160px; */
     display: block;
     margin: 0 auto;
   }
-  .admin-form-panel .btn {
+  /* .admin-form-panel .btn {
     display: block;
     margin: 0 auto;
     min-width: 160px;
     width: auto;
-  }
+  } */
   .admin-form-panel .btn-fullwidth {
     width: auto;
     min-width: 160px;
@@ -270,7 +270,6 @@
     flex: 1 1 320px;
     max-width: 320px;
     display: flex;
-    margin: 0 16px 24px 0;
   }
   #carCards .card {
     min-width: 300px;
@@ -727,6 +726,7 @@
                 <div class="admin-tabs mb-4">
                   <button class="admin-tab-btn active" data-tab="cars">Manage Cars</button>
                   <button class="admin-tab-btn" data-tab="coupons">Manage Coupon Codes</button>
+                  <button class="admin-tab-btn" data-tab="bookings">Manage Bookings</button>
                 </div>
                 
                 <!-- Cars Tab Content -->
@@ -1192,6 +1192,21 @@
                   </div>
                   <div id="couponCards" class="row g-4 mt-4"></div>
                 </div>
+
+                <!-- Bookings Tab Content -->
+                <div id="bookings-tab" class="admin-tab-content">
+                  <div class="admin-flex-row">
+                    <div class="admin-btn-col">
+                      <h4>Pending Bookings</h4>
+                      <p class="text-muted">Review and approve/reject booking requests</p>
+                    </div>
+                    <div class="admin-form-col">
+                      <div id="bookingsList" class="row g-4">
+                        <!-- Bookings will be loaded here -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 			
@@ -1339,1835 +1354,959 @@
         });
     </script>
 
+    <!-- Global Booking Management Functions -->
+    <script>
+    // Global booking management functions
+    async function approveBooking(bookingId) {
+      if (!window.API_BASE_URL) {
+        console.error('API_BASE_URL not defined');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/confirm`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          loadPendingBookings(); // Refresh the list
+        } else {
+          const error = await response.json();
+          console.error('Error approving booking:', error.error);
+        }
+      } catch (error) {
+        console.error('Error approving booking:', error);
+      }
+    }
+
+    async function rejectBooking(bookingId) {
+      if (!window.API_BASE_URL) {
+        console.error('API_BASE_URL not defined');
+        return;
+      }
+      
+      const reason = ''; // No prompt needed
+      
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/reject`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: reason || 'No reason provided' })
+        });
+        
+        if (response.ok) {
+          loadPendingBookings(); // Refresh the list
+        } else {
+          const error = await response.json();
+          console.error('Error rejecting booking:', error.error);
+        }
+      } catch (error) {
+        console.error('Error rejecting booking:', error);
+      }
+    }
+
+    // Global alert function
+    function showCustomAlert(message, type = 'info') {
+      const alert = document.getElementById('adminCustomAlert');
+      if (!alert) return;
+      
+      alert.textContent = message;
+      alert.style.background = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#031B4E';
+      alert.style.display = 'block';
+      alert.style.opacity = '1';
+      
+      setTimeout(() => {
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 300);
+      }, 3000);
+    }
+
+    // Global function to load pending bookings
+    async function loadPendingBookings() {
+      if (!window.API_BASE_URL) {
+        console.error('API_BASE_URL not defined');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/bookings`);
+        const bookings = await response.json();
+        
+        const bookingsList = document.getElementById('bookingsList');
+        if (!bookingsList) return;
+        
+        const pendingBookings = bookings.filter(booking => booking.status === 'pending');
+        
+        if (pendingBookings.length === 0) {
+          bookingsList.innerHTML = '<div class="col-12"><div class="alert alert-info">No pending bookings found.</div></div>';
+          return;
+        }
+        
+        bookingsList.innerHTML = pendingBookings.map(booking => `
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-8">
+                    <h5 class="card-title">${booking.make_name} ${booking.model_name} (${booking.production_year})</h5>
+                    <p class="card-text">
+                      <strong>Dates:</strong> ${booking.pickup_date} ${booking.pickup_time} - ${booking.return_date} ${booking.return_time}<br>
+                      <strong>Insurance:</strong> ${booking.insurance_type}<br>
+                      <strong>Pickup:</strong> ${booking.pickup_location} | <strong>Dropoff:</strong> ${booking.dropoff_location}<br>
+                      <strong>Total Price:</strong> €${booking.total_price}<br>
+                      <strong>Contact:</strong> ${booking.contact_person || 'Not provided'} | ${booking.contact_phone || 'Not provided'}<br>
+                      <strong>Special Instructions:</strong> ${booking.special_instructions || 'None'}
+                    </p>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <div class="btn-group-vertical w-100">
+                      <button class="btn btn-success mb-2" onclick="approveBooking(${booking.id})">
+                        <i class="fa fa-check"></i> Approve
+                      </button>
+                      <button class="btn btn-danger" onclick="rejectBooking(${booking.id})">
+                        <i class="fa fa-times"></i> Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading bookings:', error);
+        document.getElementById('bookingsList').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading bookings.</div></div>';
+      }
+    }
+
+    // Admin Dashboard Main Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tab navigation
+      initializeTabs();
+      
+      // Initialize form dropdowns
+      initializeFormDropdowns();
+      
+      // Load initial data
+      loadCars();
+      loadCoupons();
+      loadPendingBookings();
+      
+      // Initialize form handlers
+      initializeCarForms();
+      initializeCouponForms();
+    });
+
+    // Tab Navigation
+    function initializeTabs() {
+      const tabButtons = document.querySelectorAll('.admin-tab-btn');
+      const tabContents = document.querySelectorAll('.admin-tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+          
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // Add active class to clicked button and corresponding content
+          this.classList.add('active');
+          document.getElementById(targetTab + '-tab').classList.add('active');
+        });
+      });
+    }
+
+    // Initialize Form Dropdowns
+    function initializeFormDropdowns() {
+      // Production Year dropdown (current year to 1990)
+      const productionYearSelects = document.querySelectorAll('select[name="production_year"]');
+      const currentYear = new Date().getFullYear();
+      productionYearSelects.forEach(select => {
+        for (let year = currentYear; year >= 1990; year--) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          select.appendChild(option);
+        }
+      });
+      
+      // Number of Doors dropdown
+      const numDoorsSelects = document.querySelectorAll('select[name="num_doors"]');
+      numDoorsSelects.forEach(select => {
+        for (let doors = 2; doors <= 5; doors++) {
+          const option = document.createElement('option');
+          option.value = doors;
+          option.textContent = doors;
+          select.appendChild(option);
+        }
+      });
+      
+      // Number of Passengers dropdown
+      const numPassengersSelects = document.querySelectorAll('select[name="num_passengers"]');
+      numPassengersSelects.forEach(select => {
+        for (let passengers = 2; passengers <= 8; passengers++) {
+          const option = document.createElement('option');
+          option.value = passengers;
+          option.textContent = passengers;
+          select.appendChild(option);
+        }
+      });
+    }
+
+    // Car Management Functions
+    async function loadCars() {
+      if (!window.API_BASE_URL) {
+        console.error('API_BASE_URL not defined');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/cars`);
+        const cars = await response.json();
+        
+        const carCards = document.getElementById('carCards');
+        if (!carCards) return;
+        
+        if (cars.length === 0) {
+          carCards.innerHTML = '<div class="col-12"><div class="alert alert-info">No cars found. Add your first car!</div></div>';
+          return;
+        }
+        
+        carCards.innerHTML = cars.map(car => `
+          <div class="col-md-6 col-lg-4">
+            <div class="de-item">
+              <div class="d-image">
+                <img src="${car.head_image || 'http://localhost:3001/uploads/placeholder.png'}" class="img-fluid" alt="${car.make_name} ${car.model_name}" style="width: 100%; height: 200px; object-fit: cover;" onerror="this.src='http://localhost:3001/uploads/placeholder.png'">
+              </div>
+              <div class="d-info">
+                <div class="d-text">
+                  <h4>${car.make_name}</h4>
+                  <p>${car.model_name}</p>
+                  <div class="d-atr-group">
+                    <span class="d-atr"><img src="images/icons/1-green.svg" alt=""> ${car.num_passengers || '-'}</span>
+                    <span class="d-atr"><img src="images/icons/2-green.svg" alt=""> ${car.num_doors || '-'}</span>
+                    <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
+                    <span class="d-atr"><img src="images/icons/4-green.svg" alt="" ${car.car_type || '-'}</span>
+                  </div>
+                  <div class="d-price">Daily rate from <span>€${car.price_policy && car.price_policy['1-2'] ? car.price_policy['1-2'] : 'N/A'}</span></div>
+                  <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary btn-sm" onclick="editCar(${car.id})">
+                      <i class="fa fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCar(${car.id})">
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading cars:', error);
+        document.getElementById('carCards').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading cars.</div></div>';
+      }
+    }
+
+    // Coupon Management Functions
+    async function loadCoupons() {
+      if (!window.API_BASE_URL) {
+        console.error('API_BASE_URL not defined');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
+        const coupons = await response.json();
+        
+        const couponCards = document.getElementById('couponCards');
+        if (!couponCards) return;
+        
+        if (coupons.length === 0) {
+          couponCards.innerHTML = '<div class="col-12"><div class="alert alert-info">No coupon codes found. Add your first coupon!</div></div>';
+          return;
+        }
+        
+        couponCards.innerHTML = coupons.map(coupon => `
+          <div class="col-md-6 col-lg-4">
+            <div class="coupon-card">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0">${coupon.code}</h5>
+                <span class="coupon-status ${coupon.is_active ? 'active' : 'inactive'}">
+                  ${coupon.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <p class="card-text">
+                <strong>Discount:</strong> ${coupon.discount_percentage}%<br>
+                <strong>Description:</strong> ${coupon.description || 'No description'}<br>
+                ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
+              </p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="editCoupon(${coupon.id})">
+                  <i class="fa fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${coupon.id})">
+                  <i class="fa fa-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading coupons:', error);
+        document.getElementById('couponCards').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading coupons.</div></div>';
+      }
+    }
+
+    // Form Handlers
+    function initializeCarForms() {
+      // Add Car Button
+      const showAddCarBtn = document.getElementById('showAddCarBtn');
+      const addCarPanel = document.getElementById('addCarPanel');
+      const closeAddCarPanel = document.getElementById('closeAddCarPanel');
+      const adminOverlay = document.getElementById('adminOverlay');
+      
+      if (showAddCarBtn) {
+        showAddCarBtn.addEventListener('click', () => {
+          addCarPanel.classList.add('active');
+          adminOverlay.classList.add('active');
+          document.body.classList.add('admin-popup-open');
+        });
+      }
+      
+      if (closeAddCarPanel) {
+        closeAddCarPanel.addEventListener('click', () => {
+          addCarPanel.classList.remove('active');
+          adminOverlay.classList.remove('active');
+          document.body.classList.remove('admin-popup-open');
+        });
+      }
+      
+      // Close modal when clicking overlay
+      if (adminOverlay) {
+        adminOverlay.addEventListener('click', () => {
+          addCarPanel.classList.remove('active');
+          editCarPanel.classList.remove('active');
+          adminOverlay.classList.remove('active');
+          document.body.classList.remove('admin-popup-open');
+        });
+      }
+      
+      // Edit Car Panel functionality
+      const editCarPanel = document.getElementById('editCarPanel');
+      const closeEditCarPanel = document.getElementById('closeEditCarPanel');
+      
+      if (closeEditCarPanel) {
+        closeEditCarPanel.addEventListener('click', () => {
+          editCarPanel.classList.remove('active');
+          adminOverlay.classList.remove('active');
+          document.body.classList.remove('admin-popup-open');
+        });
+      }
+      
+      // Edit Car Form Submit
+      const editCarForm = document.getElementById('editCarForm');
+      if (editCarForm) {
+        editCarForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const carId = editCarForm.dataset.carId;
+          if (!carId) {
+            showCustomAlert('Error: Car ID not found', 'error');
+            return;
+          }
+          
+          const formData = new FormData(editCarForm);
+          const carData = Object.fromEntries(formData.entries());
+          
+          // Convert price fields to price_policy object
+          const pricePolicy = {
+            '1-2': carData.price_1_2 || '',
+            '3-7': carData.price_3_7 || '',
+            '8-20': carData.price_8_20 || '',
+            '21-45': carData.price_21_45 || '',
+            '46+': carData.price_46 || ''
+          };
+          
+          // Remove individual price fields and add price_policy
+          delete carData.price_1_2;
+          delete carData.price_3_7;
+          delete carData.price_8_20;
+          delete carData.price_21_45;
+          delete carData.price_46;
+          carData.price_policy = pricePolicy;
+          
+          // Ensure all required fields are present
+          carData.make_name = carData.make_name || '';
+          carData.model_name = carData.model_name || '';
+          carData.production_year = carData.production_year || '';
+          carData.gear_type = carData.gear_type || '';
+          carData.fuel_type = carData.fuel_type || '';
+          carData.car_type = carData.car_type || '';
+          carData.num_doors = carData.num_doors || '';
+          carData.num_passengers = carData.num_passengers || '';
+          carData.rca_insurance_price = carData.rca_insurance_price || '';
+          carData.casco_insurance_price = carData.casco_insurance_price || '';
+          
+          // Handle engine_capacity for electric cars
+          if (carData.fuel_type === 'Electric') {
+            carData.engine_capacity = null;
+          } else {
+            carData.engine_capacity = carData.engine_capacity || '';
+          }
+          
+          // Handle image uploads if files are selected
+          const headImageFile = document.getElementById('editHeadImageInput').files[0];
+          const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
+          
+          if (headImageFile || galleryImageFiles.length > 0) {
+            const imageFormData = new FormData();
+            
+            // Add all form data
+            Object.keys(carData).forEach(key => {
+              if (key === 'price_policy') {
+                imageFormData.append(key, JSON.stringify(carData[key]));
+              } else {
+                imageFormData.append(key, carData[key]);
+              }
+            });
+            
+            // Add images
+            if (headImageFile) {
+              imageFormData.append('head_image', headImageFile);
+            }
+            galleryImageFiles.forEach(file => {
+              imageFormData.append('gallery_images', file);
+            });
+            
+            try {
+              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+                method: 'PUT',
+                body: imageFormData
+              });
+              
+              if (response.ok) {
+                showCustomAlert('Car updated successfully!', 'success');
+                editCarForm.reset();
+                editCarPanel.classList.remove('active');
+                adminOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+                loadCars();
+              } else {
+                const error = await response.json();
+                showCustomAlert('Error updating car: ' + error.error, 'error');
+              }
+            } catch (error) {
+              console.error('Error updating car:', error);
+              showCustomAlert('Error updating car', 'error');
+            }
+          } else {
+            // No images to upload, use JSON
+            try {
+              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(carData)
+              });
+              
+              if (response.ok) {
+                showCustomAlert('Car updated successfully!', 'success');
+                editCarForm.reset();
+                editCarPanel.classList.remove('active');
+                adminOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+                loadCars();
+              } else {
+                const error = await response.json();
+                showCustomAlert('Error updating car: ' + error.error, 'error');
+              }
+            } catch (error) {
+              console.error('Error updating car:', error);
+              showCustomAlert('Error updating car', 'error');
+            }
+          }
+        });
+      }
+      
+      // Delete Car Button functionality
+      const deleteCarBtn = document.getElementById('deleteCarBtn');
+      if (deleteCarBtn) {
+        deleteCarBtn.addEventListener('click', async () => {
+          const carId = editCarForm.dataset.carId;
+          if (!carId) {
+            showCustomAlert('Error: Car ID not found', 'error');
+            return;
+          }
+          
+          if (confirm('Are you sure you want to delete this car? This action cannot be undone.')) {
+            try {
+              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+                method: 'DELETE'
+              });
+              
+              if (response.ok) {
+                showCustomAlert('Car deleted successfully!', 'success');
+                editCarPanel.classList.remove('active');
+                adminOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+                loadCars();
+              } else {
+                const error = await response.json();
+                showCustomAlert('Error deleting car: ' + error.error, 'error');
+              }
+            } catch (error) {
+              console.error('Error deleting car:', error);
+              showCustomAlert('Error deleting car', 'error');
+            }
+          }
+        });
+      }
+      
+      // Image Upload Functionality
+      initializeImageUploads();
+    }
+    
+    function initializeImageUploads() {
+      // Add Car Image Uploads
+      const addHeadImageButton = document.getElementById('addHeadImageButton');
+      const addHeadImageInput = document.getElementById('addHeadImageInput');
+      const addHeadImagePreview = document.getElementById('addHeadImagePreview');
+      
+      if (addHeadImageButton && addHeadImageInput) {
+        addHeadImageButton.addEventListener('click', () => addHeadImageInput.click());
+        addHeadImageInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              addHeadImagePreview.innerHTML = `
+                <div style="position: relative; display: inline-block;">
+                  <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                </div>
+              `;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+      
+      const addGalleryImagesButton = document.getElementById('addGalleryImagesButton');
+      const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
+      const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+      
+      if (addGalleryImagesButton && addGalleryImagesInput) {
+        addGalleryImagesButton.addEventListener('click', () => addGalleryImagesInput.click());
+        addGalleryImagesInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+          files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              addGalleryImagesPreview.innerHTML += `
+                <div style="position: relative; display: inline-block; margin: 5px;">
+                  <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                </div>
+              `;
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+      }
+      
+      // Edit Car Image Uploads
+      const editHeadImageButton = document.getElementById('editHeadImageButton');
+      const editHeadImageInput = document.getElementById('editHeadImageInput');
+      const editHeadImagePreview = document.getElementById('editHeadImagePreview');
+      
+      if (editHeadImageButton && editHeadImageInput) {
+        editHeadImageButton.addEventListener('click', () => editHeadImageInput.click());
+        editHeadImageInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              editHeadImagePreview.innerHTML = `
+                <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+              `;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+      
+      const editGalleryImagesButton = document.getElementById('editGalleryImagesButton');
+      const editGalleryImagesInput = document.getElementById('editGalleryImagesInput');
+      const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+      
+      if (editGalleryImagesButton && editGalleryImagesInput) {
+        editGalleryImagesButton.addEventListener('click', () => editGalleryImagesInput.click());
+        editGalleryImagesInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+          files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              editGalleryImagesPreview.innerHTML += `
+                <div style="position: relative; display: inline-block; margin: 5px;">
+                  <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                </div>
+              `;
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+      }
+      
+      // Image removal functions
+      window.removeHeadImage = function() {
+        const editHeadImagePreview = document.getElementById('editHeadImagePreview');
+        if (editHeadImagePreview) {
+          editHeadImagePreview.innerHTML = '';
+        }
+      };
+      
+      window.removeGalleryImage = function(index) {
+        const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        if (editGalleryImagesPreview) {
+          const images = editGalleryImagesPreview.querySelectorAll('div');
+          if (images[index]) {
+            images[index].remove();
+          }
+        }
+      };
+      
+      // Car Form Submit
+      const carForm = document.getElementById('carForm');
+      if (carForm) {
+        carForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(carForm);
+          const carData = Object.fromEntries(formData.entries());
+          
+          // Convert price fields to price_policy object
+          const pricePolicy = {
+            '1-2': carData.price_1_2 || '',
+            '3-7': carData.price_3_7 || '',
+            '8-20': carData.price_8_20 || '',
+            '21-45': carData.price_21_45 || '',
+            '46+': carData.price_46 || ''
+          };
+          
+          // Remove individual price fields and add price_policy
+          delete carData.price_1_2;
+          delete carData.price_3_7;
+          delete carData.price_8_20;
+          delete carData.price_21_45;
+          delete carData.price_46;
+          carData.price_policy = pricePolicy;
+          
+          // Ensure all required fields are present
+          carData.make_name = carData.make_name || '';
+          carData.model_name = carData.model_name || '';
+          carData.production_year = carData.production_year || '';
+          carData.gear_type = carData.gear_type || '';
+          carData.fuel_type = carData.fuel_type || '';
+          carData.car_type = carData.car_type || '';
+          carData.num_doors = carData.num_doors || '';
+          carData.num_passengers = carData.num_passengers || '';
+          carData.rca_insurance_price = carData.rca_insurance_price || '';
+          carData.casco_insurance_price = carData.casco_insurance_price || '';
+          
+          // Handle engine_capacity for electric cars
+          if (carData.fuel_type === 'Electric') {
+            carData.engine_capacity = null;
+          } else {
+            carData.engine_capacity = carData.engine_capacity || '';
+          }
+          
+          // Handle image uploads if files are selected
+          const headImageFile = document.getElementById('addHeadImageInput').files[0];
+          const galleryImageFiles = Array.from(document.getElementById('addGalleryImagesInput').files);
+          
+          if (headImageFile || galleryImageFiles.length > 0) {
+            const imageFormData = new FormData();
+            
+            // Add all form data
+            Object.keys(carData).forEach(key => {
+              if (key === 'price_policy') {
+                imageFormData.append(key, JSON.stringify(carData[key]));
+              } else {
+                imageFormData.append(key, carData[key]);
+              }
+            });
+            
+            // Add images
+            if (headImageFile) {
+              imageFormData.append('head_image', headImageFile);
+            }
+            galleryImageFiles.forEach(file => {
+              imageFormData.append('gallery_images', file);
+            });
+            
+            try {
+              const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
+                method: 'POST',
+                body: imageFormData
+              });
+              
+              if (response.ok) {
+                showCustomAlert('Car added successfully!', 'success');
+                carForm.reset();
+                addCarPanel.classList.remove('active');
+                adminOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+                loadCars();
+              } else {
+                const error = await response.json();
+                showCustomAlert('Error adding car: ' + error.error, 'error');
+              }
+            } catch (error) {
+              console.error('Error adding car:', error);
+              showCustomAlert('Error adding car', 'error');
+            }
+          } else {
+            // No images to upload, use JSON
+            try {
+              const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(carData)
+              });
+              
+              if (response.ok) {
+                showCustomAlert('Car added successfully!', 'success');
+                carForm.reset();
+                addCarPanel.classList.remove('active');
+                adminOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+                loadCars();
+              } else {
+                const error = await response.json();
+                showCustomAlert('Error adding car: ' + error.error, 'error');
+              }
+            } catch (error) {
+              console.error('Error adding car:', error);
+              showCustomAlert('Error adding car', 'error');
+            }
+          }
+        });
+      }
+    }
+
+    function initializeCouponForms() {
+      // Add Coupon Button
+      const showAddCouponBtn = document.getElementById('showAddCouponBtn');
+      const addCouponPanel = document.getElementById('addCouponPanel');
+      const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
+      const couponOverlay = document.getElementById('couponOverlay');
+      
+      if (showAddCouponBtn) {
+        showAddCouponBtn.addEventListener('click', () => {
+          addCouponPanel.classList.add('active');
+          couponOverlay.classList.add('active');
+          document.body.classList.add('admin-popup-open');
+        });
+      }
+      
+      if (closeAddCouponPanel) {
+        closeAddCouponPanel.addEventListener('click', () => {
+          addCouponPanel.classList.remove('active');
+          couponOverlay.classList.remove('active');
+          document.body.classList.remove('admin-popup-open');
+        });
+      }
+      
+      // Close modal when clicking overlay
+      if (couponOverlay) {
+        couponOverlay.addEventListener('click', () => {
+          addCouponPanel.classList.remove('active');
+          couponOverlay.classList.remove('active');
+          document.body.classList.remove('admin-popup-open');
+        });
+      }
+      
+      // Coupon Form Submit
+      const couponForm = document.getElementById('couponForm');
+      if (couponForm) {
+        couponForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(couponForm);
+          const couponData = Object.fromEntries(formData.entries());
+          
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(couponData)
+            });
+            
+            if (response.ok) {
+              showCustomAlert('Coupon added successfully!', 'success');
+              couponForm.reset();
+              addCouponPanel.classList.remove('active');
+              couponOverlay.classList.remove('active');
+              document.body.classList.remove('admin-popup-open');
+              loadCoupons();
+            } else {
+              const error = await response.json();
+              showCustomAlert('Error adding coupon: ' + error.error, 'error');
+            }
+          } catch (error) {
+            console.error('Error adding coupon:', error);
+            showCustomAlert('Error adding coupon', 'error');
+          }
+        });
+      }
+    }
+
+    // Edit and Delete Functions
+    async function editCar(carId) {
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
+        const car = await response.json();
+        
+        if (!response.ok) {
+          showCustomAlert('Error loading car data: ' + car.error, 'error');
+          return;
+        }
+        
+        // Populate the edit form with car data
+        const editForm = document.getElementById('editCarForm');
+        if (!editForm) return;
+        
+        // Fill in all the form fields
+        editForm.querySelector('input[name="make_name"]').value = car.make_name || '';
+        editForm.querySelector('input[name="model_name"]').value = car.model_name || '';
+        editForm.querySelector('select[name="production_year"]').value = car.production_year || '';
+        editForm.querySelector('select[name="gear_type"]').value = car.gear_type || '';
+        editForm.querySelector('select[name="fuel_type"]').value = car.fuel_type || '';
+        editForm.querySelector('input[name="engine_capacity"]').value = car.engine_capacity || '';
+        editForm.querySelector('select[name="car_type"]').value = car.car_type || '';
+        editForm.querySelector('select[name="num_doors"]').value = car.num_doors || '';
+        editForm.querySelector('select[name="num_passengers"]').value = car.num_passengers || '';
+        
+        // Fill in price policy fields
+        if (car.price_policy) {
+          editForm.querySelector('input[name="price_1_2"]').value = car.price_policy['1-2'] || '';
+          editForm.querySelector('input[name="price_3_7"]').value = car.price_policy['3-7'] || '';
+          editForm.querySelector('input[name="price_8_20"]').value = car.price_policy['8-20'] || '';
+          editForm.querySelector('input[name="price_21_45"]').value = car.price_policy['21-45'] || '';
+          editForm.querySelector('input[name="price_46"]').value = car.price_policy['46+'] || '';
+        }
+        
+        // Fill in additional specifications
+        editForm.querySelector('input[name="luggage"]').value = car.luggage || '';
+        editForm.querySelector('input[name="mileage"]').value = car.mileage || '';
+        editForm.querySelector('select[name="drive"]').value = car.drive || '';
+        editForm.querySelector('input[name="fuel_economy"]').value = car.fuel_economy || '';
+        editForm.querySelector('input[name="exterior_color"]').value = car.exterior_color || '';
+        editForm.querySelector('input[name="interior_color"]').value = car.interior_color || '';
+        editForm.querySelector('input[name="rca_insurance_price"]').value = car.rca_insurance_price || '';
+        editForm.querySelector('input[name="casco_insurance_price"]').value = car.casco_insurance_price || '';
+        
+        // Handle booked_until date
+        if (car.booked_until) {
+          const date = new Date(car.booked_until);
+          const dateString = date.toISOString().split('T')[0];
+          editForm.querySelector('input[name="booked_until"]').value = dateString;
+        } else {
+          editForm.querySelector('input[name="booked_until"]').value = '';
+        }
+        
+        // Show current images if they exist
+        const editHeadImagePreview = document.getElementById('editHeadImagePreview');
+        if (car.head_image && editHeadImagePreview) {
+          editHeadImagePreview.innerHTML = `
+            <div style="position: relative; display: inline-block;">
+              <img src="${car.head_image}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeHeadImage()">×</button>
+            </div>
+          `;
+        }
+        
+        const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
+          editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
+            <div style="position: relative; display: inline-block; margin: 5px;">
+              <img src="${img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
+              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
+            </div>
+          `).join('');
+        }
+        
+        // Store car ID for form submission
+        editForm.dataset.carId = carId;
+        
+        // Show the edit panel
+        const editCarPanel = document.getElementById('editCarPanel');
+        const adminOverlay = document.getElementById('adminOverlay');
+        editCarPanel.classList.add('active');
+        adminOverlay.classList.add('active');
+        document.body.classList.add('admin-popup-open');
+        
+      } catch (error) {
+        console.error('Error loading car for editing:', error);
+        showCustomAlert('Error loading car data', 'error');
+      }
+    }
+
+    async function deleteCar(carId) {
+      if (confirm('Are you sure you want to delete this car?')) {
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            showCustomAlert('Car deleted successfully!', 'success');
+            loadCars();
+          } else {
+            const error = await response.json();
+            showCustomAlert('Error deleting car: ' + error.error, 'error');
+          }
+        } catch (error) {
+          console.error('Error deleting car:', error);
+          showCustomAlert('Error deleting car', 'error');
+        }
+      }
+    }
+
+    async function editCoupon(couponId) {
+      // Implementation for editing coupon
+      showCustomAlert('Edit coupon functionality coming soon!', 'info');
+    }
+
+    async function deleteCoupon(couponId) {
+      if (confirm('Are you sure you want to delete this coupon?')) {
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            showCustomAlert('Coupon deleted successfully!', 'success');
+            loadCoupons();
+          } else {
+            const error = await response.json();
+            showCustomAlert('Error deleting coupon: ' + error.error, 'error');
+          }
+        } catch (error) {
+          console.error('Error deleting coupon:', error);
+          showCustomAlert('Error deleting coupon', 'error');
+        }
+      }
+    }
+    </script>
 </body>
 
 </html>
-
-<script>
-// Global variables
-let currentGalleryImages = []; // Track current gallery images for edit mode
-let editGalleryImageFiles = []; // Track new gallery image files for edit mode
-let addGalleryImageFiles = []; // Track gallery image files for add mode
-let isProcessingFiles = false; // Prevent duplicate file processing
-
-// Add after editGalleryImageFiles and editHeadImageFile declarations:
-let imagesToDelete = [];
-
-// Populate selects for years, doors, passengers
-function populateSelect(select, from, to, desc = false) {
-  select.innerHTML = '';
-  if (desc) {
-    for (let i = from; i >= to; i--) {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i;
-      select.appendChild(opt);
-    }
-  } else {
-    for (let i = from; i <= to; i++) {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i;
-      select.appendChild(opt);
-    }
-  }
-}
-
-// Body scroll lock functions
-let scrollPosition = 0;
-
-function preventScroll(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  return false;
-}
-
-function preventKeyScroll(e) {
-  // Prevent arrow keys, page up/down, home/end from scrolling
-  // But allow navigation keys when typing in input fields
-  if ([32, 33, 34, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) {
-    // Allow spacebar and arrow keys in input fields, textareas, and other form elements
-    if ((e.keyCode === 32 || e.keyCode === 37 || e.keyCode === 39) && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.contentEditable === 'true')) {
-      return; // Don't prevent default for spacebar and left/right arrows in input fields
-    }
-    e.preventDefault();
-  }
-}
-
-function lockBodyScroll() {
-  // Store current scroll position
-  scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-  
-  // Set the body top position to maintain scroll position BEFORE adding the class
-  document.body.style.top = `-${scrollPosition}px`;
-  
-  // Apply scroll lock
-  document.body.classList.add('modal-open');
-  document.documentElement.classList.add('modal-open');
-  
-  // Add event listeners to prevent scrolling
-  //document.addEventListener('wheel', preventScroll, { passive: false });
-  document.addEventListener('touchmove', preventScroll, { passive: false });
-  document.addEventListener('keydown', preventKeyScroll);
-}
-
-function unlockBodyScroll() {
-  // Remove scroll lock
-  document.body.classList.remove('modal-open');
-  document.documentElement.classList.remove('modal-open');
-  
-  // Reset body top position
-  document.body.style.top = '';
-  
-  // Remove event listeners
-  //document.removeEventListener('wheel', preventScroll);
-  document.removeEventListener('touchmove', preventScroll);
-  document.removeEventListener('keydown', preventKeyScroll);
-  
-  // Restore scroll position
-  window.scrollTo(0, scrollPosition);
-}
-
-function showAlert(message, type = 'success') {
-  const alertDiv = document.getElementById('adminCustomAlert');
-  alertDiv.textContent = message;
-  alertDiv.className = type === 'success' ? 'success' : 'error';
-  alertDiv.style.display = 'block';
-  alertDiv.style.opacity = '1';
-  setTimeout(() => {
-    alertDiv.style.opacity = '0';
-    setTimeout(() => {
-      alertDiv.style.display = 'none';
-      alertDiv.className = '';
-    }, 400);
-  }, 2200);
-}
-
-// Gallery upload button state management
-function updateGalleryUploadButton(containerId, isEdit = false) {
-  const maxImages = 10;
-  let currentCount = 0;
-  let buttonId, inputId;
-  
-  if (isEdit) {
-    buttonId = 'editGalleryImagesButton';
-    inputId = 'editGalleryImagesInput';
-    currentCount = currentGalleryImages.length + editGalleryImageFiles.length;
-  } else {
-    buttonId = 'addGalleryImagesButton';
-    inputId = 'addGalleryImagesInput';
-    currentCount = addGalleryImageFiles.length;
-  }
-  
-  console.log('updateGalleryUploadButton called:', containerId, 'isEdit:', isEdit, 'currentCount:', currentCount);
-  
-  const button = document.getElementById(buttonId);
-  const input = document.getElementById(inputId);
-  const buttonArea = button.parentElement;
-  
-  if (currentCount >= maxImages) {
-    button.disabled = true;
-    input.disabled = true;
-    buttonArea.classList.add('disabled');
-    button.querySelector('.admin-upload-text').textContent = `Max ${maxImages} Images`;
-    const subtext = button.querySelector('.admin-upload-subtext');
-    if (subtext) {
-      subtext.textContent = 'Remove to add more';
-    }
-  } else {
-    button.disabled = false;
-    input.disabled = false;
-    buttonArea.classList.remove('disabled');
-    if (currentCount > 0) {
-      button.querySelector('.admin-upload-text').textContent = isEdit ? 
-        `${editGalleryImageFiles.length} New Images Selected` : 
-        `${currentCount} Images Selected`;
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = `${currentCount} of ${maxImages} max`;
-      }
-    } else {
-      button.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = 'Click to select images';
-      }
-    }
-  }
-}
-
-// Gallery Carousel Functions
-function createCarousel(containerId, images, isEdit = false, preservePosition = false) {
-  const container = document.getElementById(containerId);
-  if (!images || images.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
-
-  // Show 2.5 images per view (continuous scroll)
-  const imagesPerView = 2.5;
-  const imageWidth = 100 / imagesPerView; // Each image takes up 40% width (100/2.5)
-
-  // Preserve current position if requested and state exists
-  const existingState = window.carouselStates && window.carouselStates[containerId];
-  const currentPosition = preservePosition && existingState ? existingState.currentIndex : 0;
-
-  // Check if carousel already exists
-  const existingCarousel = container.querySelector('.admin-gallery-carousel');
-  const existingTrack = document.getElementById(containerId + 'Track');
-  
-  if (existingCarousel && existingTrack && preservePosition) {
-    // Update existing carousel without destroying the container
-    const newImagesHTML = images.map((img, index) => `
-      <div class="admin-carousel-image-item" style="flex: 0 0 ${imageWidth}%;">
-        <img src="${img.src}" alt="Gallery Image ${index + 1}">
-        <button type="button" class="admin-carousel-remove" data-container="${containerId}" data-index="${index}" data-is-edit="${isEdit}">×</button>
-      </div>
-    `).join('');
-    
-    // Update only the track content
-    existingTrack.innerHTML = newImagesHTML;
-    
-    // Update carousel state
-    if (!window.carouselStates) window.carouselStates = {};
-    const newMaxIndex = Math.max(0, images.length - Math.floor(imagesPerView));
-    const finalPosition = Math.min(currentPosition, newMaxIndex);
-    
-    window.carouselStates[containerId] = {
-      currentIndex: finalPosition,
-      totalImages: images.length,
-      images: images,
-      imagesPerView: imagesPerView,
-      maxIndex: newMaxIndex
-    };
-    
-    // Apply position if needed
-    if (finalPosition > 0) {
-      let translateX;
-      if (finalPosition === newMaxIndex && images.length > imagesPerView) {
-        const halfImageWidth = imageWidth * 0.5;
-        const reducedSpace = halfImageWidth;
-        translateX = -(images.length - imagesPerView) * imageWidth - reducedSpace;
-      } else {
-        translateX = -finalPosition * imageWidth;
-      }
-      existingTrack.style.transform = `translateX(${translateX}%)`;
-    }
-  } else {
-    // Create new carousel (first time or when not preserving position)
-    const carouselHTML = `
-      <div class="admin-gallery-carousel">
-        <div class="admin-carousel-container">
-          <div class="admin-carousel-track-wrapper">
-            <div class="admin-carousel-track" id="${containerId}Track">
-              ${images.map((img, index) => `
-                <div class="admin-carousel-image-item" style="flex: 0 0 ${imageWidth}%;">
-                  <img src="${img.src}" alt="Gallery Image ${index + 1}">
-                  <button type="button" class="admin-carousel-remove" data-container="${containerId}" data-index="${index}" data-is-edit="${isEdit}">×</button>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <button type="button" class="admin-carousel-nav admin-carousel-prev" id="${containerId}Prev" onclick="moveCarousel('${containerId}', -1)">‹</button>
-          <button type="button" class="admin-carousel-nav admin-carousel-next" id="${containerId}Next" onclick="moveCarousel('${containerId}', 1)">›</button>
-        </div>
-      </div>
-    `;
-
-    container.innerHTML = carouselHTML;
-    
-    // Initialize carousel state
-    if (!window.carouselStates) window.carouselStates = {};
-    const newMaxIndex = Math.max(0, images.length - Math.floor(imagesPerView));
-    const finalPosition = Math.min(currentPosition, newMaxIndex);
-    
-    window.carouselStates[containerId] = {
-      currentIndex: finalPosition,
-      totalImages: images.length,
-      images: images,
-      imagesPerView: imagesPerView,
-      maxIndex: newMaxIndex
-    };
-    
-    // Apply initial position if not at the beginning
-    if (finalPosition > 0) {
-      const track = document.getElementById(containerId + 'Track');
-      let translateX;
-      if (finalPosition === newMaxIndex && images.length > imagesPerView) {
-        const halfImageWidth = imageWidth * 0.5;
-        const reducedSpace = halfImageWidth * 0.55;
-        translateX = -(images.length - imagesPerView) * imageWidth - reducedSpace;
-      } else {
-        translateX = -finalPosition * imageWidth;
-      }
-      track.style.transform = `translateX(${translateX}%)`;
-    }
-  }
-  
-
-  
-  updateCarouselButtons(containerId);
-}
-
-function moveCarousel(containerId, direction) {
-  const state = window.carouselStates[containerId];
-  if (!state) {
-    console.log('No carousel state found for:', containerId);
-    return;
-  }
-  
-  console.log('Manual scroll - currentIndex:', state.currentIndex, 'direction:', direction, 'maxIndex:', state.maxIndex, 'totalImages:', state.totalImages);
-  
-  const newIndex = state.currentIndex + direction;
-  if (newIndex < 0 || newIndex > state.maxIndex) {
-    console.log('Manual scroll blocked - newIndex would be:', newIndex, 'maxIndex:', state.maxIndex, 'reason:', newIndex < 0 ? 'below minimum' : 'above maximum');
-    return;
-  }
-  
-  state.currentIndex = newIndex;
-  console.log('Manual scroll applied - newCurrentIndex:', state.currentIndex);
-  
-  const track = document.getElementById(containerId + 'Track');
-  const imageWidth = 100 / state.imagesPerView;
-  
-  // Special handling for the last image - don't leave space for non-existent next image
-  let translateX;
-  if (newIndex === state.maxIndex && state.totalImages > state.imagesPerView) {
-    // For the last position, move a bit less than half an image space
-    const halfImageWidth = imageWidth * 0.5;
-    const reducedSpace = halfImageWidth * 0.35;
-    translateX = -(state.totalImages - state.imagesPerView) * imageWidth - reducedSpace;
-  } else {
-    translateX = -newIndex * imageWidth;
-  }
-  
-  track.style.transform = `translateX(${translateX}%)`;
-  
-  updateCarouselButtons(containerId);
-}
-
-function updateCarouselButtons(containerId) {
-  const state = window.carouselStates[containerId];
-  if (!state) return;
-  
-  const prevBtn = document.getElementById(containerId + 'Prev');
-  const nextBtn = document.getElementById(containerId + 'Next');
-  
-  // Debug logging
-  console.log('updateCarouselButtons - containerId:', containerId, 'currentIndex:', state.currentIndex, 'maxIndex:', state.maxIndex, 'totalImages:', state.totalImages);
-  
-  // More robust button state logic
-  const canGoPrevious = state.currentIndex > 0 && state.totalImages > state.imagesPerView;
-  const canGoNext = state.currentIndex < state.maxIndex && state.totalImages > state.imagesPerView;
-  
-  if (prevBtn) {
-    prevBtn.disabled = !canGoPrevious;
-    console.log('Previous button disabled:', !canGoPrevious);
-  }
-  if (nextBtn) {
-    nextBtn.disabled = !canGoNext;
-    console.log('Next button disabled:', !canGoNext);
-  }
-}
-
-function scrollCarouselToEnd(containerId) {
-  const state = window.carouselStates[containerId];
-  if (!state) return;
-  
-  // Move to the last position
-  state.currentIndex = state.maxIndex;
-  
-  const track = document.getElementById(containerId + 'Track');
-  const imageWidth = 100 / state.imagesPerView;
-  
-  // Apply the same logic as in moveCarousel for the last image
-  let translateX;
-  if (state.currentIndex === state.maxIndex && state.totalImages > state.imagesPerView) {
-    // For the last position, move a bit less than half an image space
-    const halfImageWidth = imageWidth * 0.5;
-    const reducedSpace = halfImageWidth * 0.7;
-    translateX = -(state.totalImages - state.imagesPerView) * imageWidth - reducedSpace;
-  } else {
-    translateX = -state.currentIndex * imageWidth;
-  }
-  
-  track.style.transform = `translateX(${translateX}%)`;
-  updateCarouselButtons(containerId);
-}
-
-
-
-async function removeCarouselImage(containerId, imageIndex, isEdit = false) {
-  const state = window.carouselStates[containerId];
-  if (!state) return;
-  
-  const imageToRemove = state.images[imageIndex];
-  if (!imageToRemove) {
-    console.error('Image to remove not found at index:', imageIndex);
-    return;
-  }
-  
-
-  
-  // Handle edit mode - stage deletion locally
-  if (isEdit && containerId === 'editGalleryImagesPreview') {
-    if (imageToRemove.isExisting) {
-      // Only allow deletion if the image exists in the currentGalleryImages array
-      if (currentGalleryImages.includes(imageToRemove.originalPath)) {
-        imagesToDelete.push(imageToRemove.originalPath);
-        // Remove from currentGalleryImages immediately for UI
-        const idx = currentGalleryImages.findIndex(img => img === imageToRemove.originalPath);
-        if (idx !== -1) currentGalleryImages.splice(idx, 1);
-        } else {
-        showAlert('Image not found in backend. Refreshing images...', 'error');
-        const carId = editForm.getAttribute('data-id');
-        fetch(`${window.API_BASE_URL}/api/cars/${carId}`)
-          .then(res => res.json())
-          .then(car => {
-            openEditFormWithImages(car);
-          });
-        return;
-      }
-    } else {
-      // Remove from new uploads array
-      editGalleryImageFiles.splice(imageToRemove.fileIndex, 1);
-      state.images.forEach((img, idx) => {
-        if (!img.isExisting && img.fileIndex > imageToRemove.fileIndex) {
-          img.fileIndex--;
-        }
-      });
-    }
-  } else if (isEdit && containerId === 'editHeadImagePreview') {
-    if (imageToRemove.isExisting) {
-      // Remove head image from server
-      const editForm = document.getElementById('editCarForm');
-      const carId = editForm.getAttribute('data-id');
-      try {
-        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imageToRemove.originalPath)}&type=head`, { method: 'DELETE' });
-        if (response.ok) {
-          showAlert('Head image deleted successfully!', 'success');
-        } else {
-          showAlert('Failed to delete head image from server.', 'error');
-          return;
-        }
-      } catch (error) {
-        console.error('Error removing head image from server:', error);
-        showAlert('Error deleting head image.', 'error');
-        return;
-      }
-    } else {
-      // Remove from new uploads
-      editHeadImageFile = null;
-    }
-  } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
-    // Remove from add files array
-    if (imageToRemove && imageToRemove.fileIndex !== undefined) {
-      console.log('Removing image at fileIndex:', imageToRemove.fileIndex, 'Current array length:', addGalleryImageFiles.length);
-      addGalleryImageFiles.splice(imageToRemove.fileIndex, 1);
-      console.log('New array length:', addGalleryImageFiles.length);
-    } else {
-      // Fallback: remove by image index if fileIndex is not available
-      console.log('Fallback removal at imageIndex:', imageIndex, 'Current array length:', addGalleryImageFiles.length);
-      addGalleryImageFiles.splice(imageIndex, 1);
-      console.log('New array length:', addGalleryImageFiles.length);
-    }
-  } else if (!isEdit && containerId === 'addHeadImagePreview') {
-    // Remove from add head image
-    addHeadImageFile = null;
-  }
-  
-  // Remove from state
-  state.images.splice(imageIndex, 1);
-  state.totalImages = state.images.length;
-  
-  // Recalculate max index
-  state.maxIndex = Math.max(0, state.totalImages - Math.floor(state.imagesPerView));
-  
-  // Calculate new position based on deletion logic
-  console.log('Before deletion - currentIndex:', state.currentIndex, 'imageIndex:', imageIndex, 'totalImages:', state.totalImages, 'maxIndex:', state.maxIndex);
-  
-  let newPosition;
-  
-  // Special case: if we have 2 or fewer images left, always go to position 0
-  if (state.totalImages <= 2) {
-    newPosition = 0;
-    console.log('Only 2 or fewer images left, resetting to position 0');
-    // Force the carousel to actually move to position 0 by triggering the visual reset
-    setTimeout(() => {
-      const track = document.getElementById(containerId + 'Track');
-      if (track) {
-        track.style.transform = 'translateX(0%)';
-        console.log('Forced carousel reset to position 0');
-      }
-    }, 50);
-  } else {
-    // Simple logic: if we delete an image at or before our current position, move back one
-    if (imageIndex <= state.currentIndex) {
-      newPosition = Math.max(0, state.currentIndex - 1);
-    } else {
-      // If we delete an image after our current position, stay where we are
-      newPosition = state.currentIndex;
-    }
-    
-    // Make sure the new position doesn't exceed the maximum
-    newPosition = Math.min(newPosition, state.maxIndex);
-  }
-  
-  console.log('After deletion - newPosition:', newPosition, 'newMaxIndex:', state.maxIndex, 'newTotalImages:', state.totalImages);
-  
-  // Update the state with the new position
-  state.currentIndex = newPosition;
-  
-  // Additional validation to ensure state consistency
-  if (state.currentIndex < 0) state.currentIndex = 0;
-  if (state.currentIndex > state.maxIndex) state.currentIndex = state.maxIndex;
-  
-      // Recreate carousel with updated data
-    if (state.totalImages > 0) {
-      // For edit mode, rebuild the images array from current data
-      if (isEdit && containerId === 'editGalleryImagesPreview') {
-        const BASE_URL = `${window.API_BASE_URL}`;
-        const allImages = [];
-        
-        // Add new uploads first (so they appear at the beginning)
-        editGalleryImageFiles.forEach((file, idx) => {
-          const url = URL.createObjectURL(file);
-          allImages.push({ src: url, isExisting: false, fileIndex: idx });
-        });
-        
-        // Add existing images after new uploads
-        currentGalleryImages.forEach((img, idx) => {
-          let imgSrc = img.startsWith('http') ? img : `${window.API_BASE_URL}${img}`;
-          allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
-        });
-        
-        createCarousel(containerId, allImages, isEdit, true);
-      } else if (isEdit && containerId === 'editHeadImagePreview') {
-        // For head image, clear the preview and reset button state
-        document.getElementById(containerId).innerHTML = '';
-        const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
-        const headButton = document.getElementById('editHeadImageButton');
-        headButtonArea.classList.remove('has-file');
-        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-        const subtext = headButton.querySelector('.admin-upload-subtext');
-        if (subtext) {
-          subtext.textContent = 'Click to select image';
-        }
-        editHeadImageFile = null;
-        delete window.carouselStates[containerId];
-        return;
-      } else if (!isEdit && containerId === 'addGalleryImagesPreview') {
-        // For add mode, use the global addGalleryImageFiles
-        console.log('Recreating carousel with', addGalleryImageFiles.length, 'files');
-        const images = addGalleryImageFiles.map((file, idx) => ({
-          src: URL.createObjectURL(file),
-          fileIndex: idx
-        }));
-        createCarousel(containerId, images, isEdit, true);
-      } else if (!isEdit && containerId === 'addHeadImagePreview') {
-        // For add head image, clear the preview and reset button state
-        document.getElementById(containerId).innerHTML = '';
-        const headButtonArea = document.getElementById('addHeadImageButton').parentElement;
-        const headButton = document.getElementById('addHeadImageButton');
-        headButtonArea.classList.remove('has-file');
-        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-        const subtext = headButton.querySelector('.admin-upload-subtext');
-        if (subtext) {
-          subtext.textContent = 'Click to select image';
-        }
-        addHeadImageFile = null;
-        delete window.carouselStates[containerId];
-        return;
-      } else {
-        createCarousel(containerId, state.images, isEdit, true);
-      }
-    
-    // Position is now preserved directly in createCarousel function
-    // Small delay to ensure DOM is fully updated before updating button states
-    setTimeout(() => {
-      updateCarouselButtons(containerId);
-    }, 10);
-  } else {
-    document.getElementById(containerId).innerHTML = '';
-    delete window.carouselStates[containerId];
-  }
-  
-  // Update button state after removal (with small delay to ensure DOM is updated)
-  setTimeout(() => {
-    updateGalleryUploadButton(containerId, isEdit);
-  }, 0);
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  // Add Car Panel
-  const showBtn = document.getElementById('showAddCarBtn');
-  const addPanel = document.getElementById('addCarPanel');
-  const closeAddBtn = document.getElementById('closeAddCarPanel');
-  const addForm = document.getElementById('carForm');
-  const addFormSubmitBtn = document.getElementById('formSubmitBtn');
-
-  // Edit Car Panel
-  const editPanel = document.getElementById('editCarPanel');
-  const closeEditBtn = document.getElementById('closeEditCarPanel');
-  const editForm = document.getElementById('editCarForm');
-  const editFormSubmitBtn = document.getElementById('editFormSubmitBtn');
-  
-
-  // Fix: Declare edit image file variables in the correct scope
-  let editHeadImageFile = null;
-  
-  // Get DOM elements for edit form
-  const editHeadImageInput = document.getElementById('editHeadImageInput');
-  const editGalleryImagesInput = document.getElementById('editGalleryImagesInput');
-  const editHeadImagePreview = document.getElementById('editHeadImagePreview');
-  const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
-
-  // Global event listener for carousel remove buttons
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('admin-carousel-remove')) {
-      const containerId = e.target.getAttribute('data-container');
-      const imageIndex = parseInt(e.target.getAttribute('data-index'));
-      const isEdit = e.target.getAttribute('data-is-edit') === 'true';
-      removeCarouselImage(containerId, imageIndex, isEdit);
-    }
-  });
-
-  // Function to delete head image
-  async function deleteHeadImage(imagePath) {
-    const editForm = document.getElementById('editCarForm');
-    const carId = editForm.getAttribute('data-id');
-    
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=head`, { method: 'DELETE' });
-      
-      if (response.ok) {
-        // Clear the head image preview
-        editHeadImagePreview.innerHTML = '';
-        
-        // Reset the head image button state
-        const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
-        const headButton = document.getElementById('editHeadImageButton');
-        headButtonArea.classList.remove('has-file');
-        headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-        const subtext = headButton.querySelector('.admin-upload-subtext');
-        if (subtext) {
-          subtext.textContent = 'Click to select image';
-        }
-        
-        showAlert('Head image deleted successfully!', 'success');
-      } else {
-        showAlert('Failed to delete head image.', 'error');
-      }
-    } catch (error) {
-      console.error('Error deleting head image:', error);
-      showAlert('Error deleting head image.', 'error');
-    }
-  }
-
-  // Make deleteHeadImage function globally accessible
-  window.deleteHeadImage = deleteHeadImage;
-
-  // Overlay and Confirm Modal
-  const overlay = document.getElementById('adminOverlay');
-  const confirmModal = document.getElementById('adminConfirmModal');
-  const confirmCloseBtn = document.getElementById('confirmCloseBtn');
-  const cancelCloseBtn = document.getElementById('cancelCloseBtn');
-  let pendingClosePanel = null;
-
-  // Show Add Panel
-  showBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    addPanel.classList.add('active');
-    editPanel.classList.remove('active');
-    overlay.classList.add('active');
-    addForm.reset();
-    document.body.classList.add('admin-popup-open');
-    document.documentElement.classList.add('admin-popup-open');
-    lockBodyScroll();
-  });
-
-  // Upload button click handlers
-  document.getElementById('addHeadImageButton').addEventListener('click', function() {
-    document.getElementById('addHeadImageInput').click();
-  });
-  
-  document.getElementById('addGalleryImagesButton').addEventListener('click', function() {
-    document.getElementById('addGalleryImagesInput').click();
-  });
-  
-  document.getElementById('editHeadImageButton').addEventListener('click', function() {
-    document.getElementById('editHeadImageInput').click();
-  });
-  
-  document.getElementById('editGalleryImagesButton').addEventListener('click', function() {
-    document.getElementById('editGalleryImagesInput').click();
-  });
-  function closePanel(panel, form) {
-    // Always hide the confirmation modal when closing the panel
-    confirmModal.classList.remove('active');
-    pendingClosePanel = null;
-    panel.classList.remove('active');
-    overlay.classList.remove('active');
-    form.reset();
-    // Reset image inputs when actually closing the panel
-    if (form === editForm) {
-      resetEditImageInputs();
-      imagesToDelete = [];
-      // Restore original images for next open
-      if (editForm._originalHeadImage !== undefined) {
-        car = { head_image: editForm._originalHeadImage, gallery_images: editForm._originalGalleryImages };
-        currentGalleryImages = Array.isArray(car.gallery_images) ? [...car.gallery_images] : (car.gallery_images ? [car.gallery_images] : []);
-        renderEditImagePreviews(car);
-      }
-    } else if (form === addForm) {
-      resetAddImageInputs();
-    }
-    document.body.classList.remove('admin-popup-open');
-    document.documentElement.classList.remove('admin-popup-open');
-    unlockBodyScroll();
-  }
-  function askClosePanel(panel, form) {
-    confirmModal.classList.add('active');
-    overlay.classList.add('active');
-    pendingClosePanel = {panel, form};
-  }
-  function handleOverlayClick(e) {
-    if (addPanel.classList.contains('active')) {
-      askClosePanel(addPanel, addForm);
-    } else if (editPanel.classList.contains('active')) {
-      askClosePanel(editPanel, editForm);
-    } else {
-      // If neither panel is open, hide the confirmation modal just in case
-      confirmModal.classList.remove('active');
-      pendingClosePanel = null;
-    }
-  }
-  overlay.addEventListener('click', handleOverlayClick);
-  closeAddBtn.addEventListener('click', function () {
-    askClosePanel(addPanel, addForm);
-  });
-  closeEditBtn.addEventListener('click', function () {
-    askClosePanel(editPanel, editForm);
-  });
-  confirmCloseBtn.addEventListener('click', function () {
-    if (pendingClosePanel) {
-      closePanel(pendingClosePanel.panel, pendingClosePanel.form);
-      confirmModal.classList.remove('active'); // Defensive: always remove
-      pendingClosePanel = null;
-    }
-  });
-  cancelCloseBtn.addEventListener('click', function () {
-    confirmModal.classList.remove('active');
-    // Keep overlay active since the main modal is still open
-    pendingClosePanel = null;
-  });
-
-  // Populate selects for both forms
-  populateSelect(addForm.elements['production_year'], new Date().getFullYear(), 2000, true);
-  populateSelect(addForm.elements['num_doors'], 2, 7);
-  populateSelect(addForm.elements['num_passengers'], 2, 9);
-  populateSelect(editForm.elements['production_year'], new Date().getFullYear(), 2000, true);
-  populateSelect(editForm.elements['num_doors'], 2, 7);
-  populateSelect(editForm.elements['num_passengers'], 2, 9);
-
-  // Handle fuel type changes for engine capacity
-  function handleFuelTypeChange(form, isEdit = false) {
-    const fuelTypeSelect = form.elements['fuel_type'];
-    const engineCapacityInput = form.elements['engine_capacity'];
-    const fuelEconomyLabel = form.querySelector('#fuel-economy-label');
-    const fuelEconomyInput = form.elements['fuel_economy'];
-    
-    if (fuelTypeSelect.value === 'Electric') {
-      engineCapacityInput.disabled = true;
-      engineCapacityInput.value = '';
-      engineCapacityInput.placeholder = 'Electric';
-      engineCapacityInput.style.opacity = '0.5';
-      engineCapacityInput.style.cursor = 'not-allowed';
-      
-      // Update fuel economy label for electric cars
-      if (fuelEconomyLabel) {
-        fuelEconomyLabel.textContent = 'Energy Efficiency (kWh/100km)';
-      }
-      if (fuelEconomyInput) {
-        fuelEconomyInput.placeholder = 'e.g., 15.5';
-      }
-    } else {
-      engineCapacityInput.disabled = false;
-      engineCapacityInput.placeholder = '';
-      engineCapacityInput.style.opacity = '1';
-      engineCapacityInput.style.cursor = 'text';
-      
-      // Update fuel economy label for fuel-powered cars
-      if (fuelEconomyLabel) {
-        fuelEconomyLabel.textContent = 'Fuel Economy (L/100km)';
-      }
-      if (fuelEconomyInput) {
-        fuelEconomyInput.placeholder = 'e.g., 7.5';
-      }
-    }
-  }
-
-  // Add event listeners for fuel type changes
-  addForm.elements['fuel_type'].addEventListener('change', function() {
-    handleFuelTypeChange(addForm, false);
-  });
-
-  editForm.elements['fuel_type'].addEventListener('change', function() {
-    handleFuelTypeChange(editForm, true);
-  });
-
-  // Initial check for both forms
-  handleFuelTypeChange(addForm, false);
-  handleFuelTypeChange(editForm, true);
-
-  // Add Car form logic
-  let addUploading = false;
-  let addHeadImageFile = null;
-  
-  // Get DOM elements for add form
-  const addHeadImageInput = document.getElementById('addHeadImageInput');
-  const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
-  const addHeadImagePreview = document.getElementById('addHeadImagePreview');
-  const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
-  
-  function resetAddImageInputs() {
-    addHeadImageInput.value = '';
-    addGalleryImagesInput.value = '';
-    addHeadImagePreview.innerHTML = '';
-    addGalleryImagesPreview.innerHTML = '';
-    addHeadImageFile = null;
-    addGalleryImageFiles = [];
-    
-    // Reset button states
-    updateGalleryUploadButton('addGalleryImagesPreview', false);
-    const headButtonArea = document.getElementById('addHeadImageButton').parentElement;
-    const galleryButtonArea = document.getElementById('addGalleryImagesButton').parentElement;
-    const headButton = document.getElementById('addHeadImageButton');
-    const galleryButton = document.getElementById('addGalleryImagesButton');
-    
-    headButtonArea.classList.remove('has-file');
-    headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-    
-    galleryButtonArea.classList.remove('has-file');
-    galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
-    
-    // Reset engine capacity field state
-    handleFuelTypeChange(addForm, false);
-  }
-  addHeadImageInput.addEventListener('change', function() {
-    addHeadImagePreview.innerHTML = '';
-    addHeadImageFile = this.files[0] || null;
-    const buttonArea = document.getElementById('addHeadImageButton').parentElement;
-    const button = document.getElementById('addHeadImageButton');
-    if (addHeadImageFile) {
-      const url = URL.createObjectURL(addHeadImageFile);
-      addHeadImagePreview.innerHTML = `
-        <div style="position: relative; display: inline-block;">
-          <img src="${url}" style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <button type="button" class="admin-carousel-remove" onclick="addHeadImageFile = null; addHeadImagePreview.innerHTML = ''; this.parentElement.remove();" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
-        </div>
-      `;
-      buttonArea.classList.add('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'Image Selected';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = addHeadImageFile.name;
-      }
-    } else {
-      buttonArea.classList.remove('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = 'Click to select image';
-      }
-    }
-  });
-  addGalleryImagesInput.addEventListener('change', function() {
-    if (this.files.length === 0 || isProcessingFiles) return; // No files selected or already processing
-    
-    const currentCount = addGalleryImageFiles.length;
-    
-    // Check if we're already at the limit
-    if (currentCount >= 10) {
-      showAlert('You already have the maximum of 10 gallery images.', 'error');
-      this.value = ''; // Clear the input
-      return;
-    }
-    
-    isProcessingFiles = true;
-    
-    let files = Array.from(this.files);
-    const availableSlots = 10 - currentCount;
-    
-    console.log('Processing files:', files.length, 'Current count:', currentCount, 'Available slots:', availableSlots);
-    
-    if (files.length > availableSlots) {
-      showAlert(`You can only upload ${availableSlots} more image(s). Maximum is 10.`, 'error');
-      files = files.slice(0, availableSlots);
-    }
-    
-    // Only add files if there are any to add and we have available slots
-    if (files.length > 0 && currentCount < 10) {
-      // Add new files to the beginning of the array
-      addGalleryImageFiles = files.concat(addGalleryImageFiles);
-      console.log('New total count:', addGalleryImageFiles.length);
-      
-      const buttonArea = document.getElementById('addGalleryImagesButton').parentElement;
-      buttonArea.classList.add('has-file');
-      updateGalleryUploadButton('addGalleryImagesPreview', false);
-      renderAddGalleryPreviews();
-    }
-    
-    // Clear the input to allow re-selecting the same files
-    this.value = '';
-    
-    // Reset processing flag after a short delay
-    setTimeout(() => {
-      isProcessingFiles = false;
-    }, 100);
-  });
-  function renderAddGalleryPreviews() {
-    if (addGalleryImageFiles.length === 0) {
-      addGalleryImagesPreview.innerHTML = '';
-      updateGalleryUploadButton('addGalleryImagesPreview', false);
-      return;
-    }
-    
-    const images = addGalleryImageFiles.map((file, idx) => ({
-      src: URL.createObjectURL(file),
-      fileIndex: idx
-    }));
-    
-    // Check if carousel already exists to preserve position during recreation
-    const existingCarousel = window.carouselStates && window.carouselStates['addGalleryImagesPreview'];
-    
-    if (existingCarousel) {
-      // New images are at the beginning, so reset to start to show them
-      createCarousel('addGalleryImagesPreview', images, false, false);
-    } else {
-      // First time creating carousel - start at beginning (new images are there)
-      createCarousel('addGalleryImagesPreview', images, false);
-    }
-    
-    updateGalleryUploadButton('addGalleryImagesPreview', false);
-  }
-  // Gallery image removal is now handled by the carousel
-  // On Add Car submit, after car is created, upload images
-  addForm.onsubmit = async function(e) {
-    e.preventDefault();
-    if (addUploading) return;
-    
-    // Validate engine capacity for non-electric cars
-    const validationFormData = new FormData(addForm);
-    const fuelType = validationFormData.get('fuel_type');
-    const engineCapacity = validationFormData.get('engine_capacity');
-    
-    if (fuelType !== 'Electric' && (!engineCapacity || engineCapacity.trim() === '')) {
-      showAlert('Engine capacity is required for non-electric cars.', 'error');
-      return;
-    }
-    
-    addUploading = true;
-    addFormSubmitBtn.disabled = true;
-    addFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
-    // Submit car details first
-    const formData = new FormData(addForm);
-    const price_policy = {
-      '1-2': String(formData.get('price_1_2')),
-      '3-7': String(formData.get('price_3_7')),
-      '8-20': String(formData.get('price_8_20')),
-      '21-45': String(formData.get('price_21_45')),
-      '46+': String(formData.get('price_46')),
-    };
-    const data = {
-      make_name: formData.get('make_name'),
-      model_name: formData.get('model_name'),
-      production_year: formData.get('production_year'),
-      gear_type: formData.get('gear_type'),
-      fuel_type: formData.get('fuel_type'),
-      engine_capacity: formData.get('fuel_type') === 'Electric' ? null : formData.get('engine_capacity'),
-      car_type: formData.get('car_type'),
-      num_doors: formData.get('num_doors'),
-      num_passengers: formData.get('num_passengers'),
-      price_policy: price_policy,
-      booked_until: formData.get('booked_until') || null,
-      luggage: formData.get('luggage') || null,
-      mileage: formData.get('mileage') || null,
-      drive: formData.get('drive') || null,
-      fuel_economy: formData.get('fuel_economy') || null,
-      exterior_color: formData.get('exterior_color') || null,
-      interior_color: formData.get('interior_color') || null,
-      rca_insurance_price: formData.get('rca_insurance_price'),
-      casco_insurance_price: formData.get('casco_insurance_price')
-    };
-    
-    console.log('Submitting car data:', data);
-    
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        // Now upload images if any
-        if (addHeadImageFile || addGalleryImageFiles.length > 0) {
-          const imgForm = new FormData();
-          if (addHeadImageFile) imgForm.append('head_image', addHeadImageFile);
-          addGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
-          await fetch(`${window.API_BASE_URL}/api/cars/${result.id}/images`, {
-            method: 'POST',
-            body: imgForm
-          });
-        }
-        showAlert('Car added successfully!', 'success');
-        addForm.reset();
-        resetAddImageInputs();
-        closePanel(addPanel, addForm);
-        loadCars();
-      } else {
-        showAlert('Failed to add car.', 'error');
-      }
-    } catch (err) {
-      console.error('Error saving car:', err);
-      showAlert('Error saving car.', 'error');
-    }
-    addUploading = false;
-    addFormSubmitBtn.disabled = false;
-                            addFormSubmitBtn.innerHTML = 'Add Car';
-  };
-  // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
-
-  // --- Edit Car image logic ---
-  let editUploading = false;
-  function resetEditImageInputs() {
-    editHeadImageInput.value = '';
-    editGalleryImagesInput.value = '';
-    editHeadImagePreview.innerHTML = '';
-    editGalleryImagesPreview.innerHTML = '';
-    editHeadImageFile = null;
-    editGalleryImageFiles = [];
-    currentGalleryImages = [];
-    
-    // Reset button states
-    updateGalleryUploadButton('editGalleryImagesPreview', true);
-    const headButtonArea = document.getElementById('editHeadImageButton').parentElement;
-    const galleryButtonArea = document.getElementById('editGalleryImagesButton').parentElement;
-    const headButton = document.getElementById('editHeadImageButton');
-    const galleryButton = document.getElementById('editGalleryImagesButton');
-    
-    headButtonArea.classList.remove('has-file');
-    headButton.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-    
-    galleryButtonArea.classList.remove('has-file');
-    galleryButton.querySelector('.admin-upload-text').textContent = 'Upload Gallery Images';
-    
-    // Reset engine capacity field state
-    handleFuelTypeChange(editForm, true);
-  }
-  function renderEditImagePreviews(car) {
-    // Head image
-    editHeadImagePreview.innerHTML = '';
-    const BASE_URL = `${window.API_BASE_URL}`;
-    if (car.head_image) {
-      let headImgSrc = car.head_image.startsWith('http') ? car.head_image : `${window.API_BASE_URL}${car.head_image}`;
-      editHeadImagePreview.innerHTML = `
-        <div style="position: relative; display: inline-block;">
-          <img src='${headImgSrc}' style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <button type="button" class="admin-carousel-remove" onclick="deleteHeadImage('${car.head_image}')" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
-        </div>
-      `;
-    }
-    // Gallery images
-    editGalleryImagesPreview.innerHTML = '';
-    // Fix: Ensure gallery_images is always an array and update global variable
-    currentGalleryImages = [];
-    if (Array.isArray(car.gallery_images)) {
-      currentGalleryImages = car.gallery_images;
-    } else if (typeof car.gallery_images === 'string' && car.gallery_images) {
-      try {
-        // Try to parse as JSON array
-        currentGalleryImages = JSON.parse(car.gallery_images);
-        if (!Array.isArray(currentGalleryImages)) {
-          currentGalleryImages = [car.gallery_images];
-        }
-      } catch {
-        // Fallback: treat as single image string
-        currentGalleryImages = [car.gallery_images];
-      }
-    }
-    // Combine existing images and new uploads for carousel
-    const allImages = [];
-    
-    // Add new uploads first (so they appear at the beginning)
-    editGalleryImageFiles.forEach((file, idx) => {
-      const url = URL.createObjectURL(file);
-      allImages.push({ src: url, isExisting: false, fileIndex: idx });
-    });
-    
-    // Add existing images after new uploads
-    currentGalleryImages.forEach((img, idx) => {
-      let imgSrc = img.startsWith('http') ? img : `${window.API_BASE_URL}${img}`;
-      allImages.push({ src: imgSrc, isExisting: true, originalPath: img });
-    });
-    
-    // Create carousel if there are images
-    if (allImages.length > 0) {
-      const hasNewImages = editGalleryImageFiles.length > 0;
-      
-      if (hasNewImages) {
-        // New images added at the beginning - reset to start to show them
-        createCarousel('editGalleryImagesPreview', allImages, true, false);
-      } else {
-        // No new images - preserve current position
-        createCarousel('editGalleryImagesPreview', allImages, true, true);
-      }
-    } else {
-      editGalleryImagesPreview.innerHTML = '';
-    }
-    
-    // Update button state
-    updateGalleryUploadButton('editGalleryImagesPreview', true);
-  }
-  editHeadImageInput.addEventListener('change', function() {
-    editHeadImagePreview.innerHTML = '';
-    editHeadImageFile = this.files[0] || null;
-    const buttonArea = document.getElementById('editHeadImageButton').parentElement;
-    const button = document.getElementById('editHeadImageButton');
-    if (editHeadImageFile) {
-      const url = URL.createObjectURL(editHeadImageFile);
-      editHeadImagePreview.innerHTML = `
-        <div style="position: relative; display: inline-block;">
-          <img src="${url}" style="width: 180px; height: 170px; object-fit: cover; border-radius: 6px; border: 1.5px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <button type="button" class="admin-carousel-remove" onclick="editHeadImageFile = null; editHeadImagePreview.innerHTML = ''; this.parentElement.remove();" style="position: absolute; top: -6px; right: -6px; background: rgb(248 67 61 / 90%); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 15px; padding-bottom: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.2s; backdrop-filter: blur(2px);">×</button>
-        </div>
-      `;
-      buttonArea.classList.add('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'New Image Selected';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = editHeadImageFile.name;
-      }
-    } else {
-      buttonArea.classList.remove('has-file');
-      button.querySelector('.admin-upload-text').textContent = 'Upload Head Image';
-      // Fix: Check if subtext element exists before setting it
-      const subtext = button.querySelector('.admin-upload-subtext');
-      if (subtext) {
-        subtext.textContent = 'Click to select image';
-      }
-    }
-  });
-  editGalleryImagesInput.addEventListener('change', function() {
-    if (this.files.length === 0 || isProcessingFiles) return; // No files selected or already processing
-    
-    const currentCount = currentGalleryImages.length + editGalleryImageFiles.length;
-    
-    // Check if we're already at the limit
-    if (currentCount >= 10) {
-      showAlert('You already have the maximum of 10 gallery images.', 'error');
-      this.value = ''; // Clear the input
-      return;
-    }
-    
-    isProcessingFiles = true;
-    
-    let files = Array.from(this.files);
-    const availableSlots = 10 - currentCount;
-    
-    if (files.length > availableSlots) {
-      showAlert(`You can only upload ${availableSlots} more image(s). Maximum is 10.`, 'error');
-      files = files.slice(0, availableSlots);
-    }
-    
-    // Only add files if there are any to add and we have available slots
-    if (files.length > 0 && currentCount < 10) {
-      // Add new files to the beginning of the array
-      editGalleryImageFiles = files.concat(editGalleryImageFiles);
-      const buttonArea = document.getElementById('editGalleryImagesButton').parentElement;
-      buttonArea.classList.add('has-file');
-      updateGalleryUploadButton('editGalleryImagesPreview', true);
-      renderEditImagePreviews({ head_image: editHeadImagePreview.querySelector('img') ? editHeadImagePreview.querySelector('img').src : null, gallery_images: Array.from(editGalleryImagesPreview.querySelectorAll('img')).map(img => img.src).filter(src => !src.startsWith('blob:')) });
-    }
-    
-    // Clear the input to allow re-selecting the same files
-    this.value = '';
-    
-    // Reset processing flag after a short delay
-    setTimeout(() => {
-      isProcessingFiles = false;
-    }, 100);
-  });
-  // Gallery image removal is now handled by the carousel
-  // On Edit Car submit, upload new images if any
-  editForm.onsubmit = async function(e) {
-    e.preventDefault();
-    if (editUploading) return;
-    
-    // Validate engine capacity for non-electric cars
-    const validationFormData = new FormData(editForm);
-    const fuelType = validationFormData.get('fuel_type');
-    const engineCapacity = validationFormData.get('engine_capacity');
-    
-    if (fuelType !== 'Electric' && (!engineCapacity || engineCapacity.trim() === '')) {
-      showAlert('Engine capacity is required for non-electric cars.', 'error');
-      return;
-    }
-    
-    editUploading = true;
-    editFormSubmitBtn.disabled = true;
-    editFormSubmitBtn.innerHTML = 'Saving <span class="admin-spinner"></span>';
-    // Submit car details first (as before)
-    const formData = new FormData(editForm);
-    const price_policy = {
-      '1-2': String(formData.get('price_1_2')),
-      '3-7': String(formData.get('price_3_7')),
-      '8-20': String(formData.get('price_8_20')),
-      '21-45': String(formData.get('price_21_45')),
-      '46+': String(formData.get('price_46')),
-    };
-    // Clean gallery image URLs - remove base URL to get relative paths
-    console.log('Original currentGalleryImages:', currentGalleryImages);
-    const cleanGalleryImages = currentGalleryImages.map(img => {
-      // Handle various URL formats
-      if (img.startsWith(`${window.API_BASE_URL}`)) {
-        return img.replace(`${window.API_BASE_URL}`, '');
-      }
-      if (img.startsWith(`${window.API_BASE_URL}`)) {
-        return img.replace(`${window.API_BASE_URL}`, '');
-      }
-      if (img.startsWith('localhost:3001')) {
-        return img.replace('localhost:3001', '');
-      }
-      // If it's already a relative path, return as is
-      return img;
-    });
-    console.log('Cleaned gallery images:', cleanGalleryImages);
-    
-    const data = {
-      make_name: formData.get('make_name'),
-      model_name: formData.get('model_name'),
-      production_year: formData.get('production_year'),
-      gear_type: formData.get('gear_type'),
-      fuel_type: formData.get('fuel_type'),
-      engine_capacity: formData.get('fuel_type') === 'Electric' ? null : formData.get('engine_capacity'),
-      car_type: formData.get('car_type'),
-      num_doors: formData.get('num_doors'),
-      num_passengers: formData.get('num_passengers'),
-      price_policy: price_policy,
-      booked_until: formData.get('booked_until') || null,
-      gallery_images: cleanGalleryImages, // Send the cleaned gallery images list
-      luggage: formData.get('luggage') || null,
-      mileage: formData.get('mileage') || null,
-      drive: formData.get('drive') || null,
-      fuel_economy: formData.get('fuel_economy') || null,
-      exterior_color: formData.get('exterior_color') || null,
-      interior_color: formData.get('interior_color') || null,
-      rca_insurance_price: formData.get('rca_insurance_price'),
-      casco_insurance_price: formData.get('casco_insurance_price')
-    };
-    try {
-      const id = editForm.getAttribute('data-id');
-      let imageUploadError = false;
-      // 1. Process deletions FIRST
-      for (const imgPath of imagesToDelete) {
-        try {
-          const delResp = await fetch(`${window.API_BASE_URL}/api/cars/${id}/images?path=${encodeURIComponent(imgPath)}&type=gallery`, { method: 'DELETE' });
-          if (!delResp.ok) imageUploadError = true;
-        } catch (delErr) {
-          imageUploadError = true;
-          console.error('Image delete error:', delErr);
-        }
-      }
-      // 2. Then send the PUT update
-      const response = await fetch(`${window.API_BASE_URL}/api/cars/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        // 3. Then process new uploads
-        if (editHeadImageInput.files[0] || editGalleryImageFiles.length > 0) {
-          try {
-          const imgForm = new FormData();
-          if (editHeadImageInput.files[0]) imgForm.append('head_image', editHeadImageInput.files[0]);
-          editGalleryImageFiles.forEach(f => imgForm.append('gallery_images', f));
-            const imgResp = await fetch(`${window.API_BASE_URL}/api/cars/${id}/images`, {
-            method: 'POST',
-            body: imgForm
-          });
-            if (!imgResp.ok) imageUploadError = true;
-          } catch (imgErr) {
-            imageUploadError = true;
-            console.error('Image upload error:', imgErr);
-        }
-        }
-        imagesToDelete = [];
-        showAlert('Car updated successfully!' + (imageUploadError ? ' (Some images may not have uploaded or deleted)' : ''), imageUploadError ? 'error' : 'success');
-        editForm.reset();
-        resetEditImageInputs();
-        closePanel(editPanel, editForm);
-        loadCars();
-      } else {
-        showAlert('Failed to update car.', 'error');
-      }
-    } catch (err) {
-      console.error('Unexpected error during car update:', err);
-      showAlert('Unexpected error. Please try again.', 'error');
-    }
-    editUploading = false;
-    editFormSubmitBtn.disabled = false;
-    editFormSubmitBtn.innerHTML = 'Confirm changes';
-  };
-  // Reset image inputs on close - removed immediate reset, will be handled by closePanel function
-  // When opening edit form, render image previews
-  function openEditFormWithImages(car) {
-    // Reset all local image state to match backend
-    editGalleryImageFiles = [];
-    editHeadImageFile = null;
-    imagesToDelete = [];
-    currentGalleryImages = Array.isArray(car.gallery_images) ? [...car.gallery_images] : (car.gallery_images ? [car.gallery_images] : []);
-    console.log('Gallery images in modal (from backend):', currentGalleryImages);
-    renderEditImagePreviews(car);
-  }
-
-  // Duplicate form submission handler removed - using onsubmit handler above
-
-
-
-  // Load and display cars as cards
-  async function loadCars() {
-    const carCards = document.getElementById('carCards');
-    carCards.innerHTML = '<div class="text-center w-100">Loading...</div>';
-    try {
-      console.log('Loading cars from:', `${window.API_BASE_URL}/api/cars`);
-      const res = await fetch(`${window.API_BASE_URL}/api/cars`);
-      console.log('Response status:', res.status);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
-      const cars = await res.json();
-      console.log('Loaded cars:', cars.length);
-      if (!cars.length) {
-        carCards.innerHTML = '<div class="alert alert-info w-100">No cars found.</div>';
-        return;
-      }
-      carCards.innerHTML = '';
-      cars.forEach(car => {
-        const card = document.createElement('div');
-        card.className = 'col-md-6 col-lg-3 mb-4';
-        
-        // Prepare head image HTML
-        const headImageHtml = car.head_image 
-          ? `<div class="mb-3">
-               <img src="${window.API_BASE_URL}${car.head_image}" 
-                    alt="${car.make_name} ${car.model_name}" 
-                    style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;"
-                    onerror="this.style.display='none';">
-             </div>`
-          : '';
-        
-        // Prepare status badge text and color
-        let badgeText = 'Available';
-        let badgeClass = 'bg-success';
-        
-        if (car.booked && car.booked_until) {
-          const bookedUntilDate = new Date(car.booked_until);
-          const formattedDate = bookedUntilDate.toLocaleDateString('en-GB', { 
-            day: 'numeric', 
-            month: 'short' 
-          });
-          badgeText = `Booked until ${formattedDate}`;
-          badgeClass = 'bg-danger';
-        } else if (car.booked) {
-          badgeText = 'Booked';
-          badgeClass = 'bg-danger';
-        }
-        
-                 card.innerHTML = `
-           <div class="card p-3 h-100 shadow-sm rounded-4" style="position: relative;">
-             <span class="badge ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">${badgeText}</span>
-             
-             <!-- Edit button at top left -->
-             <div class="d-flex justify-content-start mb-2">
-               <button class="btn btn-sm editCarBtn" data-id="${car.id}" title="Edit Car" style="background: none; border: 1px solid gray; padding: 3px 6px; color: gray; box-shadow: none;">
-                 <i class="fa fa-pencil" style="font-size: 14px;"></i>
-               </button>
-             </div>
-             
-             <!-- Car image -->
-             ${headImageHtml}
-             
-             <!-- Header with car name below image -->
-             <div class="mb-3">
-               <h4 class="mb-0 text-primary text-center">${car.make_name} ${car.model_name}</h4>
-             </div>
-             
-             <!-- Car details -->
-             <div class="mb-3">
-               <div class="row g-2 mb-2">
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Year:</strong> ${car.production_year}</div>
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Type:</strong> ${car.car_type}</div>
-               </div>
-               <div class="row g-2 mb-2">
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Gear:</strong> ${car.gear_type}</div>
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Fuel:</strong> ${car.fuel_type}</div>
-               </div>
-               <div class="row g-2 mb-2">
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Doors:</strong> ${car.num_doors}</div>
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Passengers:</strong> ${car.num_passengers}</div>
-               </div>
-               ${car.fuel_type !== 'Electric' ? `
-               <div class="row g-2 mb-2">
-                 <div class="col-6" style="font-size: 0.875rem;"><strong>Engine capacity:</strong> ${car.engine_capacity}</div>
-                 <div class="col-6"></div>
-               </div>
-               ` : ''}
-             </div>
-             
-             <!-- Price policy -->
-             <div class="mt-auto">
-               <h6 class="mb-2 text-primary">Pricing (€/day)</h6>
-               <div class="row g-1 mb-2">
-                 <div class="col-6">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">1-2 days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['1-2']}€</div>
-                   </div>
-                 </div>
-                 <div class="col-6">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">3-7 days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['3-7']}€</div>
-                   </div>
-                 </div>
-               </div>
-               <div class="row g-1 mb-2">
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">8-20 days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['8-20']}€</div>
-                   </div>
-                 </div>
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">21-45 days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['21-45']}€</div>
-                   </div>
-                 </div>
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">46+ days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['46+']}€</div>
-                   </div>
-                 </div>
-               </div>
-               <div class="row g-1 mb-2">
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">21-45 days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['21-45']}€</div>
-                   </div>
-                 </div>
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">46+ days</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.price_policy['46+']}€</div>
-                   </div>
-                 </div>
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">RCA</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.rca_insurance_price ? car.rca_insurance_price + '€' : '-'}</div>
-                   </div>
-                 </div>
-               </div>
-               <div class="row g-1">
-                 <div class="col-4">
-                   <div class="text-center p-2 rounded" style="background-color: #e8e8e8; border-radius: 5px !important;">
-                     <div style="font-size: 0.7rem; color: #666;">Casco</div>
-                     <div style="font-size: 0.9rem; font-weight: bold; color: #031B4E;">${car.casco_insurance_price ? car.casco_insurance_price + '€' : '-'}</div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           </div>
-         `;
-        carCards.appendChild(card);
-      });
-      // Add edit button listeners
-      document.querySelectorAll('.editCarBtn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const carId = btn.getAttribute('data-id');
-          let car = null;
-          try {
-            const res = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
-            if (res.ok) {
-              car = await res.json();
-            }
-          } catch (err) {
-            showAlert('Failed to load car data.', 'error');
-            return;
-          }
-          if (!car) {
-            showAlert('Car not found.', 'error');
-            return;
-          }
-          // Fill edit form
-          editForm.setAttribute('data-id', car.id);
-          editForm.elements['make_name'].value = car.make_name;
-          editForm.elements['model_name'].value = car.model_name;
-          editForm.elements['production_year'].value = car.production_year;
-          editForm.elements['gear_type'].value = car.gear_type;
-          editForm.elements['fuel_type'].value = car.fuel_type;
-          editForm.elements['engine_capacity'].value = car.engine_capacity || '';
-          editForm.elements['car_type'].value = car.car_type;
-          editForm.elements['num_doors'].value = car.num_doors;
-          editForm.elements['num_passengers'].value = car.num_passengers;
-          editForm.elements['price_1_2'].value = car.price_policy['1-2'];
-          editForm.elements['price_3_7'].value = car.price_policy['3-7'];
-          editForm.elements['price_8_20'].value = car.price_policy['8-20'];
-          editForm.elements['price_21_45'].value = car.price_policy['21-45'];
-          editForm.elements['price_46'].value = car.price_policy['46+'];
-          editForm.elements['booked_until'].value = car.booked_until || '';
-          editForm.elements['luggage'].value = car.luggage || '';
-          editForm.elements['mileage'].value = car.mileage || '';
-          editForm.elements['drive'].value = car.drive || '';
-          editForm.elements['fuel_economy'].value = car.fuel_economy || '';
-          editForm.elements['exterior_color'].value = car.exterior_color || '';
-          editForm.elements['interior_color'].value = car.interior_color || '';
-          editForm.elements['rca_insurance_price'].value = car.rca_insurance_price || '';
-          editForm.elements['casco_insurance_price'].value = car.casco_insurance_price || '';
-          openEditFormWithImages(car);
-          // Handle fuel type state for engine capacity
-          handleFuelTypeChange(editForm, true);
-          addPanel.classList.remove('active');
-          editPanel.classList.add('active');
-          overlay.classList.add('active');
-          lockBodyScroll();
-        });
-      });
-    } catch (err) {
-      console.error('Error loading cars:', err);
-      carCards.innerHTML = '<div class="alert alert-danger w-100">Failed to load cars.</div>';
-    }
-  }
-
-  loadCars();
-
-  // Add a confirmation modal for delete
-  const deleteCarBtn = document.getElementById('deleteCarBtn');
-  const deleteConfirmModal = document.getElementById('deleteConfirmModal');
-  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-  let pendingDeleteCarId = null;
-  deleteCarBtn.addEventListener('click', function() {
-    deleteConfirmModal.classList.add('active');
-    pendingDeleteCarId = editForm.getAttribute('data-id');
-  });
-  confirmDeleteBtn.addEventListener('click', async function() {
-    if (!pendingDeleteCarId) return;
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/cars/${pendingDeleteCarId}`, { method: 'DELETE' });
-      if (response.ok) {
-        showAlert('Car deleted successfully!', 'success');
-        editForm.reset();
-        closePanel(editPanel, editForm);
-        loadCars();
-      } else {
-        showAlert('Failed to delete car.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error deleting car.', 'error');
-    }
-    deleteConfirmModal.classList.remove('active');
-    pendingDeleteCarId = null;
-  });
-  cancelDeleteBtn.addEventListener('click', function() {
-    deleteConfirmModal.classList.remove('active');
-    pendingDeleteCarId = null;
-  });
-  
-  // Tab Functionality
-  const tabButtons = document.querySelectorAll('.admin-tab-btn');
-  const tabContents = document.querySelectorAll('.admin-tab-content');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const targetTab = button.getAttribute('data-tab');
-      
-      // Update active tab button
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      
-      // Update active tab content
-      tabContents.forEach(content => content.classList.remove('active'));
-      document.getElementById(targetTab + '-tab').classList.add('active');
-    });
-  });
-  
-  // Coupon Management
-  const showAddCouponBtn = document.getElementById('showAddCouponBtn');
-  const addCouponPanel = document.getElementById('addCouponPanel');
-  const editCouponPanel = document.getElementById('editCouponPanel');
-  const couponOverlay = document.getElementById('couponOverlay');
-  const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
-  const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
-  const couponForm = document.getElementById('couponForm');
-  const editCouponForm = document.getElementById('editCouponForm');
-  const couponCards = document.getElementById('couponCards');
-  
-  // Show add coupon panel
-  showAddCouponBtn.addEventListener('click', () => {
-    addCouponPanel.classList.add('active');
-    couponOverlay.classList.add('active');
-    lockBodyScroll();
-  });
-  
-  // Close panels
-  closeAddCouponPanel.addEventListener('click', () => {
-    addCouponPanel.classList.remove('active');
-    couponOverlay.classList.remove('active');
-    couponForm.reset();
-    unlockBodyScroll();
-  });
-  
-  closeEditCouponPanel.addEventListener('click', () => {
-    editCouponPanel.classList.remove('active');
-    couponOverlay.classList.remove('active');
-    editCouponForm.reset();
-    unlockBodyScroll();
-  });
-  
-  // Close coupon panels when clicking overlay
-  couponOverlay.addEventListener('click', () => {
-    addCouponPanel.classList.remove('active');
-    editCouponPanel.classList.remove('active');
-    couponOverlay.classList.remove('active');
-    couponForm.reset();
-    editCouponForm.reset();
-    unlockBodyScroll();
-  });
-  
-  // Add coupon form submission
-  couponForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(couponForm);
-    
-    const data = {
-      code: formData.get('code'),
-      discount_percentage: formData.get('discount_percentage'),
-      description: formData.get('description') || null,
-      expires_at: formData.get('expires_at') || null,
-      is_active: parseInt(formData.get('is_active'))
-    };
-    
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) {
-        showAlert('Coupon added successfully!', 'success');
-        couponForm.reset();
-        addCouponPanel.classList.remove('active');
-        couponOverlay.classList.remove('active');
-        unlockBodyScroll();
-        loadCoupons();
-      } else {
-        const error = await response.json();
-        showAlert(error.error || 'Failed to add coupon.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error adding coupon.', 'error');
-    }
-  });
-  
-  // Load and display coupons
-  async function loadCoupons() {
-    couponCards.innerHTML = '<div class="text-center w-100">Loading...</div>';
-    try {
-      const res = await fetch(`${window.API_BASE_URL}/api/coupons`);
-      const coupons = await res.json();
-      
-      if (!coupons.length) {
-        couponCards.innerHTML = '<div class="alert alert-info w-100">No coupon codes found.</div>';
-        return;
-      }
-      
-      couponCards.innerHTML = '';
-      coupons.forEach(coupon => {
-        const card = document.createElement('div');
-        card.className = 'col-md-6 col-lg-6 mb-4';
-        
-        // Determine status
-        let statusClass = 'active';
-        let statusText = 'Active';
-        
-        if (!coupon.is_active) {
-          statusClass = 'inactive';
-          statusText = 'Inactive';
-        } else if (coupon.expires_at) {
-          const now = new Date();
-          const expiryDate = new Date(coupon.expires_at);
-          if (now > expiryDate) {
-            statusClass = 'expired';
-            statusText = 'Expired';
-          }
-        }
-        
-        // Format expiry date
-        const expiryDate = coupon.expires_at ? new Date(coupon.expires_at).toLocaleString() : 'No expiry';
-        
-        card.innerHTML = `
-          <div class="coupon-card">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <h5 class="mb-0 text-primary">${coupon.code}</h5>
-              <span class="coupon-status ${statusClass}">${statusText}</span>
-            </div>
-            <div class="mb-3">
-              <div class="row g-2 mb-2">
-                <div class="col-6"><strong>Discount:</strong> ${coupon.discount_percentage}%</div>
-                <div class="col-6"><strong>Created:</strong> ${new Date(coupon.created_at).toLocaleDateString()}</div>
-              </div>
-              ${coupon.description ? `<div class="mb-2"><strong>Description:</strong> ${coupon.description}</div>` : ''}
-              <div class="mb-2"><strong>Expires:</strong> ${expiryDate}</div>
-            </div>
-            <div class="d-flex justify-content-end">
-              <button class="btn btn-sm editCouponBtn" data-id="${coupon.id}" title="Edit Coupon" style="background: none; border: 1px solid gray; padding: 3px 6px; color: gray; box-shadow: none;">
-                <i class="fa fa-pencil" style="font-size: 14px;"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        
-        couponCards.appendChild(card);
-      });
-      
-      // Add edit button listeners
-      document.querySelectorAll('.editCouponBtn').forEach(btn => {
-        btn.addEventListener('click', async function () {
-          const couponId = btn.getAttribute('data-id');
-          let coupon = null;
-          try {
-            const res = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
-            if (res.ok) {
-              coupon = await res.json();
-            }
-          } catch (err) {
-            showAlert('Failed to load coupon data.', 'error');
-            return;
-          }
-          if (!coupon) {
-            showAlert('Coupon not found.', 'error');
-            return;
-          }
-          
-          // Fill edit form
-          editCouponForm.setAttribute('data-id', coupon.id);
-          editCouponForm.elements['code'].value = coupon.code;
-          editCouponForm.elements['discount_percentage'].value = coupon.discount_percentage;
-          editCouponForm.elements['description'].value = coupon.description || '';
-          editCouponForm.elements['is_active'].value = coupon.is_active;
-          editCouponForm.elements['expires_at'].value = coupon.expires_at ? coupon.expires_at.slice(0, 16) : '';
-          
-          addCouponPanel.classList.remove('active');
-          editCouponPanel.classList.add('active');
-          couponOverlay.classList.add('active');
-          lockBodyScroll();
-        });
-      });
-    } catch (err) {
-      couponCards.innerHTML = '<div class="alert alert-danger w-100">Failed to load coupons.</div>';
-    }
-  }
-  
-  // Edit coupon form submission
-  editCouponForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(editCouponForm);
-    const id = editCouponForm.getAttribute('data-id');
-    
-    const data = {
-      code: formData.get('code'),
-      discount_percentage: formData.get('discount_percentage'),
-      description: formData.get('description') || null,
-      expires_at: formData.get('expires_at') || null,
-      is_active: parseInt(formData.get('is_active'))
-    };
-    
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/coupons/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) {
-        showAlert('Coupon updated successfully!', 'success');
-        editCouponForm.reset();
-        editCouponPanel.classList.remove('active');
-        couponOverlay.classList.remove('active');
-        unlockBodyScroll();
-        loadCoupons();
-      } else {
-        const error = await response.json();
-        showAlert(error.error || 'Failed to update coupon.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error updating coupon.', 'error');
-    }
-  });
-  
-  // Delete coupon functionality
-  const deleteCouponBtn = document.getElementById('deleteCouponBtn');
-  let pendingDeleteCouponId = null;
-  
-  deleteCouponBtn.addEventListener('click', function() {
-    const couponId = editCouponForm.getAttribute('data-id');
-    if (!couponId) {
-      showAlert('No coupon selected for deletion.', 'error');
-      return;
-    }
-    
-    if (confirm('Are you sure you want to delete this coupon code? This action cannot be undone.')) {
-      deleteCoupon(couponId);
-    }
-  });
-  
-  async function deleteCoupon(couponId) {
-    try {
-      const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, { method: 'DELETE' });
-      if (response.ok) {
-        showAlert('Coupon deleted successfully!', 'success');
-        editCouponForm.reset();
-        editCouponPanel.classList.remove('active');
-        couponOverlay.classList.remove('active');
-        unlockBodyScroll();
-        loadCoupons();
-      } else {
-        showAlert('Failed to delete coupon.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error deleting coupon.', 'error');
-    }
-  }
-  
-  // Load coupons on page load
-  loadCoupons();
-});
-</script>

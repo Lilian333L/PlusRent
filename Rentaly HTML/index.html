@@ -1261,6 +1261,7 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
+    <script src="js/config.js"></script>
     <!-- Google Maps API removed to prevent errors -->
     <!-- i18next CDN -->
     <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
@@ -1352,7 +1353,14 @@
               return;
             }
             grid.innerHTML = cars.map(car => {
-              const isUnavailable = car.booked_until && !car.is_available;
+              // Check if car is unavailable (booked until a future date)
+              const isUnavailable = car.booked_until && (() => {
+                const bookedUntil = new Date(car.booked_until);
+                const now = new Date();
+                now.setHours(0, 0, 0, 0); // Compare dates only
+                return bookedUntil >= now; // Only unavailable if booked until today or future
+              })();
+              
               let badge = '';
               if (isUnavailable && car.booked_until) {
                 const d = new Date(car.booked_until);

@@ -368,7 +368,7 @@
   padding-right: 10px;
   margin-bottom: 24px;
   max-width: 320px;
-  flex: 1 1 260px;
+  flex: 0 1 260px;
   min-width: 240px;
 }
 .de-item.mb30 {
@@ -556,7 +556,15 @@ async function fetchAndRenderCars() {
     return;
   }
   carListDiv.innerHTML = cars.map(car => {
-    const isUnavailable = car.booked_until && !car.is_available;
+    // Check if car is unavailable (booked until a future date)
+    console.log(car.booked_until);
+    const isUnavailable = car.booked_until && (() => {
+      const bookedUntil = new Date(car.booked_until);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0); // Compare dates only
+      return bookedUntil >= now; // Only unavailable if booked until today or future
+    })();
+    
     let badge = '';
     if (isUnavailable && car.booked_until) {
       const d = new Date(car.booked_until);
@@ -737,6 +745,7 @@ document.getElementById('clear-filters-link').addEventListener('click', function
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
+    <script src="js/config.js"></script>
     <script>
     </script>
 </body>

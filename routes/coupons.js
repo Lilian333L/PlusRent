@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/database');
+const TelegramNotifier = require('../config/telegram');
 
 // Get all coupon codes
 router.get('/', (req, res) => {
@@ -42,13 +43,29 @@ router.post('/', (req, res) => {
   db.run(
     'INSERT INTO coupon_codes (code, discount_percentage, description, expires_at) VALUES (?, ?, ?, ?)',
     [code.toUpperCase(), discountValue, description || null, expires_at || null],
-    function (err) {
+    async function (err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
           return res.status(400).json({ error: 'Coupon code already exists' });
         }
         return res.status(500).json({ error: 'Database error' });
       }
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const couponData = {
+          code: code.toUpperCase(),
+          discount_percentage: discountValue,
+          description: description || null,
+          expires_at: expires_at || null,
+          is_active: true
+        };
+        await telegram.sendMessage(telegram.formatCouponAddedMessage(couponData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
       res.json({ success: true, id: this.lastID });
     }
   );
@@ -71,13 +88,29 @@ router.put('/:id', (req, res) => {
   db.run(
     'UPDATE coupon_codes SET code=?, discount_percentage=?, description=?, is_active=?, expires_at=? WHERE id=?',
     [code.toUpperCase(), discountValue, description || null, is_active ? 1 : 0, expires_at || null, id],
-    function (err) {
+    async function (err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
           return res.status(400).json({ error: 'Coupon code already exists' });
         }
         return res.status(500).json({ error: 'Database error' });
       }
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const couponData = {
+          code: code.toUpperCase(),
+          discount_percentage: discountValue,
+          description: description || null,
+          expires_at: expires_at || null,
+          is_active: is_active ? 1 : 0
+        };
+        await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
       res.json({ success: true });
     }
   );
@@ -87,10 +120,23 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
   
-  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], function (err) {
+  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
+    
+    // Send Telegram notification
+    try {
+      const telegram = new TelegramNotifier();
+      const couponData = {
+        code: 'DELETED',
+        discount_percentage: 0
+      };
+      await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
+    } catch (error) {
+      console.error('Error sending Telegram notification:', error);
+    }
+    
     res.json({ success: true });
   });
 });

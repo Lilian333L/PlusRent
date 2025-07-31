@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const { db } = require('../config/database');
+const TelegramNotifier = require('../config/telegram');
 
 // Multer storage config for car images
 const carImageStorage = multer.diskStorage({
@@ -192,10 +193,32 @@ router.post('/', async (req, res) => {
       rcaInsuranceValue,
       cascoInsuranceValue
     ],
-    function (err) {
+    async function (err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const carData = {
+          make_name,
+          model_name,
+          production_year,
+          gear_type,
+          fuel_type,
+          car_type,
+          num_doors,
+          num_passengers,
+          price_policy: pricePolicyStringified,
+          rca_insurance_price: rcaInsuranceValue,
+          casco_insurance_price: cascoInsuranceValue
+        };
+        await telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
       res.json({ success: true, id: this.lastID });
     }
   );
@@ -320,10 +343,31 @@ router.put('/:id', (req, res) => {
   db.run(
     `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
     updateParams,
-    function (err) {
+    async function (err) {
       if (err) {
         console.error('Database error in PUT /api/cars/:id:', err);
         return res.status(500).json({ error: 'Database error: ' + err.message });
+      }
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const carData = {
+          make_name,
+          model_name,
+          production_year,
+          gear_type,
+          fuel_type,
+          car_type,
+          num_doors,
+          num_passengers,
+          price_policy: pricePolicyStringified,
+          rca_insurance_price: rcaInsuranceValue,
+          casco_insurance_price: cascoInsuranceValue
+        };
+        await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
       }
       res.json({ success: true });
     }
@@ -344,9 +388,23 @@ router.delete('/:id', (req, res) => {
     }
     
     // Delete the car from database first
-    db.run('DELETE FROM cars WHERE id = ?', [id], function (dbErr) {
+    db.run('DELETE FROM cars WHERE id = ?', [id], async function (dbErr) {
       if (dbErr) {
         return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const carData = {
+          make_name: car.make_name,
+          model_name: car.model_name,
+          production_year: car.production_year,
+          car_type: car.car_type
+        };
+        await telegram.sendMessage(telegram.formatCarDeletedMessage(carData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
       }
       
       // Only after successful database deletion, delete all associated files and directory

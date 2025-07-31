@@ -54,11 +54,59 @@ function initializeDatabase() {
     db.run(`CREATE TABLE IF NOT EXISTS coupon_codes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       code TEXT UNIQUE NOT NULL,
-      discount_percentage REAL NOT NULL,
-      description TEXT,
-      is_active INTEGER DEFAULT 1,
+      discount_percentage INTEGER NOT NULL,
+      max_uses INTEGER DEFAULT NULL,
+      current_uses INTEGER DEFAULT 0,
+      valid_from DATETIME DEFAULT CURRENT_TIMESTAMP,
+      valid_until DATETIME DEFAULT NULL,
+      is_active BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+    
+    // Create bookings table
+    db.run(`CREATE TABLE IF NOT EXISTS bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      car_id INTEGER NOT NULL,
+      pickup_date TEXT NOT NULL,
+      pickup_time TEXT NOT NULL,
+      return_date TEXT NOT NULL,
+      return_time TEXT NOT NULL,
+      discount_code TEXT,
+      insurance_type TEXT NOT NULL,
+      pickup_location TEXT NOT NULL,
+      dropoff_location TEXT NOT NULL,
+      contact_person TEXT,
+      contact_phone TEXT,
+      special_instructions TEXT,
+      total_price REAL NOT NULL,
+      price_breakdown TEXT,
+      status TEXT DEFAULT 'pending',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      expires_at DATETIME
+      FOREIGN KEY (car_id) REFERENCES cars (id)
+    )`);
+
+    // Create booked_cars table for tracking active bookings with user info
+    db.run(`CREATE TABLE IF NOT EXISTS booked_cars (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      car_id INTEGER NOT NULL,
+      booking_id INTEGER NOT NULL,
+      customer_name TEXT NOT NULL,
+      customer_email TEXT NOT NULL,
+      customer_phone TEXT NOT NULL,
+      pickup_date TEXT NOT NULL,
+      pickup_time TEXT NOT NULL,
+      return_date TEXT NOT NULL,
+      return_time TEXT NOT NULL,
+      insurance_type TEXT NOT NULL,
+      pickup_location TEXT NOT NULL,
+      dropoff_location TEXT NOT NULL,
+      total_price REAL NOT NULL,
+      status TEXT DEFAULT 'active',
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (car_id) REFERENCES cars (id),
+      FOREIGN KEY (booking_id) REFERENCES bookings (id)
     )`);
 
     // Add columns to cars table if they don't exist (safe migration)
