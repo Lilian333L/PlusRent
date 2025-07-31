@@ -125,6 +125,7 @@ class PriceCalculator {
     // Calculate location fees for both pickup and dropoff
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
+    let dropoffLocation = "";
     
     if (pickupLocation === 'Chisinau Airport') {
       pickupLocationFee = 25;
@@ -654,10 +655,70 @@ class PriceCalculator {
 
   // Hide discount message
   hideDiscountMessage() {
-    const existingMessage = document.getElementById('discount-message');
-    if (existingMessage) {
-      existingMessage.remove();
+    const messageElement = document.getElementById('discount-message');
+    if (messageElement) {
+      messageElement.style.display = 'none';
     }
+  }
+
+  // Get total price for booking form
+  getTotalPrice() {
+    const pickupDate = document.getElementById('date-picker')?.value;
+    const returnDate = document.getElementById('date-picker-2')?.value;
+    const pickupTime = document.getElementById('pickup-time')?.value;
+    const returnTime = document.getElementById('collection-time')?.value;
+    const insuranceType = this.getSelectedRadioValue('insurance_type');
+    const pickupLocation = this.getSelectedRadioValue('pickup_location');
+    const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
+    const discountCode = document.querySelector('input[name="discount_code"]')?.value;
+
+    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !insuranceType || !pickupLocation || !dropoffLocation) {
+      return 0;
+    }
+
+    const rentalData = {
+      pickupDate,
+      returnDate,
+      pickupTime,
+      returnTime,
+      insuranceType,
+      pickupLocation,
+      dropoffLocation,
+      discountCode
+    };
+
+    const priceData = this.calculatePrice(rentalData);
+    return priceData.finalPrice;
+  }
+
+  // Get price breakdown for booking form
+  getPriceBreakdown() {
+    const pickupDate = document.getElementById('date-picker')?.value;
+    const returnDate = document.getElementById('date-picker-2')?.value;
+    const pickupTime = document.getElementById('pickup-time')?.value;
+    const returnTime = document.getElementById('collection-time')?.value;
+    const insuranceType = this.getSelectedRadioValue('insurance_type');
+    const pickupLocation = this.getSelectedRadioValue('pickup_location');
+    const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
+    const discountCode = document.querySelector('input[name="discount_code"]')?.value;
+
+    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !insuranceType || !pickupLocation || !dropoffLocation) {
+      return {};
+    }
+
+    const rentalData = {
+      pickupDate,
+      returnDate,
+      pickupTime,
+      returnTime,
+      insuranceType,
+      pickupLocation,
+      dropoffLocation,
+      discountCode
+    };
+
+    const priceData = this.calculatePrice(rentalData);
+    return priceData.breakdown;
   }
 
   // Get selected radio button value

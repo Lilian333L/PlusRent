@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -9,6 +10,7 @@ const { initializeDatabase } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
 const couponRoutes = require('./routes/coupons');
+const bookingRoutes = require('./routes/bookings');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -126,6 +128,7 @@ initializeDatabase();
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Test endpoint to check database connection
 app.get('/api/test', (req, res) => {
