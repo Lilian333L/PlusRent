@@ -575,11 +575,11 @@ async function fetchAndRenderCars() {
   }
   carListDiv.innerHTML = cars.map(car => {
     // Check if car is unavailable (booked until a future date)
-    console.log(car.booked_until);
     const isUnavailable = car.booked_until && (() => {
       const bookedUntil = new Date(car.booked_until);
       const now = new Date();
       now.setHours(0, 0, 0, 0); // Compare dates only
+      bookedUntil.setHours(0, 0, 0, 0); // Compare dates only
       return bookedUntil >= now; // Only unavailable if booked until today or future
     })();
     
@@ -588,7 +588,7 @@ async function fetchAndRenderCars() {
       const d = new Date(car.booked_until);
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-      badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until">UNAVAILABLE UNTIL ${formatted}</div>`;
+      badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until" data-i18n-date="${formatted}">UNAVAILABLE UNTIL ${formatted}</div>`;
     }
     return `
                                 <div class="col-xl-4 col-lg-6">
@@ -608,7 +608,7 @@ async function fetchAndRenderCars() {
                 <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
                 <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
                 <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="car_types.${car.car_type?.toLowerCase() || 'car'}">${car.car_type || '-'}</span></span>
                                                 </div>
               <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
               ${isUnavailable
@@ -621,6 +621,11 @@ async function fetchAndRenderCars() {
     `;
   }).join('');
   renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
+  
+  // Update i18n translations for dynamically added content
+  if (typeof updateContent === 'function') {
+    updateContent();
+  }
 }
 
 // Render sidebar options and attach event listeners
@@ -765,6 +770,20 @@ document.getElementById('clear-filters-link').addEventListener('click', function
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
     <script>
+      // Ensure i18n is properly initialized and update content
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait for i18n to be ready, then update content
+        if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+          updateContent();
+        } else {
+          // Wait a bit for i18n to initialize
+          setTimeout(function() {
+            if (typeof updateContent === 'function') {
+              updateContent();
+            }
+          }, 100);
+        }
+      });
     </script>
 </body>
 
