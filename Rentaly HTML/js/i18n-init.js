@@ -35,7 +35,15 @@ i18next
 function updateContent() {
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
-    var value = i18next.t(key);
+    var date = el.getAttribute('data-i18n-date');
+    
+    if (date) {
+      // Handle custom interpolation for unavailable badges
+      var value = i18next.t(key, { date: date });
+    } else {
+      var value = i18next.t(key);
+    }
+    
     if (el.childElementCount === 0) {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         el.setAttribute('placeholder', value);
@@ -53,6 +61,22 @@ function updateContent() {
       });
     }
   });
+  
+  // Handle dynamic car type translations
+  document.querySelectorAll('[data-i18n^="car_types."]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var value = i18next.t(key);
+    if (el.childElementCount === 0) {
+      el.innerHTML = value;
+    } else {
+      Array.from(el.childNodes).forEach(function(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          node.textContent = value;
+        }
+      });
+    }
+  });
+  
   updateLangPickerUI();
 }
 

@@ -19,6 +19,67 @@
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
     <style>
+      /* Autocomplete styles */
+      .autocomplete-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+      
+      .autocomplete-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+      
+      .autocomplete-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .autocomplete-item:hover {
+        background-color: #f5f5f5;
+      }
+      
+      .autocomplete-item.selected {
+        background-color: #007bff;
+        color: white;
+      }
+      
+      .autocomplete-highlight {
+        background-color: #ffeb3b;
+        font-weight: bold;
+        padding: 1px 2px;
+      }
+      
+      .autocomplete-input.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+      
+      .autocomplete-input.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+      }
+      
   .admin-main-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -655,7 +716,25 @@
   .coupon-status.expired {
     background: #fff3cd;
     color: #856404;
-}
+  }
+  
+  /* Language switcher styles */
+  .btn[data-lang].active {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    font-weight: 600;
+  }
+  
+  .btn[data-lang]:not(.active) {
+    background-color: white !important;
+    color: #007bff !important;
+    border-color: #007bff !important;
+  }
+  
+  .btn[data-lang]:not(.active):hover {
+    background-color: #f8f9fa !important;
+  }
 </style>
 
 <!-- Custom green for success alert and Booked checkbox styles -->
@@ -798,6 +877,9 @@
                   <button class="admin-tab-btn" data-tab="bookings">Manage Bookings</button>
                 </div>
                 
+                <!-- Language Switcher for Cars -->
+
+                
                 <!-- Cars Tab Content -->
                 <div id="cars-tab" class="admin-tab-content active">
                 <div class="admin-flex-row">
@@ -847,11 +929,17 @@
                           </div>
                           <div>
                             <label class="form-label">Make Name</label>
-                            <input type="text" name="make_name" class="form-control" required>
+                            <div class="autocomplete-container">
+                              <input type="text" id="add_make_name" name="make_name" class="form-control autocomplete-input" placeholder="Type to search..." required>
+                              <div class="autocomplete-dropdown" id="add_make_name_dropdown"></div>
+                            </div>
                           </div>
                           <div>
                             <label class="form-label">Model Name</label>
-                            <input type="text" name="model_name" class="form-control" required>
+                            <div class="autocomplete-container">
+                              <input type="text" id="add_model_name" name="model_name" class="form-control autocomplete-input" placeholder="Type to search..." required>
+                              <div class="autocomplete-dropdown" id="add_model_name_dropdown"></div>
+                            </div>
                           </div>
                           <div>
                             <label class="form-label">Production Year</label>
@@ -1028,11 +1116,15 @@
                           </div>
                           <div>
                             <label class="form-label">Make Name</label>
-                            <input type="text" name="make_name" class="form-control" required>
+                            <select name="make_name" class="form-control" required>
+                              <option value="">Select Make</option>
+                            </select>
                           </div>
                           <div>
                             <label class="form-label">Model Name</label>
-                            <input type="text" name="model_name" class="form-control" required>
+                            <select name="model_name" class="form-control" required>
+                              <option value="">Select Model</option>
+                            </select>
                           </div>
                           <div>
                             <label class="form-label">Production Year</label>
@@ -1712,7 +1804,7 @@
           return;
         }
         
-        carCards.innerHTML = cars.map(car => `
+                    carCards.innerHTML = cars.map(car => `
           <div class="col-md-6 col-lg-4">
             <div class="de-item">
               <div class="d-image">
@@ -1720,8 +1812,8 @@
               </div>
               <div class="d-info">
                 <div class="d-text">
-                  <h4>${car.make_name}</h4>
-                  <p>${car.model_name}</p>
+                  <h4>${formatDisplayText(car.make_name)}</h4>
+                                      <p>${formatDisplayText(car.model_name)}</p>
                   <div class="d-atr-group">
                     <span class="d-atr"><img src="images/icons/1-green.svg" alt=""> ${car.num_passengers || '-'}</span>
                     <span class="d-atr"><img src="images/icons/2-green.svg" alt=""> ${car.num_doors || '-'}</span>
@@ -1802,6 +1894,201 @@
 
     // Form Handlers
     function initializeCarForms() {
+      // Populate dropdown options
+      function populateDropdowns() {
+        // Production year dropdown (current year to 1990)
+        const productionYearSelects = document.querySelectorAll('select[name="production_year"]');
+        productionYearSelects.forEach(select => {
+          if (select.children.length === 0) {
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= 1990; year--) {
+              const option = document.createElement('option');
+              option.value = year;
+              option.textContent = year;
+              select.appendChild(option);
+            }
+          }
+        });
+
+        // Number of doors dropdown
+        const numDoorsSelects = document.querySelectorAll('select[name="num_doors"]');
+        numDoorsSelects.forEach(select => {
+          if (select.children.length === 0) {
+            for (let doors = 2; doors <= 5; doors++) {
+              const option = document.createElement('option');
+              option.value = doors;
+              option.textContent = doors;
+              select.appendChild(option);
+            }
+          }
+        });
+
+        // Number of passengers dropdown
+        const numPassengersSelects = document.querySelectorAll('select[name="num_passengers"]');
+        numPassengersSelects.forEach(select => {
+          if (select.children.length === 0) {
+            for (let passengers = 2; passengers <= 8; passengers++) {
+              const option = document.createElement('option');
+              option.value = passengers;
+              option.textContent = passengers;
+              select.appendChild(option);
+            }
+          }
+        });
+
+        // Populate car makes dropdown
+        const makeSelects = document.querySelectorAll('select[name="make_name"]');
+        makeSelects.forEach(select => {
+          if (select.children.length <= 1) { // Only has "Select Make" option
+            const makes = [
+              'bmw', 'mercedes', 'audi', 'volkswagen', 'toyota', 'honda', 'ford', 'chevrolet', 
+              'nissan', 'hyundai', 'kia', 'mazda', 'subaru', 'volvo', 'lexus', 'infiniti', 
+              'acura', 'buick', 'cadillac', 'chrysler', 'dodge', 'jeep', 'ram', 'gmc', 
+              'pontiac', 'saturn', 'oldsmobile', 'plymouth', 'eagle', 'tesla', 'ferrari', 
+              'lamborghini', 'porsche', 'maserati', 'aston_martin', 'bentley', 'rolls_royce', 
+              'mclaren', 'bugatti', 'koenigsegg', 'pagani', 'rimac', 'lotus', 'alpine', 
+              'caterham', 'ariel', 'noble', 'radical', 'ultima', 'zenvo', 'gumpert', 
+              'saleen', 'hennessey', 'callaway', 'ruf', 'techart', 'mansory', 'brabus', 
+              'alpina', 'hamann', 'hartge', 'ac_schnitzer', 'dinan', 'vorsteiner', 'hre', 
+              'adv_1', 'forgiato', 'vossen', 'rohana', 'titan7', 'volk', 'work', 'rays', 
+              'enkei', 'bbs', 'oz', 'ssr', 'weds', 'gram_lights', 'volk_racing', 
+              'work_emotion', 'volk_te37', 'volk_ce28', 'volk_re30', 'volk_gt_c', 
+              'volk_gt_n', 'volk_gt_v', 'volk_gt_u', 'volk_gt_f', 'volk_gt_m', 'volk_gt_s', 
+              'volk_gt_t', 'volk_gt_w', 'volk_gt_x', 'volk_gt_y', 'volk_gt_z'
+            ];
+            makes.forEach(makeKey => {
+              const option = document.createElement('option');
+              option.value = makeKey;
+              option.textContent = makeKey.toUpperCase().replace('_', ' ');
+              select.appendChild(option);
+            });
+          }
+        });
+
+        // Populate car models dropdown
+        const modelSelects = document.querySelectorAll('select[name="model_name"]');
+        modelSelects.forEach(select => {
+          if (select.children.length <= 1) { // Only has "Select Model" option
+            const models = [
+              'bmw_3_series', 'bmw_5_series', 'bmw_7_series', 'bmw_x3', 'bmw_x5', 'bmw_x7', 
+              'bmw_z4', 'bmw_m3', 'bmw_m5', 'bmw_m8', 'mercedes_c_class', 'mercedes_e_class', 
+              'mercedes_s_class', 'mercedes_gla', 'mercedes_glc', 'mercedes_gle', 'mercedes_gls', 
+              'mercedes_amg_gt', 'audi_a3', 'audi_a4', 'audi_a6', 'audi_a8', 'audi_q3', 
+              'audi_q5', 'audi_q7', 'audi_q8', 'audi_rs6', 'audi_rs7', 'volkswagen_golf', 
+              'volkswagen_passat', 'volkswagen_tiguan', 'volkswagen_atlas', 'volkswagen_id4', 
+              'toyota_camry', 'toyota_corolla', 'toyota_rav4', 'toyota_highlander', 'toyota_prius', 
+              'honda_civic', 'honda_accord', 'honda_crv', 'honda_pilot', 'ford_focus', 'ford_fusion', 
+              'ford_escape', 'ford_explorer', 'chevrolet_cruze', 'chevrolet_malibu', 'chevrolet_equinox', 
+              'chevrolet_tahoe', 'nissan_sentra', 'nissan_altima', 'nissan_rogue', 'nissan_murano', 
+              'hyundai_elantra', 'hyundai_sonata', 'hyundai_tucson', 'hyundai_santa_fe', 'kia_forte', 
+              'kia_optima', 'kia_sportage', 'kia_sorento', 'mazda_3', 'mazda_6', 'mazda_cx5', 
+              'mazda_cx9', 'subaru_impreza', 'subaru_legacy', 'subaru_forester', 'subaru_outback', 
+              'volvo_s60', 'volvo_s90', 'volvo_xc40', 'volvo_xc60', 'volvo_xc90', 'lexus_es', 
+              'lexus_ls', 'lexus_rx', 'lexus_nx', 'lexus_gx', 'lexus_lx', 'infiniti_q50', 
+              'infiniti_q70', 'infiniti_qx50', 'infiniti_qx60', 'acura_tlx', 'acura_rlx', 
+              'acura_rdx', 'acura_mdx', 'buick_regal', 'buick_lacrosse', 'buick_encore', 
+              'buick_enclave', 'cadillac_cts', 'cadillac_ct6', 'cadillac_xt4', 'cadillac_xt5', 
+              'cadillac_escalade', 'chrysler_300', 'chrysler_pacifica', 'dodge_charger', 
+              'dodge_challenger', 'dodge_durango', 'jeep_cherokee', 'jeep_grand_cherokee', 
+              'jeep_wrangler', 'ram_1500', 'ram_2500', 'ram_3500', 'gmc_terrain', 'gmc_acadia', 
+              'gmc_yukon', 'tesla_model_3', 'tesla_model_s', 'tesla_model_x', 'tesla_model_y', 
+              'ferrari_f8', 'ferrari_sf90', 'ferrari_roma', 'lamborghini_huracan', 'lamborghini_aventador', 
+              'lamborghini_urus', 'porsche_911', 'porsche_cayenne', 'porsche_macan', 'maserati_ghibli', 
+              'maserati_quattroporte', 'maserati_levante', 'aston_martin_db11', 'aston_martin_vantage', 
+              'aston_martin_dbs', 'bentley_continental', 'bentley_flying_spur', 'bentley_bentayga', 
+              'rolls_royce_phantom', 'rolls_royce_ghost', 'rolls_royce_cullinan', 'mclaren_720s', 
+              'mclaren_765lt', 'mclaren_artura', 'bugatti_chiron', 'bugatti_veyron', 'koenigsegg_jesko', 
+              'koenigsegg_regera', 'pagani_huayra', 'pagani_zonda', 'rimac_nevera', 'lotus_emira', 
+              'lotus_evija', 'alpine_a110', 'caterham_7', 'ariel_atom', 'noble_m600', 'radical_sr3', 
+              'ultima_evo', 'zenvo_ts1', 'gumpert_apollo', 'saleen_s7', 'hennessey_venom', 
+              'callaway_corvette', 'ruf_ctr', 'techart_gt_street', 'mansory_mercedes', 'brabus_mercedes', 
+              'alpina_bmw', 'hamann_bmw', 'hartge_bmw', 'ac_schnitzer_bmw', 'dinan_bmw', 'vorsteiner_bmw', 
+              'hre_wheels', 'adv_1_wheels', 'forgiato_wheels', 'vossen_wheels', 'rohana_wheels', 
+              'titan7_wheels', 'volk_wheels', 'work_wheels', 'rays_wheels', 'enkei_wheels', 
+              'bbs_wheels', 'oz_wheels', 'ssr_wheels', 'weds_wheels', 'gram_lights_wheels', 
+              'volk_racing_wheels', 'work_emotion_wheels', 'volk_te37_wheels', 'volk_ce28_wheels', 
+              'volk_re30_wheels', 'volk_gt_c_wheels', 'volk_gt_n_wheels', 'volk_gt_v_wheels', 
+              'volk_gt_u_wheels', 'volk_gt_f_wheels', 'volk_gt_m_wheels', 'volk_gt_s_wheels', 
+              'volk_gt_t_wheels', 'volk_gt_w_wheels', 'volk_gt_x_wheels', 'volk_gt_y_wheels', 
+              'volk_gt_z_wheels'
+            ];
+            models.forEach(modelKey => {
+              const option = document.createElement('option');
+              option.value = modelKey;
+              option.textContent = modelKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              select.appendChild(option);
+            });
+          }
+        });
+
+        // Populate exterior colors dropdown
+        const exteriorColorSelects = document.querySelectorAll('select[name="exterior_color"]');
+        exteriorColorSelects.forEach(select => {
+          if (select.children.length <= 1) { // Only has "Select Exterior Color" option
+            const colors = [
+              'white', 'black', 'silver', 'gray', 'red', 'blue', 'green', 'yellow', 'orange', 
+              'purple', 'brown', 'beige', 'gold', 'bronze', 'copper', 'chrome', 'matte_black', 
+              'matte_white', 'matte_gray', 'matte_red', 'matte_blue', 'matte_green', 'matte_yellow', 
+              'matte_orange', 'matte_purple', 'matte_brown', 'matte_beige', 'matte_gold', 
+              'matte_bronze', 'matte_copper', 'matte_chrome', 'pearl_white', 'pearl_black', 
+              'pearl_silver', 'pearl_gray', 'pearl_red', 'pearl_blue', 'pearl_green', 'pearl_yellow', 
+              'pearl_orange', 'pearl_purple', 'pearl_brown', 'pearl_beige', 'pearl_gold', 
+              'pearl_bronze', 'pearl_copper', 'pearl_chrome', 'metallic_white', 'metallic_black', 
+              'metallic_silver', 'metallic_gray', 'metallic_red', 'metallic_blue', 'metallic_green', 
+              'metallic_yellow', 'metallic_orange', 'metallic_purple', 'metallic_brown', 'metallic_beige', 
+              'metallic_gold', 'metallic_bronze', 'metallic_copper', 'metallic_chrome', 'candy_white', 
+              'candy_black', 'candy_silver', 'candy_gray', 'candy_red', 'candy_blue', 'candy_green', 
+              'candy_yellow', 'candy_orange', 'candy_purple', 'candy_brown', 'candy_beige', 'candy_gold', 
+              'candy_bronze', 'candy_copper', 'candy_chrome', 'chameleon_white', 'chameleon_black', 
+              'chameleon_silver', 'chameleon_gray', 'chameleon_red', 'chameleon_blue', 'chameleon_green', 
+              'chameleon_yellow', 'chameleon_orange', 'chameleon_purple', 'chameleon_brown', 'chameleon_beige', 
+              'chameleon_gold', 'chameleon_bronze', 'chameleon_copper', 'chameleon_chrome'
+            ];
+            colors.forEach(colorKey => {
+              const option = document.createElement('option');
+              option.value = colorKey;
+              option.textContent = colorKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              select.appendChild(option);
+            });
+          }
+        });
+
+        // Populate interior colors dropdown
+        const interiorColorSelects = document.querySelectorAll('select[name="interior_color"]');
+        interiorColorSelects.forEach(select => {
+          if (select.children.length <= 1) { // Only has "Select Interior Color" option
+            const colors = [
+              'white', 'black', 'silver', 'gray', 'red', 'blue', 'green', 'yellow', 'orange', 
+              'purple', 'brown', 'beige', 'gold', 'bronze', 'copper', 'chrome', 'matte_black', 
+              'matte_white', 'matte_gray', 'matte_red', 'matte_blue', 'matte_green', 'matte_yellow', 
+              'matte_orange', 'matte_purple', 'matte_brown', 'matte_beige', 'matte_gold', 
+              'matte_bronze', 'matte_copper', 'matte_chrome', 'pearl_white', 'pearl_black', 
+              'pearl_silver', 'pearl_gray', 'pearl_red', 'pearl_blue', 'pearl_green', 'pearl_yellow', 
+              'pearl_orange', 'pearl_purple', 'pearl_brown', 'pearl_beige', 'pearl_gold', 
+              'pearl_bronze', 'pearl_copper', 'pearl_chrome', 'metallic_white', 'metallic_black', 
+              'metallic_silver', 'metallic_gray', 'metallic_red', 'metallic_blue', 'metallic_green', 
+              'metallic_yellow', 'metallic_orange', 'metallic_purple', 'metallic_brown', 'metallic_beige', 
+              'metallic_gold', 'metallic_bronze', 'metallic_copper', 'metallic_chrome', 'candy_white', 
+              'candy_black', 'candy_silver', 'candy_gray', 'candy_red', 'candy_blue', 'candy_green', 
+              'candy_yellow', 'candy_orange', 'candy_purple', 'candy_brown', 'candy_beige', 'candy_gold', 
+              'candy_bronze', 'candy_copper', 'candy_chrome', 'chameleon_white', 'chameleon_black', 
+              'chameleon_silver', 'chameleon_gray', 'chameleon_red', 'chameleon_blue', 'chameleon_green', 
+              'chameleon_yellow', 'chameleon_orange', 'chameleon_purple', 'chameleon_brown', 'chameleon_beige', 
+              'chameleon_gold', 'chameleon_bronze', 'chameleon_copper', 'chameleon_chrome'
+            ];
+            colors.forEach(colorKey => {
+              const option = document.createElement('option');
+              option.value = colorKey;
+              option.textContent = colorKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              select.appendChild(option);
+            });
+          }
+        });
+      }
+
+      // Call populateDropdowns on page load
+      populateDropdowns();
+
       // Add Car Button
       const showAddCarBtn = document.getElementById('showAddCarBtn');
       const addCarPanel = document.getElementById('addCarPanel');
@@ -1837,6 +2124,8 @@
       // Edit Car Panel functionality
       const editCarPanel = document.getElementById('editCarPanel');
       const closeEditCarPanel = document.getElementById('closeEditCarPanel');
+      
+
       
       if (closeEditCarPanel) {
         closeEditCarPanel.addEventListener('click', () => {
@@ -1936,7 +2225,11 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                showCustomAlert('Error updating car: ' + error.error, 'error');
+                let errorMessage = 'Error updating car: ' + error.error;
+                if (error.missingFields && error.missingFields.length > 0) {
+                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                }
+                showCustomAlert(errorMessage, 'error');
               }
             } catch (error) {
               console.error('Error updating car:', error);
@@ -1960,7 +2253,11 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                showCustomAlert('Error updating car: ' + error.error, 'error');
+                let errorMessage = 'Error updating car: ' + error.error;
+                if (error.missingFields && error.missingFields.length > 0) {
+                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                }
+                showCustomAlert(errorMessage, 'error');
               }
             } catch (error) {
               console.error('Error updating car:', error);
@@ -2163,6 +2460,263 @@
             carData.engine_capacity = carData.engine_capacity || '';
           }
           
+                  // Convert display text back to raw keys for backend processing
+        if (carData.make_name && carData.make_name !== '') {
+          // Check if we have a stored raw value first
+          const makeInput = document.getElementById('add_make_name');
+          if (makeInput && makeInput.dataset.rawValue) {
+            carData.make_name = makeInput.dataset.rawValue;
+          } else {
+          const makeKeys = {
+            'BMW': 'bmw',
+            'MERCEDES': 'mercedes',
+            'AUDI': 'audi',
+            'VOLKSWAGEN': 'volkswagen',
+            'TOYOTA': 'toyota',
+            'HONDA': 'honda',
+            'FORD': 'ford',
+            'CHEVROLET': 'chevrolet',
+            'NISSAN': 'nissan',
+            'HYUNDAI': 'hyundai',
+            'KIA': 'kia',
+            'MAZDA': 'mazda',
+            'SUBARU': 'subaru',
+            'MITSUBISHI': 'mitsubishi',
+            'LEXUS': 'lexus',
+            'INFINITI': 'infiniti',
+            'ACURA': 'acura',
+            'BUICK': 'buick',
+            'CADILLAC': 'cadillac',
+            'CHRYSLER': 'chrysler',
+            'DODGE': 'dodge',
+            'JEEP': 'jeep',
+            'RAM': 'ram',
+            'GMC': 'gmc',
+            'PONTIAC': 'pontiac',
+            'SATURN': 'saturn',
+            'SCION': 'scion',
+            'VOLVO': 'volvo',
+            'SAAB': 'saab',
+            'ALFA ROMEO': 'alfa_romeo',
+            'FIAT': 'fiat',
+            'LANCIA': 'lancia',
+            'MASERATI': 'maserati',
+            'FERRARI': 'ferrari',
+            'LAMBORGHINI': 'lamborghini',
+            'BENTLEY': 'bentley',
+            'ROLLS ROYCE': 'rolls_royce',
+            'ASTON MARTIN': 'aston_martin',
+            'MCLAREN': 'mclaren',
+            'LOTUS': 'lotus',
+            'JAGUAR': 'jaguar',
+            'LAND ROVER': 'land_rover',
+            'MINI': 'mini',
+            'SMART': 'smart',
+            'OPEL': 'opel',
+            'PEUGEOT': 'peugeot',
+            'RENAULT': 'renault',
+            'CITROEN': 'citroen',
+            'SEAT': 'seat',
+            'SKODA': 'skoda'
+          };
+          carData.make_name = makeKeys[carData.make_name] || carData.make_name;
+          }
+        }
+        if (carData.model_name && carData.model_name !== '') {
+          // Check if we have a stored raw value first
+          const modelInput = document.getElementById('add_model_name');
+          if (modelInput && modelInput.dataset.rawValue) {
+            carData.model_name = modelInput.dataset.rawValue;
+          } else {
+          const modelKeys = {
+            '3 Series': '3_series',
+            '5 Series': '5_series',
+            'X3': 'x3',
+            'X5': 'x5',
+            'X7': 'x7',
+            'C Class': 'c_class',
+            'E Class': 'e_class',
+            'S Class': 's_class',
+            'GLC': 'glc',
+            'GLE': 'gle',
+            'A3': 'a3',
+            'A4': 'a4',
+            'A6': 'a6',
+            'Q3': 'q3',
+            'Q5': 'q5',
+            'Q7': 'q7',
+            'Golf': 'golf',
+            'Passat': 'passat',
+            'Tiguan': 'tiguan',
+            'Touareg': 'touareg',
+            'Camry': 'camry',
+            'Corolla': 'corolla',
+            'RAV4': 'rav4',
+            'Highlander': 'highlander',
+            'Civic': 'civic',
+            'Accord': 'accord',
+            'CR-V': 'cr_v',
+            'Pilot': 'pilot',
+            'Focus': 'focus',
+            'Fusion': 'fusion',
+            'Escape': 'escape',
+            'Explorer': 'explorer',
+            'Cruze': 'cruze',
+            'Malibu': 'malibu',
+            'Equinox': 'equinox',
+            'Traverse': 'traverse',
+            'Altima': 'altima',
+            'Maxima': 'maxima',
+            'Rogue': 'rogue',
+            'Murano': 'murano',
+            'Elantra': 'elantra',
+            'Sonata': 'sonata',
+            'Tucson': 'tucson',
+            'Santa Fe': 'santa_fe',
+            'Forte': 'forte',
+            'Optima': 'optima',
+            'Sportage': 'sportage',
+            'Sorento': 'sorento',
+            'Mazda3': 'mazda3',
+            'Mazda6': 'mazda6',
+            'CX-5': 'cx_5',
+            'CX-9': 'cx_9',
+            'Impreza': 'impreza',
+            'Legacy': 'legacy',
+            'Forester': 'forester',
+            'Outback': 'outback',
+            'Lancer': 'lancer',
+            'Outlander': 'outlander',
+            'ES': 'es',
+            'IS': 'is',
+            'RX': 'rx',
+            'NX': 'nx',
+            'Q50': 'q50',
+            'Q70': 'q70',
+            'QX50': 'qx50',
+            'QX60': 'qx60',
+            'TLX': 'tlx',
+            'RLX': 'rlx',
+            'RDX': 'rdx',
+            'MDX': 'mdx',
+            'LaCrosse': 'lacrosse',
+            'Enclave': 'enclave',
+            'ATS': 'ats',
+            'CTS': 'cts',
+            'XT5': 'xt5',
+            'Escalade': 'escalade',
+            '300': '300',
+            'Charger': 'charger',
+            'Challenger': 'challenger',
+            'Grand Cherokee': 'grand_cherokee',
+            'Wrangler': 'wrangler',
+            '1500': '1500',
+            'Acadia': 'acadia',
+            'Yukon': 'yukon',
+            'G6': 'g6',
+            'Aura': 'aura',
+            'tC': 'tc',
+            'S60': 's60',
+            'S90': 's90',
+            'XC60': 'xc60',
+            'XC90': 'xc90',
+            '9-3': '9_3',
+            '9-5': '9_5',
+            'Giulia': 'giulia',
+            'Stelvio': 'stelvio',
+            '500': '500',
+            'Delta': 'delta',
+            'Ghibli': 'ghibli',
+            'Levante': 'levante',
+            '488': '488',
+            'F8': 'f8',
+            'Huracan': 'huracan',
+            'Aventador': 'aventador',
+            'Continental': 'continental',
+            'Flying Spur': 'flying_spur',
+            'Phantom': 'phantom',
+            'Ghost': 'ghost',
+            'DB11': 'db11',
+            'Vantage': 'vantage',
+            '720S': '720s',
+            '570S': '570s',
+            'Elise': 'elise',
+            'Evora': 'evora',
+            'XE': 'xe',
+            'XF': 'xf',
+            'F-Pace': 'f_pace',
+            'Range Rover': 'range_rover',
+            'Discovery': 'discovery',
+            'Cooper': 'cooper',
+            'Countryman': 'countryman',
+            'Fortwo': 'fortwo',
+            'Astra': 'astra',
+            'Insignia': 'insignia',
+            '308': '308',
+            '508': '508',
+            'Clio': 'clio',
+            'Megane': 'megane',
+            'C3': 'c3',
+            'C5': 'c5',
+            'Leon': 'leon',
+            'Ibiza': 'ibiza',
+            'Octavia': 'octavia',
+            'Superb': 'superb'
+          };
+          carData.model_name = modelKeys[carData.model_name] || carData.model_name;
+          }
+        }
+        if (carData.exterior_color && carData.exterior_color !== '') {
+          // Check if we have a stored raw value first
+          const exteriorColorInput = document.getElementById('add_exterior_color');
+          if (exteriorColorInput && exteriorColorInput.dataset.rawValue) {
+            carData.exterior_color = exteriorColorInput.dataset.rawValue;
+          } else {
+          const colorKeys = {
+            'White': 'white',
+            'Black': 'black',
+            'Silver': 'silver',
+            'Gray': 'gray',
+            'Red': 'red',
+            'Blue': 'blue',
+            'Green': 'green',
+            'Yellow': 'yellow',
+            'Orange': 'orange',
+            'Purple': 'purple',
+            'Pink': 'pink',
+            'Brown': 'brown',
+            'Beige': 'beige',
+            'Gold': 'gold',
+            'Bronze': 'bronze',
+            'Pearl White': 'pearl_white',
+            'Metallic Black': 'metallic_black',
+            'Metallic Silver': 'metallic_silver',
+            'Metallic Gray': 'metallic_gray',
+            'Metallic Red': 'metallic_red',
+            'Metallic Blue': 'metallic_blue',
+            'Metallic Green': 'metallic_green',
+            'Metallic Yellow': 'metallic_yellow',
+            'Metallic Orange': 'metallic_orange',
+            'Metallic Purple': 'metallic_purple',
+            'Metallic Pink': 'metallic_pink',
+            'Metallic Brown': 'metallic_brown',
+            'Metallic Beige': 'metallic_beige',
+            'Metallic Gold': 'metallic_gold',
+            'Metallic Bronze': 'metallic_bronze'
+          };
+          carData.exterior_color = colorKeys[carData.exterior_color] || carData.exterior_color;
+          }
+        }
+        if (carData.interior_color && carData.interior_color !== '') {
+          // Check if we have a stored raw value first
+          const interiorColorInput = document.getElementById('add_interior_color');
+          if (interiorColorInput && interiorColorInput.dataset.rawValue) {
+            carData.interior_color = interiorColorInput.dataset.rawValue;
+          } else {
+            carData.interior_color = colorKeys[carData.interior_color] || carData.interior_color;
+          }
+        }
+          
           // Handle image uploads if files are selected
           const headImageFile = document.getElementById('addHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('addGalleryImagesInput').files);
@@ -2202,7 +2756,11 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                showCustomAlert('Error adding car: ' + error.error, 'error');
+                let errorMessage = 'Error adding car: ' + error.error;
+                if (error.missingFields && error.missingFields.length > 0) {
+                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                }
+                showCustomAlert(errorMessage, 'error');
               }
             } catch (error) {
               console.error('Error adding car:', error);
@@ -2226,7 +2784,11 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                showCustomAlert('Error adding car: ' + error.error, 'error');
+                let errorMessage = 'Error adding car: ' + error.error;
+                if (error.missingFields && error.missingFields.length > 0) {
+                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                }
+                showCustomAlert(errorMessage, 'error');
               }
             } catch (error) {
               console.error('Error adding car:', error);
@@ -2320,42 +2882,70 @@
         if (!editForm) return;
         
         // Fill in all the form fields
-        editForm.querySelector('input[name="make_name"]').value = car.make_name || '';
-        editForm.querySelector('input[name="model_name"]').value = car.model_name || '';
-        editForm.querySelector('select[name="production_year"]').value = car.production_year || '';
-        editForm.querySelector('select[name="gear_type"]').value = car.gear_type || '';
-        editForm.querySelector('select[name="fuel_type"]').value = car.fuel_type || '';
-        editForm.querySelector('input[name="engine_capacity"]').value = car.engine_capacity || '';
-        editForm.querySelector('select[name="car_type"]').value = car.car_type || '';
-        editForm.querySelector('select[name="num_doors"]').value = car.num_doors || '';
-        editForm.querySelector('select[name="num_passengers"]').value = car.num_passengers || '';
+        const makeInput = editForm.querySelector('input[name="make_name"]');
+        const modelInput = editForm.querySelector('input[name="model_name"]');
+        const productionYearSelect = editForm.querySelector('select[name="production_year"]');
+        const gearTypeSelect = editForm.querySelector('select[name="gear_type"]');
+        const fuelTypeSelect = editForm.querySelector('select[name="fuel_type"]');
+        const engineCapacityInput = editForm.querySelector('input[name="engine_capacity"]');
+        const carTypeSelect = editForm.querySelector('select[name="car_type"]');
+        const numDoorsSelect = editForm.querySelector('select[name="num_doors"]');
+        const numPassengersSelect = editForm.querySelector('select[name="num_passengers"]');
+        
+        if (makeInput) makeInput.value = car.make_name || '';
+        if (modelInput) modelInput.value = car.model_name || '';
+        if (productionYearSelect) productionYearSelect.value = car.production_year || '';
+        if (gearTypeSelect) gearTypeSelect.value = car.gear_type || '';
+        if (fuelTypeSelect) fuelTypeSelect.value = car.fuel_type || '';
+        if (engineCapacityInput) engineCapacityInput.value = car.engine_capacity || '';
+        if (carTypeSelect) carTypeSelect.value = car.car_type || '';
+        if (numDoorsSelect) numDoorsSelect.value = car.num_doors || '';
+        if (numPassengersSelect) numPassengersSelect.value = car.num_passengers || '';
         
         // Fill in price policy fields
         if (car.price_policy) {
-          editForm.querySelector('input[name="price_1_2"]').value = car.price_policy['1-2'] || '';
-          editForm.querySelector('input[name="price_3_7"]').value = car.price_policy['3-7'] || '';
-          editForm.querySelector('input[name="price_8_20"]').value = car.price_policy['8-20'] || '';
-          editForm.querySelector('input[name="price_21_45"]').value = car.price_policy['21-45'] || '';
-          editForm.querySelector('input[name="price_46"]').value = car.price_policy['46+'] || '';
+          const price1_2Input = editForm.querySelector('input[name="price_1_2"]');
+          const price3_7Input = editForm.querySelector('input[name="price_3_7"]');
+          const price8_20Input = editForm.querySelector('input[name="price_8_20"]');
+          const price21_45Input = editForm.querySelector('input[name="price_21_45"]');
+          const price46Input = editForm.querySelector('input[name="price_46"]');
+          
+          if (price1_2Input) price1_2Input.value = car.price_policy['1-2'] || '';
+          if (price3_7Input) price3_7Input.value = car.price_policy['3-7'] || '';
+          if (price8_20Input) price8_20Input.value = car.price_policy['8-20'] || '';
+          if (price21_45Input) price21_45Input.value = car.price_policy['21-45'] || '';
+          if (price46Input) price46Input.value = car.price_policy['46+'] || '';
         }
         
         // Fill in additional specifications
-        editForm.querySelector('input[name="luggage"]').value = car.luggage || '';
-        editForm.querySelector('input[name="mileage"]').value = car.mileage || '';
-        editForm.querySelector('select[name="drive"]').value = car.drive || '';
-        editForm.querySelector('input[name="fuel_economy"]').value = car.fuel_economy || '';
-        editForm.querySelector('input[name="exterior_color"]').value = car.exterior_color || '';
-        editForm.querySelector('input[name="interior_color"]').value = car.interior_color || '';
-        editForm.querySelector('input[name="rca_insurance_price"]').value = car.rca_insurance_price || '';
-        editForm.querySelector('input[name="casco_insurance_price"]').value = car.casco_insurance_price || '';
+        const luggageInput = editForm.querySelector('input[name="luggage"]');
+        const mileageInput = editForm.querySelector('input[name="mileage"]');
+        const driveSelect = editForm.querySelector('select[name="drive"]');
+        const fuelEconomyInput = editForm.querySelector('input[name="fuel_economy"]');
+        const exteriorColorInput = editForm.querySelector('input[name="exterior_color"]');
+        const interiorColorInput = editForm.querySelector('input[name="interior_color"]');
+        const rcaInsuranceInput = editForm.querySelector('input[name="rca_insurance_price"]');
+        const cascoInsuranceInput = editForm.querySelector('input[name="casco_insurance_price"]');
+        
+        if (luggageInput) luggageInput.value = car.luggage || '';
+        if (mileageInput) mileageInput.value = car.mileage || '';
+        if (driveSelect) driveSelect.value = car.drive || '';
+        if (fuelEconomyInput) fuelEconomyInput.value = car.fuel_economy || '';
+        if (exteriorColorInput) exteriorColorInput.value = car.exterior_color || '';
+        if (interiorColorInput) interiorColorInput.value = car.interior_color || '';
+        if (rcaInsuranceInput) rcaInsuranceInput.value = car.rca_insurance_price || '';
+        if (cascoInsuranceInput) cascoInsuranceInput.value = car.casco_insurance_price || '';
         
         // Handle booked_until date
-        if (car.booked_until) {
-          const date = new Date(car.booked_until);
-          const dateString = date.toISOString().split('T')[0];
-          editForm.querySelector('input[name="booked_until"]').value = dateString;
-        } else {
-          editForm.querySelector('input[name="booked_until"]').value = '';
+        const bookedUntilInput = editForm.querySelector('input[name="booked_until"]');
+        if (bookedUntilInput) {
+          if (car.booked_until) {
+            const date = new Date(car.booked_until);
+            const dateString = date.toISOString().split('T')[0];
+            bookedUntilInput.value = dateString;
+          } else {
+            bookedUntilInput.value = '';
+          }
         }
         
         // Show current images if they exist
@@ -2441,6 +3031,249 @@
         }
       }
     }
+
+
+    </script>
+    
+            <!-- Global formatting function -->
+        <script>
+            // Global formatting function
+            function formatDisplayText(rawKey) {
+              if (!rawKey) return '';
+              return rawKey
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+            }
+        </script>
+        
+        <!-- Autocomplete functionality -->
+        <script>
+            // Initialize autocomplete functionality
+            function initializeAutocomplete() {
+          // Data for autocomplete
+          const makes = [
+            'bmw', 'mercedes', 'audi', 'volkswagen', 'toyota', 'honda', 'ford', 'chevrolet', 
+            'nissan', 'hyundai', 'kia', 'mazda', 'subaru', 'volvo', 'lexus', 'infiniti', 
+            'acura', 'buick', 'cadillac', 'chrysler', 'dodge', 'jeep', 'ram', 'gmc', 
+            'pontiac', 'saturn', 'oldsmobile', 'plymouth', 'eagle', 'tesla', 'ferrari', 
+            'lamborghini', 'porsche', 'maserati', 'aston_martin', 'bentley', 'rolls_royce', 
+            'mclaren', 'bugatti', 'koenigsegg', 'pagani', 'rimac', 'lotus', 'alpine', 
+            'caterham', 'ariel', 'noble', 'radical', 'ultima', 'zenvo', 'gumpert', 
+            'saleen', 'hennessey', 'callaway', 'ruf', 'techart', 'mansory', 'brabus', 
+            'alpina', 'hamann', 'hartge', 'ac_schnitzer', 'dinan', 'vorsteiner', 'hre', 
+            'adv_1', 'forgiato', 'vossen', 'rohana', 'titan7', 'volk', 'work', 'rays', 
+            'enkei', 'bbs', 'oz', 'ssr', 'weds', 'gram_lights', 'volk_racing', 
+            'work_emotion', 'volk_te37', 'volk_ce28', 'volk_re30', 'volk_gt_c', 
+            'volk_gt_n', 'volk_gt_v', 'volk_gt_u', 'volk_gt_f', 'volk_gt_m', 'volk_gt_s', 
+            'volk_gt_t', 'volk_gt_w', 'volk_gt_x', 'volk_gt_y', 'volk_gt_z'
+          ];
+          
+          const models = [
+            '3_series', '5_series', 'x3', 'x5', 'x7', 'z4', 'm3', 'm5', 'm8',
+            'c_class', 'e_class', 's_class', 'gla', 'glc', 'gle', 'gls', 'amg_gt',
+            'a3', 'a4', 'a6', 'a8', 'q3', 'q5', 'q7', 'q8', 'rs6', 'rs7',
+            'golf', 'passat', 'tiguan', 'atlas', 'id4',
+            'camry', 'corolla', 'rav4', 'highlander', 'prius',
+            'civic', 'accord', 'cr_v', 'pilot',
+            'focus', 'fusion', 'escape', 'explorer',
+            'cruze', 'malibu', 'equinox', 'tahoe',
+            'sentra', 'altima', 'rogue', 'murano',
+            'elantra', 'sonata', 'tucson', 'santa_fe',
+            'forte', 'optima', 'sportage', 'sorento',
+            'mazda3', 'mazda6', 'cx5', 'cx9',
+            'impreza', 'legacy', 'forester', 'outback',
+            's60', 's90', 'xc40', 'xc60', 'xc90',
+            'es', 'ls', 'rx', 'nx', 'gx', 'lx',
+            'q50', 'q70', 'qx50', 'qx60',
+            'tlx', 'rlx', 'rdx', 'mdx',
+            'regal', 'lacrosse', 'encore', 'enclave',
+            'cts', 'ct6', 'xt4', 'xt5', 'escalade',
+            '300', 'pacifica', 'charger', 'challenger', 'durango',
+            'cherokee', 'grand_cherokee', 'wrangler',
+            '1500', '2500', '3500', 'terrain', 'acadia', 'yukon',
+            'model_3', 'model_s', 'model_x', 'model_y',
+            'f8', 'sf90', 'roma', 'huracan', 'aventador', 'urus',
+            '911', 'cayenne', 'macan', 'ghibli', 'quattroporte', 'levante',
+            'db11', 'vantage', 'dbs', 'continental', 'flying_spur', 'bentayga',
+            'phantom', 'ghost', 'cullinan', '720s', '765lt', 'artura',
+            'chiron', 'veyron', 'jesko', 'regera', 'huayra', 'zonda',
+            'nevera', 'emira', 'evija', 'a110', 'seven', 'atom', 'm600',
+            'sr3', 'evo', 'ts1', 'apollo', 's7', 'venom', 'corvette',
+            'ctr', 'gt_street', 'mercedes', 'bmw', 'wheels'
+          ];
+          
+          const colors = [
+            'white', 'black', 'silver', 'gray', 'red', 'blue', 'green', 'yellow', 'orange', 
+            'purple', 'brown', 'beige', 'gold', 'bronze', 'copper', 'chrome', 'matte_black', 
+            'matte_white', 'matte_gray', 'matte_red', 'matte_blue', 'matte_green', 'matte_yellow', 
+            'matte_orange', 'matte_purple', 'matte_brown', 'matte_beige', 'matte_gold', 
+            'matte_bronze', 'matte_copper', 'matte_chrome', 'pearl_white', 'pearl_black', 
+            'pearl_silver', 'pearl_gray', 'pearl_red', 'pearl_blue', 'pearl_green', 'pearl_yellow', 
+            'pearl_orange', 'pearl_purple', 'pearl_brown', 'pearl_beige', 'pearl_gold', 
+            'pearl_bronze', 'pearl_copper', 'pearl_chrome', 'metallic_white', 'metallic_black', 
+            'metallic_silver', 'metallic_gray', 'metallic_red', 'metallic_blue', 'metallic_green', 
+            'metallic_yellow', 'metallic_orange', 'metallic_purple', 'metallic_brown', 'metallic_beige', 
+            'metallic_gold', 'metallic_bronze', 'metallic_copper', 'metallic_chrome', 'candy_white', 
+            'candy_black', 'candy_silver', 'candy_gray', 'candy_red', 'candy_blue', 'candy_green', 
+            'candy_yellow', 'candy_orange', 'candy_purple', 'candy_brown', 'candy_beige', 'candy_gold', 
+            'candy_bronze', 'candy_copper', 'candy_chrome', 'chameleon_white', 'chameleon_black', 
+            'chameleon_silver', 'chameleon_gray', 'chameleon_red', 'chameleon_blue', 'chameleon_green', 
+            'chameleon_yellow', 'chameleon_orange', 'chameleon_purple', 'chameleon_brown', 'chameleon_beige', 
+            'chameleon_gold', 'chameleon_bronze', 'chameleon_copper', 'chameleon_chrome'
+          ];
+          
+          // Function to create autocomplete
+          function createAutocomplete(inputId, dropdownId, options) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            
+            if (!input || !dropdown) return;
+            
+            let selectedIndex = -1;
+            
+            function filterOptions(query) {
+              return options.filter(option => 
+                option.toLowerCase().includes(query.toLowerCase())
+              );
+            }
+            
+            function highlightMatch(text, query) {
+              const regex = new RegExp(`(${query})`, 'gi');
+              return text.replace(regex, '<span class="autocomplete-highlight">$1</span>');
+            }
+            
+
+            
+            function showDropdown(filteredOptions) {
+              dropdown.innerHTML = '';
+              
+              if (filteredOptions.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+              }
+              
+              filteredOptions.forEach((option, index) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                
+                // Format display text using the new function
+                const displayText = formatDisplayText(option);
+                
+                item.innerHTML = highlightMatch(displayText, input.value);
+                item.dataset.value = option;
+                
+                item.addEventListener('click', () => {
+                  // Set the formatted display text for user experience
+                  input.value = displayText;
+                  // Store the raw key in a data attribute for validation
+                  input.dataset.rawValue = option;
+                  dropdown.style.display = 'none';
+                  selectedIndex = -1;
+                  input.classList.remove('is-invalid'); // Clear any error state
+                  input.classList.add('is-valid'); // Mark as valid
+                });
+                
+                item.addEventListener('mouseenter', () => {
+                  selectedIndex = index;
+                  updateSelection();
+                });
+                
+                dropdown.appendChild(item);
+              });
+              
+              dropdown.style.display = 'block';
+              selectedIndex = -1;
+              updateSelection();
+            }
+            
+            function updateSelection() {
+              const items = dropdown.querySelectorAll('.autocomplete-item');
+              items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+              });
+            }
+            
+            function hideDropdown() {
+              dropdown.style.display = 'none';
+              selectedIndex = -1;
+            }
+            
+            // Event listeners
+            input.addEventListener('input', (e) => {
+              const query = e.target.value;
+              const filteredOptions = filterOptions(query);
+              showDropdown(filteredOptions);
+              
+              // Don't validate during typing - let user type freely
+              // Validation will happen on blur or form submission
+            });
+            
+            input.addEventListener('keydown', (e) => {
+              const items = dropdown.querySelectorAll('.autocomplete-item');
+              
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection();
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+              } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                  input.value = items[selectedIndex].dataset.value;
+                  hideDropdown();
+                }
+              } else if (e.key === 'Escape') {
+                hideDropdown();
+              }
+            });
+            
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                hideDropdown();
+              }
+            });
+            
+            // Add validation on blur
+            input.addEventListener('blur', () => {
+              setTimeout(() => {
+                const currentValue = input.value;
+                const rawValue = input.dataset.rawValue;
+                
+                // Check if the value is a valid option (either exact match or has stored raw value)
+                const isValid = options.includes(currentValue) || (rawValue && options.includes(rawValue));
+                
+                if (currentValue && !isValid) {
+                  // Only clear if it's not a valid option and not empty
+                  input.value = '';
+                  delete input.dataset.rawValue;
+                  input.classList.add('is-invalid');
+                  input.classList.remove('is-valid');
+                } else if (currentValue && isValid) {
+                  input.classList.remove('is-invalid');
+                  input.classList.add('is-valid');
+                } else {
+                  input.classList.remove('is-invalid', 'is-valid');
+                }
+              }, 200);
+            });
+          }
+          
+          // Initialize autocomplete for each field
+          createAutocomplete('add_make_name', 'add_make_name_dropdown', makes);
+          createAutocomplete('add_model_name', 'add_model_name_dropdown', models);
+          createAutocomplete('add_exterior_color', 'add_exterior_color_dropdown', colors);
+          createAutocomplete('add_interior_color', 'add_interior_color_dropdown', colors);
+        }
+        
+        // Initialize autocomplete when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          initializeAutocomplete();
+        });
     </script>
 </body>
 

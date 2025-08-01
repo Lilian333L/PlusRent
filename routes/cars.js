@@ -128,21 +128,59 @@ router.post('/', async (req, res) => {
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
 
-  if (
-    !make_name ||
-    !model_name ||
-    !production_year ||
-    !gear_type ||
-    !fuel_type ||
-    (!isElectric && !engine_capacity) ||
-    !car_type ||
-    !num_doors ||
-    !num_passengers ||
-    !price_policy ||
-    !rca_insurance_price ||
-    !casco_insurance_price
-  ) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  // Check all required fields that match frontend validation
+  const requiredFields = {
+    make_name: 'Make Name',
+    model_name: 'Model Name', 
+    production_year: 'Production Year',
+    gear_type: 'Gear Type',
+    fuel_type: 'Fuel Type',
+    car_type: 'Car Type',
+    num_doors: 'Number of Doors',
+    num_passengers: 'Number of Passengers',
+    rca_insurance_price: 'RCA Insurance Price',
+    casco_insurance_price: 'Casco Insurance Price'
+  };
+
+  // Check price policy fields
+  const requiredPriceFields = {
+    '1-2': 'Price 1-2 days',
+    '3-7': 'Price 3-7 days', 
+    '8-20': 'Price 8-20 days',
+    '21-45': 'Price 21-45 days',
+    '46+': 'Price 46+ days'
+  };
+
+  const missingFields = [];
+
+  // Check basic required fields
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (!req.body[field] || req.body[field].toString().trim() === '') {
+      missingFields.push(label);
+    }
+  }
+
+  // Check price policy fields
+  if (!price_policy) {
+    missingFields.push('Price Policy');
+  } else {
+    for (const [key, label] of Object.entries(requiredPriceFields)) {
+      if (!price_policy[key] || price_policy[key].toString().trim() === '') {
+        missingFields.push(label);
+      }
+    }
+  }
+
+  // Check engine capacity for non-electric cars
+  if (!isElectric && (!engine_capacity || engine_capacity.toString().trim() === '')) {
+    missingFields.push('Engine Capacity');
+  }
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({ 
+      error: 'Missing required fields',
+      missingFields: missingFields
+    });
   }
 
   let engineCapacityValue = null;
@@ -254,21 +292,59 @@ router.put('/:id', (req, res) => {
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
 
-  if (
-    !make_name ||
-    !model_name ||
-    !production_year ||
-    !gear_type ||
-    !fuel_type ||
-    (!isElectric && engine_capacity === undefined) ||
-    !car_type ||
-    !num_doors ||
-    !num_passengers ||
-    !price_policy ||
-    !rca_insurance_price ||
-    !casco_insurance_price
-  ) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  // Check all required fields that match frontend validation
+  const requiredFields = {
+    make_name: 'Make Name',
+    model_name: 'Model Name', 
+    production_year: 'Production Year',
+    gear_type: 'Gear Type',
+    fuel_type: 'Fuel Type',
+    car_type: 'Car Type',
+    num_doors: 'Number of Doors',
+    num_passengers: 'Number of Passengers',
+    rca_insurance_price: 'RCA Insurance Price',
+    casco_insurance_price: 'Casco Insurance Price'
+  };
+
+  // Check price policy fields
+  const requiredPriceFields = {
+    '1-2': 'Price 1-2 days',
+    '3-7': 'Price 3-7 days', 
+    '8-20': 'Price 8-20 days',
+    '21-45': 'Price 21-45 days',
+    '46+': 'Price 46+ days'
+  };
+
+  const missingFields = [];
+
+  // Check basic required fields
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (!req.body[field] || req.body[field].toString().trim() === '') {
+      missingFields.push(label);
+    }
+  }
+
+  // Check price policy fields
+  if (!price_policy) {
+    missingFields.push('Price Policy');
+  } else {
+    for (const [key, label] of Object.entries(requiredPriceFields)) {
+      if (!price_policy[key] || price_policy[key].toString().trim() === '') {
+        missingFields.push(label);
+      }
+    }
+  }
+
+  // Check engine capacity for non-electric cars
+  if (!isElectric && (!engine_capacity || engine_capacity.toString().trim() === '')) {
+    missingFields.push('Engine Capacity');
+  }
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({ 
+      error: 'Missing required fields',
+      missingFields: missingFields
+    });
   }
 
   let engineCapacityValue = null;
