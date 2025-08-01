@@ -259,6 +259,8 @@ router.post('/', async (req, res) => {
     async function (err) {
       if (err) {
         console.error('Database error details:', err);
+        console.error('Error code:', err.code);
+        console.error('Error message:', err.message);
         return res.status(500).json({ error: 'Database error', details: err.message });
       }
       
