@@ -329,23 +329,33 @@ router.put('/:id/reject', (req, res) => {
   const bookingId = req.params.id;
   const { reason } = req.body;
   
+  console.log('🔍 Debug: Rejecting booking ID:', bookingId);
+  console.log('🔍 Debug: Reason:', reason);
+  
   db.get('SELECT * FROM bookings WHERE id = ?', [bookingId], (err, booking) => {
     if (err) {
+      console.error('❌ Database error in reject:', err);
       return res.status(500).json({ error: 'Database error' });
     }
     if (!booking) {
+      console.log('❌ Booking not found:', bookingId);
       return res.status(404).json({ error: 'Booking not found' });
     }
+    console.log('🔍 Debug: Found booking:', booking);
+    
     if (booking.status !== 'pending') {
+      console.log('❌ Booking not pending, status:', booking.status);
       return res.status(400).json({ error: 'Booking is not pending confirmation' });
     }
 
     // Update booking status to cancelled
     db.run('UPDATE bookings SET status = ? WHERE id = ?', ['cancelled', bookingId], function(err) {
       if (err) {
+        console.error('❌ Error updating booking status:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-
+      
+      console.log('✅ Booking rejected successfully');
       res.json({ 
         success: true, 
         message: 'Booking rejected successfully',

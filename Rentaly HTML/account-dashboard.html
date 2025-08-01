@@ -565,6 +565,75 @@
     border: 1px solid #e0e0e0;
   }
   
+  /* Booking Card Animation Styles */
+  .booking-card {
+    transition: all 0.3s ease;
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  .booking-card.approving {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    transform: scale(1.02);
+  }
+  
+  .booking-card.rejecting {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    transform: scale(1.02);
+  }
+  
+  .booking-card.slide-out {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  
+  .booking-card.fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  
+  /* Button Animation Styles */
+  .btn-approve, .btn-reject {
+    transition: all 0.2s ease;
+  }
+  
+  .btn-approve:active {
+    transform: scale(0.95);
+    background: #28a745 !important;
+  }
+  
+  .btn-reject:active {
+    transform: scale(0.95);
+    background: #dc3545 !important;
+  }
+  
+  /* Loading Animation */
+  .btn-loading {
+    position: relative;
+    pointer-events: none;
+  }
+  
+  .btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
   .coupon-status {
     display: inline-block;
     padding: 4px 12px;
@@ -1357,11 +1426,22 @@
     <!-- Global Booking Management Functions -->
     <script>
     // Global booking management functions
-    async function approveBooking(bookingId) {
+    async function approveBooking(bookingId, button) {
       if (!window.API_BASE_URL) {
         console.error('API_BASE_URL not defined');
         return;
       }
+      
+      // Find the booking card
+      const bookingCard = button.closest('.booking-card');
+      if (!bookingCard) return;
+      
+      // Add loading state to button
+      button.classList.add('btn-loading');
+      button.disabled = true;
+      
+      // Add approving animation to card
+      bookingCard.classList.add('approving');
       
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/confirm`, {
@@ -1370,21 +1450,54 @@
         });
         
         if (response.ok) {
-          loadPendingBookings(); // Refresh the list
+          // Success animation - slide out
+          bookingCard.classList.remove('approving');
+          bookingCard.classList.add('slide-out');
+          
+          // Remove card after animation
+          setTimeout(() => {
+            bookingCard.remove();
+            // Refresh list if no more bookings
+            const remainingCards = document.querySelectorAll('.booking-card');
+            if (remainingCards.length === 0) {
+              loadPendingBookings();
+            }
+          }, 300);
         } else {
           const error = await response.json();
           console.error('Error approving booking:', error.error);
+          
+          // Remove loading state
+          bookingCard.classList.remove('approving');
+          button.classList.remove('btn-loading');
+          button.disabled = false;
         }
       } catch (error) {
         console.error('Error approving booking:', error);
+        
+        // Remove loading state
+        bookingCard.classList.remove('approving');
+        button.classList.remove('btn-loading');
+        button.disabled = false;
       }
     }
 
-    async function rejectBooking(bookingId) {
+    async function rejectBooking(bookingId, button) {
       if (!window.API_BASE_URL) {
         console.error('API_BASE_URL not defined');
         return;
       }
+      
+      // Find the booking card
+      const bookingCard = button.closest('.booking-card');
+      if (!bookingCard) return;
+      
+      // Add loading state to button
+      button.classList.add('btn-loading');
+      button.disabled = true;
+      
+      // Add rejecting animation to card
+      bookingCard.classList.add('rejecting');
       
       const reason = ''; // No prompt needed
       
@@ -1396,13 +1509,35 @@
         });
         
         if (response.ok) {
-          loadPendingBookings(); // Refresh the list
+          // Success animation - slide out
+          bookingCard.classList.remove('rejecting');
+          bookingCard.classList.add('slide-out');
+          
+          // Remove card after animation
+          setTimeout(() => {
+            bookingCard.remove();
+            // Refresh list if no more bookings
+            const remainingCards = document.querySelectorAll('.booking-card');
+            if (remainingCards.length === 0) {
+              loadPendingBookings();
+            }
+          }, 300);
         } else {
           const error = await response.json();
           console.error('Error rejecting booking:', error.error);
+          
+          // Remove loading state
+          bookingCard.classList.remove('rejecting');
+          button.classList.remove('btn-loading');
+          button.disabled = false;
         }
       } catch (error) {
         console.error('Error rejecting booking:', error);
+        
+        // Remove loading state
+        bookingCard.classList.remove('rejecting');
+        button.classList.remove('btn-loading');
+        button.disabled = false;
       }
     }
 
@@ -1447,7 +1582,7 @@
         
         bookingsList.innerHTML = pendingBookings.map(booking => `
           <div class="col-12">
-            <div class="card">
+            <div class="card booking-card" data-booking-id="${booking.id}">
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-8">
@@ -1463,10 +1598,10 @@
                   </div>
                   <div class="col-md-4 text-end">
                     <div class="btn-group-vertical w-100">
-                      <button class="btn btn-success mb-2" onclick="approveBooking(${booking.id})">
+                      <button class="btn btn-success mb-2 btn-approve" onclick="approveBooking(${booking.id}, this)">
                         <i class="fa fa-check"></i> Approve
                       </button>
-                      <button class="btn btn-danger" onclick="rejectBooking(${booking.id})">
+                      <button class="btn btn-danger btn-reject" onclick="rejectBooking(${booking.id}, this)">
                         <i class="fa fa-times"></i> Reject
                       </button>
                     </div>
