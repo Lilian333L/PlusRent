@@ -489,6 +489,15 @@
 </style>
 
 <script>
+// Global formatting function
+function formatDisplayText(rawKey) {
+  if (!rawKey) return '';
+  return rawKey
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // Helper: get all unique values for a field from cars array
 function getUniqueOptions(cars, field) {
   return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
@@ -599,8 +608,8 @@ async function fetchAndRenderCars() {
                                         </div>
                                         <div class="d-info">
                                             <div class="d-text">
-              <h4>${car.make_name}</h4>
-              <p>${car.model_name}</p>
+              <h4>${formatDisplayText(car.make_name)}</h4>
+              <p>${formatDisplayText(car.model_name)}</p>
                                                 <div class="d-item_like">
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
                                         </div>

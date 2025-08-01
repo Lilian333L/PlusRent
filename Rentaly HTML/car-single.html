@@ -415,6 +415,15 @@
     <script src="js/booking-form-handler.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     <script>
+// Global formatting function
+function formatDisplayText(rawKey) {
+  if (!rawKey) return '';
+  return rawKey
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   // Get car ID from URL, e.g. car-single.html?id=123
   const urlParams = new URLSearchParams(window.location.search);
@@ -512,8 +521,8 @@ console.log(car);
   }
 
   // Name, description, price
-  document.getElementById('car-title').textContent = `${car.make_name} ${car.model_name} ${car.production_year}`;
-  document.getElementById('car-name').textContent = `${car.make_name} ${car.model_name}`;
+        document.getElementById('car-title').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)} ${car.production_year}`;
+      document.getElementById('car-name').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}`;
   document.getElementById('car-description').textContent = car.description || '';
   document.getElementById('car-price').innerHTML = `Daily rate <h3>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</h3>`;
 
