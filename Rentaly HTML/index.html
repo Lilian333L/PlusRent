@@ -1304,6 +1304,15 @@
     </script>
 
     <script>
+      // Global formatting function
+      function formatDisplayText(rawKey) {
+        if (!rawKey) return '';
+        return rawKey
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById('fleet-car-grid');
         if (!grid) return;
@@ -1341,8 +1350,8 @@
                     </div>
                     <div class=\"d-info\">
                       <div class=\"d-text\">
-                        <h4>${car.make_name}</h4>
-                        <p>${car.model_name}</p>
+                        <h4>${formatDisplayText(car.make_name)}</h4>
+                        <p>${formatDisplayText(car.model_name)}</p>
                         <div class=\"d-item_like\">
                           <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
                         </div>
