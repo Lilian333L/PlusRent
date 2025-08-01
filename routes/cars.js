@@ -251,8 +251,6 @@ router.put('/:id', (req, res) => {
     casco_insurance_price
   } = req.body;
 
-  console.log('PUT /api/cars/:id - Request body:', req.body);
-
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
 
@@ -270,10 +268,6 @@ router.put('/:id', (req, res) => {
     !rca_insurance_price ||
     !casco_insurance_price
   ) {
-    console.log('Validation failed:', {
-      make_name, model_name, production_year, gear_type, fuel_type,
-      engine_capacity, car_type, num_doors, num_passengers, price_policy
-    });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -337,8 +331,6 @@ router.put('/:id', (req, res) => {
     cascoInsuranceValue,
     id
   ];
-
-  console.log('Update params:', updateParams);
 
   db.run(
     `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
