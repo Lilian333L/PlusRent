@@ -75,6 +75,11 @@ app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'login.html'));
 });
 
+// Add route for /login to redirect to login.html
+app.get('/login', (req, res) => {
+  res.redirect('/login.html');
+});
+
 app.get('/account-dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'account-dashboard.html'));
 });
