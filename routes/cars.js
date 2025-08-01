@@ -103,6 +103,7 @@ router.get('/:id', (req, res) => {
 
 // Add new car
 router.post('/', async (req, res) => {
+  console.log('Car creation request body:', req.body);
   const {
     make_name,
     model_name,
@@ -194,10 +195,12 @@ router.post('/', async (req, res) => {
     }
   }
 
-  // Convert all price_policy values to strings
+  // Convert all price_policy values to strings and ensure keys are properly formatted
   const pricePolicyStringified = {};
   for (const key in price_policy) {
-    pricePolicyStringified[key] = String(price_policy[key]);
+    // Ensure the key is properly formatted for JSON
+    const formattedKey = key.replace(/^(\d+)-(\d+)$/, '$1-$2');
+    pricePolicyStringified[formattedKey] = String(price_policy[key]);
   }
 
   // Parse optional numeric fields
@@ -207,6 +210,28 @@ router.post('/', async (req, res) => {
   const cascoInsuranceValue = parseFloat(casco_insurance_price);
 
   // Store in DB, booked defaults to 0
+  console.log('Inserting car with data:', {
+    make_name,
+    model_name,
+    production_year,
+    gear_type,
+    fuel_type,
+    engineCapacityValue,
+    car_type,
+    num_doors,
+    num_passengers,
+    price_policy: JSON.stringify(pricePolicyStringified),
+    booked_until: booked_until || null,
+    luggage: luggage || null,
+    mileageValue,
+    drive: drive || null,
+    fuelEconomyValue,
+    exterior_color: exterior_color || null,
+    interior_color: interior_color || null,
+    rcaInsuranceValue,
+    cascoInsuranceValue
+  });
+  
   db.run(
     `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
@@ -233,7 +258,10 @@ router.post('/', async (req, res) => {
     ],
     async function (err) {
       if (err) {
-        return res.status(500).json({ error: 'Database error' });
+        console.error('Database error details:', err);
+        console.error('Error code:', err.code);
+        console.error('Error message:', err.message);
+        return res.status(500).json({ error: 'Database error', details: err.message });
       }
       
       // Send Telegram notification
