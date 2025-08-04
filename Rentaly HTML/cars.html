@@ -278,9 +278,9 @@
         <div class="filter-category">
           <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" style="width: 70px;" data-i18n="cars.filter_price_from">
+            <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" data-i18n="cars.filter_price_from">
             <span>-</span>
-            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" style="width: 70px;" data-i18n="cars.filter_price_to">
+            <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" data-i18n="cars.filter_price_to">
                                                 </div>
                                             </div>
                                         </div>
@@ -313,6 +313,7 @@
   /* padding: 1.5rem 1.2rem 1.2rem 1.2rem; */
   min-width: 220px;
   max-width: 260px;
+  padding: 15px;
 }
 .filter-title {
   font-size: 1.35rem;
@@ -375,6 +376,7 @@
   padding: 0;
   border-radius: 0;
   display: inline-block;
+  text-align: left;
 }
 .car-list-row {
   margin-left: 0;
@@ -507,17 +509,20 @@ function getUniqueOptions(cars, field) {
 function renderFilterOptions(containerId, options, selectedValues, allCarsFull, currentFilters, field) {
   const container = document.getElementById(containerId);
   container.innerHTML = options.map(opt => {
-    const newFilters = { ...currentFilters };
-    const alreadySelected = selectedValues.includes(String(opt));
-    let filterVals = alreadySelected ? selectedValues : [...selectedValues, String(opt)];
-    newFilters[field] = filterVals;
+    // Calculate count based on current actual selection state
     const count = allCarsFull.filter(car => {
-      for (const key in newFilters) {
-        if (!newFilters[key] || !newFilters[key].length) continue;
-        if (!newFilters[key].includes(String(car[key]))) return false;
+      // Check if this specific car matches the current option
+      if (String(car[field]) !== String(opt)) return false;
+      
+      // Check if it matches all other current filters
+      for (const key in currentFilters) {
+        if (key === field) continue; // Skip the current field we're calculating for
+        if (!currentFilters[key] || !currentFilters[key].length) continue;
+        if (!currentFilters[key].includes(String(car[key]))) return false;
       }
       return true;
     }).length;
+    
     return `
       <div class="filter-option-row">
         <label>
