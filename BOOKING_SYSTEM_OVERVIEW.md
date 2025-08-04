@@ -156,7 +156,7 @@ class PriceCalculator {
 ```
 Rentaly HTML/
 ├── js/
-│   ├── global-booking.js      # Universal booking system
+│   ├──       # Universal booking system
 │   ├── price-calculator.js    # Pricing logic
 │   ├── booking-form-handler.js # Form submission
 │   └── config.js             # API configuration
