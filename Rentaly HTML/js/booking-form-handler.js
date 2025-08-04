@@ -83,7 +83,7 @@ class BookingFormHandler {
       return_date: formData.get('Collection Date'),
       return_time: formData.get('Collection Time'),
       discount_code: formData.get('discount_code'),
-      insurance_type: getRadioValue('insurance_type'),
+      insurance_type: getRadioValue('insurance_type') || 'RCA', // Default to RCA if not selected
       pickup_location: getRadioValue('pickup_location'),
       dropoff_location: getRadioValue('dropoff_location'),
       contact_person: formData.get('contact_person'),
@@ -108,9 +108,7 @@ class BookingFormHandler {
       return { isValid: false, error: 'Please select pickup and return times' };
     }
     
-    if (!bookingData.insurance_type) {
-      return { isValid: false, error: 'Please select insurance type' };
-    }
+
     
     if (!bookingData.pickup_location || !bookingData.dropoff_location) {
       return { isValid: false, error: 'Please select pickup and dropoff locations' };
