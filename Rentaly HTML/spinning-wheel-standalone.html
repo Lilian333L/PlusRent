@@ -202,9 +202,9 @@
 
         .arrow-pointer {
             position: absolute;
-            top: 50%;
-            right: -20px;
-            transform: translateY(-50%);
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 30;
             animation: arrowPulse 2s ease-in-out infinite;
         }
@@ -212,9 +212,9 @@
         .arrow {
             width: 0;
             height: 0;
-            border-top: 20px solid transparent;
-            border-bottom: 20px solid transparent;
-            border-left: 30px solid white;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid white;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
             position: relative;
         }
@@ -222,8 +222,8 @@
 
 
         @keyframes arrowPulse {
-            0%, 100% { transform: translateY(-50%) scale(1); }
-            50% { transform: translateY(-50%) scale(1.1); }
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
         }
 
         .reset-button {
@@ -672,9 +672,10 @@
             const segments = [];
 
             // Use only the available active coupons
-            // Create segments in the actual visual order they appear on the wheel
-            // Visual order: left, top-left, top, top-right, right
-            const visualOrder = [0, 1, 2, 3, 4]; // Visual positions
+            // Create segments in sequential order: 1,2,3,4,5
+            // Visual order: top, top-right, right, bottom-right, bottom-left
+            // Map them in sequential order starting from the top
+            const visualOrder = [0, 1, 2, 3, 4]; // Sequential visual positions
             
             visualOrder.forEach((visualPosition, arrayIndex) => {
                 const coupon = availableCoupons[arrayIndex];
@@ -687,6 +688,13 @@
                 });
                 console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code}`);
             });
+            
+            console.log('=== SEGMENT CREATION DEBUG ===');
+            console.log('Visual mapping:');
+            segments.forEach((segment, i) => {
+                console.log(`  Segment ${segment.id}: VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon.code}`);
+            });
+            console.log('=== END SEGMENT DEBUG ===');
 
             // Cache the segments
             cachedWheelSegments = segments;
@@ -869,12 +877,20 @@
                 const wheelSegments = getWheelSegments();
                 const segmentAngle = 360 / wheelSegments.length;
                 
-                // The pointer is now at the right side (3 o'clock position, 90 degrees)
+                // The pointer is at the top (12 o'clock position, 0 degrees)
                 // Calculate which segment the pointer is pointing to
-                const pointerAngle = 90; // Pointer is at right side
+                const pointerAngle = 0; // Pointer is at top
                 const adjustedRotation = (normalizedRotation - pointerAngle + 360) % 360;
-                // Add a small offset to ensure we're pointing to the center of the segment
-                const segmentIndex = Math.floor((adjustedRotation + segmentAngle / 2) / segmentAngle);
+                
+                // The segments are positioned clockwise starting from the top (12 o'clock)
+                // We need to offset by 90 degrees to align with the pointer
+                let segmentIndex = Math.floor((adjustedRotation + 90) / segmentAngle);
+                
+                // Ensure segmentIndex is within bounds
+                segmentIndex = segmentIndex % wheelSegments.length;
+                if (segmentIndex < 0) segmentIndex += wheelSegments.length;
+                
+                // Use the array index directly to get the winning segment
                 const winningSegment = wheelSegments[segmentIndex];
 
                 // Debug logging
@@ -883,11 +899,19 @@
                 console.log('Normalized rotation:', normalizedRotation);
                 console.log('Number of segments:', wheelSegments.length);
                 console.log('Segment angle:', segmentAngle);
-                console.log('Pointer angle:', 90);
+                console.log('Pointer angle:', 0);
                 console.log('Adjusted rotation:', adjustedRotation);
-                console.log('Adjusted rotation with offset:', adjustedRotation + segmentAngle / 2);
                 console.log('Calculated segment index:', segmentIndex);
-                console.log('All segments:', wheelSegments.map((s, i) => `${i}: ${s.text} (${s.coupon?.code || 'no coupon'})`));
+                console.log('Expected segment ranges:');
+                for (let i = 0; i < wheelSegments.length; i++) {
+                    const startAngle = i * segmentAngle;
+                    const endAngle = (i + 1) * segmentAngle;
+                    console.log(`  Segment ${i}: ${startAngle}° to ${endAngle}° (${wheelSegments[i].text})`);
+                }
+                console.log('All segments with visual positions:');
+                wheelSegments.forEach((segment, i) => {
+                    console.log(`  Array[${i}]: ID=${segment.id}, VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon?.code}`);
+                });
                 console.log('Winning segment:', winningSegment);
                 console.log('Winning segment text:', winningSegment.text);
                 console.log('Winning coupon:', winningSegment.coupon);
