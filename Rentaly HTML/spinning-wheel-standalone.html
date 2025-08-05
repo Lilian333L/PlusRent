@@ -202,9 +202,9 @@
 
         .arrow-pointer {
             position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
             z-index: 30;
             animation: arrowPulse 2s ease-in-out infinite;
         }
@@ -212,9 +212,9 @@
         .arrow {
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 30px solid white;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 30px solid white;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
             position: relative;
         }
@@ -222,8 +222,8 @@
 
 
         @keyframes arrowPulse {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.1); }
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
         }
 
         .reset-button {
@@ -670,23 +670,22 @@
 
             // Create segments based on available active coupons only
             const segments = [];
-            const gradients = [
-                'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)',
-                'linear-gradient(135deg, #8bc4ff 0%, #6db3ff 100%)',
-                'linear-gradient(135deg, #6db3ff 0%, #4fa2ff 100%)',
-                'linear-gradient(135deg, #4fa2ff 0%, #1e90ff 100%)',
-                'linear-gradient(135deg, #1e90ff 0%, #0066cc 100%)'
-            ];
 
             // Use only the available active coupons
-            availableCoupons.forEach((coupon, index) => {
+            // Create segments in the actual visual order they appear on the wheel
+            // Visual order: left, top-left, top, top-right, right
+            const visualOrder = [0, 1, 2, 3, 4]; // Visual positions
+            
+            visualOrder.forEach((visualPosition, arrayIndex) => {
+                const coupon = availableCoupons[arrayIndex];
                 segments.push({
-                    id: index + 1,
+                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5)
+                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4)
                     text: `${coupon.discount_percentage}%`,
-                    gradient: gradients[index % gradients.length],
+                    gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', // Simple blue gradient
                     coupon: coupon
                 });
-                console.log(`Created segment ${index + 1}: ${coupon.discount_percentage}% - ${coupon.code}`);
+                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code}`);
             });
 
             // Cache the segments
@@ -718,17 +717,21 @@
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
                 segmentElement.className = 'wheel-segment';
-                segmentElement.style.transform = `rotate(${index * segmentAngle}deg)`;
+                segmentElement.id = `segment-${segment.id}`; // HTML id with counter
+                // Use visual position for rotation, not array index
                 segmentElement.style.background = segment.gradient;
                 
-                // Generate clip-path for this segment
-                const startAngle = index * segmentAngle;
-                const endAngle = (index + 1) * segmentAngle;
+                // Generate clip-path for this segment using visual position
+                const startAngle = segment.visualPosition * segmentAngle;
+                const endAngle = (segment.visualPosition + 1) * segmentAngle;
                 const clipPath = generateClipPath(startAngle, endAngle);
                 segmentElement.style.clipPath = clipPath;
 
                 // Calculate the middle angle of this segment for text positioning
-                const middleAngle = (startAngle + endAngle) / 2;
+                // Use visual position for angle calculation, not array index
+                const visualStartAngle = segment.visualPosition * segmentAngle;
+                const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
+                const middleAngle = (visualStartAngle + visualEndAngle) / 2;
                 const middleRad = (middleAngle - 90) * Math.PI / 180;
                 const textRadius = 35; // Distance from center for text
                 const textX = 50 + textRadius * Math.cos(middleRad);
@@ -866,21 +869,29 @@
                 const wheelSegments = getWheelSegments();
                 const segmentAngle = 360 / wheelSegments.length;
                 
-                // The pointer is at the top (12 o'clock position), so we need to calculate
-                // which segment the pointer is pointing to
-                const pointerAngle = 0; // Pointer is at top (0 degrees)
+                // The pointer is now at the right side (3 o'clock position, 90 degrees)
+                // Calculate which segment the pointer is pointing to
+                const pointerAngle = 90; // Pointer is at right side
                 const adjustedRotation = (normalizedRotation - pointerAngle + 360) % 360;
-                const segmentIndex = Math.floor(adjustedRotation / segmentAngle);
+                // Add a small offset to ensure we're pointing to the center of the segment
+                const segmentIndex = Math.floor((adjustedRotation + segmentAngle / 2) / segmentAngle);
                 const winningSegment = wheelSegments[segmentIndex];
 
                 // Debug logging
-                console.log('Wheel stopped at rotation:', normalizedRotation);
+                console.log('=== WHEEL DEBUG ===');
+                console.log('Total rotation:', totalRotation);
+                console.log('Normalized rotation:', normalizedRotation);
+                console.log('Number of segments:', wheelSegments.length);
                 console.log('Segment angle:', segmentAngle);
+                console.log('Pointer angle:', 90);
                 console.log('Adjusted rotation:', adjustedRotation);
-                console.log('Segment index:', segmentIndex);
+                console.log('Adjusted rotation with offset:', adjustedRotation + segmentAngle / 2);
+                console.log('Calculated segment index:', segmentIndex);
+                console.log('All segments:', wheelSegments.map((s, i) => `${i}: ${s.text} (${s.coupon?.code || 'no coupon'})`));
                 console.log('Winning segment:', winningSegment);
                 console.log('Winning segment text:', winningSegment.text);
                 console.log('Winning coupon:', winningSegment.coupon);
+                console.log('=== END DEBUG ===');
 
                 // Show results
                 currentRotation = totalRotation;
@@ -892,15 +903,15 @@
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
 
-                // Update result card with real coupon data
-                if (currentWinningCoupon) {
-                    // Show actual coupon code and discount
-                    prizeDisplay.textContent = `${currentWinningCoupon.discount_percentage}% OFF`;
-                    discountCode.textContent = currentWinningCoupon.code;
-                    console.log('Displaying coupon:', currentWinningCoupon.discount_percentage + '%', currentWinningCoupon.code);
+                // Update result card with the exact segment data that was visually selected
+                // Use the segment's text and coupon data to ensure consistency
+                if (winningSegment.coupon) {
+                    // Show the exact coupon that matches the segment
+                    prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    discountCode.textContent = winningSegment.coupon.code;
+                    console.log('Displaying segment coupon:', winningSegment.text, winningSegment.coupon.code);
                 } else {
                     // Fallback for segments without real coupons
-                    const freeDaysText = translations.wheel?.free_days || "FREE DAYS";
                     prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     discountCode.textContent = `SPIN${winningSegment.id}FREE`;
                     console.log('Displaying fallback:', winningSegment.text);
