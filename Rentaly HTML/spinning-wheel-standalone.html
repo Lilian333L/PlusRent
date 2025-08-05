@@ -837,40 +837,7 @@
 
 
 
-        // Create optimized particles effect
-        function createParticles() {
-            // Reduce particle count and use more efficient animation
-            for (let i = 0; i < 8; i++) {
-                const particle = document.createElement('div');
-                particle.style.cssText = `
-                    position: fixed;
-                    width: 6px;
-                    height: 6px;
-                    background: #ffd700;
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 1000;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    will-change: transform, opacity;
-                `;
-                document.body.appendChild(particle);
 
-                const randomX = (Math.random() - 0.5) * 200;
-                const randomY = (Math.random() - 0.5) * 200;
-
-                particle.animate([
-                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                    { transform: `translate(calc(-50% + ${randomX}px), calc(-50% + ${randomY}px)) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 1500,
-                    easing: 'ease-out'
-                }).onfinish = () => {
-                    particle.remove();
-                };
-            }
-        }
 
         // Get random winning index from database
         async function getRandomWinningIndex() {
@@ -900,9 +867,6 @@
             // Get random winning index from database
             randomWinningIndex = await getRandomWinningIndex();
             console.log('Random winning index from database:', randomWinningIndex);
-
-            // Create particle effects with reduced intensity
-            createParticles();
 
             // Ensure transition is applied before spinning
             wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
