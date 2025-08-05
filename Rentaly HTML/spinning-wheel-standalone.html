@@ -615,6 +615,7 @@
         let availableCoupons = [];
         let currentWinningCoupon = null;
         let cachedWheelSegments = null;
+        let randomWinningIndex = null;
 
         // Fetch coupons from the API
         async function fetchCoupons() {
@@ -672,21 +673,45 @@
             const segments = [];
 
             // Use only the available active coupons
-            // Create segments in sequential order: 1,2,3,4,5
-            // Visual order: top, top-right, right, bottom-right, bottom-left
-            // Map them in sequential order starting from the top
-            const visualOrder = [0, 1, 2, 3, 4]; // Sequential visual positions
+            // Create segments dynamically based on the number of active coupons
+            // Visual order: top, top-right, right, bottom-right, bottom-left, etc.
+            // Map them in inverted sequential order to fix the mirror issue
+            const numCoupons = availableCoupons.length;
+            const visualOrder = [];
+            
+            // Generate inverted sequential order dynamically
+            for (let i = 0; i < numCoupons; i++) {
+                visualOrder.push(numCoupons - 1 - i); // Creates [4,3,2,1,0] for 5 coupons, [3,2,1,0] for 4 coupons, etc.
+            }
             
             visualOrder.forEach((visualPosition, arrayIndex) => {
                 const coupon = availableCoupons[arrayIndex];
+                
+                // Create alternating blue colors for adjacent segments (3 colors)
+                const colorIndex = arrayIndex % 3;
+                let gradient;
+                
+                switch(colorIndex) {
+                    case 0:
+                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)'; // Lightest blue
+                        break;
+                    case 1:
+                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)'; // Medium blue
+                        break;
+                    case 2:
+                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)'; // Darkest blue
+                        break;
+                }
+                
                 segments.push({
-                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5)
-                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4)
+                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5...)
+                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4...)
                     text: `${coupon.discount_percentage}%`,
-                    gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', // Simple blue gradient
+                    gradient: gradient, // Alternating blue gradients
                     coupon: coupon
                 });
-                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code}`);
+                const colorNames = ['lightest', 'medium', 'darkest'];
+                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code} (${colorNames[colorIndex]} blue)`);
             });
             
             console.log('=== SEGMENT CREATION DEBUG ===');
@@ -847,67 +872,67 @@
             }
         }
 
+        // Get random winning index from database
+        async function getRandomWinningIndex() {
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/random-winning-index`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.winningIndex;
+                } else {
+                    console.error('Failed to fetch random winning index');
+                    return Math.floor(Math.random() * availableCoupons.length);
+                }
+            } catch (error) {
+                console.error('Error fetching random winning index:', error);
+                return Math.floor(Math.random() * availableCoupons.length);
+            }
+        }
+
         // Spin the wheel with optimized performance
-        function spinWheel() {
+        async function spinWheel() {
             if (isSpinning || hasSpun) return;
 
             isSpinning = true;
             centerButton.disabled = true;
             centerButton.querySelector('.center-icon').textContent = '🔄';
 
+            // Get random winning index from database
+            randomWinningIndex = await getRandomWinningIndex();
+            console.log('Random winning index from database:', randomWinningIndex);
+
             // Create particle effects with reduced intensity
             createParticles();
 
             // Ensure transition is applied before spinning
-            wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+            wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
 
-            // Calculate random spin with consistent minimum rotations
-            const randomRotation = Math.random() * 360;
-            const minRotations = 5; // Minimum 5 full rotations
-            const extraRotations = Math.floor(Math.random() * 4); // 0-3 extra rotations
-            const fullRotations = (minRotations + extraRotations) * 360;
-            const totalRotation = currentRotation + fullRotations + randomRotation;
+            // Calculate rotation to land directly on the winning segment
+            const wheelSegments = getWheelSegments();
+            const segmentAngle = 360 / wheelSegments.length;
+            const targetSegmentIndex = randomWinningIndex % wheelSegments.length;
+            
+            // Calculate the rotation needed to land directly on the target segment
+            // The pointer is at the top (0 degrees), so we need to rotate to the target segment
+            const targetAngle = targetSegmentIndex * segmentAngle + segmentAngle / 2; // Center of the segment
+            const extraRotations = 5 * 360; // 5 full rotations
+            const totalRotation = extraRotations + targetAngle; // 5 extra rotations + target angle
 
             // Animate wheel spinning with CSS transition
             wheel.style.transform = `rotate(${totalRotation}deg)`;
 
-            // Calculate winning segment
+            // Show results after animation
             setTimeout(() => {
-                const normalizedRotation = (totalRotation % 360 + 360) % 360;
-                const wheelSegments = getWheelSegments();
-                const segmentAngle = 360 / wheelSegments.length;
-                
-                // The pointer is at the top (12 o'clock position, 0 degrees)
-                // Calculate which segment the pointer is pointing to
-                const pointerAngle = 0; // Pointer is at top
-                const adjustedRotation = (normalizedRotation - pointerAngle + 360) % 360;
-                
-                // The segments are positioned clockwise starting from the top (12 o'clock)
-                // We need to offset by 90 degrees to align with the pointer
-                let segmentIndex = Math.floor((adjustedRotation + 90) / segmentAngle);
-                
-                // Ensure segmentIndex is within bounds
-                segmentIndex = segmentIndex % wheelSegments.length;
-                if (segmentIndex < 0) segmentIndex += wheelSegments.length;
-                
-                // Use the array index directly to get the winning segment
-                const winningSegment = wheelSegments[segmentIndex];
+                // Use the random winning index directly
+                const winningSegment = wheelSegments[targetSegmentIndex];
 
                 // Debug logging
                 console.log('=== WHEEL DEBUG ===');
+                console.log('Random winning index from database:', randomWinningIndex);
+                console.log('Target segment index:', targetSegmentIndex);
                 console.log('Total rotation:', totalRotation);
-                console.log('Normalized rotation:', normalizedRotation);
                 console.log('Number of segments:', wheelSegments.length);
                 console.log('Segment angle:', segmentAngle);
-                console.log('Pointer angle:', 0);
-                console.log('Adjusted rotation:', adjustedRotation);
-                console.log('Calculated segment index:', segmentIndex);
-                console.log('Expected segment ranges:');
-                for (let i = 0; i < wheelSegments.length; i++) {
-                    const startAngle = i * segmentAngle;
-                    const endAngle = (i + 1) * segmentAngle;
-                    console.log(`  Segment ${i}: ${startAngle}° to ${endAngle}° (${wheelSegments[i].text})`);
-                }
                 console.log('All segments with visual positions:');
                 wheelSegments.forEach((segment, i) => {
                     console.log(`  Array[${i}]: ID=${segment.id}, VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon?.code}`);
@@ -947,7 +972,7 @@
 
                 // Show reset button
                 resetButton.style.display = 'flex';
-            }, 4000);
+            }, 5000);
         }
 
         // Reset wheel
