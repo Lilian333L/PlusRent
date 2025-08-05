@@ -13,6 +13,25 @@ router.get('/', (req, res) => {
   });
 });
 
+// Get random winning index for spinning wheel
+router.get('/random-winning-index', (req, res) => {
+  db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1', (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    const activeCouponsCount = rows[0].count;
+    if (activeCouponsCount === 0) {
+      return res.status(400).json({ error: 'No active coupons available' });
+    }
+    
+    // Generate random index between 0 and activeCouponsCount - 1
+    const winningIndex = Math.floor(Math.random() * activeCouponsCount);
+    
+    res.json({ winningIndex });
+  });
+});
+
 // Get single coupon code
 router.get('/:id', (req, res) => {
   const id = req.params.id;

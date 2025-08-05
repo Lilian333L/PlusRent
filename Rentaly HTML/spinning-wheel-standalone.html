@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spinning Wheel</title>
+    <script src="js/config.js"></script>
+    <script>
+        // Fallback if config.js doesn't load
+        if (!window.API_BASE_URL) {
+            window.API_BASE_URL = 'http://localhost:3001';
+            console.log('Using fallback API_BASE_URL:', window.API_BASE_URL);
+        }
+        // Force the correct port
+        window.API_BASE_URL = 'http://localhost:3001';
+        console.log('Final API_BASE_URL:', window.API_BASE_URL);
+    </script>
     <style>
         * {
             margin: 0;
@@ -15,6 +26,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: transparent;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .spinning-wheel-container {
@@ -54,6 +67,8 @@
             position: relative;
             width: 400px;
             height: 400px;
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .wheel-glow {
@@ -87,6 +102,8 @@
             overflow: hidden;
             cursor: pointer;
             transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .wheel-segment {
@@ -96,9 +113,10 @@
             width: 100%;
             height: 100%;
             transform-origin: center;
-            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%);
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            will-change: transform;
+            transform: translateZ(0);
+            border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
         .segment-content {
@@ -125,18 +143,30 @@
             display: block;
         }
 
-        .segment-text {
-            font-size: 20px;
-            line-height: 1;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .segment-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 6px 8px;
-            border-radius: 8px;
+        }
+
+        .segment-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .segment-text {
+            font-size: 18px;
+            line-height: 1;
+            font-weight: 700;
+            text-align: center;
+            padding: 4px 8px;
             white-space: nowrap;
-            min-width: 40px;
+            min-width: 35px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            z-index: 10;
         }
 
         .center-button {
@@ -182,10 +212,10 @@
         .arrow {
             width: 0;
             height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-top: 40px solid #ff4757;
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid white;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
             position: relative;
         }
 
@@ -228,20 +258,22 @@
         }
 
         .instructions-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
         .instructions-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #333;
+            color: white;
             text-align: center;
             margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .instructions-list {
@@ -281,19 +313,20 @@
         }
 
         .step-text {
-            color: #555;
+            color: white;
             font-size: 0.95rem;
             line-height: 1.4;
             padding-top: 0.25rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .result-card {
-            background: linear-gradient(135deg, #ff6b6b, #ffa502);
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
             border-radius: 20px;
             padding: 2rem;
             text-align: center;
             color: white;
-            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: none;
         }
@@ -477,7 +510,7 @@
                     <div class="trophy-icon">🏆</div>
                     <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS! 🎉</h3>
                     <p class="you-won" id="youWonText">You won</p>
-                    <div class="prize-display" id="prizeDisplay">0 FREE DAYS</div>
+                    <div class="prize-display" id="prizeDisplay">0% OFF</div>
                     <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode">SPIN0FREE</span></p>
                     <button class="book-now-button" id="bookNowButton">Book Now & Apply Bonus</button>
                 </div>
@@ -547,13 +580,7 @@
                         free_days: "FREE DAYS",
                         use_code: "Use code:",
                         book_now: "Book Now & Apply Bonus",
-                        spin_again: "Spin Again (New Visit)",
-                        wheel_segments: {
-                            "1_day": "1 FREE DAY",
-                            "2_days": "2 FREE DAYS",
-                            "3_days": "3 FREE DAYS",
-                            "4_days": "4 FREE DAYS"
-                        }
+                        spin_again: "Spin Again (New Visit)"
                     }
                 };
                 updateTexts();
@@ -578,25 +605,125 @@
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
             document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
             
-            // Update wheel segments
-            updateWheelSegments();
+            // Update wheel segments if coupons are loaded
+            if (availableCoupons.length > 0) {
+                createWheelSegments();
+            }
         }
 
-        // Wheel segments configuration with translations
-        function getWheelSegments() {
-            const wheelSegments = translations.wheel?.wheel_segments || {
-                "1_day": "1",
-                "2_days": "2",
-                "3_days": "3",
-                "4_days": "4"
-            };
+        // Global variable to store coupons
+        let availableCoupons = [];
+        let currentWinningCoupon = null;
+        let cachedWheelSegments = null;
+        let randomWinningIndex = null;
 
-            return [
-                { id: 1, days: 1, color: '#FF6B6B', icon: '🎁', text: wheelSegments["1_day"], gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%)' },
-                { id: 2, days: 2, color: '#4ECDC4', icon: '🚗', text: wheelSegments["2_days"], gradient: 'linear-gradient(135deg, #4ECDC4 0%, #26d0ce 100%)' },
-                { id: 3, days: 3, color: '#F7DC6F', icon: '🏆', text: wheelSegments["3_days"], gradient: 'linear-gradient(135deg, #F7DC6F 0%, #ffa502 100%)' },
-                { id: 4, days: 4, color: '#A8E6CF', icon: '💎', text: wheelSegments["4_days"], gradient: 'linear-gradient(135deg, #A8E6CF 0%, #7fcdcd 100%)' }
-            ];
+        // Fetch coupons from the API
+        async function fetchCoupons() {
+            try {
+                // Ensure API_BASE_URL is set
+                if (!window.API_BASE_URL) {
+                    console.warn('API_BASE_URL not found, using default');
+                    window.API_BASE_URL = 'http://localhost:3001';
+                }
+                
+                const apiUrl = window.API_BASE_URL;
+                console.log('Fetching coupons from:', apiUrl);
+                const response = await fetch(`${apiUrl}/api/coupons`);
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const coupons = await response.json();
+                    console.log('Raw coupons:', coupons);
+                    // Filter only active coupons
+                    availableCoupons = coupons.filter(coupon => coupon.is_active === 1);
+                    console.log('Active coupons:', availableCoupons);
+                    // Clear cache when new coupons are loaded
+                    cachedWheelSegments = null;
+                } else {
+                    console.error('Failed to fetch coupons, status:', response.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                }
+            } catch (error) {
+                console.error('Error fetching coupons:', error);
+                availableCoupons = [];
+                cachedWheelSegments = null;
+            }
+        }
+
+        // Dynamic wheel segments configuration based on active coupons
+        function getWheelSegments() {
+            // Return cached segments if available
+            if (cachedWheelSegments) {
+                return cachedWheelSegments;
+            }
+
+            if (availableCoupons.length === 0) {
+                // Fallback to 4 default segments if no coupons available
+                cachedWheelSegments = [
+                    { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', coupon: null },
+                    { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #8bc4ff 0%, #6db3ff 100%)', coupon: null },
+                    { id: 3, text: '20%', gradient: 'linear-gradient(135deg, #6db3ff 0%, #4fa2ff 100%)', coupon: null },
+                    { id: 4, text: '25%', gradient: 'linear-gradient(135deg, #4fa2ff 0%, #1e90ff 100%)', coupon: null }
+                ];
+                return cachedWheelSegments;
+            }
+
+            // Create segments based on available active coupons only
+            const segments = [];
+
+            // Use only the available active coupons
+            // Create segments dynamically based on the number of active coupons
+            // Visual order: top, top-right, right, bottom-right, bottom-left, etc.
+            // Map them in inverted sequential order to fix the mirror issue
+            const numCoupons = availableCoupons.length;
+            const visualOrder = [];
+            
+            // Generate inverted sequential order dynamically
+            for (let i = 0; i < numCoupons; i++) {
+                visualOrder.push(numCoupons - 1 - i); // Creates [4,3,2,1,0] for 5 coupons, [3,2,1,0] for 4 coupons, etc.
+            }
+            
+            visualOrder.forEach((visualPosition, arrayIndex) => {
+                const coupon = availableCoupons[arrayIndex];
+                
+                // Create alternating blue colors for adjacent segments (3 colors)
+                const colorIndex = arrayIndex % 3;
+                let gradient;
+                
+                switch(colorIndex) {
+                    case 0:
+                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)'; // Lightest blue
+                        break;
+                    case 1:
+                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)'; // Medium blue
+                        break;
+                    case 2:
+                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)'; // Darkest blue
+                        break;
+                }
+                
+                segments.push({
+                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5...)
+                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4...)
+                    text: `${coupon.discount_percentage}%`,
+                    gradient: gradient, // Alternating blue gradients
+                    coupon: coupon
+                });
+                const colorNames = ['lightest', 'medium', 'darkest'];
+                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code} (${colorNames[colorIndex]} blue)`);
+            });
+            
+            console.log('=== SEGMENT CREATION DEBUG ===');
+            console.log('Visual mapping:');
+            segments.forEach((segment, i) => {
+                console.log(`  Segment ${segment.id}: VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon.code}`);
+            });
+            console.log('=== END SEGMENT DEBUG ===');
+
+            // Cache the segments
+            cachedWheelSegments = segments;
+            return cachedWheelSegments;
         }
 
         let isSpinning = false;
@@ -611,91 +738,173 @@
         const prizeDisplay = document.getElementById('prizeDisplay');
         const discountCode = document.getElementById('discountCode');
 
-        // Create wheel segments
+        // Create wheel segments with optimized performance
         function createWheelSegments() {
-            wheel.innerHTML = '';
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
             const wheelSegments = getWheelSegments();
+            console.log('Creating wheel segments:', wheelSegments);
+            const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
+            console.log('Segment angle:', segmentAngle);
             
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
                 segmentElement.className = 'wheel-segment';
-                segmentElement.style.transform = `rotate(${index * 90}deg)`;
+                segmentElement.id = `segment-${segment.id}`; // HTML id with counter
+                // Use visual position for rotation, not array index
                 segmentElement.style.background = segment.gradient;
+                
+                // Generate clip-path for this segment using visual position
+                const startAngle = segment.visualPosition * segmentAngle;
+                const endAngle = (segment.visualPosition + 1) * segmentAngle;
+                const clipPath = generateClipPath(startAngle, endAngle);
+                segmentElement.style.clipPath = clipPath;
 
+                // Calculate the middle angle of this segment for text positioning
+                // Use visual position for angle calculation, not array index
+                const visualStartAngle = segment.visualPosition * segmentAngle;
+                const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
+                const middleAngle = (visualStartAngle + visualEndAngle) / 2;
+                const middleRad = (middleAngle - 90) * Math.PI / 180;
+                const textRadius = 35; // Distance from center for text
+                const textX = 50 + textRadius * Math.cos(middleRad);
+                const textY = 50 + textRadius * Math.sin(middleRad);
+                
+                // Rotate text to stay upright relative to the wheel center
+                const textRotation = middleAngle;
+                
+                // Create a container for the content with rotation applied to the parent
                 segmentElement.innerHTML = `
-                    <div class="segment-content">
-                        <div class="segment-icon">${segment.icon}</div>
+                    <div class="segment-content" style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textRotation}deg);">
+                        <div class="segment-icon" style="margin-bottom: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 500 500" fill="none">
+                                <path d="M437.5 208.334L437.5 223.959C446.129 223.959 453.125 216.963 453.125 208.334H437.5ZM395.833 250L380.208 249.999V250H395.833ZM437.5 291.667H453.125C453.125 283.037 446.129 276.042 437.5 276.042L437.5 291.667ZM62.5 291.667V276.042C53.8706 276.042 46.875 283.037 46.875 291.667H62.5ZM104.167 250L119.792 250L119.792 249.999L104.167 250ZM63.5752 208.347L63.9708 192.727C63.9052 192.726 63.8395 192.724 63.7739 192.724L63.5752 208.347ZM62.5 208.334H46.875C46.875 216.886 53.7501 223.849 62.3013 223.957L62.5 208.334ZM395.833 104.167V119.792C410.215 119.792 421.875 131.451 421.875 145.834H437.5H453.125C453.125 114.192 427.474 88.5416 395.833 88.5416V104.167ZM437.5 145.834H421.875V208.334H437.5H453.125V145.834H437.5ZM437.5 208.334L437.5 192.709C405.859 192.709 380.208 218.358 380.208 249.999L395.833 250L411.458 250C411.458 235.618 423.117 223.959 437.5 223.959L437.5 208.334ZM395.833 250H380.208C380.208 281.641 405.859 307.292 437.5 307.292L437.5 291.667L437.5 276.042C423.118 276.042 411.458 264.382 411.458 250H395.833ZM437.5 291.667H421.875V354.167H437.5H453.125V291.667H437.5ZM437.5 354.167H421.875C421.875 368.549 410.215 380.209 395.833 380.209V395.834V411.459C427.474 411.459 453.125 385.808 453.125 354.167H437.5ZM395.833 395.834V380.209H104.167V395.834V411.459H395.833V395.834ZM104.167 395.834V380.209C89.7846 380.209 78.125 368.549 78.125 354.167H62.5H46.875C46.875 385.808 72.5257 411.459 104.167 411.459V395.834ZM62.5 354.167H78.125V291.667H62.5H46.875V354.167H62.5ZM62.5 291.667V307.292C94.1413 307.292 119.792 281.641 119.792 250H104.167H88.542C88.542 264.382 76.8824 276.042 62.5 276.042V291.667ZM104.167 250L119.792 249.999C119.792 218.85 94.9363 193.512 63.9708 192.727L63.5752 208.347L63.1795 223.967C77.2438 224.324 88.5419 235.845 88.542 250L104.167 250ZM63.5752 208.347L63.7739 192.724L62.6987 192.71L62.5 208.334L62.3013 223.957L63.3765 223.971L63.5752 208.347ZM62.5 208.334H78.125V145.834H62.5H46.875V208.334H62.5ZM62.5 145.834H78.125C78.125 131.451 89.7846 119.792 104.167 119.792V104.167V88.5416C72.5257 88.5416 46.875 114.192 46.875 145.834H62.5ZM104.167 104.167V119.792H395.833V104.167V88.5416H104.167V104.167Z" fill="white"/>
+                                <path d="M312.5 104.167V145.833" stroke="white" stroke-width="41.6667" stroke-linecap="round"/>
+                                <path d="M312.5 229.167V270.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M312.5 354.167V395.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
                         <div class="segment-text">${segment.text}</div>
                     </div>
                 `;
 
-                wheel.appendChild(segmentElement);
+                fragment.appendChild(segmentElement);
             });
+            
+            // Clear and append all at once
+            wheel.innerHTML = '';
+            wheel.appendChild(fragment);
         }
 
-        // Update wheel segments with new translations
-        function updateWheelSegments() {
-            createWheelSegments();
+        // Generate clip-path for a segment
+        function generateClipPath(startAngle, endAngle) {
+            const centerX = 50;
+            const centerY = 50;
+            const radius = 50;
+            
+            // Convert angles to radians
+            const startRad = (startAngle - 90) * Math.PI / 180;
+            const endRad = (endAngle - 90) * Math.PI / 180;
+            
+            // Calculate points on the circle
+            const startX = centerX + radius * Math.cos(startRad);
+            const startY = centerY + radius * Math.sin(startRad);
+            const endX = centerX + radius * Math.cos(endRad);
+            const endY = centerY + radius * Math.sin(endRad);
+            
+            // Create a proper circular segment using multiple points
+            const points = [];
+            points.push(`${centerX}% ${centerY}%`); // Center point
+            
+            // Add start point
+            points.push(`${startX}% ${startY}%`);
+            
+            // Add intermediate points for smooth curve
+            const numPoints = 10;
+            for (let i = 1; i <= numPoints; i++) {
+                const angle = startAngle + (endAngle - startAngle) * (i / numPoints);
+                const rad = (angle - 90) * Math.PI / 180;
+                const x = centerX + radius * Math.cos(rad);
+                const y = centerY + radius * Math.sin(rad);
+                points.push(`${x}% ${y}%`);
+            }
+            
+            // Add end point
+            points.push(`${endX}% ${endY}%`);
+            
+            return `polygon(${points.join(', ')})`;
         }
 
-        // Create particles effect
-        function createParticles() {
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.style.cssText = `
-                    position: fixed;
-                    width: 8px;
-                    height: 8px;
-                    background: #ffd700;
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 1000;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                `;
-                document.body.appendChild(particle);
 
-                const randomX = (Math.random() - 0.5) * 400;
-                const randomY = (Math.random() - 0.5) * 400;
 
-                particle.animate([
-                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                    { transform: `translate(calc(-50% + ${randomX}px), calc(-50% + ${randomY}px)) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 2000,
-                    easing: 'ease-out'
-                }).onfinish = () => particle.remove();
+
+
+        // Get random winning index from database
+        async function getRandomWinningIndex() {
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/random-winning-index`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.winningIndex;
+                } else {
+                    console.error('Failed to fetch random winning index');
+                    return Math.floor(Math.random() * availableCoupons.length);
+                }
+            } catch (error) {
+                console.error('Error fetching random winning index:', error);
+                return Math.floor(Math.random() * availableCoupons.length);
             }
         }
 
-        // Spin the wheel
-        function spinWheel() {
+        // Spin the wheel with optimized performance
+        async function spinWheel() {
             if (isSpinning || hasSpun) return;
 
             isSpinning = true;
             centerButton.disabled = true;
             centerButton.querySelector('.center-icon').textContent = '🔄';
 
-            // Create particle effects
-            createParticles();
+            // Get random winning index from database
+            randomWinningIndex = await getRandomWinningIndex();
+            console.log('Random winning index from database:', randomWinningIndex);
 
-            // Calculate random spin
-            const randomRotation = Math.random() * 360;
-            const fullRotations = (Math.floor(Math.random() * 4) + 5) * 360;
-            const totalRotation = currentRotation + fullRotations + randomRotation;
+            // Ensure transition is applied before spinning
+            wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
 
-            // Animate wheel spinning
+            // Calculate rotation to land directly on the winning segment
+            const wheelSegments = getWheelSegments();
+            const segmentAngle = 360 / wheelSegments.length;
+            const targetSegmentIndex = randomWinningIndex % wheelSegments.length;
+            
+            // Calculate the rotation needed to land directly on the target segment
+            // The pointer is at the top (0 degrees), so we need to rotate to the target segment
+            const targetAngle = targetSegmentIndex * segmentAngle + segmentAngle / 2; // Center of the segment
+            const extraRotations = 5 * 360; // 5 full rotations
+            const totalRotation = extraRotations + targetAngle; // 5 extra rotations + target angle
+
+            // Animate wheel spinning with CSS transition
             wheel.style.transform = `rotate(${totalRotation}deg)`;
 
-            // Calculate winning segment
+            // Show results after animation
             setTimeout(() => {
-                const normalizedRotation = (totalRotation % 360 + 360) % 360;
-                const segmentAngle = 90;
-                const adjustedRotation = (normalizedRotation + 45) % 360;
-                const segmentIndex = Math.floor(adjustedRotation / segmentAngle);
-                const wheelSegments = getWheelSegments();
-                const winningSegment = wheelSegments[segmentIndex];
+                // Use the random winning index directly
+                const winningSegment = wheelSegments[targetSegmentIndex];
+
+                // Debug logging
+                console.log('=== WHEEL DEBUG ===');
+                console.log('Random winning index from database:', randomWinningIndex);
+                console.log('Target segment index:', targetSegmentIndex);
+                console.log('Total rotation:', totalRotation);
+                console.log('Number of segments:', wheelSegments.length);
+                console.log('Segment angle:', segmentAngle);
+                console.log('All segments with visual positions:');
+                wheelSegments.forEach((segment, i) => {
+                    console.log(`  Array[${i}]: ID=${segment.id}, VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon?.code}`);
+                });
+                console.log('Winning segment:', winningSegment);
+                console.log('Winning segment text:', winningSegment.text);
+                console.log('Winning coupon:', winningSegment.coupon);
+                console.log('=== END DEBUG ===');
 
                 // Show results
                 currentRotation = totalRotation;
@@ -704,10 +913,22 @@
                 centerButton.disabled = false;
                 centerButton.querySelector('.center-icon').textContent = '🎁';
 
-                // Update result card with translated text
-                const freeDaysText = translations.wheel?.free_days || "FREE DAYS";
-                prizeDisplay.textContent = `${winningSegment.days} ${freeDaysText}`;
-                discountCode.textContent = `SPIN${winningSegment.days}FREE`;
+                // Store the winning coupon
+                currentWinningCoupon = winningSegment.coupon;
+
+                // Update result card with the exact segment data that was visually selected
+                // Use the segment's text and coupon data to ensure consistency
+                if (winningSegment.coupon) {
+                    // Show the exact coupon that matches the segment
+                    prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    discountCode.textContent = winningSegment.coupon.code;
+                    console.log('Displaying segment coupon:', winningSegment.text, winningSegment.coupon.code);
+                } else {
+                    // Fallback for segments without real coupons
+                    prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    discountCode.textContent = `SPIN${winningSegment.id}FREE`;
+                    console.log('Displaying fallback:', winningSegment.text);
+                }
 
                 // Show result card
                 instructionsCard.style.display = 'none';
@@ -715,13 +936,14 @@
 
                 // Show reset button
                 resetButton.style.display = 'flex';
-            }, 4000);
+            }, 5000);
         }
 
         // Reset wheel
         function resetWheel() {
             hasSpun = false;
             currentRotation = 0;
+            // Ensure wheel starts at 0 degrees
             wheel.style.transform = 'rotate(0deg)';
             instructionsCard.style.display = 'block';
             resultCard.classList.remove('show');
@@ -733,8 +955,25 @@
         resetButton.addEventListener('click', resetWheel);
 
         // Initialize wheel and load language
-        loadLanguage().then(() => {
+        loadLanguage().then(async () => {
+            console.log('API_BASE_URL:', window.API_BASE_URL);
+            // Fetch coupons first, then create wheel segments
+            await fetchCoupons();
+            console.log('After fetchCoupons, availableCoupons length:', availableCoupons.length);
             createWheelSegments();
+            // Ensure wheel starts at 0 degrees and has proper transition
+            wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+            wheel.style.transform = 'rotate(0deg)';
+            // Force a reflow to ensure the initial state is applied
+            wheel.offsetHeight;
+            // Small delay to ensure the initial state is properly set
+            setTimeout(() => {
+                wheel.style.transition = 'none';
+                wheel.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+                }, 10);
+            }, 100);
         });
 
         // Listen for language changes from parent window
