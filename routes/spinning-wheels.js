@@ -111,6 +111,18 @@ router.patch('/:id/activate', (req, res) => {
   });
 });
 
+// Deactivate a spinning wheel
+router.patch('/:id/deactivate', (req, res) => {
+  const id = req.params.id;
+  
+  db.run('UPDATE spinning_wheels SET is_active = 0 WHERE id = ?', [id], (err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ success: true });
+  });
+});
+
 // Delete spinning wheel
 router.delete('/:id', (req, res) => {
   const id = req.params.id;

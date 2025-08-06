@@ -629,20 +629,33 @@
                 const apiUrl = window.API_BASE_URL;
                 console.log('Fetching coupons from:', apiUrl);
                 
-                // First, get the active spinning wheel
-                const wheelResponse = await fetch(`${apiUrl}/api/spinning-wheels/active`);
-                if (!wheelResponse.ok) {
-                    if (wheelResponse.status === 404) {
-                        console.log('No active spinning wheel configured - this is expected when no wheel is set up');
-                    } else {
-                        console.error('Failed to get active spinning wheel, status:', wheelResponse.status);
-                    }
+                // First, check if any spinning wheels exist
+                const wheelsResponse = await fetch(`${apiUrl}/api/spinning-wheels`);
+                if (!wheelsResponse.ok) {
+                    console.error('Failed to get spinning wheels, status:', wheelsResponse.status);
                     availableCoupons = [];
                     cachedWheelSegments = null;
                     return;
                 }
                 
-                const activeWheel = await wheelResponse.json();
+                const allWheels = await wheelsResponse.json();
+                if (allWheels.length === 0) {
+                    console.log('No spinning wheels configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                // Check if any wheel is active
+                const activeWheel = allWheels.find(wheel => wheel.is_active === 1);
+                if (!activeWheel) {
+                    console.log('No active spinning wheel configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                console.log('Active wheel:', activeWheel);
                 console.log('Active wheel:', activeWheel);
                 
                 // Then fetch coupons that are enabled for this specific wheel

@@ -3776,21 +3776,34 @@
 
         async function activateWheel(wheelId) {
           try {
-            const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/activate`, {
+            // First, get the current wheel to check if it's already active
+            const wheelResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}`);
+            if (!wheelResponse.ok) {
+              showCustomAlert('Error getting wheel information', 'error');
+              return;
+            }
+            
+            const wheel = await wheelResponse.json();
+            const isCurrentlyActive = wheel.is_active === 1;
+            
+            // Choose endpoint based on current state
+            const endpoint = isCurrentlyActive ? 'deactivate' : 'activate';
+            const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/${endpoint}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' }
             });
             
             if (response.ok) {
-              showCustomAlert('Wheel activated successfully', 'success');
+              const action = isCurrentlyActive ? 'deactivated' : 'activated';
+              showCustomAlert(`Wheel ${action} successfully`, 'success');
               loadSpinningWheelData();
             } else {
               const error = await response.json();
-              showCustomAlert('Error activating wheel: ' + error.error, 'error');
+              showCustomAlert(`Error ${isCurrentlyActive ? 'deactivating' : 'activating'} wheel: ` + error.error, 'error');
             }
           } catch (error) {
-            console.error('Error activating wheel:', error);
-            showCustomAlert('Error activating wheel', 'error');
+            console.error('Error toggling wheel state:', error);
+            showCustomAlert('Error toggling wheel state', 'error');
           }
         }
 
