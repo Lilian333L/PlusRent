@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
 const couponRoutes = require('./routes/coupons');
 const bookingRoutes = require('./routes/bookings');
+const spinningWheelRoutes = require('./routes/spinning-wheels');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -130,6 +131,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/spinning-wheels', spinningWheelRoutes);
 
 // Test endpoint to check database connection
 app.get('/api/test', (req, res) => {

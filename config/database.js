@@ -64,6 +64,16 @@ function initializeDatabase() {
       is_active BOOLEAN DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    // Create spinning wheels table
+    db.run(`CREATE TABLE IF NOT EXISTS spinning_wheels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      coupon_type TEXT NOT NULL,
+      is_active BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
     
     // Create bookings table
     db.run(`CREATE TABLE IF NOT EXISTS bookings (
@@ -131,6 +141,12 @@ function initializeDatabase() {
     
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});
+    
+    // Insert default spinning wheels if they don't exist
+    db.run(`INSERT OR IGNORE INTO spinning_wheels (name, description, coupon_type, is_active) VALUES 
+      ('Percentage Discount Wheel', 'Wheel for percentage discount coupons', 'percentage', 1),
+      ('Free Days Wheel', 'Wheel for free days coupons', 'free_days', 0)
+    `, () => {});
   });
 }
 

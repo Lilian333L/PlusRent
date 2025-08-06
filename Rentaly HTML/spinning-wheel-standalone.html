@@ -628,15 +628,33 @@
                 
                 const apiUrl = window.API_BASE_URL;
                 console.log('Fetching coupons from:', apiUrl);
+                
+                // First, get the active spinning wheel
+                const wheelResponse = await fetch(`${apiUrl}/api/spinning-wheels/active`);
+                if (!wheelResponse.ok) {
+                    console.error('Failed to get active spinning wheel, status:', wheelResponse.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                const activeWheel = await wheelResponse.json();
+                console.log('Active wheel:', activeWheel);
+                
+                // Then fetch coupons that match the active wheel's type
                 const response = await fetch(`${apiUrl}/api/coupons`);
                 console.log('Response status:', response.status);
                 
                 if (response.ok) {
                     const coupons = await response.json();
                     console.log('Raw coupons:', coupons);
-                    // Filter only active coupons that are enabled for the wheel
-                    availableCoupons = coupons.filter(coupon => coupon.is_active === 1 && coupon.wheel_enabled === 1);
-                    console.log('Wheel-enabled active coupons:', availableCoupons);
+                    // Filter only active coupons that are enabled for the wheel and match the wheel type
+                    availableCoupons = coupons.filter(coupon => 
+                        coupon.is_active === 1 && 
+                        coupon.wheel_enabled === 1 && 
+                        coupon.type === activeWheel.coupon_type
+                    );
+                    console.log(`Wheel-enabled ${activeWheel.coupon_type} coupons:`, availableCoupons);
                     // Clear cache when new coupons are loaded
                     cachedWheelSegments = null;
                 } else {

@@ -27,20 +27,33 @@ router.get('/debug-table', (req, res) => {
 
 // Get random winning index for spinning wheel
 router.get('/random-winning-index', (req, res) => {
-  db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1 AND wheel_enabled = 1', (err, rows) => {
+  // First, get the active spinning wheel
+  db.get('SELECT * FROM spinning_wheels WHERE is_active = 1', (err, activeWheel) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    const activeCouponsCount = rows[0].count;
-    if (activeCouponsCount === 0) {
-      return res.status(400).json({ error: 'No active coupons available for spinning wheel' });
+    if (!activeWheel) {
+      return res.status(400).json({ error: 'No active spinning wheel found' });
     }
     
-    // Generate random index between 0 and activeCouponsCount - 1
-    const winningIndex = Math.floor(Math.random() * activeCouponsCount);
-    
-    res.json({ winningIndex });
+    // Get coupons that match the active wheel's coupon type and are enabled
+    db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1 AND wheel_enabled = 1 AND type = ?', 
+      [activeWheel.coupon_type], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      const activeCouponsCount = rows[0].count;
+      if (activeCouponsCount === 0) {
+        return res.status(400).json({ error: `No active ${activeWheel.coupon_type} coupons available for spinning wheel` });
+      }
+      
+      // Generate random index between 0 and activeCouponsCount - 1
+      const winningIndex = Math.floor(Math.random() * activeCouponsCount);
+      
+      res.json({ winningIndex, activeWheel });
+    });
   });
 });
 
