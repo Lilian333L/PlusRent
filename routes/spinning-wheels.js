@@ -52,19 +52,15 @@ router.get('/:id/coupons', (req, res) => {
 
 // Add new spinning wheel
 router.post('/', (req, res) => {
-  const { name, description, coupon_type } = req.body;
+  const { name, description } = req.body;
 
-  if (!name || !coupon_type) {
-    return res.status(400).json({ error: 'Name and coupon type are required' });
-  }
-
-  if (coupon_type !== 'percentage' && coupon_type !== 'free_days') {
-    return res.status(400).json({ error: 'Coupon type must be either "percentage" or "free_days"' });
+  if (!name) {
+    return res.status(400).json({ error: 'Name is required' });
   }
 
   db.run(
-    'INSERT INTO spinning_wheels (name, description, coupon_type) VALUES (?, ?, ?)',
-    [name, description || null, coupon_type],
+    'INSERT INTO spinning_wheels (name, description) VALUES (?, ?)',
+    [name, description || null],
     function (err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
@@ -77,19 +73,15 @@ router.post('/', (req, res) => {
 // Update spinning wheel
 router.put('/:id', (req, res) => {
   const id = req.params.id;
-  const { name, description, coupon_type } = req.body;
+  const { name, description } = req.body;
 
-  if (!name || !coupon_type) {
-    return res.status(400).json({ error: 'Name and coupon type are required' });
-  }
-
-  if (coupon_type !== 'percentage' && coupon_type !== 'free_days') {
-    return res.status(400).json({ error: 'Coupon type must be either "percentage" or "free_days"' });
+  if (!name) {
+    return res.status(400).json({ error: 'Name is required' });
   }
 
   db.run(
-    'UPDATE spinning_wheels SET name = ?, description = ?, coupon_type = ? WHERE id = ?',
-    [name, description || null, coupon_type, id],
+    'UPDATE spinning_wheels SET name = ?, description = ? WHERE id = ?',
+    [name, description || null, id],
     function (err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
