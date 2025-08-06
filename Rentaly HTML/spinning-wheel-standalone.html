@@ -703,15 +703,26 @@
                         break;
                 }
                 
+                // Determine text based on coupon type
+                let segmentText;
+                if (coupon.type === 'percentage') {
+                    segmentText = `${coupon.discount_percentage}%`;
+                } else if (coupon.type === 'free_days') {
+                    segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                } else {
+                    // Fallback for old coupons without type
+                    segmentText = `${coupon.discount_percentage}%`;
+                }
+                
                 segments.push({
                     id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5...)
                     visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4...)
-                    text: `${coupon.discount_percentage}%`,
+                    text: segmentText,
                     gradient: gradient, // Alternating blue gradients
                     coupon: coupon
                 });
                 const colorNames = ['lightest', 'medium', 'darkest'];
-                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${coupon.discount_percentage}% - ${coupon.code} (${colorNames[colorIndex]} blue)`);
+                console.log(`Created segment ${arrayIndex + 1} (counter) at visual position ${visualPosition} with ${segmentText} - ${coupon.code} (${colorNames[colorIndex]} blue)`);
             });
             
             console.log('=== SEGMENT CREATION DEBUG ===');
@@ -920,7 +931,14 @@
                 // Use the segment's text and coupon data to ensure consistency
                 if (winningSegment.coupon) {
                     // Show the exact coupon that matches the segment
-                    prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    if (winningSegment.coupon.type === 'percentage') {
+                        prizeDisplay.textContent = `${winningSegment.coupon.discount_percentage}% OFF`;
+                    } else if (winningSegment.coupon.type === 'free_days') {
+                        prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                    } else {
+                        // Fallback for old coupons without type
+                        prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    }
                     discountCode.textContent = winningSegment.coupon.code;
                     console.log('Displaying segment coupon:', winningSegment.text, winningSegment.coupon.code);
                 } else {

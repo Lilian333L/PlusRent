@@ -13,6 +13,18 @@ router.get('/', (req, res) => {
   });
 });
 
+// Debug endpoint to check table structure
+router.get('/debug-table', (req, res) => {
+  db.all("PRAGMA table_info(coupon_codes)", (err, rows) => {
+    if (err) {
+      console.error('Error checking table structure:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    console.log('Table structure:', rows);
+    res.json({ tableStructure: rows });
+  });
+});
+
 // Get random winning index for spinning wheel
 router.get('/random-winning-index', (req, res) => {
   db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1', (err, rows) => {
@@ -48,26 +60,50 @@ router.get('/:id', (req, res) => {
 
 // Add new coupon code
 router.post('/', (req, res) => {
-  const { code, discount_percentage, description, expires_at } = req.body;
+  console.log('Received coupon data:', req.body);
+  
+  try {
+    const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
 
-  if (!code || !discount_percentage) {
-    return res.status(400).json({ error: 'Code and discount percentage are required' });
+  if (!code || !type) {
+    return res.status(400).json({ error: 'Code and type are required' });
   }
 
-  const discountValue = parseFloat(discount_percentage);
-  if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
-    return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
+  if (type !== 'percentage' && type !== 'free_days') {
+    return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
+  }
+
+  let discountValue = null;
+  let freeDaysValue = null;
+
+  if (type === 'percentage') {
+    if (!discount_percentage) {
+      return res.status(400).json({ error: 'Discount percentage is required for percentage type' });
+    }
+    discountValue = parseFloat(discount_percentage);
+    if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+      return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
+    }
+  } else if (type === 'free_days') {
+    if (!free_days) {
+      return res.status(400).json({ error: 'Free days is required for free_days type' });
+    }
+    freeDaysValue = parseInt(free_days);
+    if (isNaN(freeDaysValue) || freeDaysValue <= 0) {
+      return res.status(400).json({ error: 'Free days must be a positive number' });
+    }
   }
 
   db.run(
-    'INSERT INTO coupon_codes (code, discount_percentage, description, expires_at) VALUES (?, ?, ?, ?)',
-    [code.toUpperCase(), discountValue, description || null, expires_at || null],
+    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null],
     async function (err) {
       if (err) {
+        console.error('Database error details:', err);
         if (err.message.includes('UNIQUE constraint failed')) {
           return res.status(400).json({ error: 'Coupon code already exists' });
         }
-        return res.status(500).json({ error: 'Database error' });
+        return res.status(500).json({ error: 'Database error: ' + err.message });
       }
       
       // Send Telegram notification
@@ -75,7 +111,9 @@ router.post('/', (req, res) => {
         const telegram = new TelegramNotifier();
         const couponData = {
           code: code.toUpperCase(),
+          type: type,
           discount_percentage: discountValue,
+          free_days: freeDaysValue,
           description: description || null,
           expires_at: expires_at || null,
           is_active: true
@@ -88,25 +126,49 @@ router.post('/', (req, res) => {
       res.json({ success: true, id: this.lastID });
     }
   );
+  } catch (error) {
+    console.error('Unexpected error in POST /coupons:', error);
+    return res.status(500).json({ error: 'Internal server error: ' + error.message });
+  }
 });
 
 // Update coupon code
 router.put('/:id', (req, res) => {
   const id = req.params.id;
-  const { code, discount_percentage, description, is_active, expires_at } = req.body;
+  const { code, type, discount_percentage, free_days, description, is_active, expires_at } = req.body;
 
-  if (!code || !discount_percentage) {
-    return res.status(400).json({ error: 'Code and discount percentage are required' });
+  if (!code || !type) {
+    return res.status(400).json({ error: 'Code and type are required' });
   }
 
-  const discountValue = parseFloat(discount_percentage);
-  if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
-    return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
+  if (type !== 'percentage' && type !== 'free_days') {
+    return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
+  }
+
+  let discountValue = null;
+  let freeDaysValue = null;
+
+  if (type === 'percentage') {
+    if (!discount_percentage) {
+      return res.status(400).json({ error: 'Discount percentage is required for percentage type' });
+    }
+    discountValue = parseFloat(discount_percentage);
+    if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+      return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
+    }
+  } else if (type === 'free_days') {
+    if (!free_days) {
+      return res.status(400).json({ error: 'Free days is required for free_days type' });
+    }
+    freeDaysValue = parseInt(free_days);
+    if (isNaN(freeDaysValue) || freeDaysValue <= 0) {
+      return res.status(400).json({ error: 'Free days must be a positive number' });
+    }
   }
 
   db.run(
-    'UPDATE coupon_codes SET code=?, discount_percentage=?, description=?, is_active=?, expires_at=? WHERE id=?',
-    [code.toUpperCase(), discountValue, description || null, is_active ? 1 : 0, expires_at || null, id],
+    'UPDATE coupon_codes SET code=?, type=?, discount_percentage=?, free_days=?, description=?, is_active=?, expires_at=? WHERE id=?',
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, is_active ? 1 : 0, expires_at || null, id],
     async function (err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
@@ -120,7 +182,9 @@ router.put('/:id', (req, res) => {
         const telegram = new TelegramNotifier();
         const couponData = {
           code: code.toUpperCase(),
+          type: type,
           discount_percentage: discountValue,
+          free_days: freeDaysValue,
           description: description || null,
           expires_at: expires_at || null,
           is_active: is_active ? 1 : 0

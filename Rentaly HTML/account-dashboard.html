@@ -1291,8 +1291,19 @@
                               <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
                             </div>
                             <div>
+                              <label class="form-label">Coupon Type</label>
+                              <select name="type" id="couponType" class="form-control" required>
+                                <option value="percentage">Percentage Discount</option>
+                                <option value="free_days">Free Days</option>
+                              </select>
+                            </div>
+                            <div id="percentageField" class="coupon-field">
                               <label class="form-label">Discount Percentage</label>
-                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01" required>
+                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01">
+                            </div>
+                            <div id="freeDaysField" class="coupon-field" style="display: none;">
+                              <label class="form-label">Free Days</label>
+                              <input type="number" name="free_days" class="form-control" placeholder="e.g., 3" min="1" step="1">
                             </div>
                             <div>
                               <label class="form-label">Description</label>
@@ -1327,8 +1338,19 @@
                               <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
                             </div>
                             <div>
+                              <label class="form-label">Coupon Type</label>
+                              <select name="type" id="editCouponType" class="form-control" required>
+                                <option value="percentage">Percentage Discount</option>
+                                <option value="free_days">Free Days</option>
+                              </select>
+                            </div>
+                            <div id="editPercentageField" class="coupon-field">
                               <label class="form-label">Discount Percentage</label>
-                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01" required>
+                              <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01">
+                            </div>
+                            <div id="editFreeDaysField" class="coupon-field" style="display: none;">
+                              <label class="form-label">Free Days</label>
+                              <input type="number" name="free_days" class="form-control" placeholder="e.g., 3" min="1" step="1">
                             </div>
                             <div>
                               <label class="form-label">Description</label>
@@ -1870,7 +1892,8 @@
                 </span>
               </div>
               <p class="card-text">
-                <strong>Discount:</strong> ${coupon.discount_percentage}%<br>
+                <strong>${coupon.type === 'free_days' ? 'Free Days:' : 'Discount:'}</strong> 
+                ${coupon.type === 'free_days' ? `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : `${coupon.discount_percentage}%`}<br>
                 <strong>Description:</strong> ${coupon.description || 'No description'}<br>
                 ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
               </p>
@@ -2840,6 +2863,26 @@
           const formData = new FormData(couponForm);
           const couponData = Object.fromEntries(formData.entries());
           
+          // Client-side validation based on coupon type
+          const couponType = couponData.type;
+          const discountPercentage = couponData.discount_percentage;
+          const freeDays = couponData.free_days;
+          
+          // Clean up the data - remove empty values for hidden fields
+          if (couponType === 'percentage') {
+            delete couponData.free_days; // Remove free_days field for percentage type
+            if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
+              showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
+              return;
+            }
+          } else if (couponType === 'free_days') {
+            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
+            if (!freeDays || freeDays <= 0) {
+              showCustomAlert('Please enter a valid number of free days', 'error');
+              return;
+            }
+          }
+          
           try {
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
               method: 'POST',
@@ -2861,6 +2904,120 @@
           } catch (error) {
             console.error('Error adding coupon:', error);
             showCustomAlert('Error adding coupon', 'error');
+          }
+        });
+      }
+      
+      // Coupon Type Selection Handler
+      const couponType = document.getElementById('couponType');
+      const editCouponType = document.getElementById('editCouponType');
+      
+      function handleCouponTypeChange(typeSelect, percentageField, freeDaysField) {
+        if (typeSelect) {
+          typeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            const percentageInput = percentageField.querySelector('input[name="discount_percentage"]');
+            const freeDaysInput = freeDaysField.querySelector('input[name="free_days"]');
+            
+            if (selectedType === 'percentage') {
+              percentageField.style.display = 'block';
+              freeDaysField.style.display = 'none';
+              percentageInput.required = true;
+              freeDaysInput.required = false;
+              freeDaysInput.value = '';
+            } else if (selectedType === 'free_days') {
+              percentageField.style.display = 'none';
+              freeDaysField.style.display = 'block';
+              percentageInput.required = false;
+              freeDaysInput.required = true;
+              percentageInput.value = '';
+            }
+          });
+        }
+      }
+      
+      // Initialize coupon type handlers
+      if (couponType) {
+        handleCouponTypeChange(
+          couponType, 
+          document.getElementById('percentageField'), 
+          document.getElementById('freeDaysField')
+        );
+        // Set initial state for add form
+        const percentageInput = document.getElementById('percentageField').querySelector('input[name="discount_percentage"]');
+        const freeDaysInput = document.getElementById('freeDaysField').querySelector('input[name="free_days"]');
+        if (percentageInput) percentageInput.required = true;
+        if (freeDaysInput) freeDaysInput.required = false;
+      }
+      
+      if (editCouponType) {
+        handleCouponTypeChange(
+          editCouponType, 
+          document.getElementById('editPercentageField'), 
+          document.getElementById('editFreeDaysField')
+        );
+      }
+      
+      // Edit Coupon Form Submit
+      const editCouponForm = document.getElementById('editCouponForm');
+      if (editCouponForm) {
+        editCouponForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const couponId = editCouponForm.dataset.couponId;
+          if (!couponId) {
+            showCustomAlert('No coupon ID found', 'error');
+            return;
+          }
+          
+          const formData = new FormData(editCouponForm);
+          const couponData = Object.fromEntries(formData.entries());
+          
+          // Client-side validation based on coupon type
+          const couponType = couponData.type;
+          const discountPercentage = couponData.discount_percentage;
+          const freeDays = couponData.free_days;
+          
+          // Clean up the data - remove empty values for hidden fields
+          if (couponType === 'percentage') {
+            delete couponData.free_days; // Remove free_days field for percentage type
+            if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
+              showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
+              return;
+            }
+          } else if (couponType === 'free_days') {
+            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
+            if (!freeDays || freeDays <= 0) {
+              showCustomAlert('Please enter a valid number of free days', 'error');
+              return;
+            }
+          }
+          
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(couponData)
+            });
+            
+            if (response.ok) {
+              showCustomAlert('Coupon updated successfully!', 'success');
+              editCouponForm.reset();
+              const editCouponPanel = document.getElementById('editCouponPanel');
+              const couponOverlay = document.getElementById('couponOverlay');
+              if (editCouponPanel && couponOverlay) {
+                editCouponPanel.classList.remove('active');
+                couponOverlay.classList.remove('active');
+                document.body.classList.remove('admin-popup-open');
+              }
+              loadCoupons();
+            } else {
+              const error = await response.json();
+              showCustomAlert('Error updating coupon: ' + error.error, 'error');
+            }
+          } catch (error) {
+            console.error('Error updating coupon:', error);
+            showCustomAlert('Error updating coupon', 'error');
           }
         });
       }
@@ -3007,8 +3164,65 @@
     }
 
     async function editCoupon(couponId) {
-      // Implementation for editing coupon
-      showCustomAlert('Edit coupon functionality coming soon!', 'info');
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
+        const coupon = await response.json();
+        
+        if (!response.ok) {
+          showCustomAlert('Error loading coupon data: ' + coupon.error, 'error');
+          return;
+        }
+        
+        // Populate the edit form with coupon data
+        const editForm = document.getElementById('editCouponForm');
+        if (!editForm) return;
+        
+        // Fill in the form fields
+        const codeInput = editForm.querySelector('input[name="code"]');
+        const typeSelect = editForm.querySelector('select[name="type"]');
+        const discountPercentageInput = editForm.querySelector('input[name="discount_percentage"]');
+        const freeDaysInput = editForm.querySelector('input[name="free_days"]');
+        const descriptionInput = editForm.querySelector('textarea[name="description"]');
+        const expiresAtInput = editForm.querySelector('input[name="expires_at"]');
+        const isActiveSelect = editForm.querySelector('select[name="is_active"]');
+        
+        if (codeInput) codeInput.value = coupon.code || '';
+        if (typeSelect) typeSelect.value = coupon.type || 'percentage';
+        if (discountPercentageInput) discountPercentageInput.value = coupon.discount_percentage || '';
+        if (freeDaysInput) freeDaysInput.value = coupon.free_days || '';
+        if (descriptionInput) descriptionInput.value = coupon.description || '';
+        if (isActiveSelect) isActiveSelect.value = coupon.is_active ? '1' : '0';
+        
+        // Handle expiry date
+        if (expiresAtInput && coupon.expires_at) {
+          const date = new Date(coupon.expires_at);
+          const dateString = date.toISOString().slice(0, 16); // Format for datetime-local
+          expiresAtInput.value = dateString;
+        } else if (expiresAtInput) {
+          expiresAtInput.value = '';
+        }
+        
+        // Trigger the type change event to show/hide appropriate fields
+        if (typeSelect) {
+          typeSelect.dispatchEvent(new Event('change'));
+        }
+        
+        // Show the edit panel
+        const editCouponPanel = document.getElementById('editCouponPanel');
+        const couponOverlay = document.getElementById('couponOverlay');
+        if (editCouponPanel && couponOverlay) {
+          editCouponPanel.classList.add('active');
+          couponOverlay.classList.add('active');
+          document.body.classList.add('admin-popup-open');
+        }
+        
+        // Store the coupon ID for the form submission
+        editForm.dataset.couponId = couponId;
+        
+      } catch (error) {
+        console.error('Error loading coupon data:', error);
+        showCustomAlert('Error loading coupon data', 'error');
+      }
     }
 
     async function deleteCoupon(couponId) {
