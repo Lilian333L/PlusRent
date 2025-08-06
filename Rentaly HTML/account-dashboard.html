@@ -2779,10 +2779,17 @@
           }
           
           console.log('✅ Car form submission started');
+          console.log('🔍 Form element:', carForm);
+          console.log('🔍 Form action:', carForm.action);
+          console.log('🔍 Form method:', carForm.method);
           isSubmitting = true;
           
           const formData = new FormData(carForm);
           const carData = Object.fromEntries(formData.entries());
+          
+          console.log('📋 Form data collected:', carData);
+          console.log('🔍 Make name value:', carData.make_name);
+          console.log('🔍 Model name value:', carData.model_name);
           
           // Convert price fields to price_policy object
           const pricePolicy = {
@@ -2895,14 +2902,29 @@
             console.log('🖼️ Proceeding with image upload path');
             const imageFormData = new FormData();
             
-            // Add all form data
-            Object.keys(carData).forEach(key => {
-              if (key === 'price_policy') {
-                imageFormData.append(key, JSON.stringify(carData[key]));
+            // Build FormData directly from the form
+            const form = document.getElementById('carForm');
+            const formData = new FormData(form);
+            
+            // Add all form fields to imageFormData
+            for (let [key, value] of formData.entries()) {
+              if (key.startsWith('price_')) {
+                // Skip individual price fields as they'll be handled below
+                continue;
               } else {
-                imageFormData.append(key, carData[key]);
+                imageFormData.append(key, value);
               }
-            });
+            }
+            
+            // Always create and add price policy object
+            const pricePolicy = {
+              '1-2': formData.get('price_1_2') || '',
+              '3-7': formData.get('price_3_7') || '',
+              '8-20': formData.get('price_8_20') || '',
+              '21-45': formData.get('price_21_45') || '',
+              '46+': formData.get('price_46') || ''
+            };
+            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
             
             // Add images
             if (headImageFile) {
@@ -2914,6 +2936,10 @@
             
             try {
               console.log('🚀 Sending FormData request to /api/cars');
+              console.log('📡 FormData contents:');
+              for (let [key, value] of imageFormData.entries()) {
+                console.log(`  ${key}:`, value);
+              }
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 body: imageFormData
@@ -2950,6 +2976,9 @@
             console.log('📄 Proceeding with JSON submission path');
             try {
               console.log('🚀 Sending JSON request to /api/cars');
+              console.log('📡 API_BASE_URL:', window.API_BASE_URL);
+              console.log('📡 Full URL:', `${window.API_BASE_URL}/api/cars`);
+              console.log('📡 Request body:', JSON.stringify(carData, null, 2));
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

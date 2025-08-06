@@ -139,8 +139,24 @@ router.get('/:id', (req, res) => {
 });
 
 // Add new car
-router.post('/', async (req, res) => {
+router.post('/', upload.any(), async (req, res) => {
   console.log('Car creation request body:', req.body);
+  console.log('Files received:', req.files);
+  
+  // Handle file uploads
+  let headImagePath = null;
+  let galleryImagePaths = [];
+  
+  if (req.files && req.files.length > 0) {
+    req.files.forEach(file => {
+      if (file.fieldname === 'head_image') {
+        headImagePath = file.path.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+      } else if (file.fieldname === 'gallery_images') {
+        galleryImagePaths.push(file.path.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
+      }
+    });
+  }
+  
   const {
     make_name,
     model_name,
@@ -151,7 +167,7 @@ router.post('/', async (req, res) => {
     car_type,
     num_doors,
     num_passengers,
-    price_policy,
+    price_policy: pricePolicyRaw,
     booked_until,
     luggage,
     mileage,
@@ -162,6 +178,15 @@ router.post('/', async (req, res) => {
     rca_insurance_price,
     casco_insurance_price
   } = req.body;
+  
+  // Parse price_policy if it's a JSON string
+  let price_policy;
+  try {
+    price_policy = typeof pricePolicyRaw === 'string' ? JSON.parse(pricePolicyRaw) : pricePolicyRaw;
+  } catch (error) {
+    console.error('Error parsing price_policy:', error);
+    price_policy = {};
+  }
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -270,8 +295,8 @@ router.post('/', async (req, res) => {
   });
   
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, head_image, gallery_images)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
     [
       make_name,
       model_name,
@@ -291,7 +316,9 @@ router.post('/', async (req, res) => {
       exterior_color || null,
       interior_color || null,
       rcaInsuranceValue,
-      cascoInsuranceValue
+      cascoInsuranceValue,
+      headImagePath,
+      JSON.stringify(galleryImagePaths)
     ],
     async function (err) {
       if (err) {
