@@ -39,6 +39,17 @@ router.get('/:id', (req, res) => {
   });
 });
 
+// Get coupons for a specific wheel
+router.get('/:id/coupons', (req, res) => {
+  const id = req.params.id;
+  db.all('SELECT * FROM wheel_coupons WHERE wheel_id = ?', [id], (err, wheelCoupons) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(wheelCoupons);
+  });
+});
+
 // Add new spinning wheel
 router.post('/', (req, res) => {
   const { name, description, coupon_type } = req.body;

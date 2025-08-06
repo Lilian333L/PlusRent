@@ -188,6 +188,79 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
   }
+  
+  /* Enhanced styling for wheel items */
+  .wheel-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .wheel-item.active {
+    background-color: #e3f2fd;
+    border-left-color: #2196f3 !important;
+  }
+  
+  /* Card enhancements */
+  .card.shadow-sm {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  }
+  
+  .card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+  }
+  
+  /* Button enhancements */
+  .btn {
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  /* List group enhancements */
+  .list-group-item {
+    border: 1px solid rgba(0,0,0,0.125);
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .list-group-item:first-child {
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+  }
+  
+  .list-group-item:last-child {
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+  }
+  
+  /* Form enhancements */
+  .form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  /* Badge enhancements */
+  .badge {
+    font-size: 0.75em;
+    font-weight: 500;
+  }
+  
+  /* Icon spacing */
+  .fa {
+    margin-right: 0.25rem;
+  }
   .admin-form-grid .five-column-grid {
     grid-column: 1 / -1;
     display: grid;
@@ -615,6 +688,10 @@
   
   .admin-tab-content.active {
     display: block;
+  }
+
+  .spinning-wheel-tab {
+    width: 90%;
   }
   
   /* Coupon Card Styles */
@@ -1396,50 +1473,67 @@
                 <div id="spinning-wheel-tab" class="admin-tab-content">
                   <div class="admin-flex-row">
                     <!-- Left Side - Wheels List -->
-                    <div class="admin-btn-col" style="flex: 0 0 300px;">
-                      <h4>Spinning Wheels</h4>
-                      <p class="text-muted">Select a wheel to configure</p>
-                      <div class="mt-3 mb-4">
-                        <button id="openSpinningWheelBtn" type="button" class="btn btn-main btn-lg w-100">Open Active Wheel</button>
-                        <button id="addWheelBtn" type="button" class="btn btn-outline-primary btn-lg mt-2 w-100">Add New Wheel</button>
-                      </div>
-                      
-                      <!-- Active Wheel Info -->
-                      <div class="card mb-3">
-                        <div class="card-body">
-                          <h6 class="card-title">Active Wheel</h6>
-                          <div id="activeWheelInfo" class="alert alert-info">
-                            Loading...
-                          </div>
+                    <div style="flex: 0 0 350px; margin-right: 20px;">
+                      <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                          <h5 class="mb-0"><i class="fa fa-cog"></i> Spinning Wheels</h5>
                         </div>
-                      </div>
-                      
-                      <!-- Wheels List -->
-                      <div class="card">
                         <div class="card-body">
-                          <h6 class="card-title">All Wheels</h6>
-                          <div id="wheelsList" class="list-group">
-                            <!-- Wheels will be loaded here -->
+                          <p class="text-muted mb-3">Select a wheel to configure</p>
+                          <div class="mb-4">
+                            <button id="openSpinningWheelBtn" type="button" class="btn btn-success btn-lg w-100 mb-2">
+                              <i class="fa fa-play"></i> Open Active Wheel
+                            </button>
+                            <button id="addWheelBtn" type="button" class="btn btn-outline-primary btn-lg w-100">
+                              <i class="fa fa-plus"></i> Add New Wheel
+                            </button>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <!-- Right Side - Wheel Configuration -->
-                    <div class="admin-form-col" style="flex: 1;">
-                      <div id="wheelConfigurationPanel">
-                        <!-- Default state when no wheel is selected -->
-                        <div class="card">
-                          <div class="card-body text-center">
-                            <h5 class="card-title">Select a Wheel</h5>
-                            <p class="text-muted">Choose a wheel from the list on the left to configure it</p>
-                            <div class="mt-4">
-                              <i class="fa fa-arrow-left fa-2x text-muted"></i>
+                          
+                          <!-- Active Wheel Info -->
+                          <div class="card border-success mb-3">
+                            <div class="card-header bg-success text-white">
+                              <h6 class="mb-0"><i class="fa fa-star"></i> Active Wheel</h6>
+                            </div>
+                            <div class="card-body">
+                              <div id="activeWheelInfo" class="alert alert-success">
+                                Loading...
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Wheels List -->
+                          <div class="card">
+                            <div class="card-header bg-light">
+                              <h6 class="mb-0"><i class="fa fa-list"></i> All Wheels</h6>
+                            </div>
+                            <div class="card-body p-0">
+                              <div id="wheelsList" class="list-group list-group-flush">
+                                <!-- Wheels will be loaded here -->
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                    
+                                         <!-- Right Side - Wheel Configuration -->
+                     <div style="flex: 1;">
+                       <div id="wheelConfigurationPanel">
+                         <!-- Default state when no wheel is selected -->
+                         <div class="card shadow-sm">
+                           <div class="card-header bg-light">
+                             <h5 class="mb-0"><i class="fa fa-cog"></i> Wheel Configuration</h5>
+                           </div>
+                           <div class="card-body text-center py-5">
+                             <div class="mb-4">
+                               <i class="fa fa-arrow-left fa-3x text-muted"></i>
+                             </div>
+                             <h5 class="card-title">Select a Wheel</h5>
+                             <p class="text-muted">Choose a wheel from the list on the left to configure it</p>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -3626,13 +3720,14 @@
               if (activeWheel) {
                 const matchingCoupons = coupons.filter(coupon => 
                   coupon.is_active === 1 && 
-                  coupon.wheel_enabled === 1 && 
-                  coupon.type === activeWheel.coupon_type
+                  coupon.wheel_enabled === 1
                 );
                 activeWheelInfo.innerHTML = `
                   <strong>${activeWheel.name}</strong><br>
                   <small>${activeWheel.description || 'No description'}</small><br>
-                  <small class="text-muted">Type: ${activeWheel.coupon_type} | Coupons: ${matchingCoupons.length}</small>
+                  <small class="text-muted">Type: ${activeWheel.coupon_type === 'percentage' ? 'Percentage Discount Wheel' : 
+                                                   activeWheel.coupon_type === 'free_days' ? 'Free Days Wheel' : 
+                                                   activeWheel.coupon_type || 'Custom Wheel'} | Coupons: ${matchingCoupons.length}</small>
                 `;
                 activeWheelInfo.className = 'alert alert-success';
               } else {
@@ -3660,25 +3755,32 @@
               } else {
                                 wheelsList.innerHTML = wheels.map(wheel => `
                   <div class="list-group-item d-flex justify-content-between align-items-center wheel-item" 
-                       onclick="showWheelConfiguration(${wheel.id})" style="cursor: pointer;">
-                    <div>
-                      <strong>${wheel.name}</strong>
-                      <br>
-                      <small class="text-muted">${wheel.description || 'No description'}</small>
-                      <br>
-                      <small class="text-muted">Type: ${wheel.coupon_type}</small>
+                       onclick="showWheelConfiguration(${wheel.id})" 
+                       style="cursor: pointer; border-left: 4px solid ${wheel.is_active ? '#28a745' : '#6c757d'}; transition: all 0.2s ease;">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center mb-1">
+                        <strong class="me-2">${wheel.name}</strong>
+                        <span class="badge ${wheel.is_active ? 'bg-success' : 'bg-secondary'} rounded-pill">
+                          ${wheel.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      <small class="text-muted d-block">${wheel.description || 'No description'}</small>
+                      <small class="text-muted d-block">
+                        <i class="fa fa-tag"></i> Type: ${wheel.coupon_type === 'percentage' ? 'Percentage Discount Wheel' : 
+                                                         wheel.coupon_type === 'free_days' ? 'Free Days Wheel' : 
+                                                         wheel.coupon_type || 'Custom Wheel'}
+                      </small>
                     </div>
-                    <div class="d-flex align-items-center gap-2" onclick="event.stopPropagation();">
+                    <div class="d-flex align-items-center gap-1" onclick="event.stopPropagation();">
                       <button class="btn btn-sm ${wheel.is_active ? 'btn-success' : 'btn-outline-secondary'}" 
-                              onclick="activateWheel(${wheel.id})">
-                        ${wheel.is_active ? '✓ Active' : 'Activate'}
+                              style="${!wheel.is_active ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
+                              onclick="activateWheel(${wheel.id})" title="${wheel.is_active ? 'Currently Active' : 'Activate this wheel'}">
+                        <i class="fa ${wheel.is_active ? 'fa-check' : 'fa-play'}"></i>
+                        ${wheel.is_active ? 'Active' : 'Activate'}
                       </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deleteWheel(${wheel.id})">
-                        Delete
+                      <button class="btn btn-sm btn-outline-danger" onclick="deleteWheel(${wheel.id})" title="Delete this wheel">
+                        <i class="fa fa-trash"></i>
                       </button>
-                      <span class="badge ${wheel.is_active ? 'bg-success' : 'bg-secondary'} rounded-pill">
-                        ${wheel.is_active ? 'Active' : 'Inactive'}
-                      </span>
                     </div>
                   </div>
                 `).join('');
@@ -3745,57 +3847,52 @@
           const wheelConfigurationPanel = document.getElementById('wheelConfigurationPanel');
           if (wheelConfigurationPanel) {
             wheelConfigurationPanel.innerHTML = `
-              <div class="card">
+              <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                  <h4 class="mb-0"><i class="fa fa-edit"></i> <span id="wheelEditTitle">${currentEditingWheelId ? 'Edit Wheel' : 'Add New Wheel'}</span></h4>
+                </div>
                 <div class="card-body">
-                  <h3 id="wheelEditTitle" class="mb-3">${currentEditingWheelId ? 'Edit Wheel' : 'Add New Wheel'}</h3>
                   
                   <!-- Wheel Details Form -->
                   <form id="wheelEditForm" class="mb-4">
                     <div class="row">
                       <div class="col-md-6">
                         <div class="mb-3">
-                          <label class="form-label">Wheel Name</label>
+                          <label class="form-label fw-bold"><i class="fa fa-tag"></i> Wheel Name</label>
                           <input type="text" id="wheelNameInput" class="form-control" required>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="mb-3">
-                          <label class="form-label">Coupon Type</label>
-                          <select id="wheelTypeInput" class="form-control" required>
-                            <option value="percentage">Percentage Discount</option>
-                            <option value="free_days">Free Days</option>
-                          </select>
-                        </div>
-                      </div>
+
                     </div>
                     <div class="mb-3">
-                      <label class="form-label">Description</label>
+                      <label class="form-label fw-bold"><i class="fa fa-align-left"></i> Description</label>
                       <textarea id="wheelDescriptionInput" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="d-flex gap-2">
-                      <button type="submit" class="btn btn-primary">Save Wheel</button>
-                      ${currentEditingWheelId ? `<button type="button" class="btn btn-success" id="activateWheelBtn">Activate This Wheel</button>` : ''}
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Save Wheel
+                      </button>
+                      ${currentEditingWheelId ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
+                        <i class="fa fa-star"></i> Activate This Wheel
+                      </button>` : ''}
                     </div>
                   </form>
 
                   <!-- Coupons Management Section -->
                   <div class="mt-4">
-                    <h5>Manage Coupons for this Wheel</h5>
-                    <p class="text-muted">Select which coupons should appear on this spinning wheel</p>
-                    
-                    <div class="mb-3">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span>Filter by status:</span>
-                        <div class="btn-group btn-group-sm" role="group">
-                          <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
-                          <button type="button" class="btn btn-outline-success" data-filter="enabled">Enabled</button>
-                          <button type="button" class="btn btn-outline-secondary" data-filter="disabled">Disabled</button>
+                    <div class="card">
+                      <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fa fa-gift"></i> Manage Coupons for this Wheel</h5>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-muted mb-3">Select which coupons should appear on this spinning wheel</p>
+                        
+
+
+                        <div id="wheelCouponsList" class="list-group">
+                          <!-- Coupons will be loaded here -->
                         </div>
                       </div>
-                    </div>
-
-                    <div id="wheelCouponsList" class="list-group">
-                      <!-- Coupons will be loaded here -->
                     </div>
                   </div>
                 </div>
@@ -3819,12 +3916,12 @@
               
               // Populate form
               document.getElementById('wheelNameInput').value = wheel.name;
-              document.getElementById('wheelTypeInput').value = wheel.coupon_type;
+
               document.getElementById('wheelDescriptionInput').value = wheel.description || '';
               document.getElementById('wheelEditTitle').textContent = `Edit ${wheel.name}`;
               
               // Load coupons for this wheel
-              await loadWheelCoupons(wheel.coupon_type);
+              await loadWheelCoupons();
             } else {
               showCustomAlert('Error loading wheel data', 'error');
             }
@@ -3838,27 +3935,44 @@
           currentEditingWheelId = null;
           showWheelConfigurationPanel();
           document.getElementById('wheelNameInput').value = '';
-          document.getElementById('wheelTypeInput').value = 'percentage';
+
           document.getElementById('wheelDescriptionInput').value = '';
           document.getElementById('wheelEditTitle').textContent = 'Add New Wheel';
           document.getElementById('wheelCouponsList').innerHTML = '';
         }
 
-        async function loadWheelCoupons(couponType) {
+        async function loadWheelCoupons() {
           try {
+            if (!currentEditingWheelId) {
+              console.log('No wheel selected for editing');
+              return;
+            }
+            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
             const coupons = await response.json();
             
-            // Filter coupons by type
-            const typeCoupons = coupons.filter(coupon => coupon.type === couponType);
+            // Get wheel-specific coupon status
+            const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons`);
+            let wheelCoupons = [];
+            if (wheelCouponsResponse.ok) {
+              wheelCoupons = await wheelCouponsResponse.json();
+            }
+            
+            // Create a set of enabled coupon IDs for this wheel
+            const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+            
+            // Show all coupons with wheel-specific status
+            const allCoupons = coupons;
             
             const wheelCouponsList = document.getElementById('wheelCouponsList');
             if (wheelCouponsList) {
-              if (typeCoupons.length === 0) {
-                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No coupons found for this type.</div>';
+              if (allCoupons.length === 0) {
+                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No coupons found.</div>';
               } else {
-                wheelCouponsList.innerHTML = typeCoupons.map(coupon => `
-                  <div class="list-group-item d-flex justify-content-between align-items-center coupon-item ${coupon.wheel_enabled ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
+                wheelCouponsList.innerHTML = allCoupons.map(coupon => {
+                  const isEnabledForWheel = enabledCouponIds.has(coupon.id);
+                  return `
+                  <div class="list-group-item d-flex justify-content-between align-items-center coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
                     <div>
                       <strong>${coupon.code}</strong>
                       <br>
@@ -3871,17 +3985,22 @@
                       <small class="text-muted">${coupon.description || 'No description'}</small>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                      <button class="btn btn-sm ${coupon.wheel_enabled ? 'btn-success' : 'btn-outline-secondary'}" 
-                              onclick="toggleCouponForWheel(${coupon.id}, ${coupon.wheel_enabled})">
-                        ${coupon.wheel_enabled ? '✓ Enabled' : 'Enable'}
+                      <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
+                              style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
+                              onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
+                        ${isEnabledForWheel ? '✓ Enabled' : 'Enable'}
                       </button>
-                      <span class="badge ${coupon.wheel_enabled ? 'bg-success' : 'bg-secondary'} rounded-pill">
-                        ${coupon.wheel_enabled ? 'On Wheel' : 'Disabled'}
+                      <span class="badge ${isEnabledForWheel ? 'bg-success' : 'bg-secondary'} rounded-pill" 
+                            style="${!isEnabledForWheel ? 'background-color: #6c757d !important;' : ''}">
+                        ${isEnabledForWheel ? 'On Wheel' : 'Disabled'}
                       </span>
                     </div>
                   </div>
-                `).join('');
+                `;
+                }).join('');
               }
+              
+
             }
           } catch (error) {
             console.error('Error loading wheel coupons:', error);
@@ -3892,9 +4011,12 @@
           }
         }
 
+
+
         async function toggleCouponForWheel(couponId, currentStatus) {
+          
           try {
-            const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' }
             });
@@ -3902,14 +4024,8 @@
             if (response.ok) {
               const result = await response.json();
               showCustomAlert(`Coupon ${result.wheel_enabled ? 'enabled' : 'disabled'} for wheel`, 'success');
-              // Reload the coupons list
-              if (currentEditingWheelId) {
-                const wheelResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}`);
-                if (wheelResponse.ok) {
-                  const wheel = await wheelResponse.json();
-                  await loadWheelCoupons(wheel.coupon_type);
-                }
-              }
+              // Reload the coupons list to update the display
+              await loadWheelCoupons();
             } else {
               const error = await response.json();
               showCustomAlert('Error updating coupon: ' + error.error, 'error');
@@ -3922,11 +4038,10 @@
 
         async function saveWheel() {
           const name = document.getElementById('wheelNameInput').value;
-          const couponType = document.getElementById('wheelTypeInput').value;
           const description = document.getElementById('wheelDescriptionInput').value;
           
-          if (!name || !couponType) {
-            showCustomAlert('Name and coupon type are required', 'error');
+          if (!name) {
+            showCustomAlert('Name is required', 'error');
             return;
           }
           
@@ -3940,7 +4055,7 @@
             const response = await fetch(url, {
               method: method,
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, description, coupon_type: couponType })
+              body: JSON.stringify({ name, description, coupon_type: 'custom' })
             });
             
             if (response.ok) {

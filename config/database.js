@@ -139,6 +139,17 @@ function initializeDatabase() {
     db.run(`ALTER TABLE coupon_codes ADD COLUMN free_days INTEGER`, () => {});
     db.run(`ALTER TABLE coupon_codes ADD COLUMN wheel_enabled BOOLEAN DEFAULT 0`, () => {});
     
+    // Create wheel_coupons junction table for many-to-many relationship
+    db.run(`CREATE TABLE IF NOT EXISTS wheel_coupons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      wheel_id INTEGER NOT NULL,
+      coupon_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (wheel_id) REFERENCES spinning_wheels (id) ON DELETE CASCADE,
+      FOREIGN KEY (coupon_id) REFERENCES coupon_codes (id) ON DELETE CASCADE,
+      UNIQUE(wheel_id, coupon_id)
+    )`, () => {});
+    
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});
     
