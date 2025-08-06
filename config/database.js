@@ -127,6 +127,7 @@ function initializeDatabase() {
     // Add columns to coupon_codes table if they don't exist (safe migration)
     db.run(`ALTER TABLE coupon_codes ADD COLUMN type TEXT DEFAULT 'percentage'`, () => {});
     db.run(`ALTER TABLE coupon_codes ADD COLUMN free_days INTEGER`, () => {});
+    db.run(`ALTER TABLE coupon_codes ADD COLUMN wheel_enabled BOOLEAN DEFAULT 0`, () => {});
     
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});

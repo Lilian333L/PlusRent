@@ -634,9 +634,9 @@
                 if (response.ok) {
                     const coupons = await response.json();
                     console.log('Raw coupons:', coupons);
-                    // Filter only active coupons
-                    availableCoupons = coupons.filter(coupon => coupon.is_active === 1);
-                    console.log('Active coupons:', availableCoupons);
+                    // Filter only active coupons that are enabled for the wheel
+                    availableCoupons = coupons.filter(coupon => coupon.is_active === 1 && coupon.wheel_enabled === 1);
+                    console.log('Wheel-enabled active coupons:', availableCoupons);
                     // Clear cache when new coupons are loaded
                     cachedWheelSegments = null;
                 } else {

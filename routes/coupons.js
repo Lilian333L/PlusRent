@@ -27,20 +27,44 @@ router.get('/debug-table', (req, res) => {
 
 // Get random winning index for spinning wheel
 router.get('/random-winning-index', (req, res) => {
-  db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1', (err, rows) => {
+  db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1 AND wheel_enabled = 1', (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
     
     const activeCouponsCount = rows[0].count;
     if (activeCouponsCount === 0) {
-      return res.status(400).json({ error: 'No active coupons available' });
+      return res.status(400).json({ error: 'No active coupons available for spinning wheel' });
     }
     
     // Generate random index between 0 and activeCouponsCount - 1
     const winningIndex = Math.floor(Math.random() * activeCouponsCount);
     
     res.json({ winningIndex });
+  });
+});
+
+// Toggle wheel enabled status for a coupon
+router.patch('/:id/toggle-wheel', (req, res) => {
+  const id = req.params.id;
+  
+  db.get('SELECT wheel_enabled FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!coupon) {
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    
+    const newWheelEnabled = coupon.wheel_enabled ? 0 : 1;
+    
+    db.run('UPDATE coupon_codes SET wheel_enabled = ? WHERE id = ?', [newWheelEnabled, id], (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      res.json({ success: true, wheel_enabled: newWheelEnabled });
+    });
   });
 });
 
@@ -95,7 +119,7 @@ router.post('/', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled) VALUES (?, ?, ?, ?, ?, ?, 0)',
     [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null],
     async function (err) {
       if (err) {
