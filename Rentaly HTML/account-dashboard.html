@@ -2496,8 +2496,11 @@
             if (headImageFile) {
               imageFormData.append('head_image', headImageFile);
             }
+            // Only add gallery images that have actual content
             galleryImageFiles.forEach(file => {
-              imageFormData.append('gallery_images', file);
+              if (file && file.size > 0 && file.name) {
+                imageFormData.append('gallery_images', file);
+              }
             });
             
             try {
@@ -2707,9 +2710,6 @@
             };
             reader.readAsDataURL(file);
           });
-          
-          // Clear the input after processing
-          addGalleryImagesInput.value = '';
         });
       }
       
@@ -2755,9 +2755,6 @@
             };
             reader.readAsDataURL(file);
           });
-          
-          // Clear the input after processing
-          editGalleryImagesInput.value = '';
         });
       }
       
@@ -2943,6 +2940,27 @@
             totalGalleryFiles: galleryImageFiles.length 
           });
           
+          // Debug gallery files in detail
+          console.log('🔍 Gallery files details:');
+          galleryImageFiles.forEach((file, index) => {
+            console.log(`  File ${index + 1}:`, {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              lastModified: file.lastModified
+            });
+          });
+          
+          // Debug the file input element itself
+          const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
+          console.log('🔍 File input element:', {
+            id: addGalleryImagesInput.id,
+            name: addGalleryImagesInput.name,
+            files: addGalleryImagesInput.files,
+            filesLength: addGalleryImagesInput.files.length,
+            value: addGalleryImagesInput.value
+          });
+          
           // Only proceed with one submission path
           if (headImageFile || galleryImageFiles.length > 0) {
             console.log('🖼️ Proceeding with image upload path');
@@ -2976,8 +2994,11 @@
             if (headImageFile) {
               imageFormData.append('head_image', headImageFile);
             }
+            // Only add gallery images that have actual content
             galleryImageFiles.forEach(file => {
-              imageFormData.append('gallery_images', file);
+              if (file && file.size > 0 && file.name) {
+                imageFormData.append('gallery_images', file);
+              }
             });
             
             try {

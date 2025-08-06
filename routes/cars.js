@@ -165,13 +165,24 @@ router.post('/', tempUpload.any(), async (req, res) => {
   let galleryImagePaths = [];
   
   if (req.files && req.files.length > 0) {
+    console.log('🔍 Processing uploaded files:');
     req.files.forEach(file => {
+      console.log(`  File: ${file.fieldname} - ${file.originalname} - ${file.path}`);
       if (file.fieldname === 'head_image') {
         headImagePath = file.path; // Keep full path for now
+        console.log('✅ Head image found:', file.path);
       } else if (file.fieldname === 'gallery_images') {
         galleryImagePaths.push(file.path); // Keep full path for now
+        console.log('✅ Gallery image found:', file.path);
+      } else {
+        console.log('⚠️ Unknown file fieldname:', file.fieldname);
       }
     });
+    console.log('📊 Summary:');
+    console.log('  Head image path:', headImagePath);
+    console.log('  Gallery image paths:', galleryImagePaths);
+  } else {
+    console.log('⚠️ No files received in request');
   }
   
   const {
