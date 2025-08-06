@@ -6,7 +6,22 @@ const path = require('path');
 const { db } = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
 
-// Multer storage config for car images
+// Multer storage config for initial car creation (temporary storage)
+const tempImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const tempDir = path.join(__dirname, '..', 'uploads', 'temp');
+    fs.mkdirSync(tempDir, { recursive: true });
+    cb(null, tempDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const timestamp = Date.now();
+    const base = file.fieldname === 'head_image' ? 'head' : `gallery_${timestamp}`;
+    cb(null, base + ext);
+  }
+});
+
+// Multer storage config for car images (with car ID)
 const carImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const carId = req.params.id;
@@ -20,7 +35,9 @@ const carImageStorage = multer.diskStorage({
     cb(null, base + ext);
   }
 });
+
 const upload = multer({ storage: carImageStorage });
+const tempUpload = multer({ storage: tempImageStorage });
 
 // Get all cars with filtering
 router.get('/', (req, res) => {
@@ -139,20 +156,20 @@ router.get('/:id', (req, res) => {
 });
 
 // Add new car
-router.post('/', upload.any(), async (req, res) => {
+router.post('/', tempUpload.any(), async (req, res) => {
   console.log('Car creation request body:', req.body);
   console.log('Files received:', req.files);
   
-  // Handle file uploads
+  // Handle file uploads (temporary files)
   let headImagePath = null;
   let galleryImagePaths = [];
   
   if (req.files && req.files.length > 0) {
     req.files.forEach(file => {
       if (file.fieldname === 'head_image') {
-        headImagePath = file.path.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+        headImagePath = file.path; // Keep full path for now
       } else if (file.fieldname === 'gallery_images') {
-        galleryImagePaths.push(file.path.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
+        galleryImagePaths.push(file.path); // Keep full path for now
       }
     });
   }
@@ -328,28 +345,107 @@ router.post('/', upload.any(), async (req, res) => {
         return res.status(500).json({ error: 'Database error', details: err.message });
       }
       
-      // Send Telegram notification
-      try {
-        const telegram = new TelegramNotifier();
-        const carData = {
-          make_name,
-          model_name,
-          production_year,
-          gear_type,
-          fuel_type,
-          car_type,
-          num_doors,
-          num_passengers,
-          price_policy: pricePolicyStringified,
-          rca_insurance_price: rcaInsuranceValue,
-          casco_insurance_price: cascoInsuranceValue
-        };
-        await telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-      } catch (error) {
-        console.error('Error sending Telegram notification:', error);
-      }
+      const carId = this.lastID;
       
-      res.json({ success: true, id: this.lastID });
+      // Move files from temp to proper car directory
+      if (headImagePath || galleryImagePaths.length > 0) {
+        const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+        console.log('📁 Creating car directory:', carDir);
+        fs.mkdirSync(carDir, { recursive: true });
+        
+        let finalHeadImagePath = null;
+        let finalGalleryImagePaths = [];
+        
+        if (headImagePath) {
+          const headFileName = path.basename(headImagePath);
+          const finalHeadPath = path.join(carDir, headFileName);
+          console.log('🖼️ Moving head image from', headImagePath, 'to', finalHeadPath);
+          fs.renameSync(headImagePath, finalHeadPath);
+          finalHeadImagePath = finalHeadPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+          console.log('✅ Head image moved successfully');
+        }
+        
+        galleryImagePaths.forEach((galleryPath, index) => {
+          const galleryFileName = path.basename(galleryPath);
+          const finalGalleryPath = path.join(carDir, galleryFileName);
+          console.log(`🖼️ Moving gallery image ${index + 1} from`, galleryPath, 'to', finalGalleryPath);
+          fs.renameSync(galleryPath, finalGalleryPath);
+          finalGalleryImagePaths.push(finalGalleryPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
+          console.log(`✅ Gallery image ${index + 1} moved successfully`);
+        });
+        
+        // Update database with final image paths
+        const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
+        console.log('🖼️ Updating database with image paths:');
+        console.log('  Head image:', finalHeadImagePath);
+        console.log('  Gallery images:', finalGalleryImagePaths);
+        console.log('  Car ID:', carId);
+        
+        console.log('🔍 About to execute database update with:');
+        console.log('  SQL:', updateSql);
+        console.log('  Parameters:', [finalHeadImagePath, JSON.stringify(finalGalleryImagePaths), carId]);
+        
+        db.run(updateSql, [
+          finalHeadImagePath,
+          JSON.stringify(finalGalleryImagePaths),
+          carId
+        ], (updateErr) => {
+          if (updateErr) {
+            console.error('❌ Error updating image paths:', updateErr);
+          } else {
+            console.log('✅ Image paths updated successfully in database');
+            console.log('  Updated car ID:', carId);
+            console.log('  Final head image path:', finalHeadImagePath);
+            console.log('  Final gallery image paths:', finalGalleryImagePaths);
+          }
+          
+          // Send Telegram notification
+          try {
+            const telegram = new TelegramNotifier();
+            const carData = {
+              make_name,
+              model_name,
+              production_year,
+              gear_type,
+              fuel_type,
+              car_type,
+              num_doors,
+              num_passengers,
+              price_policy: pricePolicyStringified,
+              rca_insurance_price: rcaInsuranceValue,
+              casco_insurance_price: cascoInsuranceValue
+            };
+            telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+          } catch (error) {
+            console.error('Error sending Telegram notification:', error);
+          }
+          
+          res.json({ success: true, id: carId });
+        });
+      } else {
+        // No images to upload, send response immediately
+        try {
+          const telegram = new TelegramNotifier();
+          const carData = {
+            make_name,
+            model_name,
+            production_year,
+            gear_type,
+            fuel_type,
+            car_type,
+            num_doors,
+            num_passengers,
+            price_policy: pricePolicyStringified,
+            rca_insurance_price: rcaInsuranceValue,
+            casco_insurance_price: cascoInsuranceValue
+          };
+          telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+        } catch (error) {
+          console.error('Error sending Telegram notification:', error);
+        }
+        
+        res.json({ success: true, id: carId });
+      }
     }
   );
 });

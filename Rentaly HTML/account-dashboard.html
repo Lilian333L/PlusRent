@@ -2597,6 +2597,52 @@
       
       // Image Upload Functionality
       initializeImageUploads();
+      
+      // Fuel Type Change Listener
+      initializeFuelTypeListener();
+    }
+    
+    function initializeFuelTypeListener() {
+      const fuelTypeInput = document.querySelector('select[name="fuel_type"]');
+      const engineCapacityInput = document.querySelector('input[name="engine_capacity"]');
+      
+      if (fuelTypeInput && engineCapacityInput) {
+        console.log('🔧 Initializing fuel type listener');
+        console.log('🔍 Found fuel type input:', fuelTypeInput);
+        console.log('🔍 Found engine capacity input:', engineCapacityInput);
+        
+        // Set initial state
+        updateEngineCapacityField();
+        
+        // Add change listener
+        fuelTypeInput.addEventListener('change', updateEngineCapacityField);
+        
+        function updateEngineCapacityField() {
+          const fuelType = fuelTypeInput.value;
+          console.log('🔍 Fuel type changed to:', fuelType);
+          
+          if (fuelType === 'Electric') {
+            engineCapacityInput.disabled = true;
+            engineCapacityInput.value = '';
+            engineCapacityInput.placeholder = 'Not applicable';
+            engineCapacityInput.style.backgroundColor = '#e0e0e0';
+            engineCapacityInput.style.color = '#666';
+            engineCapacityInput.style.cursor = 'not-allowed';
+            console.log('⚡ Engine capacity field disabled for electric vehicle');
+          } else {
+            engineCapacityInput.disabled = false;
+            engineCapacityInput.placeholder = 'Enter engine capacity (e.g., 2.0)';
+            engineCapacityInput.style.backgroundColor = '';
+            engineCapacityInput.style.color = '';
+            engineCapacityInput.style.cursor = '';
+            console.log('🚗 Engine capacity field enabled for', fuelType, 'vehicle');
+          }
+        }
+      } else {
+        console.log('⚠️ Fuel type or engine capacity input not found');
+        console.log('🔍 Fuel type input found:', !!fuelTypeInput);
+        console.log('🔍 Engine capacity input found:', !!engineCapacityInput);
+      }
     }
     
     function initializeImageUploads() {
@@ -2950,7 +2996,14 @@
               if (response.ok) {
                 console.log('✅ Car added successfully via FormData');
                 showCustomAlert('Car added successfully!', 'success');
+                
+                // Reset form and clear image previews
                 carForm.reset();
+                document.getElementById('addHeadImagePreview').innerHTML = '';
+                document.getElementById('addGalleryImagesPreview').innerHTML = '';
+                document.getElementById('addHeadImageInput').value = '';
+                document.getElementById('addGalleryImagesInput').value = '';
+                
                 addCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
                 document.body.classList.remove('admin-popup-open');
@@ -2990,7 +3043,14 @@
               if (response.ok) {
                 console.log('✅ Car added successfully via JSON');
                 showCustomAlert('Car added successfully!', 'success');
+                
+                // Reset form and clear image previews
                 carForm.reset();
+                document.getElementById('addHeadImagePreview').innerHTML = '';
+                document.getElementById('addGalleryImagesPreview').innerHTML = '';
+                document.getElementById('addHeadImageInput').value = '';
+                document.getElementById('addGalleryImagesInput').value = '';
+                
                 addCarPanel.classList.remove('admin-popup-open');
                 loadCars();
               } else {
