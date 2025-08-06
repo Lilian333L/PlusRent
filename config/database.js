@@ -167,11 +167,7 @@ function initializeDatabase() {
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});
     
-    // Insert default spinning wheels if they don't exist
-    db.run(`INSERT OR IGNORE INTO spinning_wheels (name, description, is_active) VALUES 
-      ('Percentage Discount Wheel', 'Wheel for percentage discount coupons', 1),
-      ('Free Days Wheel', 'Wheel for free days coupons', 0)
-    `, () => {});
+    // Default spinning wheels creation removed - no longer needed
   });
 }
 
