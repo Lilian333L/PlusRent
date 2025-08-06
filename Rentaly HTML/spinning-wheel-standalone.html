@@ -628,16 +628,66 @@
                 
                 const apiUrl = window.API_BASE_URL;
                 console.log('Fetching coupons from:', apiUrl);
+                
+                // First, check if any spinning wheels exist
+                const wheelsResponse = await fetch(`${apiUrl}/api/spinning-wheels`);
+                if (!wheelsResponse.ok) {
+                    console.error('Failed to get spinning wheels, status:', wheelsResponse.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                const allWheels = await wheelsResponse.json();
+                if (allWheels.length === 0) {
+                    console.log('No spinning wheels configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                // Check if any wheel is active
+                const activeWheel = allWheels.find(wheel => wheel.is_active === 1);
+                if (!activeWheel) {
+                    console.log('No active spinning wheel configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                console.log('Active wheel:', activeWheel);
+                console.log('Active wheel:', activeWheel);
+                
+                // Then fetch coupons that are enabled for this specific wheel
+                const wheelCouponsResponse = await fetch(`${apiUrl}/api/spinning-wheels/${activeWheel.id}/coupons`);
+                if (!wheelCouponsResponse.ok) {
+                    console.error('Failed to get wheel coupons, status:', wheelCouponsResponse.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                const wheelCoupons = await wheelCouponsResponse.json();
+                console.log('Wheel coupons:', wheelCoupons);
+                
+                // Get all coupons and filter by those enabled for this wheel
                 const response = await fetch(`${apiUrl}/api/coupons`);
                 console.log('Response status:', response.status);
                 
                 if (response.ok) {
-                    const coupons = await response.json();
-                    console.log('Raw coupons:', coupons);
-                    // Filter only active coupons
-                    availableCoupons = coupons.filter(coupon => coupon.is_active === 1);
-                    console.log('Active coupons:', availableCoupons);
-                    // Clear cache when new coupons are loaded
+                    const allCoupons = await response.json();
+                    console.log('Raw coupons:', allCoupons);
+                    
+                    // Create a set of enabled coupon IDs for this wheel
+                    const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+                    
+                    // Filter only active coupons that are enabled for this specific wheel
+                    availableCoupons = allCoupons.filter(coupon => 
+                        coupon.is_active === 1 && 
+                        enabledCouponIds.has(coupon.id)
+                    );
+                    console.log(`Wheel-enabled coupons:`, availableCoupons);
+                    // Always clear cache to ensure fresh data
                     cachedWheelSegments = null;
                 } else {
                     console.error('Failed to fetch coupons, status:', response.status);
@@ -653,10 +703,10 @@
 
         // Dynamic wheel segments configuration based on active coupons
         function getWheelSegments() {
-            // Return cached segments if available
-            if (cachedWheelSegments) {
-                return cachedWheelSegments;
-            }
+            // Always fetch fresh data, don't use cache
+            // if (cachedWheelSegments) {
+            //     return cachedWheelSegments;
+            // }
 
             if (availableCoupons.length === 0) {
                 // Fallback to 4 default segments if no coupons available

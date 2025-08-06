@@ -64,6 +64,15 @@ function initializeDatabase() {
       is_active BOOLEAN DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    // Create spinning wheels table
+    db.run(`CREATE TABLE IF NOT EXISTS spinning_wheels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      is_active BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
     
     // Create bookings table
     db.run(`CREATE TABLE IF NOT EXISTS bookings (
@@ -127,9 +136,42 @@ function initializeDatabase() {
     // Add columns to coupon_codes table if they don't exist (safe migration)
     db.run(`ALTER TABLE coupon_codes ADD COLUMN type TEXT DEFAULT 'percentage'`, () => {});
     db.run(`ALTER TABLE coupon_codes ADD COLUMN free_days INTEGER`, () => {});
+    db.run(`ALTER TABLE coupon_codes ADD COLUMN wheel_enabled BOOLEAN DEFAULT 0`, () => {});
+    
+    // Create wheel_coupons junction table for many-to-many relationship
+    db.run(`CREATE TABLE IF NOT EXISTS wheel_coupons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      wheel_id INTEGER NOT NULL,
+      coupon_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (wheel_id) REFERENCES spinning_wheels (id) ON DELETE CASCADE,
+      FOREIGN KEY (coupon_id) REFERENCES coupon_codes (id) ON DELETE CASCADE,
+      UNIQUE(wheel_id, coupon_id)
+    )`, () => {});
+    
+    // Remove coupon_type column from spinning_wheels table (migration)
+    db.run(`CREATE TABLE IF NOT EXISTS spinning_wheels_new (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      is_active BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, () => {});
+    
+    db.run(`INSERT INTO spinning_wheels_new (id, name, description, is_active, created_at) 
+            SELECT id, name, description, is_active, created_at FROM spinning_wheels`, () => {});
+    
+    db.run(`DROP TABLE spinning_wheels`, () => {});
+    db.run(`ALTER TABLE spinning_wheels_new RENAME TO spinning_wheels`, () => {});
     
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});
+    
+    // Insert default spinning wheels if they don't exist
+    db.run(`INSERT OR IGNORE INTO spinning_wheels (name, description, is_active) VALUES 
+      ('Percentage Discount Wheel', 'Wheel for percentage discount coupons', 1),
+      ('Free Days Wheel', 'Wheel for free days coupons', 0)
+    `, () => {});
   });
 }
 
