@@ -76,8 +76,19 @@ class BookingFormHandler {
       return radio ? radio.value : null;
     };
     
+    // Get car ID from the selected vehicle option
+    const vehicleSelect = formElement.querySelector('#vehicle_type');
+    let carId = this.carId; // Fallback to constructor carId
+    if (vehicleSelect && vehicleSelect.selectedIndex > 0) {
+      const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+      const optionCarId = selectedOption.getAttribute('data-car-id');
+      if (optionCarId) {
+        carId = optionCarId;
+      }
+    }
+    
     return {
-      car_id: this.carId,
+      car_id: carId,
       pickup_date: formData.get('Pick Up Date'),
       pickup_time: formData.get('Pick Up Time'),
       return_date: formData.get('Collection Date'),
@@ -100,6 +111,10 @@ class BookingFormHandler {
   // Validate booking data
   validateBookingData(bookingData) {
     // Check required fields
+    if (!bookingData.car_id) {
+      return { isValid: false, error: 'Please select a car' };
+    }
+    
     if (!bookingData.pickup_date || !bookingData.return_date) {
       return { isValid: false, error: 'Please select pickup and return dates' };
     }
@@ -107,8 +122,6 @@ class BookingFormHandler {
     if (!bookingData.pickup_time || !bookingData.return_time) {
       return { isValid: false, error: 'Please select pickup and return times' };
     }
-    
-
     
     if (!bookingData.pickup_location || !bookingData.dropoff_location) {
       return { isValid: false, error: 'Please select pickup and dropoff locations' };

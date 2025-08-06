@@ -85,6 +85,43 @@ router.get('/', (req, res) => {
   });
 });
 
+// Get cars for booking form (only available cars with basic info)
+router.get('/booking/available', (req, res) => {
+  const sql = `
+    SELECT id, make_name, model_name, production_year, head_image, price_policy, booked 
+    FROM cars 
+    WHERE booked = 0 OR booked IS NULL
+    ORDER BY make_name, model_name
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    // Parse price_policy for each car and format for display
+    const cars = rows.map(car => {
+      const pricePolicy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      const dailyPrice = pricePolicy['1-2'] || 'N/A';
+      
+      return {
+        id: car.id,
+        make_name: car.make_name,
+        model_name: car.model_name,
+        production_year: car.production_year,
+        head_image: car.head_image,
+        daily_price: dailyPrice,
+        display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
+        // For backward compatibility with existing select options
+        value: `${car.make_name} ${car.model_name}`,
+        data_src: car.head_image || `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
+      };
+    });
+    
+    res.json(cars);
+  });
+});
+
 // Get single car by ID
 router.get('/:id', (req, res) => {
   const id = req.params.id;
