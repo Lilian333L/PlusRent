@@ -1473,11 +1473,8 @@
                 <div id="spinning-wheel-tab" class="admin-tab-content">
                   <div class="admin-flex-row">
                     <!-- Left Side - Wheels List -->
-                    <div style="flex: 0 0 350px; margin-right: 20px;">
+                    <div style="flex: 0 0 500px; margin-right: 20px;">
                       <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                          <h5 class="mb-0"><i class="fa fa-cog"></i> Spinning Wheels</h5>
-                        </div>
                         <div class="card-body">
                           <p class="text-muted mb-3">Select a wheel to configure</p>
                           <div class="mb-4">
@@ -1507,7 +1504,7 @@
                     </div>
                     
                                          <!-- Right Side - Wheel Configuration -->
-                     <div style="flex: 1;">
+                     <div style="flex: 0 0 500px;">
                        <div id="wheelConfigurationPanel">
                          <!-- Default state when no wheel is selected -->
                          <div class="card shadow-sm">
@@ -3658,6 +3655,13 @@
             openSpinningWheelBtn.addEventListener('click', () => {
               // Open spinning wheel in a modal popup
               const modal = new bootstrap.Modal(document.getElementById('spinningWheelModal'));
+              const iframe = document.getElementById('spinningWheelIframe');
+              
+              // Refresh the iframe content to get latest data
+              if (iframe) {
+                iframe.src = iframe.src;
+              }
+              
               modal.show();
             });
           }
@@ -3746,9 +3750,6 @@
                     <div class="flex-grow-1">
                       <div class="d-flex align-items-center mb-1">
                         <strong class="me-2">${wheel.name}</strong>
-                        <span class="badge ${wheel.is_active ? 'bg-success' : 'bg-secondary'} rounded-pill">
-                          ${wheel.is_active ? 'Active' : 'Inactive'}
-                        </span>
                       </div>
                       <small class="text-muted d-block">${wheel.description || 'No description'}</small>
                     </div>
@@ -3824,8 +3825,8 @@
           if (wheelConfigurationPanel) {
             wheelConfigurationPanel.innerHTML = `
               <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                  <h4 class="mb-0"><i class="fa fa-edit"></i> <span id="wheelEditTitle">${currentEditingWheelId ? 'Edit Wheel' : 'Add New Wheel'}</span></h4>
+                <div class="card-header bg-light">
+                  <h5 class="mb-0" id="wheelEditTitle"><i class="fa fa-cog"></i> ${currentEditingWheelId ? 'Edit Wheel' : 'New Wheel'}</h5>
                 </div>
                 <div class="card-body">
                   
@@ -3845,16 +3846,17 @@
                       <textarea id="wheelDescriptionInput" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="d-flex gap-2">
-                      <button type="submit" class="btn btn-primary">
+                      ${!currentEditingWheelId ? `<button type="submit" class="btn btn-primary">
                         <i class="fa fa-save"></i> Save Wheel
-                      </button>
+                      </button>` : ''}
                       ${currentEditingWheelId ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
                         <i class="fa fa-star"></i> Activate This Wheel
                       </button>` : ''}
                     </div>
                   </form>
 
-                  <!-- Coupons Management Section -->
+                  <!-- Coupons Management Section - Only show when editing existing wheel -->
+                  ${currentEditingWheelId ? `
                   <div class="mt-4">
                     <div class="card">
                       <div class="card-header bg-light">
@@ -3871,6 +3873,7 @@
                       </div>
                     </div>
                   </div>
+                  ` : ''}
                 </div>
               </div>
             `;
@@ -3891,10 +3894,17 @@
               showWheelConfigurationPanel();
               
               // Populate form
-              document.getElementById('wheelNameInput').value = wheel.name;
-
-              document.getElementById('wheelDescriptionInput').value = wheel.description || '';
-              document.getElementById('wheelEditTitle').textContent = `Edit ${wheel.name}`;
+              const wheelNameInput = document.getElementById('wheelNameInput');
+              const wheelDescriptionInput = document.getElementById('wheelDescriptionInput');
+              
+              if (wheelNameInput) wheelNameInput.value = wheel.name;
+              if (wheelDescriptionInput) wheelDescriptionInput.value = wheel.description || '';
+              
+              // Update the title
+              const wheelEditTitle = document.getElementById('wheelEditTitle');
+              if (wheelEditTitle) {
+                wheelEditTitle.textContent = `Edit ${wheel.name}`;
+              }
               
               // Load coupons for this wheel
               await loadWheelCoupons();
@@ -3910,32 +3920,37 @@
         function resetWheelEditForm() {
           currentEditingWheelId = null;
           showWheelConfigurationPanel();
-          document.getElementById('wheelNameInput').value = '';
-
-          document.getElementById('wheelDescriptionInput').value = '';
-          document.getElementById('wheelEditTitle').textContent = 'Add New Wheel';
-          document.getElementById('wheelCouponsList').innerHTML = '';
+          
+          // Safely reset form elements
+          const wheelNameInput = document.getElementById('wheelNameInput');
+          const wheelDescriptionInput = document.getElementById('wheelDescriptionInput');
+          const wheelCouponsList = document.getElementById('wheelCouponsList');
+          
+          if (wheelNameInput) wheelNameInput.value = '';
+          if (wheelDescriptionInput) wheelDescriptionInput.value = '';
+          if (wheelCouponsList) wheelCouponsList.innerHTML = '';
+          
+          // Don't load coupons for new wheel since the section is hidden
         }
 
         async function loadWheelCoupons() {
           try {
-            if (!currentEditingWheelId) {
-              console.log('No wheel selected for editing');
-              return;
-            }
-            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
             const coupons = await response.json();
             
-            // Get wheel-specific coupon status
-            const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons`);
-            let wheelCoupons = [];
-            if (wheelCouponsResponse.ok) {
-              wheelCoupons = await wheelCouponsResponse.json();
-            }
+            let enabledCouponIds = new Set();
             
-            // Create a set of enabled coupon IDs for this wheel
-            const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+            // If editing an existing wheel, get wheel-specific coupon status
+            if (currentEditingWheelId) {
+              const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons`);
+              let wheelCoupons = [];
+              if (wheelCouponsResponse.ok) {
+                wheelCoupons = await wheelCouponsResponse.json();
+              }
+              
+              // Create a set of enabled coupon IDs for this wheel
+              enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+            }
             
             // Show all coupons with wheel-specific status
             const allCoupons = coupons;
@@ -3990,6 +4005,10 @@
 
 
         async function toggleCouponForWheel(couponId, currentStatus) {
+          if (!currentEditingWheelId) {
+            showCustomAlert('Please save the wheel first before managing coupons', 'error');
+            return;
+          }
           
           try {
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
@@ -4038,11 +4057,24 @@
               showCustomAlert(`Wheel ${currentEditingWheelId ? 'updated' : 'added'} successfully`, 'success');
               loadSpinningWheelData();
               
-              // If it's a new wheel, set it as the current editing wheel
-              if (!currentEditingWheelId) {
-                const result = await response.json();
-                currentEditingWheelId = result.id;
-                document.getElementById('wheelEditTitle').textContent = `Edit ${name}`;
+              // Reset to default state after successful save
+              currentEditingWheelId = null;
+              const wheelConfigurationPanel = document.getElementById('wheelConfigurationPanel');
+              if (wheelConfigurationPanel) {
+                wheelConfigurationPanel.innerHTML = `
+                  <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                      <h5 class="mb-0"><i class="fa fa-cog"></i> Wheel Configuration</h5>
+                    </div>
+                    <div class="card-body text-center py-5">
+                      <div class="mb-4">
+                        <i class="fa fa-arrow-left fa-3x text-muted"></i>
+                      </div>
+                      <h5 class="card-title">Select a Wheel</h5>
+                      <p class="text-muted">Choose a wheel from the list on the left to configure it</p>
+                    </div>
+                  </div>
+                `;
               }
             } else {
               const error = await response.json();
