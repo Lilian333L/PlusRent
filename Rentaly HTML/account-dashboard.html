@@ -2258,6 +2258,7 @@
 
     // Coupon Management Functions
     async function loadCoupons() {
+      console.log('🔍 Loading coupons...');
       if (!window.API_BASE_URL) {
         console.error('API_BASE_URL not defined');
         return;
@@ -2266,6 +2267,7 @@
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
         const coupons = await response.json();
+        console.log('🔍 Loaded coupons:', coupons);
         
         const couponCards = document.getElementById('couponCards');
         if (!couponCards) return;
@@ -3382,13 +3384,28 @@
           }
           
           try {
+            console.log('🔍 Edit coupon - Coupon ID:', couponId);
+            console.log('🔍 Edit coupon - Data being sent:', couponData);
+            console.log('🔍 Edit coupon - API_BASE_URL:', window.API_BASE_URL);
+            console.log('🔍 Edit coupon - Full URL:', `${window.API_BASE_URL}/api/coupons/${couponId}`);
+            
+            // Test if server is reachable
+            try {
+              const testResponse = await fetch(`${window.API_BASE_URL}/api/coupons`);
+              console.log('🔍 Server reachability test - Status:', testResponse.status);
+            } catch (testError) {
+              console.error('❌ Server not reachable:', testError);
+            }
+            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(couponData)
             });
             
+            console.log('🔍 Edit coupon - Response status:', response.status);
             if (response.ok) {
+              console.log('🔍 Edit coupon - Success response');
               showCustomAlert('Coupon updated successfully!', 'success');
               editCouponForm.reset();
               const editCouponPanel = document.getElementById('editCouponPanel');
@@ -3400,12 +3417,16 @@
               }
               loadCoupons();
             } else {
+              console.log('🔍 Edit coupon - Error response');
               const error = await response.json();
+              console.log('🔍 Edit coupon - Error details:', error);
               showCustomAlert('Error updating coupon: ' + error.error, 'error');
             }
           } catch (error) {
-            console.error('Error updating coupon:', error);
-            showCustomAlert('Error updating coupon', 'error');
+            console.error('❌ Error updating coupon:', error);
+            console.error('❌ Error type:', error.name);
+            console.error('❌ Error message:', error.message);
+            showCustomAlert('Error updating coupon: ' + error.message, 'error');
           }
         });
       }
@@ -3552,9 +3573,11 @@
     }
 
     async function editCoupon(couponId) {
+      console.log('🔍 Loading coupon data for ID:', couponId);
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
         const coupon = await response.json();
+        console.log('🔍 Loaded coupon data:', coupon);
         
         if (!response.ok) {
           showCustomAlert('Error loading coupon data: ' + coupon.error, 'error');
@@ -3574,12 +3597,14 @@
         const expiresAtInput = editForm.querySelector('input[name="expires_at"]');
         const isActiveSelect = editForm.querySelector('select[name="is_active"]');
         
+        console.log('🔍 Populating form fields...');
         if (codeInput) codeInput.value = coupon.code || '';
         if (typeSelect) typeSelect.value = coupon.type || 'percentage';
         if (discountPercentageInput) discountPercentageInput.value = coupon.discount_percentage || '';
         if (freeDaysInput) freeDaysInput.value = coupon.free_days || '';
         if (descriptionInput) descriptionInput.value = coupon.description || '';
         if (isActiveSelect) isActiveSelect.value = coupon.is_active ? '1' : '0';
+        console.log('🔍 Form fields populated');
         
         // Handle expiry date
         if (expiresAtInput && coupon.expires_at) {
