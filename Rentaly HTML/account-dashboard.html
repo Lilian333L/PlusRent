@@ -488,6 +488,10 @@
     max-width: 100%;
     margin-top: 8px;
   }
+
+  .wheel-config-row {
+    justify-content: space-between;
+  }
   
   .admin-carousel-container {
     position: relative;
@@ -684,6 +688,13 @@
   
   .admin-tab-content {
     display: none;
+    width: 80%;
+  }
+
+  @media (max-width: 1100px) {
+    .admin-tab-content {
+      width: 95%;
+    }
   }
   
   .admin-tab-content.active {
@@ -1699,9 +1710,9 @@
 
                 <!-- Spinning Wheel Tab Content -->
                 <div id="spinning-wheel-tab" class="admin-tab-content">
-                  <div class="admin-flex-row">
+                  <div class="admin-flex-row wheel-config-row">
                     <!-- Left Side - Wheels List -->
-                    <div style="flex: 0 0 500px; margin-right: 20px;">
+                    <div style="width: 50%;">
                       <div class="card shadow-sm">
                         <div class="card-body">
                           <p class="text-muted mb-3">Select a wheel to configure</p>
@@ -1732,7 +1743,7 @@
                     </div>
                     
                                          <!-- Right Side - Wheel Configuration -->
-                     <div style="flex: 0 0 500px;">
+                     <div style="width: 50%;">
                        <div id="wheelConfigurationPanel">
                          <!-- Default state when no wheel is selected -->
                          <div class="card shadow-sm">
@@ -1773,7 +1784,6 @@
                         style="width: 100%; height: 600px; border: none;"></iframe>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <a href="spinning-wheel-standalone.html" target="_blank" class="btn btn-primary">
                   <i class="fa fa-external-link"></i> Open in New Tab
                 </a>
@@ -2251,6 +2261,7 @@
 
     // Coupon Management Functions
     async function loadCoupons() {
+      console.log('🔍 Loading coupons...');
       if (!window.API_BASE_URL) {
         console.error('API_BASE_URL not defined');
         return;
@@ -2259,6 +2270,7 @@
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
         const coupons = await response.json();
+        console.log('🔍 Loaded coupons:', coupons);
         
         const couponCards = document.getElementById('couponCards');
         if (!couponCards) return;
@@ -2552,7 +2564,6 @@
           e.preventDefault();
           
           if (isEditSubmitting) {
-            console.log('Edit form submission already in progress, ignoring duplicate submit');
             return;
           }
           
@@ -2737,9 +2748,7 @@
       const engineCapacityInput = document.querySelector('input[name="engine_capacity"]');
       
       if (fuelTypeInput && engineCapacityInput) {
-        console.log('🔧 Initializing fuel type listener');
-        console.log('🔍 Found fuel type input:', fuelTypeInput);
-        console.log('🔍 Found engine capacity input:', engineCapacityInput);
+
         
         // Set initial state
         updateEngineCapacityField();
@@ -2749,7 +2758,7 @@
         
         function updateEngineCapacityField() {
           const fuelType = fuelTypeInput.value;
-          console.log('🔍 Fuel type changed to:', fuelType);
+
           
           if (fuelType === 'Electric') {
             engineCapacityInput.disabled = true;
@@ -2758,20 +2767,18 @@
             engineCapacityInput.style.backgroundColor = '#e0e0e0';
             engineCapacityInput.style.color = '#666';
             engineCapacityInput.style.cursor = 'not-allowed';
-            console.log('⚡ Engine capacity field disabled for electric vehicle');
+            
           } else {
             engineCapacityInput.disabled = false;
             engineCapacityInput.placeholder = 'Enter engine capacity (e.g., 2.0)';
             engineCapacityInput.style.backgroundColor = '';
             engineCapacityInput.style.color = '';
             engineCapacityInput.style.cursor = '';
-            console.log('🚗 Engine capacity field enabled for', fuelType, 'vehicle');
+            
           }
         }
       } else {
-        console.log('⚠️ Fuel type or engine capacity input not found');
-        console.log('🔍 Fuel type input found:', !!fuelTypeInput);
-        console.log('🔍 Engine capacity input found:', !!engineCapacityInput);
+        
       }
     }
     
@@ -2782,16 +2789,16 @@
       const addHeadImagePreview = document.getElementById('addHeadImagePreview');
       
       if (addHeadImageButton && addHeadImageInput && !addHeadImageButton.dataset.initialized) {
-        console.log('🔧 Initializing head image upload listeners');
+
         addHeadImageButton.dataset.initialized = 'true';
         addHeadImageInput.dataset.initialized = 'true';
         
         addHeadImageButton.addEventListener('click', () => {
-          console.log('🔍 Head image button clicked');
+
           addHeadImageInput.click();
         });
         addHeadImageInput.addEventListener('change', (e) => {
-          console.log('Head image file selected:', e.target.files[0]?.name);
+          
           const file = e.target.files[0];
           if (file) {
             const reader = new FileReader();
@@ -2813,16 +2820,16 @@
       const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
       
       if (addGalleryImagesButton && addGalleryImagesInput && !addGalleryImagesButton.dataset.initialized) {
-        console.log('🔧 Initializing gallery images upload listeners');
+
         addGalleryImagesButton.dataset.initialized = 'true';
         addGalleryImagesInput.dataset.initialized = 'true';
         
         addGalleryImagesButton.addEventListener('click', () => {
-          console.log('🔍 Gallery images button clicked');
+
           addGalleryImagesInput.click();
         });
         addGalleryImagesInput.addEventListener('change', (e) => {
-          console.log('Gallery images selected:', e.target.files.length, 'files');
+          
           const files = Array.from(e.target.files);
           
           files.forEach(file => {
@@ -2906,7 +2913,7 @@
       // Car Form Submit
       const carForm = document.getElementById('carForm');
       if (carForm && !carForm.dataset.initialized) {
-        console.log('🔧 Initializing car form event listeners');
+
         carForm.dataset.initialized = 'true';
         
         let isSubmitting = false; // Prevent double submission
@@ -2916,50 +2923,38 @@
         
         // Log all form events for debugging
         carForm.addEventListener('click', (e) => {
-          console.log('🔍 Form click event:', e.target.tagName, e.target.id);
+
         });
         
         carForm.addEventListener('input', (e) => {
-          console.log('🔍 Form input event:', e.target.tagName, e.target.id);
+
         });
         
         // Track submit button clicks
         const submitButton = document.getElementById('carFormSubmitBtn');
         if (submitButton) {
           submitButton.addEventListener('click', (e) => {
-            console.log('🔍 Submit button clicked');
-            console.log('Submit button event:', e.type);
-            console.log('Submit button target:', e.target);
+            
           });
         }
         
         carForm.addEventListener('submit', async (e) => {
-          console.log('=== FORM SUBMIT EVENT TRIGGERED ===');
-          console.log('Event type:', e.type);
-          console.log('Event target:', e.target);
-          console.log('Event currentTarget:', e.currentTarget);
-          console.log('Is submitting before check:', isSubmitting);
+          
           
           e.preventDefault();
           e.stopPropagation();
           
           if (isSubmitting) {
-            console.log('❌ Form submission already in progress, ignoring duplicate submit');
             return;
           }
           
-          console.log('✅ Car form submission started');
-          console.log('🔍 Form element:', carForm);
-          console.log('🔍 Form action:', carForm.action);
-          console.log('🔍 Form method:', carForm.method);
+
           isSubmitting = true;
           
           const formData = new FormData(carForm);
           const carData = Object.fromEntries(formData.entries());
           
-          console.log('📋 Form data collected:', carData);
-          console.log('🔍 Make name value:', carData.make_name);
-          console.log('🔍 Model name value:', carData.model_name);
+
           
           // Convert price fields to price_policy object
           const pricePolicy = {
@@ -3052,8 +3047,6 @@
           const interiorColorInput = document.getElementById('add_interior_color');
           if (interiorColorInput && interiorColorInput.dataset.rawValue) {
             carData.interior_color = interiorColorInput.dataset.rawValue;
-          } else {
-            carData.interior_color = colorKeys[carData.interior_color] || carData.interior_color;
           }
         }
           
@@ -3061,36 +3054,11 @@
           const headImageFile = document.getElementById('addHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('addGalleryImagesInput').files);
           
-          console.log('📁 Files selected:', { 
-            headImageFile: headImageFile ? headImageFile.name : null, 
-            galleryImageFiles: galleryImageFiles.map(f => f.name),
-            totalGalleryFiles: galleryImageFiles.length 
-          });
-          
-          // Debug gallery files in detail
-          console.log('🔍 Gallery files details:');
-          galleryImageFiles.forEach((file, index) => {
-            console.log(`  File ${index + 1}:`, {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: file.lastModified
-            });
-          });
-          
-          // Debug the file input element itself
-          const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
-          console.log('🔍 File input element:', {
-            id: addGalleryImagesInput.id,
-            name: addGalleryImagesInput.name,
-            files: addGalleryImagesInput.files,
-            filesLength: addGalleryImagesInput.files.length,
-            value: addGalleryImagesInput.value
-          });
+
           
           // Only proceed with one submission path
           if (headImageFile || galleryImageFiles.length > 0) {
-            console.log('🖼️ Proceeding with image upload path');
+
             const imageFormData = new FormData();
             
             // Build FormData directly from the form
@@ -3129,20 +3097,13 @@
             });
             
             try {
-              console.log('🚀 Sending FormData request to /api/cars');
-              console.log('📡 FormData contents:');
-              for (let [key, value] of imageFormData.entries()) {
-                console.log(`  ${key}:`, value);
-              }
+
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 body: imageFormData
               });
               
-              console.log('📡 Response received:', response.status, response.statusText);
-              
               if (response.ok) {
-                console.log('✅ Car added successfully via FormData');
                 showCustomAlert('Car added successfully!', 'success');
                 
                 // Reset form and clear image previews
@@ -3158,7 +3119,6 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                console.log('❌ Error response:', error);
                 let errorMessage = 'Error adding car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
@@ -3169,27 +3129,18 @@
               console.error('💥 Network error adding car:', error);
               showCustomAlert('Error adding car', 'error');
             } finally {
-              console.log('🔄 Resetting isSubmitting flag to false');
               isSubmitting = false; // Reset submission flag
             }
           } else {
             // No images to upload, use JSON
-            console.log('📄 Proceeding with JSON submission path');
             try {
-              console.log('🚀 Sending JSON request to /api/cars');
-              console.log('📡 API_BASE_URL:', window.API_BASE_URL);
-              console.log('📡 Full URL:', `${window.API_BASE_URL}/api/cars`);
-              console.log('📡 Request body:', JSON.stringify(carData, null, 2));
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(carData)
               });
               
-              console.log('📡 Response received:', response.status, response.statusText);
-              
               if (response.ok) {
-                console.log('✅ Car added successfully via JSON');
                 showCustomAlert('Car added successfully!', 'success');
                 
                 // Reset form and clear image previews
@@ -3203,7 +3154,6 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                console.log('❌ Error response:', error);
                 let errorMessage = 'Error adding car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
@@ -3222,6 +3172,7 @@
     }
 
     function initializeCouponForms() {
+      console.log('🔧 Initializing coupon forms...');
       // Add Coupon Button
       const showAddCouponBtn = document.getElementById('showAddCouponBtn');
       const addCouponPanel = document.getElementById('addCouponPanel');
@@ -3255,39 +3206,75 @@
       
       // Coupon Form Submit
       const couponForm = document.getElementById('couponForm');
-      if (couponForm) {
+      if (couponForm && !couponForm.dataset.initialized) {
+        couponForm.dataset.initialized = 'true';
+        let isSubmitting = false; // Prevent duplicate submissions
         couponForm.addEventListener('submit', async (e) => {
+          console.log('🔍 Form submit event triggered');
+          console.log('🔍 Event type:', e.type);
+          console.log('🔍 Event target:', e.target);
+          console.log('🔍 Event currentTarget:', e.currentTarget);
+          console.log('🔍 Is submitting before check:', isSubmitting);
+          console.log('🔍 Submitter:', e.submitter);
+          
           e.preventDefault();
+          
+          if (isSubmitting) {
+            console.log('🔄 Form submission already in progress, ignoring duplicate submit');
+            return;
+          }
+          
+          isSubmitting = true;
           
           const formData = new FormData(couponForm);
           const couponData = Object.fromEntries(formData.entries());
+          
+          console.log('🔍 Original form data:', couponData);
           
           // Client-side validation based on coupon type
           const couponType = couponData.type;
           const discountPercentage = couponData.discount_percentage;
           const freeDays = couponData.free_days;
           
-          // Clean up the data - remove empty values for hidden fields
+          console.log('🔍 Coupon type:', couponType);
+          console.log('🔍 Discount percentage:', discountPercentage);
+          console.log('🔍 Free days:', freeDays);
+          
           if (couponType === 'percentage') {
-            delete couponData.free_days; // Remove free_days field for percentage type
+            console.log('🔍 Processing percentage type coupon');
             if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
+              console.log('❌ Invalid discount percentage:', discountPercentage);
               showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
               return;
             }
+            // Remove free_days field for percentage type
+            delete couponData.free_days;
+            console.log('🔍 Removed free_days field for percentage type');
           } else if (couponType === 'free_days') {
-            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
+            console.log('🔍 Processing free_days type coupon');
             if (!freeDays || freeDays <= 0) {
+              console.log('❌ Invalid free days:', freeDays);
               showCustomAlert('Please enter a valid number of free days', 'error');
               return;
             }
+            // Remove discount_percentage field for free_days type
+            delete couponData.discount_percentage;
+            console.log('🔍 Removed discount_percentage field for free_days type');
           }
           
+          console.log('🔍 Final coupon data before sending:', couponData);
+          
           try {
+            console.log('🚀 Sending request to:', `${window.API_BASE_URL}/api/coupons`);
+            console.log('📡 Request body:', JSON.stringify(couponData, null, 2));
+            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(couponData)
             });
+            
+            console.log('📡 Response status:', response.status, response.statusText);
             
             if (response.ok) {
               showCustomAlert('Coupon added successfully!', 'success');
@@ -3297,12 +3284,16 @@
               document.body.classList.remove('admin-popup-open');
               loadCoupons();
             } else {
+              console.log('❌ Error response received');
               const error = await response.json();
+              console.log('❌ Error details:', error);
               showCustomAlert('Error adding coupon: ' + error.error, 'error');
             }
           } catch (error) {
             console.error('Error adding coupon:', error);
             showCustomAlert('Error adding coupon', 'error');
+          } finally {
+            isSubmitting = false; // Reset submission flag
           }
         });
       }
@@ -3349,6 +3340,8 @@
         if (freeDaysInput) freeDaysInput.required = false;
       }
       
+
+      
       if (editCouponType) {
         handleCouponTypeChange(
           editCouponType, 
@@ -3377,29 +3370,45 @@
           const discountPercentage = couponData.discount_percentage;
           const freeDays = couponData.free_days;
           
-          // Clean up the data - remove empty values for hidden fields
           if (couponType === 'percentage') {
-            delete couponData.free_days; // Remove free_days field for percentage type
             if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
               showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
               return;
             }
+            // Remove free_days field for percentage type
+            delete couponData.free_days;
           } else if (couponType === 'free_days') {
-            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
             if (!freeDays || freeDays <= 0) {
               showCustomAlert('Please enter a valid number of free days', 'error');
               return;
             }
+            // Remove discount_percentage field for free_days type
+            delete couponData.discount_percentage;
           }
           
           try {
+            console.log('🔍 Edit coupon - Coupon ID:', couponId);
+            console.log('🔍 Edit coupon - Data being sent:', couponData);
+            console.log('🔍 Edit coupon - API_BASE_URL:', window.API_BASE_URL);
+            console.log('🔍 Edit coupon - Full URL:', `${window.API_BASE_URL}/api/coupons/${couponId}`);
+            
+            // Test if server is reachable
+            try {
+              const testResponse = await fetch(`${window.API_BASE_URL}/api/coupons`);
+              console.log('🔍 Server reachability test - Status:', testResponse.status);
+            } catch (testError) {
+              console.error('❌ Server not reachable:', testError);
+            }
+            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(couponData)
             });
             
+            console.log('🔍 Edit coupon - Response status:', response.status);
             if (response.ok) {
+              console.log('🔍 Edit coupon - Success response');
               showCustomAlert('Coupon updated successfully!', 'success');
               editCouponForm.reset();
               const editCouponPanel = document.getElementById('editCouponPanel');
@@ -3411,12 +3420,16 @@
               }
               loadCoupons();
             } else {
+              console.log('🔍 Edit coupon - Error response');
               const error = await response.json();
+              console.log('🔍 Edit coupon - Error details:', error);
               showCustomAlert('Error updating coupon: ' + error.error, 'error');
             }
           } catch (error) {
-            console.error('Error updating coupon:', error);
-            showCustomAlert('Error updating coupon', 'error');
+            console.error('❌ Error updating coupon:', error);
+            console.error('❌ Error type:', error.name);
+            console.error('❌ Error message:', error.message);
+            showCustomAlert('Error updating coupon: ' + error.message, 'error');
           }
         });
       }
@@ -3563,9 +3576,11 @@
     }
 
     async function editCoupon(couponId) {
+      console.log('🔍 Loading coupon data for ID:', couponId);
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
         const coupon = await response.json();
+        console.log('🔍 Loaded coupon data:', coupon);
         
         if (!response.ok) {
           showCustomAlert('Error loading coupon data: ' + coupon.error, 'error');
@@ -3585,12 +3600,14 @@
         const expiresAtInput = editForm.querySelector('input[name="expires_at"]');
         const isActiveSelect = editForm.querySelector('select[name="is_active"]');
         
+        console.log('🔍 Populating form fields...');
         if (codeInput) codeInput.value = coupon.code || '';
         if (typeSelect) typeSelect.value = coupon.type || 'percentage';
         if (discountPercentageInput) discountPercentageInput.value = coupon.discount_percentage || '';
         if (freeDaysInput) freeDaysInput.value = coupon.free_days || '';
         if (descriptionInput) descriptionInput.value = coupon.description || '';
         if (isActiveSelect) isActiveSelect.value = coupon.is_active ? '1' : '0';
+        console.log('🔍 Form fields populated');
         
         // Handle expiry date
         if (expiresAtInput && coupon.expires_at) {
@@ -4090,6 +4107,9 @@
               const action = isCurrentlyActive ? 'deactivated' : 'activated';
               showCustomAlert(`Wheel ${action} successfully`, 'success');
               loadSpinningWheelData();
+              
+              // Open the wheel configuration after activation/deactivation
+              showWheelConfiguration(wheelId);
             } else {
               const error = await response.json();
               showCustomAlert(`Error ${isCurrentlyActive ? 'deactivating' : 'activating'} wheel: ` + error.error, 'error');
@@ -4125,6 +4145,7 @@
 
         // Wheel Edit Functions
         let currentEditingWheelId = null;
+        let currentEditingWheel = null;
 
         function showWheelConfigurationPanel() {
           const wheelConfigurationPanel = document.getElementById('wheelConfigurationPanel');
@@ -4155,7 +4176,7 @@
                       ${!currentEditingWheelId ? `<button type="submit" class="btn btn-primary">
                         <i class="fa fa-save"></i> Save Wheel
                       </button>` : ''}
-                      ${currentEditingWheelId ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
+                      ${currentEditingWheelId && currentEditingWheel && !currentEditingWheel.is_active ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
                         <i class="fa fa-star"></i> Activate This Wheel
                       </button>` : ''}
                     </div>
@@ -4195,6 +4216,7 @@
             if (response.ok) {
               const wheel = await response.json();
               currentEditingWheelId = wheelId;
+              currentEditingWheel = wheel;
               
               // Show configuration panel
               showWheelConfigurationPanel();
@@ -4225,6 +4247,7 @@
 
         function resetWheelEditForm() {
           currentEditingWheelId = null;
+          currentEditingWheel = null;
           showWheelConfigurationPanel();
           
           // Safely reset form elements
@@ -4258,15 +4281,15 @@
               enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
             }
             
-            // Show all coupons with wheel-specific status
-            const allCoupons = coupons;
+            // Show only active coupons with wheel-specific status
+            const activeCoupons = coupons.filter(coupon => coupon.is_active === 1);
             
             const wheelCouponsList = document.getElementById('wheelCouponsList');
             if (wheelCouponsList) {
-              if (allCoupons.length === 0) {
-                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No coupons found.</div>';
+              if (activeCoupons.length === 0) {
+                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No active coupons found.</div>';
               } else {
-                wheelCouponsList.innerHTML = allCoupons.map(coupon => {
+                wheelCouponsList.innerHTML = activeCoupons.map(coupon => {
                   const isEnabledForWheel = enabledCouponIds.has(coupon.id);
                   return `
                   <div class="list-group-item d-flex justify-content-between align-items-center coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
@@ -4285,12 +4308,8 @@
                       <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
                               style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
                               onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
-                        ${isEnabledForWheel ? '✓ Enabled' : 'Enable'}
+                        ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
                       </button>
-                      <span class="badge ${isEnabledForWheel ? 'bg-success' : 'bg-secondary'} rounded-pill" 
-                            style="${!isEnabledForWheel ? 'background-color: #6c757d !important;' : ''}">
-                        ${isEnabledForWheel ? 'On Wheel' : 'Disabled'}
-                      </span>
                     </div>
                   </div>
                 `;
@@ -4442,7 +4461,6 @@
           initializeTabs();
           initializeFormDropdowns();
           initializeCarForms();
-          initializeCouponForms();
           initializeSpinningWheel();
         });
     </script>

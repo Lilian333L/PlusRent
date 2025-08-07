@@ -3,6 +3,12 @@ const router = express.Router();
 const { db } = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
 
+// Debug middleware for all coupon routes
+router.use((req, res, next) => {
+  console.log('🔍 COUPON ROUTE ACCESSED:', req.method, req.originalUrl);
+  next();
+});
+
 // Get all coupon codes
 router.get('/', (req, res) => {
   db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
@@ -139,36 +145,52 @@ router.get('/:id', (req, res) => {
 
 // Add new coupon code
 router.post('/', (req, res) => {
-  console.log('Received coupon data:', req.body);
+  console.log('📥 Received coupon data:', req.body);
+  console.log('📥 Request headers:', req.headers);
+  console.log('📥 Content-Type:', req.headers['content-type']);
   
   try {
     const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
 
-  if (!code || !type) {
-    return res.status(400).json({ error: 'Code and type are required' });
-  }
+    console.log('🔍 Validating code and type...');
+    if (!code || !type) {
+      console.log('❌ Missing code or type. Code:', code, 'Type:', type);
+      return res.status(400).json({ error: 'Code and type are required' });
+    }
 
-  if (type !== 'percentage' && type !== 'free_days') {
-    return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
-  }
+    console.log('🔍 Validating type value...');
+    if (type !== 'percentage' && type !== 'free_days') {
+      console.log('❌ Invalid type:', type);
+      return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
+    }
 
   let discountValue = null;
   let freeDaysValue = null;
 
   if (type === 'percentage') {
+    console.log('🔍 Validating percentage type...');
+    console.log('🔍 Discount percentage value:', discount_percentage);
     if (!discount_percentage) {
+      console.log('❌ Missing discount percentage for percentage type');
       return res.status(400).json({ error: 'Discount percentage is required for percentage type' });
     }
     discountValue = parseFloat(discount_percentage);
+    console.log('🔍 Parsed discount value:', discountValue);
     if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+      console.log('❌ Invalid discount percentage:', discountValue);
       return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
     }
   } else if (type === 'free_days') {
+    console.log('🔍 Validating free_days type...');
+    console.log('🔍 Free days value:', free_days);
     if (!free_days) {
+      console.log('❌ Missing free days for free_days type');
       return res.status(400).json({ error: 'Free days is required for free_days type' });
     }
     freeDaysValue = parseInt(free_days);
+    console.log('🔍 Parsed free days value:', freeDaysValue);
     if (isNaN(freeDaysValue) || freeDaysValue <= 0) {
+      console.log('❌ Invalid free days:', freeDaysValue);
       return res.status(400).json({ error: 'Free days must be a positive number' });
     }
   }
@@ -211,8 +233,18 @@ router.post('/', (req, res) => {
   }
 });
 
+// Catch-all route to see what requests are coming in
+router.use('*', (req, res, next) => {
+  console.log('🔍 ALL REQUEST:', req.method, req.originalUrl);
+  console.log('🔍 Request body:', req.body);
+  next();
+});
+
 // Update coupon code
 router.put('/:id', (req, res) => {
+  console.log('🚨 PUT REQUEST RECEIVED!');
+  console.log('📥 Edit coupon request - ID:', req.params.id);
+  console.log('📥 Edit coupon request - Body:', req.body);
   const id = req.params.id;
   const { code, type, discount_percentage, free_days, description, is_active, expires_at } = req.body;
 
@@ -245,11 +277,15 @@ router.put('/:id', (req, res) => {
     }
   }
 
+  console.log('🔍 Edit coupon - Executing UPDATE query');
+  const isActiveValue = is_active === '1' || is_active === true ? 1 : 0;
+  console.log('🔍 Edit coupon - Values:', [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id]);
   db.run(
     'UPDATE coupon_codes SET code=?, type=?, discount_percentage=?, free_days=?, description=?, is_active=?, expires_at=? WHERE id=?',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, is_active ? 1 : 0, expires_at || null, id],
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id],
     async function (err) {
       if (err) {
+        console.log('❌ Edit coupon - Database error:', err);
         if (err.message.includes('UNIQUE constraint failed')) {
           return res.status(400).json({ error: 'Coupon code already exists' });
         }
@@ -266,13 +302,14 @@ router.put('/:id', (req, res) => {
           free_days: freeDaysValue,
           description: description || null,
           expires_at: expires_at || null,
-          is_active: is_active ? 1 : 0
+          is_active: isActiveValue
         };
         await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
       }
       
+      console.log('✅ Edit coupon - Update successful');
       res.json({ success: true });
     }
   );
