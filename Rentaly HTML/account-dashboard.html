@@ -488,6 +488,10 @@
     max-width: 100%;
     margin-top: 8px;
   }
+
+  .wheel-config-row {
+    justify-content: space-between;
+  }
   
   .admin-carousel-container {
     position: relative;
@@ -1706,9 +1710,9 @@
 
                 <!-- Spinning Wheel Tab Content -->
                 <div id="spinning-wheel-tab" class="admin-tab-content">
-                  <div class="admin-flex-row">
+                  <div class="admin-flex-row wheel-config-row">
                     <!-- Left Side - Wheels List -->
-                    <div style="flex: 0 0 500px; margin-right: 20px;">
+                    <div style="width: 50%;">
                       <div class="card shadow-sm">
                         <div class="card-body">
                           <p class="text-muted mb-3">Select a wheel to configure</p>
@@ -1739,7 +1743,7 @@
                     </div>
                     
                                          <!-- Right Side - Wheel Configuration -->
-                     <div style="flex: 0 0 500px;">
+                     <div style="width: 50%;">
                        <div id="wheelConfigurationPanel">
                          <!-- Default state when no wheel is selected -->
                          <div class="card shadow-sm">
@@ -1780,7 +1784,6 @@
                         style="width: 100%; height: 600px; border: none;"></iframe>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <a href="spinning-wheel-standalone.html" target="_blank" class="btn btn-primary">
                   <i class="fa fa-external-link"></i> Open in New Tab
                 </a>
@@ -4104,6 +4107,9 @@
               const action = isCurrentlyActive ? 'deactivated' : 'activated';
               showCustomAlert(`Wheel ${action} successfully`, 'success');
               loadSpinningWheelData();
+              
+              // Open the wheel configuration after activation/deactivation
+              showWheelConfiguration(wheelId);
             } else {
               const error = await response.json();
               showCustomAlert(`Error ${isCurrentlyActive ? 'deactivating' : 'activating'} wheel: ` + error.error, 'error');
@@ -4139,6 +4145,7 @@
 
         // Wheel Edit Functions
         let currentEditingWheelId = null;
+        let currentEditingWheel = null;
 
         function showWheelConfigurationPanel() {
           const wheelConfigurationPanel = document.getElementById('wheelConfigurationPanel');
@@ -4169,7 +4176,7 @@
                       ${!currentEditingWheelId ? `<button type="submit" class="btn btn-primary">
                         <i class="fa fa-save"></i> Save Wheel
                       </button>` : ''}
-                      ${currentEditingWheelId ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
+                      ${currentEditingWheelId && currentEditingWheel && !currentEditingWheel.is_active ? `<button type="button" class="btn btn-success" id="activateWheelBtn">
                         <i class="fa fa-star"></i> Activate This Wheel
                       </button>` : ''}
                     </div>
@@ -4209,6 +4216,7 @@
             if (response.ok) {
               const wheel = await response.json();
               currentEditingWheelId = wheelId;
+              currentEditingWheel = wheel;
               
               // Show configuration panel
               showWheelConfigurationPanel();
@@ -4239,6 +4247,7 @@
 
         function resetWheelEditForm() {
           currentEditingWheelId = null;
+          currentEditingWheel = null;
           showWheelConfigurationPanel();
           
           // Safely reset form elements
@@ -4272,15 +4281,15 @@
               enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
             }
             
-            // Show all coupons with wheel-specific status
-            const allCoupons = coupons;
+            // Show only active coupons with wheel-specific status
+            const activeCoupons = coupons.filter(coupon => coupon.is_active === 1);
             
             const wheelCouponsList = document.getElementById('wheelCouponsList');
             if (wheelCouponsList) {
-              if (allCoupons.length === 0) {
-                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No coupons found.</div>';
+              if (activeCoupons.length === 0) {
+                wheelCouponsList.innerHTML = '<div class="alert alert-warning">No active coupons found.</div>';
               } else {
-                wheelCouponsList.innerHTML = allCoupons.map(coupon => {
+                wheelCouponsList.innerHTML = activeCoupons.map(coupon => {
                   const isEnabledForWheel = enabledCouponIds.has(coupon.id);
                   return `
                   <div class="list-group-item d-flex justify-content-between align-items-center coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
@@ -4299,12 +4308,8 @@
                       <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
                               style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
                               onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
-                        ${isEnabledForWheel ? '✓ Enabled' : 'Enable'}
+                        ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
                       </button>
-                      <span class="badge ${isEnabledForWheel ? 'bg-success' : 'bg-secondary'} rounded-pill" 
-                            style="${!isEnabledForWheel ? 'background-color: #6c757d !important;' : ''}">
-                        ${isEnabledForWheel ? 'On Wheel' : 'Disabled'}
-                      </span>
                     </div>
                   </div>
                 `;
