@@ -2552,7 +2552,6 @@
           e.preventDefault();
           
           if (isEditSubmitting) {
-            console.log('Edit form submission already in progress, ignoring duplicate submit');
             return;
           }
           
@@ -2737,9 +2736,7 @@
       const engineCapacityInput = document.querySelector('input[name="engine_capacity"]');
       
       if (fuelTypeInput && engineCapacityInput) {
-        console.log('🔧 Initializing fuel type listener');
-        console.log('🔍 Found fuel type input:', fuelTypeInput);
-        console.log('🔍 Found engine capacity input:', engineCapacityInput);
+
         
         // Set initial state
         updateEngineCapacityField();
@@ -2749,7 +2746,7 @@
         
         function updateEngineCapacityField() {
           const fuelType = fuelTypeInput.value;
-          console.log('🔍 Fuel type changed to:', fuelType);
+
           
           if (fuelType === 'Electric') {
             engineCapacityInput.disabled = true;
@@ -2758,20 +2755,18 @@
             engineCapacityInput.style.backgroundColor = '#e0e0e0';
             engineCapacityInput.style.color = '#666';
             engineCapacityInput.style.cursor = 'not-allowed';
-            console.log('⚡ Engine capacity field disabled for electric vehicle');
+            
           } else {
             engineCapacityInput.disabled = false;
             engineCapacityInput.placeholder = 'Enter engine capacity (e.g., 2.0)';
             engineCapacityInput.style.backgroundColor = '';
             engineCapacityInput.style.color = '';
             engineCapacityInput.style.cursor = '';
-            console.log('🚗 Engine capacity field enabled for', fuelType, 'vehicle');
+            
           }
         }
       } else {
-        console.log('⚠️ Fuel type or engine capacity input not found');
-        console.log('🔍 Fuel type input found:', !!fuelTypeInput);
-        console.log('🔍 Engine capacity input found:', !!engineCapacityInput);
+        
       }
     }
     
@@ -2782,16 +2777,16 @@
       const addHeadImagePreview = document.getElementById('addHeadImagePreview');
       
       if (addHeadImageButton && addHeadImageInput && !addHeadImageButton.dataset.initialized) {
-        console.log('🔧 Initializing head image upload listeners');
+
         addHeadImageButton.dataset.initialized = 'true';
         addHeadImageInput.dataset.initialized = 'true';
         
         addHeadImageButton.addEventListener('click', () => {
-          console.log('🔍 Head image button clicked');
+
           addHeadImageInput.click();
         });
         addHeadImageInput.addEventListener('change', (e) => {
-          console.log('Head image file selected:', e.target.files[0]?.name);
+          
           const file = e.target.files[0];
           if (file) {
             const reader = new FileReader();
@@ -2813,16 +2808,16 @@
       const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
       
       if (addGalleryImagesButton && addGalleryImagesInput && !addGalleryImagesButton.dataset.initialized) {
-        console.log('🔧 Initializing gallery images upload listeners');
+
         addGalleryImagesButton.dataset.initialized = 'true';
         addGalleryImagesInput.dataset.initialized = 'true';
         
         addGalleryImagesButton.addEventListener('click', () => {
-          console.log('🔍 Gallery images button clicked');
+
           addGalleryImagesInput.click();
         });
         addGalleryImagesInput.addEventListener('change', (e) => {
-          console.log('Gallery images selected:', e.target.files.length, 'files');
+          
           const files = Array.from(e.target.files);
           
           files.forEach(file => {
@@ -2906,7 +2901,7 @@
       // Car Form Submit
       const carForm = document.getElementById('carForm');
       if (carForm && !carForm.dataset.initialized) {
-        console.log('🔧 Initializing car form event listeners');
+
         carForm.dataset.initialized = 'true';
         
         let isSubmitting = false; // Prevent double submission
@@ -2916,50 +2911,38 @@
         
         // Log all form events for debugging
         carForm.addEventListener('click', (e) => {
-          console.log('🔍 Form click event:', e.target.tagName, e.target.id);
+
         });
         
         carForm.addEventListener('input', (e) => {
-          console.log('🔍 Form input event:', e.target.tagName, e.target.id);
+
         });
         
         // Track submit button clicks
         const submitButton = document.getElementById('carFormSubmitBtn');
         if (submitButton) {
           submitButton.addEventListener('click', (e) => {
-            console.log('🔍 Submit button clicked');
-            console.log('Submit button event:', e.type);
-            console.log('Submit button target:', e.target);
+            
           });
         }
         
         carForm.addEventListener('submit', async (e) => {
-          console.log('=== FORM SUBMIT EVENT TRIGGERED ===');
-          console.log('Event type:', e.type);
-          console.log('Event target:', e.target);
-          console.log('Event currentTarget:', e.currentTarget);
-          console.log('Is submitting before check:', isSubmitting);
+          
           
           e.preventDefault();
           e.stopPropagation();
           
           if (isSubmitting) {
-            console.log('❌ Form submission already in progress, ignoring duplicate submit');
             return;
           }
           
-          console.log('✅ Car form submission started');
-          console.log('🔍 Form element:', carForm);
-          console.log('🔍 Form action:', carForm.action);
-          console.log('🔍 Form method:', carForm.method);
+
           isSubmitting = true;
           
           const formData = new FormData(carForm);
           const carData = Object.fromEntries(formData.entries());
           
-          console.log('📋 Form data collected:', carData);
-          console.log('🔍 Make name value:', carData.make_name);
-          console.log('🔍 Model name value:', carData.model_name);
+
           
           // Convert price fields to price_policy object
           const pricePolicy = {
@@ -3052,8 +3035,6 @@
           const interiorColorInput = document.getElementById('add_interior_color');
           if (interiorColorInput && interiorColorInput.dataset.rawValue) {
             carData.interior_color = interiorColorInput.dataset.rawValue;
-          } else {
-            carData.interior_color = colorKeys[carData.interior_color] || carData.interior_color;
           }
         }
           
@@ -3061,36 +3042,11 @@
           const headImageFile = document.getElementById('addHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('addGalleryImagesInput').files);
           
-          console.log('📁 Files selected:', { 
-            headImageFile: headImageFile ? headImageFile.name : null, 
-            galleryImageFiles: galleryImageFiles.map(f => f.name),
-            totalGalleryFiles: galleryImageFiles.length 
-          });
-          
-          // Debug gallery files in detail
-          console.log('🔍 Gallery files details:');
-          galleryImageFiles.forEach((file, index) => {
-            console.log(`  File ${index + 1}:`, {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: file.lastModified
-            });
-          });
-          
-          // Debug the file input element itself
-          const addGalleryImagesInput = document.getElementById('addGalleryImagesInput');
-          console.log('🔍 File input element:', {
-            id: addGalleryImagesInput.id,
-            name: addGalleryImagesInput.name,
-            files: addGalleryImagesInput.files,
-            filesLength: addGalleryImagesInput.files.length,
-            value: addGalleryImagesInput.value
-          });
+
           
           // Only proceed with one submission path
           if (headImageFile || galleryImageFiles.length > 0) {
-            console.log('🖼️ Proceeding with image upload path');
+
             const imageFormData = new FormData();
             
             // Build FormData directly from the form
@@ -3129,20 +3085,13 @@
             });
             
             try {
-              console.log('🚀 Sending FormData request to /api/cars');
-              console.log('📡 FormData contents:');
-              for (let [key, value] of imageFormData.entries()) {
-                console.log(`  ${key}:`, value);
-              }
+
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 body: imageFormData
               });
               
-              console.log('📡 Response received:', response.status, response.statusText);
-              
               if (response.ok) {
-                console.log('✅ Car added successfully via FormData');
                 showCustomAlert('Car added successfully!', 'success');
                 
                 // Reset form and clear image previews
@@ -3158,7 +3107,6 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                console.log('❌ Error response:', error);
                 let errorMessage = 'Error adding car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
@@ -3169,27 +3117,18 @@
               console.error('💥 Network error adding car:', error);
               showCustomAlert('Error adding car', 'error');
             } finally {
-              console.log('🔄 Resetting isSubmitting flag to false');
               isSubmitting = false; // Reset submission flag
             }
           } else {
             // No images to upload, use JSON
-            console.log('📄 Proceeding with JSON submission path');
             try {
-              console.log('🚀 Sending JSON request to /api/cars');
-              console.log('📡 API_BASE_URL:', window.API_BASE_URL);
-              console.log('📡 Full URL:', `${window.API_BASE_URL}/api/cars`);
-              console.log('📡 Request body:', JSON.stringify(carData, null, 2));
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(carData)
               });
               
-              console.log('📡 Response received:', response.status, response.statusText);
-              
               if (response.ok) {
-                console.log('✅ Car added successfully via JSON');
                 showCustomAlert('Car added successfully!', 'success');
                 
                 // Reset form and clear image previews
@@ -3203,7 +3142,6 @@
                 loadCars();
               } else {
                 const error = await response.json();
-                console.log('❌ Error response:', error);
                 let errorMessage = 'Error adding car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
