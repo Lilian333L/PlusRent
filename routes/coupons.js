@@ -139,36 +139,52 @@ router.get('/:id', (req, res) => {
 
 // Add new coupon code
 router.post('/', (req, res) => {
-  console.log('Received coupon data:', req.body);
+  console.log('📥 Received coupon data:', req.body);
+  console.log('📥 Request headers:', req.headers);
+  console.log('📥 Content-Type:', req.headers['content-type']);
   
   try {
     const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
 
-  if (!code || !type) {
-    return res.status(400).json({ error: 'Code and type are required' });
-  }
+    console.log('🔍 Validating code and type...');
+    if (!code || !type) {
+      console.log('❌ Missing code or type. Code:', code, 'Type:', type);
+      return res.status(400).json({ error: 'Code and type are required' });
+    }
 
-  if (type !== 'percentage' && type !== 'free_days') {
-    return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
-  }
+    console.log('🔍 Validating type value...');
+    if (type !== 'percentage' && type !== 'free_days') {
+      console.log('❌ Invalid type:', type);
+      return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
+    }
 
   let discountValue = null;
   let freeDaysValue = null;
 
   if (type === 'percentage') {
+    console.log('🔍 Validating percentage type...');
+    console.log('🔍 Discount percentage value:', discount_percentage);
     if (!discount_percentage) {
+      console.log('❌ Missing discount percentage for percentage type');
       return res.status(400).json({ error: 'Discount percentage is required for percentage type' });
     }
     discountValue = parseFloat(discount_percentage);
+    console.log('🔍 Parsed discount value:', discountValue);
     if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+      console.log('❌ Invalid discount percentage:', discountValue);
       return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
     }
   } else if (type === 'free_days') {
+    console.log('🔍 Validating free_days type...');
+    console.log('🔍 Free days value:', free_days);
     if (!free_days) {
+      console.log('❌ Missing free days for free_days type');
       return res.status(400).json({ error: 'Free days is required for free_days type' });
     }
     freeDaysValue = parseInt(free_days);
+    console.log('🔍 Parsed free days value:', freeDaysValue);
     if (isNaN(freeDaysValue) || freeDaysValue <= 0) {
+      console.log('❌ Invalid free days:', freeDaysValue);
       return res.status(400).json({ error: 'Free days must be a positive number' });
     }
   }

@@ -686,6 +686,12 @@
     display: none;
     width: 80%;
   }
+
+  @media (max-width: 1100px) {
+    .admin-tab-content {
+      width: 95%;
+    }
+  }
   
   .admin-tab-content.active {
     display: block;
@@ -3161,6 +3167,7 @@
     }
 
     function initializeCouponForms() {
+      console.log('🔧 Initializing coupon forms...');
       // Add Coupon Button
       const showAddCouponBtn = document.getElementById('showAddCouponBtn');
       const addCouponPanel = document.getElementById('addCouponPanel');
@@ -3194,39 +3201,75 @@
       
       // Coupon Form Submit
       const couponForm = document.getElementById('couponForm');
-      if (couponForm) {
+      if (couponForm && !couponForm.dataset.initialized) {
+        couponForm.dataset.initialized = 'true';
+        let isSubmitting = false; // Prevent duplicate submissions
         couponForm.addEventListener('submit', async (e) => {
+          console.log('🔍 Form submit event triggered');
+          console.log('🔍 Event type:', e.type);
+          console.log('🔍 Event target:', e.target);
+          console.log('🔍 Event currentTarget:', e.currentTarget);
+          console.log('🔍 Is submitting before check:', isSubmitting);
+          console.log('🔍 Submitter:', e.submitter);
+          
           e.preventDefault();
+          
+          if (isSubmitting) {
+            console.log('🔄 Form submission already in progress, ignoring duplicate submit');
+            return;
+          }
+          
+          isSubmitting = true;
           
           const formData = new FormData(couponForm);
           const couponData = Object.fromEntries(formData.entries());
+          
+          console.log('🔍 Original form data:', couponData);
           
           // Client-side validation based on coupon type
           const couponType = couponData.type;
           const discountPercentage = couponData.discount_percentage;
           const freeDays = couponData.free_days;
           
-          // Clean up the data - remove empty values for hidden fields
+          console.log('🔍 Coupon type:', couponType);
+          console.log('🔍 Discount percentage:', discountPercentage);
+          console.log('🔍 Free days:', freeDays);
+          
           if (couponType === 'percentage') {
-            delete couponData.free_days; // Remove free_days field for percentage type
+            console.log('🔍 Processing percentage type coupon');
             if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
+              console.log('❌ Invalid discount percentage:', discountPercentage);
               showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
               return;
             }
+            // Remove free_days field for percentage type
+            delete couponData.free_days;
+            console.log('🔍 Removed free_days field for percentage type');
           } else if (couponType === 'free_days') {
-            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
+            console.log('🔍 Processing free_days type coupon');
             if (!freeDays || freeDays <= 0) {
+              console.log('❌ Invalid free days:', freeDays);
               showCustomAlert('Please enter a valid number of free days', 'error');
               return;
             }
+            // Remove discount_percentage field for free_days type
+            delete couponData.discount_percentage;
+            console.log('🔍 Removed discount_percentage field for free_days type');
           }
           
+          console.log('🔍 Final coupon data before sending:', couponData);
+          
           try {
+            console.log('🚀 Sending request to:', `${window.API_BASE_URL}/api/coupons`);
+            console.log('📡 Request body:', JSON.stringify(couponData, null, 2));
+            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(couponData)
             });
+            
+            console.log('📡 Response status:', response.status, response.statusText);
             
             if (response.ok) {
               showCustomAlert('Coupon added successfully!', 'success');
@@ -3236,12 +3279,16 @@
               document.body.classList.remove('admin-popup-open');
               loadCoupons();
             } else {
+              console.log('❌ Error response received');
               const error = await response.json();
+              console.log('❌ Error details:', error);
               showCustomAlert('Error adding coupon: ' + error.error, 'error');
             }
           } catch (error) {
             console.error('Error adding coupon:', error);
             showCustomAlert('Error adding coupon', 'error');
+          } finally {
+            isSubmitting = false; // Reset submission flag
           }
         });
       }
@@ -3288,6 +3335,8 @@
         if (freeDaysInput) freeDaysInput.required = false;
       }
       
+
+      
       if (editCouponType) {
         handleCouponTypeChange(
           editCouponType, 
@@ -3316,19 +3365,20 @@
           const discountPercentage = couponData.discount_percentage;
           const freeDays = couponData.free_days;
           
-          // Clean up the data - remove empty values for hidden fields
           if (couponType === 'percentage') {
-            delete couponData.free_days; // Remove free_days field for percentage type
             if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
               showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
               return;
             }
+            // Remove free_days field for percentage type
+            delete couponData.free_days;
           } else if (couponType === 'free_days') {
-            delete couponData.discount_percentage; // Remove discount_percentage field for free_days type
             if (!freeDays || freeDays <= 0) {
               showCustomAlert('Please enter a valid number of free days', 'error');
               return;
             }
+            // Remove discount_percentage field for free_days type
+            delete couponData.discount_percentage;
           }
           
           try {
@@ -4381,7 +4431,6 @@
           initializeTabs();
           initializeFormDropdowns();
           initializeCarForms();
-          initializeCouponForms();
           initializeSpinningWheel();
         });
     </script>
