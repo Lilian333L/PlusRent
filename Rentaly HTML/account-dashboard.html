@@ -103,6 +103,18 @@
         border-color: #6c757d !important;
       }
       
+      /* Ensure wheel configuration buttons are clickable */
+      .wheel-coupon-button {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        user-select: none;
+      }
+      
+      .wheel-coupon-button:disabled {
+        cursor: not-allowed !important;
+        opacity: 0.6;
+      }
+      
   .admin-main-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -819,7 +831,7 @@
     color: #155724;
   }
   
-    .coupon-status.inactive {
+  .coupon-status.inactive {
     background: #f8d7da;
     color: #721c24;
   }
@@ -4333,6 +4345,7 @@
         }
 
         async function loadWheelCoupons() {
+          console.log('loadWheelCoupons called');
           try {
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
             const coupons = await response.json();
@@ -4342,13 +4355,16 @@
             
             // If editing an existing wheel, get wheel-specific coupon status
             if (currentEditingWheelId) {
-              const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons`);
+              const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons?t=${Date.now()}`);
               if (wheelCouponsResponse.ok) {
                 wheelCoupons = await wheelCouponsResponse.json();
+                console.log('API returned wheel coupons:', wheelCoupons);
               }
               
               // Create a set of enabled coupon IDs for this wheel
               enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+              console.log('Enabled coupon IDs:', Array.from(enabledCouponIds));
+              console.log('Full wheel coupons data:', wheelCoupons);
             }
             
             // Reset pending changes when loading
@@ -4372,19 +4388,23 @@
                   const wheelCoupon = wheelCoupons.find(wc => wc.coupon_id === coupon.id);
                   const currentPercentage = wheelCoupon ? wheelCoupon.percentage || 0 : 0;
                   
+                  console.log(`Rendering coupon ${coupon.id} (${coupon.code}): isEnabledForWheel = ${isEnabledForWheel}`);
+                  
+
+                  
                   return `
                   <div class="list-group-item coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
                     <div class="d-flex justify-content-between align-items-start">
                       <div class="flex-grow-1">
-                        <strong>${coupon.code}</strong>
-                        <br>
-                        <small class="text-muted">
-                          ${coupon.type === 'free_days' ? 
-                            `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : 
-                            `${coupon.discount_percentage}% OFF`}
-                        </small>
-                        <br>
-                        <small class="text-muted">${coupon.description || 'No description'}</small>
+                      <strong>${coupon.code}</strong>
+                      <br>
+                      <small class="text-muted">
+                        ${coupon.type === 'free_days' ? 
+                          `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : 
+                          `${coupon.discount_percentage}% OFF`}
+                      </small>
+                      <br>
+                      <small class="text-muted">${coupon.description || 'No description'}</small>
                         
                         ${isEnabledForWheel ? `
                         <div class="mt-3 percentage-field" style="display: block;">
@@ -4400,16 +4420,18 @@
                                  step="0.1"
                                  placeholder="Enter percentage"
                                  onchange="updateCouponPercentage(${coupon.id}, this.value)">
-                        </div>
+                    </div>
                         ` : ''}
                       </div>
                       
                       <div class="d-flex align-items-center gap-2 ms-3">
-                        <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
-                                style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
-                                onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
+                        <button type="button" class="btn btn-sm wheel-coupon-button ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
+                                style="position: relative; z-index: 1000;"
+                                onclick="console.log('Button clicked, data-enabled:', this.getAttribute('data-enabled'), 'disabled:', this.disabled); toggleCouponForWheel(${coupon.id}, this.getAttribute('data-enabled') === 'true')"
+                                data-coupon-id="${coupon.id}"
+                                data-enabled="${isEnabledForWheel}">
                           ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
-                        </button>
+                      </button>
                       </div>
                     </div>
                   </div>
@@ -4443,21 +4465,46 @@
 
 
         function toggleCouponForWheel(couponId, currentStatus) {
+          console.log('toggleCouponForWheel called:', { couponId, currentStatus });
           if (!currentEditingWheelId) {
             showCustomAlert('Please save the wheel first before managing coupons', 'error');
             return;
           }
           
-          // Store the change in pending changes
-          if (currentStatus) {
-            // Currently enabled, so disable it
-            pendingWheelChanges.disabledCoupons.add(couponId);
-            pendingWheelChanges.enabledCoupons.delete(couponId);
-          } else {
-            // Currently disabled, so enable it
+          // Get the original state from the database (before any pending changes)
+          const originalEnabledState = Array.from(document.querySelectorAll('.coupon-item')).find(item => 
+            item.getAttribute('data-coupon-id') == couponId
+          )?.classList.contains('enabled') || false;
+          
+          console.log(`Original enabled state for coupon ${couponId}:`, originalEnabledState);
+          console.log(`Current UI state for coupon ${couponId}:`, currentStatus);
+          
+          // Calculate the final desired state
+          const finalDesiredState = !currentStatus;
+          console.log(`Final desired state for coupon ${couponId}:`, finalDesiredState);
+          
+          // Clear any existing pending changes for this coupon
+          pendingWheelChanges.enabledCoupons.delete(couponId);
+          pendingWheelChanges.disabledCoupons.delete(couponId);
+          pendingWheelChanges.percentageChanges.delete(couponId);
+          
+          // Store the change in pending changes based on the final desired state
+          if (finalDesiredState) {
+            // Want to enable it
             pendingWheelChanges.enabledCoupons.add(couponId);
-            pendingWheelChanges.disabledCoupons.delete(couponId);
+            console.log(`Added coupon ${couponId} to enabledCoupons`);
+          } else {
+            // Want to disable it
+            pendingWheelChanges.disabledCoupons.add(couponId);
+            console.log(`Added coupon ${couponId} to disabledCoupons`);
           }
+          
+          // Debug: Log the current state of pending changes
+          console.log('Pending changes after toggle:', {
+            enabled: Array.from(pendingWheelChanges.enabledCoupons),
+            disabled: Array.from(pendingWheelChanges.disabledCoupons),
+            percentages: Array.from(pendingWheelChanges.percentageChanges.entries())
+          });
           
           // Update the UI immediately to show the change
           const couponItem = document.querySelector(`[data-coupon-id="${couponId}"]`);
@@ -4465,13 +4512,16 @@
             const button = couponItem.querySelector('button');
             const newStatus = !currentStatus;
             
+            console.log(`Updating UI for coupon ${couponId}: currentStatus=${currentStatus}, newStatus=${newStatus}`);
+            
             if (newStatus) {
               couponItem.classList.remove('disabled');
               couponItem.classList.add('enabled');
-              button.className = 'btn btn-sm btn-success';
+              button.className = 'btn btn-sm wheel-coupon-button btn-success';
               button.innerHTML = '<i class="fa fa-check"></i> Enabled';
               button.style.color = '';
               button.style.borderColor = '';
+              button.setAttribute('data-enabled', 'true');
               
               // Add percentage field if it doesn't exist
               const percentageField = couponItem.querySelector('.percentage-field');
@@ -4498,10 +4548,12 @@
             } else {
               couponItem.classList.remove('enabled');
               couponItem.classList.add('disabled');
-              button.className = 'btn btn-sm btn-outline-secondary';
+              button.className = 'btn btn-sm wheel-coupon-button btn-outline-secondary';
               button.innerHTML = 'Enable';
-              button.style.color = '#6c757d !important';
-              button.style.borderColor = '#6c757d !important';
+              button.style.color = '';
+              button.style.borderColor = '';
+              button.setAttribute('data-enabled', 'false');
+              console.log('Button after disable - data-enabled:', button.getAttribute('data-enabled'), 'disabled:', button.disabled, 'className:', button.className, 'onclick:', button.onclick);
               
               // Remove percentage field
               const percentageField = couponItem.querySelector('.percentage-field');
@@ -4556,61 +4608,141 @@
           }
           
           try {
-            // Apply all pending changes
+            console.log('Starting to save wheel changes...');
+            console.log('Pending changes:', {
+              enabled: Array.from(pendingWheelChanges.enabledCoupons),
+              disabled: Array.from(pendingWheelChanges.disabledCoupons),
+              percentages: Array.from(pendingWheelChanges.percentageChanges.entries())
+            });
+            
+            // Apply all pending changes in the correct order
             const promises = [];
             
-            // Enable coupons
+            // First, enable coupons (but exclude any that are also in disabledCoupons)
             for (const couponId of pendingWheelChanges.enabledCoupons) {
-              promises.push(
-                fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-              );
+              if (!pendingWheelChanges.disabledCoupons.has(couponId)) {
+                console.log(`Enabling coupon ${couponId} in save operation`);
+                promises.push(
+                  fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' }
+                  }).then(response => {
+                    if (!response.ok) {
+                      console.error(`Failed to enable coupon ${couponId}:`, response.status, response.statusText);
+                      throw new Error(`Failed to enable coupon ${couponId}`);
+                    }
+                    return response.json();
+                  }).then(data => {
+                    console.log(`Successfully enabled coupon ${couponId}:`, data);
+                    return data;
+                  })
+                );
+              } else {
+                console.log(`Skipping coupon ${couponId} - it's in both enabled and disabled sets`);
+              }
             }
             
-            // Disable coupons
-            for (const couponId of pendingWheelChanges.disabledCoupons) {
-              promises.push(
-                fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' }
-                })
-              );
+            // Wait for enable operations to complete
+            if (promises.length > 0) {
+              await Promise.all(promises);
+              // Add a small delay to ensure database operations complete
+              await new Promise(resolve => setTimeout(resolve, 100));
             }
             
-            // Update percentages
+            // Reset promises array for next batch
+            const percentagePromises = [];
+            
+            // Then, update percentages for coupons that have percentage changes
             for (const [couponId, percentage] of pendingWheelChanges.percentageChanges) {
-              promises.push(
-                fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
+              // Update percentage if the coupon is being enabled (it will exist in the wheel after enable)
+              // OR if it's already enabled in the database (we need to check this)
+              if (pendingWheelChanges.enabledCoupons.has(couponId)) {
+                console.log(`Updating percentage for coupon ${couponId} to ${percentage}% (after enable)`);
+                percentagePromises.push(
+                  fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: percentage })
+                  }).then(response => {
+                    if (!response.ok) {
+                      console.error(`Failed to update percentage for coupon ${couponId}:`, response.status, response.statusText);
+                      throw new Error(`Failed to update percentage for coupon ${couponId}`);
+                    }
+                    return response;
+                  })
+                );
+              } else if (!pendingWheelChanges.disabledCoupons.has(couponId)) {
+                // If the coupon is not being enabled or disabled, it means it was already enabled
+                // and we're just updating its percentage
+                console.log(`Updating percentage for already-enabled coupon ${couponId} to ${percentage}%`);
+                percentagePromises.push(
+                  fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: percentage })
+                  }).then(response => {
+                    if (!response.ok) {
+                      console.error(`Failed to update percentage for coupon ${couponId}:`, response.status, response.statusText);
+                      throw new Error(`Failed to update percentage for coupon ${couponId}`);
+                    }
+                    return response;
+                  })
+                );
+              }
+            }
+            
+            // Wait for percentage updates to complete
+            if (percentagePromises.length > 0) {
+              await Promise.all(percentagePromises);
+            }
+            
+            // Finally, disable coupons (do this last to avoid conflicts)
+            const disablePromises = [];
+            for (const couponId of pendingWheelChanges.disabledCoupons) {
+              console.log(`Disabling coupon ${couponId} in save operation`);
+              disablePromises.push(
+                fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
                   method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: percentage })
+                  headers: { 'Content-Type': 'application/json' }
+                }).then(response => {
+                  if (!response.ok) {
+                    console.error(`Failed to disable coupon ${couponId}:`, response.status, response.statusText);
+                    throw new Error(`Failed to disable coupon ${couponId}`);
+                  }
+                  return response.json();
+                }).then(data => {
+                  console.log(`Successfully disabled coupon ${couponId}:`, data);
+                  return data;
                 })
               );
             }
             
-            // Wait for all changes to be applied
-            const results = await Promise.all(promises);
-            
-            // Check if all requests were successful
-            const allSuccessful = results.every(response => response.ok);
-            
-            if (allSuccessful) {
-              showCustomAlert('All changes saved successfully!', 'success');
-              
-              // Reset pending changes
-              pendingWheelChanges = {
-                enabledCoupons: new Set(),
-                disabledCoupons: new Set(),
-                percentageChanges: new Map()
-              };
-              
-              // Reload the coupons list to update the display
-              await loadWheelCoupons();
-            } else {
-              showCustomAlert('Some changes failed to save. Please try again.', 'error');
+            // Wait for disable operations to complete
+            if (disablePromises.length > 0) {
+              await Promise.all(disablePromises);
             }
+            
+            // Log the final state that should be in the database
+            console.log('=== SAVE OPERATION COMPLETE ===');
+            console.log('Final state summary:');
+            console.log('- Coupons that were enabled:', Array.from(pendingWheelChanges.enabledCoupons));
+            console.log('- Coupons that were disabled:', Array.from(pendingWheelChanges.disabledCoupons));
+            console.log('- Coupons with percentage changes:', Array.from(pendingWheelChanges.percentageChanges.entries()));
+            console.log('=== END SAVE OPERATION ===');
+            
+            showCustomAlert('All changes saved successfully!', 'success');
+            
+            // Reset pending changes
+            pendingWheelChanges = {
+              enabledCoupons: new Set(),
+              disabledCoupons: new Set(),
+              percentageChanges: new Map()
+            };
+            
+                          // Reload the coupons list to update the display
+            console.log('Reloading wheel coupons to show final state...');
+            await loadWheelCoupons();
+            
           } catch (error) {
             console.error('Error saving wheel changes:', error);
             showCustomAlert('Error saving changes', 'error');
