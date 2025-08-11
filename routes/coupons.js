@@ -104,7 +104,7 @@ router.patch('/:id/wheel-percentage', (req, res) => {
   const couponId = req.params.id;
   const { wheelId, percentage } = req.body;
   
-  console.log('Update wheel percentage request for coupon ID:', couponId, 'Wheel ID:', wheelId, 'Percentage:', percentage);
+
   
   if (!wheelId || percentage === undefined) {
     return res.status(400).json({ error: 'Wheel ID and percentage are required' });
@@ -156,7 +156,7 @@ router.patch('/:id/wheel-percentage', (req, res) => {
             console.error('Update error:', err);
             return res.status(500).json({ error: 'Database error' });
           }
-          console.log('Successfully updated percentage for coupon on wheel');
+
           res.json({ success: true, percentage: numPercentage });
         });
       });

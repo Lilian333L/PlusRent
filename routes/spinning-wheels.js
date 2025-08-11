@@ -32,7 +32,6 @@ router.get('/test-simple', (req, res) => {
 
 // Get random winning index based on probabilities
 router.get('/random-winning-index', (req, res) => {
-  console.log('Random winning index route hit!');
   // Get the active wheel
   db.get('SELECT * FROM spinning_wheels WHERE is_active = 1', (err, activeWheel) => {
     if (err) {
@@ -100,22 +99,10 @@ router.get('/random-winning-index', (req, res) => {
         cumulativePercentage += couponPercentage;
       }
       
-      console.log('Random winning index calculation:');
-      console.log('Total percentage:', totalPercentage);
-      console.log('Random value:', randomValue);
-      console.log('Winning index:', winningIndex);
-      console.log('Winning coupon:', wheelCoupons[winningIndex]);
-      console.log('All coupons with percentages:');
-      wheelCoupons.forEach((coupon, i) => {
-        console.log(`  Index ${i}: ${coupon.code} - ${coupon.percentage}%`);
-      });
+
       
       res.json({ 
-        winningIndex: winningIndex,
-        totalPercentage: totalPercentage,
-        usedEqualDistribution: false,
-        winningCoupon: wheelCoupons[winningIndex],
-        allCoupons: wheelCoupons
+        winningIndex: winningIndex
       });
     });
   });
