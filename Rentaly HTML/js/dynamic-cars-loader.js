@@ -50,6 +50,7 @@ class DynamicCarsLoader {
           option.setAttribute('data-src', car.data_src);
           option.setAttribute('data-car-id', car.id);
           option.setAttribute('data-daily-price', car.daily_price);
+          option.setAttribute('data-car-details', JSON.stringify(car));
 
           this.selectElement.appendChild(option);
         });
@@ -68,6 +69,69 @@ class DynamicCarsLoader {
 
         // Trigger change event to update any dependent UI
         this.selectElement.dispatchEvent(new Event('change'));
+        
+        // Setup vehicle selection change handler
+        this.setupVehicleSelectionHandler();
+      }
+      
+      // Setup vehicle selection change handler
+      setupVehicleSelectionHandler() {
+        this.selectElement.addEventListener('change', () => {
+          this.updateVehicleInfo();
+        });
+      }
+      
+      // Update vehicle information display
+      updateVehicleInfo() {
+        const selectedOption = this.selectElement.options[this.selectElement.selectedIndex];
+        const vehicleInfo = document.getElementById('selected-vehicle-info');
+        
+        if (!selectedOption || !selectedOption.value || !vehicleInfo) {
+          if (vehicleInfo) vehicleInfo.style.display = 'none';
+          return;
+        }
+        
+        try {
+          const carDetails = JSON.parse(selectedOption.getAttribute('data-car-details'));
+          
+          // Update vehicle image
+          const vehicleImage = document.getElementById('vehicle-image');
+          if (vehicleImage) {
+            vehicleImage.src = carDetails.data_src || `${window.API_BASE_URL}/uploads/placeholder.png`;
+            vehicleImage.alt = carDetails.display_name;
+          }
+          
+          // Update vehicle name
+          const vehicleName = document.getElementById('vehicle-name');
+          if (vehicleName) {
+            vehicleName.textContent = carDetails.display_name;
+          }
+          
+          // Update vehicle details
+          const vehicleDetails = document.getElementById('vehicle-details');
+          if (vehicleDetails) {
+            const details = [];
+            if (carDetails.car_type) details.push(carDetails.car_type);
+            if (carDetails.fuel_type) details.push(carDetails.fuel_type);
+            if (carDetails.gear_type) details.push(carDetails.gear_type);
+            if (carDetails.num_passengers) details.push(`${carDetails.num_passengers} passengers`);
+            vehicleDetails.textContent = details.join(' • ');
+          }
+          
+          // Update vehicle price
+          const vehiclePrice = document.getElementById('vehicle-price');
+          if (vehiclePrice) {
+            const price = carDetails.daily_price || carDetails.price_policy?.['1-2'] || 'Contact us';
+            vehiclePrice.textContent = typeof price === 'number' ? `€${price}` : price;
+          }
+          
+          // Show vehicle info
+          vehicleInfo.style.display = 'block';
+          
+        } catch (error) {
+          console.error('Error updating vehicle info:', error);
+          if (vehicleInfo) vehicleInfo.style.display = 'none';
+        }
       }
 
   // Get selected car data

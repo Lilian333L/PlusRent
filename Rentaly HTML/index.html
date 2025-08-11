@@ -23,6 +23,537 @@
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+      
+      /* Enhanced Booking Form Styles */
+      .vehicle-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      .vehicle-select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .vehicle-card {
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+      }
+      
+      .vehicle-card:hover {
+        border-color: #f0c040;
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.15);
+      }
+      
+      .date-time-field {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      
+      .date-time-field input[type="text"] {
+        flex: 1;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+      
+      .date-time-field input[type="text"]:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .date-time-field select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      .date-time-field select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .field-set input,
+      .field-set textarea {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      .field-set input:focus,
+      .field-set textarea:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .error_input {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+      }
+      
+      .field-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+      }
+      
+      .btn-main {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .btn-main:hover {
+        background: linear-gradient(135deg, #e6b800 0%, #d4a600 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(240, 192, 64, 0.3);
+        color: #fff;
+      }
+      
+      .btn-main:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+      
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      
+      .success-icon {
+        animation: bounceIn 0.6s ease-out;
+      }
+      
+      @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      .booking-details {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      
+      .booking-details h5 {
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+      
+      .booking-details p {
+        margin-bottom: 8px;
+        color: #666;
+      }
+      
+      .booking-details strong {
+        color: #333;
+      }
+      
+      /* Booking Info Alert */
+      .booking-info .alert {
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        padding: 15px 20px;
+      }
+      
+      .booking-info .alert i {
+        margin-right: 8px;
+      }
+      
+      .booking-info .alert ul {
+        padding-left: 20px;
+      }
+      
+      .booking-info .alert li {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+      }
+      
+      /* Loading animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #f0c040;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Price Summary Styles */
+      .price-summary {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+      }
+      
+      .price-summary h5 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 12px;
+        font-size: 16px;
+      }
+      
+      .price-breakdown {
+        font-size: 13px;
+      }
+      
+      .price-item {
+        color: #666;
+        margin-bottom: 8px !important;
+      }
+      
+      .price-item.fw-bold {
+        color: #333;
+        font-size: 15px;
+        margin-top: 10px;
+      }
+      
+      .price-item .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+      
+      .price-summary hr {
+        margin: 10px 0;
+        border-color: #e0e0e0;
+      }
+
+      /* Compact Price Summary */
+      .price-summary-compact {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+      }
+      
+      .price-summary-compact h6 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .price-breakdown-compact {
+        font-size: 12px;
+      }
+      
+      .price-item-compact {
+        color: #6c757d;
+        margin-bottom: 4px !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .price-item-compact.total {
+        color: #495057;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #dee2e6;
+      }
+      
+      .price-item-compact .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+
+      /* Price Calculator Modal */
+      .price-calculator-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+      }
+      
+      .price-calculator-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        overflow: hidden;
+      }
+      
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .modal-header {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        color: #fff;
+        padding: 20px 25px;
+        text-align: center;
+        position: relative;
+      }
+      
+      .modal-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 18px;
+      }
+      
+      .close-modal {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+      
+      .close-modal:hover {
+        opacity: 1;
+      }
+      
+      .modal-body {
+        padding: 25px;
+      }
+      
+      .calculator-section {
+        margin-bottom: 20px;
+      }
+      
+      .calculator-section h5 {
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #f0c040;
+        padding-bottom: 5px;
+      }
+      
+      .tariff-info {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #f0c040;
+      }
+      
+      .tariff-info h6 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .tariff-details {
+        font-size: 13px;
+        color: #6c757d;
+      }
+      
+      .tariff-details .day-rate {
+        color: #28a745;
+        font-weight: 600;
+      }
+      
+      .tariff-details .night-rate {
+        color: #dc3545;
+        font-weight: 600;
+      }
+      
+      .modal-price-summary {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 2px solid #f0c040;
+      }
+      
+      .modal-price-summary h5 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 16px;
+      }
+      
+      .modal-price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #6c757d;
+      }
+      
+      .modal-price-item.total {
+        color: #495057;
+        font-weight: 700;
+        font-size: 16px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid #dee2e6;
+      }
+      
+      .modal-price-item .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+      
+      .modal-actions {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      .btn-calculate {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        color: #fff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-right: 10px;
+      }
+      
+      .btn-calculate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3);
+      }
+      
+      .btn-close-calc {
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-close-calc:hover {
+        background: #5a6268;
+      }
+
+      /* Quick Book Button */
+      .quick-book-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 13px;
+        margin-bottom: 15px;
+        width: 100%;
+      }
+      
+      .quick-book-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      /* Modal body styles */
+      body.modal-open {
+        overflow: hidden;
+      }
+      
+      /* Responsive adjustments for modal */
+      @media (max-width: 768px) {
+        .price-calculator-content {
+          width: 95%;
+          margin: 10% auto;
+        }
+        
+        .modal-body {
+          padding: 15px;
+        }
+        
+        .btn-calculate,
+        .btn-close-calc {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
       .lang-picker-btn {
         display: flex;
         align-items: center;
@@ -547,13 +1078,34 @@
                             <div class="padding40 rounded-5 shadow-soft" data-bgcolor="#ffffff">
                                 
 
-                                <form name="contactForm" id='booking_form' class="form-s2 row g-4 on-submit-hide" method="post" action="booking.php">
+                                <form name="contactForm" id='booking_form' class="form-s2 row g-4 on-submit-hide" method="post">
 
                                     <div class="col-lg-6 d-light car-picker-window">
                                         <h4 data-i18n="booking.booking_title">Booking a Car</h4>
-                                        <select name='vehicle_type' id="vehicle_type" class="form-control">
-                                          <option value="" disabled selected data-i18n="booking.loading_cars">Loading cars...</option>
-                                        </select>
+                                        
+                                        <!-- Vehicle Selection with Enhanced UI -->
+                                        <div class="vehicle-selection-wrapper mb-4">
+                                            <select name='vehicle_type' id="vehicle_type" class="form-control vehicle-select">
+                                              <option value="" disabled selected data-i18n="booking.loading_cars">Loading cars...</option>
+                                            </select>
+                                            <div id="selected-vehicle-info" class="selected-vehicle-info mt-3" style="display: none;">
+                                                <div class="vehicle-card p-3 bg-light rounded">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-3">
+                                                            <img id="vehicle-image" src="" alt="Vehicle" class="img-fluid rounded">
+                                                        </div>
+                                                        <div class="col-9">
+                                                            <h6 id="vehicle-name" class="mb-1"></h6>
+                                                            <p id="vehicle-details" class="text-muted small mb-1"></p>
+                                                            <div class="vehicle-price">
+                                                                <span class="text-primary fw-bold" id="vehicle-price"></span>
+                                                                <small class="text-muted">/day</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <div class="row g-4">
                                             <div class="col-lg-6">
@@ -706,6 +1258,7 @@
 
                                     <div class="col-lg-6 customer-details-window">
                                         <h4 data-i18n="booking.enter_details_title">Enter Your Details</h4>
+
                                         <div class="row g-4">
                                             <div class="col-lg-12">
                                                 <div class="field-set">
@@ -734,6 +1287,34 @@
 
 
                                     <div class="col-lg-3">
+                                        <!-- Quick Book Button -->
+                                        <button type="button" id="quick-book-calculator" class="quick-book-btn">
+                                            <i class="fa fa-calculator"></i> Quick Price Calculator
+                                        </button>
+                                        
+                                        <!-- Compact Price Summary -->
+                                        <div id="price-summary" class="price-summary-compact" style="display: none;">
+                                            <h6>Price Summary</h6>
+                                            <div class="price-breakdown-compact">
+                                                <div class="price-item-compact">
+                                                    <span>Daily Rate:</span>
+                                                    <span id="daily-rate">€0</span>
+                                                </div>
+                                                <div class="price-item-compact">
+                                                    <span>Duration:</span>
+                                                    <span id="rental-duration">0 days</span>
+                                                </div>
+                                                <div class="price-item-compact">
+                                                    <span>Insurance:</span>
+                                                    <span id="insurance-cost">€0</span>
+                                                </div>
+                                                <div class="price-item-compact total">
+                                                    <span>Total Estimate:</span>
+                                                    <span id="total-estimate" class="text-primary">€0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                         <p id='submit'>
                                             <input type='submit' id='send_message' value='Submit' data-i18n="booking.submit" class="btn-main btn-fullwidth">
                                         </p>
@@ -744,11 +1325,20 @@
 
                                 <div id="success_message" class='success s2'>
                                     <div class="row">
-                                        <div class="col-lg-8 offset-lg-2 text-light text-center">
-                                            <h3 class="mb-2" data-i18n="booking.congratulations">Congratulations! Your booking has been sent successfully. We will contact you shortly.</h3>
-                                            <span data-i18n="booking.refresh_message">Refresh this page if you want to booking again.</span>
+                                        <div class="col-lg-8 offset-lg-2 text-center">
+                                            <div class="success-icon mb-3">
+                                                <i class="fa fa-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+                                            </div>
+                                            <h3 class="mb-3" data-i18n="booking.congratulations">Congratulations! Your booking has been submitted successfully.</h3>
+                                            <p class="mb-3" data-i18n="booking.confirmation_message">We have received your booking request and will contact you within 24 hours to confirm your reservation.</p>
+                                            <div class="booking-details mb-4">
+                                                <h5>Booking Summary</h5>
+                                                <div id="booking-summary" class="text-left">
+                                                    <!-- Booking details will be populated here -->
+                                                </div>
+                                            </div>
                                             <div class="spacer-20"></div>
-                                            <a class="btn-main btn-black" href="quick-booking.html" data-i18n="booking.reload_page">Reload this page</a>
+                                            <button class="btn-main" onclick="location.reload()" data-i18n="booking.book_another">Book Another Vehicle</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1217,6 +1807,7 @@
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
     <script src="js/dynamic-cars-loader.js"></script>
+    <script src="js/validation-booking.js"></script>
     <!-- Google Maps API removed to prevent errors -->
     <!-- i18next CDN -->
     <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
@@ -1368,6 +1959,101 @@
           });
       });
     </script>
+
+    <!-- Price Calculator Modal -->
+    <div id="price-calculator-modal" class="price-calculator-modal">
+        <div class="price-calculator-content">
+            <div class="modal-header">
+                <h4><i class="fa fa-calculator"></i> Price Calculator</h4>
+                <button type="button" class="close-modal" onclick="closePriceCalculator()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Tariff Information -->
+                <div class="tariff-info">
+                    <h6><i class="fa fa-info-circle"></i> Day & Night Tariffs</h6>
+                    <div class="tariff-details">
+                        <div><span class="day-rate">Day Rate (6:00 AM - 10:00 PM):</span> Standard pricing</div>
+                        <div><span class="night-rate">Night Rate (10:00 PM - 6:00 AM):</span> +15% premium</div>
+                        <div><i class="fa fa-clock-o"></i> Minimum rental: 24 hours</div>
+                    </div>
+                </div>
+
+                <!-- Calculator Section -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-calendar"></i> Rental Period</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Pickup Date:</label>
+                            <input type="text" id="modal-pickup-date" class="form-control" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label>Return Date:</label>
+                            <input type="text" id="modal-return-date" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Selection -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-car"></i> Selected Vehicle</h5>
+                    <div id="modal-vehicle-info" class="vehicle-card p-3 bg-light rounded">
+                        <div class="row align-items-center">
+                            <div class="col-3">
+                                <img id="modal-vehicle-image" src="" alt="Vehicle" class="img-fluid rounded">
+                            </div>
+                            <div class="col-9">
+                                <h6 id="modal-vehicle-name" class="mb-1"></h6>
+                                <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
+                                <div class="vehicle-price">
+                                    <span class="text-primary fw-bold" id="modal-vehicle-price"></span>
+                                    <small class="text-muted">/day</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="modal-price-summary">
+                    <h5><i class="fa fa-euro"></i> Price Breakdown</h5>
+                    <div class="modal-price-item">
+                        <span>Daily Rate:</span>
+                        <span id="modal-daily-rate">€0</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Duration:</span>
+                        <span id="modal-rental-duration">0 days</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Night Hours:</span>
+                        <span id="modal-night-hours">0 hours</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Night Premium:</span>
+                        <span id="modal-night-premium">€0</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Insurance:</span>
+                        <span id="modal-insurance-cost">€0</span>
+                    </div>
+                    <div class="modal-price-item total">
+                        <span>Total Estimate:</span>
+                        <span id="modal-total-estimate" class="text-primary">€0</span>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="modal-actions">
+                    <button type="button" class="btn-calculate" onclick="applyModalCalculation()">
+                        <i class="fa fa-check"></i> Apply to Booking
+                    </button>
+                    <button type="button" class="btn-close-calc" onclick="closePriceCalculator()">
+                        <i class="fa fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 
