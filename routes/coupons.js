@@ -75,22 +75,35 @@ router.patch('/:id/toggle-wheel', (req, res) => {
         
         if (existing) {
           // Remove from wheel
-          db.run('DELETE FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (err) => {
+          console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
+          db.run('DELETE FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], function(err) {
             if (err) {
               console.error('Delete error:', err);
               return res.status(500).json({ error: 'Database error' });
             }
-            console.log('Successfully removed coupon from wheel');
-            res.json({ success: true, wheel_enabled: false });
+            console.log(`Successfully removed coupon ${id} from wheel ${wheelId}. Rows affected: ${this.changes}`);
+            
+            // Verify the deletion by checking if the record still exists
+            db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (verifyErr, verifyResult) => {
+              if (verifyErr) {
+                console.error('Verification error:', verifyErr);
+              } else if (verifyResult) {
+                console.error(`❌ VERIFICATION FAILED: Coupon ${id} still exists in wheel ${wheelId} after deletion!`);
+              } else {
+                console.log(`✅ VERIFICATION SUCCESS: Coupon ${id} successfully removed from wheel ${wheelId}`);
+              }
+              res.json({ success: true, wheel_enabled: false });
+            });
           });
         } else {
           // Add to wheel
-          db.run('INSERT INTO wheel_coupons (wheel_id, coupon_id) VALUES (?, ?)', [wheelId, id], (err) => {
+          console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
+          db.run('INSERT INTO wheel_coupons (wheel_id, coupon_id) VALUES (?, ?)', [wheelId, id], function(err) {
             if (err) {
               console.error('Insert error:', err);
               return res.status(500).json({ error: 'Database error' });
             }
-            console.log('Successfully added coupon to wheel');
+            console.log(`Successfully added coupon ${id} to wheel ${wheelId}. Last ID: ${this.lastID}`);
             res.json({ success: true, wheel_enabled: true });
           });
         }
