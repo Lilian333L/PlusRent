@@ -31,37 +31,7 @@ router.get('/debug-table', (req, res) => {
   });
 });
 
-// Get random winning index for spinning wheel
-router.get('/random-winning-index', (req, res) => {
-  // First, get the active spinning wheel
-  db.get('SELECT * FROM spinning_wheels WHERE is_active = 1', (err, activeWheel) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (!activeWheel) {
-      return res.status(400).json({ error: 'No active spinning wheel found' });
-    }
-    
-    // Get coupons that match the active wheel's coupon type and are enabled
-    db.all('SELECT COUNT(*) as count FROM coupon_codes WHERE is_active = 1 AND wheel_enabled = 1 AND type = ?', 
-      [activeWheel.coupon_type], (err, rows) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      const activeCouponsCount = rows[0].count;
-      if (activeCouponsCount === 0) {
-        return res.status(400).json({ error: `No active ${activeWheel.coupon_type} coupons available for spinning wheel` });
-      }
-      
-      // Generate random index between 0 and activeCouponsCount - 1
-      const winningIndex = Math.floor(Math.random() * activeCouponsCount);
-      
-      res.json({ winningIndex, activeWheel });
-    });
-  });
-});
+
 
 // Toggle wheel enabled status for a coupon
 router.patch('/:id/toggle-wheel', (req, res) => {
@@ -124,6 +94,71 @@ router.patch('/:id/toggle-wheel', (req, res) => {
             res.json({ success: true, wheel_enabled: true });
           });
         }
+      });
+    });
+  });
+});
+
+// Update coupon percentage for a specific wheel
+router.patch('/:id/wheel-percentage', (req, res) => {
+  const couponId = req.params.id;
+  const { wheelId, percentage } = req.body;
+  
+  console.log('Update wheel percentage request for coupon ID:', couponId, 'Wheel ID:', wheelId, 'Percentage:', percentage);
+  
+  if (!wheelId || percentage === undefined) {
+    return res.status(400).json({ error: 'Wheel ID and percentage are required' });
+  }
+  
+  // Validate percentage
+  const numPercentage = parseFloat(percentage);
+  if (isNaN(numPercentage) || numPercentage < 0 || numPercentage > 100) {
+    return res.status(400).json({ error: 'Percentage must be between 0 and 100' });
+  }
+  
+  // Check if coupon exists
+  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!coupon) {
+      console.log('Coupon not found for ID:', couponId);
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    
+    // Check if wheel exists
+    db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, wheel) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!wheel) {
+        console.log('Wheel not found for ID:', wheelId);
+        return res.status(404).json({ error: 'Wheel not found' });
+      }
+      
+      // Check if coupon is enabled for this wheel
+      db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, couponId], (err, existing) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!existing) {
+          return res.status(400).json({ error: 'Coupon is not enabled for this wheel' });
+        }
+        
+        // Update the percentage
+        db.run('UPDATE wheel_coupons SET percentage = ? WHERE wheel_id = ? AND coupon_id = ?', 
+               [numPercentage, wheelId, couponId], (err) => {
+          if (err) {
+            console.error('Update error:', err);
+            return res.status(500).json({ error: 'Database error' });
+          }
+          console.log('Successfully updated percentage for coupon on wheel');
+          res.json({ success: true, percentage: numPercentage });
+        });
       });
     });
   });

@@ -143,6 +143,7 @@ function initializeDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       wheel_id INTEGER NOT NULL,
       coupon_id INTEGER NOT NULL,
+      percentage REAL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (wheel_id) REFERENCES spinning_wheels (id) ON DELETE CASCADE,
       FOREIGN KEY (coupon_id) REFERENCES coupon_codes (id) ON DELETE CASCADE,
@@ -166,6 +167,9 @@ function initializeDatabase() {
     
     // Update existing coupon codes to have type 'percentage' and set free_days to NULL
     db.run(`UPDATE coupon_codes SET type = 'percentage', free_days = NULL WHERE type IS NULL`, () => {});
+    
+    // Add percentage column to wheel_coupons table if it doesn't exist
+    db.run(`ALTER TABLE wheel_coupons ADD COLUMN percentage REAL DEFAULT 0`, () => {});
     
     // Default spinning wheels creation removed - no longer needed
   });

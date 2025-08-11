@@ -681,11 +681,14 @@
                     // Create a set of enabled coupon IDs for this wheel
                     const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
                     
-                    // Filter only active coupons that are enabled for this specific wheel
-                    availableCoupons = allCoupons.filter(coupon => 
-                        coupon.is_active === 1 && 
-                        enabledCouponIds.has(coupon.id)
-                    );
+                                    // Filter only active coupons that are enabled for this specific wheel
+                const filteredCoupons = allCoupons.filter(coupon => 
+                    coupon.is_active === 1 && 
+                    enabledCouponIds.has(coupon.id)
+                );
+                
+                // Sort by coupon_id to match the API order (same as random-winning-index endpoint)
+                availableCoupons = filteredCoupons.sort((a, b) => a.id - b.id);
                     console.log(`Wheel-enabled coupons:`, availableCoupons);
                     // Always clear cache to ensure fresh data
                     cachedWheelSegments = null;
@@ -723,19 +726,12 @@
             const segments = [];
 
             // Use only the available active coupons
-            // Create segments dynamically based on the number of active coupons
-            // Visual order: top, top-right, right, bottom-right, bottom-left, etc.
-            // Map them in inverted sequential order to fix the mirror issue
+            // Create segments in the exact same order as the API expects them
             const numCoupons = availableCoupons.length;
-            const visualOrder = [];
             
-            // Generate inverted sequential order dynamically
-            for (let i = 0; i < numCoupons; i++) {
-                visualOrder.push(numCoupons - 1 - i); // Creates [4,3,2,1,0] for 5 coupons, [3,2,1,0] for 4 coupons, etc.
-            }
-            
-            visualOrder.forEach((visualPosition, arrayIndex) => {
-                const coupon = availableCoupons[arrayIndex];
+            // Create segments in the same order as availableCoupons (which is sorted by coupon_id)
+            availableCoupons.forEach((coupon, arrayIndex) => {
+                const visualPosition = availableCoupons.length - 1 - arrayIndex; // Inverted mapping: last array index = first visual position
                 
                 // Create alternating blue colors for adjacent segments (3 colors)
                 const colorIndex = arrayIndex % 3;
@@ -776,6 +772,10 @@
             });
             
             console.log('=== SEGMENT CREATION DEBUG ===');
+            console.log('Available coupons order:');
+            availableCoupons.forEach((coupon, i) => {
+                console.log(`  Index ${i}: ${coupon.code} - ${coupon.discount_percentage}%`);
+            });
             console.log('Visual mapping:');
             segments.forEach((segment, i) => {
                 console.log(`  Segment ${segment.id}: VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon.code}`);
@@ -903,9 +903,10 @@
         // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/random-winning-index`);
+                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/random-winning-index`);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('API Response:', data);
                     return data.winningIndex;
                 } else {
                     console.error('Failed to fetch random winning index');
@@ -935,11 +936,31 @@
             // Calculate rotation to land directly on the winning segment
             const wheelSegments = getWheelSegments();
             const segmentAngle = 360 / wheelSegments.length;
+            
+            // The winning index from API corresponds to the array index in availableCoupons
+            // We need to map this to the visual position on the wheel
             const targetSegmentIndex = randomWinningIndex % wheelSegments.length;
+            const winningSegment = wheelSegments[targetSegmentIndex];
+            const targetVisualPosition = winningSegment.visualPosition;
+            
+            console.log('Target segment index:', targetSegmentIndex);
+            console.log('Winning segment:', winningSegment);
+            console.log('Target visual position:', targetVisualPosition);
+            console.log('Available coupons length:', availableCoupons.length);
+            console.log('Wheel segments length:', wheelSegments.length);
+            console.log('Available coupons in spin function:');
+            availableCoupons.forEach((coupon, i) => {
+                console.log(`  Index ${i}: ${coupon.code} - ${coupon.discount_percentage}%`);
+            });
+            console.log('Wheel segments in spin function:');
+            wheelSegments.forEach((segment, i) => {
+                console.log(`  Segment ${segment.id}: VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon.code}`);
+            });
             
             // Calculate the rotation needed to land directly on the target segment
             // The pointer is at the top (0 degrees), so we need to rotate to the target segment
-            const targetAngle = targetSegmentIndex * segmentAngle + segmentAngle / 2; // Center of the segment
+            // Since the visual segments are inverted, we need to add 180 degrees to the target angle
+            const targetAngle = (targetVisualPosition * segmentAngle + segmentAngle / 2 + 180) % 360; // Center of the segment with 180-degree offset
             const extraRotations = 5 * 360; // 5 full rotations
             const totalRotation = extraRotations + targetAngle; // 5 extra rotations + target angle
 

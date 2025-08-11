@@ -796,7 +796,7 @@
     color: #155724;
   }
   
-  .coupon-status.inactive {
+    .coupon-status.inactive {
     background: #f8d7da;
     color: #721c24;
   }
@@ -804,6 +804,35 @@
   .coupon-status.expired {
     background: #fff3cd;
     color: #856404;
+  }
+  
+  /* Percentage Field Styles */
+  .percentage-field {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  
+  .percentage-field .form-control-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .percentage-field label {
+    font-weight: 500;
+    color: #495057;
+  }
+  
+  .coupon-item.enabled {
+    border-left: 4px solid #28a745;
+    background: #f8fff9;
+  }
+  
+  .coupon-item.disabled {
+    border-left: 4px solid #6c757d;
+    opacity: 0.8;
   }
   
   /* Language switcher styles */
@@ -4268,11 +4297,11 @@
             const coupons = await response.json();
             
             let enabledCouponIds = new Set();
+            let wheelCoupons = [];
             
             // If editing an existing wheel, get wheel-specific coupon status
             if (currentEditingWheelId) {
               const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons`);
-              let wheelCoupons = [];
               if (wheelCouponsResponse.ok) {
                 wheelCoupons = await wheelCouponsResponse.json();
               }
@@ -4291,25 +4320,49 @@
               } else {
                 wheelCouponsList.innerHTML = activeCoupons.map(coupon => {
                   const isEnabledForWheel = enabledCouponIds.has(coupon.id);
+                  // Get the wheel coupon data to find the percentage if it exists
+                  const wheelCoupon = wheelCoupons.find(wc => wc.coupon_id === coupon.id);
+                  const currentPercentage = wheelCoupon ? wheelCoupon.percentage || 0 : 0;
+                  
                   return `
-                  <div class="list-group-item d-flex justify-content-between align-items-center coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
-                    <div>
-                      <strong>${coupon.code}</strong>
-                      <br>
-                      <small class="text-muted">
-                        ${coupon.type === 'free_days' ? 
-                          `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : 
-                          `${coupon.discount_percentage}% OFF`}
-                      </small>
-                      <br>
-                      <small class="text-muted">${coupon.description || 'No description'}</small>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                      <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
-                              style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
-                              onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
-                        ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
-                      </button>
+                  <div class="list-group-item coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="flex-grow-1">
+                        <strong>${coupon.code}</strong>
+                        <br>
+                        <small class="text-muted">
+                          ${coupon.type === 'free_days' ? 
+                            `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : 
+                            `${coupon.discount_percentage}% OFF`}
+                        </small>
+                        <br>
+                        <small class="text-muted">${coupon.description || 'No description'}</small>
+                        
+                        ${isEnabledForWheel ? `
+                        <div class="mt-3 percentage-field" style="display: block;">
+                          <label class="form-label small mb-1">
+                            <i class="fa fa-percentage"></i> Wheel Percentage (%)
+                          </label>
+                          <input type="number" 
+                                 class="form-control form-control-sm" 
+                                 id="percentage-${coupon.id}" 
+                                 value="${currentPercentage}"
+                                 min="0" 
+                                 max="100" 
+                                 step="0.1"
+                                 placeholder="Enter percentage"
+                                 onchange="updateCouponPercentage(${coupon.id}, this.value)">
+                        </div>
+                        ` : ''}
+                      </div>
+                      
+                      <div class="d-flex align-items-center gap-2 ms-3">
+                        <button type="button" class="btn btn-sm ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
+                                style="position: relative; z-index: 1000; cursor: pointer; pointer-events: auto; ${!isEnabledForWheel ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
+                                onclick="toggleCouponForWheel(${coupon.id}, ${isEnabledForWheel})">
+                          ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 `;
@@ -4353,6 +4406,38 @@
           } catch (error) {
             console.error('Error toggling coupon for wheel:', error);
             showCustomAlert('Error updating coupon', 'error');
+          }
+        }
+
+        async function updateCouponPercentage(couponId, percentage) {
+          if (!currentEditingWheelId) {
+            showCustomAlert('Please save the wheel first before managing coupons', 'error');
+            return;
+          }
+          
+          // Validate percentage
+          const numPercentage = parseFloat(percentage);
+          if (isNaN(numPercentage) || numPercentage < 0 || numPercentage > 100) {
+            showCustomAlert('Percentage must be between 0 and 100', 'error');
+            return;
+          }
+          
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: numPercentage })
+            });
+            
+            if (response.ok) {
+              showCustomAlert(`Percentage updated to ${numPercentage}%`, 'success');
+            } else {
+              const error = await response.json();
+              showCustomAlert('Error updating percentage: ' + error.error, 'error');
+            }
+          } catch (error) {
+            console.error('Error updating coupon percentage:', error);
+            showCustomAlert('Error updating percentage', 'error');
           }
         }
 
