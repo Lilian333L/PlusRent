@@ -105,7 +105,8 @@ router.get('/', (req, res) => {
 // Get cars for booking form (only available cars with basic info)
 router.get('/booking/available', (req, res) => {
   const sql = `
-    SELECT id, make_name, model_name, production_year, head_image, price_policy, booked 
+    SELECT id, make_name, model_name, production_year, head_image, price_policy, booked, 
+           car_type, num_doors, num_passengers, fuel_type, gear_type
     FROM cars 
     WHERE booked = 0 OR booked IS NULL
     ORDER BY make_name, model_name
@@ -128,6 +129,12 @@ router.get('/booking/available', (req, res) => {
         production_year: car.production_year,
         head_image: car.head_image,
         daily_price: dailyPrice,
+        price_policy: pricePolicy, // Include the full price policy
+        car_type: car.car_type,
+        num_doors: car.num_doors,
+        num_passengers: car.num_passengers,
+        fuel_type: car.fuel_type,
+        gear_type: car.gear_type,
         display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
         // For backward compatibility with existing select options
         value: `${car.make_name} ${car.model_name}`,
