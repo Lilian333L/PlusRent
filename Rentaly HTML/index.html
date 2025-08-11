@@ -34,6 +34,63 @@
         background: #fff;
       }
       
+      /* Ensure submit button is always visible */
+      #send_message {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: #f0c040 !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+      }
+      
+      #send_message:hover {
+        background: #e6b800 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3) !important;
+      }
+      
+      #send_message:disabled {
+        background: #ccc !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Ensure field-set and submit container are properly styled */
+      .field-set {
+        margin-bottom: 20px;
+      }
+      
+      #submit {
+        margin-top: 20px;
+        text-align: center;
+      }
+      
+      /* Loading spinner for submit button */
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
       .vehicle-select:focus {
         border-color: #f0c040;
         box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
@@ -61,6 +118,48 @@
         border: 2px solid #e0e0e0;
         border-radius: 8px;
         padding: 12px 15px;
+      }
+      
+      /* Enhanced Error Message Styling */
+      #error_message {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 15px 20px !important;
+        margin: 15px 0 20px 0 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      
+      #error_message:before {
+        content: "⚠️";
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      
+      #error_message.show {
+        animation: slideInDown 0.3s ease-out;
+      }
+      
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .vehicle-select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
         font-size: 16px;
         transition: all 0.3s ease;
       }
@@ -426,13 +525,18 @@
         color: #6c757d;
       }
       
-      .tariff-details .day-rate {
+      .tariff-details .working-hours {
         color: #28a745;
         font-weight: 600;
       }
       
-      .tariff-details .night-rate {
+      .tariff-details .outside-hours {
         color: #dc3545;
+        font-weight: 600;
+      }
+      
+      .tariff-details .location-fees {
+        color: #007bff;
         font-weight: 600;
       }
       
@@ -1024,7 +1128,7 @@
                                             </div>
 
                                             <div class="col-lg-6">
-                                                <h5 data-i18n="booking.destination">Destination</h5>
+                                                <h5 data-i18n="booking.destination">Return Location</h5>
                                                 <select name='destination' id="destination" name="destination" class="form-control">
                                                   <option value='New York'>New York</option>
                                                   <option value='Pennsylvania'>Pennsylvania</option>
@@ -1037,119 +1141,7 @@
                                                 </select>
                                             </div>
 
-                                            <div class="col-lg-6">
-                                                <h5 data-i18n="booking.pickup_datetime">Pick Up Date & Time</h5>
-                                                <div class="date-time-field">
-                                                    <input type="text" id="date-picker" name="pickup_date" value="">
-                                                    <select name="pickup_time" id="pickup_time">
-                                                        <option value="00:00">00:00</option>
-                                                        <option value="00:30">00:30</option>
-                                                        <option value="01:00">01:00</option>
-                                                        <option value="01:30">01:30</option>
-                                                        <option value="02:00">02:00</option>
-                                                        <option value="02:30">02:30</option>
-                                                        <option value="03:00">03:00</option>
-                                                        <option value="03:30">03:30</option>
-                                                        <option value="04:00">04:00</option>
-                                                        <option value="04:30">04:30</option>
-                                                        <option value="05:00">05:00</option>
-                                                        <option value="05:30">05:30</option>
-                                                        <option value="06:00">06:00</option>
-                                                        <option value="06:30">06:30</option>
-                                                        <option value="07:00">07:00</option>
-                                                        <option value="07:30">07:30</option>
-                                                        <option value="08:00">08:00</option>
-                                                        <option value="08:30">08:30</option>
-                                                        <option value="09:00">09:00</option>
-                                                        <option value="09:30">09:30</option>
-                                                        <option value="10:00">10:00</option>
-                                                        <option value="10:30">10:30</option>
-                                                        <option value="11:00">11:00</option>
-                                                        <option value="11:30">11:30</option>
-                                                        <option value="12:00">12:00</option>
-                                                        <option value="12:30">12:30</option>
-                                                        <option value="13:00">13:00</option>
-                                                        <option value="13:30">13:30</option>
-                                                        <option value="14:00">14:00</option>
-                                                        <option value="14:30">14:30</option>
-                                                        <option value="15:00">15:00</option>
-                                                        <option value="15:30">15:30</option>
-                                                        <option value="16:00">16:00</option>
-                                                        <option value="16:30">16:30</option>
-                                                        <option value="17:00">17:00</option>
-                                                        <option value="17:30">17:30</option>
-                                                        <option value="18:00">18:00</option>
-                                                        <option value="18:30">18:30</option>
-                                                        <option value="19:00">19:00</option>
-                                                        <option value="19:30">19:30</option>
-                                                        <option value="20:00">20:00</option>
-                                                        <option value="20:30">20:30</option>
-                                                        <option value="21:00">21:00</option>
-                                                        <option value="21:30">21:30</option>
-                                                        <option value="22:00">22:00</option>
-                                                        <option value="22:30">22:30</option>
-                                                        <option value="23:00">23:00</option>
-                                                        <option value="23:30">23:30</option>
-                                                    </select>
-                                                </div>
-                                            </div>
 
-                                            <div class="col-lg-6">
-                                                <h5 data-i18n="booking.return_datetime">Return Date & Time</h5>
-                                                <div class="date-time-field">
-                                                    <input type="text" id="date-picker-2" name="return_date" value="">
-                                                    <select name="return_time" id="return_time">
-                                                        <option value="00:00">00:00</option>
-                                                        <option value="00:30">00:30</option>
-                                                        <option value="01:00">01:00</option>
-                                                        <option value="01:30">01:30</option>
-                                                        <option value="02:00">02:00</option>
-                                                        <option value="02:30">02:30</option>
-                                                        <option value="03:00">03:00</option>
-                                                        <option value="03:30">03:30</option>
-                                                        <option value="04:00">04:00</option>
-                                                        <option value="04:30">04:30</option>
-                                                        <option value="05:00">05:00</option>
-                                                        <option value="05:30">05:30</option>
-                                                        <option value="06:00">06:00</option>
-                                                        <option value="06:30">06:30</option>
-                                                        <option value="07:00">07:00</option>
-                                                        <option value="07:30">07:30</option>
-                                                        <option value="08:00">08:00</option>
-                                                        <option value="08:30">08:30</option>
-                                                        <option value="09:00">09:00</option>
-                                                        <option value="09:30">09:30</option>
-                                                        <option value="10:00">10:00</option>
-                                                        <option value="10:30">10:30</option>
-                                                        <option value="11:00">11:00</option>
-                                                        <option value="11:30">11:30</option>
-                                                        <option value="12:00">12:00</option>
-                                                        <option value="12:30">12:30</option>
-                                                        <option value="13:00">13:00</option>
-                                                        <option value="13:30">13:30</option>
-                                                        <option value="14:00">14:00</option>
-                                                        <option value="14:30">14:30</option>
-                                                        <option value="15:00">15:00</option>
-                                                        <option value="15:30">15:30</option>
-                                                        <option value="16:00">16:00</option>
-                                                        <option value="16:30">16:30</option>
-                                                        <option value="17:00">17:00</option>
-                                                        <option value="17:30">17:30</option>
-                                                        <option value="18:00">18:00</option>
-                                                        <option value="18:30">18:30</option>
-                                                        <option value="19:00">19:00</option>
-                                                        <option value="19:30">19:30</option>
-                                                        <option value="20:00">20:00</option>
-                                                        <option value="20:30">20:30</option>
-                                                        <option value="21:00">21:00</option>
-                                                        <option value="21:30">21:30</option>
-                                                        <option value="22:00">22:00</option>
-                                                        <option value="22:30">22:30</option>
-                                                        <option value="23:00">23:00</option>
-                                                        <option value="23:30">23:30</option>
-                                                    </select>
-                                                </div>
-                                            </div>
                                             
                                         </div>
                                         
@@ -1159,6 +1151,11 @@
 
                                     <div class="col-lg-6 customer-details-window">
                                         <h4 data-i18n="booking.enter_details_title">Enter Your Details</h4>
+                                        
+                                        <!-- Error message positioned right after title -->
+                                        <div id="error_message" class='error' data-i18n="booking.form_error" style="display: none; margin-top: 15px; margin-bottom: 20px;">
+                                            Sorry there was an error sending your form.
+                                        </div>
 
                                         <div class="row g-4">
                                             <div class="col-lg-12">
@@ -1168,7 +1165,7 @@
                                             </div>
                                             <div class="col-lg-12">
                                                 <div class="field-set">
-                                                    <input type="email" name="email" id="email" class="form-control" data-i18n="booking.email_placeholder" placeholder="Your Email" required>
+                                                    <input type="email" name="email" id="email" class="form-control" data-i18n="booking.email_placeholder" placeholder="Your Email">
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">
@@ -1182,18 +1179,21 @@
                                                     <textarea name="message" id="message" class="form-control" data-i18n="booking.message_placeholder" placeholder="Do you have any request?"></textarea>
                                                 </div>
                                             </div>
+                                            
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <p id='submit'>
+                                                        <input type='submit' id='send_message' value='Submit' data-i18n="booking.submit" class="btn-main btn-fullwidth">
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                     </div>
 
 
                                     <div class="col-lg-3">
-                                        <!-- Quick Book Button -->
-                                        <button type="button" id="quick-book-calculator" class="quick-book-btn">
-                                            <i class="fa fa-calculator"></i> Quick Price Calculator
-                                        </button>
-                                        
-                                        <!-- Compact Price Summary -->
+                                        <!-- Compact Price Summary - Hidden by default, only shown in modal -->
                                         <div id="price-summary" class="price-summary-compact" style="display: none;">
                                             <h6>Price Summary</h6>
                                             <div class="price-breakdown-compact">
@@ -1215,10 +1215,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
-                                        <p id='submit'>
-                                            <input type='submit' id='send_message' value='Submit' data-i18n="booking.submit" class="btn-main btn-fullwidth">
-                                        </p>
                                         <div id='mail_success' class='success' data-i18n="booking.success_message">Your message has been sent successfully.</div>
                                         <div id='mail_fail' class='error' data-i18n="booking.error_message">Sorry, error occured this time sending your message.</div>
                                     </div>
@@ -1242,9 +1238,6 @@
                                             <button class="btn-main" onclick="location.reload()" data-i18n="booking.book_another">Book Another Vehicle</button>
                                         </div>
                                     </div>
-                                </div>
-                                <div id="error_message" class='error' data-i18n="booking.form_error">
-                                    Sorry there was an error sending your form.
                                 </div>
                             </div>
                         </div>
@@ -1750,10 +1743,11 @@
             <div class="modal-body">
                 <!-- Tariff Information -->
                 <div class="tariff-info">
-                    <h6><i class="fa fa-info-circle"></i> Day & Night Tariffs</h6>
+                    <h6><i class="fa fa-info-circle"></i> Working Hours & Location Fees</h6>
                     <div class="tariff-details">
-                        <div><span class="day-rate">Day Rate (6:00 AM - 10:00 PM):</span> Standard pricing</div>
-                        <div><span class="night-rate">Night Rate (10:00 PM - 6:00 AM):</span> +15% premium</div>
+                        <div><span class="working-hours">Working Hours (8:00 AM - 6:00 PM):</span> Standard pricing</div>
+                        <div><span class="outside-hours">Outside Working Hours:</span> +€15 fee per pickup/return</div>
+                        <div><span class="location-fees">Airport Delivery:</span> Chisinau +€25, Iasi +€35</div>
                         <div><i class="fa fa-clock-o"></i> Minimum rental: 24 hours</div>
                     </div>
                 </div>
@@ -1764,11 +1758,119 @@
                     <div class="row">
                         <div class="col-6">
                             <label>Pickup Date:</label>
-                            <input type="text" id="modal-pickup-date" class="form-control" readonly>
+                            <input type="date" id="modal-pickup-date" class="form-control">
                         </div>
                         <div class="col-6">
                             <label>Return Date:</label>
-                            <input type="text" id="modal-return-date" class="form-control" readonly>
+                            <input type="date" id="modal-return-date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Pickup Time:</label>
+                            <select id="modal-pickup-time" class="form-control">
+                                <option value="00:00">00:00</option>
+                                <option value="00:30">00:30</option>
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+                                <option value="04:30">04:30</option>
+                                <option value="05:00">05:00</option>
+                                <option value="05:30">05:30</option>
+                                <option value="06:00">06:00</option>
+                                <option value="06:30">06:30</option>
+                                <option value="07:00">07:00</option>
+                                <option value="07:30">07:30</option>
+                                <option value="08:00">08:00</option>
+                                <option value="08:30">08:30</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:00">20:00</option>
+                                <option value="20:30">20:30</option>
+                                <option value="21:00">21:00</option>
+                                <option value="21:30">21:30</option>
+                                <option value="22:00">22:00</option>
+                                <option value="22:30">22:30</option>
+                                <option value="23:00">23:00</option>
+                                <option value="23:30">23:30</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label>Return Time:</label>
+                            <select id="modal-return-time" class="form-control">
+                                <option value="00:00">00:00</option>
+                                <option value="00:30">00:30</option>
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+                                <option value="04:30">04:30</option>
+                                <option value="05:00">05:00</option>
+                                <option value="05:30">05:30</option>
+                                <option value="06:00">06:00</option>
+                                <option value="06:30">06:30</option>
+                                <option value="07:00">07:00</option>
+                                <option value="07:30">07:30</option>
+                                <option value="08:00">08:00</option>
+                                <option value="08:30">08:30</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                                <option value="19:30">19:30</option>
+                                <option value="20:00">20:00</option>
+                                <option value="20:30">20:30</option>
+                                <option value="21:00">21:00</option>
+                                <option value="21:30">21:30</option>
+                                <option value="22:00">22:00</option>
+                                <option value="22:30">22:30</option>
+                                <option value="23:00">23:00</option>
+                                <option value="23:30">23:30</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1786,7 +1888,6 @@
                                 <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
                                 <div class="vehicle-price">
                                     <span class="text-primary fw-bold" id="modal-vehicle-price"></span>
-                                    <small class="text-muted">/day</small>
                                 </div>
                             </div>
                         </div>
@@ -1805,16 +1906,12 @@
                         <span id="modal-rental-duration">0 days</span>
                     </div>
                     <div class="modal-price-item">
-                        <span>Night Hours:</span>
-                        <span id="modal-night-hours">0 hours</span>
+                        <span>Location Fees:</span>
+                        <span id="modal-location-fees">€0</span>
                     </div>
                     <div class="modal-price-item">
-                        <span>Night Premium:</span>
+                        <span>Outside Hours Fees:</span>
                         <span id="modal-night-premium">€0</span>
-                    </div>
-                    <div class="modal-price-item">
-                        <span>Insurance:</span>
-                        <span id="modal-insurance-cost">€0</span>
                     </div>
                     <div class="modal-price-item total">
                         <span>Total Estimate:</span>
