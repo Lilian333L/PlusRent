@@ -127,24 +127,9 @@ class BookingFormHandler {
       return { isValid: false, error: 'Please select pickup and dropoff locations' };
     }
 
-    // Customer information validation - commented out for now
-    /*
-    if (!bookingData.customer_name) {
-      return { isValid: false, error: 'Please enter your name' };
-    }
-    
-    if (!bookingData.customer_email) {
-      return { isValid: false, error: 'Please enter your email address' };
-    }
-    
+    // Customer information validation
     if (!bookingData.customer_phone) {
       return { isValid: false, error: 'Please enter your phone number' };
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(bookingData.customer_email)) {
-      return { isValid: false, error: 'Please enter a valid email address' };
     }
 
     // Validate phone format (basic validation)
@@ -152,7 +137,14 @@ class BookingFormHandler {
     if (!phoneRegex.test(bookingData.customer_phone)) {
       return { isValid: false, error: 'Please enter a valid phone number' };
     }
-    */
+
+    // Validate email format if provided
+    if (bookingData.customer_email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(bookingData.customer_email)) {
+        return { isValid: false, error: 'Please enter a valid email address' };
+      }
+    }
 
     // Validate dates
     const pickupDate = new Date(bookingData.pickup_date);

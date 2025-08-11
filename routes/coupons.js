@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/database');
-const TelegramNotifier = require('../config/telegram');
+// const TelegramNotifier = require('../config/telegram');
 
 // Debug middleware for all coupon routes
 router.use((req, res, next) => {
@@ -256,6 +256,7 @@ router.post('/', (req, res) => {
       }
       
       // Send Telegram notification
+<<<<<<< Updated upstream
       try {
         const telegram = new TelegramNotifier();
         const couponData = {
@@ -271,6 +272,21 @@ router.post('/', (req, res) => {
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
       }
+=======
+      // try {
+      //   const telegram = new TelegramNotifier();
+      //   const couponData = {
+      //     code: code.toUpperCase(),
+      //     discount_percentage: discountValue,
+      //     description: description || null,
+      //     expires_at: expires_at || null,
+      //     is_active: true
+      //   };
+      //   await telegram.sendMessage(telegram.formatCouponAddedMessage(couponData));
+      // } catch (error) {
+      //   console.error('Error sending Telegram notification:', error);
+      // }
+>>>>>>> Stashed changes
       
       res.json({ success: true, id: this.lastID });
     }
@@ -340,6 +356,7 @@ router.put('/:id', (req, res) => {
         return res.status(500).json({ error: 'Database error' });
       }
       
+<<<<<<< Updated upstream
       // Send Telegram notification
       try {
         const telegram = new TelegramNotifier();
@@ -356,6 +373,22 @@ router.put('/:id', (req, res) => {
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
       }
+=======
+      // Send Telegram notification - COMMENTED OUT
+      // try {
+      //   const telegram = new TelegramNotifier();
+      //   const couponData = {
+      //     code: code.toUpperCase(),
+      //     discount_percentage: discountValue,
+      //     description: description || null,
+      //     expires_at: expires_at || null,
+      //     is_active: is_active ? 1 : 0
+      //   };
+      //   await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
+      // } catch (error) {
+      //   console.error('Error sending Telegram notification:', error);
+      // }
+>>>>>>> Stashed changes
       
       console.log('✅ Edit coupon - Update successful');
       res.json({ success: true });
@@ -372,17 +405,17 @@ router.delete('/:id', (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    // Send Telegram notification
-    try {
-      const telegram = new TelegramNotifier();
-      const couponData = {
-        code: 'DELETED',
-        discount_percentage: 0
-      };
-      await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
-    } catch (error) {
-      console.error('Error sending Telegram notification:', error);
-    }
+    // Send Telegram notification - COMMENTED OUT
+    // try {
+    //   const telegram = new TelegramNotifier();
+    //   const couponData = {
+    //     code: 'DELETED',
+    //     discount_percentage: 0
+    //   };
+    //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
+    // } catch (error) {
+    //   console.error('Error sending Telegram notification:', error);
+    // }
     
     res.json({ success: true });
   });
