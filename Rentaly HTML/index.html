@@ -156,6 +156,25 @@
         }
       }
       
+      /* Location Information Styling */
+      .location-info {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px 15px;
+        margin-top: 10px;
+      }
+      
+      .location-info small {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      
+      .location-info i {
+        color: #f0c040;
+      }
+      
       .vehicle-select:focus {
         border-color: #f0c040;
         box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
@@ -213,6 +232,102 @@
         margin-top: 5px;
         display: block;
       }
+      
+      /* Radio Button Styles */
+      .radio-group {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+      }
+      
+      .radio-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #495057;
+        transition: all 0.3s ease;
+        padding: 8px 12px;
+        border-radius: 6px;
+        position: relative;
+      }
+      
+      .radio-option:last-child {
+        margin-bottom: 0;
+      }
+      
+      .radio-option:hover {
+        background: rgba(240, 192, 64, 0.1);
+        color: #333;
+      }
+      
+      .radio-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+      
+      .radio-custom {
+        position: relative;
+        height: 18px;
+        width: 18px;
+        background-color: #fff;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        margin-right: 12px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+      
+      .radio-option input[type="radio"]:checked ~ .radio-custom {
+        background-color: #f0c040;
+        border-color: #f0c040;
+      }
+      
+      .radio-option input[type="radio"]:checked ~ .radio-custom:after {
+        content: "";
+        position: absolute;
+        display: block;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+      }
+      
+      .radio-option input[type="radio"]:focus ~ .radio-custom {
+        box-shadow: 0 0 0 3px rgba(240, 192, 64, 0.25);
+      }
+      
+      .radio-option input[type="radio"]:checked ~ span:not(.radio-custom) {
+        color: #333;
+        font-weight: 500;
+      }
+      
+                  .radio-group.error_input {
+              border-color: #dc3545;
+              box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            }
+            
+            /* Location Card Styling */
+            .location-card {
+              background: #f8f9fa;
+              border: 1px solid #e9ecef;
+              border-radius: 8px;
+              padding: 12px;
+            }
+            
+            .location-card .fw-bold {
+              color: #495057;
+              font-size: 13px;
+            }
       
       .btn-main {
         background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
@@ -1457,37 +1572,59 @@
 
                                         <div class="row g-4">
                                             <div class="col-lg-6">
-                                                <h5 data-i18n="booking.pickup_location">Pick Up Location</h5>
-                                                <select name='pickup_location' id="pickup_location" class="form-control">
-                                                  <option value='New York'>New York</option>
-                                                  <option value='Pennsylvania'>Pennsylvania</option>
-                                                  <option value='New Jersey'>New Jersey</option>
-                                                  <option value='Connecticut'>Connecticut</option>
-                                                  <option value='Massachusetts'>Massachusetts</option>
-                                                  <option value='Vermont'>Vermont</option>
-                                                  <option value='Rhode Island'>Rhode Island</option>
-                                                  <option value='New Hampshire'>New Hampshire</option>
-                                                </select>
+                                                <h5 data-i18n="booking.pickup_location">Pick-up Location</h5>
+                                                <div class="radio-group">
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Chisinau Airport" id="pickup_chisinau">
+                                                        <span class="radio-custom"></span>
+                                                        Chisinau Airport
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Our Office" id="pickup_office">
+                                                        <span class="radio-custom"></span>
+                                                        Our Office
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Iasi Airport" id="pickup_iasi" checked>
+                                                        <span class="radio-custom"></span>
+                                                        Iasi Airport
+                                                    </label>
+                                                </div>
                                             </div>
 
                                             <div class="col-lg-6">
-                                                <h5 data-i18n="booking.destination">Return Location</h5>
-                                                <select name='destination' id="destination" name="destination" class="form-control">
-                                                  <option value='New York'>New York</option>
-                                                  <option value='Pennsylvania'>Pennsylvania</option>
-                                                  <option value='New Jersey'>New Jersey</option>
-                                                  <option value='Connecticut'>Connecticut</option>
-                                                  <option value='Massachusetts'>Massachusetts</option>
-                                                  <option value='Vermont'>Vermont</option>
-                                                  <option value='Rhode Island'>Rhode Island</option>
-                                                  <option value='New Hampshire'>New Hampshire</option>
-                                                </select>
+                                                <h5 data-i18n="booking.destination">Drop-off Location</h5>
+                                                <div class="radio-group">
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Chisinau Airport" id="dropoff_chisinau">
+                                                        <span class="radio-custom"></span>
+                                                        Chisinau Airport
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Our Office" id="dropoff_office" checked>
+                                                        <span class="radio-custom"></span>
+                                                        Our Office
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Iasi Airport" id="dropoff_iasi">
+                                                        <span class="radio-custom"></span>
+                                                        Iasi Airport
+                                                    </label>
+                                                </div>
                                             </div>
-
-
-                                            
                                         </div>
                                         
+                                        <!-- Location Information -->
+                                                                                                                                                                     <div class="row mt-3">
+                                               <div class="col-12">
+                                                                                                                                                         <div class="location-info">
+                                                          <small class="text-muted">
+                                                            <i class="fa fa-exclamation-circle me-1"></i>
+                                                              Select your preferred pickup and return locations. Airport delivery and outside working hours may incur additional fees.
+                                                          </small>
+                                                      </div>
+                                               </div>
+                                           </div>
                                     </div>
 
                                     <!-- customer details -->
@@ -2112,78 +2249,77 @@
                         <div class="col-6">
                             <label class="form-label small">Pickup Time:</label>
                             <select id="modal-pickup-time" class="form-control form-control-sm">
+                                <option value="00:00">00:00</option>
+                                <option value="01:00">01:00</option>
+                                <option value="02:00">02:00</option>
+                                <option value="03:00">03:00</option>
+                                <option value="04:00">04:00</option>
+                                <option value="05:00">05:00</option>
                                 <option value="06:00">06:00</option>
-                                <option value="06:30">06:30</option>
                                 <option value="07:00">07:00</option>
-                                <option value="07:30">07:30</option>
                                 <option value="08:00" selected>08:00</option>
-                                <option value="08:30">08:30</option>
                                 <option value="09:00">09:00</option>
-                                <option value="09:30">09:30</option>
                                 <option value="10:00">10:00</option>
-                                <option value="10:30">10:30</option>
                                 <option value="11:00">11:00</option>
-                                <option value="11:30">11:30</option>
                                 <option value="12:00">12:00</option>
-                                <option value="12:30">12:30</option>
                                 <option value="13:00">13:00</option>
-                                <option value="13:30">13:30</option>
                                 <option value="14:00">14:00</option>
-                                <option value="14:30">14:30</option>
                                 <option value="15:00">15:00</option>
-                                <option value="15:30">15:30</option>
                                 <option value="16:00">16:00</option>
-                                <option value="16:30">16:30</option>
                                 <option value="17:00">17:00</option>
-                                <option value="17:30">17:30</option>
-                                <option value="18:00" selected>18:00</option>
-                                <option value="18:30">18:30</option>
+                                <option value="18:00">18:00</option>
                                 <option value="19:00">19:00</option>
-                                <option value="19:30">19:30</option>
                                 <option value="20:00">20:00</option>
-                                <option value="20:30">20:30</option>
                                 <option value="21:00">21:00</option>
-                                <option value="21:30">21:30</option>
                                 <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
                             </select>
                         </div>
                         <div class="col-6">
                             <label class="form-label small">Return Time:</label>
                             <select id="modal-return-time" class="form-control form-control-sm">
+                                <option value="00:00">00:00</option>
+                                <option value="01:00">01:00</option>
+                                <option value="02:00">02:00</option>
+                                <option value="03:00">03:00</option>
+                                <option value="04:00">04:00</option>
+                                <option value="05:00">05:00</option>
                                 <option value="06:00">06:00</option>
-                                <option value="06:30">06:30</option>
                                 <option value="07:00">07:00</option>
-                                <option value="07:30">07:30</option>
                                 <option value="08:00">08:00</option>
-                                <option value="08:30">08:30</option>
                                 <option value="09:00">09:00</option>
-                                <option value="09:30">09:30</option>
                                 <option value="10:00">10:00</option>
-                                <option value="10:30">10:30</option>
                                 <option value="11:00">11:00</option>
-                                <option value="11:30">11:30</option>
                                 <option value="12:00">12:00</option>
-                                <option value="12:30">12:30</option>
                                 <option value="13:00">13:00</option>
-                                <option value="13:30">13:30</option>
                                 <option value="14:00">14:00</option>
-                                <option value="14:30">14:30</option>
                                 <option value="15:00">15:00</option>
-                                <option value="15:30">15:30</option>
                                 <option value="16:00">16:00</option>
-                                <option value="16:30">16:30</option>
                                 <option value="17:00">17:00</option>
-                                <option value="17:30">17:30</option>
                                 <option value="18:00" selected>18:00</option>
-                                <option value="18:30">18:30</option>
                                 <option value="19:00">19:00</option>
-                                <option value="19:30">19:30</option>
                                 <option value="20:00">20:00</option>
-                                <option value="20:30">20:30</option>
                                 <option value="21:00">21:00</option>
-                                <option value="21:30">21:30</option>
                                 <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-map-marker"></i> Selected Locations</h5>
+                    <div class="location-card p-2 bg-light rounded">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-muted">Pickup Location:</small>
+                                <div class="fw-bold small" id="modal-pickup-location">-</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Drop-off Location:</small>
+                                <div class="fw-bold small" id="modal-dropoff-location">-</div>
+                            </div>
                         </div>
                     </div>
                 </div>
