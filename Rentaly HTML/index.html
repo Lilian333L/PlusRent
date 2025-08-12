@@ -442,7 +442,9 @@
         max-width: 500px;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         animation: modalSlideIn 0.3s ease-out;
-        overflow: hidden;
+        max-height: 90vh;
+        overflow-y: auto;
+        overflow-x: hidden;
       }
       
       @keyframes modalSlideIn {
@@ -490,10 +492,36 @@
       
       .modal-body {
         padding: 25px;
+        max-height: calc(90vh - 80px); /* Account for header */
+        overflow-y: auto;
       }
       
       .calculator-section {
         margin-bottom: 20px;
+      }
+      
+      /* Compact form controls */
+      .form-control-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.2rem;
+      }
+      
+      .form-label.small {
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+      }
+      
+      /* Compact vehicle card */
+      .vehicle-card {
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+      }
+      
+      .vehicle-card:hover {
+        border-color: #f0c040;
+        box-shadow: 0 2px 8px rgba(240, 192, 64, 0.1);
       }
       
       .calculator-section h5 {
@@ -616,6 +644,308 @@
         background: #5a6268;
       }
 
+      /* Responsive Modal Styles */
+      @media (max-width: 768px) {
+        .price-calculator-content {
+          margin: 2% auto;
+          width: 95%;
+          max-width: none;
+          max-height: 95vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-header {
+          padding: 15px 20px;
+        }
+        
+        .modal-header h4 {
+          font-size: 16px;
+        }
+        
+        .close-modal {
+          right: 15px;
+          font-size: 20px;
+        }
+        
+        .modal-body {
+          padding: 20px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 15px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 15px;
+          margin-bottom: 10px;
+        }
+        
+        .tariff-info {
+          padding: 12px;
+          margin-bottom: 15px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 13px;
+        }
+        
+        .tariff-details {
+          font-size: 12px;
+        }
+        
+        .modal-price-summary {
+          padding: 15px;
+          margin-top: 15px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 15px;
+          margin-bottom: 12px;
+        }
+        
+        .modal-price-item {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 15px;
+          margin-top: 10px;
+          padding-top: 10px;
+        }
+        
+        .modal-actions {
+          margin-top: 15px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 10px 20px;
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .btn-calculate {
+          margin-right: 0;
+          width: 100%;
+        }
+        
+        .btn-close-calc {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .price-calculator-content {
+          margin: 1% auto;
+          width: 98%;
+          max-height: 98vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-header {
+          padding: 12px 15px;
+        }
+        
+        .modal-header h4 {
+          font-size: 15px;
+        }
+        
+        .close-modal {
+          right: 12px;
+          font-size: 18px;
+        }
+        
+        .modal-body {
+          padding: 15px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 12px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .tariff-info {
+          padding: 10px;
+          margin-bottom: 12px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 12px;
+        }
+        
+        .tariff-details {
+          font-size: 11px;
+        }
+        
+        .modal-price-summary {
+          padding: 12px;
+          margin-top: 12px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-price-item {
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 14px;
+          margin-top: 8px;
+          padding-top: 8px;
+        }
+        
+        .modal-actions {
+          margin-top: 12px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 8px 16px;
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        /* Mobile-specific optimizations */
+        .vehicle-card {
+          padding: 8px !important;
+        }
+        
+        .vehicle-card .col-3 {
+          flex: 0 0 25%;
+          max-width: 25%;
+        }
+        
+        .vehicle-card .col-9 {
+          flex: 0 0 75%;
+          max-width: 75%;
+        }
+        
+        .vehicle-card img {
+          max-height: 50px !important;
+        }
+        
+        .vehicle-card h6 {
+          font-size: 13px !important;
+          line-height: 1.2;
+        }
+        
+        .vehicle-card p {
+          font-size: 11px !important;
+          line-height: 1.2;
+        }
+        
+        .vehicle-card .vehicle-price {
+          font-size: 12px !important;
+        }
+      }
+
+      @media (max-height: 600px) {
+        .price-calculator-content {
+          margin: 1% auto;
+          max-height: 99vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-body {
+          padding: 15px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 10px;
+        }
+        
+        .tariff-info {
+          padding: 8px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-price-summary {
+          padding: 12px;
+          margin-top: 10px;
+        }
+        
+        .modal-actions {
+          margin-top: 10px;
+        }
+      }
+      
+      /* Landscape orientation on mobile */
+      @media (max-width: 768px) and (orientation: landscape) {
+        .price-calculator-content {
+          margin: 0.5% auto;
+          max-height: 99vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-body {
+          padding: 12px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 8px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .tariff-info {
+          padding: 6px;
+          margin-bottom: 8px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 11px;
+        }
+        
+        .tariff-details {
+          font-size: 10px;
+        }
+        
+        .modal-price-summary {
+          padding: 8px;
+          margin-top: 8px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .modal-price-item {
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 13px;
+          margin-top: 6px;
+          padding-top: 6px;
+        }
+        
+        .modal-actions {
+          margin-top: 8px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 6px 12px;
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+      }
+
       /* Quick Book Button */
       .quick-book-btn {
         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -641,14 +971,27 @@
         overflow: hidden;
       }
       
+      /* Ensure smooth scrolling for modal content */
+      .price-calculator-content {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* For iOS smooth scrolling */
+      }
+      
+      .modal-body {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+      
       /* Responsive adjustments for modal */
       @media (max-width: 768px) {
         .price-calculator-content {
           width: 95%;
-          margin: 10% auto;
+          margin: 5% auto;
+          max-height: 90vh;
         }
         
-        .modal-body {
+                .modal-body {
+          max-height: calc(90vh - 60px);
           padding: 15px;
         }
         
@@ -1755,37 +2098,25 @@
                 <!-- Calculator Section -->
                 <div class="calculator-section">
                     <h5><i class="fa fa-calendar"></i> Rental Period</h5>
-                    <div class="row">
+                    <div class="row g-2">
                         <div class="col-6">
-                            <label>Pickup Date:</label>
-                            <input type="date" id="modal-pickup-date" class="form-control">
+                            <label class="form-label small">Pickup Date:</label>
+                            <input type="date" id="modal-pickup-date" class="form-control form-control-sm">
                         </div>
                         <div class="col-6">
-                            <label>Return Date:</label>
-                            <input type="date" id="modal-return-date" class="form-control">
+                            <label class="form-label small">Return Date:</label>
+                            <input type="date" id="modal-return-date" class="form-control form-control-sm">
                         </div>
                     </div>
-                    <div class="row mt-3">
+                    <div class="row g-2 mt-2">
                         <div class="col-6">
-                            <label>Pickup Time:</label>
-                            <select id="modal-pickup-time" class="form-control">
-                                <option value="00:00">00:00</option>
-                                <option value="00:30">00:30</option>
-                                <option value="01:00">01:00</option>
-                                <option value="01:30">01:30</option>
-                                <option value="02:00">02:00</option>
-                                <option value="02:30">02:30</option>
-                                <option value="03:00">03:00</option>
-                                <option value="03:30">03:30</option>
-                                <option value="04:00">04:00</option>
-                                <option value="04:30">04:30</option>
-                                <option value="05:00">05:00</option>
-                                <option value="05:30">05:30</option>
+                            <label class="form-label small">Pickup Time:</label>
+                            <select id="modal-pickup-time" class="form-control form-control-sm">
                                 <option value="06:00">06:00</option>
                                 <option value="06:30">06:30</option>
                                 <option value="07:00">07:00</option>
                                 <option value="07:30">07:30</option>
-                                <option value="08:00">08:00</option>
+                                <option value="08:00" selected>08:00</option>
                                 <option value="08:30">08:30</option>
                                 <option value="09:00">09:00</option>
                                 <option value="09:30">09:30</option>
@@ -1805,7 +2136,7 @@
                                 <option value="16:30">16:30</option>
                                 <option value="17:00">17:00</option>
                                 <option value="17:30">17:30</option>
-                                <option value="18:00">18:00</option>
+                                <option value="18:00" selected>18:00</option>
                                 <option value="18:30">18:30</option>
                                 <option value="19:00">19:00</option>
                                 <option value="19:30">19:30</option>
@@ -1814,26 +2145,11 @@
                                 <option value="21:00">21:00</option>
                                 <option value="21:30">21:30</option>
                                 <option value="22:00">22:00</option>
-                                <option value="22:30">22:30</option>
-                                <option value="23:00">23:00</option>
-                                <option value="23:30">23:30</option>
                             </select>
                         </div>
                         <div class="col-6">
-                            <label>Return Time:</label>
-                            <select id="modal-return-time" class="form-control">
-                                <option value="00:00">00:00</option>
-                                <option value="00:30">00:30</option>
-                                <option value="01:00">01:00</option>
-                                <option value="01:30">01:30</option>
-                                <option value="02:00">02:00</option>
-                                <option value="02:30">02:30</option>
-                                <option value="03:00">03:00</option>
-                                <option value="03:30">03:30</option>
-                                <option value="04:00">04:00</option>
-                                <option value="04:30">04:30</option>
-                                <option value="05:00">05:00</option>
-                                <option value="05:30">05:30</option>
+                            <label class="form-label small">Return Time:</label>
+                            <select id="modal-return-time" class="form-control form-control-sm">
                                 <option value="06:00">06:00</option>
                                 <option value="06:30">06:30</option>
                                 <option value="07:00">07:00</option>
@@ -1858,7 +2174,7 @@
                                 <option value="16:30">16:30</option>
                                 <option value="17:00">17:00</option>
                                 <option value="17:30">17:30</option>
-                                <option value="18:00">18:00</option>
+                                <option value="18:00" selected>18:00</option>
                                 <option value="18:30">18:30</option>
                                 <option value="19:00">19:00</option>
                                 <option value="19:30">19:30</option>
@@ -1867,9 +2183,6 @@
                                 <option value="21:00">21:00</option>
                                 <option value="21:30">21:30</option>
                                 <option value="22:00">22:00</option>
-                                <option value="22:30">22:30</option>
-                                <option value="23:00">23:00</option>
-                                <option value="23:30">23:30</option>
                             </select>
                         </div>
                     </div>
@@ -1878,16 +2191,16 @@
                 <!-- Vehicle Selection -->
                 <div class="calculator-section">
                     <h5><i class="fa fa-car"></i> Selected Vehicle</h5>
-                    <div id="modal-vehicle-info" class="vehicle-card p-3 bg-light rounded">
-                        <div class="row align-items-center">
+                    <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
+                        <div class="row align-items-center g-2">
                             <div class="col-3">
-                                <img id="modal-vehicle-image" src="" alt="Vehicle" class="img-fluid rounded">
+                                <img id="modal-vehicle-image" src="" alt="Vehicle" class="img-fluid rounded" style="max-height: 60px; object-fit: cover;">
                             </div>
                             <div class="col-9">
-                                <h6 id="modal-vehicle-name" class="mb-1"></h6>
+                                <h6 id="modal-vehicle-name" class="mb-1 small"></h6>
                                 <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
                                 <div class="vehicle-price">
-                                    <span class="text-primary fw-bold" id="modal-vehicle-price"></span>
+                                    <span class="text-primary fw-bold small" id="modal-vehicle-price"></span>
                                 </div>
                             </div>
                         </div>
