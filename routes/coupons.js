@@ -354,39 +354,22 @@ router.put('/:id', (req, res) => {
         return res.status(500).json({ error: 'Database error' });
       }
       
-<<<<<<< Updated upstream
-      // Send Telegram notification
-      try {
-        const telegram = new TelegramNotifier();
-        const couponData = {
-          code: code.toUpperCase(),
-          type: type,
-          discount_percentage: discountValue,
-          free_days: freeDaysValue,
-          description: description || null,
-          expires_at: expires_at || null,
-          is_active: isActiveValue
-        };
-        await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
-      } catch (error) {
-        console.error('Error sending Telegram notification:', error);
-      }
-=======
       // Send Telegram notification - COMMENTED OUT
       // try {
       //   const telegram = new TelegramNotifier();
       //   const couponData = {
       //     code: code.toUpperCase(),
+      //     type: type,
       //     discount_percentage: discountValue,
+      //     free_days: freeDaysValue,
       //     description: description || null,
       //     expires_at: expires_at || null,
-      //     is_active: is_active ? 1 : 0
+      //     is_active: isActiveValue
       //   };
       //   await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
       // } catch (error) {
       //   console.error('Error sending Telegram notification:', error);
       // }
->>>>>>> Stashed changes
       
       console.log('✅ Edit coupon - Update successful');
       res.json({ success: true });

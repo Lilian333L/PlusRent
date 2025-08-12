@@ -9,6 +9,14 @@ $(document).ready(function(){
     // API base URL from config
     const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
     
+    // Debug: Check if radio buttons are accessible on page load
+    console.log('=== PAGE LOAD DEBUG ===');
+    console.log('Pickup location radios on load:', $('input[name="pickup_location"]').length);
+    console.log('Destination radios on load:', $('input[name="destination"]').length);
+    console.log('Checked pickup on load:', $('input[name="pickup_location"]:checked').val());
+    console.log('Checked destination on load:', $('input[name="destination"]:checked').val());
+    console.log('=== END PAGE LOAD DEBUG ===');
+    
     // Enhanced form validation
     function validateForm() {
         let isValid = true;
@@ -22,9 +30,7 @@ $(document).ready(function(){
         const requiredFields = {
             'name': 'Name',
             'phone': 'Phone',
-            'vehicle_type': 'Vehicle',
-            'pickup_location': 'Pickup Location',
-            'destination': 'Destination'
+            'vehicle_type': 'Vehicle'
         };
         
         // Check required fields
@@ -117,6 +123,36 @@ $(document).ready(function(){
             isValid = false;
         }
         
+        // Pickup location validation (radio buttons)
+        const pickupLocationRadios = $('input[name="pickup_location"]');
+        const pickupLocation = $('input[name="pickup_location"]:checked').val();
+        console.log('Pickup location radios found:', pickupLocationRadios.length);
+        console.log('Pickup location selected:', pickupLocation);
+        console.log('All pickup location values:', pickupLocationRadios.map(function() { return $(this).val(); }).get());
+        console.log('Checked pickup location:', pickupLocationRadios.filter(':checked').val());
+        
+        if (!pickupLocation) {
+            $('.radio-group:has(input[name="pickup_location"])').addClass('error_input');
+            $('.radio-group:has(input[name="pickup_location"])').after('<div class="field-error text-danger small mt-1">Please select a pickup location</div>');
+            errors.push('Please select a pickup location');
+            isValid = false;
+        }
+        
+        // Dropoff location validation (radio buttons)
+        const dropoffLocationRadios = $('input[name="destination"]');
+        const dropoffLocation = $('input[name="destination"]:checked').val();
+        console.log('Dropoff location radios found:', dropoffLocationRadios.length);
+        console.log('Dropoff location selected:', dropoffLocation);
+        console.log('All dropoff location values:', dropoffLocationRadios.map(function() { return $(this).val(); }).get());
+        console.log('Checked dropoff location:', dropoffLocationRadios.filter(':checked').val());
+        
+        if (!dropoffLocation) {
+            $('.radio-group:has(input[name="destination"])').addClass('error_input');
+            $('.radio-group:has(input[name="destination"])').after('<div class="field-error text-danger small mt-1">Please select a dropoff location</div>');
+            errors.push('Please select a dropoff location');
+            isValid = false;
+        }
+        
         return { isValid, errors };
     }
     
@@ -134,8 +170,8 @@ $(document).ready(function(){
             pickup_time: $('#pickup_time').val(),
             return_date: $('#date-picker-2').val(),
             return_time: $('#return_time').val(),
-            pickup_location: $('#pickup_location').val(),
-            dropoff_location: $('#destination').val(),
+            pickup_location: $('input[name="pickup_location"]:checked').val(),
+            dropoff_location: $('input[name="destination"]:checked').val(),
             special_instructions: $('#message').val().trim() || null,
             total_price: 0, // Will be calculated by backend
             price_breakdown: {}
@@ -212,9 +248,40 @@ $(document).ready(function(){
         errorMessage.hide().removeClass('show');
     });
     
+    // Clear error states for radio buttons
+    $('input[type="radio"]').on('change', function() {
+        const name = $(this).attr('name');
+        const value = $(this).val();
+        console.log('Radio button changed:', name, '=', value);
+        
+        $('.radio-group:has(input[name="' + name + '"])').removeClass('error_input');
+        $('.radio-group:has(input[name="' + name + '"])').siblings('.field-error').remove();
+        
+        // Hide error message when user starts interacting
+        errorMessage.hide().removeClass('show');
+    });
+    
     // Handle form submission - now opens price calculator modal
     submitButton.click(function(e) {
         e.preventDefault();
+        
+        console.log('Submit button clicked');
+        
+        // Debug: Check radio button values
+        console.log('Pickup location checked:', $('input[name="pickup_location"]:checked').val());
+        console.log('Destination checked:', $('input[name="destination"]:checked').val());
+        console.log('All pickup_location radios:', $('input[name="pickup_location"]').length);
+        console.log('All destination radios:', $('input[name="destination"]').length);
+        
+        // Additional debugging
+        console.log('Document ready state:', $(document).readyState);
+        console.log('Radio buttons exist in DOM:', $('input[name="pickup_location"]').length > 0);
+        console.log('Radio buttons exist in DOM:', $('input[name="destination"]').length > 0);
+        
+        // Test direct jQuery selector
+        const testPickup = $('input[name="pickup_location"]');
+        const testDest = $('input[name="destination"]');
+        console.log('Direct selector test - pickup:', testPickup.length, 'destination:', testDest.length);
         
         // Hide any existing messages
         successMessage.hide();
@@ -223,6 +290,8 @@ $(document).ready(function(){
         
         // Validate form
         const validation = validateForm();
+        console.log('Validation result:', validation);
+        
         if (!validation.isValid) {
             showError('Please fix the following issues:<br>' + validation.errors.join('<br>'));
             return;
@@ -448,6 +517,13 @@ function openPriceCalculator() {
     const todayStr = today.toISOString().split('T')[0];
     $('#modal-pickup-date').attr('min', todayStr);
     $('#modal-return-date').attr('min', pickupDate);
+    
+    // Populate location information
+    const pickupLocation = $('input[name="pickup_location"]:checked').val();
+    const dropoffLocation = $('input[name="destination"]:checked').val();
+    
+    $('#modal-pickup-location').text(pickupLocation || 'Not selected');
+    $('#modal-dropoff-location').text(dropoffLocation || 'Not selected');
     
     // Populate vehicle info
     if (selectedVehicle.attr('data-car-details')) {
