@@ -255,8 +255,7 @@ router.post('/', (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + err.message });
       }
       
-      // Send Telegram notification
-<<<<<<< Updated upstream
+
       try {
         const telegram = new TelegramNotifier();
         const couponData = {
@@ -272,7 +271,7 @@ router.post('/', (req, res) => {
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
       }
-=======
+
       // try {
       //   const telegram = new TelegramNotifier();
       //   const couponData = {
@@ -286,7 +285,6 @@ router.post('/', (req, res) => {
       // } catch (error) {
       //   console.error('Error sending Telegram notification:', error);
       // }
->>>>>>> Stashed changes
       
       res.json({ success: true, id: this.lastID });
     }

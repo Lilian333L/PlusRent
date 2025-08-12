@@ -363,9 +363,8 @@ router.post('/', tempUpload.any(), async (req, res) => {
         return res.status(500).json({ error: 'Database error', details: err.message });
       }
       
-<<<<<<< Updated upstream
-      const carId = this.lastID;
-=======
+
+      // const carId = this.lastID;
       // Send Telegram notification - COMMENTED OUT
       // try {
       //   const telegram = new TelegramNotifier();
@@ -386,7 +385,6 @@ router.post('/', tempUpload.any(), async (req, res) => {
       // } catch (error) {
       //   console.error('Error sending Telegram notification:', error);
       // }
->>>>>>> Stashed changes
       
       // Move files from temp to proper car directory
       if (headImagePath || galleryImagePaths.length > 0) {
