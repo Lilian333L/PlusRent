@@ -123,7 +123,7 @@ router.post('/', async (req, res) => {
         const bookingData = {
           contact_person: customer_name || contact_person || 'Not provided',
           contact_phone: customer_phone || contact_phone || 'Not provided',
-          email: customer_email || 'Not provided',
+        email: customer_email || 'Not provided',
           make_name: car.make_name,
           model_name: car.model_name,
           production_year: car.production_year,
@@ -354,7 +354,7 @@ router.put('/:id/reject', (req, res) => {
         console.error('❌ Error updating booking status:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-      
+
       console.log('✅ Booking rejected successfully');
       res.json({ 
         success: true, 

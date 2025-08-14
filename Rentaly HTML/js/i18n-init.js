@@ -41,7 +41,7 @@ function updateContent() {
       // Handle custom interpolation for unavailable badges
       var value = i18next.t(key, { date: date });
     } else {
-      var value = i18next.t(key);
+    var value = i18next.t(key);
     }
     
     if (el.childElementCount === 0) {

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Coupon Management - Admin Panel</title>
+    <link rel="icon" href="images/icon.png" type="image/gif" sizes="16x16">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Coupon Management - Admin Panel" name="description">
+    <meta content="" name="keywords">
+    <meta content="" name="author">
+    
+    <!-- CSS Files -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+    <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+    <link href="css/plugins.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/coloring.css" rel="stylesheet" type="text/css">
+    <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <style>
+        /* Admin Panel Styles */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .admin-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        
+        .admin-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .admin-flex-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .admin-btn-col {
+            flex: 0 0 auto;
+        }
+        
+        .admin-form-col {
+            flex: 1;
+        }
+        
+        /* Form Panel Styles */
+        .admin-form-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1001;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .admin-form-panel.active {
+            display: block;
+        }
+        
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .admin-overlay.active {
+            display: block;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .form-border {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .admin-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .admin-form-grid > div:nth-child(5),
+        .admin-form-grid > div:nth-child(6) {
+            grid-column: 1 / -1;
+        }
+        
+        /* Coupon Card Styles */
+        .coupon-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .coupon-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .coupon-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .coupon-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .coupon-status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .coupon-status.expired {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Navigation */
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .nav-back:hover {
+            color: #764ba2;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-flex-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Navigation -->
+        <a href="account-dashboard.html" class="nav-back">
+            <i class="fa fa-arrow-left"></i>
+            Back to Admin Dashboard
+        </a>
+        
+        <!-- Header -->
+        <div class="admin-header">
+            <h1>Coupon Management</h1>
+            <p>Create and manage discount codes for your customers</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="admin-flex-row">
+            <div class="admin-btn-col">
+                <button id="showAddCouponBtn" type="button" class="btn btn-main btn-lg">Add Coupon Code</button>
+            </div>
+            <div class="admin-form-col">
+                <!-- Overlay -->
+                <div id="couponOverlay" class="admin-overlay"></div>
+                
+                <!-- Add Coupon Form Panel (popup) -->
+                <div id="addCouponPanel" class="admin-form-panel">
+                    <button class="close-btn" id="closeAddCouponPanel">&times;</button>
+                    <form id="couponForm" class="form-border" autocomplete="off">
+                        <h3 id="couponFormTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Add Coupon Code</h3>
+                        <div class="admin-form-grid">
+                            <div>
+                                <label class="form-label">Coupon Code</label>
+                                <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Coupon Type</label>
+                                <select name="type" id="couponType" class="form-control" required>
+                                    <option value="percentage">Percentage Discount</option>
+                                    <option value="free_days">Free Days</option>
+                                </select>
+                            </div>
+                            <div id="percentageField" class="coupon-field">
+                                <label class="form-label">Discount Percentage</label>
+                                <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01">
+                            </div>
+                            <div id="freeDaysField" class="coupon-field" style="display: none;">
+                                <label class="form-label">Free Days</label>
+                                <input type="number" name="free_days" class="form-control" placeholder="e.g., 3" min="1" step="1">
+                            </div>
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" placeholder="e.g., Welcome discount for new customers" rows="3"></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Expiry Date (Optional)</label>
+                                <input type="datetime-local" name="expires_at" class="form-control">
+                            </div>
+                            <div>
+                                <label class="form-label">Status</label>
+                                <select name="is_active" class="form-control" required>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" id="couponFormSubmitBtn" class="btn btn-main">Add Coupon</button>
+                    </form>
+                </div>
+                
+                <!-- Edit Coupon Form Panel (popup) -->
+                <div id="editCouponPanel" class="admin-form-panel">
+                    <button class="close-btn" id="closeEditCouponPanel">&times;</button>
+                    <button id="deleteCouponBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
+                        <i class="fa fa-trash"></i> Delete Coupon
+                    </button>
+                    <form id="editCouponForm" class="form-border" autocomplete="off">
+                        <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Coupon Code</h3>
+                        <div class="admin-form-grid">
+                            <div>
+                                <label class="form-label">Coupon Code</label>
+                                <input type="text" name="code" class="form-control" placeholder="e.g., WELCOME10" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Coupon Type</label>
+                                <select name="type" id="editCouponType" class="form-control" required>
+                                    <option value="percentage">Percentage Discount</option>
+                                    <option value="free_days">Free Days</option>
+                                </select>
+                            </div>
+                            <div id="editPercentageField" class="coupon-field">
+                                <label class="form-label">Discount Percentage</label>
+                                <input type="number" name="discount_percentage" class="form-control" placeholder="e.g., 15" min="1" max="100" step="0.01">
+                            </div>
+                            <div id="editFreeDaysField" class="coupon-field" style="display: none;">
+                                <label class="form-label">Free Days</label>
+                                <input type="number" name="free_days" class="form-control" placeholder="e.g., 3" min="1" step="1">
+                            </div>
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" placeholder="e.g., Welcome discount for new customers" rows="3"></textarea>
+                            </div>
+                            <div>
+                                <label class="form-label">Expiry Date (Optional)</label>
+                                <input type="datetime-local" name="expires_at" class="form-control">
+                            </div>
+                            <div>
+                                <label class="form-label">Status</label>
+                                <select name="is_active" class="form-control" required>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" id="editCouponFormSubmitBtn" class="btn btn-main">Update Coupon</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coupon Cards Container -->
+        <div id="couponCards" class="row g-4 mt-4"></div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/designesia.js"></script>
+    
+    <script>
+        // API Configuration
+        window.API_BASE_URL = 'http://localhost:3001';
+        
+        // Authentication check
+        function checkAuth() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Verify token
+            fetch(`${window.API_BASE_URL}/api/auth/verify`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = 'login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Auth check failed:', error);
+                localStorage.removeItem('adminToken');
+                window.location.href = 'login.html';
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadCoupons();
+            initializeCouponForms();
+        });
+        
+        // Coupon Management Functions
+        async function loadCoupons() {
+            if (!window.API_BASE_URL) {
+                console.error('API_BASE_URL not defined');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const coupons = await response.json();
+                
+                const couponCards = document.getElementById('couponCards');
+                if (!couponCards) return;
+                
+                if (coupons.length === 0) {
+                    couponCards.innerHTML = '<div class="col-12"><div class="alert alert-info">No coupon codes found. Add your first coupon!</div></div>';
+                    return;
+                }
+                
+                couponCards.innerHTML = coupons.map(coupon => `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="coupon-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">${coupon.code}</h5>
+                                <span class="coupon-status ${coupon.is_active ? 'active' : 'inactive'}">
+                                    ${coupon.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                            <p class="card-text">
+                                <strong>${coupon.type === 'free_days' ? 'Free Days:' : 'Discount:'}</strong> 
+                                ${coupon.type === 'free_days' ? `${coupon.free_days} ${coupon.free_days === 1 ? 'Day Free' : 'Days Free'}` : `${coupon.discount_percentage}%`}<br>
+                                <strong>Description:</strong> ${coupon.description || 'No description'}<br>
+                                ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
+                            </p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary btn-sm" onclick="editCoupon(${coupon.id})">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${coupon.id})">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading coupons:', error);
+                document.getElementById('couponCards').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading coupons.</div></div>';
+            }
+        }
+        
+        function initializeCouponForms() {
+            // Add Coupon Button
+            const showAddCouponBtn = document.getElementById('showAddCouponBtn');
+            const addCouponPanel = document.getElementById('addCouponPanel');
+            const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
+            const couponOverlay = document.getElementById('couponOverlay');
+            
+            if (showAddCouponBtn) {
+                showAddCouponBtn.addEventListener('click', () => {
+                    addCouponPanel.classList.add('active');
+                    couponOverlay.classList.add('active');
+                });
+            }
+            
+            if (closeAddCouponPanel) {
+                closeAddCouponPanel.addEventListener('click', () => {
+                    addCouponPanel.classList.remove('active');
+                    couponOverlay.classList.remove('active');
+                });
+            }
+            
+            if (couponOverlay) {
+                couponOverlay.addEventListener('click', () => {
+                    addCouponPanel.classList.remove('active');
+                    couponOverlay.classList.remove('active');
+                });
+            }
+            
+            // Edit Coupon Panel
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
+            
+            if (closeEditCouponPanel) {
+                closeEditCouponPanel.addEventListener('click', () => {
+                    editCouponPanel.classList.remove('active');
+                    couponOverlay.classList.remove('active');
+                });
+            }
+            
+            // Coupon Type Change Handlers
+            const couponType = document.getElementById('couponType');
+            const percentageField = document.getElementById('percentageField');
+            const freeDaysField = document.getElementById('freeDaysField');
+            
+            if (couponType) {
+                couponType.addEventListener('change', () => {
+                    handleCouponTypeChange(couponType, percentageField, freeDaysField);
+                });
+            }
+            
+            const editCouponType = document.getElementById('editCouponType');
+            const editPercentageField = document.getElementById('editPercentageField');
+            const editFreeDaysField = document.getElementById('editFreeDaysField');
+            
+            if (editCouponType) {
+                editCouponType.addEventListener('change', () => {
+                    handleCouponTypeChange(editCouponType, editPercentageField, editFreeDaysField);
+                });
+            }
+            
+            // Form Submissions
+            const couponForm = document.getElementById('couponForm');
+            if (couponForm) {
+                couponForm.addEventListener('submit', handleAddCoupon);
+            }
+            
+            const editCouponForm = document.getElementById('editCouponForm');
+            if (editCouponForm) {
+                editCouponForm.addEventListener('submit', handleEditCoupon);
+            }
+            
+            // Delete Button
+            const deleteCouponBtn = document.getElementById('deleteCouponBtn');
+            if (deleteCouponBtn) {
+                deleteCouponBtn.addEventListener('click', handleDeleteCoupon);
+            }
+        }
+        
+        function handleCouponTypeChange(typeSelect, percentageField, freeDaysField) {
+            if (typeSelect.value === 'percentage') {
+                percentageField.style.display = 'block';
+                freeDaysField.style.display = 'none';
+                percentageField.querySelector('input').required = true;
+                freeDaysField.querySelector('input').required = false;
+            } else if (typeSelect.value === 'free_days') {
+                percentageField.style.display = 'none';
+                freeDaysField.style.display = 'block';
+                percentageField.querySelector('input').required = false;
+                freeDaysField.querySelector('input').required = true;
+            }
+        }
+        
+        async function handleAddCoupon(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const couponData = Object.fromEntries(formData.entries());
+            
+            // Convert string values to appropriate types
+            if (couponData.discount_percentage) {
+                couponData.discount_percentage = parseFloat(couponData.discount_percentage);
+            }
+            if (couponData.free_days) {
+                couponData.free_days = parseInt(couponData.free_days);
+            }
+            couponData.is_active = parseInt(couponData.is_active);
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(couponData)
+                });
+                
+                if (response.ok) {
+                    alert('Coupon added successfully!');
+                    document.getElementById('addCouponPanel').classList.remove('active');
+                    document.getElementById('couponOverlay').classList.remove('active');
+                    e.target.reset();
+                    loadCoupons();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error || 'Failed to add coupon'}`);
+                }
+            } catch (error) {
+                console.error('Error adding coupon:', error);
+                alert('Error adding coupon. Please try again.');
+            }
+        }
+        
+        async function editCoupon(couponId) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const coupon = await response.json();
+                    
+                    // Populate edit form
+                    const form = document.getElementById('editCouponForm');
+                    form.querySelector('input[name="code"]').value = coupon.code;
+                    form.querySelector('select[name="type"]').value = coupon.type;
+                    form.querySelector('input[name="discount_percentage"]').value = coupon.discount_percentage || '';
+                    form.querySelector('input[name="free_days"]').value = coupon.free_days || '';
+                    form.querySelector('textarea[name="description"]').value = coupon.description || '';
+                    form.querySelector('select[name="is_active"]').value = coupon.is_active;
+                    
+                    if (coupon.expires_at) {
+                        const date = new Date(coupon.expires_at);
+                        const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                        form.querySelector('input[name="expires_at"]').value = localDateTime;
+                    } else {
+                        form.querySelector('input[name="expires_at"]').value = '';
+                    }
+                    
+                    // Handle type change
+                    handleCouponTypeChange(
+                        form.querySelector('select[name="type"]'),
+                        document.getElementById('editPercentageField'),
+                        document.getElementById('editFreeDaysField')
+                    );
+                    
+                    // Store coupon ID for update
+                    form.dataset.couponId = couponId;
+                    
+                    // Show edit panel
+                    document.getElementById('editCouponPanel').classList.add('active');
+                    document.getElementById('couponOverlay').classList.add('active');
+                } else {
+                    alert('Error loading coupon details');
+                }
+            } catch (error) {
+                console.error('Error loading coupon:', error);
+                alert('Error loading coupon details');
+            }
+        }
+        
+        async function handleEditCoupon(e) {
+            e.preventDefault();
+            
+            const couponId = e.target.dataset.couponId;
+            if (!couponId) {
+                alert('No coupon ID found');
+                return;
+            }
+            
+            const formData = new FormData(e.target);
+            const couponData = Object.fromEntries(formData.entries());
+            
+            // Convert string values to appropriate types
+            if (couponData.discount_percentage) {
+                couponData.discount_percentage = parseFloat(couponData.discount_percentage);
+            }
+            if (couponData.free_days) {
+                couponData.free_days = parseInt(couponData.free_days);
+            }
+            couponData.is_active = parseInt(couponData.is_active);
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(couponData)
+                });
+                
+                if (response.ok) {
+                    alert('Coupon updated successfully!');
+                    document.getElementById('editCouponPanel').classList.remove('active');
+                    document.getElementById('couponOverlay').classList.remove('active');
+                    loadCoupons();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error || 'Failed to update coupon'}`);
+                }
+            } catch (error) {
+                console.error('Error updating coupon:', error);
+                alert('Error updating coupon. Please try again.');
+            }
+        }
+        
+        async function handleDeleteCoupon() {
+            const form = document.getElementById('editCouponForm');
+            const couponId = form.dataset.couponId;
+            
+            if (!couponId) {
+                alert('No coupon ID found');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this coupon?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Coupon deleted successfully!');
+                    document.getElementById('editCouponPanel').classList.remove('active');
+                    document.getElementById('couponOverlay').classList.remove('active');
+                    loadCoupons();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error || 'Failed to delete coupon'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting coupon:', error);
+                alert('Error deleting coupon. Please try again.');
+            }
+        }
+        
+        async function deleteCoupon(couponId) {
+            if (!confirm('Are you sure you want to delete this coupon?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Coupon deleted successfully!');
+                    loadCoupons();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.error || 'Failed to delete coupon'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting coupon:', error);
+                alert('Error deleting coupon. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html> 
