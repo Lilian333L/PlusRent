@@ -24,8 +24,34 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Update last login
-    await AdminUser.updateLastLogin(adminUser.id);
+    // Update last login with retry mechanism
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        await AdminUser.updateLastLogin(adminUser.id);
+        break; // Success, exit retry loop
+      } catch (error) {
+        retryCount++;
+        console.error(`Login update attempt ${retryCount} failed:`, error.message);
+        
+        if (error.message.includes('SQLITE_READONLY')) {
+          if (retryCount < maxRetries) {
+            console.log(`Retrying login update in 1 second... (${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          } else {
+            console.error('Max retries reached for login update, proceeding without update');
+            // Continue with login even if update fails
+            break;
+          }
+        } else {
+          // Non-readonly error, don't retry
+          throw error;
+        }
+      }
+    }
 
     // Generate JWT token
     const token = generateToken(adminUser);
@@ -42,7 +68,15 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    
+    if (error.message.includes('SQLITE_READONLY')) {
+      res.status(503).json({ 
+        error: 'Database temporarily unavailable',
+        details: 'Please try again in a few moments. If the issue persists, restart the server.'
+      });
+    } else {
+      res.status(500).json({ error: 'Login failed' });
+    }
   }
 });
 
@@ -72,6 +106,57 @@ router.get('/me', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Get user info error:', error);
     res.status(500).json({ error: 'Failed to get user info' });
+  }
+});
+
+// Database health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const { db } = require('../config/database');
+    
+    // Test basic read operation
+    db.get('SELECT 1 as test', (err, row) => {
+      if (err) {
+        console.error('Database read test failed:', err);
+        return res.status(503).json({ 
+          status: 'unhealthy',
+          error: 'Database read failed',
+          details: err.message
+        });
+      }
+      
+      // Test write operation
+      db.run('CREATE TABLE IF NOT EXISTS health_check (id INTEGER PRIMARY KEY)', (err) => {
+        if (err) {
+          console.error('Database write test failed:', err);
+          return res.status(503).json({ 
+            status: 'unhealthy',
+            error: 'Database write failed',
+            details: err.message
+          });
+        }
+        
+        // Clean up test table
+        db.run('DROP TABLE IF EXISTS health_check', (err) => {
+          if (err) {
+            console.error('Database cleanup failed:', err);
+          }
+          
+          res.json({ 
+            status: 'healthy',
+            message: 'Database is working correctly',
+            timestamp: new Date().toISOString()
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(503).json({ 
+      status: 'unhealthy',
+      error: 'Health check failed',
+      details: error.message
+    });
   }
 });
 

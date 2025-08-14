@@ -1,14 +1,65 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-// Database connection
-const db = new sqlite3.Database('./carrental.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-  if (err) {
-    console.error('Could not connect to database', err);
-  } else {
-    console.log('Connected to SQLite database');
+// Function to ensure database is writable
+function ensureDatabaseWritable() {
+  const dbPath = './carrental.db';
+  
+  // Check if database file exists and is writable
+  if (fs.existsSync(dbPath)) {
+    try {
+      // Test write access
+      fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
+      console.log('✅ Database file is writable');
+    } catch (error) {
+      console.error('❌ Database file is not writable:', error.message);
+      console.log('🔧 Attempting to fix permissions...');
+      
+      try {
+        // Try to change permissions
+        fs.chmodSync(dbPath, 0o666);
+        console.log('✅ Database permissions fixed');
+      } catch (chmodError) {
+        console.error('❌ Could not fix database permissions:', chmodError.message);
+        console.log('💡 Please close any applications that might be using the database (TablePlus, etc.)');
+      }
+    }
   }
-});
+}
+
+// Ensure database is writable before connecting
+ensureDatabaseWritable();
+
+// Database connection with enhanced error handling
+let db;
+try {
+  db = new sqlite3.Database('./carrental.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+    if (err) {
+      console.error('❌ Could not connect to database:', err.message);
+      if (err.code === 'SQLITE_READONLY') {
+        console.log('🔧 Database is in readonly mode. Please:');
+        console.log('   1. Close any database management tools (TablePlus, etc.)');
+        console.log('   2. Restart the server');
+        console.log('   3. If the issue persists, check file permissions');
+      }
+    } else {
+      console.log('✅ Connected to SQLite database');
+      
+      // Test write access
+      db.run('PRAGMA journal_mode=WAL', (err) => {
+        if (err) {
+          console.error('❌ Database write test failed:', err.message);
+        } else {
+          console.log('✅ Database write access confirmed');
+        }
+      });
+    }
+  });
+} catch (error) {
+  console.error('❌ Failed to create database connection:', error.message);
+  process.exit(1);
+}
 
 // Initialize database tables
 function initializeDatabase() {

@@ -37,8 +37,8 @@ async function createAdmin() {
     console.log('⚠️  IMPORTANT: Change the default password after first login!');
     
   } catch (error) {
-    console.error('❌ Error creating admin user:', error);
-  }
+      console.error('❌ Error creating admin user:', error);
+    }
 }
 
 // Run the script
@@ -47,5 +47,5 @@ createAdmin().then(() => {
   process.exit(0);
 }).catch(error => {
   console.error('💥 Setup failed:', error);
-  process.exit(1);
+    process.exit(1);
 }); 

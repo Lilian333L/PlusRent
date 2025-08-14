@@ -364,7 +364,7 @@ router.post('/', tempUpload.any(), async (req, res) => {
       }
       
 
-      // const carId = this.lastID;
+      const carId = this.lastID;
       // Send Telegram notification - COMMENTED OUT
       // try {
       //   const telegram = new TelegramNotifier();
