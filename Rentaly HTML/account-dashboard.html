@@ -1166,8 +1166,8 @@
   /* Unavailable badge styling - positioned to avoid conflict with admin controls */
   .unavailable-badge {
     position: absolute;
-    top: 10px; /* Back to original position since admin controls are no longer absolute */
-    right: 10px;
+    top: 0px; /* Back to original position since admin controls are no longer absolute */
+    right: 0px;
     background: #ff6b5b;
     color: #fff;
     font-size: 0.52rem;
@@ -1184,6 +1184,63 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  /* Premium car highlighting */
+  .car-card.premium {
+    border: 3px solid #ffd700;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+  }
+
+  .car-card.premium:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+  }
+
+  .premium-badge {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #333;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 6px 12px 5px 12px;
+    border-radius: 0 0 7px 0;
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: none;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .premium-toggle {
+    background: #ffd700;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 5px;
+  }
+
+  .premium-toggle:hover {
+    background: #ffed4e;
+    transform: scale(1.05);
+  }
+
+  .premium-toggle.active {
+    background: #ff6b5b;
+    color: white;
   }
 </style>
 
@@ -2596,9 +2653,10 @@
                         const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
                         badge = `<div class="unavailable-badge">UNAVAILABLE UNTIL ${formatted}</div>`;
                       }
+                      const isPremium = car.is_premium === 1 || car.is_premium === true;
                       return `
                                 <div class="col-xl-3 col-lg-4 col-md-6">
-                                    <div class="de-item mb30 car-card" draggable="true" data-car-id="${car.id}" data-car-index="${index}">
+                                    <div class="de-item mb30 car-card${isPremium ? ' premium' : ''}" draggable="true" data-car-id="${car.id}" data-car-index="${index}">
               <div class="admin-controls">
                 <div class="order-indicator">${index + 1}</div>
                 <div class="drag-handle" title="Drag to reorder">
@@ -2610,10 +2668,14 @@
                     </g>
                   </svg>
                 </div>
+                <button class="premium-toggle${isPremium ? ' active' : ''}" onclick="togglePremium(${car.id}, ${!isPremium})" title="${isPremium ? 'Remove Premium' : 'Make Premium'}">
+                  ${isPremium ? '★' : '☆'}
+                </button>
               </div>
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
             <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
             ${badge}
+            ${isPremium ? '<div class="premium-badge">PREMIUM</div>' : ''}
                                         </div>
                                         <div class="d-info">
                                             <div class="d-text">
@@ -4480,6 +4542,29 @@
           console.error('Error deleting car:', error);
           showCustomAlert('Error deleting car', 'error');
         }
+      }
+    }
+
+    async function togglePremium(carId, isPremium) {
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/premium`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ is_premium: isPremium })
+        });
+        
+        if (response.ok) {
+          showCustomAlert(`Car ${isPremium ? 'marked as premium' : 'removed from premium'} successfully!`, 'success');
+          loadCars();
+        } else {
+          const error = await response.json();
+          showCustomAlert('Error updating premium status: ' + error.error, 'error');
+        }
+      } catch (error) {
+        console.error('Error updating premium status:', error);
+        showCustomAlert('Error updating premium status', 'error');
       }
     }
 
