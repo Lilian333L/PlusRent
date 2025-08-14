@@ -99,6 +99,10 @@ app.get('/contact.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'contact.html'));
 });
 
+app.get('/all-codes', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'all-codes.html'));
+});
+
 app.get('/booking.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'booking.html'));
 });

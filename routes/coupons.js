@@ -126,17 +126,27 @@ router.patch('/:id/dynamic-fields', (req, res) => {
   
   // Validate available_codes if provided
   if (available_codes !== undefined) {
-    const numAvailableCodes = parseInt(available_codes);
-    if (isNaN(numAvailableCodes) || numAvailableCodes < 0) {
-      return res.status(400).json({ error: 'available_codes must be a non-negative integer' });
+    if (!Array.isArray(available_codes)) {
+      return res.status(400).json({ error: 'available_codes must be an array' });
+    }
+    // Validate each code in the array
+    for (let i = 0; i < available_codes.length; i++) {
+      if (typeof available_codes[i] !== 'string' || available_codes[i].trim() === '') {
+        return res.status(400).json({ error: `available_codes[${i}] must be a non-empty string` });
+      }
     }
   }
   
   // Validate showed_codes if provided
   if (showed_codes !== undefined) {
-    const numShowedCodes = parseInt(showed_codes);
-    if (isNaN(numShowedCodes) || numShowedCodes < 0) {
-      return res.status(400).json({ error: 'showed_codes must be a non-negative integer' });
+    if (!Array.isArray(showed_codes)) {
+      return res.status(400).json({ error: 'showed_codes must be an array' });
+    }
+    // Validate each code in the array
+    for (let i = 0; i < showed_codes.length; i++) {
+      if (typeof showed_codes[i] !== 'string' || showed_codes[i].trim() === '') {
+        return res.status(400).json({ error: `showed_codes[${i}] must be a non-empty string` });
+      }
     }
   }
   
@@ -157,7 +167,7 @@ router.patch('/:id/dynamic-fields', (req, res) => {
     
     if (available_codes !== undefined) {
       updateQuery += 'available_codes = ?';
-      updateValues.push(parseInt(available_codes));
+      updateValues.push(JSON.stringify(available_codes));
     }
     
     if (showed_codes !== undefined) {
@@ -165,7 +175,7 @@ router.patch('/:id/dynamic-fields', (req, res) => {
         updateQuery += ', ';
       }
       updateQuery += 'showed_codes = ?';
-      updateValues.push(parseInt(showed_codes));
+      updateValues.push(JSON.stringify(showed_codes));
     }
     
     updateQuery += ' WHERE id = ?';
@@ -184,8 +194,8 @@ router.patch('/:id/dynamic-fields', (req, res) => {
       console.log('✅ Dynamic fields updated successfully');
       res.json({ 
         success: true, 
-        available_codes: available_codes !== undefined ? parseInt(available_codes) : undefined,
-        showed_codes: showed_codes !== undefined ? parseInt(showed_codes) : undefined
+        available_codes: available_codes !== undefined ? available_codes : undefined,
+        showed_codes: showed_codes !== undefined ? showed_codes : undefined
       });
     });
   });
@@ -323,8 +333,8 @@ router.post('/', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0)',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null],
+    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
     async function (err) {
       if (err) {
         console.error('Database error details:', err);
