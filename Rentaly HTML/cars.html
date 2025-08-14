@@ -98,6 +98,43 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+      }
+
+      /* Premium car highlighting for public cars page */
+      .de-item.premium {
+        border: 3px solid #ffd700;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        transform: scale(1.02);
+        transition: all 0.3s ease;
+      }
+
+      .de-item.premium:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+      }
+
+      .premium-badge {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #333;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 6px 12px 5px 12px;
+        border-radius: 0 0 7px 0;
+        z-index: 3;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border: none;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .lang-flag {
         width: 20px;
         height: 20px;
         margin-right: 3px;
@@ -604,12 +641,14 @@ async function fetchAndRenderCars() {
       const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
       badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until" data-i18n-date="${formatted}">UNAVAILABLE UNTIL ${formatted}</div>`;
     }
+    const isPremium = car.is_premium === 1 || car.is_premium === true;
     return `
                                 <div class="col-xl-3 col-lg-4 col-md-6">
-                                    <div class="de-item mb30">
+                                    <div class="de-item mb30${isPremium ? ' premium' : ''}">
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
             <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
             ${badge}
+            ${isPremium ? '<div class="premium-badge">PREMIUM</div>' : ''}
                                         </div>
                                         <div class="d-info">
                                             <div class="d-text">

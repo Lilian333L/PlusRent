@@ -88,7 +88,8 @@ function initializeDatabase() {
       exterior_color TEXT,
       interior_color TEXT,
       rca_insurance_price REAL,
-      casco_insurance_price REAL
+      casco_insurance_price REAL,
+      is_premium BOOLEAN DEFAULT 0
     )`);
 
     // Create admin users table
@@ -183,6 +184,7 @@ function initializeDatabase() {
     db.run(`ALTER TABLE cars ADD COLUMN interior_color TEXT`, () => {});
     db.run(`ALTER TABLE cars ADD COLUMN rca_insurance_price REAL`, () => {});
     db.run(`ALTER TABLE cars ADD COLUMN casco_insurance_price REAL`, () => {});
+    db.run(`ALTER TABLE cars ADD COLUMN is_premium BOOLEAN DEFAULT 0`, () => {});
     
     // Add columns to coupon_codes table if they don't exist (safe migration)
     db.run(`ALTER TABLE coupon_codes ADD COLUMN type TEXT DEFAULT 'percentage'`, () => {});

@@ -332,8 +332,8 @@ router.post('/', tempUpload.any(), async (req, res) => {
   });
   
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, head_image, gallery_images)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, head_image, gallery_images, is_premium)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
     [
       make_name,
       model_name,
@@ -837,6 +837,33 @@ router.delete('/:id', (req, res) => {
       });
       
       res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
+    });
+  });
+});
+
+// Toggle premium status for a car
+router.patch('/:id/premium', (req, res) => {
+  const id = req.params.id;
+  const { is_premium } = req.body;
+  
+  if (typeof is_premium !== 'boolean') {
+    return res.status(400).json({ error: 'is_premium must be a boolean value' });
+  }
+  
+  db.run('UPDATE cars SET is_premium = ? WHERE id = ?', [is_premium ? 1 : 0, id], function (err) {
+    if (err) {
+      console.error('Error updating premium status:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
+      is_premium: is_premium
     });
   });
 });
