@@ -59,6 +59,13 @@
             </div>
         </div>
 
+        <!-- Action Buttons -->
+        <div class="mb-4">
+            <button id="generateCodesBtn" class="btn btn-success">
+                <i class="fa fa-plus"></i> Generate 100 New Codes
+            </button>
+        </div>
+
         <!-- Dynamic Codes Tables -->
         <div class="mt-4">
           <div class="row">
@@ -116,12 +123,7 @@
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="mt-4 text-center">
-            <a href="account-dashboard.html" class="btn btn-primary">
-                <i class="fa fa-arrow-left"></i> Back to Dashboard
-            </a>
-        </div>
+
     </div>
 
     <!-- Bootstrap JS -->
@@ -231,6 +233,87 @@
         
         // Load data on page load
         document.addEventListener('DOMContentLoaded', loadCouponData);
+
+        // Generate 100 new codes function
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 10; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Add event listener for generate codes button
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateCodesBtn');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', async function() {
+                    const couponId = new URLSearchParams(window.location.search).get('id');
+                    if (!couponId) {
+                        alert('No coupon ID found');
+                        return;
+                    }
+
+                    // Disable button and show loading state
+                    generateBtn.disabled = true;
+                    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+
+                    try {
+                        // Generate 100 unique codes
+                        const newCodes = [];
+                        const existingCodes = new Set(); // To avoid duplicates
+
+                        // First, get existing codes to avoid duplicates
+                        const response = await fetch(`${API_BASE_URL}/api/coupons/${couponId}`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch coupon data');
+                        }
+                        const coupon = await response.json();
+                        const currentActiveCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+                        currentActiveCodes.forEach(code => existingCodes.add(code));
+
+                        // Generate 100 new unique codes
+                        while (newCodes.length < 100) {
+                            const code = generateRandomCode();
+                            if (!existingCodes.has(code)) {
+                                newCodes.push(code);
+                                existingCodes.add(code);
+                            }
+                        }
+
+                        // Combine existing codes with new codes
+                        const allActiveCodes = [...currentActiveCodes, ...newCodes];
+
+                        // Update the database
+                        const updateResponse = await fetch(`${API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                available_codes: allActiveCodes
+                            })
+                        });
+
+                        if (!updateResponse.ok) {
+                            throw new Error('Failed to update coupon codes');
+                        }
+
+                        // Reload the page to show updated codes
+                        window.location.reload();
+
+                    } catch (error) {
+                        console.error('Error generating codes:', error);
+                        alert('Error generating codes: ' + error.message);
+                    } finally {
+                        // Re-enable button
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<i class="fa fa-plus"></i> Generate 100 New Codes';
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html> 
