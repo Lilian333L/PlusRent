@@ -2571,35 +2571,268 @@
       // Call populateDropdowns on page load
       populateDropdowns();
 
-      // Add Car Button
-      const showAddCarBtn = document.getElementById('showAddCarBtn');
+          // Unsaved changes confirmation modal
+    function showUnsavedChangesConfirmation(panelType) {
+      // Check if modal already exists and remove it
+      const existingModal = document.querySelector('.unsaved-changes-modal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      const modal = document.createElement('div');
+      modal.className = 'unsaved-changes-modal';
+      modal.innerHTML = `
+        <div class="unsaved-changes-content">
+          <h3>Unsaved Changes</h3>
+          <p>You have unsaved changes. Are you sure you want to close without saving?</p>
+          <div class="unsaved-changes-buttons">
+            <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+            <button class="btn btn-danger" id="confirmBtn">Close Without Saving</button>
+          </div>
+        </div>
+      `;
+      
+      // Add styles
+      const style = document.createElement('style');
+      style.textContent = `
+        .unsaved-changes-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        }
+        .unsaved-changes-content {
+          background: white;
+          padding: 30px;
+          border-radius: 8px;
+          max-width: 400px;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .unsaved-changes-content h3 {
+          margin-bottom: 15px;
+          color: #333;
+        }
+        .unsaved-changes-content p {
+          margin-bottom: 25px;
+          color: #666;
+        }
+        .unsaved-changes-buttons {
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+        }
+        .unsaved-changes-buttons .btn {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+        }
+        .unsaved-changes-buttons .btn-secondary {
+          background: #6c757d;
+          color: white;
+        }
+        .unsaved-changes-buttons .btn-danger {
+          background: #dc3545;
+          color: white;
+        }
+        .unsaved-changes-buttons .btn:hover {
+          opacity: 0.9;
+        }
+      `;
+      document.head.appendChild(style);
+      document.body.appendChild(modal);
+      
+      // Add event listeners after modal is created
+      const cancelBtn = modal.querySelector('#cancelBtn');
+      const confirmBtn = modal.querySelector('#confirmBtn');
+      
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          modal.remove();
+          // Don't close the edit car form - just close the modal and keep the form open
+        });
+      }
+      
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          modal.remove();
+          
+          if (panelType === 'addCarPanel') {
+            closeAddCarPanelFunction();
+          } else if (panelType === 'editCarPanel') {
+            closeEditCarPanelFunction();
+          }
+        });
+      }
+    }
+
+
+
+    // Check if form has unsaved changes
+    function hasUnsavedChanges(formId) {
+      const form = document.getElementById(formId);
+      if (!form) return false;
+      
+      // Check if any input has been modified
+      const inputs = form.querySelectorAll('input, select, textarea');
+      for (let input of inputs) {
+        if (input.type === 'file') continue; // Skip file inputs
+        
+        // Check if the value has changed from the original
+        if (input.dataset.originalValue !== undefined) {
+          if (input.value !== input.dataset.originalValue) {
+            return true;
+          }
+        } else if (input.value !== '') {
+          // If no original value is set, check if current value is not empty
+          return true;
+        }
+      }
+      
+      // Check for image previews
+      if (formId === 'addCarForm') {
+        const headImagePreview = document.getElementById('addHeadImagePreview');
+        const galleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+        if (headImagePreview && headImagePreview.innerHTML !== '') return true;
+        if (galleryImagesPreview && galleryImagesPreview.innerHTML !== '') return true;
+      } else if (formId === 'editCarForm') {
+        // For edit car form, only check if new images were added (not existing ones)
+        const headImageInput = document.getElementById('editHeadImageInput');
+        const galleryImagesInput = document.getElementById('editGalleryImagesInput');
+        
+        // Check if new files were selected
+        if (headImageInput && headImageInput.files.length > 0) return true;
+        if (galleryImagesInput && galleryImagesInput.files.length > 0) return true;
+        
+        // Check if images were removed from preview (indicating deletion)
+        const headImagePreview = document.getElementById('editHeadImagePreview');
+        const galleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        
+        // If there were originally images but now there are none, that's a change
+        const originalHeadImage = form.dataset.originalHeadImage;
+        const originalGalleryImages = form.dataset.originalGalleryImages;
+        
+        if (originalHeadImage && (!headImagePreview || headImagePreview.innerHTML === '')) return true;
+        if (originalGalleryImages && (!galleryImagesPreview || galleryImagesPreview.innerHTML === '')) return true;
+      }
+      
+      return false;
+    }
+
+    // Store original form values when form is loaded
+    function storeOriginalValues(formId) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      
+      const inputs = form.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        if (input.type !== 'file') {
+          input.dataset.originalValue = input.value;
+        }
+      });
+      
+      // Store original image state for edit car form
+      if (formId === 'editCarForm') {
+        const headImagePreview = document.getElementById('editHeadImagePreview');
+        const galleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        
+        if (headImagePreview && headImagePreview.innerHTML !== '') {
+          form.dataset.originalHeadImage = 'true';
+        }
+        if (galleryImagesPreview && galleryImagesPreview.innerHTML !== '') {
+          form.dataset.originalGalleryImages = 'true';
+        }
+      }
+    }
+    
+    // Make function globally accessible
+    window.storeOriginalValues = storeOriginalValues;
+
+    // Close functions
+    function closeAddCarPanelFunction() {
       const addCarPanel = document.getElementById('addCarPanel');
-      const closeAddCarPanel = document.getElementById('closeAddCarPanel');
       const adminOverlay = document.getElementById('adminOverlay');
+      addCarPanel.classList.remove('active');
+      adminOverlay.classList.remove('active');
+      document.body.classList.remove('admin-popup-open');
+    }
+
+    function closeEditCarPanelFunction() {
+      const editCarPanel = document.getElementById('editCarPanel');
+      const editCarForm = document.getElementById('editCarForm');
+      const adminOverlay = document.getElementById('adminOverlay');
+      
+      // Reset form and clear image previews
+      editCarForm.reset();
+      document.getElementById('editHeadImagePreview').innerHTML = '';
+      document.getElementById('editGalleryImagesPreview').innerHTML = '';
+      document.getElementById('editHeadImageInput').value = '';
+      document.getElementById('editGalleryImagesInput').value = '';
+      
+      editCarPanel.classList.remove('active');
+      adminOverlay.classList.remove('active');
+      document.body.classList.remove('admin-popup-open');
+    }
+
+    function closeAllPanels() {
+      const addCarPanel = document.getElementById('addCarPanel');
+      const editCarPanel = document.getElementById('editCarPanel');
+      const adminOverlay = document.getElementById('adminOverlay');
+      
+      addCarPanel.classList.remove('active');
+      editCarPanel.classList.remove('active');
+      adminOverlay.classList.remove('active');
+      document.body.classList.remove('admin-popup-open');
+    }
+
+    // Add Car Button
+    const showAddCarBtn = document.getElementById('showAddCarBtn');
+    const addCarPanel = document.getElementById('addCarPanel');
+    const closeAddCarPanel = document.getElementById('closeAddCarPanel');
+    const adminOverlay = document.getElementById('adminOverlay');
       
       if (showAddCarBtn) {
         showAddCarBtn.addEventListener('click', () => {
           addCarPanel.classList.add('active');
           adminOverlay.classList.add('active');
           document.body.classList.add('admin-popup-open');
+          // Store original values after a short delay to ensure form is rendered
+          setTimeout(() => storeOriginalValues('addCarForm'), 100);
         });
       }
       
       if (closeAddCarPanel) {
         closeAddCarPanel.addEventListener('click', () => {
-          addCarPanel.classList.remove('active');
-          adminOverlay.classList.remove('active');
-          document.body.classList.remove('admin-popup-open');
+          if (window.bypassUnsavedChangesCheck || !hasUnsavedChanges('addCarForm')) {
+            closeAddCarPanelFunction();
+          } else {
+            showUnsavedChangesConfirmation('addCarPanel');
+          }
         });
       }
       
       // Close modal when clicking overlay
       if (adminOverlay) {
         adminOverlay.addEventListener('click', () => {
-          addCarPanel.classList.remove('active');
-          editCarPanel.classList.remove('active');
-          adminOverlay.classList.remove('active');
-          document.body.classList.remove('admin-popup-open');
+          if (addCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('addCarForm')) {
+            showUnsavedChangesConfirmation('addCarPanel');
+          } else if (editCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('editCarForm')) {
+            showUnsavedChangesConfirmation('editCarPanel');
+          } else {
+            closeAllPanels();
+          }
         });
       }
       
@@ -2611,16 +2844,11 @@
       
       if (closeEditCarPanel) {
         closeEditCarPanel.addEventListener('click', () => {
-          // Reset form and clear image previews
-          editCarForm.reset();
-          document.getElementById('editHeadImagePreview').innerHTML = '';
-          document.getElementById('editGalleryImagesPreview').innerHTML = '';
-          document.getElementById('editHeadImageInput').value = '';
-          document.getElementById('editGalleryImagesInput').value = '';
-          
-          editCarPanel.classList.remove('active');
-          adminOverlay.classList.remove('active');
-          document.body.classList.remove('admin-popup-open');
+          if (window.bypassUnsavedChangesCheck || !hasUnsavedChanges('editCarForm')) {
+            closeEditCarPanelFunction();
+          } else {
+            showUnsavedChangesConfirmation('editCarPanel');
+          }
         });
       }
       
@@ -2762,6 +2990,9 @@
                 document.getElementById('editHeadImageInput').value = '';
                 document.getElementById('editGalleryImagesInput').value = '';
                 
+                // Reset original values since form is now clean
+                storeOriginalValues('editCarForm');
+                
                 // Close the panel after successful save
                 editCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
@@ -2820,6 +3051,9 @@
                 // Clear only the file inputs, but keep image previews
                 document.getElementById('editHeadImageInput').value = '';
                 document.getElementById('editGalleryImagesInput').value = '';
+                
+                // Reset original values since form is now clean
+                storeOriginalValues('editCarForm');
                 
                 // Close the panel after successful save
                 editCarPanel.classList.remove('active');
@@ -3339,6 +3573,9 @@
                 document.getElementById('addHeadImageInput').value = '';
                 document.getElementById('addGalleryImagesInput').value = '';
                 
+                // Reset original values since form is now clean
+                storeOriginalValues('addCarForm');
+                
                 addCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
                 document.body.classList.remove('admin-popup-open');
@@ -3779,6 +4016,9 @@
         editCarPanel.classList.add('active');
         adminOverlay.classList.add('active');
         document.body.classList.add('admin-popup-open');
+        
+        // Store original values after a short delay to ensure form is populated
+        setTimeout(() => storeOriginalValues('editCarForm'), 100);
         
       } catch (error) {
         console.error('Error loading car for editing:', error);
@@ -5020,7 +5260,6 @@
 
         // Add spinning wheel initialization to the main initialization
         document.addEventListener('DOMContentLoaded', function() {
-          initializeTabs();
           initializeFormDropdowns();
           initializeCarForms();
           initializeSpinningWheel();
