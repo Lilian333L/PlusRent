@@ -91,6 +91,7 @@ router.get('/', (req, res) => {
   if (filters.length > 0) {
     sql += ' WHERE ' + filters.join(' AND ');
   }
+  sql += ' ORDER BY display_order ASC, id ASC';
 
   db.all(sql, params, (err, rows) => {
     if (err) {
@@ -238,9 +239,7 @@ router.post('/', tempUpload.any(), async (req, res) => {
     fuel_type: 'Fuel Type',
     car_type: 'Car Type',
     num_doors: 'Number of Doors',
-    num_passengers: 'Number of Passengers',
-    rca_insurance_price: 'RCA Insurance Price',
-    casco_insurance_price: 'Casco Insurance Price'
+    num_passengers: 'Number of Passengers'
   };
 
   // Check price policy fields
@@ -306,8 +305,8 @@ router.post('/', tempUpload.any(), async (req, res) => {
   // Parse optional numeric fields
   const mileageValue = mileage ? parseInt(mileage) : null;
   const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
-  const rcaInsuranceValue = parseFloat(rca_insurance_price);
-  const cascoInsuranceValue = parseFloat(casco_insurance_price);
+  const rcaInsuranceValue = rca_insurance_price ? parseFloat(rca_insurance_price) : null;
+  const cascoInsuranceValue = casco_insurance_price ? parseFloat(casco_insurance_price) : null;
 
   // Store in DB, booked defaults to 0
   console.log('Inserting car with data:', {
@@ -574,9 +573,7 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
     fuel_type: 'Fuel Type',
     car_type: 'Car Type',
     num_doors: 'Number of Doors',
-    num_passengers: 'Number of Passengers',
-    rca_insurance_price: 'RCA Insurance Price',
-    casco_insurance_price: 'Casco Insurance Price'
+    num_passengers: 'Number of Passengers'
   };
 
   // Check price policy fields
@@ -639,8 +636,8 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
   // Parse optional numeric fields
   const mileageValue = mileage ? parseInt(mileage) : null;
   const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
-  const rcaInsuranceValue = parseFloat(rca_insurance_price);
-  const cascoInsuranceValue = parseFloat(casco_insurance_price);
+  const rcaInsuranceValue = rca_insurance_price ? parseFloat(rca_insurance_price) : null;
+  const cascoInsuranceValue = casco_insurance_price ? parseFloat(casco_insurance_price) : null;
 
   // Calculate booked status based on booked_until date
   let bookedStatus = 0;
@@ -978,6 +975,52 @@ router.delete('/:id/images', (req, res) => {
         res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
       }
     });
+  });
+});
+
+// Reorder cars endpoint
+router.post('/reorder', (req, res) => {
+  const { carOrder } = req.body;
+  
+  if (!carOrder || !Array.isArray(carOrder)) {
+    return res.status(400).json({ error: 'Invalid car order array' });
+  }
+  
+  console.log('Reordering cars:', carOrder);
+  
+  // Use a transaction to update all display_order values
+  db.serialize(() => {
+    db.run('BEGIN TRANSACTION');
+    
+    const updatePromises = carOrder.map((carId, index) => {
+      return new Promise((resolve, reject) => {
+        db.run('UPDATE cars SET display_order = ? WHERE id = ?', [index, carId], function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
+    
+    Promise.all(updatePromises)
+      .then(() => {
+        db.run('COMMIT', (err) => {
+          if (err) {
+            console.error('Error committing transaction:', err);
+            db.run('ROLLBACK');
+            return res.status(500).json({ error: 'Failed to commit reorder changes' });
+          }
+          console.log('Cars reordered successfully');
+          res.json({ success: true, message: 'Cars reordered successfully' });
+        });
+      })
+      .catch((error) => {
+        console.error('Error updating car order:', error);
+        db.run('ROLLBACK');
+        res.status(500).json({ error: 'Failed to update car order' });
+      });
   });
 });
 
