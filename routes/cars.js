@@ -364,27 +364,7 @@ router.post('/', tempUpload.any(), async (req, res) => {
       }
       
 
-      // const carId = this.lastID;
-      // Send Telegram notification - COMMENTED OUT
-      // try {
-      //   const telegram = new TelegramNotifier();
-      //   const carData = {
-      //     make_name,
-      //     model_name,
-      //     production_year,
-      //     gear_type,
-      //     fuel_type,
-      //     car_type,
-      //     num_doors,
-      //     num_passengers,
-      //     price_policy: pricePolicyStringified,
-      //     rca_insurance_price: rcaInsuranceValue,
-      //     casco_insurance_price: cascoInsuranceValue
-      //   };
-      //   await telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-      // } catch (error) {
-      //   console.error('Error sending Telegram notification:', error);
-      // }
+      const carId = this.lastID;
       
       // Move files from temp to proper car directory
       if (headImagePath || galleryImagePaths.length > 0) {
