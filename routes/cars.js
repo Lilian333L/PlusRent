@@ -36,6 +36,9 @@ const carImageStorage = multer.diskStorage({
   }
 });
 
+// Simple multer config for parsing FormData (no file storage)
+const formDataUpload = multer();
+
 const upload = multer({ storage: carImageStorage });
 const tempUpload = multer({ storage: tempImageStorage });
 
@@ -470,8 +473,27 @@ router.post('/', tempUpload.any(), async (req, res) => {
 });
 
 // Update car
-router.put('/:id', (req, res) => {
+router.put('/:id', formDataUpload.any(), (req, res) => {
+  console.log('🔍 SERVER - Multer middleware executed');
   const id = req.params.id;
+  
+  console.log('🔍 SERVER - PUT /api/cars/:id received request');
+  console.log('  Car ID:', id);
+  console.log('  Content-Type:', req.headers['content-type']);
+  console.log('  Raw body keys:', Object.keys(req.body));
+  console.log('  Raw body:', req.body);
+  console.log('  Files in request:', req.files);
+  if (req.files && req.files.length > 0) {
+    console.log('  Files details:');
+    req.files.forEach((file, index) => {
+      console.log(`    File ${index + 1}:`, {
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
+      });
+    });
+  }
   const {
     make_name,
     model_name,
@@ -482,7 +504,7 @@ router.put('/:id', (req, res) => {
     car_type,
     num_doors,
     num_passengers,
-    price_policy,
+    price_policy: rawPricePolicy,
     booked,
     booked_until,
     gallery_images,
@@ -495,6 +517,30 @@ router.put('/:id', (req, res) => {
     rca_insurance_price,
     casco_insurance_price
   } = req.body;
+
+  // Parse price_policy if it comes as a JSON string (from FormData)
+  let price_policy;
+  try {
+    price_policy = typeof rawPricePolicy === 'string' ? JSON.parse(rawPricePolicy) : rawPricePolicy;
+  } catch (error) {
+    console.error('Error parsing price_policy:', error);
+    return res.status(400).json({ error: 'Invalid price_policy format' });
+  }
+  
+  console.log('🔍 SERVER - Extracted values:');
+  console.log('  make_name:', make_name);
+  console.log('  model_name:', model_name);
+  console.log('  production_year:', production_year);
+  console.log('  gear_type:', gear_type);
+  console.log('  fuel_type:', fuel_type);
+  console.log('  engine_capacity:', engine_capacity);
+  console.log('  car_type:', car_type);
+  console.log('  num_doors:', num_doors);
+  console.log('  num_passengers:', num_passengers);
+  console.log('  rawPricePolicy:', rawPricePolicy);
+  console.log('  parsed price_policy:', price_policy);
+  console.log('  rca_insurance_price:', rca_insurance_price);
+  console.log('  casco_insurance_price:', casco_insurance_price);
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -590,63 +636,141 @@ router.put('/:id', (req, res) => {
     }
   }
 
-  const updateParams = [
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engineCapacityValue,
-    car_type,
-    num_doors,
-    num_passengers,
-    JSON.stringify(pricePolicyStringified),
-    bookedStatus,
-    booked_until || null,
-    gallery_images ? JSON.stringify(gallery_images) : null,
-    luggage || null,
-    mileageValue,
-    drive || null,
-    fuelEconomyValue,
-    exterior_color || null,
-    interior_color || null,
-    rcaInsuranceValue,
-    cascoInsuranceValue,
-    id
-  ];
-
-  db.run(
-    `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=? WHERE id=?`,
-    updateParams,
-    async function (err) {
-      if (err) {
-        console.error('Database error in PUT /api/cars/:id:', err);
-        return res.status(500).json({ error: 'Database error: ' + err.message });
+  // Handle file uploads if any files were uploaded
+  let headImagePath = null;
+  let galleryImagePaths = [];
+  
+  // First, get existing images from database to preserve them
+  db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [id], (err, existingCar) => {
+    if (!err && existingCar) {
+      // Preserve existing head image if no new one uploaded
+      if (!req.files || !req.files.find(f => f.fieldname === 'head_image')) {
+        headImagePath = existingCar.head_image;
       }
       
-      // Send Telegram notification
-      try {
-        const telegram = new TelegramNotifier();
-        const carData = {
-          make_name,
-          model_name,
-          production_year,
-          gear_type,
-          fuel_type,
-          car_type,
-          num_doors,
-          num_passengers,
-          price_policy: pricePolicyStringified,
-          rca_insurance_price: rcaInsuranceValue,
-          casco_insurance_price: cascoInsuranceValue
-        };
-        await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
-      } catch (error) {
-        console.error('Error sending Telegram notification:', error);
+      // Use gallery images from form data if provided, otherwise preserve existing ones
+      if (req.body.gallery_images) {
+        try {
+          galleryImagePaths = JSON.parse(req.body.gallery_images);
+          console.log('🔍 SERVER - Using gallery images from form data:', galleryImagePaths);
+        } catch (e) {
+          console.log('Could not parse gallery images from form data, using existing ones');
+          if (existingCar.gallery_images) {
+            try {
+              galleryImagePaths = JSON.parse(existingCar.gallery_images);
+              console.log('🔍 SERVER - Using existing gallery images:', galleryImagePaths);
+            } catch (e2) {
+              console.log('Could not parse existing gallery images');
+            }
+          }
+        }
+      } else if (existingCar.gallery_images) {
+        // No gallery_images in form data, preserve existing ones
+        try {
+          galleryImagePaths = JSON.parse(existingCar.gallery_images);
+          console.log('🔍 SERVER - Preserving existing gallery images:', galleryImagePaths);
+        } catch (e) {
+          console.log('Could not parse existing gallery images');
+        }
       }
-      res.json({ success: true });
     }
-  );
+    
+    // Process new file uploads
+    if (req.files && req.files.length > 0) {
+      console.log('🔍 SERVER - Processing uploaded files...');
+      
+      // Create car directory
+      const carDir = path.join(__dirname, '..', 'uploads', `car-${id}`);
+      fs.mkdirSync(carDir, { recursive: true });
+      console.log('📁 Created car directory:', carDir);
+      
+      // Process each uploaded file
+      req.files.forEach((file, index) => {
+        console.log(`🔍 SERVER - Processing file ${index + 1}:`, file.fieldname, file.originalname);
+        
+        if (file.fieldname === 'head_image') {
+          // Save head image
+          const headFileName = `head${path.extname(file.originalname)}`;
+          const headFilePath = path.join(carDir, headFileName);
+          fs.writeFileSync(headFilePath, file.buffer);
+          headImagePath = headFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+          console.log('✅ Head image saved:', headImagePath);
+        } else if (file.fieldname === 'gallery_images') {
+          // Save gallery image
+          const galleryFileName = `gallery_${Date.now()}_${index}${path.extname(file.originalname)}`;
+          const galleryFilePath = path.join(carDir, galleryFileName);
+          fs.writeFileSync(galleryFilePath, file.buffer);
+          const galleryImagePath = galleryFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+          galleryImagePaths.push(galleryImagePath);
+          console.log('✅ Gallery image saved:', galleryImagePath);
+        }
+      });
+    }
+    
+    // Continue with database update
+    const finalHeadImagePath = headImagePath || existingCar.head_image;
+    
+    const updateParams = [
+      make_name,
+      model_name,
+      production_year,
+      gear_type,
+      fuel_type,
+      engineCapacityValue,
+      car_type,
+      num_doors,
+      num_passengers,
+      JSON.stringify(pricePolicyStringified),
+      bookedStatus,
+      booked_until || null,
+      galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
+      luggage || null,
+      mileageValue,
+      drive || null,
+      fuelEconomyValue,
+      exterior_color || null,
+      interior_color || null,
+      rcaInsuranceValue,
+      cascoInsuranceValue,
+      finalHeadImagePath, // Use existing head image if no new one uploaded
+      id
+    ];
+
+    db.run(
+      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, head_image=? WHERE id=?`,
+      updateParams,
+      async function (err) {
+        if (err) {
+          console.error('Database error in PUT /api/cars/:id:', err);
+          return res.status(500).json({ error: 'Database error: ' + err.message });
+        }
+        
+        // Send Telegram notification
+        try {
+          const telegram = new TelegramNotifier();
+          const carData = {
+            make_name,
+            model_name,
+            production_year,
+            gear_type,
+            fuel_type,
+            car_type,
+            num_doors,
+            num_passengers,
+            price_policy: pricePolicyStringified,
+            rca_insurance_price: rcaInsuranceValue,
+            casco_insurance_price: cascoInsuranceValue
+          };
+          await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
+        } catch (error) {
+          console.error('Error sending Telegram notification:', error);
+        }
+        res.json({ success: true });
+      }
+    );
+  });
+
+
 });
 
 // Delete car

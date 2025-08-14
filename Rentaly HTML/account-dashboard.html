@@ -1317,7 +1317,6 @@
                               </div>
                             </div>
                           </fieldset>
-                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
                         <button type="submit" id="formSubmitBtn" class="btn btn-main">Add Car</button>
                       </form>
                     </div>
@@ -1328,7 +1327,7 @@
                         <i class="fa fa-trash"></i> Delete Car
                       </button>
                       <form id="editCarForm" class="form-border" autocomplete="off">
-                                                <h3 class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Car</h3>
+                                                <h3 id="editFormTitle" class="mb-3" style="font-family: var(--title-font); font-weight: 600; color: #031B4E; font-size: 1.4rem;">Edit Car</h3>
                           <div class="admin-form-grid">
                             <div style="grid-column: 1 / -1; display: flex; align-items: flex-start; margin-bottom: 6px; gap: 16px;">
                             <div style="flex: 1;">
@@ -1361,11 +1360,6 @@
                               </div>
                               <div id="editGalleryImagesPreview"></div>
                             </div>
-                          </div>
-                          <div style="grid-column: 1 / -1; margin-bottom: 8px; max-width: 300px;">
-                            <label class="form-label">Booked Until (optional)</label>
-                            <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
-                            <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
                           </div>
                           <div>
                             <label class="form-label">Make Name</label>
@@ -1576,6 +1570,11 @@
                             </div>
                           </div>
                         </fieldset>
+                        <div class="mb-3" style="max-width: 300px;">
+                          <label class="form-label">Booked Until (optional)</label>
+                          <input type="date" name="booked_until" class="form-control" placeholder="Select date until when car is booked">
+                          <small class="form-text text-muted">Leave empty if car is available. Car will be automatically available after this date.</small>
+                        </div>
                           <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
                             <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Additional Specifications (Optional)</legend>
                             <div class="admin-form-grid">
@@ -1598,7 +1597,7 @@
                                 </select>
                               </div>
                               <div>
-                                <label class="form-label" id="fuel-economy-label">Fuel Economy (L/100km)</label>
+                                <label class="form-label" id="edit-fuel-economy-label">Fuel Economy (L/100km)</label>
                                 <input type="number" name="fuel_economy" class="form-control" placeholder="e.g., 7.5" step="0.1" min="0">
                               </div>
                               <div>
@@ -1624,9 +1623,7 @@
                               </div>
                             </div>
                           </fieldset>
-                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
-                          </fieldset>
-                          <button type="submit" id="carFormSubmitBtn" class="btn btn-main">Update Car</button>
+                          <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Update Car</button>
                       </form>
                     </div>
                     <!-- Confirm Modal -->
@@ -2614,6 +2611,13 @@
       
       if (closeEditCarPanel) {
         closeEditCarPanel.addEventListener('click', () => {
+          // Reset form and clear image previews
+          editCarForm.reset();
+          document.getElementById('editHeadImagePreview').innerHTML = '';
+          document.getElementById('editGalleryImagesPreview').innerHTML = '';
+          document.getElementById('editHeadImageInput').value = '';
+          document.getElementById('editGalleryImagesInput').value = '';
+          
           editCarPanel.classList.remove('active');
           adminOverlay.classList.remove('active');
           document.body.classList.remove('admin-popup-open');
@@ -2622,10 +2626,16 @@
       
       // Edit Car Form Submit
       const editCarForm = document.getElementById('editCarForm');
-      if (editCarForm) {
+      if (editCarForm && !editCarForm.dataset.initialized) {
+        editCarForm.dataset.initialized = 'true';
+        
         let isEditSubmitting = false; // Prevent double submission
+        
+        // Prevent any automatic form submission
+        editCarForm.setAttribute('novalidate', 'true');
         editCarForm.addEventListener('submit', async (e) => {
           e.preventDefault();
+          e.stopPropagation();
           
           if (isEditSubmitting) {
             return;
@@ -2682,44 +2692,85 @@
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
           
+          console.log('🔍 EDIT CAR - Image upload detected:');
+          console.log('  Head image file:', headImageFile);
+          console.log('  Gallery image files:', galleryImageFiles);
+          console.log('  Original carData:', carData);
+          
           if (headImageFile || galleryImageFiles.length > 0) {
+            // Create a new FormData and manually add all form fields to avoid duplicates
             const imageFormData = new FormData();
             
-            // Add all form data
-            Object.keys(carData).forEach(key => {
-              if (key === 'price_policy') {
-                imageFormData.append(key, JSON.stringify(carData[key]));
-              } else {
-                imageFormData.append(key, carData[key]);
+            // Add all form fields except files
+            const formData = new FormData(editCarForm);
+            for (let [key, value] of formData.entries()) {
+              if (!(value instanceof File)) {
+                imageFormData.append(key, value);
               }
-            });
+            }
+            
+            console.log('🔍 EDIT CAR - Original FormData entries:');
+            for (let [key, value] of imageFormData.entries()) {
+              console.log(`  ${key}:`, value);
+            }
+            
+            // Add price_policy as JSON string
+            imageFormData.delete('price_1_2');
+            imageFormData.delete('price_3_7');
+            imageFormData.delete('price_8_20');
+            imageFormData.delete('price_21_45');
+            imageFormData.delete('price_46');
+            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
+            
+            console.log('🔍 EDIT CAR - Price policy being sent:', pricePolicy);
             
             // Add images
             if (headImageFile) {
               imageFormData.append('head_image', headImageFile);
+              console.log('🔍 EDIT CAR - Added head image:', headImageFile.name, 'Size:', headImageFile.size);
             }
             // Only add gallery images that have actual content
             galleryImageFiles.forEach(file => {
               if (file && file.size > 0 && file.name) {
                 imageFormData.append('gallery_images', file);
+                console.log('🔍 EDIT CAR - Added gallery image:', file.name, 'Size:', file.size);
               }
             });
             
+            console.log('🔍 EDIT CAR - Final FormData entries:');
+            for (let [key, value] of imageFormData.entries()) {
+              if (value instanceof File) {
+                console.log(`  ${key}: [File] ${value.name} (${value.size} bytes)`);
+              } else {
+                console.log(`  ${key}:`, value);
+              }
+            }
+            
             try {
+              console.log('🔍 EDIT CAR - Sending PUT request with FormData to:', `${window.API_BASE_URL}/api/cars/${carId}`);
               const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
                 method: 'PUT',
                 body: imageFormData
               });
               
+              console.log('🔍 EDIT CAR - Response status:', response.status, response.statusText);
               if (response.ok) {
+                console.log('🔍 EDIT CAR - Success! Car updated successfully');
                 showCustomAlert('Car updated successfully!', 'success');
-                editCarForm.reset();
+                
+                // Clear only the file inputs, but keep image previews
+                document.getElementById('editHeadImageInput').value = '';
+                document.getElementById('editGalleryImagesInput').value = '';
+                
+                // Close the panel after successful save
                 editCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
                 document.body.classList.remove('admin-popup-open');
                 loadCars();
               } else {
+                console.log('🔍 EDIT CAR - Error response received');
                 const error = await response.json();
+                console.log('🔍 EDIT CAR - Error details:', error);
                 let errorMessage = 'Error updating car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
@@ -2734,6 +2785,28 @@
             }
           } else {
             // No images to upload, use JSON
+            // Get current gallery images from preview
+            const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+            const currentGalleryImages = [];
+            if (editGalleryImagesPreview) {
+              const galleryImageElements = editGalleryImagesPreview.querySelectorAll('img');
+              galleryImageElements.forEach(img => {
+                const src = img.getAttribute('src');
+                if (src && src.includes('/uploads/')) {
+                  // Extract the path from the full URL
+                  const pathMatch = src.match(/\/uploads\/.*$/);
+                  if (pathMatch) {
+                    currentGalleryImages.push(pathMatch[0]);
+                  }
+                }
+              });
+            }
+            
+            // Add current gallery images to carData
+            if (currentGalleryImages.length > 0) {
+              carData.gallery_images = JSON.stringify(currentGalleryImages);
+            }
+            
             try {
               const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
                 method: 'PUT',
@@ -2743,7 +2816,12 @@
               
               if (response.ok) {
                 showCustomAlert('Car updated successfully!', 'success');
-                editCarForm.reset();
+                
+                // Clear only the file inputs, but keep image previews
+                document.getElementById('editHeadImageInput').value = '';
+                document.getElementById('editGalleryImagesInput').value = '';
+                
+                // Close the panel after successful save
                 editCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
                 document.body.classList.remove('admin-popup-open');
@@ -2784,6 +2862,14 @@
               
               if (response.ok) {
                 showCustomAlert('Car deleted successfully!', 'success');
+                
+                // Reset form and clear image previews
+                editCarForm.reset();
+                document.getElementById('editHeadImagePreview').innerHTML = '';
+                document.getElementById('editGalleryImagesPreview').innerHTML = '';
+                document.getElementById('editHeadImageInput').value = '';
+                document.getElementById('editGalleryImagesInput').value = '';
+                
                 editCarPanel.classList.remove('active');
                 adminOverlay.classList.remove('active');
                 document.body.classList.remove('admin-popup-open');
@@ -2808,41 +2894,47 @@
     }
     
     function initializeFuelTypeListener() {
-      const fuelTypeInput = document.querySelector('select[name="fuel_type"]');
-      const engineCapacityInput = document.querySelector('input[name="engine_capacity"]');
+      // Handle both add car and edit car forms
+      const addFuelTypeInput = document.querySelector('#addCarPanel select[name="fuel_type"]');
+      const addEngineCapacityInput = document.querySelector('#addCarPanel input[name="engine_capacity"]');
+      const editFuelTypeInput = document.querySelector('#editCarPanel select[name="fuel_type"]');
+      const editEngineCapacityInput = document.querySelector('#editCarPanel input[name="engine_capacity"]');
       
-      if (fuelTypeInput && engineCapacityInput) {
-
-        
+      // Initialize add car form fuel type listener
+      if (addFuelTypeInput && addEngineCapacityInput) {
         // Set initial state
-        updateEngineCapacityField();
+        updateEngineCapacityField(addFuelTypeInput, addEngineCapacityInput);
         
         // Add change listener
-        fuelTypeInput.addEventListener('change', updateEngineCapacityField);
+        addFuelTypeInput.addEventListener('change', () => updateEngineCapacityField(addFuelTypeInput, addEngineCapacityInput));
+      }
+      
+      // Initialize edit car form fuel type listener
+      if (editFuelTypeInput && editEngineCapacityInput) {
+        // Set initial state
+        updateEngineCapacityField(editFuelTypeInput, editEngineCapacityInput);
         
-        function updateEngineCapacityField() {
-          const fuelType = fuelTypeInput.value;
-
-          
-          if (fuelType === 'Electric') {
-            engineCapacityInput.disabled = true;
-            engineCapacityInput.value = '';
-            engineCapacityInput.placeholder = 'Not applicable';
-            engineCapacityInput.style.backgroundColor = '#e0e0e0';
-            engineCapacityInput.style.color = '#666';
-            engineCapacityInput.style.cursor = 'not-allowed';
-            
-          } else {
-            engineCapacityInput.disabled = false;
-            engineCapacityInput.placeholder = 'Enter engine capacity (e.g., 2.0)';
-            engineCapacityInput.style.backgroundColor = '';
-            engineCapacityInput.style.color = '';
-            engineCapacityInput.style.cursor = '';
-            
-          }
+        // Add change listener
+        editFuelTypeInput.addEventListener('change', () => updateEngineCapacityField(editFuelTypeInput, editEngineCapacityInput));
+      }
+      
+      function updateEngineCapacityField(fuelTypeInput, engineCapacityInput) {
+        const fuelType = fuelTypeInput.value;
+        
+        if (fuelType === 'Electric') {
+          engineCapacityInput.disabled = true;
+          engineCapacityInput.value = '';
+          engineCapacityInput.placeholder = 'Not applicable';
+          engineCapacityInput.style.backgroundColor = '#e0e0e0';
+          engineCapacityInput.style.color = '#666';
+          engineCapacityInput.style.cursor = 'not-allowed';
+        } else {
+          engineCapacityInput.disabled = false;
+          engineCapacityInput.placeholder = 'Enter engine capacity (e.g., 2.0)';
+          engineCapacityInput.style.backgroundColor = '';
+          engineCapacityInput.style.color = '';
+          engineCapacityInput.style.cursor = '';
         }
-      } else {
-        
       }
     }
     
@@ -2916,7 +3008,10 @@
       const editHeadImageInput = document.getElementById('editHeadImageInput');
       const editHeadImagePreview = document.getElementById('editHeadImagePreview');
       
-      if (editHeadImageButton && editHeadImageInput) {
+      if (editHeadImageButton && editHeadImageInput && !editHeadImageButton.dataset.initialized) {
+        editHeadImageButton.dataset.initialized = 'true';
+        editHeadImageInput.dataset.initialized = 'true';
+        
         editHeadImageButton.addEventListener('click', () => editHeadImageInput.click());
         editHeadImageInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
@@ -2924,7 +3019,10 @@
             const reader = new FileReader();
             reader.onload = (e) => {
               editHeadImagePreview.innerHTML = `
-                <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                <div style="position: relative; display: inline-block;">
+                  <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                </div>
               `;
             };
             reader.readAsDataURL(file);
@@ -2936,7 +3034,10 @@
       const editGalleryImagesInput = document.getElementById('editGalleryImagesInput');
       const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
       
-      if (editGalleryImagesButton && editGalleryImagesInput) {
+      if (editGalleryImagesButton && editGalleryImagesInput && !editGalleryImagesButton.dataset.initialized) {
+        editGalleryImagesButton.dataset.initialized = 'true';
+        editGalleryImagesInput.dataset.initialized = 'true';
+        
         editGalleryImagesButton.addEventListener('click', () => editGalleryImagesInput.click());
         editGalleryImagesInput.addEventListener('change', (e) => {
           const files = Array.from(e.target.files);
@@ -2957,20 +3058,87 @@
       }
       
       // Image removal functions
-      window.removeHeadImage = function() {
+      window.removeHeadImage = async function() {
         const editHeadImagePreview = document.getElementById('editHeadImagePreview');
-        if (editHeadImagePreview) {
-          editHeadImagePreview.innerHTML = '';
+        const editForm = document.getElementById('editCarForm');
+        const carId = editForm.dataset.carId;
+        
+        if (!carId) {
+          console.error('No car ID found for head image deletion');
+          return;
+        }
+        
+        // Get the current head image path from the preview
+        const headImage = editHeadImagePreview.querySelector('img');
+        if (!headImage) {
+          console.log('No head image to delete');
+          return;
+        }
+        
+        const imagePath = headImage.src.replace(window.API_BASE_URL, '');
+        console.log('🔍 EDIT CAR - Deleting head image:', imagePath);
+        
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=head`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            console.log('🔍 EDIT CAR - Head image deleted successfully');
+            editHeadImagePreview.innerHTML = '';
+          } else {
+            const error = await response.json();
+            console.error('🔍 EDIT CAR - Error deleting head image:', error);
+            showCustomAlert('Error deleting head image: ' + error.error, 'error');
+          }
+        } catch (error) {
+          console.error('🔍 EDIT CAR - Error deleting head image:', error);
+          showCustomAlert('Error deleting head image', 'error');
         }
       };
       
-      window.removeGalleryImage = function(index) {
+      window.removeGalleryImage = async function(index) {
         const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
-        if (editGalleryImagesPreview) {
-          const images = editGalleryImagesPreview.querySelectorAll('div');
-          if (images[index]) {
+        const editForm = document.getElementById('editCarForm');
+        const carId = editForm.dataset.carId;
+        
+        if (!carId) {
+          console.error('No car ID found for gallery image deletion');
+          return;
+        }
+        
+        const images = editGalleryImagesPreview.querySelectorAll('div');
+        if (!images[index]) {
+          console.error('Gallery image not found at index:', index);
+          return;
+        }
+        
+        // Get the image path from the img element
+        const imgElement = images[index].querySelector('img');
+        if (!imgElement) {
+          console.error('Image element not found at index:', index);
+          return;
+        }
+        
+        const imagePath = imgElement.src.replace(window.API_BASE_URL, '');
+        console.log('🔍 EDIT CAR - Deleting gallery image:', imagePath, 'at index:', index);
+        
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=gallery`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            console.log('🔍 EDIT CAR - Gallery image deleted successfully');
             images[index].remove();
+          } else {
+            const error = await response.json();
+            console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
+            showCustomAlert('Error deleting gallery image: ' + error.error, 'error');
           }
+        } catch (error) {
+          console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
+          showCustomAlert('Error deleting gallery image', 'error');
         }
       };
       
@@ -2994,13 +3162,7 @@
 
         });
         
-        // Track submit button clicks
-        const submitButton = document.getElementById('carFormSubmitBtn');
-        if (submitButton) {
-          submitButton.addEventListener('click', (e) => {
-            
-          });
-        }
+
         
         carForm.addEventListener('submit', async (e) => {
           
@@ -3589,16 +3751,23 @@
               <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeHeadImage()">×</button>
             </div>
           `;
+        } else {
+          console.log('🔍 EDIT CAR - No head image to display');
+          if (editHeadImagePreview) editHeadImagePreview.innerHTML = '';
         }
         
         const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
         if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
+          console.log('🔍 EDIT CAR - Displaying gallery images:', car.gallery_images.length, 'images');
           editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
             <div style="position: relative; display: inline-block; margin: 5px;">
               <img src="${window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
               <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
             </div>
           `).join('');
+        } else {
+          console.log('🔍 EDIT CAR - No gallery images to display');
+          if (editGalleryImagesPreview) editGalleryImagesPreview.innerHTML = '';
         }
         
         // Store car ID for form submission
