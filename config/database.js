@@ -114,7 +114,9 @@ function initializeDatabase() {
       valid_from DATETIME DEFAULT CURRENT_TIMESTAMP,
       valid_until DATETIME DEFAULT NULL,
       is_active BOOLEAN DEFAULT 1,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      available_codes TEXT DEFAULT '[]',
+      showed_codes TEXT DEFAULT '[]'
     )`);
 
     // Create spinning wheels table
@@ -190,6 +192,8 @@ function initializeDatabase() {
     db.run(`ALTER TABLE coupon_codes ADD COLUMN type TEXT DEFAULT 'percentage'`, () => {});
     db.run(`ALTER TABLE coupon_codes ADD COLUMN free_days INTEGER`, () => {});
     db.run(`ALTER TABLE coupon_codes ADD COLUMN wheel_enabled BOOLEAN DEFAULT 0`, () => {});
+    db.run(`ALTER TABLE coupon_codes ADD COLUMN available_codes TEXT DEFAULT '[]'`, () => {});
+    db.run(`ALTER TABLE coupon_codes ADD COLUMN showed_codes TEXT DEFAULT '[]'`, () => {});
     
     // Create wheel_coupons junction table for many-to-many relationship
     db.run(`CREATE TABLE IF NOT EXISTS wheel_coupons (

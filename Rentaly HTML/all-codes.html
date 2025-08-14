@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Codes - CarRental</title>
+    
+    <!-- CSS Files -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+    <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+    <link href="css/plugins.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/coloring.css" rel="stylesheet" type="text/css">
+    <!-- color scheme -->
+    <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <style>
+        
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s ease;
+        }
+        .back-button:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+<body>
+
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Coupon Info Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 id="couponName" class="mb-2">Loading...</h3>
+                        <p id="couponDescription" class="text-muted mb-0">Loading description...</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="d-flex flex-column align-items-md-end">
+                            <span id="couponType" class="badge bg-primary mb-2">Loading...</span>
+                            <span id="couponValue" class="badge bg-success">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mb-4">
+            <button id="generateCodesBtn" class="btn btn-success">
+                <i class="fa fa-plus"></i> Generate 100 New Codes
+            </button>
+        </div>
+
+        <!-- Dynamic Codes Tables -->
+        <div class="mt-4">
+          <div class="row">
+            <!-- Active Codes Table -->
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0"><i class="fa fa-check-circle"></i> Active Codes</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0" id="activeCodesTable">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Code</th>
+                          <th>Created Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="2" class="text-center text-muted py-3">No active codes available</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Redeemed Codes Table -->
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header text-dark" style="background-color: #d7d7d7;">
+                  <h6 class="mb-0">Redeemed Codes</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0" id="redeemedCodesTable">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Code</th>
+                          <th>Created Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td colspan="2" class="text-center text-muted py-3">No redeemed codes</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Get coupon ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const couponId = urlParams.get('id');
+        
+        console.log('🔍 URL Parameters:', window.location.search);
+        console.log('🔍 Coupon ID from URL:', couponId);
+        console.log('🔍 Full URL:', window.location.href);
+        
+        // API base URL
+        const API_BASE_URL = 'http://localhost:3001';
+        
+        // Load coupon data and codes
+        async function loadCouponData() {
+            if (!couponId) {
+                showError('No coupon ID provided');
+                return;
+            }
+            
+            try {
+                // Fetch coupon details
+                const response = await fetch(`${API_BASE_URL}/api/coupons/${couponId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch coupon data');
+                }
+                
+                const coupon = await response.json();
+                
+                // Update coupon info header
+                document.getElementById('couponName').textContent = `Coupon: ${coupon.code}`;
+                document.getElementById('couponDescription').textContent = coupon.description || 'No description available';
+                
+                // Set coupon type badge
+                const typeBadge = document.getElementById('couponType');
+                typeBadge.textContent = coupon.type === 'percentage' ? 'Percentage Discount' : 'Free Days';
+                typeBadge.className = `badge ${coupon.type === 'percentage' ? 'bg-primary' : 'bg-info'} mb-2`;
+                
+                // Set coupon value badge
+                const valueBadge = document.getElementById('couponValue');
+                if (coupon.type === 'percentage') {
+                    valueBadge.textContent = `${coupon.discount_percentage}% OFF`;
+                    valueBadge.className = 'badge bg-success';
+                } else {
+                    valueBadge.textContent = `${coupon.free_days} Free Days`;
+                    valueBadge.className = 'badge bg-warning text-dark';
+                }
+                
+                // Parse codes arrays
+                let availableCodes = [];
+                let usedCodes = [];
+                
+                try {
+                    availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+                    usedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+                } catch (parseError) {
+                    console.error('Error parsing JSON arrays:', parseError);
+                }
+                
+                // Populate active codes table (available_codes)
+                const activeTable = document.getElementById('activeCodesTable').getElementsByTagName('tbody')[0];
+                if (availableCodes.length === 0) {
+                    activeTable.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">No active codes available</td></tr>';
+                } else {
+                    activeTable.innerHTML = availableCodes.map(code => {
+                        const today = new Date();
+                        const dateStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                        return `<tr><td><code>${code}</code></td><td>${dateStr}</td></tr>`;
+                    }).join('');
+                }
+                
+                // Populate redeemed codes table (showed_codes)
+                const redeemedTable = document.getElementById('redeemedCodesTable').getElementsByTagName('tbody')[0];
+                if (usedCodes.length === 0) {
+                    redeemedTable.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">No redeemed codes</td></tr>';
+                } else {
+                    redeemedTable.innerHTML = usedCodes.map(code => {
+                        const today = new Date();
+                        const dateStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                        return `<tr><td><code>${code}</code></td><td>${dateStr}</td></tr>`;
+                    }).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading coupon data:', error);
+                showError('Failed to load coupon data');
+            }
+        }
+        
+        function showError(message) {
+            document.body.innerHTML = `
+                <div class="container mt-5">
+                    <div class="alert alert-danger">
+                        <h4><i class="fa fa-exclamation-triangle"></i> Error</h4>
+                        <p>${message}</p>
+                        <a href="account-dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+                    </div>
+                </div>
+            `;
+        }
+        
+
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadCouponData);
+
+        // Generate 100 new codes function
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 10; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Add event listener for generate codes button
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateCodesBtn');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', async function() {
+                    const couponId = new URLSearchParams(window.location.search).get('id');
+                    if (!couponId) {
+                        alert('No coupon ID found');
+                        return;
+                    }
+
+                    // Disable button and show loading state
+                    generateBtn.disabled = true;
+                    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+
+                    try {
+                        // Generate 100 unique codes
+                        const newCodes = [];
+                        const existingCodes = new Set(); // To avoid duplicates
+
+                        // First, get existing codes to avoid duplicates
+                        const response = await fetch(`${API_BASE_URL}/api/coupons/${couponId}`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch coupon data');
+                        }
+                        const coupon = await response.json();
+                        const currentActiveCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+                        currentActiveCodes.forEach(code => existingCodes.add(code));
+
+                        // Generate 100 new unique codes
+                        while (newCodes.length < 100) {
+                            const code = generateRandomCode();
+                            if (!existingCodes.has(code)) {
+                                newCodes.push(code);
+                                existingCodes.add(code);
+                            }
+                        }
+
+                        // Combine existing codes with new codes
+                        const allActiveCodes = [...currentActiveCodes, ...newCodes];
+
+                        // Update the database
+                        const updateResponse = await fetch(`${API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                available_codes: allActiveCodes
+                            })
+                        });
+
+                        if (!updateResponse.ok) {
+                            throw new Error('Failed to update coupon codes');
+                        }
+
+                        // Reload the page to show updated codes
+                        window.location.reload();
+
+                    } catch (error) {
+                        console.error('Error generating codes:', error);
+                        alert('Error generating codes: ' + error.message);
+                    } finally {
+                        // Re-enable button
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<i class="fa fa-plus"></i> Generate 100 New Codes';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
