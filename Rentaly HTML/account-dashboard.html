@@ -2683,21 +2683,32 @@
     // Check if form has unsaved changes
     function hasUnsavedChanges(formId) {
       const form = document.getElementById(formId);
-      if (!form) return false;
+      if (!form) {
+        return false;
+      }
       
       // Check if any input has been modified
       const inputs = form.querySelectorAll('input, select, textarea');
+      
       for (let input of inputs) {
         if (input.type === 'file') continue; // Skip file inputs
         
-        // Check if the value has changed from the original
-        if (input.dataset.originalValue !== undefined) {
-          if (input.value !== input.dataset.originalValue) {
+        // For add car form, any non-empty value indicates unsaved changes
+        if (formId === 'carForm') {
+          // Check for both text inputs and select dropdowns
+          if (input.value && input.value !== '' && input.value !== 'Select Make' && input.value !== 'Select Model' && input.value !== 'Select Production Year' && input.value !== 'Select Gear Type' && input.value !== 'Select Fuel Type' && input.value !== 'Select Car Type' && input.value !== 'Select Number of Doors' && input.value !== 'Select Number of Passengers') {
             return true;
           }
-        } else if (input.value !== '') {
-          // If no original value is set, check if current value is not empty
-          return true;
+        } else {
+          // For edit car form, check if the value has changed from the original
+          if (input.dataset.originalValue !== undefined) {
+            if (input.value !== input.dataset.originalValue) {
+              return true;
+            }
+          } else if (input.value !== '') {
+            // If no original value is set, check if current value is not empty
+            return true;
+          }
         }
       }
       
@@ -2705,8 +2716,19 @@
       if (formId === 'addCarForm') {
         const headImagePreview = document.getElementById('addHeadImagePreview');
         const galleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+        
+        // Check if new images were uploaded
+        const headImageInput = document.getElementById('addHeadImageInput');
+        const galleryImagesInput = document.getElementById('addGalleryImagesInput');
+        
+        if (headImageInput && headImageInput.files.length > 0) return true;
+        if (galleryImagesInput && galleryImagesInput.files.length > 0) return true;
+        
+        // Check if images were added to preview
         if (headImagePreview && headImagePreview.innerHTML !== '') return true;
         if (galleryImagesPreview && galleryImagesPreview.innerHTML !== '') return true;
+        
+
       } else if (formId === 'editCarForm') {
         // For edit car form, only check if new images were added (not existing ones)
         const headImageInput = document.getElementById('editHeadImageInput');
@@ -2755,6 +2777,19 @@
           form.dataset.originalGalleryImages = 'true';
         }
       }
+      
+      // Store original image state for add car form
+      if (formId === 'carForm') {
+        const headImagePreview = document.getElementById('addHeadImagePreview');
+        const galleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+        
+        if (headImagePreview && headImagePreview.innerHTML !== '') {
+          form.dataset.originalHeadImage = 'true';
+        }
+        if (galleryImagesPreview && galleryImagesPreview.innerHTML !== '') {
+          form.dataset.originalGalleryImages = 'true';
+        }
+      }
     }
     
     // Make function globally accessible
@@ -2763,9 +2798,26 @@
     // Close functions
     function closeAddCarPanelFunction() {
       const addCarPanel = document.getElementById('addCarPanel');
+      const addCarForm = document.getElementById('carForm');
       const adminOverlay = document.getElementById('adminOverlay');
-      addCarPanel.classList.remove('active');
-      adminOverlay.classList.remove('active');
+      
+      // Reset form and clear image previews
+      if (addCarForm) {
+        addCarForm.reset();
+      }
+      
+      const headImagePreview = document.getElementById('addHeadImagePreview');
+      const galleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+      const headImageInput = document.getElementById('addHeadImageInput');
+      const galleryImagesInput = document.getElementById('addGalleryImagesInput');
+      
+      if (headImagePreview) headImagePreview.innerHTML = '';
+      if (galleryImagesPreview) galleryImagesPreview.innerHTML = '';
+      if (headImageInput) headImageInput.value = '';
+      if (galleryImagesInput) galleryImagesInput.value = '';
+      
+      if (addCarPanel) addCarPanel.classList.remove('active');
+      if (adminOverlay) adminOverlay.classList.remove('active');
       document.body.classList.remove('admin-popup-open');
     }
 
@@ -2789,33 +2841,68 @@
     function closeAllPanels() {
       const addCarPanel = document.getElementById('addCarPanel');
       const editCarPanel = document.getElementById('editCarPanel');
+      const addCarForm = document.getElementById('carForm');
       const adminOverlay = document.getElementById('adminOverlay');
       
-      addCarPanel.classList.remove('active');
-      editCarPanel.classList.remove('active');
-      adminOverlay.classList.remove('active');
+      // Reset add car form if it's active
+      if (addCarPanel && addCarPanel.classList.contains('active') && addCarForm) {
+        addCarForm.reset();
+        
+        const headImagePreview = document.getElementById('addHeadImagePreview');
+        const galleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+        const headImageInput = document.getElementById('addHeadImageInput');
+        const galleryImagesInput = document.getElementById('addGalleryImagesInput');
+        
+        if (headImagePreview) headImagePreview.innerHTML = '';
+        if (galleryImagesPreview) galleryImagesPreview.innerHTML = '';
+        if (headImageInput) headImageInput.value = '';
+        if (galleryImagesInput) galleryImagesInput.value = '';
+      }
+      
+      if (addCarPanel) addCarPanel.classList.remove('active');
+      if (editCarPanel) editCarPanel.classList.remove('active');
+      if (adminOverlay) adminOverlay.classList.remove('active');
       document.body.classList.remove('admin-popup-open');
     }
 
     // Add Car Button
+    console.log('🔍 Initializing add car form handlers...');
     const showAddCarBtn = document.getElementById('showAddCarBtn');
     const addCarPanel = document.getElementById('addCarPanel');
     const closeAddCarPanel = document.getElementById('closeAddCarPanel');
     const adminOverlay = document.getElementById('adminOverlay');
+    
+
       
       if (showAddCarBtn) {
         showAddCarBtn.addEventListener('click', () => {
+          // Reset the form first to ensure it starts empty
+          const addCarForm = document.getElementById('carForm');
+          if (addCarForm) {
+            addCarForm.reset();
+            // Clear any image previews
+            document.getElementById('addHeadImagePreview').innerHTML = '';
+            document.getElementById('addGalleryImagesPreview').innerHTML = '';
+            document.getElementById('addHeadImageInput').value = '';
+            document.getElementById('addGalleryImagesInput').value = '';
+          }
+          
           addCarPanel.classList.add('active');
           adminOverlay.classList.add('active');
           document.body.classList.add('admin-popup-open');
-          // Store original values after a short delay to ensure form is rendered
-          setTimeout(() => storeOriginalValues('addCarForm'), 100);
+          
+          // Store original values after a short delay to ensure form is rendered and reset
+          setTimeout(() => {
+            storeOriginalValues('carForm');
+          }, 100);
         });
       }
       
       if (closeAddCarPanel) {
         closeAddCarPanel.addEventListener('click', () => {
-          if (window.bypassUnsavedChangesCheck || !hasUnsavedChanges('addCarForm')) {
+          const hasChanges = hasUnsavedChanges('carForm');
+          
+          if (window.bypassUnsavedChangesCheck || !hasChanges) {
             closeAddCarPanelFunction();
           } else {
             showUnsavedChangesConfirmation('addCarPanel');
@@ -2826,7 +2913,7 @@
       // Close modal when clicking overlay
       if (adminOverlay) {
         adminOverlay.addEventListener('click', () => {
-          if (addCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('addCarForm')) {
+          if (addCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('carForm')) {
             showUnsavedChangesConfirmation('addCarPanel');
           } else if (editCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('editCarForm')) {
             showUnsavedChangesConfirmation('editCarPanel');
@@ -2920,10 +3007,7 @@
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
           
-          console.log('🔍 EDIT CAR - Image upload detected:');
-          console.log('  Head image file:', headImageFile);
-          console.log('  Gallery image files:', galleryImageFiles);
-          console.log('  Original carData:', carData);
+
           
           if (headImageFile || galleryImageFiles.length > 0) {
             // Create a new FormData and manually add all form fields to avoid duplicates
@@ -2937,10 +3021,7 @@
               }
             }
             
-            console.log('🔍 EDIT CAR - Original FormData entries:');
-            for (let [key, value] of imageFormData.entries()) {
-              console.log(`  ${key}:`, value);
-            }
+
             
             // Add price_policy as JSON string
             imageFormData.delete('price_1_2');
@@ -2950,40 +3031,28 @@
             imageFormData.delete('price_46');
             imageFormData.append('price_policy', JSON.stringify(pricePolicy));
             
-            console.log('🔍 EDIT CAR - Price policy being sent:', pricePolicy);
+
             
             // Add images
             if (headImageFile) {
               imageFormData.append('head_image', headImageFile);
-              console.log('🔍 EDIT CAR - Added head image:', headImageFile.name, 'Size:', headImageFile.size);
             }
             // Only add gallery images that have actual content
             galleryImageFiles.forEach(file => {
               if (file && file.size > 0 && file.name) {
                 imageFormData.append('gallery_images', file);
-                console.log('🔍 EDIT CAR - Added gallery image:', file.name, 'Size:', file.size);
               }
             });
             
-            console.log('🔍 EDIT CAR - Final FormData entries:');
-            for (let [key, value] of imageFormData.entries()) {
-              if (value instanceof File) {
-                console.log(`  ${key}: [File] ${value.name} (${value.size} bytes)`);
-              } else {
-                console.log(`  ${key}:`, value);
-              }
-            }
+
             
             try {
-              console.log('🔍 EDIT CAR - Sending PUT request with FormData to:', `${window.API_BASE_URL}/api/cars/${carId}`);
               const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
                 method: 'PUT',
                 body: imageFormData
               });
               
-              console.log('🔍 EDIT CAR - Response status:', response.status, response.statusText);
               if (response.ok) {
-                console.log('🔍 EDIT CAR - Success! Car updated successfully');
                 showCustomAlert('Car updated successfully!', 'success');
                 
                 // Clear only the file inputs, but keep image previews
@@ -2999,9 +3068,7 @@
                 document.body.classList.remove('admin-popup-open');
                 loadCars();
               } else {
-                console.log('🔍 EDIT CAR - Error response received');
                 const error = await response.json();
-                console.log('🔍 EDIT CAR - Error details:', error);
                 let errorMessage = 'Error updating car: ' + error.error;
                 if (error.missingFields && error.missingFields.length > 0) {
                   errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
@@ -3355,7 +3422,6 @@
         }
         
         const imagePath = imgElement.src.replace(window.API_BASE_URL, '');
-        console.log('🔍 EDIT CAR - Deleting gallery image:', imagePath, 'at index:', index);
         
         try {
           const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=gallery`, {
@@ -3363,7 +3429,6 @@
           });
           
           if (response.ok) {
-            console.log('🔍 EDIT CAR - Gallery image deleted successfully');
             images[index].remove();
           } else {
             const error = await response.json();
@@ -3673,17 +3738,10 @@
         couponForm.dataset.initialized = 'true';
         let isSubmitting = false; // Prevent duplicate submissions
         couponForm.addEventListener('submit', async (e) => {
-          console.log('🔍 Form submit event triggered');
-          console.log('🔍 Event type:', e.type);
-          console.log('🔍 Event target:', e.target);
-          console.log('🔍 Event currentTarget:', e.currentTarget);
-          console.log('🔍 Is submitting before check:', isSubmitting);
-          console.log('🔍 Submitter:', e.submitter);
           
           e.preventDefault();
           
           if (isSubmitting) {
-            console.log('🔄 Form submission already in progress, ignoring duplicate submit');
             return;
           }
           
@@ -3692,52 +3750,33 @@
           const formData = new FormData(couponForm);
           const couponData = Object.fromEntries(formData.entries());
           
-          console.log('🔍 Original form data:', couponData);
-          
           // Client-side validation based on coupon type
           const couponType = couponData.type;
           const discountPercentage = couponData.discount_percentage;
           const freeDays = couponData.free_days;
           
-          console.log('🔍 Coupon type:', couponType);
-          console.log('🔍 Discount percentage:', discountPercentage);
-          console.log('🔍 Free days:', freeDays);
-          
           if (couponType === 'percentage') {
-            console.log('🔍 Processing percentage type coupon');
             if (!discountPercentage || discountPercentage <= 0 || discountPercentage > 100) {
-              console.log('❌ Invalid discount percentage:', discountPercentage);
               showCustomAlert('Please enter a valid discount percentage between 1 and 100', 'error');
               return;
             }
             // Remove free_days field for percentage type
             delete couponData.free_days;
-            console.log('🔍 Removed free_days field for percentage type');
           } else if (couponType === 'free_days') {
-            console.log('🔍 Processing free_days type coupon');
             if (!freeDays || freeDays <= 0) {
-              console.log('❌ Invalid free days:', freeDays);
               showCustomAlert('Please enter a valid number of free days', 'error');
               return;
             }
             // Remove discount_percentage field for free_days type
             delete couponData.discount_percentage;
-            console.log('🔍 Removed discount_percentage field for free_days type');
           }
           
-          console.log('🔍 Final coupon data before sending:', couponData);
-          
           try {
-
-            console.log('📡 Request body:', JSON.stringify(couponData, null, 2));
-            
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(couponData)
             });
-            
-            console.log('📡 Response status:', response.status, response.statusText);
             
             if (response.ok) {
               showCustomAlert('Coupon added successfully!', 'success');
@@ -3747,9 +3786,7 @@
               document.body.classList.remove('admin-popup-open');
               loadCoupons();
             } else {
-              console.log('❌ Error response received');
               const error = await response.json();
-              console.log('❌ Error details:', error);
               showCustomAlert('Error adding coupon: ' + error.error, 'error');
             }
           } catch (error) {
@@ -3850,17 +3887,6 @@
           }
           
           try {
-            console.log('🔍 Edit coupon - Coupon ID:', couponId);
-            console.log('🔍 Edit coupon - Data being sent:', couponData);
-
-            
-            // Test if server is reachable
-            try {
-              const testResponse = await fetch(`${window.API_BASE_URL}/api/coupons`);
-              console.log('🔍 Server reachability test - Status:', testResponse.status);
-            } catch (testError) {
-              console.error('❌ Server not reachable:', testError);
-            }
             
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
               method: 'PUT',
@@ -3868,9 +3894,7 @@
               body: JSON.stringify(couponData)
             });
             
-            console.log('🔍 Edit coupon - Response status:', response.status);
             if (response.ok) {
-              console.log('🔍 Edit coupon - Success response');
               showCustomAlert('Coupon updated successfully!', 'success');
               editCouponForm.reset();
               const editCouponPanel = document.getElementById('editCouponPanel');
@@ -3882,15 +3906,11 @@
               }
               loadCoupons();
             } else {
-              console.log('🔍 Edit coupon - Error response');
               const error = await response.json();
-              console.log('🔍 Edit coupon - Error details:', error);
               showCustomAlert('Error updating coupon: ' + error.error, 'error');
             }
           } catch (error) {
-            console.error('❌ Error updating coupon:', error);
-            console.error('❌ Error type:', error.name);
-            console.error('❌ Error message:', error.message);
+            console.error('Error updating coupon:', error);
             showCustomAlert('Error updating coupon: ' + error.message, 'error');
           }
         });
@@ -3989,13 +4009,11 @@
             </div>
           `;
         } else {
-          console.log('🔍 EDIT CAR - No head image to display');
           if (editHeadImagePreview) editHeadImagePreview.innerHTML = '';
         }
         
         const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
         if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
-          console.log('🔍 EDIT CAR - Displaying gallery images:', car.gallery_images.length, 'images');
           editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
             <div style="position: relative; display: inline-block; margin: 5px;">
               <img src="${window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
@@ -4003,7 +4021,6 @@
             </div>
           `).join('');
         } else {
-          console.log('🔍 EDIT CAR - No gallery images to display');
           if (editGalleryImagesPreview) editGalleryImagesPreview.innerHTML = '';
         }
         
@@ -4048,11 +4065,9 @@
     }
 
     async function editCoupon(couponId) {
-      console.log('🔍 Loading coupon data for ID:', couponId);
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
         const coupon = await response.json();
-        console.log('🔍 Loaded coupon data:', coupon);
         
         if (!response.ok) {
           showCustomAlert('Error loading coupon data: ' + coupon.error, 'error');
@@ -4072,14 +4087,12 @@
         const expiresAtInput = editForm.querySelector('input[name="expires_at"]');
         const isActiveSelect = editForm.querySelector('select[name="is_active"]');
         
-        console.log('🔍 Populating form fields...');
         if (codeInput) codeInput.value = coupon.code || '';
         if (typeSelect) typeSelect.value = coupon.type || 'percentage';
         if (discountPercentageInput) discountPercentageInput.value = coupon.discount_percentage || '';
         if (freeDaysInput) freeDaysInput.value = coupon.free_days || '';
         if (descriptionInput) descriptionInput.value = coupon.description || '';
         if (isActiveSelect) isActiveSelect.value = coupon.is_active ? '1' : '0';
-        console.log('🔍 Form fields populated');
         
         // Handle expiry date
         if (expiresAtInput && coupon.expires_at) {
