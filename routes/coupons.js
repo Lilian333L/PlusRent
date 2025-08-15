@@ -112,6 +112,95 @@ router.patch('/:id/toggle-wheel', (req, res) => {
   });
 });
 
+// Update dynamic coupon fields (available_codes and showed_codes)
+router.patch('/:id/dynamic-fields', (req, res) => {
+  const couponId = req.params.id;
+  const { available_codes, showed_codes } = req.body;
+  
+  console.log('🔧 Updating dynamic fields for coupon:', couponId);
+  console.log('📊 New values - available_codes:', available_codes, 'showed_codes:', showed_codes);
+  
+  if (available_codes === undefined && showed_codes === undefined) {
+    return res.status(400).json({ error: 'At least one field (available_codes or showed_codes) must be provided' });
+  }
+  
+  // Validate available_codes if provided
+  if (available_codes !== undefined) {
+    if (!Array.isArray(available_codes)) {
+      return res.status(400).json({ error: 'available_codes must be an array' });
+    }
+    // Validate each code in the array
+    for (let i = 0; i < available_codes.length; i++) {
+      if (typeof available_codes[i] !== 'string' || available_codes[i].trim() === '') {
+        return res.status(400).json({ error: `available_codes[${i}] must be a non-empty string` });
+      }
+    }
+  }
+  
+  // Validate showed_codes if provided
+  if (showed_codes !== undefined) {
+    if (!Array.isArray(showed_codes)) {
+      return res.status(400).json({ error: 'showed_codes must be an array' });
+    }
+    // Validate each code in the array
+    for (let i = 0; i < showed_codes.length; i++) {
+      if (typeof showed_codes[i] !== 'string' || showed_codes[i].trim() === '') {
+        return res.status(400).json({ error: `showed_codes[${i}] must be a non-empty string` });
+      }
+    }
+  }
+  
+  // Check if coupon exists
+  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!coupon) {
+      console.log('Coupon not found for ID:', couponId);
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    
+    // Build dynamic update query
+    let updateQuery = 'UPDATE coupon_codes SET ';
+    let updateValues = [];
+    
+    if (available_codes !== undefined) {
+      updateQuery += 'available_codes = ?';
+      updateValues.push(JSON.stringify(available_codes));
+    }
+    
+    if (showed_codes !== undefined) {
+      if (available_codes !== undefined) {
+        updateQuery += ', ';
+      }
+      updateQuery += 'showed_codes = ?';
+      updateValues.push(JSON.stringify(showed_codes));
+    }
+    
+    updateQuery += ' WHERE id = ?';
+    updateValues.push(couponId);
+    
+    console.log('🔧 Executing query:', updateQuery);
+    console.log('🔧 With values:', updateValues);
+    
+    // Update the dynamic fields
+    db.run(updateQuery, updateValues, function(err) {
+      if (err) {
+        console.error('Update error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      console.log('✅ Dynamic fields updated successfully');
+      res.json({ 
+        success: true, 
+        available_codes: available_codes !== undefined ? available_codes : undefined,
+        showed_codes: showed_codes !== undefined ? showed_codes : undefined
+      });
+    });
+  });
+});
+
 // Update coupon percentage for a specific wheel
 router.patch('/:id/wheel-percentage', (req, res) => {
   const couponId = req.params.id;
@@ -244,8 +333,8 @@ router.post('/', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled) VALUES (?, ?, ?, ?, ?, ?, 0)',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null],
+    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
     async function (err) {
       if (err) {
         console.error('Database error details:', err);

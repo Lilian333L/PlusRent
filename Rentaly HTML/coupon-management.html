@@ -101,11 +101,15 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            background: none;
+            background: rgba(255, 0, 0, 0.3);
             border: none;
             font-size: 24px;
             cursor: pointer;
             color: #666;
+            z-index: 1000;
+            pointer-events: auto;
+            padding: 5px;
+            border-radius: 3px;
         }
         
         .close-btn:hover {
@@ -264,7 +268,7 @@
                 
                 <!-- Edit Coupon Form Panel (popup) -->
                 <div id="editCouponPanel" class="admin-form-panel">
-                    <button class="close-btn" id="closeEditCouponPanel">&times;</button>
+                    <button class="close-btn" id="closeEditCouponPanel" onclick="handleCloseEditCoupon()">&times;</button>
                     <button id="deleteCouponBtn" type="button" style="position:absolute;top:16px;right:48px;background:none;border:1.5px solid #e74c3c;color:#e74c3c;padding:6px 14px;border-radius:6px;font-size:1rem;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;">
                         <i class="fa fa-trash"></i> Delete Coupon
                     </button>
@@ -326,6 +330,237 @@
         // API Configuration
         window.API_BASE_URL = 'http://localhost:3001';
         
+        // Function to close edit coupon panel
+        function closeEditCouponPanelFunction() {
+            console.log('🔧 closeEditCouponPanelFunction called');
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const editCouponForm = document.getElementById('editCouponForm');
+            const couponOverlay = document.getElementById('couponOverlay');
+            
+            console.log('Elements in close function:', {
+                editCouponPanel: !!editCouponPanel,
+                editCouponForm: !!editCouponForm,
+                couponOverlay: !!couponOverlay
+            });
+            
+            // Reset form
+            if (editCouponForm) {
+                editCouponForm.reset();
+                delete editCouponForm.dataset.couponId;
+            }
+            
+            if (editCouponPanel) editCouponPanel.classList.remove('active');
+            if (couponOverlay) couponOverlay.classList.remove('active');
+            
+            console.log('✅ Edit coupon panel closed');
+        }
+        
+        // Function to close all coupon panels
+        function closeAllCouponPanels() {
+            const addCouponPanel = document.getElementById('addCouponPanel');
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const couponOverlay = document.getElementById('couponOverlay');
+            const couponForm = document.getElementById('couponForm');
+            const editCouponForm = document.getElementById('editCouponForm');
+            
+            // Reset forms
+            if (couponForm) couponForm.reset();
+            if (editCouponForm) {
+                editCouponForm.reset();
+                delete editCouponForm.dataset.couponId;
+            }
+            
+            if (addCouponPanel) addCouponPanel.classList.remove('active');
+            if (editCouponPanel) editCouponPanel.classList.remove('active');
+            if (couponOverlay) couponOverlay.classList.remove('active');
+        }
+        
+        // Function to check if form has unsaved changes
+        function hasUnsavedChanges(formId) {
+            const form = document.getElementById(formId);
+            if (!form) {
+                return false;
+            }
+            
+            // Check if any input has been modified
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            for (let input of inputs) {
+                if (input.type === 'file') continue; // Skip file inputs
+                
+                // For add coupon form, any non-empty value indicates unsaved changes
+                if (formId === 'couponForm') {
+                    if (input.value && input.value !== '' && input.value !== 'percentage' && input.value !== 'free_days' && input.value !== '1' && input.value !== '0') {
+                        return true;
+                    }
+                } else {
+                    // For edit coupon form, check if the value has changed from the original
+                    if (input.dataset.originalValue !== undefined) {
+                        if (input.value !== input.dataset.originalValue) {
+                            return true;
+                        }
+                    } else if (input.value !== '' && input.value !== 'percentage' && input.value !== 'free_days' && input.value !== '1' && input.value !== '0') {
+                        // If no original value is set, check if current value is not empty or default
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Function to store original values for edit form
+        function storeOriginalValues(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.dataset.originalValue = input.value;
+            });
+        }
+        
+        // Function to show unsaved changes confirmation
+        function showUnsavedChangesConfirmation(panelType) {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('unsavedChangesModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'unsavedChangesModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 8px;
+                        max-width: 400px;
+                        width: 90%;
+                        text-align: center;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    ">
+                        <h4 style="margin-bottom: 20px; color: #333;">Unsaved Changes</h4>
+                        <p style="margin-bottom: 25px; color: #666;">You have unsaved changes. Are you sure you want to close without saving?</p>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="cancelBtn" style="
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                background: #6c757d;
+                                color: white;
+                            ">Cancel</button>
+                            <button id="confirmBtn" style="
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                background: #dc3545;
+                                color: white;
+                            ">Close Without Saving</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Add event listeners
+                const cancelBtn = modal.querySelector('#cancelBtn');
+                const confirmBtn = modal.querySelector('#confirmBtn');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal.remove();
+                    });
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal.remove();
+                        
+                        if (panelType === 'addCouponPanel') {
+                            closeAllCouponPanels();
+                        } else if (panelType === 'editCouponPanel') {
+                            closeEditCouponPanelFunction();
+                        }
+                    });
+                }
+            } else {
+                modal.style.display = 'flex';
+            }
+        }
+        
+        // Inline handler function for close button
+        window.handleCloseEditCoupon = function() {
+            console.log('🎯 Inline close button handler called!');
+            
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const editCouponForm = document.getElementById('editCouponForm');
+            const couponOverlay = document.getElementById('couponOverlay');
+            
+            console.log('Elements found:', {
+                editCouponPanel: !!editCouponPanel,
+                editCouponForm: !!editCouponForm,
+                couponOverlay: !!couponOverlay
+            });
+            
+            // Reset form
+            if (editCouponForm) {
+                editCouponForm.reset();
+                delete editCouponForm.dataset.couponId;
+            }
+            
+            // Close panel
+            if (editCouponPanel) editCouponPanel.classList.remove('active');
+            if (couponOverlay) couponOverlay.classList.remove('active');
+            
+            console.log('✅ Edit coupon panel closed via inline handler');
+        };
+        
+        // Test function - can be called from browser console
+        window.testCloseButton = function() {
+            console.log('🧪 Testing close button manually...');
+            const closeBtn = document.getElementById('closeEditCouponPanel');
+            if (closeBtn) {
+                console.log('✅ Found close button, clicking it...');
+                closeBtn.click();
+            } else {
+                console.log('❌ Close button not found!');
+            }
+        };
+        
+        // Immediate test - run as soon as script loads
+        console.log('🚀 Script loaded! Testing if elements exist...');
+        setTimeout(() => {
+            const closeBtn = document.getElementById('closeEditCouponPanel');
+            console.log('🔍 Close button exists:', !!closeBtn);
+            if (closeBtn) {
+                console.log('🔍 Close button properties:', {
+                    id: closeBtn.id,
+                    className: closeBtn.className,
+                    onclick: !!closeBtn.onclick,
+                    addEventListener: typeof closeBtn.addEventListener
+                });
+            }
+        }, 100);
+        
         // Authentication check
         function checkAuth() {
             const token = localStorage.getItem('adminToken');
@@ -353,11 +588,28 @@
             });
         }
         
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('❌ JavaScript Error:', e.error);
+            console.error('❌ Error details:', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno
+            });
+        });
+        
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-            loadCoupons();
-            initializeCouponForms();
+            console.log('🚀 DOM Content Loaded - Starting initialization...');
+            try {
+                checkAuth();
+                loadCoupons();
+                initializeCouponForms();
+                console.log('✅ All initialization completed successfully');
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
+            }
         });
         
         // Coupon Management Functions
@@ -384,7 +636,12 @@
                     return;
                 }
                 
-                couponCards.innerHTML = coupons.map(coupon => `
+                couponCards.innerHTML = coupons.map(coupon => {
+                    // Check if coupon has active codes
+                    const availableCodes = JSON.parse(coupon.available_codes || '[]');
+                    const hasActiveCodes = availableCodes.length > 0;
+                    
+                    return `
                     <div class="col-md-6 col-lg-4">
                         <div class="coupon-card">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -399,6 +656,13 @@
                                 <strong>Description:</strong> ${coupon.description || 'No description'}<br>
                                 ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
                             </p>
+                            ${!hasActiveCodes ? `
+                            <div class="mb-3">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fa fa-exclamation-triangle"></i> No active codes
+                                </span>
+                            </div>
+                            ` : ''}
                             <div class="d-flex gap-2">
                                 <button class="btn btn-primary btn-sm" onclick="editCoupon(${coupon.id})">
                                     <i class="fa fa-edit"></i> Edit
@@ -409,7 +673,8 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
                 
             } catch (error) {
                 console.error('Error loading coupons:', error);
@@ -418,11 +683,20 @@
         }
         
         function initializeCouponForms() {
+            console.log('🔧 Initializing coupon forms...');
+            
             // Add Coupon Button
             const showAddCouponBtn = document.getElementById('showAddCouponBtn');
             const addCouponPanel = document.getElementById('addCouponPanel');
             const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
             const couponOverlay = document.getElementById('couponOverlay');
+            
+            console.log('Elements found:', {
+                showAddCouponBtn: !!showAddCouponBtn,
+                addCouponPanel: !!addCouponPanel,
+                closeAddCouponPanel: !!closeAddCouponPanel,
+                couponOverlay: !!couponOverlay
+            });
             
             if (showAddCouponBtn) {
                 showAddCouponBtn.addEventListener('click', () => {
@@ -433,15 +707,25 @@
             
             if (closeAddCouponPanel) {
                 closeAddCouponPanel.addEventListener('click', () => {
-                    addCouponPanel.classList.remove('active');
-                    couponOverlay.classList.remove('active');
+                    const hasChanges = hasUnsavedChanges('couponForm');
+                    
+                    if (!hasChanges) {
+                        closeAllCouponPanels();
+                    } else {
+                        showUnsavedChangesConfirmation('addCouponPanel');
+                    }
                 });
             }
             
             if (couponOverlay) {
                 couponOverlay.addEventListener('click', () => {
-                    addCouponPanel.classList.remove('active');
-                    couponOverlay.classList.remove('active');
+                    if (addCouponPanel.classList.contains('active') && hasUnsavedChanges('couponForm')) {
+                        showUnsavedChangesConfirmation('addCouponPanel');
+                    } else if (editCouponPanel.classList.contains('active') && hasUnsavedChanges('editCouponForm')) {
+                        showUnsavedChangesConfirmation('editCouponPanel');
+                    } else {
+                        closeAllCouponPanels();
+                    }
                 });
             }
             
@@ -449,10 +733,59 @@
             const editCouponPanel = document.getElementById('editCouponPanel');
             const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
             
+            console.log('Edit panel elements:', {
+                editCouponPanel: !!editCouponPanel,
+                closeEditCouponPanel: !!closeEditCouponPanel
+            });
+            
             if (closeEditCouponPanel) {
-                closeEditCouponPanel.addEventListener('click', () => {
-                    editCouponPanel.classList.remove('active');
-                    couponOverlay.classList.remove('active');
+                console.log('✅ Adding event listener to closeEditCouponPanel');
+                
+                // Test if the button is clickable
+                console.log('🔍 Button properties:', {
+                    offsetWidth: closeEditCouponPanel.offsetWidth,
+                    offsetHeight: closeEditCouponPanel.offsetHeight,
+                    style: {
+                        display: closeEditCouponPanel.style.display,
+                        visibility: closeEditCouponPanel.style.visibility,
+                        pointerEvents: closeEditCouponPanel.style.pointerEvents
+                    }
+                });
+                
+                closeEditCouponPanel.addEventListener('click', (e) => {
+                    console.log('🎯 Close button clicked! Event:', e);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const hasChanges = hasUnsavedChanges('editCouponForm');
+                    console.log('Has unsaved changes:', hasChanges);
+                    
+                    if (!hasChanges) {
+                        console.log('Closing without confirmation');
+                        closeEditCouponPanelFunction();
+                    } else {
+                        console.log('Showing confirmation modal');
+                        showUnsavedChangesConfirmation('editCouponPanel');
+                    }
+                });
+                
+                // Also add a mousedown event to test
+                closeEditCouponPanel.addEventListener('mousedown', () => {
+                    console.log('🖱️ Mouse down on close button');
+                });
+                
+            } else {
+                console.log('❌ closeEditCouponPanel element not found!');
+            }
+            
+            // Close modal when clicking overlay
+            if (couponOverlay) {
+                couponOverlay.addEventListener('click', () => {
+                    if (editCouponPanel.classList.contains('active') && hasUnsavedChanges('editCouponForm')) {
+                        showUnsavedChangesConfirmation('editCouponPanel');
+                    } else {
+                        closeAllCouponPanels();
+                    }
                 });
             }
             
@@ -540,6 +873,11 @@
                     document.getElementById('addCouponPanel').classList.remove('active');
                     document.getElementById('couponOverlay').classList.remove('active');
                     e.target.reset();
+                    // Clear original values after successful save
+                    const inputs = e.target.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        delete input.dataset.originalValue;
+                    });
                     loadCoupons();
                 } else {
                     const error = await response.json();
@@ -590,6 +928,11 @@
                     // Store coupon ID for update
                     form.dataset.couponId = couponId;
                     
+                    // Store original values for unsaved changes detection
+                    setTimeout(() => {
+                        storeOriginalValues('editCouponForm');
+                    }, 100);
+                    
                     // Show edit panel
                     document.getElementById('editCouponPanel').classList.add('active');
                     document.getElementById('couponOverlay').classList.add('active');
@@ -638,6 +981,14 @@
                     alert('Coupon updated successfully!');
                     document.getElementById('editCouponPanel').classList.remove('active');
                     document.getElementById('couponOverlay').classList.remove('active');
+                    // Clear original values after successful save
+                    const form = document.getElementById('editCouponForm');
+                    if (form) {
+                        const inputs = form.querySelectorAll('input, select, textarea');
+                        inputs.forEach(input => {
+                            delete input.dataset.originalValue;
+                        });
+                    }
                     loadCoupons();
                 } else {
                     const error = await response.json();
@@ -710,6 +1061,174 @@
             } catch (error) {
                 console.error('Error deleting coupon:', error);
                 alert('Error deleting coupon. Please try again.');
+            }
+        }
+        
+        // Function to close edit coupon panel
+        function closeEditCouponPanelFunction() {
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const editCouponForm = document.getElementById('editCouponForm');
+            const couponOverlay = document.getElementById('couponOverlay');
+            
+            // Reset form
+            if (editCouponForm) {
+                editCouponForm.reset();
+                delete editCouponForm.dataset.couponId;
+            }
+            
+            if (editCouponPanel) editCouponPanel.classList.remove('active');
+            if (couponOverlay) couponOverlay.classList.remove('active');
+        }
+        
+        // Function to close all coupon panels
+        function closeAllCouponPanels() {
+            const addCouponPanel = document.getElementById('addCouponPanel');
+            const editCouponPanel = document.getElementById('editCouponPanel');
+            const couponOverlay = document.getElementById('couponOverlay');
+            const couponForm = document.getElementById('couponForm');
+            const editCouponForm = document.getElementById('editCouponForm');
+            
+            // Reset forms
+            if (couponForm) couponForm.reset();
+            if (editCouponForm) {
+                editCouponForm.reset();
+                delete editCouponForm.dataset.couponId;
+            }
+            
+            if (addCouponPanel) addCouponPanel.classList.remove('active');
+            if (editCouponPanel) editCouponPanel.classList.remove('active');
+            if (couponOverlay) couponOverlay.classList.remove('active');
+        }
+        
+        // Function to check if form has unsaved changes
+        function hasUnsavedChanges(formId) {
+            const form = document.getElementById(formId);
+            if (!form) {
+                return false;
+            }
+            
+            // Check if any input has been modified
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            for (let input of inputs) {
+                if (input.type === 'file') continue; // Skip file inputs
+                
+                // For add coupon form, any non-empty value indicates unsaved changes
+                if (formId === 'couponForm') {
+                    if (input.value && input.value !== '' && input.value !== 'percentage' && input.value !== 'free_days' && input.value !== '1' && input.value !== '0') {
+                        return true;
+                    }
+                } else {
+                    // For edit coupon form, check if the value has changed from the original
+                    if (input.dataset.originalValue !== undefined) {
+                        if (input.value !== input.dataset.originalValue) {
+                            return true;
+                        }
+                    } else if (input.value !== '' && input.value !== 'percentage' && input.value !== 'free_days' && input.value !== '1' && input.value !== '0') {
+                        // If no original value is set, check if current value is not empty or default
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Function to store original values for edit form
+        function storeOriginalValues(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.dataset.originalValue = input.value;
+            });
+        }
+        
+        // Function to show unsaved changes confirmation
+        function showUnsavedChangesConfirmation(panelType) {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('unsavedChangesModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'unsavedChangesModal';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 8px;
+                        max-width: 400px;
+                        width: 90%;
+                        text-align: center;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    ">
+                        <h4 style="margin-bottom: 20px; color: #333;">Unsaved Changes</h4>
+                        <p style="margin-bottom: 25px; color: #666;">You have unsaved changes. Are you sure you want to close without saving?</p>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="cancelBtn" style="
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                background: #6c757d;
+                                color: white;
+                            ">Cancel</button>
+                            <button id="confirmBtn" style="
+                                padding: 10px 20px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                background: #dc3545;
+                                color: white;
+                            ">Close Without Saving</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Add event listeners
+                const cancelBtn = modal.querySelector('#cancelBtn');
+                const confirmBtn = modal.querySelector('#confirmBtn');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal.remove();
+                    });
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        modal.remove();
+                        
+                        if (panelType === 'addCouponPanel') {
+                            closeAllCouponPanels();
+                        } else if (panelType === 'editCouponPanel') {
+                            closeEditCouponPanelFunction();
+                        }
+                    });
+                }
+            } else {
+                modal.style.display = 'flex';
             }
         }
     </script>
