@@ -1357,17 +1357,20 @@
       }
       #section-cars .unavailable-badge {
         position: absolute;
-        top: 12px;
-        left: 12px;
-        background: rgba(60,60,60,0.82);
+        top: 0px;
+        right: 0;
+        background: #ff6b5b;
         color: #fff;
-        font-size: 0.98rem;
-        font-weight: 500;
-        padding: 6px 14px;
-        border-radius: 6px;
+        font-size: 0.52rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 5px 14px 4px 14px;
+        border-radius: 7px;
         z-index: 2;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10);
         pointer-events: none;
+        border: none;
       }
       #section-cars .d-img {
         position: relative;
@@ -1393,7 +1396,20 @@
         justify-content: space-between;
       }
       #section-cars .d-text {
-        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 200px;
+      }
+      
+      #section-cars .d-text .btn-main {
+        margin-top: auto;
+        align-self: flex-start;
+      }
+      
+      #section-cars .d-text .btn-unavailable {
+        margin-top: auto;
+        align-self: flex-start;
       }
       #section-cars .d-item_like {
         margin-bottom: 0.5rem;
@@ -2208,7 +2224,7 @@
                 const d = new Date(car.booked_until);
                 const options = { day: '2-digit', month: 'short', year: 'numeric' };
                 const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-                badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\">UNAVAILABLE UNTIL ${formatted}</div>`;
+                badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\" data-i18n-date=\"${formatted}\">UNAVAILABLE UNTIL ${formatted}</div>`;
               }
               const isPremium = car.is_premium === 1 || car.is_premium === true;
               return `
