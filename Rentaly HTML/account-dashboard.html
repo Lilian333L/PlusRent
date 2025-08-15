@@ -2888,7 +2888,12 @@
           return;
         }
         
-        couponCards.innerHTML = coupons.map(coupon => `
+        couponCards.innerHTML = coupons.map(coupon => {
+          // Check if coupon has active codes
+          const availableCodes = JSON.parse(coupon.available_codes || '[]');
+          const hasActiveCodes = availableCodes.length > 0;
+          
+          return `
           <div class="col-md-6 col-lg-4">
             <div class="coupon-card">
               <div class="d-flex justify-content-between align-items-start mb-3">
@@ -2903,6 +2908,13 @@
                 <strong>Description:</strong> ${coupon.description || 'No description'}<br>
                 ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
               </p>
+              ${!hasActiveCodes ? `
+              <div class="mb-3">
+                <span class="badge bg-warning text-dark">
+                  <i class="fa fa-exclamation-triangle"></i> No active codes
+                </span>
+              </div>
+              ` : ''}
               <div class="d-flex gap-2">
                 <button class="btn btn-primary btn-sm" onclick="editCoupon(${coupon.id})">
                   <i class="fa fa-edit"></i> Edit
@@ -2913,7 +2925,8 @@
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
         
       } catch (error) {
         console.error('Error loading coupons:', error);
@@ -5695,6 +5708,10 @@
                   
 
                   
+                  // Check if coupon has active codes
+                  const availableCodes = JSON.parse(coupon.available_codes || '[]');
+                  const hasActiveCodes = availableCodes.length > 0;
+                  
                   return `
                   <div class="list-group-item coupon-item ${isEnabledForWheel ? 'enabled' : 'disabled'}" data-coupon-id="${coupon.id}">
                     <div class="d-flex justify-content-between align-items-start">
@@ -5708,6 +5725,14 @@
                       </small>
                       <br>
                       <small class="text-muted">${coupon.description || 'No description'}</small>
+                      
+                      ${!hasActiveCodes ? `
+                        <div class="mt-2">
+                          <span class="badge bg-warning text-dark">
+                            <i class="fa fa-exclamation-triangle"></i> No active codes
+                          </span>
+                        </div>
+                      ` : ''}
                         
                         ${isEnabledForWheel ? `
                         <div class="mt-3 percentage-field" style="display: block;">
@@ -5732,7 +5757,9 @@
                                 style="position: relative; z-index: 1000;"
                                 onclick="console.log('Button clicked, data-enabled:', this.getAttribute('data-enabled'), 'disabled:', this.disabled); toggleCouponForWheel(${coupon.id}, this.getAttribute('data-enabled') === 'true')"
                                 data-coupon-id="${coupon.id}"
-                                data-enabled="${isEnabledForWheel}">
+                                data-enabled="${isEnabledForWheel}"
+                                ${!hasActiveCodes && !isEnabledForWheel ? 'disabled' : ''}
+                                title="${!hasActiveCodes && !isEnabledForWheel ? 'Cannot enable: No active codes available' : ''}">
                           ${isEnabledForWheel ? '<i class="fa fa-check"></i> Enabled' : 'Enable'}
                       </button>
                       </div>
@@ -5771,6 +5798,13 @@
           console.log('toggleCouponForWheel called:', { couponId, currentStatus });
           if (!currentEditingWheelId) {
             showCustomAlert('Please save the wheel first before managing coupons', 'error');
+            return;
+          }
+          
+          // Check if the button is disabled (no active codes)
+          const button = document.querySelector(`button[data-coupon-id="${couponId}"]`);
+          if (button && button.disabled) {
+            showCustomAlert('Cannot enable this coupon: No active codes available', 'warning');
             return;
           }
           

@@ -636,7 +636,12 @@
                     return;
                 }
                 
-                couponCards.innerHTML = coupons.map(coupon => `
+                couponCards.innerHTML = coupons.map(coupon => {
+                    // Check if coupon has active codes
+                    const availableCodes = JSON.parse(coupon.available_codes || '[]');
+                    const hasActiveCodes = availableCodes.length > 0;
+                    
+                    return `
                     <div class="col-md-6 col-lg-4">
                         <div class="coupon-card">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -651,6 +656,13 @@
                                 <strong>Description:</strong> ${coupon.description || 'No description'}<br>
                                 ${coupon.expires_at ? `<strong>Expires:</strong> ${new Date(coupon.expires_at).toLocaleDateString()}` : ''}
                             </p>
+                            ${!hasActiveCodes ? `
+                            <div class="mb-3">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fa fa-exclamation-triangle"></i> No active codes
+                                </span>
+                            </div>
+                            ` : ''}
                             <div class="d-flex gap-2">
                                 <button class="btn btn-primary btn-sm" onclick="editCoupon(${coupon.id})">
                                     <i class="fa fa-edit"></i> Edit
@@ -661,7 +673,8 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
                 
             } catch (error) {
                 console.error('Error loading coupons:', error);
