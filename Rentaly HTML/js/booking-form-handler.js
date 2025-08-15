@@ -199,7 +199,33 @@ class BookingFormHandler {
   // Get total price from price calculator
   getTotalPrice() {
     if (window.priceCalculator && typeof window.priceCalculator.getTotalPrice === 'function') {
-      return window.priceCalculator.getTotalPrice();
+      const totalPrice = window.priceCalculator.getTotalPrice();
+      console.log('Price calculator returned total price:', totalPrice);
+      
+      // If price calculator returns 0, try to get the displayed price from the UI
+      if (totalPrice === 0) {
+        // Look for the total price in the price breakdown display
+        const priceBreakdown = document.getElementById('price-breakdown');
+        if (priceBreakdown) {
+          const totalPriceText = priceBreakdown.textContent;
+          const totalPriceMatch = totalPriceText.match(/Total price:\s*(\d+)\s*€/);
+          if (totalPriceMatch) {
+            const displayedPrice = parseInt(totalPriceMatch[1]);
+            console.log('Found displayed price from breakdown:', displayedPrice);
+            return displayedPrice;
+          }
+        }
+        
+        // Fallback: look for any price display elements
+        const priceDisplay = document.querySelector('.total-price-display, .price-total, #total-price');
+        if (priceDisplay) {
+          const displayedPrice = parseFloat(priceDisplay.textContent.replace(/[^\d.]/g, ''));
+          console.log('Found displayed price from fallback:', displayedPrice);
+          return displayedPrice || 0;
+        }
+      }
+      
+      return totalPrice;
     }
     return 0;
   }
