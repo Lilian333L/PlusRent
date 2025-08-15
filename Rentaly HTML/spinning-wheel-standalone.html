@@ -907,6 +907,55 @@
             }
         }
 
+        // Move a code from available_codes to showed_codes
+        async function moveCodeFromAvailableToShowed(couponId, codeToMove) {
+            try {
+                console.log(`Moving code ${codeToMove} from available to showed for coupon ${couponId}`);
+                
+                // Get current coupon data
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
+                if (!response.ok) {
+                    console.error('Failed to get coupon data for code movement');
+                    return;
+                }
+                
+                const coupon = await response.json();
+                const availableCodes = JSON.parse(coupon.available_codes || '[]');
+                const showedCodes = JSON.parse(coupon.showed_codes || '[]');
+                
+                // Find and remove the code from available_codes
+                const codeIndex = availableCodes.indexOf(codeToMove);
+                if (codeIndex === -1) {
+                    console.error(`Code ${codeToMove} not found in available_codes`);
+                    return;
+                }
+                
+                // Remove from available and add to showed
+                availableCodes.splice(codeIndex, 1);
+                showedCodes.push(codeToMove);
+                
+                // Update the coupon via API
+                const updateResponse = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        available_codes: availableCodes,
+                        showed_codes: showedCodes
+                    })
+                });
+                
+                if (updateResponse.ok) {
+                    console.log(`Successfully moved code ${codeToMove} from available to showed`);
+                } else {
+                    console.error('Failed to update coupon codes');
+                }
+            } catch (error) {
+                console.error('Error moving code from available to showed:', error);
+            }
+        }
+
         // Spin the wheel with optimized performance
         async function spinWheel() {
             if (isSpinning || hasSpun) return;
@@ -988,7 +1037,19 @@
                         // Fallback for old coupons without type
                         prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     }
-                    discountCode.textContent = winningSegment.coupon.code;
+                    // Get the first active coupon code instead of the coupon name
+                    const availableCodes = JSON.parse(winningSegment.coupon.available_codes || '[]');
+                    const showedCodes = JSON.parse(winningSegment.coupon.showed_codes || '[]');
+                    
+                    if (availableCodes.length > 0) {
+                        const codeToShow = availableCodes[0]; // Get first active code
+                        discountCode.textContent = codeToShow; // Show first active code
+                        
+                        // Move the code from available to showed
+                        moveCodeFromAvailableToShowed(winningSegment.coupon.id, codeToShow);
+                    } else {
+                        discountCode.textContent = winningSegment.coupon.code; // Fallback to coupon name if no active codes
+                    }
     
                 } else {
                     // Fallback for segments without real coupons
