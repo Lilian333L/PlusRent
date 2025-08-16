@@ -85,6 +85,106 @@
     .custom-carousel-next {
       right: 10px;
     }
+    
+    /* Language Picker Styles */
+    .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+    
+    .lang-picker-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f6f6f6;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      min-width: 80px;
+      height: 36px;
+      line-height: 1.2;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      margin-left: 0;
+    }
+    
+    .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
+      outline: none;
+      border-color: #f0c040;
+      box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+    }
+    
+    .lang-picker-dropdown {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      z-index: 1000;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 0;
+      margin: 0;
+      min-width: 120px;
+      list-style: none;
+    }
+    
+    .lang-picker-dropdown.open { display: block; }
+    
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      background: none;
+      border: none;
+      transition: background 0.15s, color 0.15s;
+      height: 32px;
+      line-height: 1.2;
+    }
+    
+    .lang-option:focus, .lang-option:hover {
+      background: #f0c04022;
+      color: #031B4E;
+      outline: none;
+    }
+    
+    .lang-option.selected {
+      background: #f0c04044;
+      color: #031B4E;
+      font-weight: 600;
+    }
+    
+    .lang-flag {
+      font-size: 18px;
+      width: 20px;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .lang-globe {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 3px;
+    }
+    
+    .lang-code {
+      font-weight: 600;
+      margin: 0 2px 0 2px;
+    }
+    
+    @media (max-width: 600px) {
+      .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
+      .lang-picker-dropdown { min-width: 80px; }
+      .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
+      .lang-flag { font-size: 15px; width: 15px; }
+    }
     </style>
 </head>
 
@@ -144,7 +244,23 @@
                                 </ul>
                             </div>
                             <div class="de-flex-col">
-                                <div class="menu_side_area">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Language Picker -->
+                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
+                                        <span class="lang-flag" id="langFlag"></span>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                      </button>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
+                                      </ul>
+                                    </div>
                                     <span id="menu-btn"></span>
                                 </div>
                             </div>
@@ -192,12 +308,16 @@
                             <div class="spacer-single"></div>
                             
                             <h3 id="car-name"></h3>
-                            <p id="car-description"></p>
-
+                            
+                            <!-- Quick Specs Section -->
                             <div class="spacer-10"></div>
-
-                            <h4>Specifications</h4>
+                            <h4 data-i18n="cars.quick_specs">Quick Specs</h4>
                             <div class="de-spec" id="car-specs"></div>
+                            
+                            <!-- Description Section -->
+                            <div class="spacer-10"></div>
+                            <h4 data-i18n="cars.description">Description</h4>
+                            <p id="car-description"></p>
 
                             <div class="spacer-single"></div>
 
@@ -213,7 +333,7 @@
                                 <div id="price-guide" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px;">
                                     <h5 style="margin-bottom: 15px; color: #333; font-weight: 600; text-align: center;">
                                         <i class="fa fa-info-circle" style="color: #007bff; margin-right: 8px;"></i>
-                                        Daily Rental Rates
+                                        <span data-i18n="cars.pricing_breakdown">Pricing Breakdown per Day</span>
                                     </h5>
                                     <div id="price-tiers" style="font-size: 14px;">
                                         <!-- Price tiers will be populated by JavaScript -->
@@ -231,14 +351,14 @@
                                 </div>
                                 
                                 <form name="contactForm" id='contact_form' method="post">
-                                    <h4 style="margin-bottom: 25px; color: #333;">Calculate Car Rental Price</h4>
+                                    <h4 style="margin-bottom: 25px; color: #333;" data-i18n="cars.book_now">Book Now</h4>
                                     <div class="row">
                                         <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Pick-up Date</label>
+                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_date">Pick-up Date</label>
                                             <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
                                         </div>
                                         <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Pick-up Time</label>
+                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_time">Pick-up Time</label>
                                             <select id="pickup-time" name="Pick Up Time" class="form-control" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
                                                 <option value="00:00">00:00</option>
                                                 <option value="01:00">01:00</option>
@@ -268,11 +388,11 @@
                                             </select>
                                         </div>
                                         <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Return Date</label>
+                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.return_date">Return Date</label>
                                             <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
                                         </div>
                                         <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Return Time</label>
+                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.return_time">Return Time</label>
                                             <select id="collection-time" name="Collection Time" class="form-control" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
                                                 <option value="00:00">00:00</option>
                                                 <option value="01:00">01:00</option>
@@ -302,7 +422,7 @@
                                             </select>
                                         </div>
                                         <div class="col-12 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Discount Code (Optional)</label>
+                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.discount_code">Discount Code (Optional)</label>
                                             <input type="text" name="discount_code" placeholder="Discount Code" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
                                         </div>
                                     </div>
@@ -325,32 +445,32 @@
                                     </div>
 
                                     <div class="mb20">
-                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Pick-up Location</label>
+                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_location">Pick-up Location</label>
                                         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                            <label><input type="radio" name="pickup_location" value="Chisinau Airport"> Chisinau Airport</label>
-                                            <label><input type="radio" name="pickup_location" value="Our Office"> Our Office</label>
-                                            <label><input type="radio" name="pickup_location" value="Iasi Airport" checked> Iasi Airport</label>
+                                            <label><input type="radio" name="pickup_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
+                                            <label><input type="radio" name="pickup_location" value="Our Office"> <span data-i18n="cars.our_office">Our Office</span></label>
+                                            <label><input type="radio" name="pickup_location" value="Iasi Airport" checked> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
                                         </div>
                                     </div>
                                     <div class="mb20">
-                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Drop-off Location</label>
+                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.dropoff_location">Drop-off Location</label>
                                         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                            <label><input type="radio" name="dropoff_location" value="Chisinau Airport"> Chisinau Airport</label>
-                                            <label><input type="radio" name="dropoff_location" value="Our Office" checked> Our Office</label>
-                                            <label><input type="radio" name="dropoff_location" value="Iasi Airport"> Iasi Airport</label>
+                                            <label><input type="radio" name="dropoff_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
+                                            <label><input type="radio" name="dropoff_location" value="Our Office" checked> <span data-i18n="cars.our_office">Our Office</span></label>
+                                            <label><input type="radio" name="dropoff_location" value="Iasi Airport"> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
                                         </div>
                                     </div>
                                     
                                     <!-- Optional Customer Information -->
                                     <div class="mb20" style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #eee;">
-                                        <h5 style="margin-bottom: 20px; color: #333;">Contact Information (Optional)</h5>
+                                        <h5 style="margin-bottom: 20px; color: #333;" data-i18n="cars.contact_information">Contact Information (Optional)</h5>
                                         <div class="row">
                                             <div class="col-6 mb20">
-                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Email Address</label>
+                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.email_address">Email Address</label>
                                                 <input type="email" name="customer_email" placeholder="your.email@example.com" style="border-radius: 6px; border: 1px solid #ddd; width: 100%; padding: 10px;">
                                             </div>
                                             <div class="col-6 mb20">
-                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;">Phone Number *</label>
+                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.phone_number">Phone Number *</label>
                                                 <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required style="border-radius: 6px; border: 1px solid #ddd; width: 100%; padding: 10px;">
                                             </div>
                                         </div>
@@ -367,7 +487,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <input type='submit' id='send_message' value='Book Now' class="btn-main btn-fullwidth" style="margin-top: 20px; border-radius: 8px; padding: 12px; font-weight: 600;">
+                                    <input type='submit' id='send_message' value='Book Now' class="btn-main btn-fullwidth" style="margin-top: 20px; border-radius: 8px; padding: 12px; font-weight: 600;" data-i18n="cars.book_now">
                                     <div class="clearfix"></div>
                                 </form>
                             </div>
@@ -645,7 +765,12 @@ console.log(car);
   // Name, description, price
         document.getElementById('car-title').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)} ${car.production_year}`;
       document.getElementById('car-name').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}`;
-  document.getElementById('car-description').textContent = car.description || '';
+  
+  // Store car data globally for language updates
+  window.currentCarData = car;
+  
+  // Update description with current language
+  updateCarDescription();
   // Calculate the lowest price from price policy
   let lowestPrice = '';
   if (car.price_policy) {
@@ -654,26 +779,154 @@ console.log(car);
     lowestPrice = Math.min(...prices).toString();
   }
   
-  document.getElementById('car-price').innerHTML = `Daily rate from <h3>€${lowestPrice}</h3>`;
+  document.getElementById('car-price').innerHTML = `<span data-i18n="cars.daily_rate">Daily rate from</span> <h3>€${lowestPrice}</h3>`;
   
   // Populate price guide with car data
   populatePriceGuide(car);
 
-  // Specs
+  // Function to get mapped display text for car attributes with multilanguage support
+  function getMappedDisplayText(attributeType, value) {
+    if (!value) return '-';
+    
+    const luggageMappings = {
+      '1_small': i18next.t('car_attributes.luggage.1_small', '1 Small Suitcase'),
+      '2_small': i18next.t('car_attributes.luggage.2_small', '2 Small Suitcases'),
+      '1_large': i18next.t('car_attributes.luggage.1_large', '1 Large Suitcase'),
+      '2_large': i18next.t('car_attributes.luggage.2_large', '2 Large Suitcases'),
+      '3_large': i18next.t('car_attributes.luggage.3_large', '3 Large Suitcases'),
+      '1_small_1_large': i18next.t('car_attributes.luggage.1_small_1_large', '1 Small + 1 Large Suitcase'),
+      '2_small_1_large': i18next.t('car_attributes.luggage.2_small_1_large', '2 Small + 1 Large Suitcase'),
+      '1_small_2_large': i18next.t('car_attributes.luggage.1_small_2_large', '1 Small + 2 Large Suitcases'),
+      '2_small_2_large': i18next.t('car_attributes.luggage.2_small_2_large', '2 Small + 2 Large Suitcases'),
+      '3_small_1_large': i18next.t('car_attributes.luggage.3_small_1_large', '3 Small + 1 Large Suitcase'),
+      '4_small': i18next.t('car_attributes.luggage.4_small', '4 Small Suitcases'),
+      '5_small': i18next.t('car_attributes.luggage.5_small', '5 Small Suitcases'),
+      '4_large': i18next.t('car_attributes.luggage.4_large', '4 Large Suitcases'),
+      '5_large': i18next.t('car_attributes.luggage.5_large', '5 Large Suitcases')
+    };
+    
+    const driveMappings = {
+      'front_wheel': i18next.t('car_attributes.drive.front_wheel', 'Front Wheel Drive'),
+      'rear_wheel': i18next.t('car_attributes.drive.rear_wheel', 'Rear Wheel Drive'),
+      'all_wheel': i18next.t('car_attributes.drive.all_wheel', 'All Wheel Drive'),
+      'four_wheel': i18next.t('car_attributes.drive.four_wheel', '4-Wheel Drive')
+    };
+    
+    const mappings = {
+      luggage: luggageMappings,
+      drive: driveMappings
+    };
+    
+    return mappings[attributeType]?.[value] || value;
+  }
+
+  // Function to update car description based on current language
+  function updateCarDescription() {
+    if (!window.currentCarData) return;
+    
+    const car = window.currentCarData;
+    let descriptionText = '';
+    
+    try {
+      if (car.description) {
+        console.log('Raw description from API:', car.description);
+        console.log('Type of description:', typeof car.description);
+        
+        const descriptionObj = typeof car.description === 'string' ? JSON.parse(car.description) : car.description;
+        console.log('Parsed description object:', descriptionObj);
+        
+        const currentLang = i18next.language || 'en';
+        console.log('Current language:', currentLang);
+        
+        descriptionText = descriptionObj[currentLang] || descriptionObj.en || descriptionObj.ro || descriptionObj.ru || '';
+        console.log('Selected description text:', descriptionText);
+      }
+    } catch (e) {
+      console.error('Error parsing description:', e);
+      // Fallback for old single-language descriptions
+      descriptionText = car.description || '';
+    }
+    
+    const descriptionElement = document.getElementById('car-description');
+    if (descriptionElement) {
+      descriptionElement.textContent = descriptionText;
+    }
+  }
+
+  // Listen for language changes
+  if (typeof i18next !== 'undefined') {
+    i18next.on('languageChanged', function() {
+      updateCarDescription();
+    });
+  }
+
+  // Specs with multilanguage support
+  const currentLang = i18next.language || 'en';
+  
+  // Get localized spec labels
+  const specLabels = {
+    body: i18next.t('cars.specs.body', 'Body'),
+    seat: i18next.t('cars.specs.seat', 'Seat'),
+    door: i18next.t('cars.specs.door', 'Door'),
+    luggage: i18next.t('cars.specs.luggage', 'Luggage'),
+    fuel_type: i18next.t('cars.specs.fuel_type', 'Fuel Type'),
+    engine: i18next.t('cars.specs.engine', 'Engine'),
+    year: i18next.t('cars.specs.year', 'Year'),
+    mileage: i18next.t('cars.specs.mileage', 'Mileage'),
+    transmission: i18next.t('cars.specs.transmission', 'Transmission'),
+    drive: i18next.t('cars.specs.drive', 'Drive'),
+    fuel_economy: i18next.t('cars.specs.fuel_economy', 'Fuel Economy'),
+    exterior_color: i18next.t('cars.specs.exterior_color', 'Exterior Color'),
+    interior_color: i18next.t('cars.specs.interior_color', 'Interior Color')
+  };
+  
+  // Get localized car type and fuel type
+  const carTypeMapping = {
+    'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
+    'SUV': i18next.t('cars.types.suv', 'SUV'),
+    'Hatchback': i18next.t('cars.types.hatchback', 'Hatchback'),
+    'Coupe': i18next.t('cars.types.coupe', 'Coupe'),
+    'Wagon': i18next.t('cars.types.wagon', 'Wagon'),
+    'Convertible': i18next.t('cars.types.convertible', 'Convertible'),
+    'Van': i18next.t('cars.types.van', 'Van'),
+    'Pickup': i18next.t('cars.types.pickup', 'Pickup'),
+    'Crossover': i18next.t('cars.types.crossover', 'Crossover'),
+    'Sports Car': i18next.t('cars.types.sports_car', 'Sports Car'),
+    'Luxury': i18next.t('cars.types.luxury', 'Luxury'),
+    'Electric': i18next.t('cars.types.electric', 'Electric'),
+    'Hybrid': i18next.t('cars.types.hybrid', 'Hybrid')
+  };
+  
+  const fuelTypeMapping = {
+    'Gasoline': i18next.t('cars.fuel.gasoline', 'Gasoline'),
+    'Diesel': i18next.t('cars.fuel.diesel', 'Diesel'),
+    'Electric': i18next.t('cars.fuel.electric', 'Electric'),
+    'Hybrid': i18next.t('cars.fuel.hybrid', 'Hybrid'),
+    'Plug-in Hybrid': i18next.t('cars.fuel.plugin_hybrid', 'Plug-in Hybrid'),
+    'Hydrogen': i18next.t('cars.fuel.hydrogen', 'Hydrogen')
+  };
+  
+  const transmissionMapping = {
+    'Manual': i18next.t('cars.transmission.manual', 'Manual'),
+    'Automatic': i18next.t('cars.transmission.automatic', 'Automatic'),
+    'CVT': i18next.t('cars.transmission.cvt', 'CVT'),
+    'Semi-Automatic': i18next.t('cars.transmission.semi_automatic', 'Semi-Automatic')
+  };
+  
   document.getElementById('car-specs').innerHTML = `
-    <div class="d-row"><span class="d-title">Body</span><span class="d-value">${car.car_type || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Seat</span><span class="d-value">${car.num_passengers || '-'} seats</span></div>
-    <div class="d-row"><span class="d-title">Door</span><span class="d-value">${car.num_doors || '-'} doors</span></div>
-    <div class="d-row"><span class="d-title">Luggage</span><span class="d-value">${car.luggage || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Fuel Type</span><span class="d-value">${car.fuel_type || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Engine</span><span class="d-value">${car.engine_capacity || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Year</span><span class="d-value">${car.production_year || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Mileage</span><span class="d-value">${car.mileage ? car.mileage + ' km' : '-'}</span></div>
-    <div class="d-row"><span class="d-title">Transmission</span><span class="d-value">${car.gear_type || ''}</span></div>
-    <div class="d-row"><span class="d-title">Drive</span><span class="d-value">${car.drive || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Fuel Economy</span><span class="d-value">${car.fuel_economy ? (car.fuel_type === 'Electric' ? car.fuel_economy + ' kWh/100km' : car.fuel_economy + ' L/100km') : '-'}</span></div>
-    <div class="d-row"><span class="d-title">Exterior Color</span><span class="d-value">${car.exterior_color || '-'}</span></div>
-    <div class="d-row"><span class="d-title">Interior Color</span><span class="d-value">${car.interior_color || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.body}</span><span class="d-value">${carTypeMapping[car.car_type] || car.car_type || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.seat}</span><span class="d-value">${car.num_passengers || '-'} ${i18next.t('cars.specs.seats', 'seats')}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.door}</span><span class="d-value">${car.num_doors || '-'} ${i18next.t('cars.specs.doors', 'doors')}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.luggage}</span><span class="d-value">${getMappedDisplayText('luggage', car.luggage)}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.fuel_type}</span><span class="d-value">${fuelTypeMapping[car.fuel_type] || car.fuel_type || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.engine}</span><span class="d-value">${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.year}</span><span class="d-value">${car.production_year || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.mileage}</span><span class="d-value">${car.mileage ? car.mileage + ' km' : '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.transmission}</span><span class="d-value">${transmissionMapping[car.gear_type] || car.gear_type || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.drive}</span><span class="d-value">${getMappedDisplayText('drive', car.drive)}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.fuel_economy}</span><span class="d-value">${car.fuel_economy ? (car.fuel_type === 'Electric' ? car.fuel_economy + ' kWh/100km' : car.fuel_economy + ' L/100km') : '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.exterior_color}</span><span class="d-value">${car.exterior_color || '-'}</span></div>
+    <div class="d-row"><span class="d-title">${specLabels.interior_color}</span><span class="d-value">${car.interior_color || '-'}</span></div>
   `;
 
   // Features
@@ -1092,7 +1345,24 @@ header.smaller {
 #owl-logo img:hover {
   transform: scale(1.05);
 }
+
+/* Translation system styles */
+[data-i18n] {
+  transition: opacity 0.3s ease;
+}
+
+[data-i18n].loading {
+  opacity: 0.5;
+}
 </style>
+
+<!-- i18next CDN -->
+<script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
+<script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+
+<!-- Translation System -->
+<script src="js/i18n-init.js"></script>
+
 </body>
 
 </html>

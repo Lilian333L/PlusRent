@@ -1,36 +1,45 @@
 // i18n-init.js
 
-// Always default to Romanian unless user explicitly picks another language
-const savedLang = localStorage.getItem('lang');
-const defaultLang = 'ro';
-let initialLang = savedLang || defaultLang;
+// Wait for i18next to be available
+function initI18n() {
+  if (typeof i18next === 'undefined') {
+    console.log('i18next not loaded yet, retrying in 100ms...');
+    setTimeout(initI18n, 100);
+    return;
+  }
 
-if (!savedLang) {
-  localStorage.setItem('lang', defaultLang);
-  initialLang = defaultLang;
+  // Always default to Romanian unless user explicitly picks another language
+  const savedLang = localStorage.getItem('lang');
+  const defaultLang = 'ro';
+  let initialLang = savedLang || defaultLang;
+
+  if (!savedLang) {
+    localStorage.setItem('lang', defaultLang);
+    initialLang = defaultLang;
+  }
+
+  i18next
+    .use(i18nextHttpBackend)
+    .init({
+      lng: initialLang,
+      fallbackLng: 'ro',
+      debug: false,
+      backend: {
+        loadPath: 'js/locales/{{lng}}.json'
+      },
+      interpolation: {
+        escapeValue: false // allow HTML in translations
+      },
+      parseMissingKeyHandler: function(key) { return key; }
+    }, function(err, t) {
+      if (!savedLang) {
+        i18next.changeLanguage(defaultLang, updateContent);
+      } else {
+        updateContent();
+      }
+      updateLangPickerUI();
+    });
 }
-
-i18next
-  .use(i18nextHttpBackend)
-  .init({
-    lng: initialLang,
-    fallbackLng: 'ro',
-    debug: false,
-    backend: {
-      loadPath: 'js/locales/{{lng}}.json'
-    },
-    interpolation: {
-      escapeValue: false // allow HTML in translations
-    },
-    parseMissingKeyHandler: function(key) { return key; }
-  }, function(err, t) {
-    if (!savedLang) {
-      i18next.changeLanguage(defaultLang, updateContent);
-    } else {
-      updateContent();
-    }
-    updateLangPickerUI();
-  });
 
 function updateContent() {
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
@@ -41,7 +50,7 @@ function updateContent() {
       // Handle custom interpolation for unavailable badges
       var value = i18next.t(key, { date: date });
     } else {
-    var value = i18next.t(key);
+      var value = i18next.t(key);
     }
     
     if (el.childElementCount === 0) {
@@ -80,27 +89,8 @@ function updateContent() {
   updateLangPickerUI();
 }
 
-i18next.on('languageChanged', () => {
-  updateContent();
-  localStorage.setItem('lang', i18next.language);
-  updateLangPickerUI();
-  
-  // Send language change message to spinning wheel iframe
-  const wheelIframe = document.querySelector('.wheel-container iframe');
-  if (wheelIframe && wheelIframe.contentWindow) {
-    try {
-      wheelIframe.contentWindow.postMessage({
-        type: 'languageChange',
-        language: i18next.language
-      }, '*');
-    } catch (e) {
-      console.log('Could not send message to iframe:', e);
-    }
-  }
-});
-
 function updateLangPickerUI() {
-  var lang = i18next.language || defaultLang;
+  var lang = i18next.language || 'ro';
   var flag = '🇷🇴', code = 'RO';
   if (lang === 'en') { flag = '🇬🇧'; code = 'EN'; }
   if (lang === 'ru') { flag = '🇷🇺'; code = 'RU'; }
@@ -115,6 +105,33 @@ function updateLangPickerUI() {
       opt.classList.add('selected');
     } else {
       opt.classList.remove('selected');
+    }
+  });
+}
+
+// Initialize i18next event listeners once it's loaded
+function setupI18nEvents() {
+  if (typeof i18next === 'undefined') {
+    setTimeout(setupI18nEvents, 100);
+    return;
+  }
+
+  i18next.on('languageChanged', () => {
+    updateContent();
+    localStorage.setItem('lang', i18next.language);
+    updateLangPickerUI();
+    
+    // Send language change message to spinning wheel iframe
+    const wheelIframe = document.querySelector('.wheel-container iframe');
+    if (wheelIframe && wheelIframe.contentWindow) {
+      try {
+        wheelIframe.contentWindow.postMessage({
+          type: 'languageChange',
+          language: i18next.language
+        }, '*');
+      } catch (e) {
+        console.log('Could not send message to iframe:', e);
+      }
     }
   });
 }
@@ -158,7 +175,9 @@ document.addEventListener('DOMContentLoaded', function() {
     langOptions.forEach(function(opt) {
       opt.addEventListener('click', function(e) {
         var lang = opt.getAttribute('data-lang');
-        i18next.changeLanguage(lang);
+        if (typeof i18next !== 'undefined') {
+          i18next.changeLanguage(lang);
+        }
         closeDropdown();
       });
       opt.addEventListener('keydown', function(e) {
@@ -190,5 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.key === 'Escape') closeDropdown();
     });
   }
+  
+  // Setup i18next events and UI
+  setupI18nEvents();
   updateLangPickerUI();
-}); 
+});
+
+// Start the initialization
+initI18n(); 
