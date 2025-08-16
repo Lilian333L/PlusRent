@@ -1,229 +1,230 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
-// Check if we're in production (Vercel)
+// Supabase configuration
+const SUPABASE_URL = 'https://lupoqmzqppynyybbvwah.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1cG9xbXpxcHB5bnl5YmJ2d2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTI0MzMsImV4cCI6MjA3MDkyODQzM30.DLz96LRZNw6BZsK6qhYDIbe70m7GAsPDMKAq6z1gfgI';
+
+// Check if we're in production (Vercel) or using Supabase
 const isProduction = process.env.NODE_ENV === 'production';
+const useSupabase = process.env.SUPABASE_URL || process.env.DATABASE_URL;
 
 let db;
 
-if (isProduction) {
-  // Production: Use Vercel Postgres
-  const { Pool } = require('pg');
+if (useSupabase) {
+  // Production: Use Supabase REST API
+  console.log('🔗 Using Supabase REST API for database operations');
   
-  const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
+  // Helper function to make HTTPS requests
+  function makeRequest(method, endpoint, data = null) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(endpoint, SUPABASE_URL);
+      const postData = data ? JSON.stringify(data) : null;
+      
+      const options = {
+        hostname: url.hostname,
+        port: 443,
+        path: url.pathname + url.search,
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      };
+
+      if (postData) {
+        options.headers['Content-Length'] = Buffer.byteLength(postData);
+      }
+
+      const req = https.request(options, (res) => {
+        let rawData = '';
+        res.on('data', (chunk) => { rawData += chunk; });
+        res.on('end', () => {
+          try {
+            const parsedData = JSON.parse(rawData);
+            resolve(parsedData);
+          } catch (e) {
+            resolve(rawData);
+          }
+        });
+      });
+
+      req.on('error', (e) => {
+        reject(e);
+      });
+
+      if (postData) {
+        req.write(postData);
+      }
+      req.end();
+    });
+  }
 
   db = {
     run: (sql, params, callback) => {
+      // For INSERT, UPDATE, DELETE operations
       if (typeof params === 'function') {
         callback = params;
         params = [];
       }
-      pool.query(sql, params, (err, result) => {
-        if (callback) callback(err, result);
-      });
-    },
-    get: (sql, params, callback) => {
-      if (typeof params === 'function') {
-        callback = params;
-        params = [];
+      
+      // Parse SQL to determine operation type
+      const sqlLower = sql.toLowerCase();
+      let method, endpoint, data;
+      
+      if (sqlLower.includes('insert into cars')) {
+        method = 'POST';
+        endpoint = 'cars';
+        data = params[0] || {};
+      } else if (sqlLower.includes('update cars')) {
+        method = 'PATCH';
+        const idMatch = sql.match(/WHERE id = \?/);
+        const id = idMatch ? params[params.length - 1] : null;
+        endpoint = `cars?id=eq.${id}`;
+        data = params[0] || {};
+      } else if (sqlLower.includes('delete from cars')) {
+        method = 'DELETE';
+        const idMatch = sql.match(/WHERE id = \?/);
+        const id = idMatch ? params[0] : null;
+        endpoint = `cars?id=eq.${id}`;
       }
-      pool.query(sql, params, (err, result) => {
-        if (callback) callback(err, result.rows[0]);
-      });
+      
+      makeRequest(method, endpoint, data)
+        .then(result => {
+          if (callback) callback(null, result);
+        })
+        .catch(error => {
+          if (callback) callback(error);
+        });
     },
-    all: (sql, params, callback) => {
-      if (typeof params === 'function') {
-        callback = params;
-        params = [];
-      }
-      pool.query(sql, params, (err, result) => {
-        if (callback) callback(err, result.rows);
-      });
-    },
-    serialize: (callback) => {
-      callback();
-    }
-  };
-  
-  console.log('✅ Connected to Vercel Postgres database');
-} else {
-  // Development: Use SQLite
-  function ensureDatabaseWritable() {
-    const dbPath = './carrental.db';
     
-    if (fs.existsSync(dbPath)) {
-      try {
-        fs.accessSync(dbPath, fs.constants.R_OK | fs.constants.W_OK);
-        console.log('✅ Database file is writable');
-      } catch (error) {
-        console.error('❌ Database file is not writable:', error.message);
-        console.log('🔧 Attempting to fix permissions...');
-        
-        try {
-          fs.chmodSync(dbPath, 0o666);
-          console.log('✅ Database permissions fixed');
-        } catch (chmodError) {
-          console.error('❌ Could not fix database permissions:', chmodError.message);
+    get: (sql, params, callback) => {
+      // For SELECT operations returning single row
+      if (typeof params === 'function') {
+        callback = params;
+        params = [];
+      }
+      
+      const sqlLower = sql.toLowerCase();
+      let endpoint = 'cars';
+      
+      if (sqlLower.includes('where id =')) {
+        const id = params[0];
+        endpoint = `cars?id=eq.${id}&limit=1`;
+      }
+      
+      makeRequest('GET', endpoint)
+        .then(result => {
+          const row = Array.isArray(result) && result.length > 0 ? result[0] : null;
+          if (callback) callback(null, row);
+        })
+        .catch(error => {
+          if (callback) callback(error);
+        });
+    },
+    
+    all: (sql, params, callback) => {
+      // For SELECT operations returning multiple rows
+      if (typeof params === 'function') {
+        callback = params;
+        params = [];
+      }
+      
+      let endpoint = 'cars';
+      
+      // Add query parameters based on SQL
+      const sqlLower = sql.toLowerCase();
+      if (sqlLower.includes('where')) {
+        // Handle WHERE clauses
+        if (sqlLower.includes('status')) {
+          endpoint += '?status=eq.available';
         }
       }
+      
+      makeRequest('GET', endpoint)
+        .then(result => {
+          const rows = Array.isArray(result) ? result : [];
+          if (callback) callback(null, rows);
+        })
+        .catch(error => {
+          if (callback) callback(error);
+        });
+    },
+    
+    close: () => {
+      console.log('Supabase REST API connection closed');
     }
-  }
+  };
+} else {
+  // Development: Use SQLite
+  const dbPath = path.join(__dirname, '..', 'carrental.db');
+  const dbExists = fs.existsSync(dbPath);
 
-  ensureDatabaseWritable();
-
-  try {
-    db = new sqlite3.Database('./carrental.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-      if (err) {
-        console.error('❌ Could not connect to database:', err.message);
-      } else {
-        console.log('✅ Connected to SQLite database');
-        
-        db.run('PRAGMA journal_mode=WAL', (err) => {
-          if (err) {
-            console.error('❌ Database write test failed:', err.message);
-          } else {
-            console.log('✅ Database write access confirmed');
-          }
+  db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+      console.error('Error connecting to SQLite database:', err.message);
+    } else {
+      console.log('Connected to SQLite database.');
+      if (!dbExists) {
+        console.log('Creating SQLite tables...');
+        db.serialize(() => {
+          db.run(`
+            CREATE TABLE cars (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              make_name TEXT,
+              model_name TEXT,
+              production_year INTEGER,
+              gear_type TEXT,
+              fuel_type TEXT,
+              engine_capacity REAL,
+              car_type TEXT,
+              num_doors INTEGER,
+              num_passengers INTEGER,
+              price_policy TEXT,
+              booked BOOLEAN DEFAULT FALSE,
+              booked_until DATE,
+              head_image TEXT,
+              gallery_images TEXT,
+              description TEXT,
+              luggage TEXT,
+              drive TEXT,
+              air_conditioning BOOLEAN,
+              min_age INTEGER,
+              deposit REAL,
+              insurance_cost REAL,
+              status TEXT DEFAULT 'available'
+            )
+          `);
+          db.run(`
+            CREATE TABLE users (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              username TEXT UNIQUE,
+              password TEXT,
+              email TEXT UNIQUE,
+              role TEXT DEFAULT 'user'
+            )
+          `);
+          db.run(`
+            CREATE TABLE bookings (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              car_id INTEGER,
+              user_id INTEGER,
+              start_date DATE,
+              end_date DATE,
+              total_price REAL,
+              status TEXT DEFAULT 'pending',
+              FOREIGN KEY (car_id) REFERENCES cars(id),
+              FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+          `);
+          console.log('SQLite tables created.');
         });
       }
-    });
-  } catch (error) {
-    console.error('❌ Failed to create database connection:', error.message);
-    process.exit(1);
-  }
-}
-
-// Initialize database tables
-function initializeDatabase() {
-  db.serialize(() => {
-    // Create cars table with all fields
-    db.run(`CREATE TABLE IF NOT EXISTS cars (
-      id SERIAL PRIMARY KEY,
-      make_name TEXT,
-      model_name TEXT,
-      production_year INTEGER,
-      gear_type TEXT,
-      fuel_type TEXT,
-      engine_capacity REAL NULL,
-      car_type TEXT,
-      num_doors INTEGER,
-      num_passengers INTEGER,
-      price_policy TEXT,
-      booked INTEGER DEFAULT 0,
-      booked_until TEXT,
-      head_image TEXT,
-      gallery_images TEXT,
-      luggage TEXT,
-      mileage INTEGER,
-      drive TEXT,
-      fuel_economy REAL,
-      exterior_color TEXT,
-      interior_color TEXT,
-      rca_insurance_price REAL,
-      casco_insurance_price REAL,
-      is_premium BOOLEAN DEFAULT FALSE,
-      likes INTEGER DEFAULT 0,
-      description TEXT DEFAULT '{}'
-    )`);
-
-    // Create admin users table
-    db.run(`CREATE TABLE IF NOT EXISTS admin_users (
-      id SERIAL PRIMARY KEY,
-      username TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      email TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      last_login TIMESTAMP
-    )`);
-
-    // Create coupon codes table
-    db.run(`CREATE TABLE IF NOT EXISTS coupon_codes (
-      id SERIAL PRIMARY KEY,
-      code TEXT UNIQUE NOT NULL,
-      type TEXT NOT NULL DEFAULT 'percentage',
-      discount_percentage INTEGER,
-      free_days INTEGER,
-      max_uses INTEGER DEFAULT NULL,
-      current_uses INTEGER DEFAULT 0,
-      valid_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      valid_until TIMESTAMP DEFAULT NULL,
-      is_active BOOLEAN DEFAULT TRUE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      available_codes TEXT DEFAULT '[]',
-      showed_codes TEXT DEFAULT '[]'
-    )`);
-
-    // Create spinning wheels table
-    db.run(`CREATE TABLE IF NOT EXISTS spinning_wheels (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      description TEXT,
-      is_active BOOLEAN DEFAULT FALSE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-    
-    // Create bookings table
-    db.run(`CREATE TABLE IF NOT EXISTS bookings (
-      id SERIAL PRIMARY KEY,
-      car_id INTEGER NOT NULL,
-      pickup_date TEXT NOT NULL,
-      pickup_time TEXT NOT NULL,
-      return_date TEXT NOT NULL,
-      return_time TEXT NOT NULL,
-      discount_code TEXT,
-      insurance_type TEXT NOT NULL,
-      pickup_location TEXT NOT NULL,
-      dropoff_location TEXT NOT NULL,
-      contact_person TEXT,
-      contact_phone TEXT,
-      special_instructions TEXT,
-      total_price REAL NOT NULL,
-      price_breakdown TEXT,
-      status TEXT DEFAULT 'pending',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-    // Create booked_cars table for tracking active bookings with user info
-    db.run(`CREATE TABLE IF NOT EXISTS booked_cars (
-      id SERIAL PRIMARY KEY,
-      car_id INTEGER NOT NULL,
-      booking_id INTEGER NOT NULL,
-      customer_name TEXT NOT NULL,
-      customer_email TEXT NOT NULL,
-      customer_phone TEXT NOT NULL,
-      pickup_date TEXT NOT NULL,
-      pickup_time TEXT NOT NULL,
-      return_date TEXT NOT NULL,
-      return_time TEXT NOT NULL,
-      insurance_type TEXT NOT NULL,
-      pickup_location TEXT NOT NULL,
-      dropoff_location TEXT NOT NULL,
-      total_price REAL NOT NULL,
-      status TEXT DEFAULT 'active',
-      notes TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-    // Create wheel_coupons junction table for many-to-many relationship
-    db.run(`CREATE TABLE IF NOT EXISTS wheel_coupons (
-      id SERIAL PRIMARY KEY,
-      wheel_id INTEGER NOT NULL,
-      coupon_id INTEGER NOT NULL,
-      percentage REAL DEFAULT 0,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(wheel_id, coupon_id)
-    )`);
+    }
   });
 }
 
-module.exports = {
-  db,
-  initializeDatabase
-}; 
+module.exports = db; 
