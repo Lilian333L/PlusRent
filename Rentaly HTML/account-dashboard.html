@@ -1629,7 +1629,9 @@
                             <div class="admin-form-grid">
                               <div>
                                 <label class="form-label">Luggage Capacity</label>
-                                <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                                <select name="luggage" class="form-control">
+                                  <option value="">Select luggage capacity</option>
+                                </select>
                               </div>
                               <div>
                                 <label class="form-label">Mileage (km)</label>
@@ -1669,6 +1671,36 @@
                               <div>
                                 <label class="form-label">Casco Insurance Price (€/day)</label>
                                 <input type="number" name="casco_insurance_price" class="form-control" placeholder="e.g., 25" step="0.01" min="0">
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Social Features</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">Number of Likes</label>
+                                <input type="number" name="likes" class="form-control" placeholder="e.g., 42" min="0" value="0">
+                                <small class="form-text text-muted">This will be displayed as the number of likes on the car cards.</small>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Multilingual Description (Optional)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">English Description</label>
+                                <textarea name="description_en" class="form-control" rows="3" placeholder="Enter description in English..."></textarea>
+                              </div>
+                              <div>
+                                <label class="form-label">Romanian Description</label>
+                                <textarea name="description_ro" class="form-control" rows="3" placeholder="Enter description in Romanian..."></textarea>
+                              </div>
+                              <div>
+                                <label class="form-label">Russian Description</label>
+                                <textarea name="description_ru" class="form-control" rows="3" placeholder="Enter description in Russian..."></textarea>
+                              </div>
+                              <div style="grid-column: 1 / -1;">
+                                <small class="form-text text-muted">These descriptions will be displayed on the car details page based on the user's selected language.</small>
                               </div>
                             </div>
                           </fieldset>
@@ -1935,7 +1967,9 @@
                             <div class="admin-form-grid">
                               <div>
                                 <label class="form-label">Luggage Capacity</label>
-                                <input type="text" name="luggage" class="form-control" placeholder="e.g., 2 large suitcases">
+                                <select name="luggage" class="form-control">
+                                  <option value="">Select luggage capacity</option>
+                                </select>
                               </div>
                               <div>
                                 <label class="form-label">Mileage (km)</label>
@@ -1978,7 +2012,37 @@
                               </div>
                             </div>
                           </fieldset>
-                          <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Update Car</button>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Social Features</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">Number of Likes</label>
+                                <input type="number" name="likes" class="form-control" placeholder="e.g., 42" min="0" value="0">
+                                <small class="form-text text-muted">This will be displayed as the number of likes on the car cards.</small>
+                              </div>
+                            </div>
+                          </fieldset>
+                          <fieldset class="mb-3 p-2 rounded-3" style="border: 1px solid #eee;">
+                            <legend class="form-label mb-2" style="font-size: 1rem; color: #031B4E;">Multilingual Description (Optional)</legend>
+                            <div class="admin-form-grid">
+                              <div>
+                                <label class="form-label">English Description</label>
+                                <textarea name="description_en" class="form-control" rows="3" placeholder="Enter description in English..."></textarea>
+                              </div>
+                              <div>
+                                <label class="form-label">Romanian Description</label>
+                                <textarea name="description_ro" class="form-control" rows="3" placeholder="Enter description in Romanian..."></textarea>
+                              </div>
+                              <div>
+                                <label class="form-label">Russian Description</label>
+                                <textarea name="description_ru" class="form-control" rows="3" placeholder="Enter description in Russian..."></textarea>
+                              </div>
+                              <div style="grid-column: 1 / -1;">
+                                <small class="form-text text-muted">These descriptions will be displayed on the car details page based on the user's selected language.</small>
+                              </div>
+                            </div>
+                          </fieldset>
+                        <button type="submit" id="editFormSubmitBtn" class="btn btn-main">Update Car</button>
                       </form>
                     </div>
                     <!-- Confirm Modal -->
@@ -2656,10 +2720,15 @@
 
     // Initialize Form Dropdowns
     function initializeFormDropdowns() {
+      console.log('Initializing form dropdowns...');
+      
       // Production Year dropdown (current year to 1990)
       const productionYearSelects = document.querySelectorAll('select[name="production_year"]');
+      console.log('Found production year selects:', productionYearSelects.length);
       const currentYear = new Date().getFullYear();
       productionYearSelects.forEach(select => {
+        // Clear existing options first
+        select.innerHTML = '<option value="">Select Year</option>';
         for (let year = currentYear; year >= 1990; year--) {
           const option = document.createElement('option');
           option.value = year;
@@ -2670,24 +2739,76 @@
       
       // Number of Doors dropdown
       const numDoorsSelects = document.querySelectorAll('select[name="num_doors"]');
+      console.log('Found num doors selects:', numDoorsSelects.length);
       numDoorsSelects.forEach(select => {
-        for (let doors = 2; doors <= 5; doors++) {
+        // Clear existing options first
+        select.innerHTML = '<option value="">Select Doors</option>';
+        const doorOptions = ['2', '3', '4', '5'];
+        doorOptions.forEach(doors => {
           const option = document.createElement('option');
           option.value = doors;
           option.textContent = doors;
           select.appendChild(option);
-        }
+        });
       });
       
       // Number of Passengers dropdown
       const numPassengersSelects = document.querySelectorAll('select[name="num_passengers"]');
+      console.log('Found num passengers selects:', numPassengersSelects.length);
       numPassengersSelects.forEach(select => {
-        for (let passengers = 2; passengers <= 8; passengers++) {
+        // Clear existing options first
+        select.innerHTML = '<option value="">Select Passengers</option>';
+        const passengerOptions = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'];
+        passengerOptions.forEach(passengers => {
           const option = document.createElement('option');
           option.value = passengers;
           option.textContent = passengers;
           select.appendChild(option);
-        }
+        });
+      });
+
+      // Luggage dropdown
+      const luggageSelects = document.querySelectorAll('select[name="luggage"]');
+      luggageSelects.forEach(select => {
+        const luggageOptions = [
+          { value: '1_small', text: '1 Small Suitcase' },
+          { value: '2_small', text: '2 Small Suitcases' },
+          { value: '1_large', text: '1 Large Suitcase' },
+          { value: '2_large', text: '2 Large Suitcases' },
+          { value: '3_large', text: '3 Large Suitcases' },
+          { value: '1_small_1_large', text: '1 Small + 1 Large Suitcase' },
+          { value: '2_small_1_large', text: '2 Small + 1 Large Suitcase' },
+          { value: '1_small_2_large', text: '1 Small + 2 Large Suitcases' },
+          { value: '2_small_2_large', text: '2 Small + 2 Large Suitcases' },
+          { value: '3_small_1_large', text: '3 Small + 1 Large Suitcase' },
+          { value: '4_small', text: '4 Small Suitcases' },
+          { value: '5_small', text: '5 Small Suitcases' },
+          { value: '4_large', text: '4 Large Suitcases' },
+          { value: '5_large', text: '5 Large Suitcases' }
+        ];
+        luggageOptions.forEach(option => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option.value;
+          optionElement.textContent = option.text;
+          select.appendChild(optionElement);
+        });
+      });
+
+      // Drive type dropdown
+      const driveSelects = document.querySelectorAll('select[name="drive"]');
+      driveSelects.forEach(select => {
+        const driveOptions = [
+          { value: 'front_wheel', text: 'Front Wheel Drive' },
+          { value: 'rear_wheel', text: 'Rear Wheel Drive' },
+          { value: 'all_wheel', text: 'All Wheel Drive' },
+          { value: 'four_wheel', text: '4-Wheel Drive' }
+        ];
+        driveOptions.forEach(option => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option.value;
+          optionElement.textContent = option.text;
+          select.appendChild(optionElement);
+        });
       });
     }
 
@@ -2753,7 +2874,7 @@
                                         <div class="d-atr-group">
                 <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span>Passengers</span> ${car.num_passengers || '-'}</span>
                 <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span>Doors</span> ${car.num_doors || '-'}</span>
-                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
+                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${getMappedDisplayText('luggage', car.luggage)}</span>
                 <span class="d-atr"><img src="images/icons/4-green.svg" alt="">${car.car_type || '-'}</span>
                                                 </div>
               <div class="d-price">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
@@ -3122,6 +3243,22 @@
               const option = document.createElement('option');
               option.value = colorKey;
               option.textContent = colorKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              select.appendChild(option);
+            });
+          }
+        });
+
+        // Populate luggage dropdown
+        const luggageSelects = document.querySelectorAll('select[name="luggage"]');
+        luggageSelects.forEach(select => {
+          if (select.children.length <= 1) { // Only has "Select Luggage Capacity" option
+            const capacities = [
+              'small', 'medium', 'large', 'extra_large'
+            ];
+            capacities.forEach(capacityKey => {
+              const option = document.createElement('option');
+              option.value = capacityKey;
+              option.textContent = capacityKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
               select.appendChild(option);
             });
           }
@@ -4767,6 +4904,10 @@
         const interiorColorInput = editForm.querySelector('input[name="interior_color"]');
         const rcaInsuranceInput = editForm.querySelector('input[name="rca_insurance_price"]');
         const cascoInsuranceInput = editForm.querySelector('input[name="casco_insurance_price"]');
+        const likesInput = editForm.querySelector('input[name="likes"]');
+        const descriptionEnInput = editForm.querySelector('textarea[name="description_en"]');
+        const descriptionRoInput = editForm.querySelector('textarea[name="description_ro"]');
+        const descriptionRuInput = editForm.querySelector('textarea[name="description_ru"]');
         
         if (luggageInput) luggageInput.value = car.luggage || '';
         if (mileageInput) mileageInput.value = car.mileage || '';
@@ -4776,6 +4917,20 @@
         if (interiorColorInput) interiorColorInput.value = car.interior_color || '';
         if (rcaInsuranceInput) rcaInsuranceInput.value = car.rca_insurance_price || '';
         if (cascoInsuranceInput) cascoInsuranceInput.value = car.casco_insurance_price || '';
+        if (likesInput) likesInput.value = car.likes || 0;
+        
+        // Handle multilingual descriptions
+        try {
+          const descriptionObj = car.description ? JSON.parse(car.description) : {};
+          if (descriptionEnInput) descriptionEnInput.value = descriptionObj.en || '';
+          if (descriptionRoInput) descriptionRoInput.value = descriptionObj.ro || '';
+          if (descriptionRuInput) descriptionRuInput.value = descriptionObj.ru || '';
+        } catch (e) {
+          // Fallback for old single-language descriptions
+          if (descriptionEnInput) descriptionEnInput.value = car.description || '';
+          if (descriptionRoInput) descriptionRoInput.value = '';
+          if (descriptionRuInput) descriptionRuInput.value = '';
+        }
         
         // Handle booked_until date
         const bookedUntilInput = editForm.querySelector('input[name="booked_until"]');
@@ -5053,6 +5208,38 @@
                 .split('_')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join(' ');
+            }
+
+            // Function to get mapped display text for car attributes
+            function getMappedDisplayText(attributeType, value) {
+              if (!value) return '-';
+              
+              const mappings = {
+                luggage: {
+                  '1_small': '1 Small Suitcase',
+                  '2_small': '2 Small Suitcases',
+                  '1_large': '1 Large Suitcase',
+                  '2_large': '2 Large Suitcases',
+                  '3_large': '3 Large Suitcases',
+                  '1_small_1_large': '1 Small + 1 Large Suitcase',
+                  '2_small_1_large': '2 Small + 1 Large Suitcase',
+                  '1_small_2_large': '1 Small + 2 Large Suitcases',
+                  '2_small_2_large': '2 Small + 2 Large Suitcases',
+                  '3_small_1_large': '3 Small + 1 Large Suitcase',
+                  '4_small': '4 Small Suitcases',
+                  '5_small': '5 Small Suitcases',
+                  '4_large': '4 Large Suitcases',
+                  '5_large': '5 Large Suitcases'
+                },
+                drive: {
+                  'front_wheel': 'Front Wheel Drive',
+                  'rear_wheel': 'Rear Wheel Drive',
+                  'all_wheel': 'All Wheel Drive',
+                  'four_wheel': '4-Wheel Drive'
+                }
+              };
+              
+              return mappings[attributeType]?.[value] || value;
             }
         </script>
         

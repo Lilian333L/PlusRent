@@ -196,27 +196,31 @@ router.post('/', tempUpload.any(), async (req, res) => {
     console.log('⚠️ No files received in request');
   }
   
-  const {
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engine_capacity,
-    car_type,
-    num_doors,
-    num_passengers,
-    price_policy: pricePolicyRaw,
-    booked_until,
-    luggage,
-    mileage,
-    drive,
-    fuel_economy,
-    exterior_color,
-    interior_color,
-    rca_insurance_price,
-    casco_insurance_price
-  } = req.body;
+                    const {
+                    make_name,
+                    model_name,
+                    production_year,
+                    gear_type,
+                    fuel_type,
+                    engine_capacity,
+                    car_type,
+                    num_doors,
+                    num_passengers,
+                    price_policy: pricePolicyRaw,
+                    booked_until,
+                    luggage,
+                    mileage,
+                    drive,
+                    fuel_economy,
+                    exterior_color,
+                    interior_color,
+                    rca_insurance_price,
+                    casco_insurance_price,
+                    likes,
+                    description_en,
+                    description_ro,
+                    description_ru
+                  } = req.body;
   
   // Parse price_policy if it's a JSON string
   let price_policy;
@@ -307,6 +311,14 @@ router.post('/', tempUpload.any(), async (req, res) => {
   const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
   const rcaInsuranceValue = rca_insurance_price ? parseFloat(rca_insurance_price) : null;
   const cascoInsuranceValue = casco_insurance_price ? parseFloat(casco_insurance_price) : null;
+  const likesValue = likes ? parseInt(likes) : 0;
+  
+  // Create multilingual description object
+  const descriptionObj = {};
+  if (description_en) descriptionObj.en = description_en;
+  if (description_ro) descriptionObj.ro = description_ro;
+  if (description_ru) descriptionObj.ru = description_ru;
+  const descriptionJson = JSON.stringify(descriptionObj);
 
   // Store in DB, booked defaults to 0
   console.log('Inserting car with data:', {
@@ -328,12 +340,13 @@ router.post('/', tempUpload.any(), async (req, res) => {
     exterior_color: exterior_color || null,
     interior_color: interior_color || null,
     rcaInsuranceValue,
-    cascoInsuranceValue
+    cascoInsuranceValue,
+    likesValue
   });
   
   db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, head_image, gallery_images, is_premium)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, likes, description, head_image, gallery_images, is_premium)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
     [
       make_name,
       model_name,
@@ -354,6 +367,8 @@ router.post('/', tempUpload.any(), async (req, res) => {
       interior_color || null,
       rcaInsuranceValue,
       cascoInsuranceValue,
+      likesValue,
+      descriptionJson,
       headImagePath,
       JSON.stringify(galleryImagePaths)
     ],
@@ -534,7 +549,11 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
     exterior_color,
     interior_color,
     rca_insurance_price,
-    casco_insurance_price
+    casco_insurance_price,
+    likes,
+    description_en,
+    description_ro,
+    description_ru
   } = req.body;
 
   // Parse price_policy if it comes as a JSON string (from FormData)
@@ -560,6 +579,10 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
   console.log('  parsed price_policy:', price_policy);
   console.log('  rca_insurance_price:', rca_insurance_price);
   console.log('  casco_insurance_price:', casco_insurance_price);
+  console.log('  likes:', likes);
+  console.log('  description_en:', description_en);
+  console.log('  description_ro:', description_ro);
+  console.log('  description_ru:', description_ru);
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -638,6 +661,14 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
   const fuelEconomyValue = fuel_economy ? parseFloat(fuel_economy) : null;
   const rcaInsuranceValue = rca_insurance_price ? parseFloat(rca_insurance_price) : null;
   const cascoInsuranceValue = casco_insurance_price ? parseFloat(casco_insurance_price) : null;
+  const likesValue = likes ? parseInt(likes) : 0;
+  
+  // Create multilingual description object
+  const descriptionObj = {};
+  if (description_en) descriptionObj.en = description_en;
+  if (description_ro) descriptionObj.ro = description_ro;
+  if (description_ru) descriptionObj.ru = description_ru;
+  const descriptionJson = JSON.stringify(descriptionObj);
 
   // Calculate booked status based on booked_until date
   let bookedStatus = 0;
@@ -749,12 +780,14 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
       interior_color || null,
       rcaInsuranceValue,
       cascoInsuranceValue,
+      likesValue,
+      descriptionJson,
       finalHeadImagePath, // Use existing head image if no new one uploaded
       id
     ];
 
     db.run(
-      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, head_image=? WHERE id=?`,
+      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, likes=?, description=?, head_image=? WHERE id=?`,
       updateParams,
       async function (err) {
         if (err) {
