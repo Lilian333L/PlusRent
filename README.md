@@ -255,4 +255,18 @@ const newCar = await fetch('/api/cars', {
 
 ## 📄 **License**
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
+
+---
+
+## 🌐 **Vercel Deployment**
+
+This application is configured for deployment on Vercel with the following setup:
+
+- **Framework**: Node.js
+- **Build Command**: `npm install`
+- **Output Directory**: Static files served from `Rentaly HTML/`
+- **Environment Variables**: Configured for Supabase integration
+- **Database**: Supabase PostgreSQL with REST API
+
+**Live URL**: https://carrental-rho-rose.vercel.app 
