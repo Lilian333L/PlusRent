@@ -1,10 +1,10 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
 // Import database configuration
-const { initializeDatabase } = require('./config/database');
+const db = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -134,7 +134,7 @@ app.get('/', (req, res) => {
 });
 
 // Initialize database
-initializeDatabase();
+// initializeDatabase(); // This line is removed as per the edit hint.
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -145,7 +145,6 @@ app.use('/api/spinning-wheels', spinningWheelRoutes);
 
 // Test endpoint to check database connection
 app.get('/api/test', (req, res) => {
-  const { db } = require('./config/database');
   db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
     if (err) {
       console.error('Database test error:', err);

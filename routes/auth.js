@@ -112,7 +112,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 // Database health check endpoint
 router.get('/health', async (req, res) => {
   try {
-    const { db } = require('../config/database');
+    const db = require('../config/database');
     
     // Test basic read operation
     db.get('SELECT 1 as test', (err, row) => {

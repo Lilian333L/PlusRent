@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { db } = require('../config/database');
+const db = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
 
 // Multer storage config for initial car creation (temporary storage)
