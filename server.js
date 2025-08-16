@@ -3,16 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Import database configuration
-const db = require('./config/database');
-
-// Import routes
-const authRoutes = require('./routes/auth');
-const carRoutes = require('./routes/cars');
-const couponRoutes = require('./routes/coupons');
-const bookingRoutes = require('./routes/bookings');
-const spinningWheelRoutes = require('./routes/spinning-wheels');
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -58,8 +48,6 @@ app.get('/Rentaly%20HTML/contact.html', (req, res) => {
 app.get('/Rentaly%20HTML/booking.html', (req, res) => {
   res.redirect(301, '/booking.html');
 });
-
-
 
 app.get('/Rentaly%20HTML/index.html', (req, res) => {
   res.redirect(301, '/');
@@ -107,8 +95,6 @@ app.get('/booking.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'booking.html'));
 });
 
-
-
 app.get('/index.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
 });
@@ -131,27 +117,6 @@ app.use('/vendor', express.static(path.join(__dirname, 'Rentaly HTML', 'vendor')
 // Root route to serve the main index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'index.html'));
-});
-
-// Initialize database
-// initializeDatabase(); // This line is removed as per the edit hint.
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/cars', carRoutes);
-app.use('/api/coupons', couponRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/spinning-wheels', spinningWheelRoutes);
-
-// Test endpoint to check database connection
-app.get('/api/test', (req, res) => {
-  db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
-    if (err) {
-      console.error('Database test error:', err);
-      return res.status(500).json({ error: 'Database connection failed: ' + err.message });
-    }
-    res.json({ success: true, message: 'Database connection working', carCount: result.count });
-  });
 });
 
 app.listen(PORT, () => {
