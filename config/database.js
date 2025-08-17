@@ -146,15 +146,89 @@ function createSupabaseDB() {
       }
       
       let endpoint = 'cars';
+      const queryParams = [];
       
-      // Add query parameters based on SQL
+      // Parse SQL to build REST API query
       const sqlLower = sql.toLowerCase();
+      
+      // Handle WHERE clauses
       if (sqlLower.includes('where')) {
-        // Handle WHERE clauses
+        // Status filter
         if (sqlLower.includes('status')) {
-          endpoint += '?status=eq.available';
+          queryParams.push('status=eq.available');
+        }
+        
+        // Make name filter
+        if (sqlLower.includes('make_name')) {
+          const makeIndex = params.findIndex(p => p && typeof p === 'string');
+          if (makeIndex !== -1) {
+            queryParams.push(`make_name=eq.${encodeURIComponent(params[makeIndex])}`);
+          }
+        }
+        
+        // Model name filter
+        if (sqlLower.includes('model_name')) {
+          const modelIndex = params.findIndex(p => p && typeof p === 'string');
+          if (modelIndex !== -1) {
+            queryParams.push(`model_name=eq.${encodeURIComponent(params[modelIndex])}`);
+          }
+        }
+        
+        // Gear type filter
+        if (sqlLower.includes('gear_type')) {
+          const gearIndex = params.findIndex(p => p && typeof p === 'string');
+          if (gearIndex !== -1) {
+            queryParams.push(`gear_type=eq.${encodeURIComponent(params[gearIndex])}`);
+          }
+        }
+        
+        // Fuel type filter
+        if (sqlLower.includes('fuel_type')) {
+          const fuelIndex = params.findIndex(p => p && typeof p === 'string');
+          if (fuelIndex !== -1) {
+            queryParams.push(`fuel_type=eq.${encodeURIComponent(params[fuelIndex])}`);
+          }
+        }
+        
+        // Car type filter
+        if (sqlLower.includes('car_type')) {
+          const carTypeIndex = params.findIndex(p => p && typeof p === 'string');
+          if (carTypeIndex !== -1) {
+            queryParams.push(`car_type=eq.${encodeURIComponent(params[carTypeIndex])}`);
+          }
+        }
+        
+        // Production year filters
+        if (sqlLower.includes('production_year >=')) {
+          const yearIndex = params.findIndex(p => p && typeof p === 'number');
+          if (yearIndex !== -1) {
+            queryParams.push(`production_year=gte.${params[yearIndex]}`);
+          }
+        }
+        
+        if (sqlLower.includes('production_year <=')) {
+          const yearIndex = params.findIndex(p => p && typeof p === 'number');
+          if (yearIndex !== -1) {
+            queryParams.push(`production_year=lte.${params[yearIndex]}`);
+          }
         }
       }
+      
+      // Add ORDER BY
+      if (sqlLower.includes('order by')) {
+        if (sqlLower.includes('display_order')) {
+          queryParams.push('order=display_order.asc');
+        } else if (sqlLower.includes('id')) {
+          queryParams.push('order=id.asc');
+        }
+      }
+      
+      // Build final endpoint
+      if (queryParams.length > 0) {
+        endpoint += '?' + queryParams.join('&');
+      }
+      
+      console.log('🌐 Supabase query:', endpoint);
       
       makeRequest('GET', endpoint)
         .then(result => {
@@ -162,6 +236,7 @@ function createSupabaseDB() {
           if (callback) callback(null, rows);
         })
         .catch(error => {
+          console.error('❌ Supabase query error:', error);
           if (callback) callback(error);
         });
     },
