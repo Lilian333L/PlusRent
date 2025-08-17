@@ -96,6 +96,24 @@ app.get('/', (req, res) => {
   });
 });
 
+// Also handle /api path (what Vercel sends)
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'API is working!', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    availableEndpoints: [
+      '/health',
+      '/test',
+      '/cars',
+      '/auth',
+      '/coupons',
+      '/bookings',
+      '/spinning-wheels'
+    ]
+  });
+});
+
 // Catch-all route for debugging
 app.use('*', (req, res) => {
   console.log('404 - Route not found:', req.originalUrl);
