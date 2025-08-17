@@ -38,51 +38,12 @@ app.use((err, req, res, next) => {
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// API Routes with error handling
-app.use('/auth', (req, res, next) => {
-  try {
-    authRoutes(req, res, next);
-  } catch (err) {
-    console.error('Auth route error:', err);
-    res.status(500).json({ error: 'Auth route failed' });
-  }
-});
-
-app.use('/cars', (req, res, next) => {
-  try {
-    carRoutes(req, res, next);
-  } catch (err) {
-    console.error('Cars route error:', err);
-    res.status(500).json({ error: 'Cars route failed' });
-  }
-});
-
-app.use('/coupons', (req, res, next) => {
-  try {
-    couponRoutes(req, res, next);
-  } catch (err) {
-    console.error('Coupons route error:', err);
-    res.status(500).json({ error: 'Coupons route failed' });
-  }
-});
-
-app.use('/bookings', (req, res, next) => {
-  try {
-    bookingRoutes(req, res, next);
-  } catch (err) {
-    console.error('Bookings route error:', err);
-    res.status(500).json({ error: 'Bookings route failed' });
-  }
-});
-
-app.use('/spinning-wheels', (req, res, next) => {
-  try {
-    spinningWheelRoutes(req, res, next);
-  } catch (err) {
-    console.error('Spinning wheels route error:', err);
-    res.status(500).json({ error: 'Spinning wheels route failed' });
-  }
-});
+// API Routes - mount them properly
+app.use('/auth', authRoutes);
+app.use('/cars', carRoutes);
+app.use('/coupons', couponRoutes);
+app.use('/bookings', bookingRoutes);
+app.use('/spinning-wheels', spinningWheelRoutes);
 
 // Test endpoint to check database connection
 app.get('/test', (req, res) => {
