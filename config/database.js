@@ -6,63 +6,69 @@ const https = require('https');
 const SUPABASE_URL = 'https://lupoqmzqppynyybbvwah.supabase.co/rest/v1/';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1cG9xbXpxcHB5bnl5YmJ2d2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTI0MzMsImV4cCI6MjA3MDkyODQzM30.DLz96LRZNw6BZsK6qhYDIbe70m7GAsPDMKAq6z1gfgI';
 
-// Check if we're in production (Vercel) or using Supabase
+// Check if we're in production (Vercel)
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Always use Supabase in production, or if explicitly configured
 const useSupabase = isProduction || process.env.SUPABASE_URL || process.env.DATABASE_URL;
+
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Is Production:', isProduction);
+console.log('Use Supabase:', useSupabase);
 
 let db;
 
-if (useSupabase) {
-  // Production: Use Supabase REST API
-  console.log('🔗 Using Supabase REST API for database operations');
-  
-  // Helper function to make HTTPS requests
-  function makeRequest(method, endpoint, data = null) {
-    return new Promise((resolve, reject) => {
-      const url = new URL(endpoint, SUPABASE_URL);
-      const postData = data ? JSON.stringify(data) : null;
-      
-      const options = {
-        hostname: url.hostname,
-        port: 443,
-        path: url.pathname + url.search,
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+// Helper function to make HTTPS requests
+function makeRequest(method, endpoint, data = null) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(endpoint, SUPABASE_URL);
+    const postData = data ? JSON.stringify(data) : null;
+    
+    const options = {
+      hostname: url.hostname,
+      port: 443,
+      path: url.pathname + url.search,
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    };
+
+    if (postData) {
+      options.headers['Content-Length'] = Buffer.byteLength(postData);
+    }
+
+    const req = https.request(options, (res) => {
+      let rawData = '';
+      res.on('data', (chunk) => { rawData += chunk; });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(rawData);
+          resolve(parsedData);
+        } catch (e) {
+          resolve(rawData);
         }
-      };
-
-      if (postData) {
-        options.headers['Content-Length'] = Buffer.byteLength(postData);
-      }
-
-      const req = https.request(options, (res) => {
-        let rawData = '';
-        res.on('data', (chunk) => { rawData += chunk; });
-        res.on('end', () => {
-          try {
-            const parsedData = JSON.parse(rawData);
-            resolve(parsedData);
-          } catch (e) {
-            resolve(rawData);
-          }
-        });
       });
-
-      req.on('error', (e) => {
-        reject(e);
-      });
-
-      if (postData) {
-        req.write(postData);
-      }
-      req.end();
     });
-  }
 
-  db = {
+    req.on('error', (e) => {
+      reject(e);
+    });
+
+    if (postData) {
+      req.write(postData);
+    }
+    req.end();
+  });
+}
+
+// Create Supabase-based database interface
+function createSupabaseDB() {
+  console.log('🔗 Creating Supabase REST API database interface');
+  
+  return {
     run: (sql, params, callback) => {
       // For INSERT, UPDATE, DELETE operations
       if (typeof params === 'function') {
@@ -160,8 +166,13 @@ if (useSupabase) {
       console.log('Supabase REST API connection closed');
     }
   };
+}
+
+// Always use Supabase in production
+if (useSupabase) {
+  db = createSupabaseDB();
 } else {
-  // Development: Use SQLite (only if sqlite3 is available)
+  // Only try SQLite in development if not in production
   try {
     const sqlite3 = require('sqlite3').verbose();
     const dbPath = path.join(__dirname, '..', 'carrental.db');
@@ -231,10 +242,7 @@ if (useSupabase) {
     });
   } catch (error) {
     console.error('SQLite3 not available, falling back to Supabase:', error.message);
-    // Fallback to Supabase if SQLite3 is not available
-    console.log('🔗 Using Supabase REST API as fallback');
-    // Reuse the Supabase configuration above
-    // (This will be handled by the useSupabase logic)
+    db = createSupabaseDB();
   }
 }
 
