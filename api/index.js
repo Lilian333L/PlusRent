@@ -78,12 +78,42 @@ app.get('/health', (req, res) => {
   }
 });
 
-// Simple test endpoint to verify the function is working
+// Root endpoint to verify the function is working
 app.get('/', (req, res) => {
   res.json({ 
     message: 'API is working!', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    availableEndpoints: [
+      '/health',
+      '/test',
+      '/cars',
+      '/auth',
+      '/coupons',
+      '/bookings',
+      '/spinning-wheels'
+    ]
+  });
+});
+
+// Catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log('404 - Route not found:', req.originalUrl);
+  res.status(404).json({
+    error: 'Route not found',
+    requestedUrl: req.originalUrl,
+    method: req.method,
+    availableEndpoints: [
+      '/',
+      '/health',
+      '/test',
+      '/cars',
+      '/auth',
+      '/coupons',
+      '/bookings',
+      '/spinning-wheels'
+    ],
+    timestamp: new Date().toISOString()
   });
 });
 
