@@ -119,21 +119,32 @@ function createSupabaseDB() {
       
       let endpoint = 'cars';
       
-      // Add query parameters based on SQL
+      // Parse SQL to build REST API query
       const sqlLower = sql.toLowerCase();
+      
+      // Handle WHERE clauses for single car queries
       if (sqlLower.includes('where')) {
-        // Handle WHERE clauses
-        if (sqlLower.includes('status')) {
+        // ID filter for single car
+        if (sqlLower.includes('id = ?')) {
+          const id = params[0];
+          endpoint += `?id=eq.${id}`;
+        }
+        // Status filter
+        else if (sqlLower.includes('status')) {
           endpoint += '?status=eq.available';
         }
       }
       
+      console.log('🌐 Supabase single car query:', endpoint);
+      
       makeRequest('GET', endpoint)
         .then(result => {
           const rows = Array.isArray(result) ? result : [];
-          if (callback) callback(null, rows);
+          // For single car queries, return the first car or null
+          if (callback) callback(null, rows.length > 0 ? rows[0] : null);
         })
         .catch(error => {
+          console.error('❌ Supabase single car query error:', error);
           if (callback) callback(error);
         });
     },
