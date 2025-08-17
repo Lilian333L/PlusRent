@@ -38,12 +38,56 @@ app.use((err, req, res, next) => {
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// API Routes - mount them properly
-app.use('/auth', authRoutes);
-app.use('/cars', carRoutes);
-app.use('/coupons', couponRoutes);
-app.use('/bookings', bookingRoutes);
-app.use('/spinning-wheels', spinningWheelRoutes);
+// Simple test route that doesn't use database
+app.get('/simple-test', (req, res) => {
+  console.log('✅ Simple test route called');
+  res.json({
+    message: 'Simple test route working!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Try to mount routes with error handling
+try {
+  console.log('🔧 Mounting auth routes...');
+  app.use('/auth', authRoutes);
+  console.log('✅ Auth routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount auth routes:', error);
+}
+
+try {
+  console.log('🔧 Mounting car routes...');
+  app.use('/cars', carRoutes);
+  console.log('✅ Car routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount car routes:', error);
+}
+
+try {
+  console.log('🔧 Mounting coupon routes...');
+  app.use('/coupons', couponRoutes);
+  console.log('✅ Coupon routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount coupon routes:', error);
+}
+
+try {
+  console.log('🔧 Mounting booking routes...');
+  app.use('/bookings', bookingRoutes);
+  console.log('✅ Booking routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount booking routes:', error);
+}
+
+try {
+  console.log('🔧 Mounting spinning wheel routes...');
+  app.use('/spinning-wheels', spinningWheelRoutes);
+  console.log('✅ Spinning wheel routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount spinning wheel routes:', error);
+}
 
 // Test endpoint to check database connection
 app.get('/test', (req, res) => {
@@ -85,8 +129,10 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     availableEndpoints: [
+      '/',
       '/health',
       '/test',
+      '/simple-test',
       '/cars',
       '/auth',
       '/coupons',
@@ -105,6 +151,7 @@ app.get('/api', (req, res) => {
     availableEndpoints: [
       '/health',
       '/test',
+      '/simple-test',
       '/cars',
       '/auth',
       '/coupons',
@@ -125,6 +172,7 @@ app.use('*', (req, res) => {
       '/',
       '/health',
       '/test',
+      '/simple-test',
       '/cars',
       '/auth',
       '/coupons',
@@ -147,6 +195,18 @@ module.exports = (req, res) => {
     res.status(200).end();
     return;
   }
+  
+  // Strip /api prefix from URL for Express routing
+  const originalUrl = req.url;
+  if (req.url.startsWith('/api')) {
+    req.url = req.url.replace('/api', '');
+    // Handle root case
+    if (req.url === '') {
+      req.url = '/';
+    }
+  }
+  
+  console.log('🌐 Original URL:', originalUrl, '-> Express URL:', req.url);
   
   // Call the Express app
   return app(req, res);
