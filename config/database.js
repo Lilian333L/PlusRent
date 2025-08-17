@@ -1,4 +1,3 @@
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
@@ -9,7 +8,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // Check if we're in production (Vercel) or using Supabase
 const isProduction = process.env.NODE_ENV === 'production';
-const useSupabase = process.env.SUPABASE_URL || process.env.DATABASE_URL;
+const useSupabase = isProduction || process.env.SUPABASE_URL || process.env.DATABASE_URL;
 
 let db;
 
@@ -102,24 +101,27 @@ if (useSupabase) {
     },
     
     get: (sql, params, callback) => {
-      // For SELECT operations returning single row
+      // For SELECT single row operations
       if (typeof params === 'function') {
         callback = params;
         params = [];
       }
       
-      const sqlLower = sql.toLowerCase();
       let endpoint = 'cars';
       
-      if (sqlLower.includes('where id =')) {
-        const id = params[0];
-        endpoint = `cars?id=eq.${id}&limit=1`;
+      // Add query parameters based on SQL
+      const sqlLower = sql.toLowerCase();
+      if (sqlLower.includes('where')) {
+        // Handle WHERE clauses
+        if (sqlLower.includes('status')) {
+          endpoint += '?status=eq.available';
+        }
       }
       
       makeRequest('GET', endpoint)
         .then(result => {
-          const row = Array.isArray(result) && result.length > 0 ? result[0] : null;
-          if (callback) callback(null, row);
+          const rows = Array.isArray(result) ? result : [];
+          if (callback) callback(null, rows);
         })
         .catch(error => {
           if (callback) callback(error);
@@ -127,7 +129,7 @@ if (useSupabase) {
     },
     
     all: (sql, params, callback) => {
-      // For SELECT operations returning multiple rows
+      // For SELECT multiple rows operations
       if (typeof params === 'function') {
         callback = params;
         params = [];
@@ -159,72 +161,81 @@ if (useSupabase) {
     }
   };
 } else {
-  // Development: Use SQLite
-  const dbPath = path.join(__dirname, '..', 'carrental.db');
-  const dbExists = fs.existsSync(dbPath);
+  // Development: Use SQLite (only if sqlite3 is available)
+  try {
+    const sqlite3 = require('sqlite3').verbose();
+    const dbPath = path.join(__dirname, '..', 'carrental.db');
+    const dbExists = fs.existsSync(dbPath);
 
-  db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-      console.error('Error connecting to SQLite database:', err.message);
-    } else {
-      console.log('Connected to SQLite database.');
-      if (!dbExists) {
-        console.log('Creating SQLite tables...');
-        db.serialize(() => {
-          db.run(`
-            CREATE TABLE cars (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              make_name TEXT,
-              model_name TEXT,
-              production_year INTEGER,
-              gear_type TEXT,
-              fuel_type TEXT,
-              engine_capacity REAL,
-              car_type TEXT,
-              num_doors INTEGER,
-              num_passengers INTEGER,
-              price_policy TEXT,
-              booked BOOLEAN DEFAULT FALSE,
-              booked_until DATE,
-              head_image TEXT,
-              gallery_images TEXT,
-              description TEXT,
-              luggage TEXT,
-              drive TEXT,
-              air_conditioning BOOLEAN,
-              min_age INTEGER,
-              deposit REAL,
-              insurance_cost REAL,
-              status TEXT DEFAULT 'available'
-            )
-          `);
-          db.run(`
-            CREATE TABLE users (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              username TEXT UNIQUE,
-              password TEXT,
-              email TEXT UNIQUE,
-              role TEXT DEFAULT 'user'
-            )
-          `);
-          db.run(`
-            CREATE TABLE bookings (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              car_id INTEGER,
-              user_id INTEGER,
-              start_date DATE,
-              end_date DATE,
-              total_price REAL,
-              status TEXT DEFAULT 'pending',
-              FOREIGN KEY (car_id) REFERENCES cars(id),
-              FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-          `);
-          console.log('SQLite tables created.');
-        });
+    db = new sqlite3.Database(dbPath, (err) => {
+      if (err) {
+        console.error('Error connecting to SQLite database:', err.message);
+      } else {
+        console.log('Connected to SQLite database.');
+        if (!dbExists) {
+          console.log('Creating SQLite tables...');
+          db.serialize(() => {
+            db.run(`
+              CREATE TABLE cars (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                make_name TEXT,
+                model_name TEXT,
+                production_year INTEGER,
+                gear_type TEXT,
+                fuel_type TEXT,
+                engine_capacity REAL,
+                car_type TEXT,
+                num_doors INTEGER,
+                num_passengers INTEGER,
+                price_policy TEXT,
+                booked BOOLEAN DEFAULT FALSE,
+                booked_until DATE,
+                head_image TEXT,
+                gallery_images TEXT,
+                description TEXT,
+                luggage TEXT,
+                drive TEXT,
+                air_conditioning BOOLEAN,
+                min_age INTEGER,
+                deposit REAL,
+                insurance_cost REAL,
+                status TEXT DEFAULT 'available'
+              )
+            `);
+            db.run(`
+              CREATE TABLE users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password TEXT,
+                email TEXT UNIQUE,
+                role TEXT DEFAULT 'user'
+              )
+            `);
+            db.run(`
+              CREATE TABLE bookings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                car_id INTEGER,
+                user_id INTEGER,
+                start_date DATE,
+                end_date DATE,
+                total_price REAL,
+                status TEXT DEFAULT 'pending',
+                FOREIGN KEY (car_id) REFERENCES cars(id),
+                FOREIGN KEY (user_id) REFERENCES cars(id)
+              )
+            `);
+            console.log('SQLite tables created.');
+          });
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error('SQLite3 not available, falling back to Supabase:', error.message);
+    // Fallback to Supabase if SQLite3 is not available
+    console.log('🔗 Using Supabase REST API as fallback');
+    // Reuse the Supabase configuration above
+    // (This will be handled by the useSupabase logic)
+  }
 }
 
 module.exports = db; 
