@@ -8,13 +8,17 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // Check if we're in production (Vercel)
 const isProduction = process.env.NODE_ENV === 'production';
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'production';
 
 // Always use Supabase in production, or if explicitly configured
-const useSupabase = isProduction || process.env.SUPABASE_URL || process.env.DATABASE_URL;
+const useSupabase = isProduction || isVercel || process.env.SUPABASE_URL || process.env.DATABASE_URL;
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Is Production:', isProduction);
+console.log('Is Vercel:', isVercel);
 console.log('Use Supabase:', useSupabase);
+console.log('VERCEL env:', process.env.VERCEL);
+console.log('VERCEL_ENV:', process.env.VERCEL_ENV);
 
 let db;
 
@@ -168,7 +172,7 @@ function createSupabaseDB() {
   };
 }
 
-// Always use Supabase in production
+// Always use Supabase in production or on Vercel
 if (useSupabase) {
   db = createSupabaseDB();
 } else {
