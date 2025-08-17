@@ -99,8 +99,13 @@ router.get('/', (req, res) => {
     }
     // Parse price_policy and gallery_images for each car
     rows.forEach(car => {
-      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+      // Supabase already returns parsed JSON, so only parse if it's a string
+      if (typeof car.price_policy === 'string') {
+        car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      }
+      if (typeof car.gallery_images === 'string') {
+        car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+      }
     });
     res.json(rows);
   });
@@ -123,7 +128,10 @@ router.get('/booking/available', (req, res) => {
     
     // Parse price_policy for each car and format for display
     const cars = rows.map(car => {
-      const pricePolicy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      // Supabase already returns parsed JSON, so only parse if it's a string
+      const pricePolicy = typeof car.price_policy === 'string' 
+        ? (car.price_policy ? JSON.parse(car.price_policy) : {})
+        : (car.price_policy || {});
       const dailyPrice = pricePolicy['1-2'] || 'N/A';
       
       return {
@@ -160,8 +168,13 @@ router.get('/:id', (req, res) => {
     if (!car) {
       return res.status(404).json({ error: 'Car not found' });
     }
-    car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-    car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    // Supabase already returns parsed JSON, so only parse if it's a string
+    if (typeof car.price_policy === 'string') {
+      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+    }
+    if (typeof car.gallery_images === 'string') {
+      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    }
     res.json(car);
   });
 });
