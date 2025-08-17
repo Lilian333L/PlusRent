@@ -217,7 +217,8 @@ function createSupabaseDB() {
       // Add ORDER BY
       if (sqlLower.includes('order by')) {
         if (sqlLower.includes('display_order')) {
-          queryParams.push('order=display_order.asc');
+          // display_order column doesn't exist in Supabase, use id instead
+          queryParams.push('order=id.asc');
         } else if (sqlLower.includes('id')) {
           queryParams.push('order=id.asc');
         }
