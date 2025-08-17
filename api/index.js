@@ -78,5 +78,14 @@ app.get('/health', (req, res) => {
   }
 });
 
-// Export the Express app for Vercel
+// Simple test endpoint to verify the function is working
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'API is working!', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Export for Vercel serverless function
 module.exports = app; 
