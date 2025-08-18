@@ -52,9 +52,7 @@ router.get('/', (req, res) => {
     if (req.query[param] && req.query[param] !== '') {
       const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
       if (values.length > 1) {
-        // For multiple values, use OR conditions instead of IN for better Supabase compatibility
-        const orConditions = values.map(() => `${field} = ? COLLATE NOCASE`).join(' OR ');
-        filters.push(`(${orConditions})`);
+        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
         params.push(...values);
       } else {
         filters.push(`${field} = ? COLLATE NOCASE`);
