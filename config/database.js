@@ -271,43 +271,93 @@ function createSupabaseDB() {
           queryParams.push('status=eq.available');
         }
         
-        // Make name filter
+        // Make name filter - handle multiple values
         if (sqlLower.includes('make_name')) {
           const makeIndex = params.findIndex(p => p && typeof p === 'string');
           if (makeIndex !== -1) {
-            queryParams.push(`make_name=eq.${encodeURIComponent(params[makeIndex])}`);
+            const makeValue = params[makeIndex];
+            if (makeValue.includes(',')) {
+              // Multiple values - use 'in' operator
+              const makes = makeValue.split(',').map(m => m.trim()).filter(Boolean);
+              makes.forEach(make => {
+                queryParams.push(`make_name=eq.${encodeURIComponent(make)}`);
+              });
+            } else {
+              // Single value
+              queryParams.push(`make_name=eq.${encodeURIComponent(makeValue)}`);
+            }
           }
         }
         
-        // Model name filter
+        // Model name filter - handle multiple values
         if (sqlLower.includes('model_name')) {
           const modelIndex = params.findIndex(p => p && typeof p === 'string');
           if (modelIndex !== -1) {
-            queryParams.push(`model_name=eq.${encodeURIComponent(params[modelIndex])}`);
+            const modelValue = params[modelIndex];
+            if (modelValue.includes(',')) {
+              // Multiple values - use 'in' operator
+              const models = modelValue.split(',').map(m => m.trim()).filter(Boolean);
+              models.forEach(model => {
+                queryParams.push(`model_name=eq.${encodeURIComponent(model)}`);
+              });
+            } else {
+              // Single value
+              queryParams.push(`model_name=eq.${encodeURIComponent(modelValue)}`);
+            }
           }
         }
         
-        // Gear type filter
+        // Gear type filter - handle multiple values
         if (sqlLower.includes('gear_type')) {
           const gearIndex = params.findIndex(p => p && typeof p === 'string');
           if (gearIndex !== -1) {
-            queryParams.push(`gear_type=eq.${encodeURIComponent(params[gearIndex])}`);
+            const gearValue = params[gearIndex];
+            if (gearValue.includes(',')) {
+              // Multiple values - use 'in' operator
+              const gears = gearValue.split(',').map(g => g.trim()).filter(Boolean);
+              gears.forEach(gear => {
+                queryParams.push(`gear_type=eq.${encodeURIComponent(gear)}`);
+              });
+            } else {
+              // Single value
+              queryParams.push(`gear_type=eq.${encodeURIComponent(gearValue)}`);
+            }
           }
         }
         
-        // Fuel type filter
+        // Fuel type filter - handle multiple values
         if (sqlLower.includes('fuel_type')) {
           const fuelIndex = params.findIndex(p => p && typeof p === 'string');
           if (fuelIndex !== -1) {
-            queryParams.push(`fuel_type=eq.${encodeURIComponent(params[fuelIndex])}`);
+            const fuelValue = params[fuelIndex];
+            if (fuelValue.includes(',')) {
+              // Multiple values - use 'in' operator
+              const fuels = fuelValue.split(',').map(f => f.trim()).filter(Boolean);
+              fuels.forEach(fuel => {
+                queryParams.push(`fuel_type=eq.${encodeURIComponent(fuel)}`);
+              });
+            } else {
+              // Single value
+              queryParams.push(`fuel_type=eq.${encodeURIComponent(fuelValue)}`);
+            }
           }
         }
         
-        // Car type filter
+        // Car type filter - handle multiple values
         if (sqlLower.includes('car_type')) {
           const carTypeIndex = params.findIndex(p => p && typeof p === 'string');
           if (carTypeIndex !== -1) {
-            queryParams.push(`car_type=eq.${encodeURIComponent(params[carTypeIndex])}`);
+            const carTypeValue = params[carTypeIndex];
+            if (carTypeValue.includes(',')) {
+              // Multiple values - use 'in' operator
+              const carTypes = carTypeValue.split(',').map(ct => ct.trim()).filter(Boolean);
+              carTypes.forEach(carType => {
+                queryParams.push(`car_type=eq.${encodeURIComponent(carType)}`);
+              });
+            } else {
+              // Single value
+              queryParams.push(`car_type=eq.${encodeURIComponent(carTypeValue)}`);
+            }
           }
         }
         
