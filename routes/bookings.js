@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
   // Validate required fields
   if (!car_id || !pickup_date || !pickup_time || !return_date || !return_time || 
       !insurance_type || !pickup_location || !dropoff_location) {
+    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, insurance_type, pickup_location, dropoff_location });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 

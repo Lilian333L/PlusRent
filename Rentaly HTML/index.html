@@ -18,8 +18,6 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
-    <script src="js/config.js"></script>
-
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
@@ -1759,7 +1757,7 @@
                                             <h3 class="mb-3" data-i18n="booking.congratulations">Congratulations! Your booking has been submitted successfully.</h3>
                                             <p class="mb-3" data-i18n="booking.confirmation_message">We have received your booking request and will contact you within 24 hours to confirm your reservation.</p>
                                             <div class="booking-details mb-4">
-                                                <h5>Booking Summary</h5>
+                                                <h5 data-i18n="booking.booking_summary">Booking Summary</h5>
                                                 <div id="booking-summary" class="text-left">
                                                     <!-- Booking details will be populated here -->
                                                 </div>
@@ -1886,7 +1884,12 @@
                         </div>
                         <div class="clearfix"></div>
                         <!-- Dynamic car grid will be rendered here -->
-                        <div id="fleet-car-grid" class="fleet-car-grid"></div>
+                        <div id="fleet-car-grid" class="fleet-car-grid">
+                          <div style="text-align:center;padding:2em;">
+                            <p>Loading vehicle fleet...</p>
+                            <p><small>If this doesn't load, please ensure the server is running and refresh the page.</small></p>
+                          </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -2199,18 +2202,41 @@
       }
 
       document.addEventListener('DOMContentLoaded', function() {
+        console.log('Fleet section: DOM loaded');
+        
         const grid = document.getElementById('fleet-car-grid');
-        if (!grid) return;
+        if (!grid) {
+          console.error('Fleet section: Grid element not found');
+          return;
+        }
+        
+        console.log('Fleet section: Grid element found, API_BASE_URL:', window.API_BASE_URL);
+        
         grid.className = 'fleet-car-grid car-list-row';
         grid.innerHTML = '<div style="text-align:center;padding:2em;">Loading...</div>';
-        fetch(window.API_BASE_URL + '/api/cars')
-          .then(res => res.json())
+        
+        const apiUrl = window.API_BASE_URL + '/api/cars';
+        console.log('Fleet section: Fetching from:', apiUrl);
+        
+        fetch(apiUrl)
+          .then(res => {
+            console.log('Fleet section: Response status:', res.status);
+            if (!res.ok) {
+              throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res.json();
+          })
           .then(cars => {
+            console.log('Fleet section: Cars loaded:', cars.length);
+            
             if (!cars.length) {
               grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
               return;
             }
-            grid.innerHTML = cars.map(car => {
+            
+            const carsHtml = cars.map(car => {
+              console.log('Fleet section: Processing car:', car.id, car.make_name, car.model_name);
+              
               // Check if car is unavailable (booked until a future date)
               const isUnavailable = car.booked_until && (() => {
                 const bookedUntil = new Date(car.booked_until);
@@ -2226,7 +2252,12 @@
                 const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
                 badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\" data-i18n-date=\"${formatted}\">UNAVAILABLE UNTIL ${formatted}</div>`;
               }
+              
               const isPremium = car.is_premium === 1 || car.is_premium === true;
+              const rentNowUrl = `car-single.html?id=${car.id}`;
+              
+              console.log('Fleet section: Generated URL for car', car.id, ':', rentNowUrl);
+              
               return `
                 <div class=\"col-xl-4 col-lg-6\">
                   <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
@@ -2251,16 +2282,27 @@
                         <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
                         ${isUnavailable
                           ? '<span class=\"btn-main btn-unavailable\" tabindex=\"-1\" aria-disabled=\"true\" data-i18n=\"cars.not_available\">Not Available</span>'
-                          : `<a class=\"btn-main\" href=\"car-single.html?id=${car.id}\" data-i18n=\"cars.rent_now\">Rent Now</a>`}
+                          : `<a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>`}
                       </div>
                     </div>
                   </div>
                 </div>
               `;
             }).join('');
+            
+            grid.innerHTML = carsHtml;
+            console.log('Fleet section: HTML generated successfully');
+            
+            // Verify links were created
+            const links = grid.querySelectorAll('a[href*="car-single.html"]');
+            console.log('Fleet section: Generated', links.length, 'Rent Now links');
+            links.forEach((link, index) => {
+              console.log(`Fleet section: Link ${index + 1}:`, link.href);
+            });
           })
-          .catch(() => {
-            grid.innerHTML = '<div style="color:red;text-align:center;">Failed to load cars.</div>';
+          .catch((error) => {
+            console.error('Fleet section: Error loading cars:', error);
+            grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message}</div>`;
           });
       });
     </script>
