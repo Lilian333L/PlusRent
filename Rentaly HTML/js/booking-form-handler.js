@@ -132,8 +132,8 @@ class BookingFormHandler {
       return { isValid: false, error: 'Please enter your phone number' };
     }
 
-    // Validate phone format (basic validation)
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
+    // Validate phone format (very lenient - just check it's not empty and has some digits)
+    const phoneRegex = /.*[0-9].*/;
     if (!phoneRegex.test(bookingData.customer_phone)) {
       return { isValid: false, error: 'Please enter a valid phone number' };
     }

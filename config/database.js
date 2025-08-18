@@ -92,6 +92,10 @@ function createSupabaseDB() {
         method = 'POST';
         endpoint = 'admin_users';
         data = params[0] || {};
+      } else if (sqlLower.includes('insert into bookings')) {
+        method = 'POST';
+        endpoint = 'bookings';
+        data = params[0] || {};
       } else if (sqlLower.includes('update cars')) {
         method = 'PATCH';
         const idMatch = sql.match(/WHERE id = \?/);
