@@ -295,17 +295,50 @@ router.patch('/:id/wheel-percentage', (req, res) => {
 });
 
 // Get single coupon code
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const id = req.params.id;
-  db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for single coupon fetch');
+      
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error('❌ Supabase error fetching coupon:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      if (!data) {
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      console.log('✅ Coupon fetched successfully from Supabase');
+      res.json(data);
+      
+    } catch (error) {
+      console.error('❌ Supabase error fetching coupon:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    res.json(coupon);
-  });
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!coupon) {
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      res.json(coupon);
+    });
+  }
 });
 
 // Add new coupon code
