@@ -565,7 +565,7 @@
         function checkAuth() {
             const token = localStorage.getItem('adminToken');
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
             
@@ -578,13 +578,13 @@
             .then(response => {
                 if (!response.ok) {
                     localStorage.removeItem('adminToken');
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }
             })
             .catch(error => {
                 console.error('Auth check failed:', error);
                 localStorage.removeItem('adminToken');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             });
         }
         
