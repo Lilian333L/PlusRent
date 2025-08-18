@@ -15,6 +15,8 @@ router.post('/', async (req, res) => {
     insurance_type,
     pickup_location,
     dropoff_location,
+    contact_person,
+    contact_phone,
     special_instructions,
     total_price,
     price_breakdown,
@@ -22,6 +24,8 @@ router.post('/', async (req, res) => {
     customer_email,
     customer_phone
   } = req.body;
+
+  console.log('📝 Booking request received:', req.body);
 
   // Validate required fields
   if (!car_id || !pickup_date || !pickup_time || !return_date || !return_time || 
@@ -75,14 +79,21 @@ router.post('/', async (req, res) => {
       insurance_type,
       pickup_location,
       dropoff_location,
-      customer_name: customer_name || contact_person || null,
-      customer_phone: customer_phone || contact_phone || null,
+      customer_name: customer_name || null,
+      customer_phone: customer_phone || null,
       special_instructions: special_instructions || null,
       total_price,
       price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
       status: 'pending', // Default status - waiting for admin confirmation
       created_at: new Date().toISOString()
     };
+
+    // Remove null/undefined values
+    Object.keys(bookingData).forEach(key => {
+      if (bookingData[key] === null || bookingData[key] === undefined || bookingData[key] === '') {
+        delete bookingData[key];
+      }
+    });
 
     db.run(`
       INSERT INTO bookings (
@@ -110,7 +121,8 @@ router.post('/', async (req, res) => {
       bookingData.created_at
     ], async function(err) {
       if (err) {
-        return res.status(500).json({ error: 'Failed to create booking' });
+        console.error('❌ Database error creating booking:', err);
+        return res.status(500).json({ error: 'Failed to create booking', details: err.message });
       }
 
       const bookingId = this.lastID;

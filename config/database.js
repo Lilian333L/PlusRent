@@ -106,15 +106,29 @@ function createSupabaseDB() {
           insurance_type: params[6],
           pickup_location: params[7],
           dropoff_location: params[8],
-          customer_name: params[9],
-          customer_phone: params[10],
-          special_instructions: params[11],
+          customer_name: params[9] || null,
+          customer_phone: params[10] || null,
+          special_instructions: params[11] || null,
           total_price: params[12],
-          price_breakdown: params[13],
+          price_breakdown: params[13] || null,
           status: params[14],
           created_at: params[15]
         };
+        
+        // Remove null/undefined values and non-existent fields to avoid Supabase errors
+        Object.keys(data).forEach(key => {
+          if (data[key] === null || data[key] === undefined || data[key] === '') {
+            delete data[key];
+          }
+        });
+        
+        // Remove fields that don't exist in Supabase schema
+        delete data.contact_person;
+        delete data.contact_phone;
+        delete data.customer_email; // This field might not exist either
+        
         console.log('📝 Creating booking with data:', data);
+        console.log('📝 Parameters received:', params);
       } else if (sqlLower.includes('update cars')) {
         method = 'PATCH';
         const idMatch = sql.match(/WHERE id = \?/);
@@ -172,9 +186,11 @@ function createSupabaseDB() {
       
       makeRequest(method, endpoint, data)
         .then(result => {
+          console.log('✅ Supabase request successful:', result);
           if (callback) callback(null, result);
         })
         .catch(error => {
+          console.error('❌ Supabase request failed:', error);
           if (callback) callback(error);
         });
     },
