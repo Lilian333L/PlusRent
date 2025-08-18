@@ -398,6 +398,7 @@ function createSupabaseDB() {
       }
       
       console.log('🌐 Supabase query:', endpoint);
+      console.log('🔍 Query params:', queryParams);
       
       makeRequest('GET', endpoint)
         .then(result => {
