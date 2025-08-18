@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
+const { supabase } = require('../lib/supabaseClient');
 
 // Multer storage config for initial car creation (temporary storage)
 const tempImageStorage = multer.diskStorage({
@@ -43,72 +44,161 @@ const upload = multer({ storage: carImageStorage });
 const tempUpload = multer({ storage: tempImageStorage });
 
 // Get all cars with filtering
-router.get('/', (req, res) => {
-  const filters = [];
-  const params = [];
+router.get('/', async (req, res) => {
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    // Use native Supabase client for filtering
+    try {
+      let query = supabase.from('cars').select('*');
+      
+      // Helper to add filters
+      function addFilter(field, param) {
+        if (req.query[param] && req.query[param] !== '') {
+          const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
+          if (values.length > 1) {
+            // Multiple values - use 'in' operator
+            query = query.in(field, values);
+          } else {
+            // Single value - use 'eq' operator
+            query = query.eq(field, values[0]);
+          }
+        }
+      }
+      
+      // Add filters
+      addFilter('make_name', 'make_name');
+      addFilter('model_name', 'model_name');
+      addFilter('gear_type', 'gear_type');
+      addFilter('fuel_type', 'fuel_type');
+      addFilter('car_type', 'car_type');
+      addFilter('num_doors', 'num_doors');
+      addFilter('num_passengers', 'num_passengers');
+      
+      // Year filters
+      if (req.query.min_year && req.query.min_year !== '') {
+        query = query.gte('production_year', req.query.min_year);
+      }
+      if (req.query.max_year && req.query.max_year !== '') {
+        query = query.lte('production_year', req.query.max_year);
+      }
+      
+      // Price filtering (by daily rate for 1-2 days)
+      if (req.query.min_price && req.query.min_price !== '') {
+        query = query.gte('daily_rate', req.query.min_price);
+      }
+      if (req.query.max_price && req.query.max_price !== '') {
+        query = query.lte('daily_rate', req.query.max_price);
+      }
+      
+      // Order by
+      query = query.order('id', { ascending: true });
+      
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('❌ Supabase query error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Parse price_policy and gallery_images for each car
+      const cars = data.map(car => {
+        // Parse price_policy if it's a string
+        if (car.price_policy && typeof car.price_policy === 'string') {
+          try {
+            car.price_policy = JSON.parse(car.price_policy);
+          } catch (e) {
+            console.warn('Failed to parse price_policy for car:', car.id);
+          }
+        }
+        
+        // Parse gallery_images if it's a string
+        if (car.gallery_images && typeof car.gallery_images === 'string') {
+          try {
+            car.gallery_images = JSON.parse(car.gallery_images);
+          } catch (e) {
+            console.warn('Failed to parse gallery_images for car:', car.id);
+          }
+        }
+        
+        return car;
+      });
+      
+      res.json(cars);
+      
+    } catch (error) {
+      console.error('❌ Supabase error:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    // Use SQLite for local development
+    const filters = [];
+    const params = [];
 
-  // Helper to add single or multi-value filter (case-insensitive)
-  function addFilter(field, param) {
-    if (req.query[param] && req.query[param] !== '') {
-      const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
-      if (values.length > 1) {
-        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
-        params.push(...values);
-      } else {
-        filters.push(`${field} = ? COLLATE NOCASE`);
-        params.push(values[0]);
+    // Helper to add single or multi-value filter (case-insensitive)
+    function addFilter(field, param) {
+      if (req.query[param] && req.query[param] !== '') {
+        const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
+        if (values.length > 1) {
+          filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
+          params.push(...values);
+        } else {
+          filters.push(`${field} = ? COLLATE NOCASE`);
+          params.push(values[0]);
+        }
       }
     }
-  }
 
-  addFilter('make_name', 'make_name');
-  addFilter('model_name', 'model_name');
-  addFilter('gear_type', 'gear_type');
-  addFilter('fuel_type', 'fuel_type');
-  addFilter('car_type', 'car_type');
-  addFilter('num_doors', 'num_doors');
-  addFilter('num_passengers', 'num_passengers');
+    addFilter('make_name', 'make_name');
+    addFilter('model_name', 'model_name');
+    addFilter('gear_type', 'gear_type');
+    addFilter('fuel_type', 'fuel_type');
+    addFilter('car_type', 'car_type');
+    addFilter('num_doors', 'num_doors');
+    addFilter('num_passengers', 'num_passengers');
 
-  if (req.query.min_year && req.query.min_year !== '') {
-    filters.push('production_year >= ?');
-    params.push(req.query.min_year);
-  }
-  if (req.query.max_year && req.query.max_year !== '') {
-    filters.push('production_year <= ?');
-    params.push(req.query.max_year);
-  }
-  // Price filtering (by daily rate for 1-2 days)
-  if (req.query.min_price && req.query.min_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
-    params.push(req.query.min_price);
-  }
-  if (req.query.max_price && req.query.max_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
-    params.push(req.query.max_price);
-  }
-
-  let sql = 'SELECT * FROM cars';
-  if (filters.length > 0) {
-    sql += ' WHERE ' + filters.join(' AND ');
-  }
-  sql += ' ORDER BY display_order ASC, id ASC';
-
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+    if (req.query.min_year && req.query.min_year !== '') {
+      filters.push('production_year >= ?');
+      params.push(req.query.min_year);
     }
-    // Parse price_policy and gallery_images for each car
-    rows.forEach(car => {
-      // Supabase already returns parsed JSON, so only parse if it's a string
-      if (typeof car.price_policy === 'string') {
-        car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+    if (req.query.max_year && req.query.max_year !== '') {
+      filters.push('production_year <= ?');
+      params.push(req.query.max_year);
+    }
+    // Price filtering (by daily rate for 1-2 days)
+    if (req.query.min_price && req.query.min_price !== '') {
+      filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
+      params.push(req.query.min_price);
+    }
+    if (req.query.max_price && req.query.max_price !== '') {
+      filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
+      params.push(req.query.max_price);
+    }
+
+    let sql = 'SELECT * FROM cars';
+    if (filters.length > 0) {
+      sql += ' WHERE ' + filters.join(' AND ');
+    }
+    sql += ' ORDER BY display_order ASC, id ASC';
+
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
       }
-      if (typeof car.gallery_images === 'string') {
-        car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-      }
+      // Parse price_policy and gallery_images for each car
+      rows.forEach(car => {
+        // Supabase already returns parsed JSON, so only parse if it's a string
+        if (typeof car.price_policy === 'string') {
+          car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+        }
+        if (typeof car.gallery_images === 'string') {
+          car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+        }
+      });
+      res.json(rows);
     });
-    res.json(rows);
-  });
+  }
 });
 
 // Get cars for booking form (only available cars with basic info)
