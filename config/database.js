@@ -277,7 +277,7 @@ function createSupabaseDB() {
           if (makeIndex !== -1) {
             const makeValue = params[makeIndex];
             if (makeValue.includes(',')) {
-              // Multiple values - use 'in' operator for OR logic
+              // Multiple values - use 'in' operator with proper syntax
               const makes = makeValue.split(',').map(m => m.trim()).filter(Boolean);
               queryParams.push(`make_name=in.(${makes.map(m => `"${m}"`).join(',')})`);
             } else {
@@ -293,7 +293,7 @@ function createSupabaseDB() {
           if (modelIndex !== -1) {
             const modelValue = params[modelIndex];
             if (modelValue.includes(',')) {
-              // Multiple values - use 'in' operator for OR logic
+              // Multiple values - use 'in' operator with proper syntax
               const models = modelValue.split(',').map(m => m.trim()).filter(Boolean);
               queryParams.push(`model_name=in.(${models.map(m => `"${m}"`).join(',')})`);
             } else {
@@ -309,7 +309,7 @@ function createSupabaseDB() {
           if (gearIndex !== -1) {
             const gearValue = params[gearIndex];
             if (gearValue.includes(',')) {
-              // Multiple values - use 'in' operator for OR logic
+              // Multiple values - use 'in' operator with proper syntax
               const gears = gearValue.split(',').map(g => g.trim()).filter(Boolean);
               queryParams.push(`gear_type=in.(${gears.map(g => `"${g}"`).join(',')})`);
             } else {
@@ -325,7 +325,7 @@ function createSupabaseDB() {
           if (fuelIndex !== -1) {
             const fuelValue = params[fuelIndex];
             if (fuelValue.includes(',')) {
-              // Multiple values - use 'in' operator for OR logic
+              // Multiple values - use 'in' operator with proper syntax
               const fuels = fuelValue.split(',').map(f => f.trim()).filter(Boolean);
               queryParams.push(`fuel_type=in.(${fuels.map(f => `"${f}"`).join(',')})`);
             } else {
@@ -341,7 +341,7 @@ function createSupabaseDB() {
           if (carTypeIndex !== -1) {
             const carTypeValue = params[carTypeIndex];
             if (carTypeValue.includes(',')) {
-              // Multiple values - use 'in' operator for OR logic
+              // Multiple values - use 'in' operator with proper syntax
               const carTypes = carTypeValue.split(',').map(ct => ct.trim()).filter(Boolean);
               queryParams.push(`car_type=in.(${carTypes.map(ct => `"${ct}"`).join(',')})`);
             } else {
