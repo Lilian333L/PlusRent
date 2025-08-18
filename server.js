@@ -3,6 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
+// Import API routes
+const authRoutes = require('./routes/auth');
+const bookingsRoutes = require('./routes/bookings');
+const carsRoutes = require('./routes/cars');
+const couponsRoutes = require('./routes/coupons');
+const spinningWheelsRoutes = require('./routes/spinning-wheels');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -130,6 +137,13 @@ app.get('/spinning-wheel-standalone.html', (req, res) => {
 // Serve static files from Rentaly HTML directory (for CSS, JS, images)
 app.use('/Rentaly%20HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
 app.use('/Rentaly HTML', express.static(path.join(__dirname, 'Rentaly HTML')));
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingsRoutes);
+app.use('/api/cars', carsRoutes);
+app.use('/api/coupons', couponsRoutes);
+app.use('/api/spinning-wheels', spinningWheelsRoutes);
 
 // Serve static assets from root path for clean URLs
 app.use('/css', express.static(path.join(__dirname, 'Rentaly HTML', 'css')));

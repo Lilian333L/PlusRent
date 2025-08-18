@@ -391,60 +391,29 @@ if (useSupabase) {
         console.error('Error connecting to SQLite database:', err.message);
       } else {
         console.log('Connected to SQLite database.');
-        if (!dbExists) {
-          console.log('Creating SQLite tables...');
+        // Always check if tables exist and create them if they don't
+        console.log('Checking SQLite tables...');
+        const schemaPath = path.join(__dirname, '..', 'database_schema.sql');
+        if (fs.existsSync(schemaPath)) {
+          const schema = fs.readFileSync(schemaPath, 'utf8');
           db.serialize(() => {
-            db.run(`
-              CREATE TABLE cars (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                make_name TEXT,
-                model_name TEXT,
-                production_year INTEGER,
-                gear_type TEXT,
-                fuel_type TEXT,
-                engine_capacity REAL,
-                car_type TEXT,
-                num_doors INTEGER,
-                num_passengers INTEGER,
-                price_policy TEXT,
-                booked BOOLEAN DEFAULT FALSE,
-                booked_until DATE,
-                head_image TEXT,
-                gallery_images TEXT,
-                description TEXT,
-                luggage TEXT,
-                drive TEXT,
-                air_conditioning BOOLEAN,
-                min_age INTEGER,
-                deposit REAL,
-                insurance_cost REAL,
-                status TEXT DEFAULT 'available'
-              )
-            `);
-            db.run(`
-              CREATE TABLE users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE,
-                password TEXT,
-                email TEXT UNIQUE,
-                role TEXT DEFAULT 'user'
-              )
-            `);
-            db.run(`
-              CREATE TABLE bookings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                car_id INTEGER,
-                user_id INTEGER,
-                start_date DATE,
-                end_date DATE,
-                total_price REAL,
-                status TEXT DEFAULT 'pending',
-                FOREIGN KEY (car_id) REFERENCES cars(id),
-                FOREIGN KEY (user_id) REFERENCES cars(id)
-              )
-            `);
-            console.log('SQLite tables created.');
+            // Split schema into individual statements and execute them
+            const statements = schema.split(';').filter(stmt => stmt.trim());
+            statements.forEach(statement => {
+              if (statement.trim() && !statement.toLowerCase().includes('sqlite_sequence')) {
+                // Use CREATE TABLE IF NOT EXISTS for each table
+                const createTableStatement = statement.replace(/CREATE TABLE (\w+)/, 'CREATE TABLE IF NOT EXISTS $1');
+                db.run(createTableStatement, (err) => {
+                  if (err && !err.message.includes('already exists')) {
+                    console.error('Error creating table:', err.message);
+                  }
+                });
+              }
+            });
+            console.log('SQLite tables checked/created.');
           });
+        } else {
+          console.error('Database schema file not found:', schemaPath);
         }
       }
     });
