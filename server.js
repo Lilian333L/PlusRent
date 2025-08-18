@@ -96,6 +96,10 @@ app.get('/Rentaly%20HTML/spinning-wheel-standalone.html', (req, res) => {
   res.redirect(301, '/spinning-wheel-standalone');
 });
 
+app.get('/Rentaly%20HTML/all-codes.html', (req, res) => {
+  res.redirect(301, '/all-codes');
+});
+
 // Clean URL routes (without .html)
 app.get('/cars', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'cars.html'));
@@ -127,6 +131,10 @@ app.get('/booking', (req, res) => {
 
 app.get('/spinning-wheel-standalone', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'spinning-wheel-standalone.html'));
+});
+
+app.get('/all-codes', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'all-codes.html'));
 });
 
 // Legacy .html routes (for backward compatibility)
@@ -164,6 +172,10 @@ app.get('/index.html', (req, res) => {
 
 app.get('/spinning-wheel-standalone.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'spinning-wheel-standalone.html'));
+});
+
+app.get('/all-codes.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'all-codes.html'));
 });
 
 // Serve static files from Rentaly HTML directory (for CSS, JS, images)
