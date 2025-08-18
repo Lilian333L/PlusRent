@@ -88,11 +88,21 @@ function createSupabaseDB() {
         method = 'POST';
         endpoint = 'cars';
         data = params[0] || {};
+      } else if (sqlLower.includes('insert into admin_users')) {
+        method = 'POST';
+        endpoint = 'admin_users';
+        data = params[0] || {};
       } else if (sqlLower.includes('update cars')) {
         method = 'PATCH';
         const idMatch = sql.match(/WHERE id = \?/);
         const id = idMatch ? params[params.length - 1] : null;
         endpoint = `cars?id=eq.${id}`;
+        data = params[0] || {};
+      } else if (sqlLower.includes('update admin_users')) {
+        method = 'PATCH';
+        const idMatch = sql.match(/WHERE id = \?/);
+        const id = idMatch ? params[params.length - 1] : null;
+        endpoint = `admin_users?id=eq.${id}`;
         data = params[0] || {};
       } else if (sqlLower.includes('delete from cars')) {
         method = 'DELETE';
@@ -117,34 +127,42 @@ function createSupabaseDB() {
         params = [];
       }
       
+      const sqlLower = sql.toLowerCase();
       let endpoint = 'cars';
       
-      // Parse SQL to build REST API query
-      const sqlLower = sql.toLowerCase();
+      // Determine which table to query
+      if (sqlLower.includes('admin_users')) {
+        endpoint = 'admin_users';
+      }
       
-      // Handle WHERE clauses for single car queries
+      // Parse SQL to build REST API query
       if (sqlLower.includes('where')) {
-        // ID filter for single car
+        // ID filter for single record
         if (sqlLower.includes('id = ?')) {
           const id = params[0];
           endpoint += `?id=eq.${id}`;
         }
-        // Status filter
+        // Username filter for admin users
+        else if (sqlLower.includes('username = ?')) {
+          const username = params[0];
+          endpoint += `?username=eq.${encodeURIComponent(username)}`;
+        }
+        // Status filter for cars
         else if (sqlLower.includes('status')) {
           endpoint += '?status=eq.available';
         }
       }
       
-      console.log('🌐 Supabase single car query:', endpoint);
+      console.log('🌐 Supabase single record query:', endpoint);
       
       makeRequest('GET', endpoint)
         .then(result => {
           const rows = Array.isArray(result) ? result : [];
-          // For single car queries, return the first car or null
+          // For single record queries, return the first record or null
           if (callback) callback(null, rows.length > 0 ? rows[0] : null);
         })
         .catch(error => {
-          console.error('❌ Supabase single car query error:', error);
+          console.error('❌ Supabase single record query error:', error);
           if (callback) callback(error);
         });
     },
