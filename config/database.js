@@ -279,7 +279,7 @@ function createSupabaseDB() {
             if (makeValue.includes(',')) {
               // Multiple values - use 'in' operator for OR logic
               const makes = makeValue.split(',').map(m => m.trim()).filter(Boolean);
-              queryParams.push(`make_name=in.(${makes.map(m => encodeURIComponent(m)).join(',')})`);
+              queryParams.push(`make_name=in.(${makes.map(m => `"${m}"`).join(',')})`);
             } else {
               // Single value
               queryParams.push(`make_name=eq.${encodeURIComponent(makeValue)}`);
@@ -295,7 +295,7 @@ function createSupabaseDB() {
             if (modelValue.includes(',')) {
               // Multiple values - use 'in' operator for OR logic
               const models = modelValue.split(',').map(m => m.trim()).filter(Boolean);
-              queryParams.push(`model_name=in.(${models.map(m => encodeURIComponent(m)).join(',')})`);
+              queryParams.push(`model_name=in.(${models.map(m => `"${m}"`).join(',')})`);
             } else {
               // Single value
               queryParams.push(`model_name=eq.${encodeURIComponent(modelValue)}`);
@@ -311,7 +311,7 @@ function createSupabaseDB() {
             if (gearValue.includes(',')) {
               // Multiple values - use 'in' operator for OR logic
               const gears = gearValue.split(',').map(g => g.trim()).filter(Boolean);
-              queryParams.push(`gear_type=in.(${gears.map(g => encodeURIComponent(g)).join(',')})`);
+              queryParams.push(`gear_type=in.(${gears.map(g => `"${g}"`).join(',')})`);
             } else {
               // Single value
               queryParams.push(`gear_type=eq.${encodeURIComponent(gearValue)}`);
@@ -327,7 +327,7 @@ function createSupabaseDB() {
             if (fuelValue.includes(',')) {
               // Multiple values - use 'in' operator for OR logic
               const fuels = fuelValue.split(',').map(f => f.trim()).filter(Boolean);
-              queryParams.push(`fuel_type=in.(${fuels.map(f => encodeURIComponent(f)).join(',')})`);
+              queryParams.push(`fuel_type=in.(${fuels.map(f => `"${f}"`).join(',')})`);
             } else {
               // Single value
               queryParams.push(`fuel_type=eq.${encodeURIComponent(fuelValue)}`);
@@ -343,7 +343,7 @@ function createSupabaseDB() {
             if (carTypeValue.includes(',')) {
               // Multiple values - use 'in' operator for OR logic
               const carTypes = carTypeValue.split(',').map(ct => ct.trim()).filter(Boolean);
-              queryParams.push(`car_type=in.(${carTypes.map(ct => encodeURIComponent(ct)).join(',')})`);
+              queryParams.push(`car_type=in.(${carTypes.map(ct => `"${ct}"`).join(',')})`);
             } else {
               // Single value
               queryParams.push(`car_type=eq.${encodeURIComponent(carTypeValue)}`);
