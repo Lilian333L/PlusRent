@@ -277,11 +277,9 @@ function createSupabaseDB() {
           if (makeIndex !== -1) {
             const makeValue = params[makeIndex];
             if (makeValue.includes(',')) {
-              // Multiple values - use 'in' operator
+              // Multiple values - use 'in' operator for OR logic
               const makes = makeValue.split(',').map(m => m.trim()).filter(Boolean);
-              makes.forEach(make => {
-                queryParams.push(`make_name=eq.${encodeURIComponent(make)}`);
-              });
+              queryParams.push(`make_name=in.(${makes.map(m => encodeURIComponent(m)).join(',')})`);
             } else {
               // Single value
               queryParams.push(`make_name=eq.${encodeURIComponent(makeValue)}`);
@@ -295,11 +293,9 @@ function createSupabaseDB() {
           if (modelIndex !== -1) {
             const modelValue = params[modelIndex];
             if (modelValue.includes(',')) {
-              // Multiple values - use 'in' operator
+              // Multiple values - use 'in' operator for OR logic
               const models = modelValue.split(',').map(m => m.trim()).filter(Boolean);
-              models.forEach(model => {
-                queryParams.push(`model_name=eq.${encodeURIComponent(model)}`);
-              });
+              queryParams.push(`model_name=in.(${models.map(m => encodeURIComponent(m)).join(',')})`);
             } else {
               // Single value
               queryParams.push(`model_name=eq.${encodeURIComponent(modelValue)}`);
@@ -313,11 +309,9 @@ function createSupabaseDB() {
           if (gearIndex !== -1) {
             const gearValue = params[gearIndex];
             if (gearValue.includes(',')) {
-              // Multiple values - use 'in' operator
+              // Multiple values - use 'in' operator for OR logic
               const gears = gearValue.split(',').map(g => g.trim()).filter(Boolean);
-              gears.forEach(gear => {
-                queryParams.push(`gear_type=eq.${encodeURIComponent(gear)}`);
-              });
+              queryParams.push(`gear_type=in.(${gears.map(g => encodeURIComponent(g)).join(',')})`);
             } else {
               // Single value
               queryParams.push(`gear_type=eq.${encodeURIComponent(gearValue)}`);
@@ -331,11 +325,9 @@ function createSupabaseDB() {
           if (fuelIndex !== -1) {
             const fuelValue = params[fuelIndex];
             if (fuelValue.includes(',')) {
-              // Multiple values - use 'in' operator
+              // Multiple values - use 'in' operator for OR logic
               const fuels = fuelValue.split(',').map(f => f.trim()).filter(Boolean);
-              fuels.forEach(fuel => {
-                queryParams.push(`fuel_type=eq.${encodeURIComponent(fuel)}`);
-              });
+              queryParams.push(`fuel_type=in.(${fuels.map(f => encodeURIComponent(f)).join(',')})`);
             } else {
               // Single value
               queryParams.push(`fuel_type=eq.${encodeURIComponent(fuelValue)}`);
@@ -349,11 +341,9 @@ function createSupabaseDB() {
           if (carTypeIndex !== -1) {
             const carTypeValue = params[carTypeIndex];
             if (carTypeValue.includes(',')) {
-              // Multiple values - use 'in' operator
+              // Multiple values - use 'in' operator for OR logic
               const carTypes = carTypeValue.split(',').map(ct => ct.trim()).filter(Boolean);
-              carTypes.forEach(carType => {
-                queryParams.push(`car_type=eq.${encodeURIComponent(carType)}`);
-              });
+              queryParams.push(`car_type=in.(${carTypes.map(ct => encodeURIComponent(ct)).join(',')})`);
             } else {
               // Single value
               queryParams.push(`car_type=eq.${encodeURIComponent(carTypeValue)}`);
