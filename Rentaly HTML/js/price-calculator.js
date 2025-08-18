@@ -182,9 +182,19 @@ class PriceCalculator {
     }
     
     try {
-      const response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code.trim()}`);
-      const result = await response.json();
-      return result;
+      // First try to validate as a redemption code (individual codes)
+      const redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}`);
+      const redemptionResult = await redemptionResponse.json();
+      
+      if (redemptionResult.valid) {
+        return redemptionResult;
+      }
+      
+      // If not a redemption code, try as a main coupon code
+      const couponResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code.trim()}`);
+      const couponResult = await couponResponse.json();
+      return couponResult;
+      
     } catch (error) {
       console.error('Error validating discount code:', error);
       return { valid: false, message: 'Error validating discount code' };

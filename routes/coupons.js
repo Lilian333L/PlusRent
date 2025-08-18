@@ -756,6 +756,124 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Validate redemption code (individual codes from available_codes array)
+router.get('/validate-redemption/:code', async (req, res) => {
+  const code = req.params.code.toUpperCase();
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for redemption code validation');
+      
+      // Get all active coupons and check their available_codes
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .select('*')
+        .eq('is_active', true);
+      
+      if (error) {
+        console.error('❌ Supabase error fetching coupons:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      // Check if coupon has expired
+      const now = new Date();
+      let validCoupon = null;
+      
+      for (const coupon of data) {
+        if (coupon.expires_at) {
+          const expiryDate = new Date(coupon.expires_at);
+          if (now > expiryDate) {
+            continue; // Skip expired coupons
+          }
+        }
+        
+        // Parse available_codes array
+        let availableCodes = [];
+        try {
+          availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+        } catch (parseError) {
+          console.error('Error parsing available_codes:', parseError);
+          continue;
+        }
+        
+        // Check if the code exists in available_codes
+        if (availableCodes.includes(code)) {
+          validCoupon = coupon;
+          break;
+        }
+      }
+      
+      if (!validCoupon) {
+        console.log('❌ Redemption code not found:', code);
+        return res.json({ valid: false, message: 'Invalid redemption code' });
+      }
+      
+      console.log('✅ Redemption code validated successfully in Supabase');
+             res.json({ 
+         valid: true, 
+         discount_percentage: validCoupon.discount_percentage,
+         description: validCoupon.description,
+         coupon_id: validCoupon.id,
+         redemption_code: code
+       });
+      
+    } catch (error) {
+      console.error('❌ Supabase error validating redemption code:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.all('SELECT * FROM coupon_codes WHERE is_active = 1', (err, coupons) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Check if coupon has expired
+      const now = new Date();
+      let validCoupon = null;
+      
+      for (const coupon of coupons) {
+        if (coupon.expires_at) {
+          const expiryDate = new Date(coupon.expires_at);
+          if (now > expiryDate) {
+            continue; // Skip expired coupons
+          }
+        }
+        
+        // Parse available_codes array
+        let availableCodes = [];
+        try {
+          availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+        } catch (parseError) {
+          console.error('Error parsing available_codes:', parseError);
+          continue;
+        }
+        
+        // Check if the code exists in available_codes
+        if (availableCodes.includes(code)) {
+          validCoupon = coupon;
+          break;
+        }
+      }
+      
+      if (!validCoupon) {
+        return res.json({ valid: false, message: 'Invalid redemption code' });
+      }
+      
+             res.json({ 
+         valid: true, 
+         discount_percentage: validCoupon.discount_percentage,
+         description: validCoupon.description,
+         coupon_id: validCoupon.id,
+         redemption_code: code
+       });
+    });
+  }
+});
+
 // Validate coupon code (for price calculator)
 router.get('/validate/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
@@ -824,6 +942,118 @@ router.get('/validate/:code', async (req, res) => {
         discount_percentage: coupon.discount_percentage,
         description: coupon.description 
       });
+    });
+  }
+});
+
+// Mark redemption code as used (move from available_codes to showed_codes)
+router.post('/use-redemption-code', async (req, res) => {
+  const { coupon_id, redemption_code } = req.body;
+  
+  if (!coupon_id || !redemption_code) {
+    return res.status(400).json({ error: 'Coupon ID and redemption code are required' });
+  }
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase to mark redemption code as used');
+      
+      // Get the coupon
+      const { data: coupon, error: fetchError } = await supabase
+        .from('coupon_codes')
+        .select('*')
+        .eq('id', coupon_id)
+        .single();
+      
+      if (fetchError || !coupon) {
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      // Parse available_codes and showed_codes
+      let availableCodes = [];
+      let showedCodes = [];
+      try {
+        availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+        showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+      } catch (parseError) {
+        console.error('Error parsing codes arrays:', parseError);
+        return res.status(500).json({ error: 'Invalid code format' });
+      }
+      
+      // Check if code exists in available_codes
+      if (!availableCodes.includes(redemption_code)) {
+        return res.status(400).json({ error: 'Redemption code not found or already used' });
+      }
+      
+      // Move code from available to showed
+      const newAvailableCodes = availableCodes.filter(code => code !== redemption_code);
+      const newShowedCodes = [...showedCodes, redemption_code];
+      
+      // Update the coupon
+      const { error: updateError } = await supabase
+        .from('coupon_codes')
+        .update({
+          available_codes: JSON.stringify(newAvailableCodes),
+          showed_codes: JSON.stringify(newShowedCodes)
+        })
+        .eq('id', coupon_id);
+      
+      if (updateError) {
+        console.error('❌ Supabase error updating redemption code:', updateError);
+        return res.status(500).json({ error: 'Database error: ' + updateError.message });
+      }
+      
+      console.log('✅ Redemption code marked as used in Supabase');
+      res.json({ success: true, message: 'Redemption code used successfully' });
+      
+    } catch (error) {
+      console.error('❌ Supabase error using redemption code:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM coupon_codes WHERE id = ?', [coupon_id], (err, coupon) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!coupon) {
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      // Parse available_codes and showed_codes
+      let availableCodes = [];
+      let showedCodes = [];
+      try {
+        availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+        showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+      } catch (parseError) {
+        console.error('Error parsing codes arrays:', parseError);
+        return res.status(500).json({ error: 'Invalid code format' });
+      }
+      
+      // Check if code exists in available_codes
+      if (!availableCodes.includes(redemption_code)) {
+        return res.status(400).json({ error: 'Redemption code not found or already used' });
+      }
+      
+      // Move code from available to showed
+      const newAvailableCodes = availableCodes.filter(code => code !== redemption_code);
+      const newShowedCodes = [...showedCodes, redemption_code];
+      
+      // Update the coupon
+      db.run(
+        'UPDATE coupon_codes SET available_codes = ?, showed_codes = ? WHERE id = ?',
+        [JSON.stringify(newAvailableCodes), JSON.stringify(newShowedCodes), coupon_id],
+        (err) => {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+          res.json({ success: true, message: 'Redemption code used successfully' });
+        }
+      );
     });
   }
 });
