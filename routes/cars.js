@@ -1235,7 +1235,7 @@ router.delete('/:id/images', (req, res) => {
 });
 
 // Reorder cars endpoint
-router.post('/reorder', (req, res) => {
+router.post('/reorder', async (req, res) => {
   const { carOrder } = req.body;
   
   if (!carOrder || !Array.isArray(carOrder)) {
@@ -1244,40 +1244,73 @@ router.post('/reorder', (req, res) => {
   
   console.log('Reordering cars:', carOrder);
   
-  // Use a transaction to update all display_order values
-  db.serialize(() => {
-    db.run('BEGIN TRANSACTION');
-    
-    const updatePromises = carOrder.map((carId, index) => {
-      return new Promise((resolve, reject) => {
-        db.run('UPDATE cars SET display_order = ? WHERE id = ?', [index, carId], function(err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for car reordering');
+      
+      // Update each car's display_order using Supabase
+      const updatePromises = carOrder.map((carId, index) => {
+        return supabase
+          .from('cars')
+          .update({ display_order: index })
+          .eq('id', carId);
+      });
+      
+      const results = await Promise.all(updatePromises);
+      
+      // Check for any errors
+      const errors = results.filter(result => result.error);
+      if (errors.length > 0) {
+        console.error('❌ Supabase reorder errors:', errors);
+        return res.status(500).json({ error: 'Failed to update car order in Supabase' });
+      }
+      
+      console.log('✅ Cars reordered successfully in Supabase');
+      res.json({ success: true, message: 'Cars reordered successfully' });
+      
+    } catch (error) {
+      console.error('❌ Supabase reorder error:', error);
+      res.status(500).json({ error: 'Failed to update car order' });
+    }
+  } else {
+    // Use SQLite with transaction
+    db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
+      
+      const updatePromises = carOrder.map((carId, index) => {
+        return new Promise((resolve, reject) => {
+          db.run('UPDATE cars SET display_order = ? WHERE id = ?', [index, carId], function(err) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
         });
       });
+      
+      Promise.all(updatePromises)
+        .then(() => {
+          db.run('COMMIT', (err) => {
+            if (err) {
+              console.error('Error committing transaction:', err);
+              db.run('ROLLBACK');
+              return res.status(500).json({ error: 'Failed to commit reorder changes' });
+            }
+            console.log('Cars reordered successfully');
+            res.json({ success: true, message: 'Cars reordered successfully' });
+          });
+        })
+        .catch((error) => {
+          console.error('Error updating car order:', error);
+          db.run('ROLLBACK');
+          res.status(500).json({ error: 'Failed to update car order' });
+        });
     });
-    
-    Promise.all(updatePromises)
-      .then(() => {
-        db.run('COMMIT', (err) => {
-          if (err) {
-            console.error('Error committing transaction:', err);
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Failed to commit reorder changes' });
-          }
-          console.log('Cars reordered successfully');
-          res.json({ success: true, message: 'Cars reordered successfully' });
-        });
-      })
-      .catch((error) => {
-        console.error('Error updating car order:', error);
-        db.run('ROLLBACK');
-        res.status(500).json({ error: 'Failed to update car order' });
-      });
-  });
+  }
 });
 
 module.exports = router; 
