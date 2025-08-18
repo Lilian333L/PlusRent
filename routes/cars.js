@@ -1071,7 +1071,7 @@ router.delete('/:id', (req, res) => {
 });
 
 // Toggle premium status for a car
-router.patch('/:id/premium', (req, res) => {
+router.patch('/:id/premium', async (req, res) => {
   const id = req.params.id;
   const { is_premium } = req.body;
   
@@ -1079,22 +1079,58 @@ router.patch('/:id/premium', (req, res) => {
     return res.status(400).json({ error: 'is_premium must be a boolean value' });
   }
   
-  db.run('UPDATE cars SET is_premium = ? WHERE id = ?', [is_premium ? 1 : 0, id], function (err) {
-    if (err) {
-      console.error('Error updating premium status:', err);
-      return res.status(500).json({ error: 'Database error' });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for premium toggle');
+      
+      const { data, error } = await supabase
+        .from('cars')
+        .update({ is_premium: is_premium })
+        .eq('id', id)
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase premium toggle error:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (!data || data.length === 0) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      console.log('✅ Premium status updated successfully in Supabase');
+      res.json({ 
+        success: true, 
+        message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
+        is_premium: is_premium
+      });
+      
+    } catch (error) {
+      console.error('❌ Supabase premium toggle error:', error);
+      res.status(500).json({ error: 'Database error' });
     }
-    
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    
-    res.json({ 
-      success: true, 
-      message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
-      is_premium: is_premium
+  } else {
+    // Use SQLite
+    db.run('UPDATE cars SET is_premium = ? WHERE id = ?', [is_premium ? 1 : 0, id], function (err) {
+      if (err) {
+        console.error('Error updating premium status:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
+        is_premium: is_premium
+      });
     });
-  });
+  }
 });
 
 // Upload images for a car
