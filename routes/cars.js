@@ -1073,7 +1073,7 @@ router.put('/:id', formDataUpload.any(), async (req, res) => {
   let galleryImagePaths = [];
   
   // First, get existing images from database to preserve them
-  db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [id], (err, existingCar) => {
+  db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [id], async (err, existingCar) => {
     if (!err && existingCar) {
       // Preserve existing head image if no new one uploaded
       if (!req.files || !req.files.find(f => f.fieldname === 'head_image')) {
@@ -1289,8 +1289,6 @@ router.put('/:id', formDataUpload.any(), async (req, res) => {
       );
     }
   });
-
-
 });
 
 // Delete car

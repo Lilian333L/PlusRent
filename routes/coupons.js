@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const { supabase } = require('../lib/supabaseClient');
 // const TelegramNotifier = require('../config/telegram');
 
 // Debug middleware for all coupon routes
