@@ -757,33 +757,75 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Validate coupon code (for price calculator)
-router.get('/validate/:code', (req, res) => {
+router.get('/validate/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
   
-  db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (!coupon) {
-      return res.json({ valid: false, message: 'Invalid coupon code' });
-    }
-    
-    // Check if coupon has expired
-    if (coupon.expires_at) {
-      const now = new Date();
-      const expiryDate = new Date(coupon.expires_at);
-      if (now > expiryDate) {
-        return res.json({ valid: false, message: 'Coupon has expired' });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for coupon validation');
+      
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .select('*')
+        .eq('code', code)
+        .eq('is_active', true)
+        .single();
+      
+      if (error || !data) {
+        console.log('❌ Coupon not found or invalid:', code);
+        return res.json({ valid: false, message: 'Invalid coupon code' });
       }
+      
+      // Check if coupon has expired
+      if (data.expires_at) {
+        const now = new Date();
+        const expiryDate = new Date(data.expires_at);
+        if (now > expiryDate) {
+          return res.json({ valid: false, message: 'Coupon has expired' });
+        }
+      }
+      
+      console.log('✅ Coupon validated successfully in Supabase');
+      res.json({ 
+        valid: true, 
+        discount_percentage: data.discount_percentage,
+        description: data.description 
+      });
+      
+    } catch (error) {
+      console.error('❌ Supabase error validating coupon:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    
-    res.json({ 
-      valid: true, 
-      discount_percentage: coupon.discount_percentage,
-      description: coupon.description 
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (!coupon) {
+        return res.json({ valid: false, message: 'Invalid coupon code' });
+      }
+      
+      // Check if coupon has expired
+      if (coupon.expires_at) {
+        const now = new Date();
+        const expiryDate = new Date(coupon.expires_at);
+        if (now > expiryDate) {
+          return res.json({ valid: false, message: 'Coupon has expired' });
+        }
+      }
+      
+      res.json({ 
+        valid: true, 
+        discount_percentage: coupon.discount_percentage,
+        description: coupon.description 
+      });
     });
-  });
+  }
 });
 
 module.exports = router; 

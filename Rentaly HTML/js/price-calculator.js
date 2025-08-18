@@ -568,8 +568,11 @@ class PriceCalculator {
       let discountAmount = 0;
       if (discountCode) {
         const discountResult = await this.handleDiscountCode(discountCode);
-        if (discountResult.valid) {
-          discountAmount = (totalBasePrice + totalLocationFee + insuranceCost + outsideHoursFees) * (discountResult.discount_percentage / 100);
+        if (discountResult.valid && discountResult.discount_percentage) {
+          const discountPercentage = parseFloat(discountResult.discount_percentage);
+          if (!isNaN(discountPercentage)) {
+            discountAmount = (totalBasePrice + totalLocationFee + insuranceCost + outsideHoursFees) * (discountPercentage / 100);
+          }
         }
       }
 
