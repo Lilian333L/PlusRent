@@ -15,8 +15,6 @@ router.post('/', async (req, res) => {
     insurance_type,
     pickup_location,
     dropoff_location,
-    contact_person,
-    contact_phone,
     special_instructions,
     total_price,
     price_breakdown,
@@ -77,8 +75,8 @@ router.post('/', async (req, res) => {
       insurance_type,
       pickup_location,
       dropoff_location,
-      contact_person: contact_person || null,
-      contact_phone: contact_phone || null,
+      customer_name: customer_name || contact_person || null,
+      customer_phone: customer_phone || contact_phone || null,
       special_instructions: special_instructions || null,
       total_price,
       price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
@@ -90,7 +88,7 @@ router.post('/', async (req, res) => {
       INSERT INTO bookings (
         car_id, pickup_date, pickup_time, return_date, return_time, 
         discount_code, insurance_type, pickup_location, dropoff_location,
-        contact_person, contact_phone, special_instructions, total_price, 
+        customer_name, customer_phone, special_instructions, total_price, 
         price_breakdown, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
@@ -103,8 +101,8 @@ router.post('/', async (req, res) => {
       bookingData.insurance_type,
       bookingData.pickup_location,
       bookingData.dropoff_location,
-      bookingData.contact_person,
-      bookingData.contact_phone,
+      bookingData.customer_name,
+      bookingData.customer_phone,
       bookingData.special_instructions,
       bookingData.total_price,
       bookingData.price_breakdown,
@@ -154,17 +152,55 @@ router.post('/', async (req, res) => {
 
 // Get all bookings (for admin)
 router.get('/', (req, res) => {
-  db.all(`
-    SELECT b.*, c.make_name, c.model_name, c.production_year 
-    FROM bookings b 
-    JOIN cars c ON b.car_id = c.id 
-    ORDER BY b.created_at DESC
-  `, (err, bookings) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(bookings);
-  });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    // For Supabase, we need to fetch bookings and cars separately and join them
+    db.all('SELECT * FROM bookings ORDER BY created_at DESC', async (err, bookings) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Fetch car details for each booking
+      const bookingsWithCars = await Promise.all(bookings.map(async (booking) => {
+        return new Promise((resolve) => {
+          db.get('SELECT make_name, model_name, production_year FROM cars WHERE id = ?', [booking.car_id], (carErr, car) => {
+            if (carErr || !car) {
+              resolve({
+                ...booking,
+                make_name: 'Unknown',
+                model_name: 'Unknown',
+                production_year: null
+              });
+            } else {
+              resolve({
+                ...booking,
+                make_name: car.make_name,
+                model_name: car.model_name,
+                production_year: car.production_year
+              });
+            }
+          });
+        });
+      }));
+      
+      res.json(bookingsWithCars);
+    });
+  } else {
+    // Use the original JOIN query for SQLite
+    db.all(`
+      SELECT b.*, c.make_name, c.model_name, c.production_year 
+      FROM bookings b 
+      JOIN cars c ON b.car_id = c.id 
+      ORDER BY b.created_at DESC
+    `, (err, bookings) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json(bookings);
+    });
+  }
 });
 
 // Get all booked cars with customer info (for admin)
@@ -186,20 +222,54 @@ router.get('/booked-cars', (req, res) => {
 // Get booking by ID
 router.get('/:id', (req, res) => {
   const bookingId = req.params.id;
-  db.get(`
-    SELECT b.*, c.make_name, c.model_name, c.production_year 
-    FROM bookings b 
-    JOIN cars c ON b.car_id = c.id 
-    WHERE b.id = ?
-  `, [bookingId], (err, booking) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!booking) {
-      return res.status(404).json({ error: 'Booking not found' });
-    }
-    res.json(booking);
-  });
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    // For Supabase, fetch booking and car separately
+    db.get('SELECT * FROM bookings WHERE id = ?', [bookingId], async (err, booking) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      // Fetch car details
+      db.get('SELECT make_name, model_name, production_year FROM cars WHERE id = ?', [booking.car_id], (carErr, car) => {
+        if (carErr || !car) {
+          res.json({
+            ...booking,
+            make_name: 'Unknown',
+            model_name: 'Unknown',
+            production_year: null
+          });
+        } else {
+          res.json({
+            ...booking,
+            make_name: car.make_name,
+            model_name: car.model_name,
+            production_year: car.production_year
+          });
+        }
+      });
+    });
+  } else {
+    // Use the original JOIN query for SQLite
+    db.get(`
+      SELECT b.*, c.make_name, c.model_name, c.production_year 
+      FROM bookings b 
+      JOIN cars c ON b.car_id = c.id 
+      WHERE b.id = ?
+    `, [bookingId], (err, booking) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      res.json(booking);
+    });
+  }
 });
 
 // Update booking status

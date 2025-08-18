@@ -8,11 +8,10 @@
     <script>
         // Fallback if config.js doesn't load
         if (!window.API_BASE_URL) {
-            window.API_BASE_URL = 'http://localhost:3001';
-    
+            window.API_BASE_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3001' 
+                : `https://${window.location.hostname}`;
         }
-        // Force the correct port
-        window.API_BASE_URL = 'http://localhost:3001';
 
     </script>
     <style>
@@ -623,7 +622,9 @@
                 // Ensure API_BASE_URL is set
                 if (!window.API_BASE_URL) {
                     console.warn('API_BASE_URL not found, using default');
-                    window.API_BASE_URL = 'http://localhost:3001';
+                    window.API_BASE_URL = window.location.hostname === 'localhost' 
+                        ? 'http://localhost:3001' 
+                        : `https://${window.location.hostname}`;
                 }
                 
                 const apiUrl = window.API_BASE_URL;

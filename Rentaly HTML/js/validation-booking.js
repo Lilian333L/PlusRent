@@ -7,7 +7,7 @@ $(document).ready(function(){
     const mailFail = $('#mail_fail');
     
     // API base URL from config
-    const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+    const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : `https://${window.location.hostname}`);
     
     // Debug: Check if radio buttons are accessible on page load
     console.log('=== PAGE LOAD DEBUG ===');
@@ -722,7 +722,7 @@ function applyModalCalculation() {
     
     // Submit to API
     $.ajax({
-        url: `${window.API_BASE_URL || 'http://localhost:3001'}/api/bookings`,
+                    url: `${window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : `https://${window.location.hostname}`)}/api/bookings`,
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(bookingData),

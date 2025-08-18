@@ -95,19 +95,74 @@ function createSupabaseDB() {
       } else if (sqlLower.includes('insert into bookings')) {
         method = 'POST';
         endpoint = 'bookings';
-        data = params[0] || {};
+        // Map the parameters to the correct data structure for bookings
+        data = {
+          car_id: params[0],
+          pickup_date: params[1],
+          pickup_time: params[2],
+          return_date: params[3],
+          return_time: params[4],
+          discount_code: params[5],
+          insurance_type: params[6],
+          pickup_location: params[7],
+          dropoff_location: params[8],
+          customer_name: params[9],
+          customer_phone: params[10],
+          special_instructions: params[11],
+          total_price: params[12],
+          price_breakdown: params[13],
+          status: params[14],
+          created_at: params[15]
+        };
+        console.log('📝 Creating booking with data:', data);
       } else if (sqlLower.includes('update cars')) {
         method = 'PATCH';
         const idMatch = sql.match(/WHERE id = \?/);
         const id = idMatch ? params[params.length - 1] : null;
         endpoint = `cars?id=eq.${id}`;
-        data = params[0] || {};
+        
+        // Parse the SET clause to extract field names and values
+        const setMatch = sql.match(/SET\s+(.+?)\s+WHERE/i);
+        if (setMatch) {
+          const setClause = setMatch[1];
+          const fields = setClause.split(',').map(field => field.trim().split('=')[0].trim());
+          data = {};
+          fields.forEach((field, index) => {
+            if (params[index] !== undefined) {
+              data[field] = params[index];
+            }
+          });
+        } else {
+          data = params[0] || {};
+        }
+        console.log('📝 Updating car with data:', data);
       } else if (sqlLower.includes('update admin_users')) {
         method = 'PATCH';
         const idMatch = sql.match(/WHERE id = \?/);
         const id = idMatch ? params[params.length - 1] : null;
         endpoint = `admin_users?id=eq.${id}`;
         data = params[0] || {};
+      } else if (sqlLower.includes('update bookings')) {
+        method = 'PATCH';
+        const idMatch = sql.match(/WHERE id = \?/);
+        const id = idMatch ? params[params.length - 1] : null;
+        endpoint = `bookings?id=eq.${id}`;
+        
+        // Parse the SET clause to extract field names and values
+        const setMatch = sql.match(/SET\s+(.+?)\s+WHERE/i);
+        if (setMatch) {
+          const setClause = setMatch[1];
+          const fields = setClause.split(',').map(field => field.trim().split('=')[0].trim());
+          data = {};
+          fields.forEach((field, index) => {
+            if (params[index] !== undefined) {
+              data[field] = params[index];
+            }
+          });
+        } else {
+          data = params[0] || {};
+        }
+        console.log('📝 Updating booking with data:', data);
       } else if (sqlLower.includes('delete from cars')) {
         method = 'DELETE';
         const idMatch = sql.match(/WHERE id = \?/);
@@ -137,6 +192,8 @@ function createSupabaseDB() {
       // Determine which table to query
       if (sqlLower.includes('from admin_users') || sqlLower.includes('admin_users')) {
         endpoint = 'admin_users';
+      } else if (sqlLower.includes('from bookings') || sqlLower.includes('bookings')) {
+        endpoint = 'bookings';
       }
       
       // Parse SQL to build REST API query
@@ -152,7 +209,7 @@ function createSupabaseDB() {
           endpoint += `?username=eq.${encodeURIComponent(username)}`;
         }
         // Status filter for cars
-        else if (sqlLower.includes('status')) {
+        else if (sqlLower.includes('status') && sqlLower.includes('cars')) {
           endpoint += '?status=eq.available';
         }
       }
@@ -185,14 +242,16 @@ function createSupabaseDB() {
       // Determine which table to query
       if (sqlLower.includes('from admin_users') || sqlLower.includes('admin_users')) {
         endpoint = 'admin_users';
+      } else if (sqlLower.includes('from bookings') || sqlLower.includes('bookings')) {
+        endpoint = 'bookings';
       }
       
       // Parse SQL to build REST API query
       
       // Handle WHERE clauses
       if (sqlLower.includes('where')) {
-        // Status filter
-        if (sqlLower.includes('status')) {
+        // Status filter for cars
+        if (sqlLower.includes('status') && sqlLower.includes('cars')) {
           queryParams.push('status=eq.available');
         }
         
@@ -250,6 +309,19 @@ function createSupabaseDB() {
             queryParams.push(`production_year=lte.${params[yearIndex]}`);
           }
         }
+        
+        // Booking status filter
+        if (sqlLower.includes('status') && sqlLower.includes('bookings')) {
+          queryParams.push('status=eq.pending');
+        }
+        
+        // Car ID filter for bookings
+        if (sqlLower.includes('car_id')) {
+          const carIdIndex = params.findIndex(p => p && typeof p === 'number');
+          if (carIdIndex !== -1) {
+            queryParams.push(`car_id=eq.${params[carIdIndex]}`);
+          }
+        }
       }
       
       // Add ORDER BY
@@ -259,6 +331,8 @@ function createSupabaseDB() {
           queryParams.push('order=id.asc');
         } else if (sqlLower.includes('id')) {
           queryParams.push('order=id.asc');
+        } else if (sqlLower.includes('created_at')) {
+          queryParams.push('order=created_at.desc');
         }
       }
       
