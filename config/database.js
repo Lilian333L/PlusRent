@@ -393,7 +393,7 @@ if (useSupabase) {
         console.log('Connected to SQLite database.');
         // Always check if tables exist and create them if they don't
         console.log('Checking SQLite tables...');
-        const schemaPath = path.join(__dirname, '..', 'database_schema.sql');
+        const schemaPath = path.join(__dirname, '..', 'database_schema_complete.sql');
         if (fs.existsSync(schemaPath)) {
           const schema = fs.readFileSync(schemaPath, 'utf8');
           db.serialize(() => {
