@@ -480,10 +480,11 @@ router.patch('/:id/activate', async (req, res) => {
     try {
       console.log('🔍 Using Supabase for spinning wheel activation');
       
-      // First, deactivate all wheels
+      // First, deactivate all active wheels
       const { error: deactivateError } = await supabase
         .from('spinning_wheels')
-        .update({ is_active: false });
+        .update({ is_active: false })
+        .eq('is_active', true);
       
       if (deactivateError) {
         console.error('❌ Supabase error deactivating wheels:', deactivateError);
