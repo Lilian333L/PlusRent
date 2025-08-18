@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const { supabase } = require('../lib/supabaseClient');
 const TelegramNotifier = require('../config/telegram');
 
 // Create a new booking
@@ -59,81 +60,103 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Return date must be after pickup date' });
   }
 
-  // Check if car exists
-  db.get('SELECT * FROM cars WHERE id = ?', [car_id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-
-    // Create booking with 'pending' status (car remains available until admin confirms)
-    const bookingData = {
-      car_id,
-      pickup_date,
-      pickup_time,
-      return_date,
-      return_time,
-      discount_code: discount_code || null,
-      insurance_type,
-      pickup_location,
-      dropoff_location,
-      customer_name: customer_name || null,
-      customer_phone: customer_phone || null,
-      special_instructions: special_instructions || null,
-      total_price,
-      price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
-      status: 'pending', // Default status - waiting for admin confirmation
-      created_at: new Date().toISOString()
-    };
-
-    // Remove null/undefined values
-    Object.keys(bookingData).forEach(key => {
-      if (bookingData[key] === null || bookingData[key] === undefined || bookingData[key] === '') {
-        delete bookingData[key];
-      }
-    });
-
-    db.run(`
-      INSERT INTO bookings (
-        car_id, pickup_date, pickup_time, return_date, return_time, 
-        discount_code, insurance_type, pickup_location, dropoff_location,
-        customer_name, customer_phone, special_instructions, total_price, 
-        price_breakdown, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      bookingData.car_id,
-      bookingData.pickup_date,
-      bookingData.pickup_time,
-      bookingData.return_date,
-      bookingData.return_time,
-      bookingData.discount_code,
-      bookingData.insurance_type,
-      bookingData.pickup_location,
-      bookingData.dropoff_location,
-      bookingData.customer_name,
-      bookingData.customer_phone,
-      bookingData.special_instructions,
-      bookingData.total_price,
-      bookingData.price_breakdown,
-      bookingData.status,
-      bookingData.created_at
-    ], async function(err) {
-      if (err) {
-        console.error('❌ Database error creating booking:', err);
-        return res.status(500).json({ error: 'Failed to create booking', details: err.message });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for booking creation');
+      
+      // Check if car exists
+      const { data: car, error: carError } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', car_id)
+        .single();
+      
+      if (carError || !car) {
+        return res.status(404).json({ error: 'Car not found' });
       }
 
-      const bookingId = this.lastID;
+      // If discount code is provided, validate it and mark as used if it's a redemption code
+      let validatedDiscountCode = discount_code;
+      if (discount_code) {
+        try {
+          // First try to validate as redemption code
+          const redemptionResponse = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}`);
+          const redemptionResult = await redemptionResponse.json();
+          
+          if (redemptionResult.valid) {
+            // Mark redemption code as used
+            const useResponse = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/use-redemption-code`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                coupon_id: redemptionResult.coupon_id,
+                redemption_code: discount_code
+              })
+            });
+            
+            if (!useResponse.ok) {
+              console.error('Failed to mark redemption code as used');
+            } else {
+              console.log('✅ Redemption code marked as used');
+            }
+          }
+        } catch (error) {
+          console.error('Error validating/marking redemption code:', error);
+        }
+      }
+
+      // Create booking data
+      const bookingData = {
+        car_id,
+        pickup_date,
+        pickup_time,
+        return_date,
+        return_time,
+        discount_code: validatedDiscountCode || null,
+        insurance_type,
+        pickup_location,
+        dropoff_location,
+        customer_name: customer_name || null,
+        customer_phone: customer_phone || null,
+        customer_email: customer_email || null,
+        special_instructions: special_instructions || null,
+        total_price,
+        price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // Remove null/undefined values
+      Object.keys(bookingData).forEach(key => {
+        if (bookingData[key] === null || bookingData[key] === undefined || bookingData[key] === '') {
+          delete bookingData[key];
+        }
+      });
+
+      // Insert booking
+      const { data: newBooking, error: insertError } = await supabase
+        .from('bookings')
+        .insert(bookingData)
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('❌ Supabase error creating booking:', insertError);
+        return res.status(500).json({ error: 'Failed to create booking', details: insertError.message });
+      }
 
       // Send Telegram notification
       try {
         const telegram = new TelegramNotifier();
-        const bookingData = {
+        const telegramData = {
           contact_person: customer_name || contact_person || 'Not provided',
           contact_phone: customer_phone || contact_phone || 'Not provided',
-        email: customer_email || 'Not provided',
+          email: customer_email || 'Not provided',
           make_name: car.make_name,
           model_name: car.model_name,
           production_year: car.production_year,
@@ -145,21 +168,162 @@ router.post('/', async (req, res) => {
           dropoff_location,
           insurance_type,
           total_price,
-          special_instructions
+          special_instructions,
+          discount_code: validatedDiscountCode
         };
-        await telegram.sendMessage(telegram.formatBookingMessage(bookingData));
+        await telegram.sendMessage(telegram.formatBookingMessage(telegramData));
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
       }
 
+      console.log('✅ Booking created successfully in Supabase');
       res.json({ 
         success: true, 
-        booking_id: bookingId,
+        booking_id: newBooking.id,
         message: 'Booking request submitted successfully! We will contact you shortly to confirm your reservation.',
         status: 'pending'
       });
+
+    } catch (error) {
+      console.error('❌ Supabase error creating booking:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM cars WHERE id = ?', [car_id], async (err, car) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+
+      // If discount code is provided, validate it and mark as used if it's a redemption code
+      let validatedDiscountCode = discount_code;
+      if (discount_code) {
+        try {
+          // First try to validate as redemption code
+          const redemptionResponse = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}`);
+          const redemptionResult = await redemptionResponse.json();
+          
+          if (redemptionResult.valid) {
+            // Mark redemption code as used
+            const useResponse = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/use-redemption-code`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                coupon_id: redemptionResult.coupon_id,
+                redemption_code: discount_code
+              })
+            });
+            
+            if (!useResponse.ok) {
+              console.error('Failed to mark redemption code as used');
+            } else {
+              console.log('✅ Redemption code marked as used');
+            }
+          }
+        } catch (error) {
+          console.error('Error validating/marking redemption code:', error);
+        }
+      }
+
+      // Create booking with 'pending' status (car remains available until admin confirms)
+      const bookingData = {
+        car_id,
+        pickup_date,
+        pickup_time,
+        return_date,
+        return_time,
+        discount_code: validatedDiscountCode || null,
+        insurance_type,
+        pickup_location,
+        dropoff_location,
+        customer_name: customer_name || null,
+        customer_phone: customer_phone || null,
+        special_instructions: special_instructions || null,
+        total_price,
+        price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
+        status: 'pending', // Default status - waiting for admin confirmation
+        created_at: new Date().toISOString()
+      };
+
+      // Remove null/undefined values
+      Object.keys(bookingData).forEach(key => {
+        if (bookingData[key] === null || bookingData[key] === undefined || bookingData[key] === '') {
+          delete bookingData[key];
+        }
+      });
+
+      db.run(`
+        INSERT INTO bookings (
+          car_id, pickup_date, pickup_time, return_date, return_time, 
+          discount_code, insurance_type, pickup_location, dropoff_location,
+          customer_name, customer_phone, special_instructions, total_price, 
+          price_breakdown, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        bookingData.car_id,
+        bookingData.pickup_date,
+        bookingData.pickup_time,
+        bookingData.return_date,
+        bookingData.return_time,
+        bookingData.discount_code,
+        bookingData.insurance_type,
+        bookingData.pickup_location,
+        bookingData.dropoff_location,
+        bookingData.customer_name,
+        bookingData.customer_phone,
+        bookingData.special_instructions,
+        bookingData.total_price,
+        bookingData.price_breakdown,
+        bookingData.status,
+        bookingData.created_at
+      ], async function(err) {
+        if (err) {
+          console.error('❌ Database error creating booking:', err);
+          return res.status(500).json({ error: 'Failed to create booking', details: err.message });
+        }
+
+        const bookingId = this.lastID;
+
+        // Send Telegram notification
+        try {
+          const telegram = new TelegramNotifier();
+          const telegramData = {
+            contact_person: customer_name || contact_person || 'Not provided',
+            contact_phone: customer_phone || contact_phone || 'Not provided',
+            email: customer_email || 'Not provided',
+            make_name: car.make_name,
+            model_name: car.model_name,
+            production_year: car.production_year,
+            pickup_date,
+            pickup_time,
+            return_date,
+            return_time,
+            pickup_location,
+            dropoff_location,
+            insurance_type,
+            total_price,
+            special_instructions,
+            discount_code: validatedDiscountCode
+          };
+          await telegram.sendMessage(telegram.formatBookingMessage(telegramData));
+        } catch (error) {
+          console.error('Error sending Telegram notification:', error);
+        }
+
+        res.json({ 
+          success: true, 
+          booking_id: bookingId,
+          message: 'Booking request submitted successfully! We will contact you shortly to confirm your reservation.',
+          status: 'pending'
+        });
+      });
     });
-  });
+  }
 });
 
 // Get all bookings (for admin)
