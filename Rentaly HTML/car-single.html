@@ -832,7 +832,21 @@ console.log(car);
         console.log('Raw description from API:', car.description);
         console.log('Type of description:', typeof car.description);
         
-        const descriptionObj = typeof car.description === 'string' ? JSON.parse(car.description) : car.description;
+        // Check if description is valid JSON
+        let descriptionObj;
+        if (typeof car.description === 'string') {
+          try {
+            descriptionObj = JSON.parse(car.description);
+          } catch (parseError) {
+            // If it's not valid JSON, treat it as a plain string
+            descriptionText = car.description;
+            console.log('Description is plain text, not JSON');
+            return;
+          }
+        } else {
+          descriptionObj = car.description;
+        }
+        
         console.log('Parsed description object:', descriptionObj);
         
         const currentLang = i18next.language || 'en';

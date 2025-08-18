@@ -173,12 +173,12 @@ class GlobalBookingSystem {
           <input type="text" name="discount_code" class="form-control" data-coupon-input>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Contact Person</label>
-          <input type="text" name="contact_person" class="form-control" required>
+          <label class="form-label">Customer Name</label>
+          <input type="text" name="customer_name" class="form-control" required>
         </div>
         <div class="col-md-6">
-          <label class="form-label">Contact Phone</label>
-          <input type="tel" name="contact_phone" class="form-control" required>
+          <label class="form-label">Customer Phone</label>
+          <input type="tel" name="customer_phone" class="form-control" required>
         </div>
         <div class="col-12">
           <label class="form-label">Special Instructions</label>
@@ -342,8 +342,8 @@ class GlobalBookingSystem {
           dropoff_location: formData.get('dropoff_location'),
           insurance_type: formData.get('insurance_type'),
           discount_code: formData.get('discount_code') || null,
-          contact_person: formData.get('contact_person'),
-          contact_phone: formData.get('contact_phone'),
+          customer_name: formData.get('customer_name'),
+          customer_phone: formData.get('customer_phone'),
           special_instructions: formData.get('special_instructions') || null,
           total_price: this.priceCalculator ? this.priceCalculator.getTotalPrice() : 0,
           price_breakdown: this.priceCalculator ? this.priceCalculator.getPriceBreakdown() : {}

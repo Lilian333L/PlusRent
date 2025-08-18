@@ -97,14 +97,12 @@ class BookingFormHandler {
       insurance_type: getRadioValue('insurance_type') || 'RCA', // Default to RCA if not selected
       pickup_location: getRadioValue('pickup_location'),
       dropoff_location: getRadioValue('dropoff_location'),
-      contact_person: formData.get('contact_person'),
-      contact_phone: formData.get('contact_phone'),
       special_instructions: formData.get('special_instructions'),
       total_price: this.getTotalPrice(),
       price_breakdown: this.getPriceBreakdown(),
-      customer_name: formData.get('customer_name') || formData.get('contact_person'),
+      customer_name: formData.get('customer_name'),
       customer_email: formData.get('customer_email'),
-      customer_phone: formData.get('customer_phone') || formData.get('contact_phone')
+      customer_phone: formData.get('customer_phone')
     };
   }
 
@@ -171,8 +169,8 @@ class BookingFormHandler {
     const isOutsideHours = pickupTime.getHours() < 8 || pickupTime.getHours() >= 18 || 
                           returnTime.getHours() < 8 || returnTime.getHours() >= 18;
     
-    if (isOutsideHours && (!bookingData.contact_person || !bookingData.contact_phone)) {
-      return { isValid: false, error: 'Contact person and phone are required for outside hours pickup/dropoff' };
+    if (isOutsideHours && (!bookingData.customer_name || !bookingData.customer_phone)) {
+      return { isValid: false, error: 'Customer name and phone are required for outside hours pickup/dropoff' };
     }
 
     return { isValid: true };
