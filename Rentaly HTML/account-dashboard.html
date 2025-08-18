@@ -5605,8 +5605,14 @@
             // Update available coupons info
             const availableCouponsInfo = document.getElementById('availableCouponsInfo');
             if (availableCouponsInfo) {
-              const activeCoupons = coupons.filter(coupon => coupon.is_active === 1);
-              const wheelEnabledCoupons = activeCoupons.filter(coupon => coupon.wheel_enabled === 1);
+              // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+            const activeCoupons = coupons.filter(coupon => {
+              return coupon.is_active === 1 || coupon.is_active === true;
+            });
+                              // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+                const wheelEnabledCoupons = activeCoupons.filter(coupon => {
+                  return coupon.wheel_enabled === 1 || coupon.wheel_enabled === true;
+                });
               availableCouponsInfo.innerHTML = `
                 <strong>${wheelEnabledCoupons.length}</strong> of ${activeCoupons.length} active coupons enabled for wheels
               `;
@@ -5660,7 +5666,8 @@
             }
             
             const wheel = await wheelResponse.json();
-            const isCurrentlyActive = wheel.is_active === 1;
+                          // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+              const isCurrentlyActive = wheel.is_active === 1 || wheel.is_active === true;
             
             // Choose endpoint based on current state
             const endpoint = isCurrentlyActive ? 'deactivate' : 'activate';
@@ -5878,7 +5885,11 @@
             };
             
             // Show only active coupons with wheel-specific status
-            const activeCoupons = coupons.filter(coupon => coupon.is_active === 1);
+            // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+            const activeCoupons = coupons.filter(coupon => {
+              // Check for both formats: SQLite uses 1/0, Supabase uses true/false
+              return coupon.is_active === 1 || coupon.is_active === true;
+            });
             
             const wheelCouponsList = document.getElementById('wheelCouponsList');
             if (wheelCouponsList) {

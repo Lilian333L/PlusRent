@@ -648,7 +648,8 @@
                 }
                 
                 // Check if any wheel is active
-                const activeWheel = allWheels.find(wheel => wheel.is_active === 1);
+                // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+        const activeWheel = allWheels.find(wheel => wheel.is_active === 1 || wheel.is_active === true);
                 if (!activeWheel) {
                     console.log('No active spinning wheel configured - using default segments');
                     availableCoupons = [];
@@ -683,7 +684,7 @@
                     
                     // Filter only active coupons that are enabled for this specific wheel
                 const filteredCoupons = allCoupons.filter(coupon => 
-                        coupon.is_active === 1 && 
+                        (coupon.is_active === 1 || coupon.is_active === true) && 
                         enabledCouponIds.has(coupon.id)
                     );
                 
