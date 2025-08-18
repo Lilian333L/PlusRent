@@ -10,13 +10,40 @@ router.use((req, res, next) => {
 });
 
 // Get all coupon codes
-router.get('/', (req, res) => {
-  db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+router.get('/', async (req, res) => {
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for coupons fetch');
+      
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ Supabase error fetching coupons:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      console.log('✅ Coupons fetched successfully from Supabase');
+      res.json(data);
+      
+    } catch (error) {
+      console.error('❌ Supabase error fetching coupons:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    res.json(rows);
-  });
+  } else {
+    // Use SQLite
+    db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json(rows);
+    });
+  }
 });
 
 // Debug endpoint to check table structure
@@ -281,10 +308,13 @@ router.get('/:id', (req, res) => {
 });
 
 // Add new coupon code
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   console.log('📥 Received coupon data:', req.body);
   console.log('📥 Request headers:', req.headers);
   console.log('📥 Content-Type:', req.headers['content-type']);
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   try {
     const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
@@ -332,10 +362,75 @@ router.post('/', (req, res) => {
     }
   }
 
-  db.run(
-    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
-    async function (err) {
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for coupon creation');
+      
+      // Prepare coupon data for Supabase
+      const couponData = {
+        code: code.toUpperCase(),
+        type,
+        discount_percentage: discountValue,
+        free_days: freeDaysValue,
+        description: description || null,
+        expires_at: expires_at || null,
+        wheel_enabled: false,
+        available_codes: '[]',
+        showed_codes: '[]',
+        is_active: true
+      };
+      
+      // Remove null/undefined values to avoid Supabase errors
+      Object.keys(couponData).forEach(key => {
+        if (couponData[key] === null || couponData[key] === undefined) {
+          delete couponData[key];
+        }
+      });
+      
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .insert(couponData)
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase coupon creation error:', error);
+        if (error.message.includes('duplicate key')) {
+          return res.status(400).json({ error: 'Coupon code already exists' });
+        }
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      console.log('✅ Coupon created successfully in Supabase');
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const telegramCouponData = {
+          code: code.toUpperCase(),
+          type: type,
+          discount_percentage: discountValue,
+          free_days: freeDaysValue,
+          description: description || null,
+          expires_at: expires_at || null,
+          is_active: true
+        };
+        await telegram.sendMessage(telegram.formatCouponAddedMessage(telegramCouponData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
+      res.json({ success: true, id: data[0].id });
+      
+    } catch (error) {
+      console.error('❌ Supabase coupon creation error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.run(
+      'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
+      [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
+      async function (err) {
       if (err) {
         console.error('Database error details:', err);
         if (err.message.includes('UNIQUE constraint failed')) {
@@ -378,6 +473,7 @@ router.post('/', (req, res) => {
       res.json({ success: true, id: this.lastID });
     }
   );
+  }
   } catch (error) {
     console.error('Unexpected error in POST /coupons:', error);
     return res.status(500).json({ error: 'Internal server error: ' + error.message });
@@ -392,11 +488,14 @@ router.use('*', (req, res, next) => {
 });
 
 // Update coupon code
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   console.log('🚨 PUT REQUEST RECEIVED!');
   console.log('📥 Edit coupon request - ID:', req.params.id);
   console.log('📥 Edit coupon request - Body:', req.body);
   const id = req.params.id;
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   const { code, type, discount_percentage, free_days, description, is_active, expires_at } = req.body;
 
   if (!code || !type) {
@@ -431,7 +530,57 @@ router.put('/:id', (req, res) => {
   console.log('🔍 Edit coupon - Executing UPDATE query');
   const isActiveValue = is_active === '1' || is_active === true ? 1 : 0;
   console.log('🔍 Edit coupon - Values:', [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id]);
-  db.run(
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for coupon update');
+      
+      // Prepare update data for Supabase
+      const updateData = {
+        code: code.toUpperCase(),
+        type,
+        discount_percentage: discountValue,
+        free_days: freeDaysValue,
+        description: description || null,
+        is_active: isActiveValue === 1,
+        expires_at: expires_at || null
+      };
+      
+      // Remove null/undefined values to avoid Supabase errors
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === null || updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+      
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .update(updateData)
+        .eq('id', id)
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase coupon update error:', error);
+        if (error.message.includes('duplicate key')) {
+          return res.status(400).json({ error: 'Coupon code already exists' });
+        }
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      if (!data || data.length === 0) {
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      console.log('✅ Coupon updated successfully in Supabase');
+      res.json({ success: true });
+      
+    } catch (error) {
+      console.error('❌ Supabase coupon update error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.run(
     'UPDATE coupon_codes SET code=?, type=?, discount_percentage=?, free_days=?, description=?, is_active=?, expires_at=? WHERE id=?',
     [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id],
     async function (err) {
@@ -464,31 +613,59 @@ router.put('/:id', (req, res) => {
       res.json({ success: true });
     }
   );
+  }
 });
 
 // Delete coupon code
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const id = req.params.id;
   
-  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for coupon deletion');
+      
+      const { error } = await supabase
+        .from('coupon_codes')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('❌ Supabase coupon deletion error:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      console.log('✅ Coupon deleted successfully from Supabase');
+      res.json({ success: true });
+      
+    } catch (error) {
+      console.error('❌ Supabase coupon deletion error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    
-    // Send Telegram notification - COMMENTED OUT
-    // try {
-    //   const telegram = new TelegramNotifier();
-    //   const couponData = {
-    //     code: 'DELETED',
-    //     discount_percentage: 0
-    //   };
-    //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
-    // } catch (error) {
-    //   console.error('Error sending Telegram notification:', error);
-    // }
-    
-    res.json({ success: true });
-  });
+  } else {
+    // Use SQLite
+    db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Send Telegram notification - COMMENTED OUT
+      // try {
+      //   const telegram = new TelegramNotifier();
+      //   const couponData = {
+      //     code: 'DELETED',
+      //     discount_percentage: 0
+      //   };
+      //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
+      // } catch (error) {
+      //   console.error('Error sending Telegram notification:', error);
+      // }
+      
+      res.json({ success: true });
+    });
+  }
 });
 
 // Validate coupon code (for price calculator)

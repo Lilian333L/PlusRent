@@ -295,77 +295,178 @@ router.get('/', async (req, res) => {
 });
 
 // Get cars for booking form (only available cars with basic info)
-router.get('/booking/available', (req, res) => {
-  const sql = `
-    SELECT id, make_name, model_name, production_year, head_image, price_policy, booked, 
-           car_type, num_doors, num_passengers, fuel_type, gear_type
-    FROM cars 
-    WHERE booked = 0 OR booked IS NULL
-    ORDER BY make_name, model_name
-  `;
-
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    // Parse price_policy for each car and format for display
-    const cars = rows.map(car => {
-      // Supabase already returns parsed JSON, so only parse if it's a string
-      const pricePolicy = typeof car.price_policy === 'string' 
-        ? (car.price_policy ? JSON.parse(car.price_policy) : {})
-        : (car.price_policy || {});
-      const dailyPrice = pricePolicy['1-2'] || 'N/A';
+router.get('/booking/available', async (req, res) => {
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for available cars fetch');
       
-      return {
-        id: car.id,
-        make_name: car.make_name,
-        model_name: car.model_name,
-        production_year: car.production_year,
-        head_image: car.head_image,
-        daily_price: dailyPrice,
-        price_policy: pricePolicy, // Include the full price policy
-        car_type: car.car_type,
-        num_doors: car.num_doors,
-        num_passengers: car.num_passengers,
-        fuel_type: car.fuel_type,
-        gear_type: car.gear_type,
-        display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
-        // For backward compatibility with existing select options
-        value: `${car.make_name} ${car.model_name}`,
-        data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
-      };
+      const { data, error } = await supabase
+        .from('cars')
+        .select('id, make_name, model_name, production_year, head_image, price_policy, booked, car_type, num_doors, num_passengers, fuel_type, gear_type')
+        .or('booked.eq.0,booked.is.null')
+        .order('make_name', { ascending: true })
+        .order('model_name', { ascending: true });
+      
+      if (error) {
+        console.error('❌ Supabase error fetching available cars:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      // Parse price_policy for each car and format for display
+      const cars = data.map(car => {
+        // Supabase already returns parsed JSON, so only parse if it's a string
+        const pricePolicy = typeof car.price_policy === 'string' 
+          ? (car.price_policy ? JSON.parse(car.price_policy) : {})
+          : (car.price_policy || {});
+        const dailyPrice = pricePolicy['1-2'] || 'N/A';
+        
+        return {
+          id: car.id,
+          make_name: car.make_name,
+          model_name: car.model_name,
+          production_year: car.production_year,
+          head_image: car.head_image,
+          daily_price: dailyPrice,
+          price_policy: pricePolicy, // Include the full price policy
+          car_type: car.car_type,
+          num_doors: car.num_doors,
+          num_passengers: car.num_passengers,
+          fuel_type: car.fuel_type,
+          gear_type: car.gear_type,
+          display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
+          // For backward compatibility with existing select options
+          value: `${car.make_name} ${car.model_name}`,
+          data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
+        };
+      });
+      
+      console.log('✅ Available cars fetched successfully from Supabase');
+      res.json(cars);
+      
+    } catch (error) {
+      console.error('❌ Supabase error fetching available cars:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    const sql = `
+      SELECT id, make_name, model_name, production_year, head_image, price_policy, booked, 
+             car_type, num_doors, num_passengers, fuel_type, gear_type
+      FROM cars 
+      WHERE booked = 0 OR booked IS NULL
+      ORDER BY make_name, model_name
+    `;
+
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Parse price_policy for each car and format for display
+      const cars = rows.map(car => {
+        // Supabase already returns parsed JSON, so only parse if it's a string
+        const pricePolicy = typeof car.price_policy === 'string' 
+          ? (car.price_policy ? JSON.parse(car.price_policy) : {})
+          : (car.price_policy || {});
+        const dailyPrice = pricePolicy['1-2'] || 'N/A';
+        
+        return {
+          id: car.id,
+          make_name: car.make_name,
+          model_name: car.model_name,
+          production_year: car.production_year,
+          head_image: car.head_image,
+          daily_price: dailyPrice,
+          price_policy: pricePolicy, // Include the full price policy
+          car_type: car.car_type,
+          num_doors: car.num_doors,
+          num_passengers: car.num_passengers,
+          fuel_type: car.fuel_type,
+          gear_type: car.gear_type,
+          display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
+          // For backward compatibility with existing select options
+          value: `${car.make_name} ${car.model_name}`,
+          data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
+        };
+      });
+      
+      res.json(cars);
     });
-    
-    res.json(cars);
-  });
+  }
 });
 
 // Get single car by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const id = req.params.id;
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for single car fetch');
+      
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error('❌ Supabase error fetching car:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      if (!data) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      // Parse JSON fields if they're strings
+      if (typeof data.price_policy === 'string') {
+        data.price_policy = data.price_policy ? JSON.parse(data.price_policy) : {};
+      }
+      if (typeof data.gallery_images === 'string') {
+        data.gallery_images = data.gallery_images ? JSON.parse(data.gallery_images) : [];
+      }
+      
+      console.log('✅ Car fetched successfully from Supabase');
+      res.json(data);
+      
+    } catch (error) {
+      console.error('❌ Supabase error fetching car:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    // Supabase already returns parsed JSON, so only parse if it's a string
-    if (typeof car.price_policy === 'string') {
-      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-    }
-    if (typeof car.gallery_images === 'string') {
-      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    }
-    res.json(car);
-  });
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      // Supabase already returns parsed JSON, so only parse if it's a string
+      if (typeof car.price_policy === 'string') {
+        car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+      }
+      if (typeof car.gallery_images === 'string') {
+        car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+      }
+      res.json(car);
+    });
+  }
 });
 
 // Add new car
 router.post('/', tempUpload.any(), async (req, res) => {
   console.log('Car creation request body:', req.body);
   console.log('Files received:', req.files);
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   // Handle file uploads (temporary files)
   let headImagePath = null;
@@ -540,7 +641,90 @@ router.post('/', tempUpload.any(), async (req, res) => {
     likesValue
   });
   
-  db.run(
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for car creation');
+      
+      // Prepare car data for Supabase
+      const carData = {
+        make_name,
+        model_name,
+        production_year: parseInt(production_year),
+        gear_type,
+        fuel_type,
+        engine_capacity: engineCapacityValue,
+        car_type,
+        num_doors: parseInt(num_doors),
+        num_passengers: parseInt(num_passengers),
+        price_policy: JSON.stringify(pricePolicyStringified),
+        booked: 0,
+        booked_until: booked_until || null,
+        luggage: luggage || null,
+        mileage: mileageValue,
+        drive: drive || null,
+        fuel_economy: fuelEconomyValue,
+        exterior_color: exterior_color || null,
+        interior_color: interior_color || null,
+        rca_insurance_price: rcaInsuranceValue,
+        casco_insurance_price: cascoInsuranceValue,
+        likes: likesValue,
+        description: descriptionJson,
+        head_image: headImagePath,
+        gallery_images: JSON.stringify(galleryImagePaths),
+        is_premium: false,
+        display_order: 0,
+        status: 'active'
+      };
+      
+      // Remove null/undefined values to avoid Supabase errors
+      Object.keys(carData).forEach(key => {
+        if (carData[key] === null || carData[key] === undefined) {
+          delete carData[key];
+        }
+      });
+      
+      const { data, error } = await supabase
+        .from('cars')
+        .insert(carData)
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase car creation error:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      console.log('✅ Car created successfully in Supabase');
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const telegramCarData = {
+          make_name,
+          model_name,
+          production_year,
+          gear_type,
+          fuel_type,
+          car_type,
+          num_doors,
+          num_passengers,
+          price_policy: pricePolicyStringified,
+          rca_insurance_price: rcaInsuranceValue,
+          casco_insurance_price: cascoInsuranceValue
+        };
+        await telegram.sendMessage(telegram.formatCarAddedMessage(telegramCarData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
+      res.json({ success: true, id: data[0].id });
+      
+    } catch (error) {
+      console.error('❌ Supabase car creation error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    db.run(
     `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, likes, description, head_image, gallery_images, is_premium)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
     [
@@ -700,12 +884,16 @@ router.post('/', tempUpload.any(), async (req, res) => {
       }
     }
   );
+  }
 });
 
 // Update car
-router.put('/:id', formDataUpload.any(), (req, res) => {
+router.put('/:id', formDataUpload.any(), async (req, res) => {
   console.log('🔍 SERVER - Multer middleware executed');
   const id = req.params.id;
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   console.log('🔍 SERVER - PUT /api/cars/:id received request');
   console.log('  Car ID:', id);
@@ -982,14 +1170,61 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
       id
     ];
 
-    db.run(
-      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, likes=?, description=?, head_image=? WHERE id=?`,
-      updateParams,
-      async function (err) {
-        if (err) {
-          console.error('Database error in PUT /api/cars/:id:', err);
-          return res.status(500).json({ error: 'Database error: ' + err.message });
+    if (isSupabase) {
+      try {
+        console.log('🔍 Using Supabase for car update');
+        
+        // Prepare update data for Supabase
+        const updateData = {
+          make_name,
+          model_name,
+          production_year: parseInt(production_year),
+          gear_type,
+          fuel_type,
+          engine_capacity: engineCapacityValue,
+          car_type,
+          num_doors: parseInt(num_doors),
+          num_passengers: parseInt(num_passengers),
+          price_policy: JSON.stringify(pricePolicyStringified),
+          booked: bookedStatus,
+          booked_until: booked_until || null,
+          gallery_images: galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
+          luggage: luggage || null,
+          mileage: mileageValue,
+          drive: drive || null,
+          fuel_economy: fuelEconomyValue,
+          exterior_color: exterior_color || null,
+          interior_color: interior_color || null,
+          rca_insurance_price: rcaInsuranceValue,
+          casco_insurance_price: cascoInsuranceValue,
+          likes: likesValue,
+          description: descriptionJson,
+          head_image: finalHeadImagePath
+        };
+        
+        // Remove null/undefined values to avoid Supabase errors
+        Object.keys(updateData).forEach(key => {
+          if (updateData[key] === null || updateData[key] === undefined) {
+            delete updateData[key];
+          }
+        });
+        
+        const { data, error } = await supabase
+          .from('cars')
+          .update(updateData)
+          .eq('id', id)
+          .select();
+        
+        if (error) {
+          console.error('❌ Supabase car update error:', error);
+          return res.status(500).json({ error: 'Database error: ' + error.message });
         }
+        
+        if (!data || data.length === 0) {
+          return res.status(404).json({ error: 'Car not found' });
+        }
+        
+        console.log('✅ Car updated successfully in Supabase');
         
         // Send Telegram notification
         try {
@@ -1011,26 +1246,123 @@ router.put('/:id', formDataUpload.any(), (req, res) => {
         } catch (error) {
           console.error('Error sending Telegram notification:', error);
         }
+        
         res.json({ success: true });
+        
+      } catch (error) {
+        console.error('❌ Supabase car update error:', error);
+        res.status(500).json({ error: 'Database error: ' + error.message });
       }
-    );
+    } else {
+      // Use SQLite
+      db.run(
+        `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, likes=?, description=?, head_image=? WHERE id=?`,
+        updateParams,
+        async function (err) {
+          if (err) {
+            console.error('Database error in PUT /api/cars/:id:', err);
+            return res.status(500).json({ error: 'Database error: ' + err.message });
+          }
+          
+          // Send Telegram notification
+          try {
+            const telegram = new TelegramNotifier();
+            const carData = {
+              make_name,
+              model_name,
+              production_year,
+              gear_type,
+              fuel_type,
+              car_type,
+              num_doors,
+              num_passengers,
+              price_policy: pricePolicyStringified,
+              rca_insurance_price: rcaInsuranceValue,
+              casco_insurance_price: cascoInsuranceValue
+            };
+            await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
+          } catch (error) {
+            console.error('Error sending Telegram notification:', error);
+          }
+          res.json({ success: true });
+        }
+      );
+    }
   });
 
 
 });
 
 // Delete car
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const id = req.params.id;
   
-  // First, get the car data to check for images
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for car deletion');
+      
+      // First, get the car data to check for images
+      const { data: carData, error: carError } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (carError) {
+        console.error('❌ Supabase error fetching car for deletion:', carError);
+        return res.status(500).json({ error: 'Database error: ' + carError.message });
+      }
+      
+      if (!carData) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      // Delete the car from Supabase
+      const { error: deleteError } = await supabase
+        .from('cars')
+        .delete()
+        .eq('id', id);
+      
+      if (deleteError) {
+        console.error('❌ Supabase car deletion error:', deleteError);
+        return res.status(500).json({ error: 'Database error: ' + deleteError.message });
+      }
+      
+      console.log('✅ Car deleted successfully from Supabase');
+      
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const carDataForTelegram = {
+          make_name: carData.make_name,
+          model_name: carData.model_name,
+          production_year: carData.production_year,
+          car_type: carData.car_type
+        };
+        await telegram.sendMessage(telegram.formatCarDeletedMessage(carDataForTelegram));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+      
+      res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
+      
+    } catch (error) {
+      console.error('❌ Supabase car deletion error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
+  } else {
+    // Use SQLite
+    // First, get the car data to check for images
+    db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
     
     // Delete the car from database first
     db.run('DELETE FROM cars WHERE id = ?', [id], async function (dbErr) {
@@ -1068,6 +1400,7 @@ router.delete('/:id', (req, res) => {
       res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
     });
   });
+  }
 });
 
 // Toggle premium status for a car
