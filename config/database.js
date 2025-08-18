@@ -131,7 +131,7 @@ function createSupabaseDB() {
       let endpoint = 'cars';
       
       // Determine which table to query
-      if (sqlLower.includes('admin_users')) {
+      if (sqlLower.includes('from admin_users') || sqlLower.includes('admin_users')) {
         endpoint = 'admin_users';
       }
       
@@ -179,7 +179,7 @@ function createSupabaseDB() {
       const queryParams = [];
       
       // Determine which table to query
-      if (sqlLower.includes('admin_users')) {
+      if (sqlLower.includes('from admin_users') || sqlLower.includes('admin_users')) {
         endpoint = 'admin_users';
       }
       
