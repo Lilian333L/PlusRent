@@ -174,11 +174,16 @@ function createSupabaseDB() {
         params = [];
       }
       
+      const sqlLower = sql.toLowerCase();
       let endpoint = 'cars';
       const queryParams = [];
       
+      // Determine which table to query
+      if (sqlLower.includes('admin_users')) {
+        endpoint = 'admin_users';
+      }
+      
       // Parse SQL to build REST API query
-      const sqlLower = sql.toLowerCase();
       
       // Handle WHERE clauses
       if (sqlLower.includes('where')) {
