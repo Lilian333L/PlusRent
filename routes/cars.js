@@ -94,8 +94,8 @@ router.get('/', async (req, res) => {
       // NOTE: Supabase does not have a daily_rate column. We'll filter by price in-memory
       // based on price_policy['1-2'] after fetching results.
       
-      // Order by
-      query = query.order('id', { ascending: true });
+      // Order by display_order first, then by id for consistency
+      query = query.order('display_order', { ascending: true }).order('id', { ascending: true });
       
       const { data, error } = await query;
       
