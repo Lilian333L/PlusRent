@@ -141,7 +141,7 @@ router.patch('/:id/toggle-wheel', (req, res) => {
 });
 
 // Update dynamic coupon fields (available_codes and showed_codes)
-router.patch('/:id/dynamic-fields', (req, res) => {
+router.patch('/:id/dynamic-fields', async (req, res) => {
   const couponId = req.params.id;
   const { available_codes, showed_codes } = req.body;
   
@@ -178,55 +178,109 @@ router.patch('/:id/dynamic-fields', (req, res) => {
     }
   }
   
-  // Check if coupon exists
-  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
-      console.log('Coupon not found for ID:', couponId);
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    
-    // Build dynamic update query
-    let updateQuery = 'UPDATE coupon_codes SET ';
-    let updateValues = [];
-    
-    if (available_codes !== undefined) {
-      updateQuery += 'available_codes = ?';
-      updateValues.push(JSON.stringify(available_codes));
-    }
-    
-    if (showed_codes !== undefined) {
-      if (available_codes !== undefined) {
-        updateQuery += ', ';
-      }
-      updateQuery += 'showed_codes = ?';
-      updateValues.push(JSON.stringify(showed_codes));
-    }
-    
-    updateQuery += ' WHERE id = ?';
-    updateValues.push(couponId);
-    
-    console.log('🔧 Executing query:', updateQuery);
-    console.log('🔧 With values:', updateValues);
-    
-    // Update the dynamic fields
-    db.run(updateQuery, updateValues, function(err) {
-      if (err) {
-        console.error('Update error:', err);
-        return res.status(500).json({ error: 'Database error' });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for dynamic fields update');
+      
+      // Check if coupon exists
+      const { data: existingCoupon, error: checkError } = await supabase
+        .from('coupon_codes')
+        .select('id')
+        .eq('id', couponId)
+        .single();
+      
+      if (checkError || !existingCoupon) {
+        console.log('Coupon not found for ID:', couponId);
+        return res.status(404).json({ error: 'Coupon not found' });
       }
       
-      console.log('✅ Dynamic fields updated successfully');
+      // Prepare update data
+      const updateData = {};
+      if (available_codes !== undefined) {
+        updateData.available_codes = JSON.stringify(available_codes);
+      }
+      if (showed_codes !== undefined) {
+        updateData.showed_codes = JSON.stringify(showed_codes);
+      }
+      
+      // Update the dynamic fields
+      const { data, error } = await supabase
+        .from('coupon_codes')
+        .update(updateData)
+        .eq('id', couponId)
+        .select();
+      
+      if (error) {
+        console.error('❌ Supabase error updating dynamic fields:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
+      
+      console.log('✅ Dynamic fields updated successfully in Supabase');
       res.json({ 
         success: true, 
         available_codes: available_codes !== undefined ? available_codes : undefined,
         showed_codes: showed_codes !== undefined ? showed_codes : undefined
       });
+      
+    } catch (error) {
+      console.error('❌ Supabase error updating dynamic fields:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    // Check if coupon exists
+    db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!coupon) {
+        console.log('Coupon not found for ID:', couponId);
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      // Build dynamic update query
+      let updateQuery = 'UPDATE coupon_codes SET ';
+      let updateValues = [];
+      
+      if (available_codes !== undefined) {
+        updateQuery += 'available_codes = ?';
+        updateValues.push(JSON.stringify(available_codes));
+      }
+      
+      if (showed_codes !== undefined) {
+        if (available_codes !== undefined) {
+          updateQuery += ', ';
+        }
+        updateQuery += 'showed_codes = ?';
+        updateValues.push(JSON.stringify(showed_codes));
+      }
+      
+      updateQuery += ' WHERE id = ?';
+      updateValues.push(couponId);
+      
+      console.log('🔧 Executing query:', updateQuery);
+      console.log('🔧 With values:', updateValues);
+      
+      // Update the dynamic fields
+      db.run(updateQuery, updateValues, function(err) {
+        if (err) {
+          console.error('Update error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        console.log('✅ Dynamic fields updated successfully');
+        res.json({ 
+          success: true, 
+          available_codes: available_codes !== undefined ? available_codes : undefined,
+          showed_codes: showed_codes !== undefined ? showed_codes : undefined
+        });
+      });
     });
-  });
+  }
 });
 
 // Update coupon percentage for a specific wheel
