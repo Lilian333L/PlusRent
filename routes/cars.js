@@ -48,9 +48,16 @@ router.get('/', async (req, res) => {
   // Check if we're using Supabase
   const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
+  console.log('🔍 Cars API - Environment check:', {
+    NODE_ENV: process.env.NODE_ENV,
+    VERCEL: process.env.VERCEL,
+    isSupabase: isSupabase
+  });
+  
   if (isSupabase) {
     // Use native Supabase client for filtering
     try {
+      console.log('🔍 Using Supabase client for cars filtering');
       let query = supabase.from('cars').select('*');
       
       // Helper to add filters
@@ -97,9 +104,16 @@ router.get('/', async (req, res) => {
       
       const { data, error } = await query;
       
+      console.log('🔍 Supabase query result:', { 
+        hasData: !!data, 
+        dataLength: data ? data.length : 0,
+        hasError: !!error,
+        error: error ? error.message : null
+      });
+      
       if (error) {
         console.error('❌ Supabase query error:', error);
-        return res.status(500).json({ error: 'Database error' });
+        return res.status(500).json({ error: 'Database error', details: error.message });
       }
       
       // Parse price_policy and gallery_images for each car
@@ -129,7 +143,75 @@ router.get('/', async (req, res) => {
       
     } catch (error) {
       console.error('❌ Supabase error:', error);
-      res.status(500).json({ error: 'Database error' });
+      console.log('🔄 Falling back to SQLite approach...');
+      
+      // Fallback to SQLite approach
+      const filters = [];
+      const params = [];
+
+      // Helper to add single or multi-value filter (case-insensitive)
+      function addFilter(field, param) {
+        if (req.query[param] && req.query[param] !== '') {
+          const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
+          if (values.length > 1) {
+            filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
+            params.push(...values);
+          } else {
+            filters.push(`${field} = ? COLLATE NOCASE`);
+            params.push(values[0]);
+          }
+        }
+      }
+
+      addFilter('make_name', 'make_name');
+      addFilter('model_name', 'model_name');
+      addFilter('gear_type', 'gear_type');
+      addFilter('fuel_type', 'fuel_type');
+      addFilter('car_type', 'car_type');
+      addFilter('num_doors', 'num_doors');
+      addFilter('num_passengers', 'num_passengers');
+
+      if (req.query.min_year && req.query.min_year !== '') {
+        filters.push('production_year >= ?');
+        params.push(req.query.min_year);
+      }
+      if (req.query.max_year && req.query.max_year !== '') {
+        filters.push('production_year <= ?');
+        params.push(req.query.max_year);
+      }
+      // Price filtering (by daily rate for 1-2 days)
+      if (req.query.min_price && req.query.min_price !== '') {
+        filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
+        params.push(req.query.min_price);
+      }
+      if (req.query.max_price && req.query.max_price !== '') {
+        filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
+        params.push(req.query.max_price);
+      }
+
+      let sql = 'SELECT * FROM cars';
+      if (filters.length > 0) {
+        sql += ' WHERE ' + filters.join(' AND ');
+      }
+      sql += ' ORDER BY display_order ASC, id ASC';
+
+      db.all(sql, params, (err, rows) => {
+        if (err) {
+          console.error('❌ SQLite fallback error:', err);
+          return res.status(500).json({ error: 'Database error', details: err.message });
+        }
+        // Parse price_policy and gallery_images for each car
+        rows.forEach(car => {
+          // Supabase already returns parsed JSON, so only parse if it's a string
+          if (typeof car.price_policy === 'string') {
+            car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
+          }
+          if (typeof car.gallery_images === 'string') {
+            car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+          }
+        });
+        res.json(rows);
+      });
     }
   } else {
     // Use SQLite for local development
