@@ -91,13 +91,8 @@ router.get('/', async (req, res) => {
         query = query.lte('production_year', req.query.max_year);
       }
       
-      // Price filtering (by daily rate for 1-2 days)
-      if (req.query.min_price && req.query.min_price !== '') {
-        query = query.gte('daily_rate', req.query.min_price);
-      }
-      if (req.query.max_price && req.query.max_price !== '') {
-        query = query.lte('daily_rate', req.query.max_price);
-      }
+      // NOTE: Supabase does not have a daily_rate column. We'll filter by price in-memory
+      // based on price_policy['1-2'] after fetching results.
       
       // Order by
       query = query.order('id', { ascending: true });
@@ -139,7 +134,23 @@ router.get('/', async (req, res) => {
         return car;
       });
       
-      res.json(cars);
+      // In-memory price filtering based on price_policy['1-2']
+      const minPrice = (req.query.min_price && req.query.min_price !== '') ? parseFloat(req.query.min_price) : null;
+      const maxPrice = (req.query.max_price && req.query.max_price !== '') ? parseFloat(req.query.max_price) : null;
+      let filteredCars = cars;
+      if (minPrice !== null || maxPrice !== null) {
+        filteredCars = cars.filter(car => {
+          const pp = car.price_policy || {};
+          const rateRaw = pp['1-2'];
+          const rate = rateRaw !== undefined && rateRaw !== null ? parseFloat(rateRaw) : NaN;
+          if (Number.isNaN(rate)) return false;
+          if (minPrice !== null && rate < minPrice) return false;
+          if (maxPrice !== null && rate > maxPrice) return false;
+          return true;
+        });
+      }
+      
+      res.json(filteredCars);
       
     } catch (error) {
       console.error('❌ Supabase error:', error);

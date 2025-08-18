@@ -21,23 +21,19 @@ async function setupLocalDev() {
     const schemaPath = path.join(__dirname, '..', 'database_schema_complete.sql');
     if (fs.existsSync(schemaPath)) {
       const schema = fs.readFileSync(schemaPath, 'utf8');
-      const statements = schema.split(';').filter(stmt => stmt.trim());
       
-      for (const statement of statements) {
-        if (statement.trim() && !statement.toLowerCase().includes('sqlite_sequence')) {
-          await new Promise((resolve, reject) => {
-            db.run(statement, (err) => {
-              if (err && !err.message.includes('already exists')) {
-                console.error('Error creating table:', err.message);
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
-        }
-      }
-      console.log('✅ Complete database schema created with sample data');
+      // Execute the entire schema as one transaction
+      await new Promise((resolve, reject) => {
+        db.exec(schema, (err) => {
+          if (err) {
+            console.error('Error executing schema:', err.message);
+            reject(err);
+          } else {
+            console.log('✅ Complete database schema created with sample data');
+            resolve();
+          }
+        });
+      });
     }
     
     console.log('\n🎉 Local development environment setup complete!');
