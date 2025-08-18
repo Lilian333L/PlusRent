@@ -169,9 +169,9 @@ class BookingFormHandler {
     const isOutsideHours = pickupTime.getHours() < 8 || pickupTime.getHours() >= 18 || 
                           returnTime.getHours() < 8 || returnTime.getHours() >= 18;
     
-    if (isOutsideHours && (!bookingData.customer_name || !bookingData.customer_phone)) {
-      return { isValid: false, error: 'Customer name and phone are required for outside hours pickup/dropoff' };
-    }
+            if (isOutsideHours && !bookingData.customer_phone) {
+            return { isValid: false, error: 'Phone number is required for outside hours pickup/dropoff' };
+        }
 
     return { isValid: true };
   }
