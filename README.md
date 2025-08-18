@@ -38,16 +38,25 @@ Rentaly/
 npm install
 ```
 
-### 2. Create Admin User
+### 2. Setup Local Development Environment
 ```bash
-node scripts/create-admin.js
+node scripts/setup-local-dev.js
 ```
-Default credentials: `admin` / `admin123`
+This will:
+- Create a fresh SQLite database with proper schema
+- Add sample cars (BMW X5, Mercedes C-Class, Audi A4, VW Golf)
+- Create admin user with proper hashed password
+- Add sample coupon codes (WELCOME10, SUMMER20)
 
 ### 3. Start Server
 ```bash
 node server.js
 ```
+
+### 4. Default Credentials
+- **Username:** `admin`
+- **Password:** `admin123`
+- **Email:** `admin@rentaly.com`
 
 ### 4. Access the Application
 - **Website**: http://localhost:3001
