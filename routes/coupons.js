@@ -62,7 +62,7 @@ router.get('/debug-table', (req, res) => {
 
 
 // Toggle wheel enabled status for a coupon
-router.patch('/:id/toggle-wheel', (req, res) => {
+router.patch('/:id/toggle-wheel', async (req, res) => {
   const id = req.params.id;
   const wheelId = req.query.wheelId; // Get wheel ID from query parameter
   
@@ -72,72 +72,80 @@ router.patch('/:id/toggle-wheel', (req, res) => {
     return res.status(400).json({ error: 'Wheel ID is required' });
   }
   
-  // Check if coupon exists
-  db.get('SELECT id FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
+  try {
+    // Check if coupon exists
+    const { data: coupon, error: couponError } = await supabase
+      .from('coupon_codes')
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    if (couponError || !coupon) {
       console.log('Coupon not found for ID:', id);
       return res.status(404).json({ error: 'Coupon not found' });
     }
     
     // Check if wheel exists
-    db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, wheel) => {
-      if (err) {
-        console.error('Database error:', err);
+    const { data: wheel, error: wheelError } = await supabase
+      .from('spinning_wheels')
+      .select('id')
+      .eq('id', wheelId)
+      .single();
+    
+    if (wheelError || !wheel) {
+      console.log('Wheel not found for ID:', wheelId);
+      return res.status(404).json({ error: 'Wheel not found' });
+    }
+    
+    // Check if coupon is already enabled for this wheel
+    const { data: existing, error: existingError } = await supabase
+      .from('wheel_coupons')
+      .select('id')
+      .eq('wheel_id', wheelId)
+      .eq('coupon_id', id)
+      .single();
+    
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('Error checking existing wheel coupon:', existingError);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (existing) {
+      // Remove from wheel
+      console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
+      const { error: deleteError } = await supabase
+        .from('wheel_coupons')
+        .delete()
+        .eq('wheel_id', wheelId)
+        .eq('coupon_id', id);
+      
+      if (deleteError) {
+        console.error('Delete error:', deleteError);
         return res.status(500).json({ error: 'Database error' });
       }
-      if (!wheel) {
-        console.log('Wheel not found for ID:', wheelId);
-        return res.status(404).json({ error: 'Wheel not found' });
+      
+      console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
+      res.json({ success: true, wheel_enabled: false });
+    } else {
+      // Add to wheel
+      console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
+      const { data: insertData, error: insertError } = await supabase
+        .from('wheel_coupons')
+        .insert([{ wheel_id: wheelId, coupon_id: id }])
+        .select();
+      
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        return res.status(500).json({ error: 'Database error' });
       }
       
-      // Check if coupon is already enabled for this wheel
-      db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (err, existing) => {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        
-        if (existing) {
-          // Remove from wheel
-          console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
-          db.run('DELETE FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], function(err) {
-            if (err) {
-              console.error('Delete error:', err);
-              return res.status(500).json({ error: 'Database error' });
-            }
-            console.log(`Successfully removed coupon ${id} from wheel ${wheelId}. Rows affected: ${this.changes}`);
-            
-            // Verify the deletion by checking if the record still exists
-            db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (verifyErr, verifyResult) => {
-              if (verifyErr) {
-                console.error('Verification error:', verifyErr);
-              } else if (verifyResult) {
-                console.error(`❌ VERIFICATION FAILED: Coupon ${id} still exists in wheel ${wheelId} after deletion!`);
-              } else {
-                console.log(`✅ VERIFICATION SUCCESS: Coupon ${id} successfully removed from wheel ${wheelId}`);
-              }
-              res.json({ success: true, wheel_enabled: false });
-            });
-          });
-        } else {
-          // Add to wheel
-          console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
-          db.run('INSERT INTO wheel_coupons (wheel_id, coupon_id) VALUES (?, ?)', [wheelId, id], function(err) {
-            if (err) {
-              console.error('Insert error:', err);
-              return res.status(500).json({ error: 'Database error' });
-            }
-            console.log(`Successfully added coupon ${id} to wheel ${wheelId}. Last ID: ${this.lastID}`);
-            res.json({ success: true, wheel_enabled: true });
-          });
-        }
-      });
-    });
-  });
+      console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
+      res.json({ success: true, wheel_enabled: true });
+    }
+  } catch (error) {
+    console.error('Toggle wheel error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Update dynamic coupon fields (available_codes and showed_codes)
@@ -284,11 +292,9 @@ router.patch('/:id/dynamic-fields', async (req, res) => {
 });
 
 // Update coupon percentage for a specific wheel
-router.patch('/:id/wheel-percentage', (req, res) => {
+router.patch('/:id/wheel-percentage', async (req, res) => {
   const couponId = req.params.id;
   const { wheelId, percentage } = req.body;
-  
-
   
   if (!wheelId || percentage === undefined) {
     return res.status(400).json({ error: 'Wheel ID and percentage are required' });
@@ -300,52 +306,65 @@ router.patch('/:id/wheel-percentage', (req, res) => {
     return res.status(400).json({ error: 'Percentage must be between 0 and 100' });
   }
   
-  // Check if coupon exists
-  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
+  try {
+    // Check if coupon exists
+    const { data: coupon, error: couponError } = await supabase
+      .from('coupon_codes')
+      .select('id')
+      .eq('id', couponId)
+      .single();
+    
+    if (couponError || !coupon) {
       console.log('Coupon not found for ID:', couponId);
       return res.status(404).json({ error: 'Coupon not found' });
     }
     
     // Check if wheel exists
-    db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, wheel) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      if (!wheel) {
-        console.log('Wheel not found for ID:', wheelId);
-        return res.status(404).json({ error: 'Wheel not found' });
-      }
-      
-      // Check if coupon is enabled for this wheel
-      db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, couponId], (err, existing) => {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        
-        if (!existing) {
-          return res.status(400).json({ error: 'Coupon is not enabled for this wheel' });
-        }
-        
-        // Update the percentage
-        db.run('UPDATE wheel_coupons SET percentage = ? WHERE wheel_id = ? AND coupon_id = ?', 
-               [numPercentage, wheelId, couponId], (err) => {
-          if (err) {
-            console.error('Update error:', err);
-            return res.status(500).json({ error: 'Database error' });
-          }
+    const { data: wheel, error: wheelError } = await supabase
+      .from('spinning_wheels')
+      .select('id')
+      .eq('id', wheelId)
+      .single();
+    
+    if (wheelError || !wheel) {
+      console.log('Wheel not found for ID:', wheelId);
+      return res.status(404).json({ error: 'Wheel not found' });
+    }
+    
+    // Check if coupon is enabled for this wheel
+    const { data: existing, error: existingError } = await supabase
+      .from('wheel_coupons')
+      .select('id')
+      .eq('wheel_id', wheelId)
+      .eq('coupon_id', couponId)
+      .single();
+    
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('Error checking existing wheel coupon:', existingError);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (!existing) {
+      return res.status(400).json({ error: 'Coupon is not enabled for this wheel' });
+    }
+    
+    // Update the percentage
+    const { error: updateError } = await supabase
+      .from('wheel_coupons')
+      .update({ percentage: numPercentage })
+      .eq('wheel_id', wheelId)
+      .eq('coupon_id', couponId);
+    
+    if (updateError) {
+      console.error('Update error:', updateError);
+      return res.status(500).json({ error: 'Database error' });
+    }
 
-          res.json({ success: true, percentage: numPercentage });
-        });
-      });
-    });
-  });
+    res.json({ success: true, percentage: numPercentage });
+  } catch (error) {
+    console.error('Wheel percentage update error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Get single coupon code
