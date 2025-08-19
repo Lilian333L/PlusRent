@@ -602,10 +602,16 @@ function formatDisplayText(rawKey) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+  console.log('Car single page: DOM loaded');
+  console.log('Car single page: Current URL:', window.location.href);
+  
   // Get car ID from URL, e.g. car-single.html?id=123
   const urlParams = new URLSearchParams(window.location.search);
   const carId = urlParams.get('id');
+  console.log('Car single page: Car ID from URL:', carId);
+  
   if (!carId) {
+    console.error('Car single page: No car ID found in URL');
     document.getElementById('car-title').textContent = 'Car not found';
     return;
   }
@@ -643,10 +649,21 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Fetch car data
   let car;
   try {
-    const res = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
-    if (!res.ok) throw new Error('Not found');
+    const apiUrl = `${window.API_BASE_URL}/api/cars/${carId}`;
+    console.log('Car single page: Fetching car from:', apiUrl);
+    
+    const res = await fetch(apiUrl);
+    console.log('Car single page: Response status:', res.status);
+    
+    if (!res.ok) {
+      console.error('Car single page: Car not found, status:', res.status);
+      throw new Error('Not found');
+    }
+    
     car = await res.json();
+    console.log('Car single page: Car data loaded:', car);
   } catch (e) {
+    console.error('Car single page: Error fetching car:', e);
     document.getElementById('car-title').textContent = 'Car not found';
     return;
   }
