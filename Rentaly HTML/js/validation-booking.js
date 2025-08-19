@@ -762,6 +762,10 @@ function collectFormData() {
     const vehicleSelect = $('#vehicle_type');
     const selectedOption = vehicleSelect.find('option:selected');
     
+    // Get selected radio button values for locations
+    const pickupLocation = $('input[name="pickup_location"]:checked').val();
+    const dropoffLocation = $('input[name="destination"]:checked').val();
+    
     return {
         car_id: selectedOption.attr('data-car-id'),
         customer_name: $('#name').val().trim(),
@@ -771,8 +775,9 @@ function collectFormData() {
         pickup_time: $('#modal-pickup-time').val(),
         return_date: $('#modal-return-date').val(),
         return_time: $('#modal-return-time').val(),
-        pickup_location: $('#pickup_location').val(),
-        dropoff_location: $('#destination').val(),
+        pickup_location: pickupLocation,
+        dropoff_location: dropoffLocation,
+        insurance_type: 'basic', // Default insurance type
         special_instructions: $('#message').val().trim() || null,
         total_price: 0, // Will be calculated by backend
         price_breakdown: {}
@@ -788,19 +793,29 @@ function showSuccess(bookingData) {
     const vehicleSelect = $('#vehicle_type');
     const selectedOption = vehicleSelect.find('option:selected');
     
+    // Get translated labels using i18n
+    const vehicleLabel = typeof i18next !== 'undefined' ? i18next.t('booking.vehicle') : 'Vehicle';
+    const customerLabel = typeof i18next !== 'undefined' ? i18next.t('booking.customer') : 'Customer';
+    const emailLabel = typeof i18next !== 'undefined' ? i18next.t('booking.email') : 'Email';
+    const phoneLabel = typeof i18next !== 'undefined' ? i18next.t('booking.phone') : 'Phone';
+    const pickupLabel = typeof i18next !== 'undefined' ? i18next.t('booking.pickup') : 'Pickup';
+    const returnLabel = typeof i18next !== 'undefined' ? i18next.t('booking.return') : 'Return';
+    const locationLabel = typeof i18next !== 'undefined' ? i18next.t('booking.location') : 'Location';
+    const dropoffLabel = typeof i18next !== 'undefined' ? i18next.t('booking.dropoff') : 'Dropoff';
+    
     const summaryHTML = `
         <div class="row">
             <div class="col-md-6">
-                <p><strong>Vehicle:</strong> ${selectedOption.text()}</p>
-                <p><strong>Customer:</strong> ${bookingData.customer_name}</p>
-                <p><strong>Email:</strong> ${bookingData.customer_email}</p>
-                <p><strong>Phone:</strong> ${bookingData.customer_phone}</p>
+                <p><strong>${vehicleLabel}:</strong> ${selectedOption.text()}</p>
+                <p><strong>${customerLabel}:</strong> ${bookingData.customer_name}</p>
+                <p><strong>${emailLabel}:</strong> ${bookingData.customer_email}</p>
+                <p><strong>${phoneLabel}:</strong> ${bookingData.customer_phone}</p>
             </div>
             <div class="col-md-6">
-                <p><strong>Pickup:</strong> ${bookingData.pickup_date} at ${bookingData.pickup_time}</p>
-                <p><strong>Return:</strong> ${bookingData.return_date} at ${bookingData.return_time}</p>
-                <p><strong>Location:</strong> ${bookingData.pickup_location}</p>
-                <p><strong>Dropoff:</strong> ${bookingData.dropoff_location}</p>
+                <p><strong>${pickupLabel}:</strong> ${bookingData.pickup_date} at ${bookingData.pickup_time}</p>
+                <p><strong>${returnLabel}:</strong> ${bookingData.return_date} at ${bookingData.return_time}</p>
+                <p><strong>${locationLabel}:</strong> ${bookingData.pickup_location}</p>
+                <p><strong>${dropoffLabel}:</strong> ${bookingData.dropoff_location}</p>
             </div>
         </div>
     `;
@@ -809,6 +824,11 @@ function showSuccess(bookingData) {
     
     bookingForm.hide();
     successMessage.fadeIn(500);
+    
+    // Update i18n content after showing the success message
+    if (typeof updateContent === 'function') {
+        updateContent();
+    }
     
     // Scroll to success message
     $('html, body').animate({
