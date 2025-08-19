@@ -147,7 +147,7 @@ function createSupabaseDB() {
             }
           });
         } else {
-          data = params[0] || {};
+        data = params[0] || {};
         }
         console.log('📝 Updating car with data:', data);
       } else if (sqlLower.includes('update admin_users')) {
