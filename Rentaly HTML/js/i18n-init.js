@@ -30,14 +30,23 @@ function initI18n() {
       interpolation: {
         escapeValue: false // allow HTML in translations
       },
-      parseMissingKeyHandler: function(key) { return key; }
-    }, function(err, t) {
-      if (!savedLang) {
-        i18next.changeLanguage(defaultLang, updateContent);
-      } else {
-        updateContent();
+      parseMissingKeyHandler: function(key) { 
+        console.warn('Missing translation key:', key);
+        return key; 
       }
-      updateLangPickerUI();
+    }, function(err, t) {
+      if (err) {
+        console.error('i18n initialization error:', err);
+        // Fallback: try to load with a different approach
+        loadFallbackTranslations(initialLang);
+      } else {
+        if (!savedLang) {
+          i18next.changeLanguage(defaultLang, updateContent);
+        } else {
+          updateContent();
+        }
+        updateLangPickerUI();
+      }
     });
 }
 
@@ -214,6 +223,97 @@ document.addEventListener('DOMContentLoaded', function() {
   setupI18nEvents();
   updateLangPickerUI();
 });
+
+// Fallback translations in case locale files fail to load
+function loadFallbackTranslations(lang) {
+  const fallbackTranslations = {
+    ro: {
+      common: {
+        loading: "Se încarcă..."
+      },
+      cars: {
+        filter_cars: "Filtrează Mașinile",
+        filter_clear: "Șterge toate filtrele",
+        apply_filters: "Aplică Filtrele",
+        loading_filters: "Se încarcă filtrele...",
+        filter_make: "Marca",
+        filter_gear: "Cutie de viteze",
+        filter_fuel: "Combustibil",
+        filter_type: "Tip",
+        filter_doors: "Uși",
+        filter_passengers: "Pasageri",
+        filter_price: "Preț",
+        filter_price_from: "De la",
+        filter_price_to: "Până la"
+      },
+      menu: {
+        home: "Acasă",
+        cars: "Mașini",
+        about: "Despre noi",
+        contact: "Contact"
+      }
+    },
+    en: {
+      common: {
+        loading: "Loading..."
+      },
+      cars: {
+        filter_cars: "Filter Cars",
+        filter_clear: "Clear all filters",
+        apply_filters: "Apply Filters",
+        loading_filters: "Loading filters...",
+        filter_make: "Make",
+        filter_gear: "Gear",
+        filter_fuel: "Fuel",
+        filter_type: "Type",
+        filter_doors: "Doors",
+        filter_passengers: "Passengers",
+        filter_price: "Price",
+        filter_price_from: "From",
+        filter_price_to: "To"
+      },
+      menu: {
+        home: "Home",
+        cars: "Cars",
+        about: "About Us",
+        contact: "Contact"
+      }
+    },
+    ru: {
+      common: {
+        loading: "Загрузка..."
+      },
+      cars: {
+        filter_cars: "Фильтровать автомобили",
+        filter_clear: "Очистить все фильтры",
+        apply_filters: "Применить фильтры",
+        loading_filters: "Загрузка фильтров...",
+        filter_make: "Марка",
+        filter_gear: "Коробка передач",
+        filter_fuel: "Топливо",
+        filter_type: "Тип",
+        filter_doors: "Двери",
+        filter_passengers: "Пассажиры",
+        filter_price: "Цена",
+        filter_price_from: "От",
+        filter_price_to: "До"
+      },
+      menu: {
+        home: "Главная",
+        cars: "Автомобили",
+        about: "О нас",
+        contact: "Контакты"
+      }
+    }
+  };
+
+  // Add fallback translations to i18next
+  if (fallbackTranslations[lang]) {
+    i18next.addResourceBundle(lang, 'translation', fallbackTranslations[lang], true, true);
+    updateContent();
+    updateLangPickerUI();
+  }
+}
 
 // Start the initialization
 initI18n(); 
