@@ -3,7 +3,6 @@
 // Wait for i18next to be available
 function initI18n() {
   if (typeof i18next === 'undefined') {
-    console.log('i18next not loaded yet, retrying in 100ms...');
     setTimeout(initI18n, 100);
     return;
   }
@@ -31,7 +30,6 @@ function initI18n() {
         escapeValue: false // allow HTML in translations
       },
       parseMissingKeyHandler: function(key) { 
-        console.warn('Missing translation key:', key);
         return key; 
       }
     }, function(err, t) {
@@ -40,7 +38,6 @@ function initI18n() {
         // Fallback: try to load with a different approach
         loadFallbackTranslations(initialLang);
       } else {
-        console.log('i18n initialized successfully with language:', initialLang);
         if (!savedLang) {
           i18next.changeLanguage(defaultLang, function() {
             updateContent();
@@ -55,25 +52,9 @@ function initI18n() {
 }
 
 function updateContent() {
-  console.log('Updating content with i18n...');
-  const elements = document.querySelectorAll('[data-i18n]');
-  console.log('Found', elements.length, 'elements with data-i18n attributes');
-  
-  // Test specific problematic keys
-  console.log('=== TRANSLATION KEY TESTS ===');
-  console.log('cars.filter_cars available:', i18next.exists('cars.filter_cars'));
-  console.log('cars.apply_filters available:', i18next.exists('cars.apply_filters'));
-  console.log('cars.filter_clear available:', i18next.exists('cars.filter_clear'));
-  console.log('Current language:', i18next.language);
-  console.log('Available languages:', i18next.languages);
-  console.log('Loaded namespaces:', i18next.reportNamespaces.getUsedNamespaces());
-  console.log('=== END TESTS ===');
-  
-  elements.forEach(function(el, index) {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
     var date = el.getAttribute('data-i18n-date');
-    
-    console.log(`Processing element ${index + 1}:`, key, 'Element:', el.tagName, el.className);
     
     if (date) {
       // Handle custom interpolation for unavailable badges
@@ -81,8 +62,6 @@ function updateContent() {
     } else {
       var value = i18next.t(key);
     }
-    
-    console.log(`Translation for "${key}":`, value);
     
     if (el.childElementCount === 0) {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
@@ -169,15 +148,12 @@ function setupI18nEvents() {
 
 // Enhanced initialization with multiple fallback strategies
 function initializeI18nWithFallbacks() {
-  console.log('Starting i18n initialization with fallbacks...');
-  
   // Strategy 1: Try normal initialization
   initI18n();
   
   // Strategy 2: Set up a backup timer to force fallback if needed
   setTimeout(function() {
     if (typeof i18next === 'undefined' || !i18next.isInitialized) {
-      console.warn('i18n failed to initialize normally, forcing fallback...');
       const savedLang = localStorage.getItem('lang') || 'ro';
       loadFallbackTranslations(savedLang);
     }
@@ -188,7 +164,6 @@ function initializeI18nWithFallbacks() {
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         if (typeof i18next === 'undefined' || !i18next.isInitialized) {
-          console.warn('i18n still not ready after DOMContentLoaded, forcing fallback...');
           const savedLang = localStorage.getItem('lang') || 'ro';
           loadFallbackTranslations(savedLang);
         } else {
@@ -200,7 +175,6 @@ function initializeI18nWithFallbacks() {
     // DOM already loaded
     setTimeout(function() {
       if (typeof i18next === 'undefined' || !i18next.isInitialized) {
-        console.warn('i18n not ready, forcing fallback...');
         const savedLang = localStorage.getItem('lang') || 'ro';
         loadFallbackTranslations(savedLang);
       } else {
@@ -293,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof i18next !== 'undefined' && i18next.isInitialized) {
       updateContent();
     } else {
-      console.warn('i18n not ready after DOMContentLoaded, using fallback...');
       const savedLang = localStorage.getItem('lang') || 'ro';
       loadFallbackTranslations(savedLang);
     }
@@ -302,7 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Fallback translations in case locale files fail to load
 function loadFallbackTranslations(lang) {
-  console.log('Loading fallback translations for language:', lang);
   const fallbackTranslations = {
     ro: {
       common: {
@@ -394,7 +366,6 @@ function loadFallbackTranslations(lang) {
       });
     } else {
       // If i18next is not available, manually update the DOM
-      console.log('i18next not available, manually updating DOM...');
       const translations = fallbackTranslations[lang];
       document.querySelectorAll('[data-i18n]').forEach(function(el) {
         const key = el.getAttribute('data-i18n');
