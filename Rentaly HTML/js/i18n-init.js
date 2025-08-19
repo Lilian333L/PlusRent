@@ -59,6 +59,16 @@ function updateContent() {
   const elements = document.querySelectorAll('[data-i18n]');
   console.log('Found', elements.length, 'elements with data-i18n attributes');
   
+  // Test specific problematic keys
+  console.log('=== TRANSLATION KEY TESTS ===');
+  console.log('cars.filter_cars available:', i18next.exists('cars.filter_cars'));
+  console.log('cars.apply_filters available:', i18next.exists('cars.apply_filters'));
+  console.log('cars.filter_clear available:', i18next.exists('cars.filter_clear'));
+  console.log('Current language:', i18next.language);
+  console.log('Available languages:', i18next.languages);
+  console.log('Loaded namespaces:', i18next.reportNamespaces.getUsedNamespaces());
+  console.log('=== END TESTS ===');
+  
   elements.forEach(function(el, index) {
     var key = el.getAttribute('data-i18n');
     var date = el.getAttribute('data-i18n-date');
