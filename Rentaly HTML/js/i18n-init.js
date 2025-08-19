@@ -40,17 +40,22 @@ function initI18n() {
         // Fallback: try to load with a different approach
         loadFallbackTranslations(initialLang);
       } else {
+        console.log('i18n initialized successfully with language:', initialLang);
         if (!savedLang) {
-          i18next.changeLanguage(defaultLang, updateContent);
+          i18next.changeLanguage(defaultLang, function() {
+            updateContent();
+            updateLangPickerUI();
+          });
         } else {
           updateContent();
+          updateLangPickerUI();
         }
-        updateLangPickerUI();
       }
     });
 }
 
 function updateContent() {
+  console.log('Updating content with i18n...');
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
     var date = el.getAttribute('data-i18n-date');
@@ -145,6 +150,49 @@ function setupI18nEvents() {
   });
 }
 
+// Enhanced initialization with multiple fallback strategies
+function initializeI18nWithFallbacks() {
+  console.log('Starting i18n initialization with fallbacks...');
+  
+  // Strategy 1: Try normal initialization
+  initI18n();
+  
+  // Strategy 2: Set up a backup timer to force fallback if needed
+  setTimeout(function() {
+    if (typeof i18next === 'undefined' || !i18next.isInitialized) {
+      console.warn('i18n failed to initialize normally, forcing fallback...');
+      const savedLang = localStorage.getItem('lang') || 'ro';
+      loadFallbackTranslations(savedLang);
+    }
+  }, 2000);
+  
+  // Strategy 3: Set up DOMContentLoaded backup
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (typeof i18next === 'undefined' || !i18next.isInitialized) {
+          console.warn('i18n still not ready after DOMContentLoaded, forcing fallback...');
+          const savedLang = localStorage.getItem('lang') || 'ro';
+          loadFallbackTranslations(savedLang);
+        } else {
+          updateContent();
+        }
+      }, 500);
+    });
+  } else {
+    // DOM already loaded
+    setTimeout(function() {
+      if (typeof i18next === 'undefined' || !i18next.isInitialized) {
+        console.warn('i18n not ready, forcing fallback...');
+        const savedLang = localStorage.getItem('lang') || 'ro';
+        loadFallbackTranslations(savedLang);
+      } else {
+        updateContent();
+      }
+    }, 500);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Custom Language Picker logic
   var langBtn = document.getElementById('langPickerBtn');
@@ -222,10 +270,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup i18next events and UI
   setupI18nEvents();
   updateLangPickerUI();
+  
+  // Final check and update
+  setTimeout(function() {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      updateContent();
+    } else {
+      console.warn('i18n not ready after DOMContentLoaded, using fallback...');
+      const savedLang = localStorage.getItem('lang') || 'ro';
+      loadFallbackTranslations(savedLang);
+    }
+  }, 1000);
 });
 
 // Fallback translations in case locale files fail to load
 function loadFallbackTranslations(lang) {
+  console.log('Loading fallback translations for language:', lang);
   const fallbackTranslations = {
     ro: {
       common: {
@@ -309,11 +369,49 @@ function loadFallbackTranslations(lang) {
 
   // Add fallback translations to i18next
   if (fallbackTranslations[lang]) {
-    i18next.addResourceBundle(lang, 'translation', fallbackTranslations[lang], true, true);
-    updateContent();
-    updateLangPickerUI();
+    if (typeof i18next !== 'undefined') {
+      i18next.addResourceBundle(lang, 'translation', fallbackTranslations[lang], true, true);
+      i18next.changeLanguage(lang, function() {
+        updateContent();
+        updateLangPickerUI();
+      });
+    } else {
+      // If i18next is not available, manually update the DOM
+      console.log('i18next not available, manually updating DOM...');
+      const translations = fallbackTranslations[lang];
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        const key = el.getAttribute('data-i18n');
+        const keys = key.split('.');
+        let value = translations;
+        for (const k of keys) {
+          if (value && value[k]) {
+            value = value[k];
+          } else {
+            value = key; // fallback to key if translation not found
+            break;
+          }
+        }
+        
+        if (el.childElementCount === 0) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.setAttribute('placeholder', value);
+            if (el.type === 'submit' || el.type === 'button') {
+              el.value = value;
+            }
+          } else {
+            el.innerHTML = value;
+          }
+        } else {
+          Array.from(el.childNodes).forEach(function(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              node.textContent = value;
+            }
+          });
+        }
+      });
+    }
   }
 }
 
-// Start the initialization
-initI18n(); 
+// Start the initialization with enhanced fallback strategies
+initializeI18nWithFallbacks(); 
