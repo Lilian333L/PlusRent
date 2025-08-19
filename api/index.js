@@ -16,7 +16,28 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+
+// Custom body parser for Vercel compatibility
+app.use((req, res, next) => {
+  if (req.method === 'POST' && req.headers['content-type'] === 'application/json') {
+    let data = '';
+    req.on('data', chunk => {
+      data += chunk;
+    });
+    req.on('end', () => {
+      try {
+        req.body = JSON.parse(data);
+      } catch (e) {
+        req.body = {};
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
+// Only use urlencoded parser for non-JSON requests
 app.use(express.urlencoded({ extended: true }));
 
 // Global request logger
