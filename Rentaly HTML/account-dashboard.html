@@ -1088,7 +1088,7 @@
     cursor: grab; 
     transition: transform 0.2s, box-shadow 0.2s; 
     user-select: none; 
-    position: relative;
+    position: relative; 
     border: 2px solid transparent;
   }
   .car-card:hover {
@@ -1399,7 +1399,7 @@
                               <div id="addHeadImagePreview" class="admin-image-preview"></div>
                             </div>
                             <div style="flex: 1;">
-                              <label class="form-label">Gallery Images</label>
+                              <label class="form-label">Gallery Images <span id="addGalleryImageCount" class="badge bg-secondary ms-2">0</span></label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="addGalleryImagesButton">
                                   <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
@@ -1737,7 +1737,7 @@
                               <div id="editHeadImagePreview" class="admin-image-preview"></div>
                             </div>
                             <div style="flex: 1;">
-                              <label class="form-label">Gallery Images</label>
+                              <label class="form-label">Gallery Images <span id="editGalleryImageCount" class="badge bg-secondary ms-2">0</span></label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="editGalleryImagesButton">
                                   <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
@@ -3517,6 +3517,9 @@
       if (headImageInput) headImageInput.value = '';
       if (galleryImagesInput) galleryImagesInput.value = '';
       
+      // Update image counts
+      updateAddGalleryImageCount();
+      
       if (addCarPanel) addCarPanel.classList.remove('active');
       if (adminOverlay) adminOverlay.classList.remove('active');
       document.body.classList.remove('admin-popup-open');
@@ -3533,6 +3536,9 @@
       document.getElementById('editGalleryImagesPreview').innerHTML = '';
       document.getElementById('editHeadImageInput').value = '';
       document.getElementById('editGalleryImagesInput').value = '';
+      
+      // Update image counts
+      updateEditGalleryImageCount();
       
       editCarPanel.classList.remove('active');
       adminOverlay.classList.remove('active');
@@ -3558,6 +3564,9 @@
         if (galleryImagesPreview) galleryImagesPreview.innerHTML = '';
         if (headImageInput) headImageInput.value = '';
         if (galleryImagesInput) galleryImagesInput.value = '';
+        
+        // Update image counts
+        updateAddGalleryImageCount();
       }
       
       if (addCarPanel) addCarPanel.classList.remove('active');
@@ -3586,6 +3595,9 @@
             document.getElementById('addGalleryImagesPreview').innerHTML = '';
             document.getElementById('addHeadImageInput').value = '';
             document.getElementById('addGalleryImagesInput').value = '';
+            
+            // Update image counts
+            updateAddGalleryImageCount();
           }
           
           addCarPanel.classList.add('active');
@@ -3595,6 +3607,7 @@
           // Store original values after a short delay to ensure form is rendered and reset
           setTimeout(() => {
             storeOriginalValues('carForm');
+            updateAddGalleryImageCount();
           }, 100);
         });
       }
@@ -3708,81 +3721,92 @@
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
           
-
-          
-          if (headImageFile || galleryImageFiles.length > 0) {
-            // Create a new FormData and manually add all form fields to avoid duplicates
-            const imageFormData = new FormData();
-            
-            // Add all form fields except files
-            const formData = new FormData(editCarForm);
-            for (let [key, value] of formData.entries()) {
-              if (!(value instanceof File)) {
-                imageFormData.append(key, value);
-              }
-            }
-            
-
-            
-            // Add price_policy as JSON string
-            imageFormData.delete('price_1_2');
-            imageFormData.delete('price_3_7');
-            imageFormData.delete('price_8_20');
-            imageFormData.delete('price_21_45');
-            imageFormData.delete('price_46');
-            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
-            
-
-            
-            // Add images
-            if (headImageFile) {
-              imageFormData.append('head_image', headImageFile);
-            }
-            // Only add gallery images that have actual content
-            galleryImageFiles.forEach(file => {
-              if (file && file.size > 0 && file.name) {
-                imageFormData.append('gallery_images', file);
-              }
+          // Always update car data with JSON first
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(carData)
             });
             
-
-            
-            try {
-              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
-                method: 'PUT',
-                body: imageFormData
-              });
+            if (response.ok) {
+              console.log('✅ Car data updated successfully');
               
-              if (response.ok) {
-                showCustomAlert('Car updated successfully!', 'success');
+              // If there are images to upload, upload them separately
+              if (headImageFile || galleryImageFiles.length > 0) {
+                const imageData = {};
                 
-                // Clear only the file inputs, but keep image previews
-                document.getElementById('editHeadImageInput').value = '';
-                document.getElementById('editGalleryImagesInput').value = '';
-                
-                // Reset original values since form is now clean
-                storeOriginalValues('editCarForm');
-                
-                // Close the panel after successful save
-                editCarPanel.classList.remove('active');
-                adminOverlay.classList.remove('active');
-                document.body.classList.remove('admin-popup-open');
-                loadCars();
-              } else {
-                const error = await response.json();
-                let errorMessage = 'Error updating car: ' + error.error;
-                if (error.missingFields && error.missingFields.length > 0) {
-                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                // Convert head image to base64
+                if (headImageFile) {
+                  const headImageBase64 = await fileToBase64(headImageFile);
+                  imageData.head_image = {
+                    data: headImageBase64,
+                    extension: headImageFile.name.split('.').pop()
+                  };
                 }
-                showCustomAlert(errorMessage, 'error');
+                
+                // Convert gallery images to base64
+                if (galleryImageFiles.length > 0) {
+                  imageData.gallery_images = [];
+                  for (const file of galleryImageFiles) {
+                    if (file && file.size > 0 && file.name) {
+                      const galleryImageBase64 = await fileToBase64(file);
+                      imageData.gallery_images.push({
+                        data: galleryImageBase64,
+                        extension: file.name.split('.').pop()
+                      });
+                    }
+                  }
+                }
+                
+                try {
+                  const imageResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(imageData)
+                  });
+                  
+                  if (imageResponse.ok) {
+                    console.log('✅ Images uploaded successfully');
+                  } else {
+                    console.error('❌ Image upload failed');
+                    const imageError = await imageResponse.json();
+                    showCustomAlert('Car updated but image upload failed: ' + imageError.error, 'warning');
+                  }
+                } catch (imageError) {
+                  console.error('Error uploading images:', imageError);
+                  showCustomAlert('Car updated but image upload failed', 'warning');
+                }
               }
-            } catch (error) {
-              console.error('Error updating car:', error);
-              showCustomAlert('Error updating car', 'error');
-            } finally {
-              isEditSubmitting = false; // Reset submission flag
+              
+              showCustomAlert('Car updated successfully!', 'success');
+              
+              // Clear only the file inputs, but keep image previews
+              document.getElementById('editHeadImageInput').value = '';
+              document.getElementById('editGalleryImagesInput').value = '';
+              
+              // Reset original values since form is now clean
+              storeOriginalValues('editCarForm');
+              
+              // Close the panel after successful save
+              editCarPanel.classList.remove('active');
+              adminOverlay.classList.remove('active');
+              document.body.classList.remove('admin-popup-open');
+              loadCars();
+            } else {
+              const error = await response.json();
+              let errorMessage = 'Error updating car: ' + error.error;
+              if (error.missingFields && error.missingFields.length > 0) {
+                errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+              }
+              showCustomAlert(errorMessage, 'error');
             }
-          } else {
+          } catch (error) {
+            console.error('Error updating car:', error);
+            showCustomAlert('Error updating car', 'error');
+          } finally {
+            isEditSubmitting = false; // Reset submission flag
+          }
             // No images to upload, use JSON
             // Get current gallery images from preview
             const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
@@ -3842,7 +3866,6 @@
             } finally {
               isEditSubmitting = false; // Reset submission flag
             }
-          }
         });
       }
       
@@ -3893,6 +3916,20 @@
       
       // Fuel Type Change Listener
       initializeFuelTypeListener();
+    }
+    
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          // Remove the data:image/...;base64, prefix
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = error => reject(error);
+      });
     }
     
     function initializeFuelTypeListener() {
@@ -3964,7 +4001,7 @@
               addHeadImagePreview.innerHTML = `
                 <div style="position: relative; display: inline-block;">
                   <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeAddHeadImage(this)">×</button>
                 </div>
               `;
             };
@@ -3996,9 +4033,10 @@
               addGalleryImagesPreview.innerHTML += `
                 <div style="position: relative; display: inline-block; margin: 5px;">
                   <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeAddGalleryImage(this)">×</button>
                 </div>
               `;
+              updateAddGalleryImageCount();
             };
             reader.readAsDataURL(file);
           });
@@ -4023,7 +4061,7 @@
               editHeadImagePreview.innerHTML = `
                 <div style="position: relative; display: inline-block;">
                   <img src="${e.target.result}" alt="Head image preview" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeEditHeadImage(this)">×</button>
                 </div>
               `;
             };
@@ -4050,9 +4088,10 @@
               editGalleryImagesPreview.innerHTML += `
                 <div style="position: relative; display: inline-block; margin: 5px;">
                   <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
+                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeEditGalleryImage(this)">×</button>
                 </div>
               `;
+              updateEditGalleryImageCount();
             };
             reader.readAsDataURL(file);
           });
@@ -4131,6 +4170,7 @@
           
           if (response.ok) {
             images[index].remove();
+            updateEditGalleryImageCount();
           } else {
             const error = await response.json();
             console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
@@ -4141,6 +4181,50 @@
           showCustomAlert('Error deleting gallery image', 'error');
         }
       };
+
+      // Function to remove gallery image from add form (preview only)
+      window.removeAddGalleryImage = function(button) {
+        button.parentElement.remove();
+        updateAddGalleryImageCount();
+      };
+
+      // Function to remove gallery image from edit form (preview only)
+      window.removeEditGalleryImage = function(button) {
+        button.parentElement.remove();
+        updateEditGalleryImageCount();
+      };
+
+      // Function to update add gallery image count
+      function updateAddGalleryImageCount() {
+        const addGalleryImagesPreview = document.getElementById('addGalleryImagesPreview');
+        const addGalleryImageCount = document.getElementById('addGalleryImageCount');
+        if (addGalleryImagesPreview && addGalleryImageCount) {
+          const imageCount = addGalleryImagesPreview.querySelectorAll('div').length;
+          addGalleryImageCount.textContent = imageCount;
+          addGalleryImageCount.className = `badge ${imageCount > 0 ? 'bg-success' : 'bg-secondary'} ms-2`;
+        }
+      }
+
+      // Function to update edit gallery image count
+      function updateEditGalleryImageCount() {
+        const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        const editGalleryImageCount = document.getElementById('editGalleryImageCount');
+        if (editGalleryImagesPreview && editGalleryImageCount) {
+          const imageCount = editGalleryImagesPreview.querySelectorAll('div').length;
+          editGalleryImageCount.textContent = imageCount;
+          editGalleryImageCount.className = `badge ${imageCount > 0 ? 'bg-success' : 'bg-secondary'} ms-2`;
+        }
+      }
+
+      // Function to remove edit head image (preview only)
+      window.removeEditHeadImage = function(button) {
+        button.parentElement.remove();
+      }
+
+      // Function to remove add head image (preview only)
+      window.removeAddHeadImage = function(button) {
+        button.parentElement.remove();
+      }
       
       // Car Form Submit
       const carForm = document.getElementById('carForm');
@@ -4284,49 +4368,37 @@
           
           // Only proceed with one submission path
           if (headImageFile || galleryImageFiles.length > 0) {
-
-            const imageFormData = new FormData();
+            // Convert images to base64 and add to carData
+            const carDataWithImages = { ...carData };
             
-            // Build FormData directly from the form
-            const form = document.getElementById('carForm');
-            const formData = new FormData(form);
-            
-            // Add all form fields to imageFormData
-            for (let [key, value] of formData.entries()) {
-              if (key.startsWith('price_')) {
-                // Skip individual price fields as they'll be handled below
-                continue;
-              } else {
-                imageFormData.append(key, value);
-              }
-            }
-            
-            // Always create and add price policy object
-            const pricePolicy = {
-              '1-2': formData.get('price_1_2') || '',
-              '3-7': formData.get('price_3_7') || '',
-              '8-20': formData.get('price_8_20') || '',
-              '21-45': formData.get('price_21_45') || '',
-              '46+': formData.get('price_46') || ''
-            };
-            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
-            
-            // Add images
+            // Convert head image to base64
             if (headImageFile) {
-              imageFormData.append('head_image', headImageFile);
+              const headImageBase64 = await fileToBase64(headImageFile);
+              carDataWithImages.head_image = {
+                data: headImageBase64,
+                extension: headImageFile.name.split('.').pop()
+              };
             }
-            // Only add gallery images that have actual content
-            galleryImageFiles.forEach(file => {
-              if (file && file.size > 0 && file.name) {
-                imageFormData.append('gallery_images', file);
+            
+            // Convert gallery images to base64
+            if (galleryImageFiles.length > 0) {
+              carDataWithImages.gallery_images = [];
+              for (const file of galleryImageFiles) {
+                if (file && file.size > 0 && file.name) {
+                  const galleryImageBase64 = await fileToBase64(file);
+                  carDataWithImages.gallery_images.push({
+                    data: galleryImageBase64,
+                    extension: file.name.split('.').pop()
+                  });
+                }
               }
-            });
+            }
             
             try {
-
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
-                body: imageFormData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(carDataWithImages)
               });
               
               if (response.ok) {
@@ -4854,6 +4926,9 @@
         const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`);
         const car = await response.json();
         
+        console.log('🔍 EDIT CAR - Raw car data received:', car);
+        console.log('🔍 EDIT CAR - Gallery images in raw data:', car.gallery_images);
+        
         if (!response.ok) {
           showCustomAlert('Error loading car data: ' + car.error, 'error');
           return;
@@ -4962,15 +5037,27 @@
         }
         
         const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        console.log('🔍 EDIT CAR - Gallery images data:', car.gallery_images);
+        console.log('🔍 EDIT CAR - Gallery images type:', typeof car.gallery_images);
+        console.log('🔍 EDIT CAR - Gallery images length:', car.gallery_images ? car.gallery_images.length : 'null');
+        
         if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
-          editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
-            <div style="position: relative; display: inline-block; margin: 5px;">
-              <img src="${window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
-            </div>
-          `).join('');
+          console.log('🔍 EDIT CAR - Processing gallery images:', car.gallery_images);
+          editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => {
+            console.log('🔍 EDIT CAR - Processing image:', img, 'at index:', index);
+            return `
+              <div style="position: relative; display: inline-block; margin: 5px;">
+                <img src="${window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
+                <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
+              </div>
+            `;
+          }).join('');
+          console.log('🔍 EDIT CAR - Gallery images HTML set');
+          updateEditGalleryImageCount();
         } else {
+          console.log('🔍 EDIT CAR - No gallery images to display');
           if (editGalleryImagesPreview) editGalleryImagesPreview.innerHTML = '';
+          updateEditGalleryImageCount();
         }
         
         // Store car ID for form submission
@@ -4984,7 +5071,10 @@
         document.body.classList.add('admin-popup-open');
         
         // Store original values after a short delay to ensure form is populated
-        setTimeout(() => storeOriginalValues('editCarForm'), 100);
+        setTimeout(() => {
+          storeOriginalValues('editCarForm');
+          updateEditGalleryImageCount();
+        }, 100);
         
       } catch (error) {
         console.error('Error loading car for editing:', error);

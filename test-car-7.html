@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Car 7 API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .image-container { margin: 10px 0; }
+        img { max-width: 200px; max-height: 150px; margin: 5px; border: 1px solid #ccc; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Car 7 API Response</h1>
+    <button onclick="loadCarData()">Load Car 7 Data</button>
+    <div id="debug" class="debug"></div>
+    <div id="headImage" class="image-container"></div>
+    <div id="galleryImages" class="image-container"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+        
+        async function loadCarData() {
+            const debugDiv = document.getElementById('debug');
+            const headImageDiv = document.getElementById('headImage');
+            const galleryImagesDiv = document.getElementById('galleryImages');
+            
+            try {
+                debugDiv.innerHTML = 'Loading car data...';
+                
+                const response = await fetch(`${API_BASE_URL}/api/cars/7`);
+                const car = await response.json();
+                
+                console.log('🔍 TEST - Full car data:', car);
+                console.log('🔍 TEST - Gallery images:', car.gallery_images);
+                console.log('🔍 TEST - Gallery images type:', typeof car.gallery_images);
+                console.log('🔍 TEST - Gallery images length:', car.gallery_images ? car.gallery_images.length : 'null');
+                
+                debugDiv.innerHTML = `
+                    <h3>Debug Info:</h3>
+                    <p><strong>Gallery images:</strong> ${JSON.stringify(car.gallery_images)}</p>
+                    <p><strong>Type:</strong> ${typeof car.gallery_images}</p>
+                    <p><strong>Length:</strong> ${car.gallery_images ? car.gallery_images.length : 'null'}</p>
+                    <p><strong>Is Array:</strong> ${Array.isArray(car.gallery_images)}</p>
+                `;
+                
+                // Display head image
+                if (car.head_image) {
+                    headImageDiv.innerHTML = `
+                        <h3>Head Image:</h3>
+                        <img src="${API_BASE_URL}${car.head_image}" alt="Head image">
+                        <p>Path: ${car.head_image}</p>
+                    `;
+                }
+                
+                // Display gallery images
+                if (car.gallery_images && car.gallery_images.length > 0) {
+                    const galleryHTML = car.gallery_images.map((img, index) => `
+                        <img src="${API_BASE_URL}${img}" alt="Gallery image ${index + 1}">
+                    `).join('');
+                    
+                    galleryImagesDiv.innerHTML = `
+                        <h3>Gallery Images (${car.gallery_images.length}):</h3>
+                        ${galleryHTML}
+                        <p>Paths: ${car.gallery_images.join(', ')}</p>
+                    `;
+                } else {
+                    galleryImagesDiv.innerHTML = '<h3>No Gallery Images</h3>';
+                }
+                
+            } catch (error) {
+                console.error('Error loading car data:', error);
+                debugDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Auto-load on page load
+        window.onload = loadCarData;
+    </script>
+</body>
+</html> 

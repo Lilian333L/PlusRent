@@ -37,8 +37,11 @@ app.use((req, res, next) => {
   }
 });
 
-// Only use urlencoded parser for non-JSON requests
-app.use(express.urlencoded({ extended: true }));
+// Use urlencoded parser for form data
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Add JSON parser with increased limit
+app.use(express.json({ limit: '50mb' }));
 
 // Global request logger
 app.use((req, res, next) => {
@@ -56,8 +59,50 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Serve uploaded images statically
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Serve uploaded images
+app.get('/uploads/*', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'uploads', req.params[0]);
+  
+  console.log('📁 Serving file:', req.params[0]);
+  console.log('📁 Full path:', filePath);
+  
+  // Check if file exists
+  const fs = require('fs');
+  if (!fs.existsSync(filePath)) {
+    console.log('❌ File not found:', filePath);
+    return res.status(404).json({ error: 'File not found' });
+  }
+  
+  // Get file stats
+  const stats = fs.statSync(filePath);
+  
+  // Set appropriate headers
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.svg': 'image/svg+xml'
+  };
+  
+  const contentType = mimeTypes[ext] || 'application/octet-stream';
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Length', stats.size);
+  res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+  
+  // Stream the file
+  const fileStream = fs.createReadStream(filePath);
+  fileStream.pipe(res);
+  
+  fileStream.on('error', (error) => {
+    console.error('❌ Error streaming file:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Error reading file' });
+    }
+  });
+});
 
 // Simple test route that doesn't use database
 app.get('/simple-test', (req, res) => {

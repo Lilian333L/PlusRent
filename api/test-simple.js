@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 // Basic middleware
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // Simple test endpoint
 app.get('/test', (req, res) => {

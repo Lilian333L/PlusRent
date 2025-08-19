@@ -38,10 +38,27 @@ const carImageStorage = multer.diskStorage({
 });
 
 // Simple multer config for parsing FormData (no file storage)
-const formDataUpload = multer();
+const formDataUpload = multer({
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fieldSize: 50 * 1024 * 1024 // 50MB limit for fields
+  }
+});
 
-const upload = multer({ storage: carImageStorage });
-const tempUpload = multer({ storage: tempImageStorage });
+const upload = multer({ 
+  storage: carImageStorage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fieldSize: 50 * 1024 * 1024 // 50MB limit for fields
+  }
+});
+const tempUpload = multer({ 
+  storage: tempImageStorage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fieldSize: 50 * 1024 * 1024 // 50MB limit for fields
+  }
+});
 
 // Get all cars with filtering
 router.get('/', async (req, res) => {
@@ -461,37 +478,65 @@ router.get('/:id', async (req, res) => {
 });
 
 // Add new car
-router.post('/', tempUpload.any(), async (req, res) => {
+router.post('/', async (req, res) => {
   console.log('Car creation request body:', req.body);
-  console.log('Files received:', req.files);
+  console.log('Request body keys:', Object.keys(req.body || {}));
   
   // Check if we're using Supabase
   const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
-  // Handle file uploads (temporary files)
+  // Handle base64 image uploads
   let headImagePath = null;
   let galleryImagePaths = [];
   
-  if (req.files && req.files.length > 0) {
-    console.log('🔍 Processing uploaded files:');
-    req.files.forEach(file => {
-      console.log(`  File: ${file.fieldname} - ${file.originalname} - ${file.path}`);
-      if (file.fieldname === 'head_image') {
-        headImagePath = file.path; // Keep full path for now
-        console.log('✅ Head image found:', file.path);
-      } else if (file.fieldname === 'gallery_images') {
-        galleryImagePaths.push(file.path); // Keep full path for now
-        console.log('✅ Gallery image found:', file.path);
-      } else {
-        console.log('⚠️ Unknown file fieldname:', file.fieldname);
+  // Process head image if provided
+  if (req.body.head_image && req.body.head_image.data) {
+    try {
+      const headImageData = req.body.head_image;
+      const tempDir = path.join(__dirname, '..', 'uploads', 'temp');
+      fs.mkdirSync(tempDir, { recursive: true });
+      
+      const headFileName = `head_${Date.now()}.${headImageData.extension || 'jpg'}`;
+      const headFilePath = path.join(tempDir, headFileName);
+      
+      // Convert base64 to buffer and save
+      const imageBuffer = Buffer.from(headImageData.data, 'base64');
+      fs.writeFileSync(headFilePath, imageBuffer);
+      
+      headImagePath = headFilePath;
+      console.log('✅ Head image saved temporarily:', headImagePath);
+    } catch (error) {
+      console.error('❌ Error saving head image:', error);
+    }
+  }
+  
+  // Process gallery images if provided
+  if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
+    const tempDir = path.join(__dirname, '..', 'uploads', 'temp');
+    fs.mkdirSync(tempDir, { recursive: true });
+    
+    req.body.gallery_images.forEach((imageData, index) => {
+      if (imageData && imageData.data) {
+        try {
+          const galleryFileName = `gallery_${Date.now()}_${index}.${imageData.extension || 'jpg'}`;
+          const galleryFilePath = path.join(tempDir, galleryFileName);
+          
+          // Convert base64 to buffer and save
+          const imageBuffer = Buffer.from(imageData.data, 'base64');
+          fs.writeFileSync(galleryFilePath, imageBuffer);
+          
+          galleryImagePaths.push(galleryFilePath);
+          console.log('✅ Gallery image saved temporarily:', galleryFilePath);
+        } catch (error) {
+          console.error(`❌ Error saving gallery image ${index}:`, error);
+        }
       }
     });
-    console.log('📊 Summary:');
-    console.log('  Head image path:', headImagePath);
-    console.log('  Gallery image paths:', galleryImagePaths);
-  } else {
-    console.log('⚠️ No files received in request');
   }
+  
+  console.log('📊 Summary:');
+  console.log('  Head image path:', headImagePath);
+  console.log('  Gallery image paths:', galleryImagePaths);
   
                     const {
                     make_name,
@@ -888,7 +933,18 @@ router.post('/', tempUpload.any(), async (req, res) => {
 });
 
 // Update car
-router.put('/:id', formDataUpload.any(), async (req, res) => {
+router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
+    }
+    if (err.code === 'LIMIT_FIELD_SIZE') {
+      return res.status(413).json({ error: 'Field too large. Maximum size is 50MB.' });
+    }
+    return res.status(400).json({ error: 'File upload error: ' + err.message });
+  }
+  next();
+}, async (req, res) => {
   console.log('🔍 SERVER - Multer middleware executed');
   const id = req.params.id;
   
@@ -1464,30 +1520,121 @@ router.patch('/:id/premium', async (req, res) => {
   }
 });
 
-// Upload images for a car
-router.post('/:id/images', upload.fields([
-  { name: 'head_image', maxCount: 1 },
-  { name: 'gallery_images', maxCount: 10 }
-]), (req, res) => {
-  const carId = req.params.id;
-  const headImage = req.files['head_image'] ? req.files['head_image'][0].filename : null;
-  const galleryImages = req.files['gallery_images'] ? req.files['gallery_images'].map(f => f.filename) : [];
-
-  // Update DB with new image filenames
-  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err || !car) return res.status(404).json({ error: 'Car not found' });
-    let newHead = headImage ? `/uploads/car-${carId}/${headImage}` : car.head_image;
-    let newGallery = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    if (galleryImages.length > 0) {
-      newGallery = [...newGallery, ...galleryImages.map(f => `/uploads/car-${carId}/${f}`)].slice(0, 10);
-      // Remove duplicates
-      newGallery = [...new Set(newGallery)];
+// Upload car images
+router.post('/:id/images', (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
     }
-    db.run('UPDATE cars SET head_image=?, gallery_images=? WHERE id=?', [newHead, JSON.stringify(newGallery), carId], function (err2) {
-      if (err2) return res.status(500).json({ error: 'DB error' });
-      res.json({ success: true, head_image: newHead, gallery_images: newGallery });
+    if (err.code === 'LIMIT_FIELD_SIZE') {
+      return res.status(413).json({ error: 'Field too large. Maximum size is 50MB.' });
+    }
+    return res.status(400).json({ error: 'File upload error: ' + err.message });
+  }
+  next();
+}, async (req, res) => {
+  const carId = req.params.id;
+  
+  console.log('🔍 SERVER - POST /api/cars/:id/images received request');
+  console.log('  Car ID:', carId);
+  console.log('  Request body keys:', Object.keys(req.body || {}));
+  
+  try {
+    // Check if car exists
+    const { data: car, error: carError } = await supabase
+      .from('cars')
+      .select('head_image, gallery_images')
+      .eq('id', carId)
+      .single();
+    
+    if (carError || !car) {
+      console.log('Car not found for ID:', carId);
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    let headImagePath = car.head_image;
+    let galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    
+    // Create car directory
+    const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+    fs.mkdirSync(carDir, { recursive: true });
+    console.log('📁 Created car directory:', carDir);
+    
+    // Process head image if provided
+    if (req.body.head_image && req.body.head_image.data) {
+      try {
+        const headImageData = req.body.head_image;
+        const headFileName = `head.${headImageData.extension || 'jpg'}`;
+        const headFilePath = path.join(carDir, headFileName);
+        
+        // Convert base64 to buffer and save
+        const imageBuffer = Buffer.from(headImageData.data, 'base64');
+        fs.writeFileSync(headFilePath, imageBuffer);
+        
+        headImagePath = headFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+        console.log('✅ Head image saved:', headImagePath);
+      } catch (error) {
+        console.error('❌ Error saving head image:', error);
+      }
+    }
+    
+    // Process gallery images if provided
+    if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
+      console.log('🔍 Processing gallery images. Current count:', galleryImagePaths.length);
+      console.log('🔍 New images to add:', req.body.gallery_images.length);
+      
+      req.body.gallery_images.forEach((imageData, index) => {
+        if (imageData && imageData.data) {
+          try {
+            const galleryFileName = `gallery_${Date.now()}_${index}.${imageData.extension || 'jpg'}`;
+            const galleryFilePath = path.join(carDir, galleryFileName);
+            
+            // Convert base64 to buffer and save
+            const imageBuffer = Buffer.from(imageData.data, 'base64');
+            fs.writeFileSync(galleryFilePath, imageBuffer);
+            
+            const galleryImagePath = galleryFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+            galleryImagePaths.push(galleryImagePath);
+            console.log('✅ Gallery image saved:', galleryImagePath);
+          } catch (error) {
+            console.error(`❌ Error saving gallery image ${index}:`, error);
+          }
+        }
+      });
+      
+      console.log('🔍 Final gallery images count:', galleryImagePaths.length);
+      console.log('🔍 Final gallery images:', galleryImagePaths);
+    }
+    
+    // Update car with new image paths
+    const updateData = {
+      head_image: headImagePath,
+      gallery_images: JSON.stringify(galleryImagePaths)
+    };
+    
+    console.log('🔍 Updating car with data:', updateData);
+    
+    const { error: updateError } = await supabase
+      .from('cars')
+      .update(updateData)
+      .eq('id', carId);
+    
+    if (updateError) {
+      console.error('❌ Supabase error updating car images:', updateError);
+      return res.status(500).json({ error: 'Database error: ' + updateError.message });
+    }
+    
+    console.log('✅ Car images updated successfully in Supabase');
+    res.json({ 
+      success: true, 
+      head_image: headImagePath, 
+      gallery_images: galleryImagePaths 
     });
-  });
+    
+  } catch (error) {
+    console.error('❌ Car image upload error:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
 });
 
 // Delete a specific image from a car

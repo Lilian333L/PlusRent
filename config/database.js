@@ -14,7 +14,8 @@ const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'produ
 // For local development testing, we can force Supabase usage
 const forceSupabase = process.env.FORCE_SUPABASE === 'true';
 const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview';
-const useSupabase = isProduction || isVercel || isVercelDev || process.env.SUPABASE_URL || process.env.DATABASE_URL || forceSupabase;
+const isLocalVercelDev = process.env.VERCEL_ENV === 'development' && process.env.NODE_ENV !== 'production';
+const useSupabase = (isProduction || isVercel || isVercelDev) && !isLocalVercelDev || process.env.SUPABASE_URL || process.env.DATABASE_URL || forceSupabase;
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Is Production:', isProduction);
@@ -49,18 +50,33 @@ function makeRequest(method, endpoint, data = null) {
 
     const req = https.request(options, (res) => {
       let rawData = '';
-      res.on('data', (chunk) => { rawData += chunk; });
+      
+      res.on('data', (chunk) => { 
+        rawData += chunk; 
+      });
+      
       res.on('end', () => {
         try {
-          const parsedData = JSON.parse(rawData);
-          resolve(parsedData);
+          if (rawData) {
+            const parsedData = JSON.parse(rawData);
+            resolve(parsedData);
+          } else {
+            resolve(null);
+          }
         } catch (e) {
-          resolve(rawData);
+          console.error('Error parsing response:', e);
+          resolve(rawData || null);
         }
+      });
+      
+      res.on('error', (e) => {
+        console.error('Response stream error:', e);
+        reject(e);
       });
     });
 
     req.on('error', (e) => {
+      console.error('Request error:', e);
       reject(e);
     });
 
@@ -194,6 +210,7 @@ function createSupabaseDB() {
         })
         .catch(error => {
           console.error('❌ Supabase request failed:', error);
+          console.error('❌ Error details:', error.message);
           if (callback) callback(error);
         });
     },

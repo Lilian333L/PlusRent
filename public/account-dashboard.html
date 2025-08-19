@@ -3708,81 +3708,92 @@
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
           
-
-          
-          if (headImageFile || galleryImageFiles.length > 0) {
-            // Create a new FormData and manually add all form fields to avoid duplicates
-            const imageFormData = new FormData();
-            
-            // Add all form fields except files
-            const formData = new FormData(editCarForm);
-            for (let [key, value] of formData.entries()) {
-              if (!(value instanceof File)) {
-                imageFormData.append(key, value);
-              }
-            }
-            
-
-            
-            // Add price_policy as JSON string
-            imageFormData.delete('price_1_2');
-            imageFormData.delete('price_3_7');
-            imageFormData.delete('price_8_20');
-            imageFormData.delete('price_21_45');
-            imageFormData.delete('price_46');
-            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
-            
-
-            
-            // Add images
-            if (headImageFile) {
-              imageFormData.append('head_image', headImageFile);
-            }
-            // Only add gallery images that have actual content
-            galleryImageFiles.forEach(file => {
-              if (file && file.size > 0 && file.name) {
-                imageFormData.append('gallery_images', file);
-              }
+          // Always update car data with JSON first
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(carData)
             });
             
-
-            
-            try {
-              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
-                method: 'PUT',
-                body: imageFormData
-              });
+            if (response.ok) {
+              console.log('✅ Car data updated successfully');
               
-              if (response.ok) {
-                showCustomAlert('Car updated successfully!', 'success');
+              // If there are images to upload, upload them separately
+              if (headImageFile || galleryImageFiles.length > 0) {
+                const imageData = {};
                 
-                // Clear only the file inputs, but keep image previews
-                document.getElementById('editHeadImageInput').value = '';
-                document.getElementById('editGalleryImagesInput').value = '';
-                
-                // Reset original values since form is now clean
-                storeOriginalValues('editCarForm');
-                
-                // Close the panel after successful save
-                editCarPanel.classList.remove('active');
-                adminOverlay.classList.remove('active');
-                document.body.classList.remove('admin-popup-open');
-                loadCars();
-              } else {
-                const error = await response.json();
-                let errorMessage = 'Error updating car: ' + error.error;
-                if (error.missingFields && error.missingFields.length > 0) {
-                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                // Convert head image to base64
+                if (headImageFile) {
+                  const headImageBase64 = await fileToBase64(headImageFile);
+                  imageData.head_image = {
+                    data: headImageBase64,
+                    extension: headImageFile.name.split('.').pop()
+                  };
                 }
-                showCustomAlert(errorMessage, 'error');
+                
+                // Convert gallery images to base64
+                if (galleryImageFiles.length > 0) {
+                  imageData.gallery_images = [];
+                  for (const file of galleryImageFiles) {
+                    if (file && file.size > 0 && file.name) {
+                      const galleryImageBase64 = await fileToBase64(file);
+                      imageData.gallery_images.push({
+                        data: galleryImageBase64,
+                        extension: file.name.split('.').pop()
+                      });
+                    }
+                  }
+                }
+                
+                try {
+                  const imageResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(imageData)
+                  });
+                  
+                  if (imageResponse.ok) {
+                    console.log('✅ Images uploaded successfully');
+                  } else {
+                    console.error('❌ Image upload failed');
+                    const imageError = await imageResponse.json();
+                    showCustomAlert('Car updated but image upload failed: ' + imageError.error, 'warning');
+                  }
+                } catch (imageError) {
+                  console.error('Error uploading images:', imageError);
+                  showCustomAlert('Car updated but image upload failed', 'warning');
+                }
               }
-            } catch (error) {
-              console.error('Error updating car:', error);
-              showCustomAlert('Error updating car', 'error');
-            } finally {
-              isEditSubmitting = false; // Reset submission flag
+              
+              showCustomAlert('Car updated successfully!', 'success');
+              
+              // Clear only the file inputs, but keep image previews
+              document.getElementById('editHeadImageInput').value = '';
+              document.getElementById('editGalleryImagesInput').value = '';
+              
+              // Reset original values since form is now clean
+              storeOriginalValues('editCarForm');
+              
+              // Close the panel after successful save
+              editCarPanel.classList.remove('active');
+              adminOverlay.classList.remove('active');
+              document.body.classList.remove('admin-popup-open');
+              loadCars();
+            } else {
+              const error = await response.json();
+              let errorMessage = 'Error updating car: ' + error.error;
+              if (error.missingFields && error.missingFields.length > 0) {
+                errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+              }
+              showCustomAlert(errorMessage, 'error');
             }
-          } else {
+          } catch (error) {
+            console.error('Error updating car:', error);
+            showCustomAlert('Error updating car', 'error');
+          } finally {
+            isEditSubmitting = false; // Reset submission flag
+          }
             // No images to upload, use JSON
             // Get current gallery images from preview
             const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
@@ -3842,7 +3853,6 @@
             } finally {
               isEditSubmitting = false; // Reset submission flag
             }
-          }
         });
       }
       
@@ -3893,6 +3903,20 @@
       
       // Fuel Type Change Listener
       initializeFuelTypeListener();
+    }
+    
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          // Remove the data:image/...;base64, prefix
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = error => reject(error);
+      });
     }
     
     function initializeFuelTypeListener() {
@@ -4284,49 +4308,37 @@
           
           // Only proceed with one submission path
           if (headImageFile || galleryImageFiles.length > 0) {
-
-            const imageFormData = new FormData();
+            // Convert images to base64 and add to carData
+            const carDataWithImages = { ...carData };
             
-            // Build FormData directly from the form
-            const form = document.getElementById('carForm');
-            const formData = new FormData(form);
-            
-            // Add all form fields to imageFormData
-            for (let [key, value] of formData.entries()) {
-              if (key.startsWith('price_')) {
-                // Skip individual price fields as they'll be handled below
-                continue;
-              } else {
-                imageFormData.append(key, value);
-              }
-            }
-            
-            // Always create and add price policy object
-            const pricePolicy = {
-              '1-2': formData.get('price_1_2') || '',
-              '3-7': formData.get('price_3_7') || '',
-              '8-20': formData.get('price_8_20') || '',
-              '21-45': formData.get('price_21_45') || '',
-              '46+': formData.get('price_46') || ''
-            };
-            imageFormData.append('price_policy', JSON.stringify(pricePolicy));
-            
-            // Add images
+            // Convert head image to base64
             if (headImageFile) {
-              imageFormData.append('head_image', headImageFile);
+              const headImageBase64 = await fileToBase64(headImageFile);
+              carDataWithImages.head_image = {
+                data: headImageBase64,
+                extension: headImageFile.name.split('.').pop()
+              };
             }
-            // Only add gallery images that have actual content
-            galleryImageFiles.forEach(file => {
-              if (file && file.size > 0 && file.name) {
-                imageFormData.append('gallery_images', file);
+            
+            // Convert gallery images to base64
+            if (galleryImageFiles.length > 0) {
+              carDataWithImages.gallery_images = [];
+              for (const file of galleryImageFiles) {
+                if (file && file.size > 0 && file.name) {
+                  const galleryImageBase64 = await fileToBase64(file);
+                  carDataWithImages.gallery_images.push({
+                    data: galleryImageBase64,
+                    extension: file.name.split('.').pop()
+                  });
+                }
               }
-            });
+            }
             
             try {
-
               const response = await fetch(`${window.API_BASE_URL}/api/cars`, {
                 method: 'POST',
-                body: imageFormData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(carDataWithImages)
               });
               
               if (response.ok) {
