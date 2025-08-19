@@ -38,12 +38,12 @@ router.get('/', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      res.json(rows);
-    });
+  db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(rows);
+  });
   }
 });
 
@@ -231,55 +231,55 @@ router.patch('/:id/dynamic-fields', async (req, res) => {
     }
   } else {
     // Use SQLite
-    // Check if coupon exists
-    db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
+  // Check if coupon exists
+  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!coupon) {
+      console.log('Coupon not found for ID:', couponId);
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    
+    // Build dynamic update query
+    let updateQuery = 'UPDATE coupon_codes SET ';
+    let updateValues = [];
+    
+    if (available_codes !== undefined) {
+      updateQuery += 'available_codes = ?';
+      updateValues.push(JSON.stringify(available_codes));
+    }
+    
+    if (showed_codes !== undefined) {
+      if (available_codes !== undefined) {
+        updateQuery += ', ';
+      }
+      updateQuery += 'showed_codes = ?';
+      updateValues.push(JSON.stringify(showed_codes));
+    }
+    
+    updateQuery += ' WHERE id = ?';
+    updateValues.push(couponId);
+    
+    console.log('🔧 Executing query:', updateQuery);
+    console.log('🔧 With values:', updateValues);
+    
+    // Update the dynamic fields
+    db.run(updateQuery, updateValues, function(err) {
       if (err) {
-        console.error('Database error:', err);
+        console.error('Update error:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-      if (!coupon) {
-        console.log('Coupon not found for ID:', couponId);
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
       
-      // Build dynamic update query
-      let updateQuery = 'UPDATE coupon_codes SET ';
-      let updateValues = [];
-      
-      if (available_codes !== undefined) {
-        updateQuery += 'available_codes = ?';
-        updateValues.push(JSON.stringify(available_codes));
-      }
-      
-      if (showed_codes !== undefined) {
-        if (available_codes !== undefined) {
-          updateQuery += ', ';
-        }
-        updateQuery += 'showed_codes = ?';
-        updateValues.push(JSON.stringify(showed_codes));
-      }
-      
-      updateQuery += ' WHERE id = ?';
-      updateValues.push(couponId);
-      
-      console.log('🔧 Executing query:', updateQuery);
-      console.log('🔧 With values:', updateValues);
-      
-      // Update the dynamic fields
-      db.run(updateQuery, updateValues, function(err) {
-        if (err) {
-          console.error('Update error:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        
-        console.log('✅ Dynamic fields updated successfully');
-        res.json({ 
-          success: true, 
-          available_codes: available_codes !== undefined ? available_codes : undefined,
-          showed_codes: showed_codes !== undefined ? showed_codes : undefined
-        });
+      console.log('✅ Dynamic fields updated successfully');
+      res.json({ 
+        success: true, 
+        available_codes: available_codes !== undefined ? available_codes : undefined,
+        showed_codes: showed_codes !== undefined ? showed_codes : undefined
       });
     });
+  });
   }
 });
 
@@ -383,15 +383,15 @@ router.get('/:id', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      if (!coupon) {
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
-      res.json(coupon);
-    });
+  db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (!coupon) {
+      return res.status(404).json({ error: 'Coupon not found' });
+    }
+    res.json(coupon);
+  });
   }
 });
 
@@ -515,10 +515,10 @@ router.post('/', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.run(
-      'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
-      [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
-      async function (err) {
+  db.run(
+    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
+    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
+    async function (err) {
       if (err) {
         console.error('Database error details:', err);
         if (err.message.includes('UNIQUE constraint failed')) {
@@ -668,7 +668,7 @@ router.put('/:id', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.run(
+  db.run(
     'UPDATE coupon_codes SET code=?, type=?, discount_percentage=?, free_days=?, description=?, is_active=?, expires_at=? WHERE id=?',
     [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id],
     async function (err) {
@@ -734,25 +734,25 @@ router.delete('/:id', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Send Telegram notification - COMMENTED OUT
-      // try {
-      //   const telegram = new TelegramNotifier();
-      //   const couponData = {
-      //     code: 'DELETED',
-      //     discount_percentage: 0
-      //   };
-      //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
-      // } catch (error) {
-      //   console.error('Error sending Telegram notification:', error);
-      // }
-      
-      res.json({ success: true });
-    });
+  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    // Send Telegram notification - COMMENTED OUT
+    // try {
+    //   const telegram = new TelegramNotifier();
+    //   const couponData = {
+    //     code: 'DELETED',
+    //     discount_percentage: 0
+    //   };
+    //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
+    // } catch (error) {
+    //   console.error('Error sending Telegram notification:', error);
+    // }
+    
+    res.json({ success: true });
+  });
   }
 });
 
@@ -919,30 +919,30 @@ router.get('/validate/:code', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
+  db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    if (!coupon) {
+      return res.json({ valid: false, message: 'Invalid coupon code' });
+    }
+    
+    // Check if coupon has expired
+    if (coupon.expires_at) {
+      const now = new Date();
+      const expiryDate = new Date(coupon.expires_at);
+      if (now > expiryDate) {
+        return res.json({ valid: false, message: 'Coupon has expired' });
       }
-      
-      if (!coupon) {
-        return res.json({ valid: false, message: 'Invalid coupon code' });
-      }
-      
-      // Check if coupon has expired
-      if (coupon.expires_at) {
-        const now = new Date();
-        const expiryDate = new Date(coupon.expires_at);
-        if (now > expiryDate) {
-          return res.json({ valid: false, message: 'Coupon has expired' });
-        }
-      }
-      
-      res.json({ 
-        valid: true, 
-        discount_percentage: coupon.discount_percentage,
-        description: coupon.description 
-      });
+    }
+    
+    res.json({ 
+      valid: true, 
+      discount_percentage: coupon.discount_percentage,
+      description: coupon.description 
     });
+  });
   }
 });
 

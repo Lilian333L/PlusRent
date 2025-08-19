@@ -243,7 +243,11 @@
                                         <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
                                       </ul>
                                     </div>
-                                    <span id="menu-btn"></span>
+                                    <div id="menu-btn">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1185,8 +1189,40 @@ document.getElementById('clear-filters-link').addEventListener('click', function
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
     <script>
-      // i18n initialization is now handled by i18n-init.js with enhanced fallback strategies
-      // This script is kept for any page-specific i18n needs
+      // Ensure i18n is properly initialized and update content
+      document.addEventListener('DOMContentLoaded', function() {
+        // Function to check and update i18n content
+        function checkAndUpdateI18n() {
+          if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+            if (typeof updateContent === 'function') {
+              updateContent();
+            }
+            return true;
+          }
+          return false;
+        }
+
+        // Try immediately
+        if (!checkAndUpdateI18n()) {
+          // If not ready, try with increasing delays
+          let attempts = 0;
+          const maxAttempts = 10;
+          const checkInterval = setInterval(function() {
+            attempts++;
+            if (checkAndUpdateI18n() || attempts >= maxAttempts) {
+              clearInterval(checkInterval);
+              if (attempts >= maxAttempts) {
+                console.warn('i18n system failed to initialize properly');
+                // Force update with fallback translations
+                if (typeof loadFallbackTranslations === 'function') {
+                  const savedLang = localStorage.getItem('lang') || 'ro';
+                  loadFallbackTranslations(savedLang);
+                }
+              }
+            }
+          }, 200);
+        }
+      });
     </script>
 </body>
 
