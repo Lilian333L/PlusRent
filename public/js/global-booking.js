@@ -83,7 +83,7 @@ class GlobalBookingSystem {
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-4">
-                  <img src="${window.API_BASE_URL + car.head_image || window.API_BASE_URL + 'uploads/placeholder.png'}" 
+                  <img src="${window.API_BASE_URL + car.head_image || window.API_BASE_URL + '/uploads/placeholder.png'}" 
                        class="img-fluid rounded" alt="${car.make_name} ${car.model_name}">
                 </div>
                 <div class="col-md-8">
