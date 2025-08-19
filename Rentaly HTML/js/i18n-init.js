@@ -56,9 +56,14 @@ function initI18n() {
 
 function updateContent() {
   console.log('Updating content with i18n...');
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+  const elements = document.querySelectorAll('[data-i18n]');
+  console.log('Found', elements.length, 'elements with data-i18n attributes');
+  
+  elements.forEach(function(el, index) {
     var key = el.getAttribute('data-i18n');
     var date = el.getAttribute('data-i18n-date');
+    
+    console.log(`Processing element ${index + 1}:`, key, 'Element:', el.tagName, el.className);
     
     if (date) {
       // Handle custom interpolation for unavailable badges
@@ -66,6 +71,8 @@ function updateContent() {
     } else {
       var value = i18next.t(key);
     }
+    
+    console.log(`Translation for "${key}":`, value);
     
     if (el.childElementCount === 0) {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
