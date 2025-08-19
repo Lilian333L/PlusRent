@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <title>PlusRent - Demo Version</title>
+    <link rel="icon" href="images/icon.png" type="image/gif" sizes="16x16">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="PlusRent - Multipurpose Vehicle Car Rental Website Template" name="description">
+    <meta content="" name="keywords">
+    <meta content="" name="author">
+    <!-- CSS Files
+    ================================================== -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+    <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+    <link href="css/plugins.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/coloring.css" rel="stylesheet" type="text/css">
+    <!-- color scheme -->
+    <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <!-- Custom Language Picker Styles -->
+    <style>
+      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
+      
+      /* Enhanced Booking Form Styles */
+      .vehicle-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      /* Ensure submit button is always visible */
+      #send_message {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: #f0c040 !important;
+        color: #fff !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+      }
+      
+      #send_message:hover {
+        background: #e6b800 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3) !important;
+      }
+      
+      #send_message:disabled {
+        background: #ccc !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* Ensure field-set and submit container are properly styled */
+      .field-set {
+        margin-bottom: 20px;
+      }
+      
+      #submit {
+        margin-top: 20px;
+        text-align: center;
+      }
+      
+      /* Loading spinner for submit button */
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .vehicle-select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .vehicle-card {
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+      }
+      
+      .vehicle-card:hover {
+        border-color: #f0c040;
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.15);
+      }
+      
+      .date-time-field {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      
+      .date-time-field input[type="text"] {
+        flex: 1;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+      }
+      
+      /* Enhanced Error Message Styling */
+      #error_message {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 15px 20px !important;
+        margin: 15px 0 20px 0 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      
+      #error_message:before {
+        content: "⚠️";
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      
+      #error_message.show {
+        animation: slideInDown 0.3s ease-out;
+      }
+      
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* Location Information Styling */
+      .location-info {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px 15px;
+        margin-top: 10px;
+      }
+      
+      .location-info small {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      
+      .location-info i {
+        color: #f0c040;
+      }
+      
+      .vehicle-select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+      
+      .date-time-field input[type="text"]:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .date-time-field select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      .date-time-field select:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .field-set input,
+      .field-set textarea {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      
+      .field-set input:focus,
+      .field-set textarea:focus {
+        border-color: #f0c040;
+        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+        outline: none;
+      }
+      
+      .error_input {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+      }
+      
+      .field-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+      }
+      
+      /* Radio Button Styles */
+      .radio-group {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+      }
+      
+      .radio-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #495057;
+        transition: all 0.3s ease;
+        padding: 8px 12px;
+        border-radius: 6px;
+        position: relative;
+      }
+      
+      .radio-option:last-child {
+        margin-bottom: 0;
+      }
+      
+      .radio-option:hover {
+        background: rgba(240, 192, 64, 0.1);
+        color: #333;
+      }
+      
+      .radio-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+      
+      .radio-custom {
+        position: relative;
+        height: 18px;
+        width: 18px;
+        background-color: #fff;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        margin-right: 12px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+      
+      .radio-option input[type="radio"]:checked ~ .radio-custom {
+        background-color: #f0c040;
+        border-color: #f0c040;
+      }
+      
+      .radio-option input[type="radio"]:checked ~ .radio-custom:after {
+        content: "";
+        position: absolute;
+        display: block;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+      }
+      
+      .radio-option input[type="radio"]:focus ~ .radio-custom {
+        box-shadow: 0 0 0 3px rgba(240, 192, 64, 0.25);
+      }
+      
+      .radio-option input[type="radio"]:checked ~ span:not(.radio-custom) {
+        color: #333;
+        font-weight: 500;
+      }
+      
+                  .radio-group.error_input {
+              border-color: #dc3545;
+              box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            }
+            
+            /* Location Card Styling */
+            .location-card {
+              background: #f8f9fa;
+              border: 1px solid #e9ecef;
+              border-radius: 8px;
+              padding: 12px;
+            }
+            
+            .location-card .fw-bold {
+              color: #495057;
+              font-size: 13px;
+            }
+      
+      .btn-main {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .btn-main:hover {
+        background: linear-gradient(135deg, #e6b800 0%, #d4a600 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(240, 192, 64, 0.3);
+        color: #fff;
+      }
+      
+      .btn-main:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+      
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      
+      .success-icon {
+        animation: bounceIn 0.6s ease-out;
+      }
+      
+      @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      .booking-details {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      
+      .booking-details h5 {
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+      
+      .booking-details p {
+        margin-bottom: 8px;
+        color: #666;
+      }
+      
+      .booking-details strong {
+        color: #333;
+      }
+      
+      /* Booking Info Alert */
+      .booking-info .alert {
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        padding: 15px 20px;
+      }
+      
+      .booking-info .alert i {
+        margin-right: 8px;
+      }
+      
+      .booking-info .alert ul {
+        padding-left: 20px;
+      }
+      
+      .booking-info .alert li {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+      }
+      
+      /* Loading animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #f0c040;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Price Summary Styles */
+      .price-summary {
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+      }
+      
+      .price-summary h5 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 12px;
+        font-size: 16px;
+      }
+      
+      .price-breakdown {
+        font-size: 13px;
+      }
+      
+      .price-item {
+        color: #666;
+        margin-bottom: 8px !important;
+      }
+      
+      .price-item.fw-bold {
+        color: #333;
+        font-size: 15px;
+        margin-top: 10px;
+      }
+      
+      .price-item .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+      
+      .price-summary hr {
+        margin: 10px 0;
+        border-color: #e0e0e0;
+      }
+
+      /* Compact Price Summary */
+      .price-summary-compact {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+      }
+      
+      .price-summary-compact h6 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .price-breakdown-compact {
+        font-size: 12px;
+      }
+      
+      .price-item-compact {
+        color: #6c757d;
+        margin-bottom: 4px !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .price-item-compact.total {
+        color: #495057;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #dee2e6;
+      }
+      
+      .price-item-compact .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+
+      /* Price Calculator Modal */
+      .price-calculator-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+      }
+      
+      .price-calculator-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .modal-header {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        color: #fff;
+        padding: 20px 25px;
+        text-align: center;
+        position: relative;
+      }
+      
+      .modal-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 18px;
+      }
+      
+      .close-modal {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+      
+      .close-modal:hover {
+        opacity: 1;
+      }
+      
+      .modal-body {
+        padding: 25px;
+        max-height: calc(90vh - 80px); /* Account for header */
+        overflow-y: auto;
+      }
+      
+      .calculator-section {
+        margin-bottom: 20px;
+      }
+      
+      /* Compact form controls */
+      .form-control-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.2rem;
+      }
+      
+      .form-label.small {
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+      }
+      
+      /* Compact vehicle card */
+      .vehicle-card {
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+      }
+      
+      .vehicle-card:hover {
+        border-color: #f0c040;
+        box-shadow: 0 2px 8px rgba(240, 192, 64, 0.1);
+      }
+      
+      .calculator-section h5 {
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        border-bottom: 2px solid #f0c040;
+        padding-bottom: 5px;
+      }
+      
+      .tariff-info {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #f0c040;
+      }
+      
+      .tariff-info h6 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .tariff-details {
+        font-size: 13px;
+        color: #6c757d;
+      }
+      
+      .tariff-details .working-hours {
+        color: #28a745;
+        font-weight: 600;
+      }
+      
+      .tariff-details .outside-hours {
+        color: #dc3545;
+        font-weight: 600;
+      }
+      
+      .tariff-details .location-fees {
+        color: #007bff;
+        font-weight: 600;
+      }
+      
+      .modal-price-summary {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 2px solid #f0c040;
+      }
+      
+      .modal-price-summary h5 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 16px;
+      }
+      
+      .modal-price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #6c757d;
+      }
+      
+      .modal-price-item.total {
+        color: #495057;
+        font-weight: 700;
+        font-size: 16px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid #dee2e6;
+      }
+      
+      .modal-price-item .text-primary {
+        color: #f0c040 !important;
+        font-weight: 700;
+      }
+      
+      .modal-actions {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      .btn-calculate {
+        background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+        color: #fff;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-right: 10px;
+      }
+      
+      .btn-calculate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3);
+      }
+      
+      .btn-close-calc {
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-close-calc:hover {
+        background: #5a6268;
+      }
+
+      /* Responsive Modal Styles */
+      @media (max-width: 768px) {
+        .price-calculator-content {
+          margin: 2% auto;
+          width: 95%;
+          max-width: none;
+          max-height: 95vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-header {
+          padding: 15px 20px;
+        }
+        
+        .modal-header h4 {
+          font-size: 16px;
+        }
+        
+        .close-modal {
+          right: 15px;
+          font-size: 20px;
+        }
+        
+        .modal-body {
+          padding: 20px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 15px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 15px;
+          margin-bottom: 10px;
+        }
+        
+        .tariff-info {
+          padding: 12px;
+          margin-bottom: 15px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 13px;
+        }
+        
+        .tariff-details {
+          font-size: 12px;
+        }
+        
+        .modal-price-summary {
+          padding: 15px;
+          margin-top: 15px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 15px;
+          margin-bottom: 12px;
+        }
+        
+        .modal-price-item {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 15px;
+          margin-top: 10px;
+          padding-top: 10px;
+        }
+        
+        .modal-actions {
+          margin-top: 15px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 10px 20px;
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .btn-calculate {
+          margin-right: 0;
+          width: 100%;
+        }
+        
+        .btn-close-calc {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .price-calculator-content {
+          margin: 1% auto;
+          width: 98%;
+          max-height: 98vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-header {
+          padding: 12px 15px;
+        }
+        
+        .modal-header h4 {
+          font-size: 15px;
+        }
+        
+        .close-modal {
+          right: 12px;
+          font-size: 18px;
+        }
+        
+        .modal-body {
+          padding: 15px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 12px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        
+        .tariff-info {
+          padding: 10px;
+          margin-bottom: 12px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 12px;
+        }
+        
+        .tariff-details {
+          font-size: 11px;
+        }
+        
+        .modal-price-summary {
+          padding: 12px;
+          margin-top: 12px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-price-item {
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 14px;
+          margin-top: 8px;
+          padding-top: 8px;
+        }
+        
+        .modal-actions {
+          margin-top: 12px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 8px 16px;
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        /* Mobile-specific optimizations */
+        .vehicle-card {
+          padding: 8px !important;
+        }
+        
+        .vehicle-card .col-3 {
+          flex: 0 0 25%;
+          max-width: 25%;
+        }
+        
+        .vehicle-card .col-9 {
+          flex: 0 0 75%;
+          max-width: 75%;
+        }
+        
+        .vehicle-card img {
+          max-height: 50px !important;
+        }
+        
+        .vehicle-card h6 {
+          font-size: 13px !important;
+          line-height: 1.2;
+        }
+        
+        .vehicle-card p {
+          font-size: 11px !important;
+          line-height: 1.2;
+        }
+        
+        .vehicle-card .vehicle-price {
+          font-size: 12px !important;
+        }
+      }
+
+      @media (max-height: 600px) {
+        .price-calculator-content {
+          margin: 1% auto;
+          max-height: 99vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-body {
+          padding: 15px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 10px;
+        }
+        
+        .tariff-info {
+          padding: 8px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-price-summary {
+          padding: 12px;
+          margin-top: 10px;
+        }
+        
+        .modal-actions {
+          margin-top: 10px;
+        }
+      }
+      
+      /* Landscape orientation on mobile */
+      @media (max-width: 768px) and (orientation: landscape) {
+        .price-calculator-content {
+          margin: 0.5% auto;
+          max-height: 99vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        
+        .modal-body {
+          padding: 12px;
+        }
+        
+        .calculator-section {
+          margin-bottom: 8px;
+        }
+        
+        .calculator-section h5 {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .tariff-info {
+          padding: 6px;
+          margin-bottom: 8px;
+        }
+        
+        .tariff-info h6 {
+          font-size: 11px;
+        }
+        
+        .tariff-details {
+          font-size: 10px;
+        }
+        
+        .modal-price-summary {
+          padding: 8px;
+          margin-top: 8px;
+        }
+        
+        .modal-price-summary h5 {
+          font-size: 13px;
+          margin-bottom: 6px;
+        }
+        
+        .modal-price-item {
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+        
+        .modal-price-item.total {
+          font-size: 13px;
+          margin-top: 6px;
+          padding-top: 6px;
+        }
+        
+        .modal-actions {
+          margin-top: 8px;
+        }
+        
+        .btn-calculate, .btn-close-calc {
+          padding: 6px 12px;
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+      }
+
+      /* Quick Book Button */
+      .quick-book-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 13px;
+        margin-bottom: 15px;
+        width: 100%;
+      }
+      
+      .quick-book-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      /* Modal body styles */
+      body.modal-open {
+        overflow: hidden;
+      }
+      
+      /* Ensure smooth scrolling for modal content */
+      .price-calculator-content {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* For iOS smooth scrolling */
+      }
+      
+      .modal-body {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Responsive adjustments for modal */
+      @media (max-width: 768px) {
+        .price-calculator-content {
+          width: 95%;
+          margin: 5% auto;
+          max-height: 90vh;
+        }
+        
+                .modal-body {
+          max-height: calc(90vh - 60px);
+          padding: 15px;
+        }
+        
+        .btn-calculate,
+        .btn-close-calc {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
+      .lang-picker-btn {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        background: #f6f6f6;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        min-width: 80px;
+        height: 36px;
+        line-height: 1.2;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        margin-left: 0;
+      }
+      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
+        outline: none;
+        border-color: #f0c040;
+        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+      }
+      .lang-picker-dropdown {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 0;
+        margin: 0;
+        min-width: 120px;
+        list-style: none;
+      }
+      .lang-picker-dropdown.open { display: block; }
+      .lang-option {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font-size: 14px;
+        background: none;
+        border: none;
+        transition: background 0.15s, color 0.15s;
+        height: 32px;
+        line-height: 1.2;
+      }
+      .lang-option:focus, .lang-option:hover {
+        background: #f0c04022;
+        color: #031B4E;
+        outline: none;
+      }
+      .lang-option.selected {
+        background: #f0c04044;
+        color: #031B4E;
+        font-weight: 600;
+      }
+      .lang-flag {
+        font-size: 18px;
+        width: 20px;
+        display: inline-block;
+        text-align: center;
+      }
+      .lang-globe {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+      }
+      .lang-code {
+        font-weight: 600;
+        margin: 0 2px 0 2px;
+      }
+      @media (max-width: 600px) {
+        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
+        .lang-picker-dropdown { min-width: 80px; }
+        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
+        .lang-flag { font-size: 15px; width: 15px; }
+      }
+
+
+      /* --- Fleet Car Grid: Match Cars Page --- */
+      .fleet-car-grid.car-list-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-right: 0;
+        gap: 1.5rem 0;
+      }
+      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-6 {
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 24px;
+        max-width: 320px;
+        flex: 1 1 260px;
+        min-width: 240px;
+        display: flex;
+      }
+      .de-item.mb30 {
+        transition: box-shadow 0.25s, transform 0.25s;
+        margin-bottom: 0 !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 0.7rem 0.7rem 1.1rem 0.7rem;
+        background: #fff;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .car-unavailable {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(0.7);
+      }
+      .img-unavailable img {
+        filter: grayscale(0.22) brightness(0.96);
+      }
+      .unavailable-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(60,60,60,0.82);
+        color: #fff;
+        font-size: 0.98rem;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        pointer-events: none;
+      }
+      .d-img {
+        position: relative;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .d-img img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        max-height: 160px;
+      }
+      .d-info {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .d-text {
+        flex: 1 1 auto;
+      }
+      .d-item_like {
+        margin-bottom: 0.5rem;
+      }
+      .d-atr-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.7rem;
+        font-size: 0.98rem;
+      }
+      .d-atr img {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      .d-price {
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+        color: #1976d2;
+      }
+      .btn-main {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: center;
+      }
+      @media (max-width: 991px) {
+        .fleet-car-grid.car-list-row {
+          flex-direction: row;
+        }
+      }
+      @media (max-width: 600px) {
+        .fleet-car-grid {
+          grid-template-columns: 1fr;
+        }
+        .fleet-car-card {
+          padding: 1rem 0.5rem 1.2rem 0.5rem;
+        }
+      }
+      /* --- Fleet Car Grid: Scoped to Fleet Section Only --- */
+      #section-cars .fleet-car-grid.car-list-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 0;
+        margin-right: 0;
+        gap: 1.5rem 0;
+      }
+      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-bottom: 24px;
+        max-width: 320px;
+        flex: 1 1 260px;
+        min-width: 240px;
+        display: flex;
+      }
+      #section-cars .de-item.mb30 {
+        transition: box-shadow 0.25s, transform 0.25s;
+        margin-bottom: 0 !important;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 0.7rem 0.7rem 1.1rem 0.7rem;
+        background: #fff;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      #section-cars .car-unavailable {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(0.7);
+      }
+      #section-cars .img-unavailable img {
+        filter: grayscale(0.22) brightness(0.96);
+      }
+      #section-cars .unavailable-badge {
+        position: absolute;
+        top: 0px;
+        right: 0;
+        background: #ff6b5b;
+        color: #fff;
+        font-size: 0.52rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 5px 14px 4px 14px;
+        border-radius: 7px;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        pointer-events: none;
+        border: none;
+      }
+      #section-cars .d-img {
+        position: relative;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #section-cars .d-img img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        max-height: 160px;
+      }
+      #section-cars .d-info {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      #section-cars .d-text {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 200px;
+      }
+      
+      #section-cars .d-text .btn-main {
+        margin-top: auto;
+        align-self: flex-start;
+      }
+      
+      #section-cars .d-text .btn-unavailable {
+        margin-top: auto;
+        align-self: flex-start;
+      }
+      #section-cars .d-item_like {
+        margin-bottom: 0.5rem;
+      }
+      #section-cars .d-atr-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.7rem;
+        font-size: 0.98rem;
+      }
+      #section-cars .d-atr img {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      #section-cars .d-price {
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+        color: #1976d2;
+      }
+      #section-cars .btn-main {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: center;
+      }
+      @media (max-width: 991px) {
+        #section-cars .fleet-car-grid.car-list-row {
+          flex-direction: row;
+        }
+      }
+      @media (max-width: 600px) {
+        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+          min-width: 100%;
+          max-width: 100%;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        #section-cars .de-item.mb30 {
+          padding: 1rem 0.5rem 1.2rem 0.5rem;
+        }
+      }
+
+      /* Premium car highlighting for homepage */
+      .de-item.premium {
+        border: 3px solid #ffd700;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        transform: scale(1.02);
+        transition: all 0.3s ease;
+      }
+
+      .de-item.premium:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+      }
+
+      .premium-badge {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #333;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 6px 12px 5px 12px;
+        border-radius: 0 0 7px 0;
+        z-index: 3;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border: none;
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    </style>
+</head>
+
+<body onload="initialize()">
+    <div id="wrapper">
+        
+        <!-- page preloader begin -->
+        <div id="de-preloader"></div>
+        <!-- page preloader close -->
+
+        <!-- header begin -->
+        <header class="transparent scroll-light has-topbar">
+            <div id="topbar" class="topbar-dark text-light">
+                <div class="container">
+                    <div class="topbar-left xs-hide">
+                        <div class="topbar-widget">
+                            <div class="topbar-widget"><a href="#"><i class="fa fa-phone"></i>+208 333 9296</a></div>
+                            <div class="topbar-widget"><a href="#"><i class="fa fa-envelope"></i>contact@plusrent.com</a></div>
+                            <div class="topbar-widget"><a href="#"><i class="fa fa-clock-o"></i>Mon - Fri 08.00 - 18.00</a></div>
+                        </div>
+                    </div>
+                
+                    <div class="topbar-right">
+                        <div class="social-icons">
+                            <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
+                            <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
+                            <a href="#"><i class="fa fa-youtube fa-lg"></i></a>
+                            <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
+                            <a href="#"><i class="fa fa-instagram fa-lg"></i></a>
+                        </div>
+                    </div>  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="de-flex sm-pt10">
+                            <div class="de-flex-col">
+                                <div class="de-flex-col">
+                                    <!-- logo begin -->
+                                    <div id="logo">
+                                        <a href="index.html">
+                                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
+                <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
+                                        </a>
+                                    </div>
+                                    <!-- logo close -->
+                                </div>
+                            </div>
+                            <div class="de-flex-col header-col-mid">
+                                <ul id="mainmenu">
+                                                    <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                </ul>
+                            </div>
+                            <div class="de-flex-col">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Language Picker -->
+                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                        </span>
+                                        <span class="lang-flag" id="langFlag"></span>
+                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                      </button>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag">🇷🇴</span> <span class="lang-code">RO</span></li>
+                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag">🇬🇧</span> <span class="lang-code">EN</span></li>
+                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
+                                      </ul>
+                                    </div>
+                                    <div id="menu-btn">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- header close -->
+        <!-- content begin -->
+        <div class="no-bottom no-top" id="content">
+            <div id="top"></div>
+            <section id="section-hero" aria-label="section" class="jarallax">
+                                    <img src="images/background/3 - Copy.jpg" class="jarallax-img" alt="">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-12 text-light">
+                            <div class="spacer-double"></div>
+                            <div class="spacer-double"></div>
+                            <h1 class="mb-2" data-i18n="hero.title"></h1>
+                            <div class="spacer-single"></div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="spacer-single sm-hide"></div>
+                            <div class="padding40 rounded-5 shadow-soft" data-bgcolor="#ffffff">
+                                
+
+                                <form name="contactForm" id='booking_form' class="form-s2 row g-4 on-submit-hide" method="post">
+
+                                    <div class="col-lg-6 d-light car-picker-window">
+                                        <h4 data-i18n="booking.booking_title">Booking a Car</h4>
+                                        
+                                        <!-- Vehicle Selection with Enhanced UI -->
+                                        <div class="vehicle-selection-wrapper mb-4">
+                                            <select name='vehicle_type' id="vehicle_type" class="form-control vehicle-select">
+                                              <option value="" disabled selected data-i18n="booking.loading_cars">Loading cars...</option>
+                                            </select>
+                                            <div id="selected-vehicle-info" class="selected-vehicle-info mt-3" style="display: none;">
+                                                <div class="vehicle-card p-3 bg-light rounded">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-3">
+                                                            <img id="vehicle-image" src="" alt="Vehicle" class="img-fluid rounded">
+                                                        </div>
+                                                        <div class="col-9">
+                                                            <h6 id="vehicle-name" class="mb-1"></h6>
+                                                            <p id="vehicle-details" class="text-muted small mb-1"></p>
+                                                            <div class="vehicle-price">
+                                                                <span class="text-primary fw-bold" id="vehicle-price"></span>
+                                                                <small class="text-muted">/day</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-4">
+                                            <div class="col-lg-6">
+                                                <h5 data-i18n="booking.pickup_location">Pick-up Location</h5>
+                                                <div class="radio-group">
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Chisinau Airport" id="pickup_chisinau">
+                                                        <span class="radio-custom"></span>
+                                                        Chisinau Airport
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Our Office" id="pickup_office">
+                                                        <span class="radio-custom"></span>
+                                                        Our Office
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="pickup_location" value="Iasi Airport" id="pickup_iasi" checked>
+                                                        <span class="radio-custom"></span>
+                                                        Iasi Airport
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <h5 data-i18n="booking.destination">Drop-off Location</h5>
+                                                <div class="radio-group">
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Chisinau Airport" id="dropoff_chisinau">
+                                                        <span class="radio-custom"></span>
+                                                        Chisinau Airport
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Our Office" id="dropoff_office" checked>
+                                                        <span class="radio-custom"></span>
+                                                        Our Office
+                                                    </label>
+                                                    <label class="radio-option">
+                                                        <input type="radio" name="destination" value="Iasi Airport" id="dropoff_iasi">
+                                                        <span class="radio-custom"></span>
+                                                        Iasi Airport
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Location Information -->
+                                                                                                                                                                     <div class="row mt-3">
+                                               <div class="col-12">
+                                                                                                                                                         <div class="location-info">
+                                                          <small class="text-muted">
+                                                            <i class="fa fa-exclamation-circle me-1"></i>
+                                                              Select your preferred pickup and return locations. Airport delivery and outside working hours may incur additional fees.
+                                                          </small>
+                                                      </div>
+                                               </div>
+                                           </div>
+                                    </div>
+
+                                    <!-- customer details -->
+
+                                    <div class="col-lg-6 customer-details-window">
+                                        <h4 data-i18n="booking.enter_details_title">Enter Your Details</h4>
+                                        
+                                        <!-- Error message positioned right after title -->
+                                        <div id="error_message" class='error' data-i18n="booking.form_error" style="display: none; margin-top: 15px; margin-bottom: 20px;">
+                                            Sorry there was an error sending your form.
+                                        </div>
+
+                                        <div class="row g-4">
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <input type="text" name="name" id="name" class="form-control" data-i18n="booking.name_placeholder" placeholder="Your Name" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <input type="email" name="email" id="email" class="form-control" data-i18n="booking.email_placeholder" placeholder="Your Email">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <input type="text" name="phone" id="phone" class="form-control" data-i18n="booking.phone_placeholder" placeholder="Your Phone" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <textarea name="message" id="message" class="form-control" data-i18n="booking.message_placeholder" placeholder="Do you have any request?"></textarea>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-lg-12">
+                                                <div class="field-set">
+                                                    <p id='submit'>
+                                                        <input type='submit' id='send_message' value='Submit' data-i18n="booking.submit" class="btn-main btn-fullwidth">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+
+
+                                    <div class="col-lg-3">
+                                        <!-- Compact Price Summary - Hidden by default, only shown in modal -->
+                                        <div id="price-summary" class="price-summary-compact" style="display: none;">
+                                            <h6>Price Summary</h6>
+                                            <div class="price-breakdown-compact">
+                                                <div class="price-item-compact">
+                                                    <span>Daily Rate:</span>
+                                                    <span id="daily-rate">€0</span>
+                                                </div>
+                                                <div class="price-item-compact">
+                                                    <span>Duration:</span>
+                                                    <span id="rental-duration">0 days</span>
+                                                </div>
+                                                <div class="price-item-compact">
+                                                    <span>Insurance:</span>
+                                                    <span id="insurance-cost">€0</span>
+                                                </div>
+                                                <div class="price-item-compact total">
+                                                    <span>Total Estimate:</span>
+                                                    <span id="total-estimate" class="text-primary">€0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id='mail_success' class='success' data-i18n="booking.success_message">Your message has been sent successfully.</div>
+                                        <div id='mail_fail' class='error' data-i18n="booking.error_message">Sorry, error occured this time sending your message.</div>
+                                    </div>
+                                </form>
+
+                                <div id="success_message" class='success s2'>
+                                    <div class="row">
+                                        <div class="col-lg-8 offset-lg-2 text-center">
+                                            <div class="success-icon mb-3">
+                                                <i class="fa fa-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+                                            </div>
+                                            <h3 class="mb-3" data-i18n="booking.congratulations">Congratulations! Your booking has been submitted successfully.</h3>
+                                            <p class="mb-3" data-i18n="booking.confirmation_message">We have received your booking request and will contact you within 24 hours to confirm your reservation.</p>
+                                            <div class="booking-details mb-4">
+                                                <h5 data-i18n="booking.booking_summary">Booking Summary</h5>
+                                                <div id="booking-summary" class="text-left">
+                                                    <!-- Booking details will be populated here -->
+                                                </div>
+                                            </div>
+                                            <div class="spacer-20"></div>
+                                            <button class="btn-main" onclick="location.reload()" data-i18n="booking.book_another">Book Another Vehicle</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spacer-double"></div>
+
+                        <div class="row">
+                            <div class="col-lg-12 text-light">
+                                <div class="container-timeline">
+                                    <ul>
+                                        <li>
+                                            <h4 data-i18n="timeline.choose_vehicle"></h4>
+                                            <p data-i18n="timeline.choose_vehicle_desc"></p>
+                                        </li>
+                                        <li>
+                                            <h4 data-i18n="timeline.pick_location"></h4>
+                                            <p data-i18n="timeline.pick_location_desc"></p>
+                                        </li>
+                                        <li>
+                                            <h4 data-i18n="timeline.make_booking"></h4>
+                                            <p data-i18n="timeline.make_booking_desc"></p>
+                                        </li>
+                                        <li>
+                                            <h4 data-i18n="timeline.sit_back"></h4>
+                                            <p data-i18n="timeline.sit_back_desc"></p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-label="section" class="pt40 pb40 text-light" data-bgcolor="#111111">
+                <div class="wow fadeInRight d-flex">
+                  <div class="de-marquee-list">
+                    <div class="d-item">
+                      <span class="d-item-txt" data-i18n="car_makes.bmw"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.audi"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.mercedes"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.porsche"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.volkswagen"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.hyundai"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.honda"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.toyota"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <!-- Duplicate car makes for seamless loop -->
+                      <span class="d-item-txt" data-i18n="car_makes.bmw"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.audi"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.mercedes"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.porsche"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.volkswagen"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.hyundai"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.honda"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                      <span class="d-item-txt" data-i18n="car_makes.toyota"></span>
+                      <span class="d-item-display">
+                        <i class="d-item-dot"></i>
+                      </span>
+                     </div>
+                  </div>
+                </div>
+            </section>
+
+            <section id="section-cars">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 offset-lg-3 text-center">
+                            <h2 data-i18n="fleet.title"></h2>
+                            <p data-i18n="fleet.description"></p>
+                            <div class="spacer-20"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <!-- Dynamic car grid will be rendered here -->
+                        <div id="fleet-car-grid" class="fleet-car-grid">
+                          <div style="text-align:center;padding:2em;">
+                            <p>Loading vehicle fleet...</p>
+                            <p><small>If this doesn't load, please ensure the server is running and refresh the page.</small></p>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-light jarallax" aria-label="section">
+                <img src="images/background/3.jpg" alt="" class="jarallax-img">
+                <div class="container">
+                    <div class="row">
+                    <div class="col-lg-3">
+                        <h1 data-i18n="adventure.title"></h1>
+                        <div class="spacer-20"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fa fa-trophy de-icon mb20"></i>
+                                                    <h4 data-i18n="features.first_class_services"></h4>
+                            <p data-i18n="features.first_class_services_desc"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fa fa-road de-icon mb20"></i>
+                                                    <h4 data-i18n="features.road_assistance"></h4>
+                            <p data-i18n="features.road_assistance_desc"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fa fa-map-pin de-icon mb20"></i>
+                                                    <h4 data-i18n="features.free_pickup"></h4>
+                            <p data-i18n="features.free_pickup_desc"></p>
+                    </div>
+                </div>
+                </div>
+            </section>
+
+            <section aria-label="section">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 offset-lg-3 text-center">
+                            <h2 data-i18n="features.our_features"></h2>
+                            <p data-i18n="features.our_features_desc"></p>
+                            <div class="spacer-20"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-lg-3">
+                            <div class="box-icon s2 p-small mb20 wow fadeInRight" data-wow-delay=".5s">
+                                <i class="fa bg-color fa-trophy"></i>
+                                <div class="d-inner">
+                                    <h4 data-i18n="features.first_class_services"></h4>
+                                    <span data-i18n="features.first_class_services_desc"></span>
+                                </div>
+                            </div>
+                            <div class="box-icon s2 p-small mb20 wow fadeInL fadeInRight" data-wow-delay=".75s">
+                                <i class="fa bg-color fa-road"></i>
+                                <div class="d-inner">
+                                    <h4 data-i18n="features.road_assistance"></h4>
+                                     <span data-i18n="features.road_assistance_desc"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <img src="images/misc/car.png" alt="" class="img-fluid wow fadeInUp">
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="box-icon s2 d-invert p-small mb20 wow fadeInL fadeInLeft" data-wow-delay="1s">
+                                <i class="fa bg-color fa-tag"></i>
+                                <div class="d-inner">
+                                    <h4 data-i18n="features.quality_min_expense"></h4>
+                                     <span data-i18n="features.quality_min_expense_desc"></span>
+                                </div>
+                            </div>
+                            <div class="box-icon s2 d-invert p-small mb20 wow fadeInL fadeInLeft" data-wow-delay="1.25s">
+                                <i class="fa bg-color fa-map-pin"></i>
+                                <div class="d-inner">
+                                    <h4 data-i18n="features.free_pickup"></h4>
+                                                                            <span data-i18n="features.free_pickup_desc"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="text-light jarallax">
+                <img src="images/background/2.jpg" class="jarallax-img" alt="">
+                <div class="container">
+                    <div class="row g-5">
+                        <div class="col-lg-6 wow fadeInRight">
+                            <h2 data-i18n="about.offer"></h2>
+                        </div>
+                        <div class="col-lg-6 wow fadeInLeft">
+                            <span data-i18n="about.description"></span>
+                        </div>
+                    </div>
+                    <div class="spacer-double"></div>
+                    <div class="row text-center">
+                        <div class="col-md-3 col-sm-6 mb-sm-30">
+                            <div class="de_count transparent text-light wow fadeInUp">
+                                <h3 class="timer" data-to="15425" data-speed="3000">0</h3>
+                                <span data-i18n="about.completed_orders"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-sm-30">
+                            <div class="de_count transparent text-light wow fadeInUp">
+                                <h3 class="timer" data-to="8745" data-speed="3000">0</h3>
+                                <span data-i18n="about.happy_customers"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-sm-30">
+                            <div class="de_count transparent text-light wow fadeInUp">
+                                <h3 class="timer" data-to="235" data-speed="3000">0</h3>
+                                <span data-i18n="about.vehicles_fleet"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-sm-30">
+                            <div class="de_count transparent text-light wow fadeInUp">
+                                <h3 class="timer" data-to="15" data-speed="3000">0</h3>
+                                <span data-i18n="about.years_experience"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-faq">
+                <div class="container">
+                    <div class="row">
+                        <div class="col text-center">
+                            <h2 data-i18n="faq.title"></h2>
+                            <div class="spacer-20"></div>
+                        </div>
+                    </div>
+                    <div class="row g-custom-x">
+                        <div class="col-md-6 wow fadeInUp">
+                            <div class="accordion secondary">
+                                <div class="accordion-section">
+                                    <div class="accordion-section-title" data-tab="#accordion-1" data-i18n="faq.question1">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-1">
+                                        <p data-i18n="faq.answer1"></p>
+                                    </div>
+                                    <div class="accordion-section-title" data-tab="#accordion-2" data-i18n="faq.question2">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-2">
+                                        <p data-i18n="faq.answer2"></p>
+                                    </div>
+                                    <div class="accordion-section-title" data-tab="#accordion-3" data-i18n="faq.question3">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-3">
+                                        <p data-i18n="faq.answer3"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 wow fadeInUp">
+                            <div class="accordion secondary">
+                                <div class="accordion-section">
+                                    <div class="accordion-section-title" data-tab="#accordion-b-4" data-i18n="faq.question4">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-b-4">
+                                        <p data-i18n="faq.answer4"></p>
+                                    </div>
+                                    <div class="accordion-section-title" data-tab="#accordion-b-5" data-i18n="faq.question5">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-b-5">
+                                        <p data-i18n="faq.answer5"></p>
+                                    </div>
+                                    <div class="accordion-section-title" data-tab="#accordion-b-6" data-i18n="faq.question6">
+                                    </div>
+                                    <div class="accordion-section-content" id="accordion-b-6">
+                                        <p data-i18n="faq.answer6"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-call-to-action" class="bg-color-2 pt60 pb60 text-light">
+                <div class="container">
+                    <div class="container">
+                    <div class="row">
+
+                        <div class="col-lg-4 offset-lg-2">
+                            <span class="subtitle text-white" data-i18n="cta.call_us"></span>
+                            <h2 class="s2" data-i18n="cta.customer_care"></h2>
+                        </div>
+
+                        <div class="col-lg-4 text-lg-center text-sm-center">
+                            <div class="phone-num-big">
+                                <i class="fa fa-phone"></i>
+                                <span class="pnb-text" data-i18n="cta.call_us_now">
+                                </span>
+                                <span class="pnb-num">
+                                    1 200 333 800
+                                </span>
+                            </div>
+                            <a href="#" class="btn-main" data-i18n="cta.contact_us"></a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </section>
+
+
+            
+        </div>
+        <!-- content close -->
+        <a href="#" id="back-to-top"></a>
+        <!-- footer begin -->
+        <footer class="text-light">
+            <div class="container">
+                <div class="row g-custom-x">
+                    <div class="col-lg-3">
+                        <div class="widget">
+                            <h5 data-i18n="footer.about"></h5>
+                            <p data-i18n="footer.about_desc"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3">
+                        <div class="widget">
+                            <h5 data-i18n="footer.contact_info"></h5>
+                            <address class="s1">
+                                <span data-i18n="footer.address"><i class="id-color fa fa-map-marker fa-lg"></i>08 W 36th St, New York, NY 10001</span>
+                                <span data-i18n="footer.phone"><i class="id-color fa fa-phone fa-lg"></i>+1 333 9296</span>
+                                <span data-i18n="footer.email"><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@example.com">contact@example.com</a></span>
+                                <span data-i18n="footer.download_brochure"><i class="id-color fa fa-file-pdf-o fa-lg"></i><a href="#">Download Brochure</a></span>
+                            </address>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <h5 data-i18n="footer.quick_links"></h5>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="widget">
+                                    <ul>
+                                        <li><a href="#" data-i18n="footer.about_link"></a></li>
+                                        <li><a href="#" data-i18n="footer.blog"></a></li>
+                                        <li><a href="#" data-i18n="footer.careers"></a></li>
+                                        <li><a href="#" data-i18n="footer.news"></a></li>
+                                        <li><a href="#" data-i18n="footer.partners"></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="widget">
+                            <h5 data-i18n="footer.social_network"></h5>
+                            <div class="social-icons">
+                                <a href="#"><i class="fa fa-facebook fa-lg"></i></a>
+                                <a href="#"><i class="fa fa-twitter fa-lg"></i></a>
+                                <a href="#"><i class="fa fa-linkedin fa-lg"></i></a>
+                                <a href="#"><i class="fa fa-pinterest fa-lg"></i></a>
+                                <a href="#"><i class="fa fa-rss fa-lg"></i></a>
+                            </div>
+                        </div>    
+                    </div>
+                </div>
+            </div>
+            <div class="subfooter">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="de-flex">
+                                <div class="de-flex-col">
+                                    <a href="index.html">
+                                        Copyright 2025 - PlusRent by Dream Team
+                                    </a>
+                                </div>
+                                <ul class="menu-simple">
+                                    <li><a href="#" data-i18n="footer.terms"></a></li>
+                                    <li><a href="#" data-i18n="footer.privacy"></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer close -->
+    </div>
+    
+    <!-- Javascript Files
+    ================================================== -->
+    <script src="js/plugins.js"></script>
+    <script src="js/designesia.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dynamic-cars-loader.js"></script>
+    <script src="js/validation-booking.js"></script>
+    <!-- Google Maps API removed to prevent errors -->
+    <!-- i18next CDN -->
+    <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+    <script src="js/i18n-init.js"></script>
+
+
+
+    <script>
+      // Global formatting function
+      function formatDisplayText(rawKey) {
+        if (!rawKey) return '';
+        return rawKey
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Fleet section: DOM loaded');
+        
+        const grid = document.getElementById('fleet-car-grid');
+        if (!grid) {
+          console.error('Fleet section: Grid element not found');
+          return;
+        }
+        
+        console.log('Fleet section: Grid element found, API_BASE_URL:', window.API_BASE_URL);
+        
+        grid.className = 'fleet-car-grid car-list-row';
+        grid.innerHTML = '<div style="text-align:center;padding:2em;">Loading...</div>';
+        
+        const apiUrl = window.API_BASE_URL + '/api/cars';
+        console.log('Fleet section: Fetching from:', apiUrl);
+        
+        fetch(apiUrl)
+          .then(res => {
+            console.log('Fleet section: Response status:', res.status);
+            if (!res.ok) {
+              throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            return res.json();
+          })
+          .then(cars => {
+            console.log('Fleet section: Cars loaded:', cars.length);
+            
+            if (!cars.length) {
+              grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
+              return;
+            }
+            
+            const carsHtml = cars.map(car => {
+              console.log('Fleet section: Processing car:', car.id, car.make_name, car.model_name);
+              
+              // Check if car is unavailable (booked until a future date)
+              const isUnavailable = car.booked_until && (() => {
+                const bookedUntil = new Date(car.booked_until);
+                const now = new Date();
+                now.setHours(0, 0, 0, 0); // Compare dates only
+                return bookedUntil >= now; // Only unavailable if booked until today or future
+              })();
+              
+              let badge = '';
+              if (isUnavailable && car.booked_until) {
+                const d = new Date(car.booked_until);
+                const options = { day: '2-digit', month: 'short', year: 'numeric' };
+                const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
+                badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\" data-i18n-date=\"${formatted}\">UNAVAILABLE UNTIL ${formatted}</div>`;
+              }
+              
+              const isPremium = car.is_premium === 1 || car.is_premium === true;
+              const rentNowUrl = `car-single.html?id=${car.id}`;
+              
+              console.log('Fleet section: Generated URL for car', car.id, ':', rentNowUrl);
+              
+              return `
+                <div class=\"col-xl-4 col-lg-6\">
+                  <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
+                    <div class=\"d-img${isUnavailable ? ' img-unavailable' : ''}\">
+                      <img src=\"${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}\" class=\"img-fluid\" alt=\"\">
+                      ${badge}
+                      ${isPremium ? '<div class=\"premium-badge\">PREMIUM</div>' : ''}
+                    </div>
+                    <div class=\"d-info\">
+                      <div class=\"d-text\">
+                        <h4>${formatDisplayText(car.make_name)}</h4>
+                        <p>${formatDisplayText(car.model_name)}</p>
+                        <div class=\"d-item_like\">
+                          <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
+                        </div>
+                        <div class=\"d-atr-group\">
+                          <span class=\"d-atr\"><img src=\"images/icons/1-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_passengers\"></span> ${car.num_passengers || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/2-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_doors\"></span> ${car.num_doors || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/3-green.svg\" alt=\"\">${car.luggage || '-'}</span>
+                          <span class=\"d-atr\"><img src=\"images/icons/4-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_type\"></span> ${car.car_type || '-'}</span>
+                        </div>
+                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+                        ${isUnavailable
+                          ? '<span class=\"btn-main btn-unavailable\" tabindex=\"-1\" aria-disabled=\"true\" data-i18n=\"cars.not_available\">Not Available</span>'
+                          : `<a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            
+            grid.innerHTML = carsHtml;
+            console.log('Fleet section: HTML generated successfully');
+            
+            // Verify links were created
+            const links = grid.querySelectorAll('a[href*="car-single.html"]');
+            console.log('Fleet section: Generated', links.length, 'Rent Now links');
+            links.forEach((link, index) => {
+              console.log(`Fleet section: Link ${index + 1}:`, link.href);
+            });
+          })
+          .catch((error) => {
+            console.error('Fleet section: Error loading cars:', error);
+            grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message}</div>`;
+          });
+      });
+    </script>
+
+    <!-- Price Calculator Modal -->
+    <div id="price-calculator-modal" class="price-calculator-modal">
+        <div class="price-calculator-content">
+            <div class="modal-header">
+                <h4><i class="fa fa-calculator"></i> Price Calculator</h4>
+                <button type="button" class="close-modal" onclick="closePriceCalculator()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Tariff Information -->
+                <div class="tariff-info">
+                    <h6><i class="fa fa-info-circle"></i> Working Hours & Location Fees</h6>
+                    <div class="tariff-details">
+                        <div><span class="working-hours">Working Hours (8:00 AM - 6:00 PM):</span> Standard pricing</div>
+                        <div><span class="outside-hours">Outside Working Hours:</span> +€15 fee per pickup/return</div>
+                        <div><span class="location-fees">Airport Delivery:</span> Chisinau +€25, Iasi +€35</div>
+                        <div><i class="fa fa-clock-o"></i> Minimum rental: 24 hours</div>
+                    </div>
+                </div>
+
+                <!-- Calculator Section -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-calendar"></i> Rental Period</h5>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small">Pickup Date:</label>
+                            <input type="date" id="modal-pickup-date" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Return Date:</label>
+                            <input type="date" id="modal-return-date" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="row g-2 mt-2">
+                        <div class="col-6">
+                            <label class="form-label small">Pickup Time:</label>
+                            <select id="modal-pickup-time" class="form-control form-control-sm">
+                                <option value="00:00">00:00</option>
+                                <option value="01:00">01:00</option>
+                                <option value="02:00">02:00</option>
+                                <option value="03:00">03:00</option>
+                                <option value="04:00">04:00</option>
+                                <option value="05:00">05:00</option>
+                                <option value="06:00">06:00</option>
+                                <option value="07:00">07:00</option>
+                                <option value="08:00" selected>08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                                <option value="21:00">21:00</option>
+                                <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Return Time:</label>
+                            <select id="modal-return-time" class="form-control form-control-sm">
+                                <option value="00:00">00:00</option>
+                                <option value="01:00">01:00</option>
+                                <option value="02:00">02:00</option>
+                                <option value="03:00">03:00</option>
+                                <option value="04:00">04:00</option>
+                                <option value="05:00">05:00</option>
+                                <option value="06:00">06:00</option>
+                                <option value="07:00">07:00</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00" selected>18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                                <option value="21:00">21:00</option>
+                                <option value="22:00">22:00</option>
+                                <option value="23:00">23:00</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-map-marker"></i> Selected Locations</h5>
+                    <div class="location-card p-2 bg-light rounded">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-muted">Pickup Location:</small>
+                                <div class="fw-bold small" id="modal-pickup-location">-</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Drop-off Location:</small>
+                                <div class="fw-bold small" id="modal-dropoff-location">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Selection -->
+                <div class="calculator-section">
+                    <h5><i class="fa fa-car"></i> Selected Vehicle</h5>
+                    <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
+                        <div class="row align-items-center g-2">
+                            <div class="col-3">
+                                <img id="modal-vehicle-image" src="" alt="Vehicle" class="img-fluid rounded" style="max-height: 60px; object-fit: cover;">
+                            </div>
+                            <div class="col-9">
+                                <h6 id="modal-vehicle-name" class="mb-1 small"></h6>
+                                <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
+                                <div class="vehicle-price">
+                                    <span class="text-primary fw-bold small" id="modal-vehicle-price"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="modal-price-summary">
+                    <h5><i class="fa fa-euro"></i> Price Breakdown</h5>
+                    <div class="modal-price-item">
+                        <span>Daily Rate:</span>
+                        <span id="modal-daily-rate">€0</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Duration:</span>
+                        <span id="modal-rental-duration">0 days</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Location Fees:</span>
+                        <span id="modal-location-fees">€0</span>
+                    </div>
+                    <div class="modal-price-item">
+                        <span>Outside Hours Fees:</span>
+                        <span id="modal-night-premium">€0</span>
+                    </div>
+                    <div class="modal-price-item total">
+                        <span>Total Estimate:</span>
+                        <span id="modal-total-estimate" class="text-primary">€0</span>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="modal-actions">
+                    <button type="button" class="btn-calculate" onclick="applyModalCalculation()">
+                        <i class="fa fa-check"></i> Apply to Booking
+                    </button>
+                    <button type="button" class="btn-close-calc" onclick="closePriceCalculator()">
+                        <i class="fa fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        }
+    </script>
+</body>
+
+</html>

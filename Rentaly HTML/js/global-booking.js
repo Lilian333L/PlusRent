@@ -3,7 +3,7 @@
 
 class GlobalBookingSystem {
   constructor() {
-    this.apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3001' : `https://${window.location.hostname}`);
+                this.apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
     this.currentCar = null;
     this.priceCalculator = null;
   }

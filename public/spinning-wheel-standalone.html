@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Wheel</title>
+    <script src="js/config.js"></script>
+    <script>
+        // Fallback if config.js doesn't load
+        if (!window.API_BASE_URL) {
+            window.API_BASE_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3001' 
+                : `https://${window.location.hostname}`;
+        }
+
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .spinning-wheel-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .wheel-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            .wheel-content {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+            }
+        }
+
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .wheel-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            padding: 8px;
+            background: linear-gradient(45deg, #20b2aa, #1e90ff, #20b2aa);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .wheel-border {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: white;
+            padding: 4px;
+            box-shadow: 0 0 30px rgba(32, 178, 170, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        .wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: center;
+            transition: all 0.3s ease;
+            will-change: transform;
+            transform: translateZ(0);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .segment-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .segment-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+            display: block;
+        }
+
+        .segment-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .segment-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .segment-text {
+            font-size: 18px;
+            line-height: 1;
+            font-weight: 700;
+            text-align: center;
+            padding: 4px 8px;
+            white-space: nowrap;
+            min-width: 35px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .center-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .center-button:hover {
+            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .center-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .center-icon {
+            font-size: 2rem;
+            color: white;
+            display: block;
+        }
+
+        .arrow-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            animation: arrowPulse 2s ease-in-out infinite;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid white;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            position: relative;
+        }
+
+
+
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .reset-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.4);
+        }
+
+        .reset-icon {
+            font-size: 1.2rem;
+        }
+
+        .info-section {
+            flex: 1;
+            max-width: 500px;
+            min-height: 400px;
+        }
+
+        .instructions-card {
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .instructions-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-step:hover {
+            background: rgba(32, 178, 170, 0.1);
+            transform: translateX(5px);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(32, 178, 170, 0.3);
+        }
+
+        .step-text {
+            color: white;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            padding-top: 0.25rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .congratulations {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .you-won {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .prize-display {
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            margin-bottom: 1rem;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-text {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .discount-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .book-now-button {
+            background: white;
+            color: #ff6b6b;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .book-now-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .center-button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .center-icon {
+                font-size: 1.5rem;
+            }
+
+            .arrow {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 25px solid #ff4757;
+            }
+
+            .instructions-card,
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .congratulations {
+                font-size: 1.5rem;
+            }
+
+            .prize-display {
+                font-size: 1.2rem;
+                padding: 0.75rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="spinning-wheel-container">
+        <div class="wheel-content">
+            <!-- Left Side - Wheel -->
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <!-- Outer glow ring -->
+                    <div class="wheel-glow">
+                        <div class="wheel-border">
+                            <!-- Main wheel -->
+                            <div class="wheel" id="wheel">
+                                <!-- Wheel segments will be generated by JavaScript -->
+                            </div>
+
+                            <!-- Center button -->
+                            <button class="center-button" id="centerButton">
+                                <span class="center-icon">🎁</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Arrow pointer -->
+                    <div class="arrow-pointer">
+                        <div class="arrow"></div>
+                    </div>
+                </div>
+
+                <!-- Spin again button -->
+                <button class="reset-button" id="resetButton" style="display: none;">
+                    <span class="reset-icon">🔄</span>
+                    <span id="spinAgainText">Spin Again (New Visit)</span>
+                </button>
+            </div>
+
+            <!-- Right Side - Instructions/Result -->
+            <div class="info-section">
+                <div class="instructions-card" id="instructionsCard">
+                    <h3 class="instructions-title" id="howToPlayTitle">How to Play</h3>
+                    <ul class="instructions-list">
+                        <li class="instruction-step">
+                            <span class="step-number">1</span>
+                            <span class="step-text" id="step1Text">Press the button in the center of the wheel</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">2</span>
+                            <span class="step-text" id="step2Text">Watch the wheel spin and stop on your prize</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">3</span>
+                            <span class="step-text" id="step3Text">Copy your discount code</span>
+                        </li>
+                        <li class="instruction-step">
+                            <span class="step-number">4</span>
+                            <span class="step-text" id="step4Text">Use it when you make your next reservation</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="result-card" id="resultCard">
+                    <div class="trophy-icon">🏆</div>
+                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS! 🎉</h3>
+                    <p class="you-won" id="youWonText">You won</p>
+                    <div class="prize-display" id="prizeDisplay">0% OFF</div>
+                    <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode">SPIN0FREE</span></p>
+                    <button class="book-now-button" id="bookNowButton">Book Now & Apply Bonus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language configuration
+        let currentLanguage = 'en';
+        let translations = {};
+
+        // Language detection and loading
+        async function loadLanguage() {
+            // Try to get language from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const langParam = urlParams.get('lang');
+            
+            // Try to get language from localStorage
+            const storedLang = localStorage.getItem('lang');
+            
+            // Try to get language from parent window if embedded
+            let parentLang = null;
+            try {
+                if (window.parent && window.parent !== window) {
+                    // Try to access parent's i18next language
+                    if (window.parent.i18next && window.parent.i18next.language) {
+                        parentLang = window.parent.i18next.language;
+                    }
+                    // Try to access parent's localStorage
+                    if (!parentLang) {
+                        parentLang = window.parent.localStorage.getItem('lang');
+                    }
+                }
+            } catch (e) {
+                // Cross-origin restriction, ignore
+            }
+
+            // Determine language priority
+            const lang = langParam || parentLang || storedLang || 'en';
+            currentLanguage = lang;
+
+            // Load translation file
+            try {
+                const response = await fetch(`js/locales/${lang}.json`);
+                if (response.ok) {
+                    translations = await response.json();
+                    updateTexts();
+                } else {
+                    // Fallback to English
+                    const enResponse = await fetch('js/locales/en.json');
+                    translations = await enResponse.json();
+                    updateTexts();
+                }
+            } catch (error) {
+                console.error('Error loading translations:', error);
+                // Use default English texts
+                translations = {
+                    wheel: {
+                        how_to_play: "How to Play",
+                        step1: "Press the button in the center of the wheel",
+                        step2: "Watch the wheel spin and stop on your prize",
+                        step3: "Copy your discount code",
+                        step4: "Use it when you make your next reservation",
+                        congratulations: "CONGRATULATIONS! 🎉",
+                        you_won: "You won",
+                        free_days: "FREE DAYS",
+                        use_code: "Use code:",
+                        book_now: "Book Now & Apply Bonus",
+                        spin_again: "Spin Again (New Visit)"
+                    }
+                };
+                updateTexts();
+            }
+        }
+
+        // Update all text elements with translations
+        function updateTexts() {
+            const wheel = translations.wheel || {};
+            
+            // Update instruction texts
+            document.getElementById('howToPlayTitle').textContent = wheel.how_to_play || "How to Play";
+            document.getElementById('step1Text').textContent = wheel.step1 || "Press the button in the center of the wheel";
+            document.getElementById('step2Text').textContent = wheel.step2 || "Watch the wheel spin and stop on your prize";
+            document.getElementById('step3Text').textContent = wheel.step3 || "Copy your discount code";
+            document.getElementById('step4Text').textContent = wheel.step4 || "Use it when you make your next reservation";
+            
+            // Update result texts
+            document.getElementById('congratulationsText').textContent = wheel.congratulations || "CONGRATULATIONS! 🎉";
+            document.getElementById('youWonText').textContent = wheel.you_won || "You won";
+            document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
+            document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
+            document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
+            
+            // Update wheel segments if coupons are loaded
+            if (availableCoupons.length > 0) {
+                createWheelSegments();
+            }
+        }
+
+        // Global variable to store coupons
+        let availableCoupons = [];
+        let currentWinningCoupon = null;
+        let cachedWheelSegments = null;
+        let randomWinningIndex = null;
+
+        // Fetch coupons from the API
+        async function fetchCoupons() {
+            try {
+                // Ensure API_BASE_URL is set
+                if (!window.API_BASE_URL) {
+                    console.warn('API_BASE_URL not found, using default');
+                    window.API_BASE_URL = window.location.hostname === 'localhost' 
+                        ? 'http://localhost:3001' 
+                        : `https://${window.location.hostname}`;
+                }
+                
+                const apiUrl = window.API_BASE_URL;
+    
+                
+                // First, check if any spinning wheels exist
+                const wheelsResponse = await fetch(`${apiUrl}/api/spinning-wheels`);
+                if (!wheelsResponse.ok) {
+                    console.error('Failed to get spinning wheels, status:', wheelsResponse.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                const allWheels = await wheelsResponse.json();
+                if (allWheels.length === 0) {
+                    console.log('No spinning wheels configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                // Check if any wheel is active
+                // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+        const activeWheel = allWheels.find(wheel => wheel.is_active === 1 || wheel.is_active === true);
+                if (!activeWheel) {
+                    console.log('No active spinning wheel configured - using default segments');
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+
+                
+                // Then fetch coupons that are enabled for this specific wheel
+                const wheelCouponsResponse = await fetch(`${apiUrl}/api/spinning-wheels/${activeWheel.id}/coupons`);
+                if (!wheelCouponsResponse.ok) {
+                    console.error('Failed to get wheel coupons, status:', wheelCouponsResponse.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                    return;
+                }
+                
+                const wheelCoupons = await wheelCouponsResponse.json();
+
+                
+                // Get all coupons and filter by those enabled for this wheel
+                const response = await fetch(`${apiUrl}/api/coupons`);
+
+                
+                if (response.ok) {
+                    const allCoupons = await response.json();
+
+                    
+                    // Create a set of enabled coupon IDs for this wheel
+                    const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
+                    
+                    // Filter only active coupons that are enabled for this specific wheel
+                const filteredCoupons = allCoupons.filter(coupon => 
+                        (coupon.is_active === 1 || coupon.is_active === true) && 
+                        enabledCouponIds.has(coupon.id)
+                    );
+                
+                // Sort by coupon_id to match the API order (same as random-winning-index endpoint)
+                availableCoupons = filteredCoupons.sort((a, b) => a.id - b.id);
+
+                    // Always clear cache to ensure fresh data
+                    cachedWheelSegments = null;
+                } else {
+                    console.error('Failed to fetch coupons, status:', response.status);
+                    availableCoupons = [];
+                    cachedWheelSegments = null;
+                }
+            } catch (error) {
+                console.error('Error fetching coupons:', error);
+                availableCoupons = [];
+                cachedWheelSegments = null;
+            }
+        }
+
+        // Dynamic wheel segments configuration based on active coupons
+        function getWheelSegments() {
+            // Always fetch fresh data, don't use cache
+            // if (cachedWheelSegments) {
+            //     return cachedWheelSegments;
+            // }
+
+            if (availableCoupons.length === 0) {
+                // Fallback to 4 default segments if no coupons available
+                cachedWheelSegments = [
+                    { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', coupon: null },
+                    { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #8bc4ff 0%, #6db3ff 100%)', coupon: null },
+                    { id: 3, text: '20%', gradient: 'linear-gradient(135deg, #6db3ff 0%, #4fa2ff 100%)', coupon: null },
+                    { id: 4, text: '25%', gradient: 'linear-gradient(135deg, #4fa2ff 0%, #1e90ff 100%)', coupon: null }
+                ];
+                return cachedWheelSegments;
+            }
+
+            // Create segments based on available active coupons only
+            const segments = [];
+
+            // Use only the available active coupons
+            // Create segments in the exact same order as the API expects them
+            const numCoupons = availableCoupons.length;
+            
+            // Create segments in the same order as availableCoupons (which is sorted by coupon_id)
+            availableCoupons.forEach((coupon, arrayIndex) => {
+                // For 3 segments: 0=top, 1=bottom-left, 2=bottom-right
+                // For 2 segments: 0=top, 1=bottom
+                // For 4+ segments: clockwise from top
+                const visualPosition = arrayIndex; // Direct mapping: array index = visual position
+                
+                // Create alternating blue colors for adjacent segments (3 colors)
+                const colorIndex = arrayIndex % 3;
+                let gradient;
+                
+                switch(colorIndex) {
+                    case 0:
+                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)'; // Lightest blue
+                        break;
+                    case 1:
+                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)'; // Medium blue
+                        break;
+                    case 2:
+                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)'; // Darkest blue
+                        break;
+                }
+                
+                // Determine text based on coupon type
+                let segmentText;
+                if (coupon.type === 'percentage') {
+                    segmentText = `${coupon.discount_percentage}%`;
+                } else if (coupon.type === 'free_days') {
+                    segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                } else {
+                    // Fallback for old coupons without type
+                    segmentText = `${coupon.discount_percentage}%`;
+                }
+                
+                segments.push({
+                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5...)
+                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4...)
+                    text: segmentText,
+                    gradient: gradient, // Alternating blue gradients
+                    coupon: coupon
+            });
+            
+            });
+            
+
+
+            // Cache the segments
+            cachedWheelSegments = segments;
+            return cachedWheelSegments;
+        }
+
+        let isSpinning = false;
+        let hasSpun = false;
+        let currentRotation = 0;
+
+        const wheel = document.getElementById('wheel');
+        const centerButton = document.getElementById('centerButton');
+        const resetButton = document.getElementById('resetButton');
+        const instructionsCard = document.getElementById('instructionsCard');
+        const resultCard = document.getElementById('resultCard');
+        const prizeDisplay = document.getElementById('prizeDisplay');
+        const discountCode = document.getElementById('discountCode');
+
+        // Create wheel segments with optimized performance
+        function createWheelSegments() {
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            const wheelSegments = getWheelSegments();
+
+            const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
+
+            
+            wheelSegments.forEach((segment, index) => {
+                const segmentElement = document.createElement('div');
+                segmentElement.className = 'wheel-segment';
+                segmentElement.id = `segment-${segment.id}`; // HTML id with counter
+                // Use visual position for rotation, not array index
+                segmentElement.style.background = segment.gradient;
+                
+                // Generate clip-path for this segment using visual position
+                const startAngle = segment.visualPosition * segmentAngle;
+                const endAngle = (segment.visualPosition + 1) * segmentAngle;
+                const clipPath = generateClipPath(startAngle, endAngle);
+                segmentElement.style.clipPath = clipPath;
+
+                // Calculate the middle angle of this segment for text positioning
+                // Use visual position for angle calculation, not array index
+                const visualStartAngle = segment.visualPosition * segmentAngle;
+                const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
+                const middleAngle = (visualStartAngle + visualEndAngle) / 2;
+                const middleRad = (middleAngle - 90) * Math.PI / 180;
+                const textRadius = 35; // Distance from center for text
+                const textX = 50 + textRadius * Math.cos(middleRad);
+                const textY = 50 + textRadius * Math.sin(middleRad);
+                
+                // Rotate text to stay upright relative to the wheel center
+                const textRotation = middleAngle;
+                
+                // Create a container for the content with rotation applied to the parent
+                segmentElement.innerHTML = `
+                    <div class="segment-content" style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textRotation}deg);">
+                        <div class="segment-icon" style="margin-bottom: 8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 500 500" fill="none">
+                                <path d="M437.5 208.334L437.5 223.959C446.129 223.959 453.125 216.963 453.125 208.334H437.5ZM395.833 250L380.208 249.999V250H395.833ZM437.5 291.667H453.125C453.125 283.037 446.129 276.042 437.5 276.042L437.5 291.667ZM62.5 291.667V276.042C53.8706 276.042 46.875 283.037 46.875 291.667H62.5ZM104.167 250L119.792 250L119.792 249.999L104.167 250ZM63.5752 208.347L63.9708 192.727C63.9052 192.726 63.8395 192.724 63.7739 192.724L63.5752 208.347ZM62.5 208.334H46.875C46.875 216.886 53.7501 223.849 62.3013 223.957L62.5 208.334ZM395.833 104.167V119.792C410.215 119.792 421.875 131.451 421.875 145.834H437.5H453.125C453.125 114.192 427.474 88.5416 395.833 88.5416V104.167ZM437.5 145.834H421.875V208.334H437.5H453.125V145.834H437.5ZM437.5 208.334L437.5 192.709C405.859 192.709 380.208 218.358 380.208 249.999L395.833 250L411.458 250C411.458 235.618 423.117 223.959 437.5 223.959L437.5 208.334ZM395.833 250H380.208C380.208 281.641 405.859 307.292 437.5 307.292L437.5 291.667L437.5 276.042C423.118 276.042 411.458 264.382 411.458 250H395.833ZM437.5 291.667H421.875V354.167H437.5H453.125V291.667H437.5ZM437.5 354.167H421.875C421.875 368.549 410.215 380.209 395.833 380.209V395.834V411.459C427.474 411.459 453.125 385.808 453.125 354.167H437.5ZM395.833 395.834V380.209H104.167V395.834V411.459H395.833V395.834ZM104.167 395.834V380.209C89.7846 380.209 78.125 368.549 78.125 354.167H62.5H46.875C46.875 385.808 72.5257 411.459 104.167 411.459V395.834ZM62.5 354.167H78.125V291.667H62.5H46.875V354.167H62.5ZM62.5 291.667V307.292C94.1413 307.292 119.792 281.641 119.792 250H104.167H88.542C88.542 264.382 76.8824 276.042 62.5 276.042V291.667ZM104.167 250L119.792 249.999C119.792 218.85 94.9363 193.512 63.9708 192.727L63.5752 208.347L63.1795 223.967C77.2438 224.324 88.5419 235.845 88.542 250L104.167 250ZM63.5752 208.347L63.7739 192.724L62.6987 192.71L62.5 208.334L62.3013 223.957L63.3765 223.971L63.5752 208.347ZM62.5 208.334H78.125V145.834H62.5H46.875V208.334H62.5ZM62.5 145.834H78.125C78.125 131.451 89.7846 119.792 104.167 119.792V104.167V88.5416C72.5257 88.5416 46.875 114.192 46.875 145.834H62.5ZM104.167 104.167V119.792H395.833V104.167V88.5416H104.167V104.167Z" fill="white"/>
+                                <path d="M312.5 104.167V145.833" stroke="white" stroke-width="41.6667" stroke-linecap="round"/>
+                                <path d="M312.5 229.167V270.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M312.5 354.167V395.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="segment-text">${segment.text}</div>
+                    </div>
+                `;
+
+                fragment.appendChild(segmentElement);
+            });
+            
+            // Clear and append all at once
+            wheel.innerHTML = '';
+            wheel.appendChild(fragment);
+        }
+
+        // Generate clip-path for a segment
+        function generateClipPath(startAngle, endAngle) {
+            const centerX = 50;
+            const centerY = 50;
+            const radius = 50;
+            
+            // Convert angles to radians
+            const startRad = (startAngle - 90) * Math.PI / 180;
+            const endRad = (endAngle - 90) * Math.PI / 180;
+            
+            // Calculate points on the circle
+            const startX = centerX + radius * Math.cos(startRad);
+            const startY = centerY + radius * Math.sin(startRad);
+            const endX = centerX + radius * Math.cos(endRad);
+            const endY = centerY + radius * Math.sin(endRad);
+            
+            // Create a proper circular segment using multiple points
+            const points = [];
+            points.push(`${centerX}% ${centerY}%`); // Center point
+            
+            // Add start point
+            points.push(`${startX}% ${startY}%`);
+            
+            // Add intermediate points for smooth curve
+            const numPoints = 10;
+            for (let i = 1; i <= numPoints; i++) {
+                const angle = startAngle + (endAngle - startAngle) * (i / numPoints);
+                const rad = (angle - 90) * Math.PI / 180;
+                const x = centerX + radius * Math.cos(rad);
+                const y = centerY + radius * Math.sin(rad);
+                points.push(`${x}% ${y}%`);
+            }
+            
+            // Add end point
+            points.push(`${endX}% ${endY}%`);
+            
+            return `polygon(${points.join(', ')})`;
+        }
+
+
+
+
+
+        // Get random winning index from database
+        async function getRandomWinningIndex() {
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/random-winning-index`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.winningIndex;
+                } else {
+                    return Math.floor(Math.random() * availableCoupons.length);
+                }
+            } catch (error) {
+                return Math.floor(Math.random() * availableCoupons.length);
+            }
+        }
+
+        // Move a code from available_codes to showed_codes
+        async function moveCodeFromAvailableToShowed(couponId, codeToMove) {
+            try {
+                console.log(`Moving code ${codeToMove} from available to showed for coupon ${couponId}`);
+                
+                // Get current coupon data
+                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
+                if (!response.ok) {
+                    console.error('Failed to get coupon data for code movement');
+                    return;
+                }
+                
+                const coupon = await response.json();
+                const availableCodes = JSON.parse(coupon.available_codes || '[]');
+                const showedCodes = JSON.parse(coupon.showed_codes || '[]');
+                
+                // Find and remove the code from available_codes
+                const codeIndex = availableCodes.indexOf(codeToMove);
+                if (codeIndex === -1) {
+                    console.error(`Code ${codeToMove} not found in available_codes`);
+                    return;
+                }
+                
+                // Remove from available and add to showed
+                availableCodes.splice(codeIndex, 1);
+                showedCodes.push(codeToMove);
+                
+                // Update the coupon via API
+                const updateResponse = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        available_codes: availableCodes,
+                        showed_codes: showedCodes
+                    })
+                });
+                
+                if (updateResponse.ok) {
+                    console.log(`Successfully moved code ${codeToMove} from available to showed`);
+                } else {
+                    console.error('Failed to update coupon codes');
+                }
+            } catch (error) {
+                console.error('Error moving code from available to showed:', error);
+            }
+        }
+
+        // Spin the wheel with optimized performance
+        async function spinWheel() {
+            if (isSpinning || hasSpun) return;
+
+            isSpinning = true;
+            centerButton.disabled = true;
+            centerButton.querySelector('.center-icon').textContent = '🔄';
+
+            // Get random winning index from database
+            randomWinningIndex = await getRandomWinningIndex();
+
+            // Ensure transition is applied before spinning
+            wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
+
+            // Calculate rotation to land directly on the winning segment
+            const wheelSegments = getWheelSegments();
+            const segmentAngle = 360 / wheelSegments.length;
+            
+            // The winning index from API corresponds to the array index in availableCoupons
+            // We need to map this to the visual position on the wheel
+            const targetSegmentIndex = randomWinningIndex % wheelSegments.length;
+            const winningSegment = wheelSegments[targetSegmentIndex];
+            const targetVisualPosition = winningSegment.visualPosition;
+            
+            // Debug: Log the mapping to understand the issue
+            console.log('=== WHEEL MAPPING DEBUG ===');
+            console.log('API winning index:', randomWinningIndex);
+            console.log('Target segment index:', targetSegmentIndex);
+            console.log('Winning segment:', winningSegment);
+            console.log('Target visual position:', targetVisualPosition);
+            console.log('All segments:');
+            wheelSegments.forEach((segment, i) => {
+                console.log(`  Index ${i}: ID=${segment.id}, VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon?.code}`);
+            });
+            console.log('=== END DEBUG ===');
+            
+
+            
+            // Calculate the rotation needed to land directly on the target segment
+            // The pointer is at the top (0 degrees), so we need to rotate to the target segment
+            // For 3 segments: 0=top, 1=right, 2=bottom
+            // The wheel rotates clockwise, so we need to rotate counter-clockwise to land on the target
+            // The visual positions are inverted, so we need to adjust the calculation
+            const numSegments = wheelSegments.length;
+            const adjustedVisualPosition = (numSegments - 1 - targetVisualPosition) % numSegments;
+            const targetAngle = (adjustedVisualPosition * segmentAngle + segmentAngle / 2) % 360; // Center of the segment
+            const extraRotations = 5 * 360; // 5 full rotations
+            const totalRotation = extraRotations + targetAngle; // 5 extra rotations + target angle
+
+            // Animate wheel spinning with CSS transition
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            // Show results after animation
+            setTimeout(() => {
+                // Use the random winning index directly
+                const winningSegment = wheelSegments[targetSegmentIndex];
+
+
+
+                // Show results
+                currentRotation = totalRotation;
+                isSpinning = false;
+                hasSpun = true;
+                centerButton.disabled = false;
+                centerButton.querySelector('.center-icon').textContent = '🎁';
+
+                // Store the winning coupon
+                currentWinningCoupon = winningSegment.coupon;
+
+                // Update result card with the exact segment data that was visually selected
+                // Use the segment's text and coupon data to ensure consistency
+                if (winningSegment.coupon) {
+                    // Show the exact coupon that matches the segment
+                    if (winningSegment.coupon.type === 'percentage') {
+                        prizeDisplay.textContent = `${winningSegment.coupon.discount_percentage}% OFF`;
+                    } else if (winningSegment.coupon.type === 'free_days') {
+                        prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                    } else {
+                        // Fallback for old coupons without type
+                        prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    }
+                    // Get the first active coupon code instead of the coupon name
+                    const availableCodes = JSON.parse(winningSegment.coupon.available_codes || '[]');
+                    const showedCodes = JSON.parse(winningSegment.coupon.showed_codes || '[]');
+                    
+                    if (availableCodes.length > 0) {
+                        const codeToShow = availableCodes[0]; // Get first active code
+                        discountCode.textContent = codeToShow; // Show first active code
+                        
+                        // Move the code from available to showed
+                        moveCodeFromAvailableToShowed(winningSegment.coupon.id, codeToShow);
+                    } else {
+                        discountCode.textContent = winningSegment.coupon.code; // Fallback to coupon name if no active codes
+                    }
+    
+                } else {
+                    // Fallback for segments without real coupons
+                    prizeDisplay.textContent = `${winningSegment.text} OFF`;
+                    discountCode.textContent = `SPIN${winningSegment.id}FREE`;
+                    console.log('Displaying fallback:', winningSegment.text);
+                }
+
+                // Show result card
+                instructionsCard.style.display = 'none';
+                resultCard.classList.add('show');
+
+                // Show reset button
+                resetButton.style.display = 'flex';
+            }, 5000);
+        }
+
+        // Reset wheel
+        function resetWheel() {
+            hasSpun = false;
+            currentRotation = 0;
+            // Ensure wheel starts at 0 degrees
+            wheel.style.transform = 'rotate(0deg)';
+            instructionsCard.style.display = 'block';
+            resultCard.classList.remove('show');
+            resetButton.style.display = 'none';
+        }
+
+        // Event listeners
+        centerButton.addEventListener('click', spinWheel);
+        resetButton.addEventListener('click', resetWheel);
+
+        // Initialize wheel and load language
+        loadLanguage().then(async () => {
+    
+            // Fetch coupons first, then create wheel segments
+            await fetchCoupons();
+
+            createWheelSegments();
+            // Ensure wheel starts at 0 degrees and has proper transition
+            wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+            wheel.style.transform = 'rotate(0deg)';
+            // Force a reflow to ensure the initial state is applied
+            wheel.offsetHeight;
+            // Small delay to ensure the initial state is properly set
+            setTimeout(() => {
+                wheel.style.transition = 'none';
+                wheel.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+                }, 10);
+            }, 100);
+        });
+
+        // Listen for language changes from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'languageChange') {
+                currentLanguage = event.data.language;
+                loadLanguage();
+            }
+        });
+
+        // Also listen for storage changes (when parent changes localStorage)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'lang') {
+                currentLanguage = event.newValue;
+                loadLanguage();
+            }
+        });
+
+        // Try to get language from parent on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                try {
+                    if (window.parent && window.parent !== window) {
+                        // Try to get language from parent's i18next
+                        if (window.parent.i18next && window.parent.i18next.language) {
+                            currentLanguage = window.parent.i18next.language;
+                            loadLanguage();
+                        }
+                        // Try to get from parent's localStorage
+                        else if (window.parent.localStorage.getItem('lang')) {
+                            currentLanguage = window.parent.localStorage.getItem('lang');
+                            loadLanguage();
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin restriction, ignore
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html> 
