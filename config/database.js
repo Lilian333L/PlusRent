@@ -9,17 +9,18 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Check if we're in production (Vercel)
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV === 'production';
+const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview';
 
-// Always use Supabase in production, or if explicitly configured
 // For local development testing, we can force Supabase usage
 const forceSupabase = process.env.FORCE_SUPABASE === 'true';
-const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview';
-const isLocalVercelDev = process.env.VERCEL_ENV === 'development' && process.env.NODE_ENV !== 'production';
-const useSupabase = (isProduction || isVercel || isVercelDev) && !isLocalVercelDev || process.env.SUPABASE_URL || process.env.DATABASE_URL || forceSupabase;
+
+// Always use Supabase in production, Vercel, or if explicitly configured
+const useSupabase = isProduction || isVercel || isVercelDev || process.env.SUPABASE_URL || process.env.DATABASE_URL || forceSupabase;
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Is Production:', isProduction);
 console.log('Is Vercel:', isVercel);
+console.log('Is Vercel Dev:', isVercelDev);
 console.log('Use Supabase:', useSupabase);
 console.log('VERCEL env:', process.env.VERCEL);
 console.log('VERCEL_ENV:', process.env.VERCEL_ENV);

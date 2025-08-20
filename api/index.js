@@ -29,14 +29,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('❌ API Error:', err);
-  res.status(500).json({ 
-    error: 'Internal server error', 
-    message: err.message,
-    timestamp: new Date().toISOString()
-  });
+// Strip /api prefix from URL for Express routing
+app.use((req, res, next) => {
+  const originalUrl = req.url;
+  if (req.url.startsWith('/api')) {
+    req.url = req.url.replace('/api', '');
+    // Handle root case
+    if (req.url === '') {
+      req.url = '/';
+    }
+  }
+  console.log('🌐 Original URL:', originalUrl, '-> Express URL:', req.url);
+  next();
 });
 
 // Serve uploaded images
@@ -135,6 +139,29 @@ try {
   console.error('❌ Failed to mount spinning wheel routes:', error);
 }
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Catch-all for SPA routing (if needed, Vercel rewrites handle this mostly)
+app.get('*', (req, res) => {
+  const filePath = path.join(__dirname, '../public', req.path);
+  if (filePath.endsWith('.html')) {
+    res.sendFile(filePath);
+  } else {
+    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+  }
+});
+
+// Error handling middleware - must be last
+app.use((err, req, res, next) => {
+  console.error('❌ API Error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error', 
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Test endpoint to check database connection
 app.get('/test', (req, res) => {
   try {
@@ -230,30 +257,4 @@ app.use('*', (req, res) => {
 });
 
 // Export for Vercel serverless function
-module.exports = (req, res) => {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-  
-  // Strip /api prefix from URL for Express routing
-  const originalUrl = req.url;
-  if (req.url.startsWith('/api')) {
-    req.url = req.url.replace('/api', '');
-    // Handle root case
-    if (req.url === '') {
-      req.url = '/';
-    }
-  }
-  
-  console.log('🌐 Original URL:', originalUrl, '-> Express URL:', req.url);
-  
-  // Call the Express app
-  return app(req, res);
-}; 
+module.exports = app; 
