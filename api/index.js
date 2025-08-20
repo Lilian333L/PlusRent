@@ -17,26 +17,6 @@ const app = express();
 // Middleware
 app.use(cors());
 
-// Custom body parser for Vercel compatibility
-app.use((req, res, next) => {
-  if (req.method === 'POST' && req.headers['content-type'] === 'application/json') {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-    });
-    req.on('end', () => {
-      try {
-        req.body = JSON.parse(data);
-      } catch (e) {
-        req.body = {};
-      }
-      next();
-    });
-  } else {
-    next();
-  }
-});
-
 // Use urlencoded parser for form data
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
