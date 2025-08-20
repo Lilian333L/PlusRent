@@ -1607,7 +1607,8 @@ router.post('/:id/images', async (req, res) => {
       req.body.gallery_images.forEach((imageData, index) => {
         if (imageData && imageData.data) {
           try {
-            const galleryFileName = `gallery_${Date.now()}_${index}.${imageData.extension || 'jpg'}`;
+            const timestamp = Date.now() + index; // Add index to ensure unique timestamps
+            const galleryFileName = `gallery_${timestamp}_${index}.${imageData.extension || 'jpg'}`;
             const galleryFilePath = path.join(carDir, galleryFileName);
             
             // Convert base64 to buffer and save

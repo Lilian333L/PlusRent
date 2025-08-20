@@ -3802,65 +3802,6 @@
           } finally {
             isEditSubmitting = false; // Reset submission flag
           }
-            // No images to upload, use JSON
-            // Get current gallery images from preview
-            const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
-            const currentGalleryImages = [];
-            if (editGalleryImagesPreview) {
-              const galleryImageElements = editGalleryImagesPreview.querySelectorAll('img');
-              galleryImageElements.forEach(img => {
-                const src = img.getAttribute('src');
-                if (src && src.includes('/uploads/')) {
-                  // Extract the path from the full URL
-                  const pathMatch = src.match(/\/uploads\/.*$/);
-                  if (pathMatch) {
-                    currentGalleryImages.push(pathMatch[0]);
-                  }
-                }
-              });
-            }
-            
-            // Add current gallery images to carData
-            if (currentGalleryImages.length > 0) {
-              carData.gallery_images = JSON.stringify(currentGalleryImages);
-            }
-            
-            try {
-              const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(carData)
-              });
-              
-              if (response.ok) {
-                showCustomAlert('Car updated successfully!', 'success');
-                
-                // Clear only the file inputs, but keep image previews
-                document.getElementById('editHeadImageInput').value = '';
-                document.getElementById('editGalleryImagesInput').value = '';
-                
-                // Reset original values since form is now clean
-                storeOriginalValues('editCarForm');
-                
-                // Close the panel after successful save
-                editCarPanel.classList.remove('active');
-                adminOverlay.classList.remove('active');
-                document.body.classList.remove('admin-popup-open');
-                loadCars();
-              } else {
-                const error = await response.json();
-                let errorMessage = 'Error updating car: ' + error.error;
-                if (error.missingFields && error.missingFields.length > 0) {
-                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
-                }
-                showCustomAlert(errorMessage, 'error');
-              }
-            } catch (error) {
-              console.error('Error updating car:', error);
-              showCustomAlert('Error updating car', 'error');
-            } finally {
-              isEditSubmitting = false; // Reset submission flag
-            }
         });
       }
       
