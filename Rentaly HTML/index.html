@@ -2480,6 +2480,27 @@
     </div>
 
     <script>
+        // Price calculator functionality
+        function applyModalCalculation() {
+            // Apply the calculated values to the main booking form
+            const totalEstimate = document.getElementById('modal-total-estimate').textContent;
+            const dailyRate = document.getElementById('modal-daily-rate').textContent;
+            const duration = document.getElementById('modal-rental-duration').textContent;
+            
+            // Update the main form with calculated values
+            if (document.getElementById('total_price')) {
+                document.getElementById('total_price').value = totalEstimate.replace('€', '');
+            }
+            
+            // Close the modal
+            closePriceCalculator();
+        }
+        
+        function closePriceCalculator() {
+            const modal = document.getElementById('priceCalculatorModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
     </script>
 </body>
