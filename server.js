@@ -137,6 +137,10 @@ app.get('/all-codes', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'all-codes.html'));
 });
 
+app.get('/sober-driver', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'sober-driver.html'));
+});
+
 // Legacy .html routes (for backward compatibility)
 app.get('/cars.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'cars.html'));
@@ -176,6 +180,10 @@ app.get('/spinning-wheel-standalone.html', (req, res) => {
 
 app.get('/all-codes.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Rentaly HTML', 'all-codes.html'));
+});
+
+app.get('/sober-driver.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Rentaly HTML', 'sober-driver.html'));
 });
 
 // Serve static files from Rentaly HTML directory (for CSS, JS, images)

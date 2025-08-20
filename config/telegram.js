@@ -168,6 +168,24 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 ⏰ Deleted at: ${new Date().toLocaleString()}
     `;
   }
+
+  formatSoberDriverCallbackMessage(callbackData) {
+    return `
+🚗 <b>New Sober Driver Callback Request</b>
+
+<b>Customer Details:</b>
+• Phone: ${callbackData.phone_number}
+• Name: ${callbackData.customer_name || 'Not provided'}
+• Email: ${callbackData.customer_email || 'Not provided'}
+
+<b>Special Instructions:</b>
+${callbackData.special_instructions || 'None provided'}
+
+⏰ Requested at: ${new Date().toLocaleString()}
+
+📞 <b>Please call back within minutes!</b>
+    `;
+  }
 }
 
 module.exports = TelegramNotifier; 

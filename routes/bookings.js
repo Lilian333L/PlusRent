@@ -613,4 +613,140 @@ router.put('/:id/reject', (req, res) => {
   });
 });
 
+// Sober Driver Callback Request
+router.post('/sober-driver-callback', async (req, res) => {
+  const { phone_number, customer_name, customer_email, special_instructions } = req.body;
+
+  console.log('📞 Sober Driver callback request received:', req.body);
+
+  // Validate required fields
+  if (!phone_number) {
+    console.log('Missing required field: phone_number');
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for sober driver callback');
+      
+      // Create callback request data
+      const callbackData = {
+        phone_number,
+        customer_name: customer_name || null,
+        customer_email: customer_email || null,
+        special_instructions: special_instructions || null,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // Remove null/undefined values
+      Object.keys(callbackData).forEach(key => {
+        if (callbackData[key] === null || callbackData[key] === undefined || callbackData[key] === '') {
+          delete callbackData[key];
+        }
+      });
+
+      // Insert callback request
+      const { data: newCallback, error: insertError } = await supabase
+        .from('sober_driver_callbacks')
+        .insert(callbackData)
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('❌ Supabase error creating sober driver callback:', insertError);
+        return res.status(500).json({ error: 'Failed to create callback request', details: insertError.message });
+      }
+
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const telegramData = {
+          phone_number,
+          customer_name: customer_name || 'Not provided',
+          customer_email: customer_email || 'Not provided',
+          special_instructions: special_instructions || 'None provided'
+        };
+        await telegram.sendMessage(telegram.formatSoberDriverCallbackMessage(telegramData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+
+      console.log('✅ Sober driver callback created successfully in Supabase');
+      res.json({ 
+        success: true, 
+        callback_id: newCallback.id,
+        message: 'Callback request submitted successfully! We will call you back within minutes.',
+        status: 'pending'
+      });
+
+    } catch (error) {
+      console.error('❌ Supabase error creating sober driver callback:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+  } else {
+    // Use SQLite
+    const callbackData = {
+      phone_number,
+      customer_name: customer_name || null,
+      customer_email: customer_email || null,
+      special_instructions: special_instructions || null,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    // Remove null/undefined values
+    Object.keys(callbackData).forEach(key => {
+      if (callbackData[key] === null || callbackData[key] === undefined || callbackData[key] === '') {
+        delete callbackData[key];
+      }
+    });
+
+    db.run(`
+      INSERT INTO sober_driver_callbacks (
+        phone_number, customer_name, customer_email, special_instructions, 
+        status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `, [
+      callbackData.phone_number,
+      callbackData.customer_name,
+      callbackData.customer_email,
+      callbackData.special_instructions,
+      callbackData.status,
+      callbackData.created_at
+    ], async function(err) {
+      if (err) {
+        console.error('❌ Database error creating sober driver callback:', err);
+        return res.status(500).json({ error: 'Failed to create callback request', details: err.message });
+      }
+
+      const callbackId = this.lastID;
+
+      // Send Telegram notification
+      try {
+        const telegram = new TelegramNotifier();
+        const telegramData = {
+          phone_number,
+          customer_name: customer_name || 'Not provided',
+          customer_email: customer_email || 'Not provided',
+          special_instructions: special_instructions || 'None provided'
+        };
+        await telegram.sendMessage(telegram.formatSoberDriverCallbackMessage(telegramData));
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
+      }
+
+      res.json({ 
+        success: true, 
+        callback_id: callbackId,
+        message: 'Callback request submitted successfully! We will call you back within minutes.',
+        status: 'pending'
+      });
+    });
+  }
+});
+
 module.exports = router; 
