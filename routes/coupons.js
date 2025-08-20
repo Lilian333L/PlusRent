@@ -72,79 +72,154 @@ router.patch('/:id/toggle-wheel', async (req, res) => {
     return res.status(400).json({ error: 'Wheel ID is required' });
   }
   
-  try {
-    // Check if coupon exists
-    const { data: coupon, error: couponError } = await supabase
-      .from('coupon_codes')
-      .select('id')
-      .eq('id', id)
-      .single();
-    
-    if (couponError || !coupon) {
-      console.log('Coupon not found for ID:', id);
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    
-    // Check if wheel exists
-    const { data: wheel, error: wheelError } = await supabase
-      .from('spinning_wheels')
-      .select('id')
-      .eq('id', wheelId)
-      .single();
-    
-    if (wheelError || !wheel) {
-      console.log('Wheel not found for ID:', wheelId);
-      return res.status(404).json({ error: 'Wheel not found' });
-    }
-    
-    // Check if coupon is already enabled for this wheel
-    const { data: existing, error: existingError } = await supabase
-      .from('wheel_coupons')
-      .select('id')
-      .eq('wheel_id', wheelId)
-      .eq('coupon_id', id)
-      .single();
-    
-    if (existingError && existingError.code !== 'PGRST116') {
-      console.error('Error checking existing wheel coupon:', existingError);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (existing) {
-      // Remove from wheel
-      console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
-      const { error: deleteError } = await supabase
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for toggle wheel operation');
+      
+      // Check if coupon exists
+      const { data: coupon, error: couponError } = await supabase
+        .from('coupon_codes')
+        .select('id')
+        .eq('id', id)
+        .single();
+      
+      if (couponError || !coupon) {
+        console.log('Coupon not found for ID:', id);
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      // Check if wheel exists
+      const { data: wheel, error: wheelError } = await supabase
+        .from('spinning_wheels')
+        .select('id')
+        .eq('id', wheelId)
+        .single();
+      
+      if (wheelError || !wheel) {
+        console.log('Wheel not found for ID:', wheelId);
+        return res.status(404).json({ error: 'Wheel not found' });
+      }
+      
+      // Check if coupon is already enabled for this wheel
+      const { data: existing, error: existingError } = await supabase
         .from('wheel_coupons')
-        .delete()
+        .select('id')
         .eq('wheel_id', wheelId)
-        .eq('coupon_id', id);
+        .eq('coupon_id', id)
+        .single();
       
-      if (deleteError) {
-        console.error('Delete error:', deleteError);
+      if (existingError && existingError.code !== 'PGRST116') {
+        console.error('Error checking existing wheel coupon:', existingError);
         return res.status(500).json({ error: 'Database error' });
       }
       
-      console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
-      res.json({ success: true, wheel_enabled: false });
-    } else {
-      // Add to wheel
-      console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
-      const { data: insertData, error: insertError } = await supabase
-        .from('wheel_coupons')
-        .insert([{ wheel_id: wheelId, coupon_id: id }])
-        .select();
-      
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        return res.status(500).json({ error: 'Database error' });
+      if (existing) {
+        // Remove from wheel
+        console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
+        const { error: deleteError } = await supabase
+          .from('wheel_coupons')
+          .delete()
+          .eq('wheel_id', wheelId)
+          .eq('coupon_id', id);
+        
+        if (deleteError) {
+          console.error('Delete error:', deleteError);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
+        res.json({ success: true, wheel_enabled: false });
+      } else {
+        // Add to wheel
+        console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
+        const { data: insertData, error: insertError } = await supabase
+          .from('wheel_coupons')
+          .insert([{ wheel_id: wheelId, coupon_id: id }])
+          .select();
+        
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
+        res.json({ success: true, wheel_enabled: true });
       }
-      
-      console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
-      res.json({ success: true, wheel_enabled: true });
+    } catch (error) {
+      console.error('Toggle wheel error:', error);
+      res.status(500).json({ error: 'Database error' });
     }
-  } catch (error) {
-    console.error('Toggle wheel error:', error);
-    res.status(500).json({ error: 'Database error' });
+  } else {
+    // Use SQLite
+    console.log('🔍 Using SQLite for toggle wheel operation');
+    
+    try {
+      // Check if coupon exists
+      const coupon = await new Promise((resolve, reject) => {
+        db.get('SELECT id FROM coupon_codes WHERE id = ?', [id], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
+      
+      if (!coupon) {
+        console.log('Coupon not found for ID:', id);
+        return res.status(404).json({ error: 'Coupon not found' });
+      }
+      
+      // Check if wheel exists
+      const wheel = await new Promise((resolve, reject) => {
+        db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
+      
+      if (!wheel) {
+        console.log('Wheel not found for ID:', wheelId);
+        return res.status(404).json({ error: 'Wheel not found' });
+      }
+      
+      // Check if coupon is already enabled for this wheel
+      const existing = await new Promise((resolve, reject) => {
+        db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
+      
+      if (existing) {
+        // Remove from wheel
+        console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
+        await new Promise((resolve, reject) => {
+          db.run('DELETE FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], function(err) {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        
+        console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
+        res.json({ success: true, wheel_enabled: false });
+      } else {
+        // Add to wheel
+        console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
+        await new Promise((resolve, reject) => {
+          db.run('INSERT INTO wheel_coupons (wheel_id, coupon_id) VALUES (?, ?)', [wheelId, id], function(err) {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        
+        console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
+        res.json({ success: true, wheel_enabled: true });
+      }
+    } catch (error) {
+      console.error('Toggle wheel error:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
   }
 });
 
