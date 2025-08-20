@@ -1521,18 +1521,7 @@ router.patch('/:id/premium', async (req, res) => {
 });
 
 // Upload car images
-router.post('/:id/images', (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
-    }
-    if (err.code === 'LIMIT_FIELD_SIZE') {
-      return res.status(413).json({ error: 'Field too large. Maximum size is 50MB.' });
-    }
-    return res.status(400).json({ error: 'File upload error: ' + err.message });
-  }
-  next();
-}, async (req, res) => {
+router.post('/:id/images', async (req, res) => {
   const carId = req.params.id;
   
   console.log('🔍 SERVER - POST /api/cars/:id/images received request');
@@ -1540,20 +1529,52 @@ router.post('/:id/images', (err, req, res, next) => {
   console.log('  Request body keys:', Object.keys(req.body || {}));
   
   try {
-    // Check if car exists
-    const { data: car, error: carError } = await supabase
-      .from('cars')
-      .select('head_image, gallery_images')
-      .eq('id', carId)
-      .single();
+    // Check if we're using Supabase
+    const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     
-    if (carError || !car) {
-      console.log('Car not found for ID:', carId);
-      return res.status(404).json({ error: 'Car not found' });
+    let car;
+    let headImagePath;
+    let galleryImagePaths = [];
+    
+    if (isSupabase) {
+      // Use Supabase
+      const { data: carData, error: carError } = await supabase
+        .from('cars')
+        .select('head_image, gallery_images')
+        .eq('id', carId)
+        .single();
+      
+      if (carError || !carData) {
+        console.log('Car not found for ID:', carId);
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      car = carData;
+      headImagePath = car.head_image;
+      galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    } else {
+      // Use SQLite
+      console.log('🔍 Using SQLite for car lookup, ID:', carId);
+      car = await new Promise((resolve, reject) => {
+        db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [carId], (err, row) => {
+          if (err) {
+            console.error('❌ SQLite query error:', err);
+            reject(err);
+          } else {
+            console.log('🔍 SQLite query result:', row);
+            resolve(row);
+          }
+        });
+      });
+      
+      if (!car) {
+        console.log('Car not found for ID:', carId);
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      headImagePath = car.head_image;
+      galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     }
-    
-    let headImagePath = car.head_image;
-    let galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     
     // Create car directory
     const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
@@ -1614,17 +1635,37 @@ router.post('/:id/images', (err, req, res, next) => {
     
     console.log('🔍 Updating car with data:', updateData);
     
-    const { error: updateError } = await supabase
-      .from('cars')
-      .update(updateData)
-      .eq('id', carId);
-    
-    if (updateError) {
-      console.error('❌ Supabase error updating car images:', updateError);
-      return res.status(500).json({ error: 'Database error: ' + updateError.message });
+    if (isSupabase) {
+      // Update in Supabase
+      const { error: updateError } = await supabase
+        .from('cars')
+        .update(updateData)
+        .eq('id', carId);
+      
+      if (updateError) {
+        console.error('❌ Supabase error updating car images:', updateError);
+        return res.status(500).json({ error: 'Database error: ' + updateError.message });
+      }
+      
+      console.log('✅ Car images updated successfully in Supabase');
+    } else {
+      // Update in SQLite
+      await new Promise((resolve, reject) => {
+        db.run(
+          'UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?',
+          [headImagePath, JSON.stringify(galleryImagePaths), carId],
+          (err) => {
+            if (err) {
+              console.error('❌ SQLite error updating car images:', err);
+              reject(err);
+            } else {
+              console.log('✅ Car images updated successfully in SQLite');
+              resolve();
+            }
+          }
+        );
+      });
     }
-    
-    console.log('✅ Car images updated successfully in Supabase');
     res.json({ 
       success: true, 
       head_image: headImagePath, 

@@ -3721,7 +3721,62 @@
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
           
-          // Always update car data with JSON first
+          // If there are images to upload, upload them first
+          if (headImageFile || galleryImageFiles.length > 0) {
+            const imageData = {};
+            
+            // Convert head image to base64
+            if (headImageFile) {
+              const headImageBase64 = await fileToBase64(headImageFile);
+              imageData.head_image = {
+                data: headImageBase64,
+                extension: headImageFile.name.split('.').pop()
+              };
+            }
+            
+            // Convert gallery images to base64
+            if (galleryImageFiles.length > 0) {
+              imageData.gallery_images = [];
+              for (const file of galleryImageFiles) {
+                if (file && file.size > 0 && file.name) {
+                  const galleryImageBase64 = await fileToBase64(file);
+                  imageData.gallery_images.push({
+                    data: galleryImageBase64,
+                    extension: file.name.split('.').pop()
+                  });
+                }
+              }
+            }
+            
+            try {
+              const imageResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(imageData)
+              });
+              
+              if (imageResponse.ok) {
+                console.log('✅ Images uploaded successfully');
+                // Get the updated image data from the response
+                const imageResult = await imageResponse.json();
+                if (imageResult.gallery_images) {
+                  // Update carData with the new gallery images
+                  carData.gallery_images = JSON.stringify(imageResult.gallery_images);
+                }
+              } else {
+                console.error('❌ Image upload failed');
+                const imageError = await imageResponse.json();
+                showCustomAlert('Image upload failed: ' + imageError.error, 'error');
+                return; // Don't proceed with car update if image upload failed
+              }
+            } catch (imageError) {
+              console.error('Error uploading images:', imageError);
+              showCustomAlert('Image upload failed', 'error');
+              return; // Don't proceed with car update if image upload failed
+            }
+          }
+          
+          // Now update car data with JSON (including any new images)
           try {
             const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}`, {
               method: 'PUT',
@@ -3731,53 +3786,6 @@
             
             if (response.ok) {
               console.log('✅ Car data updated successfully');
-              
-              // If there are images to upload, upload them separately
-              if (headImageFile || galleryImageFiles.length > 0) {
-                const imageData = {};
-                
-                // Convert head image to base64
-                if (headImageFile) {
-                  const headImageBase64 = await fileToBase64(headImageFile);
-                  imageData.head_image = {
-                    data: headImageBase64,
-                    extension: headImageFile.name.split('.').pop()
-                  };
-                }
-                
-                // Convert gallery images to base64
-                if (galleryImageFiles.length > 0) {
-                  imageData.gallery_images = [];
-                  for (const file of galleryImageFiles) {
-                    if (file && file.size > 0 && file.name) {
-                      const galleryImageBase64 = await fileToBase64(file);
-                      imageData.gallery_images.push({
-                        data: galleryImageBase64,
-                        extension: file.name.split('.').pop()
-                      });
-                    }
-                  }
-                }
-                
-                try {
-                  const imageResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(imageData)
-                  });
-                  
-                  if (imageResponse.ok) {
-                    console.log('✅ Images uploaded successfully');
-                  } else {
-                    console.error('❌ Image upload failed');
-                    const imageError = await imageResponse.json();
-                    showCustomAlert('Car updated but image upload failed: ' + imageError.error, 'warning');
-                  }
-                } catch (imageError) {
-                  console.error('Error uploading images:', imageError);
-                  showCustomAlert('Car updated but image upload failed', 'warning');
-                }
-              }
               
               showCustomAlert('Car updated successfully!', 'success');
               
