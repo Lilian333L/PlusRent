@@ -10,12 +10,49 @@ const { supabase } = require('../lib/supabaseClient');
 // Check if we're in Vercel environment
 const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
-// Multer storage config for initial car creation (temporary storage)
-const tempImageStorage = multer.diskStorage({
+// Function to upload file to Supabase Storage
+async function uploadToSupabaseStorage(file, carId, fileType = 'gallery') {
+  try {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname) || '.jpg';
+    const fileName = fileType === 'head' ? `head${ext}` : `gallery_${timestamp}${ext}`;
+    const filePath = `cars/${carId}/${fileName}`;
+    
+    console.log('📤 Uploading to Supabase Storage:', filePath);
+    
+    const { data, error } = await supabase.storage
+      .from('car-images')
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true
+      });
+    
+    if (error) {
+      console.error('❌ Supabase Storage upload error:', error);
+      throw error;
+    }
+    
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('car-images')
+      .getPublicUrl(filePath);
+    
+    console.log('✅ File uploaded to Supabase Storage:', urlData.publicUrl);
+    return urlData.publicUrl;
+    
+  } catch (error) {
+    console.error('❌ Error uploading to Supabase Storage:', error);
+    throw error;
+  }
+}
+
+// Use memory storage for Vercel (files will be uploaded to Supabase Storage)
+const memoryStorage = multer.memoryStorage();
+
+// Multer storage config - use memory storage for Vercel, disk storage for local dev
+const tempImageStorage = isVercel ? memoryStorage : multer.diskStorage({
   destination: function (req, file, cb) {
-    const tempDir = isVercel 
-      ? path.join('/tmp', 'uploads', 'temp')
-      : path.join(__dirname, '..', 'uploads', 'temp');
+    const tempDir = path.join(__dirname, '..', 'uploads', 'temp');
     fs.mkdirSync(tempDir, { recursive: true });
     cb(null, tempDir);
   },
@@ -28,12 +65,10 @@ const tempImageStorage = multer.diskStorage({
 });
 
 // Multer storage config for car images (with car ID)
-const carImageStorage = multer.diskStorage({
+const carImageStorage = isVercel ? memoryStorage : multer.diskStorage({
   destination: function (req, file, cb) {
     const carId = req.params.id;
-    const dir = isVercel 
-      ? path.join('/tmp', 'uploads', `car-${carId}`)
-      : path.join(__dirname, '..', 'uploads', `car-${carId}`);
+    const dir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -835,51 +870,106 @@ router.post('/', async (req, res) => {
       //   console.error('Error sending Telegram notification:', error);
       // }
       
-      // Move files from temp to proper car directory
+      // Handle file uploads
       if (headImagePath || galleryImagePaths.length > 0) {
-        const carDir = isVercel 
-          ? path.join('/tmp', 'uploads', `car-${carId}`)
-          : path.join(__dirname, '..', 'uploads', `car-${carId}`);
-        console.log('📁 Creating car directory:', carDir);
-        fs.mkdirSync(carDir, { recursive: true });
-        
         let finalHeadImagePath = null;
         let finalGalleryImagePaths = [];
         
-        if (headImagePath) {
-          const headFileName = path.basename(headImagePath);
-          const finalHeadPath = path.join(carDir, headFileName);
-          console.log('🖼️ Moving head image from', headImagePath, 'to', finalHeadPath);
-          fs.renameSync(headImagePath, finalHeadPath);
-          finalHeadImagePath = finalHeadPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
-          console.log('✅ Head image moved successfully');
+        if (isVercel) {
+          // For Vercel: Upload files to Supabase Storage
+          console.log('📤 Uploading files to Supabase Storage for car ID:', carId);
+          
+          // Upload head image if exists
+          if (headImagePath && req.files) {
+            const headFile = req.files.find(f => f.fieldname === 'head_image');
+            if (headFile) {
+              try {
+                finalHeadImagePath = await uploadToSupabaseStorage(headFile, carId, 'head');
+                console.log('✅ Head image uploaded to Supabase Storage');
+              } catch (error) {
+                console.error('❌ Error uploading head image:', error);
+              }
+            }
+          }
+          
+          // Upload gallery images if exist
+          if (galleryImagePaths.length > 0 && req.files) {
+            const galleryFiles = req.files.filter(f => f.fieldname === 'gallery_images');
+            for (const file of galleryFiles) {
+              try {
+                const galleryUrl = await uploadToSupabaseStorage(file, carId, 'gallery');
+                finalGalleryImagePaths.push(galleryUrl);
+                console.log('✅ Gallery image uploaded to Supabase Storage');
+              } catch (error) {
+                console.error('❌ Error uploading gallery image:', error);
+              }
+            }
+          }
+        } else {
+          // For local development: Move files to local directory
+          const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+          console.log('📁 Creating car directory:', carDir);
+          fs.mkdirSync(carDir, { recursive: true });
+          
+          if (headImagePath) {
+            const headFileName = path.basename(headImagePath);
+            const finalHeadPath = path.join(carDir, headFileName);
+            console.log('🖼️ Moving head image from', headImagePath, 'to', finalHeadPath);
+            fs.renameSync(headImagePath, finalHeadPath);
+            finalHeadImagePath = finalHeadPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
+            console.log('✅ Head image moved successfully');
+          }
+          
+          galleryImagePaths.forEach((galleryPath, index) => {
+            const galleryFileName = path.basename(galleryPath);
+            const finalGalleryPath = path.join(carDir, galleryFileName);
+            console.log(`🖼️ Moving gallery image ${index + 1} from`, galleryPath, 'to', finalGalleryPath);
+            fs.renameSync(galleryPath, finalGalleryPath);
+            finalGalleryImagePaths.push(finalGalleryPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
+            console.log(`✅ Gallery image ${index + 1} moved successfully`);
+          });
         }
         
-        galleryImagePaths.forEach((galleryPath, index) => {
-          const galleryFileName = path.basename(galleryPath);
-          const finalGalleryPath = path.join(carDir, galleryFileName);
-          console.log(`🖼️ Moving gallery image ${index + 1} from`, galleryPath, 'to', finalGalleryPath);
-          fs.renameSync(galleryPath, finalGalleryPath);
-          finalGalleryImagePaths.push(finalGalleryPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
-          console.log(`✅ Gallery image ${index + 1} moved successfully`);
-        });
-        
         // Update database with final image paths
-        const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
         console.log('🖼️ Updating database with image paths:');
         console.log('  Head image:', finalHeadImagePath);
         console.log('  Gallery images:', finalGalleryImagePaths);
         console.log('  Car ID:', carId);
         
-        console.log('🔍 About to execute database update with:');
-        console.log('  SQL:', updateSql);
-        console.log('  Parameters:', [finalHeadImagePath, JSON.stringify(finalGalleryImagePaths), carId]);
-        
-        db.run(updateSql, [
-          finalHeadImagePath,
-          JSON.stringify(finalGalleryImagePaths),
-          carId
-        ], (updateErr) => {
+        if (isSupabase) {
+          // Update in Supabase
+          const { error: updateError } = await supabase
+            .from('cars')
+            .update({
+              head_image: finalHeadImagePath,
+              gallery_images: JSON.stringify(finalGalleryImagePaths)
+            })
+            .eq('id', carId);
+          
+          if (updateError) {
+            console.error('❌ Error updating image paths in Supabase:', updateError);
+          } else {
+            console.log('✅ Image paths updated successfully in Supabase');
+          }
+        } else {
+          // Update in SQLite
+          const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
+          console.log('🔍 About to execute database update with:');
+          console.log('  SQL:', updateSql);
+          console.log('  Parameters:', [finalHeadImagePath, JSON.stringify(finalGalleryImagePaths), carId]);
+          
+          db.run(updateSql, [
+            finalHeadImagePath,
+            JSON.stringify(finalGalleryImagePaths),
+            carId
+          ], (updateErr) => {
+            if (updateErr) {
+              console.error('❌ Error updating image paths:', updateErr);
+            } else {
+              console.log('✅ Image paths updated successfully in database');
+            }
+          });
+        }
           if (updateErr) {
             console.error('❌ Error updating image paths:', updateErr);
           } else {
