@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Import database configuration
-const db = require('../config/database');
+// Import Supabase client
+const { supabase } = require('../lib/supabaseClient');
 
 // Import routes
 const authRoutes = require('../routes/auth');
@@ -155,17 +155,20 @@ app.use((err, req, res, next) => {
 });
 
 // Test endpoint to check database connection
-app.get('/test', (req, res) => {
+app.get('/test', async (req, res) => {
   try {
-    console.log('Testing database connection...');
-    db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
-      if (err) {
-        console.error('Database test error:', err);
-        return res.status(500).json({ error: 'Database connection failed: ' + err.message });
-      }
-      console.log('Database test successful:', result);
-      res.json({ success: true, message: 'Database connection working', carCount: result.count });
-    });
+    console.log('Testing Supabase connection...');
+    const { data, error, count } = await supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) {
+      console.error('Database test error:', error);
+      return res.status(500).json({ error: 'Database connection failed: ' + error.message });
+    }
+    
+    console.log('Database test successful, car count:', count);
+    res.json({ success: true, message: 'Database connection working', carCount: count });
   } catch (err) {
     console.error('Test endpoint error:', err);
     res.status(500).json({ error: 'Test endpoint failed: ' + err.message });
