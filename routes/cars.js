@@ -7,10 +7,15 @@ const db = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
 const { supabase } = require('../lib/supabaseClient');
 
+// Check if we're in Vercel environment
+const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
 // Multer storage config for initial car creation (temporary storage)
 const tempImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const tempDir = path.join(__dirname, '..', 'uploads', 'temp');
+    const tempDir = isVercel 
+      ? path.join('/tmp', 'uploads', 'temp')
+      : path.join(__dirname, '..', 'uploads', 'temp');
     fs.mkdirSync(tempDir, { recursive: true });
     cb(null, tempDir);
   },
@@ -26,7 +31,9 @@ const tempImageStorage = multer.diskStorage({
 const carImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const carId = req.params.id;
-    const dir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+    const dir = isVercel 
+      ? path.join('/tmp', 'uploads', `car-${carId}`)
+      : path.join(__dirname, '..', 'uploads', `car-${carId}`);
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -830,7 +837,9 @@ router.post('/', async (req, res) => {
       
       // Move files from temp to proper car directory
       if (headImagePath || galleryImagePaths.length > 0) {
-        const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+        const carDir = isVercel 
+          ? path.join('/tmp', 'uploads', `car-${carId}`)
+          : path.join(__dirname, '..', 'uploads', `car-${carId}`);
         console.log('📁 Creating car directory:', carDir);
         fs.mkdirSync(carDir, { recursive: true });
         
@@ -1168,7 +1177,9 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
       console.log('🔍 SERVER - Processing uploaded files...');
       
       // Create car directory
-      const carDir = path.join(__dirname, '..', 'uploads', `car-${id}`);
+      const carDir = isVercel 
+        ? path.join('/tmp', 'uploads', `car-${id}`)
+        : path.join(__dirname, '..', 'uploads', `car-${id}`);
       fs.mkdirSync(carDir, { recursive: true });
       console.log('📁 Created car directory:', carDir);
       
@@ -1439,7 +1450,9 @@ router.delete('/:id', async (req, res) => {
       }
       
       // Only after successful database deletion, delete all associated files and directory
-      const carDir = path.join(__dirname, '..', 'uploads', `car-${id}`);
+      const carDir = isVercel 
+        ? path.join('/tmp', 'uploads', `car-${id}`)
+        : path.join(__dirname, '..', 'uploads', `car-${id}`);
       
       // Remove the entire car directory and all its contents
       fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
@@ -1577,7 +1590,9 @@ router.post('/:id/images', async (req, res) => {
     }
     
     // Create car directory
-    const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
+    const carDir = isVercel 
+      ? path.join('/tmp', 'uploads', `car-${carId}`)
+      : path.join(__dirname, '..', 'uploads', `car-${carId}`);
     fs.mkdirSync(carDir, { recursive: true });
     console.log('📁 Created car directory:', carDir);
     
