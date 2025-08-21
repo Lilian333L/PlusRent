@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { db } = require('../config/database');
+const { supabase } = require('../lib/supabaseClient');
 
 async function createAdminUser() {
   try {
@@ -8,12 +8,15 @@ async function createAdminUser() {
     const email = 'admin@plusrent.com';
     
     // Check if user already exists
-    const existingUser = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM admin_users WHERE username = ?', [username], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const { data: existingUser, error: checkError } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('username', username)
+      .single();
+    
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw checkError;
+    }
     
     if (existingUser) {
       console.log('Admin user already exists with username:', username);
@@ -25,27 +28,25 @@ async function createAdminUser() {
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
     // Insert the new user
-    await new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO admin_users (username, password_hash, email) VALUES (?, ?, ?)',
-        [username, passwordHash, email],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id: this.lastID });
-        }
-      );
-    });
+    const { data, error } = await supabase
+      .from('admin_users')
+      .insert([
+        { username, password_hash: passwordHash, email }
+      ])
+      .select();
+    
+    if (error) {
+      throw error;
+    }
     
     console.log('Admin user created successfully!');
     console.log('Username:', username);
     console.log('Password:', password);
     console.log('Email:', email);
+    console.log('User ID:', data[0].id);
     
   } catch (error) {
     console.error('Error creating admin user:', error);
-  } finally {
-    // Close the database connection
-    db.close();
   }
 }
 
