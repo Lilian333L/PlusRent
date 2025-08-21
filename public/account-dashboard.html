@@ -2988,7 +2988,7 @@
                 </button>
               </div>
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
-            <img src="${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}" class="img-fluid" alt="">
+            <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="">
             ${badge}
             ${isPremium ? '<div class="premium-badge">PREMIUM</div>' : ''}
                                         </div>
@@ -5038,7 +5038,7 @@
         if (car.head_image && editHeadImagePreview) {
           editHeadImagePreview.innerHTML = `
             <div style="position: relative; display: inline-block;">
-              <img src="${window.API_BASE_URL + car.head_image}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+              <img src="${car.head_image.startsWith('http') ? car.head_image : window.API_BASE_URL + car.head_image}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
               <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeHeadImage()">×</button>
             </div>
           `;
@@ -5050,7 +5050,7 @@
         if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
           editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
             <div style="position: relative; display: inline-block; margin: 5px;">
-              <img src="${window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
+              <img src="${img.startsWith('http') ? img : window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
               <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
             </div>
           `).join('');

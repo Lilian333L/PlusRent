@@ -528,7 +528,20 @@ function openPriceCalculator() {
     // Populate vehicle info
     if (selectedVehicle.attr('data-car-details')) {
         const carDetails = JSON.parse(selectedVehicle.attr('data-car-details'));
-        $('#modal-vehicle-image').attr('src', carDetails.head_image ? window.API_BASE_URL + carDetails.head_image : window.API_BASE_URL + '/uploads/placeholder.png');
+        // Handle both local paths and full URLs for head_image
+        let imageUrl;
+        if (carDetails.head_image) {
+          if (carDetails.head_image.startsWith('http')) {
+            // Full URL (Supabase Storage)
+            imageUrl = carDetails.head_image;
+          } else {
+            // Local path (legacy)
+            imageUrl = window.API_BASE_URL + carDetails.head_image;
+          }
+        } else {
+          imageUrl = window.API_BASE_URL + '/uploads/placeholder.png';
+        }
+        $('#modal-vehicle-image').attr('src', imageUrl);
         $('#modal-vehicle-name').text(carDetails.make_name + ' ' + carDetails.model_name);
         $('#modal-vehicle-details').text(`${carDetails.num_passengers || '-'} passengers • ${carDetails.num_doors || '-'} doors • ${carDetails.car_type || '-'}`);
         

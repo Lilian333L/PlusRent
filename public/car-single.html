@@ -681,10 +681,10 @@ console.log(car);
   let thumbImages = [];
 
   if (car.gallery_images && car.gallery_images.length) {
-    mainImages = car.gallery_images.map(img => `${window.API_BASE_URL}${img}`);
+    mainImages = car.gallery_images.map(img => img.startsWith('http') ? img : `${window.API_BASE_URL}${img}`);
     thumbImages = mainImages;
   } else if (car.head_image) {
-    mainImages = [window.API_BASE_URL + car.head_image];
+    mainImages = [car.head_image.startsWith('http') ? car.head_image : window.API_BASE_URL + car.head_image];
     thumbImages = mainImages;
   } else {
     mainImages = [window.API_BASE_URL + '/uploads/placeholder.png'];
