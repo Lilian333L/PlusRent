@@ -198,7 +198,98 @@
       
       .date-time-field select:focus {
         border-color: #f0c040;
-        box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
+      }
+      
+      /* Call Now Button Styles */
+      .call-now-btn {
+        position: relative;
+        overflow: hidden;
+      }
+      
+             .call-now-btn:hover {
+         transform: translateY(-2px) scale(1.05);
+         box-shadow: 0 8px 25px rgba(30, 144, 255, 0.4) !important;
+         background: linear-gradient(135deg, #187bcd, #1565c0) !important;
+       }
+      
+      .call-now-btn:active {
+        transform: translateY(0) scale(0.98);
+      }
+      
+      .call-now-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+      
+      .call-now-btn:hover::before {
+        left: 100%;
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      
+      @keyframes ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        10% {
+          transform: rotate(-25deg);
+        }
+        20% {
+          transform: rotate(25deg);
+        }
+        30% {
+          transform: rotate(-25deg);
+        }
+        40% {
+          transform: rotate(25deg);
+        }
+        50% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(0deg);
+        }
+      }
+      
+      .call-now-btn:hover i {
+        animation: ring 0.5s ease-in-out;
+      }
+      
+      /* Responsive adjustments for call button */
+      @media (max-width: 768px) {
+        .call-now-btn {
+          padding: 8px 12px !important;
+          font-size: 12px !important;
+        }
+        
+        .call-now-btn span {
+          display: none;
+        }
+        
+                 .call-now-btn i {
+           font-size: 14px !important;
+         }
+       }
+       
+       .date-time-field select:focus {
+         border-color: #f0c040;
+         box-shadow: 0 0 0 0.2rem rgba(240, 192, 64, 0.25);
         outline: none;
       }
       
@@ -1546,6 +1637,13 @@
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Call Now Button -->
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
+                                        <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.2);">
+                                            <i class="fa fa-phone" style="font-size: 16px; animation: pulse 2s infinite;"></i>
+                                            <span data-i18n="call_now">Call Now</span>
+                                        </a>
+                                    </div>
                                     <!-- Language Picker -->
                                     <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                                       <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
