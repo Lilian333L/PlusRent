@@ -213,75 +213,7 @@ router.get('/', async (req, res) => {
       
     } catch (error) {
       console.error('❌ Supabase error:', error);
-      console.log('🔄 Falling back to SQLite approach...');
-      
-      // Fallback to SQLite approach
-      const filters = [];
-      const params = [];
-
-      // Helper to add single or multi-value filter (case-insensitive)
-      function addFilter(field, param) {
-        if (req.query[param] && req.query[param] !== '') {
-          const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
-          if (values.length > 1) {
-            filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
-            params.push(...values);
-          } else {
-            filters.push(`${field} = ? COLLATE NOCASE`);
-            params.push(values[0]);
-          }
-        }
-      }
-
-      addFilter('make_name', 'make_name');
-      addFilter('model_name', 'model_name');
-      addFilter('gear_type', 'gear_type');
-      addFilter('fuel_type', 'fuel_type');
-      addFilter('car_type', 'car_type');
-      addFilter('num_doors', 'num_doors');
-      addFilter('num_passengers', 'num_passengers');
-
-      if (req.query.min_year && req.query.min_year !== '') {
-        filters.push('production_year >= ?');
-        params.push(req.query.min_year);
-      }
-      if (req.query.max_year && req.query.max_year !== '') {
-        filters.push('production_year <= ?');
-        params.push(req.query.max_year);
-      }
-      // Price filtering (by daily rate for 1-2 days)
-      if (req.query.min_price && req.query.min_price !== '') {
-        filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
-        params.push(req.query.min_price);
-      }
-      if (req.query.max_price && req.query.max_price !== '') {
-        filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
-        params.push(req.query.max_price);
-      }
-
-      let sql = 'SELECT * FROM cars';
-      if (filters.length > 0) {
-        sql += ' WHERE ' + filters.join(' AND ');
-      }
-      sql += ' ORDER BY display_order ASC, id ASC';
-
-      db.all(sql, params, (err, rows) => {
-        if (err) {
-          console.error('❌ SQLite fallback error:', err);
-          return res.status(500).json({ error: 'Database error', details: err.message });
-        }
-        // Parse price_policy and gallery_images for each car
-        rows.forEach(car => {
-          // Supabase already returns parsed JSON, so only parse if it's a string
-          if (typeof car.price_policy === 'string') {
-            car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-          }
-          if (typeof car.gallery_images === 'string') {
-            car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-          }
-        });
-        res.json(rows);
-            });
+      return res.status(500).json({ error: 'Database error', details: error.message });
     }
   }
 });
@@ -342,51 +274,6 @@ router.get('/booking/available', async (req, res) => {
       console.error('❌ Supabase error fetching available cars:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  const sql = `
-    SELECT id, make_name, model_name, production_year, head_image, price_policy, booked, 
-           car_type, num_doors, num_passengers, fuel_type, gear_type
-    FROM cars 
-    WHERE booked = 0 OR booked IS NULL
-    ORDER BY make_name, model_name
-  `;
-
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    // Parse price_policy for each car and format for display
-    const cars = rows.map(car => {
-      // Supabase already returns parsed JSON, so only parse if it's a string
-      const pricePolicy = typeof car.price_policy === 'string' 
-        ? (car.price_policy ? JSON.parse(car.price_policy) : {})
-        : (car.price_policy || {});
-      const dailyPrice = pricePolicy['1-2'] || 'N/A';
-      
-      return {
-        id: car.id,
-        make_name: car.make_name,
-        model_name: car.model_name,
-        production_year: car.production_year,
-        head_image: car.head_image,
-        daily_price: dailyPrice,
-        price_policy: pricePolicy, // Include the full price policy
-        car_type: car.car_type,
-        num_doors: car.num_doors,
-        num_passengers: car.num_passengers,
-        fuel_type: car.fuel_type,
-        gear_type: car.gear_type,
-        display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
-        // For backward compatibility with existing select options
-        value: `${car.make_name} ${car.model_name}`,
-        data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/bmw-m5.png`
-      };
-    });
-    
-    res.json(cars);
-  });
   }
 });
 
@@ -431,24 +318,6 @@ router.get('/:id', async (req, res) => {
       console.error('❌ Supabase error fetching car:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    // Supabase already returns parsed JSON, so only parse if it's a string
-    if (typeof car.price_policy === 'string') {
-      car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-    }
-    if (typeof car.gallery_images === 'string') {
-      car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    }
-    res.json(car);
-  });
   }
 });
 
@@ -742,219 +611,7 @@ router.post('/', async (req, res) => {
       console.error('❌ Supabase car creation error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.run(
-    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, likes, description, head_image, gallery_images, is_premium)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
-    [
-      make_name,
-      model_name,
-      production_year,
-      gear_type,
-      fuel_type,
-      engineCapacityValue,
-      car_type,
-      num_doors,
-      num_passengers,
-      JSON.stringify(pricePolicyStringified),
-      booked_until || null,
-      luggage || null,
-      mileageValue,
-      drive || null,
-      fuelEconomyValue,
-      exterior_color || null,
-      interior_color || null,
-      rcaInsuranceValue,
-      cascoInsuranceValue,
-      likesValue,
-      descriptionJson,
-      headImagePath,
-      JSON.stringify(galleryImagePaths)
-    ],
-    async function (err) {
-      if (err) {
-        console.error('Database error details:', err);
-        console.error('Error code:', err.code);
-        console.error('Error message:', err.message);
-        return res.status(500).json({ error: 'Database error', details: err.message });
-      }
-      
-
-      const carId = this.lastID;
-      // Send Telegram notification - COMMENTED OUT
-      // try {
-      //   const telegram = new TelegramNotifier();
-      //   const carData = {
-      //     make_name,
-      //     model_name,
-      //     production_year,
-      //     gear_type,
-      //     fuel_type,
-      //     car_type,
-      //     num_doors,
-      //     num_passengers,
-      //     price_policy: pricePolicyStringified,
-      //     rca_insurance_price: rcaInsuranceValue,
-      //     casco_insurance_price: cascoInsuranceValue
-      //   };
-      //   await telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-      // } catch (error) {
-      //   console.error('Error sending Telegram notification:', error);
-      // }
-      
-      // Handle file uploads
-      if (headImagePath || galleryImagePaths.length > 0) {
-        let finalHeadImagePath = null;
-        let finalGalleryImagePaths = [];
-        
-        if (isVercel) {
-          // For Vercel: Upload files to Supabase Storage
-          console.log('📤 Uploading files to Supabase Storage for car ID:', carId);
-          
-          // Upload head image if exists
-          if (headImagePath && req.files) {
-            const headFile = req.files.find(f => f.fieldname === 'head_image');
-            if (headFile) {
-              try {
-                finalHeadImagePath = await uploadToSupabaseStorage(headFile, carId, 'head');
-                console.log('✅ Head image uploaded to Supabase Storage');
-              } catch (error) {
-                console.error('❌ Error uploading head image:', error);
-              }
-            }
-          }
-          
-          // Upload gallery images if exist
-          if (galleryImagePaths.length > 0 && req.files) {
-            const galleryFiles = req.files.filter(f => f.fieldname === 'gallery_images');
-            for (const file of galleryFiles) {
-              try {
-                const galleryUrl = await uploadToSupabaseStorage(file, carId, 'gallery');
-                finalGalleryImagePaths.push(galleryUrl);
-                console.log('✅ Gallery image uploaded to Supabase Storage');
-              } catch (error) {
-                console.error('❌ Error uploading gallery image:', error);
-              }
-            }
-          }
-        } else {
-          // For local development: Move files to local directory
-          const carDir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
-          console.log('📁 Creating car directory:', carDir);
-          fs.mkdirSync(carDir, { recursive: true });
-          
-          if (headImagePath) {
-            const headFileName = path.basename(headImagePath);
-            const finalHeadPath = path.join(carDir, headFileName);
-            console.log('🖼️ Moving head image from', headImagePath, 'to', finalHeadPath);
-            fs.renameSync(headImagePath, finalHeadPath);
-            finalHeadImagePath = finalHeadPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
-            console.log('✅ Head image moved successfully');
-          }
-          
-          galleryImagePaths.forEach((galleryPath, index) => {
-            const galleryFileName = path.basename(galleryPath);
-            const finalGalleryPath = path.join(carDir, galleryFileName);
-            console.log(`🖼️ Moving gallery image ${index + 1} from`, galleryPath, 'to', finalGalleryPath);
-            fs.renameSync(galleryPath, finalGalleryPath);
-            finalGalleryImagePaths.push(finalGalleryPath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads'));
-            console.log(`✅ Gallery image ${index + 1} moved successfully`);
-          });
-        }
-        
-        // Update database with final image paths
-        console.log('🖼️ Updating database with image paths:');
-        console.log('  Head image:', finalHeadImagePath);
-        console.log('  Gallery images:', finalGalleryImagePaths);
-        console.log('  Car ID:', carId);
-        
-        if (isSupabase) {
-          // Update in Supabase
-          const { error: updateError } = await supabase
-            .from('cars')
-            .update({
-              head_image: finalHeadImagePath,
-              gallery_images: JSON.stringify(finalGalleryImagePaths)
-            })
-            .eq('id', carId);
-          
-          if (updateError) {
-            console.error('❌ Error updating image paths in Supabase:', updateError);
-          } else {
-            console.log('✅ Image paths updated successfully in Supabase');
-          }
-        } else {
-          // Update in SQLite
-          const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
-          console.log('🔍 About to execute database update with:');
-          console.log('  SQL:', updateSql);
-          console.log('  Parameters:', [finalHeadImagePath, JSON.stringify(finalGalleryImagePaths), carId]);
-          
-          db.run(updateSql, [
-            finalHeadImagePath,
-            JSON.stringify(finalGalleryImagePaths),
-            carId
-          ], (updateErr) => {
-            if (updateErr) {
-              console.error('❌ Error updating image paths:', updateErr);
-            } else {
-              console.log('✅ Image paths updated successfully in database');
-              console.log('  Updated car ID:', carId);
-              console.log('  Final head image path:', finalHeadImagePath);
-              console.log('  Final gallery image paths:', finalGalleryImagePaths);
-            }
-            
-            // Send Telegram notification
-            try {
-              const telegram = new TelegramNotifier();
-              const carData = {
-                make_name,
-                model_name,
-                production_year,
-                gear_type,
-                fuel_type,
-                car_type,
-                num_doors,
-                num_passengers,
-                price_policy: pricePolicyStringified,
-                rca_insurance_price: rcaInsuranceValue,
-                casco_insurance_price: cascoInsuranceValue
-              };
-              telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-            } catch (error) {
-              console.error('Error sending Telegram notification:', error);
-            }
-            
-            res.json({ success: true, id: carId });
-          });
-        }
-      } else {
-        // No images to upload, send response immediately
-        try {
-          const telegram = new TelegramNotifier();
-          const carData = {
-            make_name,
-            model_name,
-            production_year,
-            gear_type,
-            fuel_type,
-            car_type,
-            num_doors,
-            num_passengers,
-            price_policy: pricePolicyStringified,
-            rca_insurance_price: rcaInsuranceValue,
-            casco_insurance_price: cascoInsuranceValue
-          };
-          telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-        } catch (error) {
-          console.error('Error sending Telegram notification:', error);
-        }
-        
-        res.json({ success: true, id: carId });
-      }
-    }
-  );
+  }
 });
 
 // Update car
@@ -1154,37 +811,46 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
   let galleryImagePaths = [];
   
   // First, get existing images from database to preserve them
-  db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [id], async (err, existingCar) => {
-    if (!err && existingCar) {
-      // Preserve existing head image if no new one uploaded
-      if (!req.files || !req.files.find(f => f.fieldname === 'head_image')) {
-        headImagePath = existingCar.head_image;
-      }
-      
-      // Use gallery images from form data if provided, otherwise preserve existing ones
-      if (req.body.gallery_images) {
-        try {
-          galleryImagePaths = JSON.parse(req.body.gallery_images);
-          console.log('🔍 SERVER - Using gallery images from form data:', galleryImagePaths);
-        } catch (e) {
-          console.log('Could not parse gallery images from form data, using existing ones');
-          if (existingCar.gallery_images) {
-            try {
-              galleryImagePaths = JSON.parse(existingCar.gallery_images);
-              console.log('🔍 SERVER - Using existing gallery images:', galleryImagePaths);
-            } catch (e2) {
-              console.log('Could not parse existing gallery images');
-            }
+  try {
+    const { data: existingCar, error: carError } = await supabase
+      .from('cars')
+      .select('head_image, gallery_images')
+      .eq('id', id)
+      .single();
+    
+    if (carError || !existingCar) {
+      console.error('❌ Error fetching existing car data:', carError);
+      return res.status(500).json({ error: 'Database error: ' + (carError?.message || 'Car not found') });
+    }
+    
+    // Preserve existing head image if no new one uploaded
+    if (!req.files || !req.files.find(f => f.fieldname === 'head_image')) {
+      headImagePath = existingCar.head_image;
+    }
+    
+    // Use gallery images from form data if provided, otherwise preserve existing ones
+    if (req.body.gallery_images) {
+      try {
+        galleryImagePaths = JSON.parse(req.body.gallery_images);
+        console.log('🔍 SERVER - Using gallery images from form data:', galleryImagePaths);
+      } catch (e) {
+        console.log('Could not parse gallery images from form data, using existing ones');
+        if (existingCar.gallery_images) {
+          try {
+            galleryImagePaths = JSON.parse(existingCar.gallery_images);
+            console.log('🔍 SERVER - Using existing gallery images:', galleryImagePaths);
+          } catch (e2) {
+            console.log('Could not parse existing gallery images');
           }
         }
-      } else if (existingCar.gallery_images) {
-        // No gallery_images in form data, preserve existing ones
-        try {
-          galleryImagePaths = JSON.parse(existingCar.gallery_images);
-          console.log('🔍 SERVER - Preserving existing gallery images:', galleryImagePaths);
-        } catch (e) {
-          console.log('Could not parse existing gallery images');
-        }
+      }
+    } else if (existingCar.gallery_images) {
+      // No gallery_images in form data, preserve existing ones
+      try {
+        galleryImagePaths = JSON.parse(existingCar.gallery_images);
+        console.log('🔍 SERVER - Preserving existing gallery images:', galleryImagePaths);
+      } catch (e) {
+        console.log('Could not parse existing gallery images');
       }
     }
     
@@ -1336,42 +1002,11 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
         console.error('❌ Supabase car update error:', error);
         res.status(500).json({ error: 'Database error: ' + error.message });
       }
-    } else {
-      // Use SQLite
-    db.run(
-      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, likes=?, description=?, head_image=? WHERE id=?`,
-      updateParams,
-      async function (err) {
-        if (err) {
-          console.error('Database error in PUT /api/cars/:id:', err);
-          return res.status(500).json({ error: 'Database error: ' + err.message });
-        }
-        
-        // Send Telegram notification
-        try {
-          const telegram = new TelegramNotifier();
-          const carData = {
-            make_name,
-            model_name,
-            production_year,
-            gear_type,
-            fuel_type,
-            car_type,
-            num_doors,
-            num_passengers,
-            price_policy: pricePolicyStringified,
-            rca_insurance_price: rcaInsuranceValue,
-            casco_insurance_price: cascoInsuranceValue
-          };
-          await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
-        } catch (error) {
-          console.error('Error sending Telegram notification:', error);
-        }
-        res.json({ success: true });
-      }
-    );
     }
-  });
+  } catch (error) {
+    console.error('❌ Error in car update:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
 });
 
 // Delete car
@@ -1434,55 +1069,6 @@ router.delete('/:id', async (req, res) => {
       console.error('❌ Supabase car deletion error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  // First, get the car data to check for images
-  db.get('SELECT * FROM cars WHERE id = ?', [id], (err, car) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    
-    // Delete the car from database first
-    db.run('DELETE FROM cars WHERE id = ?', [id], async function (dbErr) {
-      if (dbErr) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Send Telegram notification
-      try {
-        const telegram = new TelegramNotifier();
-        const carData = {
-          make_name: car.make_name,
-          model_name: car.model_name,
-          production_year: car.production_year,
-          car_type: car.car_type
-        };
-        await telegram.sendMessage(telegram.formatCarDeletedMessage(carData));
-      } catch (error) {
-        console.error('Error sending Telegram notification:', error);
-      }
-      
-      // Only after successful database deletion, delete all associated files and directory
-      const carDir = isVercel 
-        ? path.join('/tmp', 'uploads', `car-${id}`)
-        : path.join(__dirname, '..', 'uploads', `car-${id}`);
-      
-      // Remove the entire car directory and all its contents
-      fs.rm(carDir, { recursive: true, force: true }, (fsErr) => {
-        if (fsErr) {
-          console.log(`Warning: Could not delete car directory ${carDir}:`, fsErr);
-          // Don't fail the request if file deletion fails, but log the issue
-        } else {
-          console.log(`Successfully deleted car directory: ${carDir}`);
-        }
-      });
-      
-      res.json({ success: true, message: 'Car and all associated assets deleted successfully' });
-    });
-  });
   }
 });
 
@@ -1528,24 +1114,6 @@ router.patch('/:id/premium', async (req, res) => {
       console.error('❌ Supabase premium toggle error:', error);
       res.status(500).json({ error: 'Database error' });
     }
-  } else {
-    // Use SQLite
-  db.run('UPDATE cars SET is_premium = ? WHERE id = ?', [is_premium ? 1 : 0, id], function (err) {
-    if (err) {
-      console.error('Error updating premium status:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (this.changes === 0) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
-    
-    res.json({ 
-      success: true, 
-      message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
-      is_premium: is_premium
-    });
-  });
   }
 });
 
@@ -1578,29 +1146,7 @@ router.post('/:id/images', async (req, res) => {
         return res.status(404).json({ error: 'Car not found' });
       }
       
-      car = carData;
-      headImagePath = car.head_image;
-      galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    } else {
-      // Use SQLite
-      console.log('🔍 Using SQLite for car lookup, ID:', carId);
-      car = await new Promise((resolve, reject) => {
-        db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [carId], (err, row) => {
-          if (err) {
-            console.error('❌ SQLite query error:', err);
-            reject(err);
-          } else {
-            console.log('🔍 SQLite query result:', row);
-            resolve(row);
-          }
-        });
-      });
-      
-      if (!car) {
-        console.log('Car not found for ID:', carId);
-        return res.status(404).json({ error: 'Car not found' });
-      }
-      
+            car = carData;
       headImagePath = car.head_image;
       galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     }
@@ -1679,25 +1225,9 @@ router.post('/:id/images', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + updateError.message });
       }
       
-      console.log('✅ Car images updated successfully in Supabase');
-    } else {
-      // Update in SQLite
-      await new Promise((resolve, reject) => {
-        db.run(
-          'UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?',
-          [headImagePath, JSON.stringify(galleryImagePaths), carId],
-          (err) => {
-            if (err) {
-              console.error('❌ SQLite error updating car images:', err);
-              reject(err);
-            } else {
-              console.log('✅ Car images updated successfully in SQLite');
-              resolve();
-            }
-          }
-        );
-      });
+            console.log('✅ Car images updated successfully in Supabase');
     }
+    
     res.json({ 
       success: true, 
       head_image: headImagePath, 
@@ -1711,7 +1241,7 @@ router.post('/:id/images', async (req, res) => {
 });
 
 // Delete a specific image from a car
-router.delete('/:id/images', (req, res) => {
+router.delete('/:id/images', async (req, res) => {
   const carId = req.params.id;
   const imagePath = req.query.path;
   const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
@@ -1722,19 +1252,22 @@ router.delete('/:id/images', (req, res) => {
     return res.status(400).json({ error: 'Image path is required' });
   }
   
-  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err) {
-      console.error('Database error in image deletion:', err);
-      return res.status(500).json({ error: 'Database error: ' + err.message });
-    }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
+  try {
+    // Get car data from Supabase
+    const { data: car, error: carError } = await supabase
+      .from('cars')
+      .select('*')
+      .eq('id', carId)
+      .single();
+    
+    if (carError || !car) {
+      console.error('Database error in image deletion:', carError);
+      return res.status(500).json({ error: 'Database error: ' + (carError?.message || 'Car not found') });
     }
     
     console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
     
-    let updateQuery = '';
-    let updateParams = [];
+    let updateData = {};
     
     if (imageType === 'head') {
       // Handle head image deletion
@@ -1742,8 +1275,7 @@ router.delete('/:id/images', (req, res) => {
         console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
         return res.status(400).json({ error: 'Head image path does not match' });
       }
-      updateQuery = 'UPDATE cars SET head_image=NULL WHERE id=?';
-      updateParams = [carId];
+      updateData.head_image = null;
     } else {
       // Handle gallery image deletion
       let galleryImages = [];
@@ -1771,54 +1303,59 @@ router.delete('/:id/images', (req, res) => {
       // Also remove any duplicates that might exist
       const uniqueGallery = [...new Set(updatedGallery)];
       console.log('Updated gallery (after removal):', uniqueGallery);
-      updateQuery = 'UPDATE cars SET gallery_images=? WHERE id=?';
-      updateParams = [JSON.stringify(uniqueGallery), carId];
+      updateData.gallery_images = JSON.stringify(uniqueGallery);
     }
     
-    console.log('Update query:', updateQuery);
-    console.log('Update params:', updateParams);
+    console.log('Update data:', updateData);
     
     // Update database first
-    db.run(updateQuery, updateParams, function (err2) {
-      if (err2) {
-        console.error('Database error in image deletion update:', err2);
-        return res.status(500).json({ error: 'Database error: ' + err2.message });
-      }
-      
-      // Only after successful database update, delete the actual file from filesystem
-      let filePath = imagePath;
-      // Handle full URLs - extract just the path part
-      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-        const url = new URL(filePath);
-        filePath = url.pathname;
-      }
-      // Remove leading slash if present
-      if (filePath.startsWith('/')) {
-        filePath = filePath.substring(1);
-      }
-      
-      const fullPath = path.join(__dirname, '..', filePath);
-      console.log('Attempting to delete file:', fullPath);
-      
-      fs.unlink(fullPath, (fileErr) => {
-        if (fileErr) {
-          console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
-          // Don't fail the request if file deletion fails, but log the issue
-        } else {
-          console.log(`Successfully deleted file: ${fullPath}`);
-        }
-      });
-      
-      // Return success response
-      if (imageType === 'head') {
-        res.json({ success: true, message: 'Head image deleted successfully' });
+    const { error: updateError } = await supabase
+      .from('cars')
+      .update(updateData)
+      .eq('id', carId);
+    
+    if (updateError) {
+      console.error('Database error in image deletion update:', updateError);
+      return res.status(500).json({ error: 'Database error: ' + updateError.message });
+    }
+    
+    // Only after successful database update, delete the actual file from filesystem
+    let filePath = imagePath;
+    // Handle full URLs - extract just the path part
+    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+      const url = new URL(filePath);
+      filePath = url.pathname;
+    }
+    // Remove leading slash if present
+    if (filePath.startsWith('/')) {
+      filePath = filePath.substring(1);
+    }
+    
+    const fullPath = path.join(__dirname, '..', filePath);
+    console.log('Attempting to delete file:', fullPath);
+    
+    fs.unlink(fullPath, (fileErr) => {
+      if (fileErr) {
+        console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
+        // Don't fail the request if file deletion fails, but log the issue
       } else {
-        // Get updated gallery images for response
-        const updatedGallery = JSON.parse(updateParams[0]);
-        res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
+        console.log(`Successfully deleted file: ${fullPath}`);
       }
     });
-  });
+    
+    // Return success response
+    if (imageType === 'head') {
+      res.json({ success: true, message: 'Head image deleted successfully' });
+    } else {
+      // Get updated gallery images for response
+      const updatedGallery = JSON.parse(updateData.gallery_images);
+      res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
+    }
+    
+  } catch (error) {
+    console.error('Error in image deletion:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
 });
 
 // Reorder cars endpoint
@@ -1862,41 +1399,6 @@ router.post('/reorder', async (req, res) => {
       console.error('❌ Supabase reorder error:', error);
       res.status(500).json({ error: 'Failed to update car order' });
     }
-  } else {
-    // Use SQLite with transaction
-  db.serialize(() => {
-    db.run('BEGIN TRANSACTION');
-    
-    const updatePromises = carOrder.map((carId, index) => {
-      return new Promise((resolve, reject) => {
-        db.run('UPDATE cars SET display_order = ? WHERE id = ?', [index, carId], function(err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-    });
-    
-    Promise.all(updatePromises)
-      .then(() => {
-        db.run('COMMIT', (err) => {
-          if (err) {
-            console.error('Error committing transaction:', err);
-            db.run('ROLLBACK');
-            return res.status(500).json({ error: 'Failed to commit reorder changes' });
-          }
-          console.log('Cars reordered successfully');
-          res.json({ success: true, message: 'Cars reordered successfully' });
-        });
-      })
-      .catch((error) => {
-        console.error('Error updating car order:', error);
-        db.run('ROLLBACK');
-        res.status(500).json({ error: 'Failed to update car order' });
-      });
-  });
   }
 });
 
