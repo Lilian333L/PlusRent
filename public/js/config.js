@@ -1,10 +1,17 @@
 // config.js
 // Dynamic API base URL that works for both local development and production
-window.API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001'  // Always use port 3001 for local API server
-  : `https://${window.location.hostname}`; // Use the same domain as the current page for production
+window.API_BASE_URL = (function() {
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const port = window.location.port;
+  
+  // If we're on localhost, use the same port as the current page
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return `${protocol}//${hostname}:${port || '3000'}`;
+  }
+  
+  // If we're on Vercel or any other production domain, use the same domain
+  return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+})();
 
-// For Vercel dev, always use the same port as the current page
-if (window.location.port === '3000') {
-  window.API_BASE_URL = 'http://localhost:3001'; // Always use port 3001 for API
-} 
+console.log('🌐 API Base URL configured as:', window.API_BASE_URL); 
