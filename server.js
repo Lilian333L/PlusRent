@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve uploaded images statically
+// Serve uploaded images statically (for backward compatibility with local development)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Redirect old URLs to clean URLs
