@@ -967,41 +967,35 @@ router.post('/', async (req, res) => {
               console.error('❌ Error updating image paths:', updateErr);
             } else {
               console.log('✅ Image paths updated successfully in database');
+              console.log('  Updated car ID:', carId);
+              console.log('  Final head image path:', finalHeadImagePath);
+              console.log('  Final gallery image paths:', finalGalleryImagePaths);
             }
+            
+            // Send Telegram notification
+            try {
+              const telegram = new TelegramNotifier();
+              const carData = {
+                make_name,
+                model_name,
+                production_year,
+                gear_type,
+                fuel_type,
+                car_type,
+                num_doors,
+                num_passengers,
+                price_policy: pricePolicyStringified,
+                rca_insurance_price: rcaInsuranceValue,
+                casco_insurance_price: cascoInsuranceValue
+              };
+              telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+            } catch (error) {
+              console.error('Error sending Telegram notification:', error);
+            }
+            
+            res.json({ success: true, id: carId });
           });
         }
-          if (updateErr) {
-            console.error('❌ Error updating image paths:', updateErr);
-          } else {
-            console.log('✅ Image paths updated successfully in database');
-            console.log('  Updated car ID:', carId);
-            console.log('  Final head image path:', finalHeadImagePath);
-            console.log('  Final gallery image paths:', finalGalleryImagePaths);
-          }
-          
-          // Send Telegram notification
-          try {
-            const telegram = new TelegramNotifier();
-            const carData = {
-              make_name,
-              model_name,
-              production_year,
-              gear_type,
-              fuel_type,
-              car_type,
-              num_doors,
-              num_passengers,
-              price_policy: pricePolicyStringified,
-              rca_insurance_price: rcaInsuranceValue,
-              casco_insurance_price: cascoInsuranceValue
-            };
-            telegram.sendMessage(telegram.formatCarAddedMessage(carData));
-          } catch (error) {
-            console.error('Error sending Telegram notification:', error);
-          }
-          
-          res.json({ success: true, id: carId });
-        });
       } else {
         // No images to upload, send response immediately
         try {
@@ -1028,7 +1022,6 @@ router.post('/', async (req, res) => {
       }
     }
   );
-  }
 });
 
 // Update car
