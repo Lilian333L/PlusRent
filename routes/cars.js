@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const db = require('../config/database');
+
 const TelegramNotifier = require('../config/telegram');
 const { supabase } = require('../lib/supabaseClient');
 
@@ -105,7 +105,7 @@ const tempUpload = multer({
 // Get all cars with filtering
 router.get('/', async (req, res) => {
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   console.log('🔍 Cars API - Environment check:', {
     NODE_ENV: process.env.NODE_ENV,
@@ -281,82 +281,15 @@ router.get('/', async (req, res) => {
           }
         });
         res.json(rows);
-      });
+            });
     }
-  } else {
-    // Use SQLite for local development
-  const filters = [];
-  const params = [];
-
-  // Helper to add single or multi-value filter (case-insensitive)
-  function addFilter(field, param) {
-    if (req.query[param] && req.query[param] !== '') {
-      const values = req.query[param].split(',').map(v => v.trim()).filter(Boolean);
-      if (values.length > 1) {
-        filters.push(`${field} IN (${values.map(() => '?').join(',')}) COLLATE NOCASE`);
-        params.push(...values);
-      } else {
-        filters.push(`${field} = ? COLLATE NOCASE`);
-        params.push(values[0]);
-      }
-    }
-  }
-
-  addFilter('make_name', 'make_name');
-  addFilter('model_name', 'model_name');
-  addFilter('gear_type', 'gear_type');
-  addFilter('fuel_type', 'fuel_type');
-  addFilter('car_type', 'car_type');
-  addFilter('num_doors', 'num_doors');
-  addFilter('num_passengers', 'num_passengers');
-
-  if (req.query.min_year && req.query.min_year !== '') {
-    filters.push('production_year >= ?');
-    params.push(req.query.min_year);
-  }
-  if (req.query.max_year && req.query.max_year !== '') {
-    filters.push('production_year <= ?');
-    params.push(req.query.max_year);
-  }
-  // Price filtering (by daily rate for 1-2 days)
-  if (req.query.min_price && req.query.min_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) >= ?)");
-    params.push(req.query.min_price);
-  }
-  if (req.query.max_price && req.query.max_price !== '') {
-    filters.push("(CAST(json_extract(price_policy, '$.1-2') AS INTEGER) <= ?)");
-    params.push(req.query.max_price);
-  }
-
-  let sql = 'SELECT * FROM cars';
-  if (filters.length > 0) {
-    sql += ' WHERE ' + filters.join(' AND ');
-  }
-  sql += ' ORDER BY display_order ASC, id ASC';
-
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    // Parse price_policy and gallery_images for each car
-    rows.forEach(car => {
-      // Supabase already returns parsed JSON, so only parse if it's a string
-      if (typeof car.price_policy === 'string') {
-        car.price_policy = car.price_policy ? JSON.parse(car.price_policy) : {};
-      }
-      if (typeof car.gallery_images === 'string') {
-        car.gallery_images = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-      }
-    });
-    res.json(rows);
-  });
   }
 });
 
 // Get cars for booking form (only available cars with basic info)
 router.get('/booking/available', async (req, res) => {
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   if (isSupabase) {
     try {
@@ -462,7 +395,7 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   if (isSupabase) {
     try {
@@ -525,7 +458,7 @@ router.post('/', async (req, res) => {
   console.log('Request body keys:', Object.keys(req.body || {}));
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   // Handle base64 image uploads
   let headImagePath = null;
@@ -1041,7 +974,7 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   console.log('🔍 SERVER - PUT /api/cars/:id received request');
   console.log('  Car ID:', id);
@@ -1446,7 +1379,7 @@ router.delete('/:id', async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   if (isSupabase) {
     try {
@@ -1563,7 +1496,7 @@ router.patch('/:id/premium', async (req, res) => {
   }
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   if (isSupabase) {
     try {
@@ -1626,7 +1559,7 @@ router.post('/:id/images', async (req, res) => {
   
   try {
     // Check if we're using Supabase
-    const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+    const isSupabase = true; // Force Supabase usage
     
     let car;
     let headImagePath;
@@ -1899,7 +1832,7 @@ router.post('/reorder', async (req, res) => {
   console.log('Reordering cars:', carOrder);
   
   // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  const isSupabase = true; // Force Supabase usage
   
   if (isSupabase) {
     try {
