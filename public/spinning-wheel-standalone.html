@@ -56,7 +56,7 @@
             .wheel-content {
                 flex-direction: row;
                 justify-content: center;
-                align-items: flex-start;
+                align-items: center;
             }
         }
 
@@ -94,7 +94,7 @@
             height: 100%;
             border-radius: 50%;
             background: white;
-            padding: 4px;
+            padding: 0;
             box-shadow: 0 0 30px rgba(32, 178, 170, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.8);
         }
 
@@ -112,15 +112,24 @@
 
         .wheel-segment {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -2px;
+            left: -2px;
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
             transform-origin: center;
             transition: all 0.3s ease;
             will-change: transform;
             transform: translateZ(0);
-            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .segment-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
         }
 
         .segment-content {
@@ -199,9 +208,11 @@
         }
 
         .center-icon {
-            font-size: 2rem;
+            font-size: 1.2rem;
             color: white;
             display: block;
+            font-weight: bold;
+            text-align: center;
         }
 
         .arrow-pointer {
@@ -304,7 +315,7 @@
         .step-number {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -313,7 +324,7 @@
             font-weight: 700;
             font-size: 0.9rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(32, 178, 170, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .step-text {
@@ -339,11 +350,7 @@
             display: block;
         }
 
-        .trophy-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
+
 
         .congratulations {
             font-size: 2rem;
@@ -360,7 +367,7 @@
 
         .prize-display {
             background: rgba(255, 255, 255, 0.9);
-            color: #ff6b6b;
+            color: #176be6;
             font-size: 1.5rem;
             font-weight: 800;
             padding: 1rem 2rem;
@@ -387,7 +394,7 @@
 
         .book-now-button {
             background: white;
-            color: #ff6b6b;
+            color: #176be6;
             border: none;
             padding: 1rem 2rem;
             border-radius: 50px;
@@ -468,7 +475,7 @@
 
                             <!-- Center button -->
                             <button class="center-button" id="centerButton">
-                                <span class="center-icon">🎁</span>
+                                <span class="center-icon">START</span>
                             </button>
                         </div>
                     </div>
@@ -511,8 +518,7 @@
                 </div>
 
                 <div class="result-card" id="resultCard">
-                    <div class="trophy-icon">🏆</div>
-                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS! 🎉</h3>
+                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS!</h3>
                     <p class="you-won" id="youWonText">You won</p>
                     <div class="prize-display" id="prizeDisplay">0% OFF</div>
                     <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode"></span></p>
@@ -579,7 +585,7 @@
                         step2: "Watch the wheel spin and stop on your prize",
                         step3: "Copy your discount code",
                         step4: "Use it when you make your next reservation",
-                        congratulations: "CONGRATULATIONS! 🎉",
+                        congratulations: "CONGRATULATIONS!",
                         you_won: "You won",
                         free_days: "FREE DAYS",
                         use_code: "Use code:",
@@ -657,7 +663,7 @@
             const centerButton = document.getElementById('centerButton');
             if (centerButton) {
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = '🎁';
+                centerButton.querySelector('.center-icon').textContent = 'START';
             }
         }
 
@@ -777,12 +783,27 @@
                         break;
                 }
                 
-                // Determine text based on coupon type
+                // Determine text based on coupon type with translations
                 let segmentText;
                 if (coupon.type === 'percentage') {
                     segmentText = `${coupon.discount_percentage}%`;
                 } else if (coupon.type === 'free_days') {
-                    segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                    // Use translations for free days
+                    const wheelTranslations = translations.wheel?.wheel_segments || {};
+                    if (coupon.free_days === 1 && wheelTranslations['1_day']) {
+                        segmentText = wheelTranslations['1_day'];
+                    } else if (coupon.free_days === 2 && wheelTranslations['2_days']) {
+                        segmentText = wheelTranslations['2_days'];
+                    } else if (coupon.free_days === 3 && wheelTranslations['3_days']) {
+                        segmentText = wheelTranslations['3_days'];
+                    } else if (coupon.free_days === 4 && wheelTranslations['4_days']) {
+                        segmentText = wheelTranslations['4_days'];
+                    } else if (coupon.free_days === 6 && wheelTranslations['6_days']) {
+                        segmentText = wheelTranslations['6_days'];
+                    } else {
+                        // Fallback to English if translation not found
+                        segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                    }
                 } else {
                     // Fallback for old coupons without type
                     segmentText = `${coupon.discount_percentage}%`;
@@ -876,6 +897,10 @@
             // Clear and append all at once
             wheel.innerHTML = '';
             wheel.appendChild(fragment);
+            
+            // Add white border lines between segments
+            addSegmentBorders(wheelSegments.length);
+            
             console.log('Wheel segments created successfully!');
         }
 
@@ -916,6 +941,28 @@
             points.push(`${endX}% ${endY}%`);
             
             return `polygon(${points.join(', ')})`;
+        }
+
+        // Add black border lines between segments
+        function addSegmentBorders(numSegments) {
+            const segmentAngle = 360 / numSegments;
+            
+            for (let i = 0; i < numSegments; i++) {
+                const borderElement = document.createElement('div');
+                borderElement.className = 'segment-border';
+                borderElement.style.position = 'absolute';
+                borderElement.style.top = '50%';
+                borderElement.style.left = '50%';
+                borderElement.style.width = '2px';
+                borderElement.style.height = '50%';
+                borderElement.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                borderElement.style.transformOrigin = 'bottom center';
+                borderElement.style.transform = `translate(-50%, -100%) rotate(${i * segmentAngle}deg)`;
+                borderElement.style.zIndex = '15';
+                borderElement.style.pointerEvents = 'none';
+                
+                wheel.appendChild(borderElement);
+            }
         }
 
 
@@ -1044,7 +1091,7 @@
                 isSpinning = false;
                 hasSpun = true;
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = '🎁';
+                centerButton.querySelector('.center-icon').textContent = 'START';
 
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
@@ -1056,7 +1103,24 @@
                     if (winningSegment.coupon.type === 'percentage') {
                         prizeDisplay.textContent = `${winningSegment.coupon.discount_percentage}% OFF`;
                     } else if (winningSegment.coupon.type === 'free_days') {
-                        prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                        // Use translations for the result display
+                        const wheelTranslations = translations.wheel?.wheel_segments || {};
+                        const freeDaysText = translations.wheel?.free_days || 'FREE DAYS';
+                        
+                        if (winningSegment.coupon.free_days === 1 && wheelTranslations['1_day']) {
+                            prizeDisplay.textContent = `${wheelTranslations['1_day']}`;
+                        } else if (winningSegment.coupon.free_days === 2 && wheelTranslations['2_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['2_days']}`;
+                        } else if (winningSegment.coupon.free_days === 3 && wheelTranslations['3_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['3_days']}`;
+                        } else if (winningSegment.coupon.free_days === 4 && wheelTranslations['4_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['4_days']}`;
+                        } else if (winningSegment.coupon.free_days === 6 && wheelTranslations['6_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['6_days']}`;
+                        } else {
+                            // Fallback to English if translation not found
+                            prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                        }
                     } else {
                         // Fallback for old coupons without type
                         prizeDisplay.textContent = `${winningSegment.text} OFF`;
