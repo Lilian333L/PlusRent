@@ -560,11 +560,12 @@ router.get('/secure/random-winning-index', async (req, res) => {
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
       
-      // Get wheel coupons with percentages (minimal data)
+      // Get wheel coupons with percentages (minimal data) - same order as active-data endpoint
       const { data: wheelCoupons, error: couponsError } = await supabase
         .from('wheel_coupons')
         .select('coupon_id, percentage')
-        .eq('wheel_id', activeWheel.id);
+        .eq('wheel_id', activeWheel.id)
+        .order('coupon_id', { ascending: true });
       
       if (couponsError) {
         console.error('❌ Supabase error fetching wheel coupons:', couponsError);
@@ -576,17 +577,20 @@ router.get('/secure/random-winning-index', async (req, res) => {
         return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
       }
       
-      // Calculate total percentage
-      const totalPercentage = wheelCoupons.reduce((sum, wc) => sum + (wc.percentage || 0), 0);
+      // Filter out coupons with 0% probability
+      const validCoupons = wheelCoupons.filter(wc => (wc.percentage || 0) > 0);
       
-      if (totalPercentage === 0) {
-        console.log('Total percentage is 0, using equal distribution');
-        // If all percentages are 0, use equal distribution
+      if (validCoupons.length === 0) {
+        console.log('No coupons with valid percentages, using equal distribution for all coupons');
+        // If no coupons have valid percentages, use equal distribution for all coupons
         const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
         return res.json({ 
           winningIndex: randomIndex
         });
       }
+      
+      // Calculate total percentage only for valid coupons
+      const totalPercentage = validCoupons.reduce((sum, wc) => sum + (wc.percentage || 0), 0);
       
       // Generate random number between 0 and total percentage
       const randomValue = Math.random() * totalPercentage;
@@ -595,12 +599,29 @@ router.get('/secure/random-winning-index', async (req, res) => {
       let cumulativePercentage = 0;
       let winningIndex = 0;
       
+      console.log('🔍 Probability calculation debug:');
+      console.log('Random value:', randomValue);
+      console.log('Total percentage:', totalPercentage);
+      
       for (let i = 0; i < wheelCoupons.length; i++) {
         const coupon = wheelCoupons[i];
         const couponPercentage = coupon.percentage || 0;
         
-        if (randomValue <= cumulativePercentage + couponPercentage) {
+        console.log(`Index ${i}: coupon_id ${coupon.coupon_id}, percentage ${couponPercentage}`);
+        
+        // Skip coupons with 0% probability
+        if (couponPercentage === 0) {
+          console.log(`  Skipping index ${i} (0% probability)`);
+          continue;
+        }
+        
+        const rangeStart = cumulativePercentage;
+        const rangeEnd = cumulativePercentage + couponPercentage;
+        console.log(`  Range: ${rangeStart} - ${rangeEnd}`);
+        
+        if (randomValue <= rangeEnd) {
           winningIndex = i;
+          console.log(`  WINNER: index ${i} (random ${randomValue} <= ${rangeEnd})`);
           break;
         }
         
@@ -626,7 +647,7 @@ router.get('/secure/random-winning-index', async (req, res) => {
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
       
-      db.all('SELECT coupon_id, percentage FROM wheel_coupons WHERE wheel_id = ?', [wheel.id], (err, coupons) => {
+      db.all('SELECT coupon_id, percentage FROM wheel_coupons WHERE wheel_id = ? ORDER BY coupon_id ASC', [wheel.id], (err, coupons) => {
         if (err) {
           return res.status(500).json({ error: 'Database error' });
         }
@@ -635,16 +656,20 @@ router.get('/secure/random-winning-index', async (req, res) => {
           return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
         }
         
-        // Calculate total percentage
-        const totalPercentage = coupons.reduce((sum, coupon) => sum + (coupon.percentage || 0), 0);
+        // Filter out coupons with 0% probability
+        const validCoupons = coupons.filter(coupon => (coupon.percentage || 0) > 0);
         
-        if (totalPercentage === 0) {
-          // If all percentages are 0, use equal distribution
+        if (validCoupons.length === 0) {
+          console.log('No coupons with valid percentages, using equal distribution for all coupons');
+          // If no coupons have valid percentages, use equal distribution for all coupons
           const randomIndex = Math.floor(Math.random() * coupons.length);
           return res.json({ 
             winningIndex: randomIndex
           });
         }
+        
+        // Calculate total percentage only for valid coupons
+        const totalPercentage = validCoupons.reduce((sum, coupon) => sum + (coupon.percentage || 0), 0);
         
         // Generate random number between 0 and total percentage
         const randomValue = Math.random() * totalPercentage;
@@ -653,12 +678,29 @@ router.get('/secure/random-winning-index', async (req, res) => {
         let cumulativePercentage = 0;
         let winningIndex = 0;
         
+        console.log('🔍 Probability calculation debug (SQLite):');
+        console.log('Random value:', randomValue);
+        console.log('Total percentage:', totalPercentage);
+        
         for (let i = 0; i < coupons.length; i++) {
           const coupon = coupons[i];
           const couponPercentage = coupon.percentage || 0;
           
-          if (randomValue <= cumulativePercentage + couponPercentage) {
+          console.log(`Index ${i}: coupon_id ${coupon.coupon_id}, percentage ${couponPercentage}`);
+          
+          // Skip coupons with 0% probability
+          if (couponPercentage === 0) {
+            console.log(`  Skipping index ${i} (0% probability)`);
+            continue;
+          }
+          
+          const rangeStart = cumulativePercentage;
+          const rangeEnd = cumulativePercentage + couponPercentage;
+          console.log(`  Range: ${rangeStart} - ${rangeEnd}`);
+          
+          if (randomValue <= rangeEnd) {
             winningIndex = i;
+            console.log(`  WINNER: index ${i} (random ${randomValue} <= ${rangeEnd})`);
             break;
           }
           

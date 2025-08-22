@@ -5927,9 +5927,21 @@
               const phoneNumber = phoneNumberInput.value.trim();
               
               if (!phoneNumber) {
-                alert('Please enter a phone number');
+                phoneNumberInput.setCustomValidity('Please enter a phone number');
+                phoneNumberInput.reportValidity();
                 return;
               }
+              
+              // Phone number validation - same as booking form
+              const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
+              if (!phoneRegex.test(phoneNumber)) {
+                phoneNumberInput.setCustomValidity('Please enter a valid phone number (only numbers, spaces, hyphens, parentheses, and optional + at start)');
+                phoneNumberInput.reportValidity();
+                return;
+              }
+              
+              // Clear any previous validation message
+              phoneNumberInput.setCustomValidity('');
               
               // Close phone number modal
               const phoneModal = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));
@@ -5956,6 +5968,27 @@
           if (phoneNumberForm) {
             phoneNumberForm.addEventListener('submit', (e) => {
               e.preventDefault();
+              
+              const phoneNumber = phoneNumberInput.value.trim();
+              
+              if (!phoneNumber) {
+                phoneNumberInput.setCustomValidity('Please enter a phone number');
+                phoneNumberInput.reportValidity();
+                return;
+              }
+              
+              // Phone number validation - same as booking form
+              const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
+              if (!phoneRegex.test(phoneNumber)) {
+                phoneNumberInput.setCustomValidity('Please enter a valid phone number (only numbers, spaces, hyphens, parentheses, and optional + at start)');
+                phoneNumberInput.reportValidity();
+                return;
+              }
+              
+              // Clear any previous validation message
+              phoneNumberInput.setCustomValidity('');
+              
+              // Proceed with submission
               submitPhoneNumberBtn.click();
             });
           }
