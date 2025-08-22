@@ -29,6 +29,11 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .spinning-wheel-container {
             width: 100%;
             height: 100vh;
@@ -615,10 +620,58 @@
         let currentWinningCoupon = null;
         let cachedWheelSegments = null;
         let randomWinningIndex = null;
+        let userPhoneNumber = null;
+
+        // Get phone number from URL parameters
+        function getPhoneNumberFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('phone');
+        }
+
+        // Show loading state
+        function showLoadingState() {
+            const wheel = document.getElementById('wheel');
+            const centerButton = document.getElementById('centerButton');
+            
+            if (wheel) {
+                wheel.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: white; font-size: 16px;">
+                        <div style="margin-bottom: 10px;">
+                            <svg width="40" height="40" viewBox="0 0 40 40" style="animation: spin 1s linear infinite;">
+                                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="30 100" stroke-dashoffset="0"/>
+                            </svg>
+                        </div>
+                        <div>Loading wheel...</div>
+                    </div>
+                `;
+            }
+            
+            if (centerButton) {
+                centerButton.disabled = true;
+                centerButton.querySelector('.center-icon').textContent = '⏳';
+            }
+        }
+
+        // Hide loading state
+        function hideLoadingState() {
+            const centerButton = document.getElementById('centerButton');
+            if (centerButton) {
+                centerButton.disabled = false;
+                centerButton.querySelector('.center-icon').textContent = '🎁';
+            }
+        }
 
         // Fetch coupons from the API
         async function fetchCoupons() {
             try {
+                // Show loading state
+                showLoadingState();
+                
+                // Add timeout to prevent infinite loading
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                );
+                
                 // Ensure API_BASE_URL is set
                 if (!window.API_BASE_URL) {
                     console.warn('API_BASE_URL not found, using default');
@@ -629,79 +682,51 @@
                 
                 const apiUrl = window.API_BASE_URL;
     
+                // Use secure endpoint that doesn't expose sensitive data
+                const response = await Promise.race([
+                    fetch(`${apiUrl}/api/spinning-wheels/secure/active-data`),
+                    timeoutPromise
+                ]);
                 
-                // First, check if any spinning wheels exist
-                const wheelsResponse = await fetch(`${apiUrl}/api/spinning-wheels`);
-                if (!wheelsResponse.ok) {
-                    console.error('Failed to get spinning wheels, status:', wheelsResponse.status);
+                if (!response.ok) {
+                    console.error('Failed to get secure wheel data, status:', response.status);
                     availableCoupons = [];
                     cachedWheelSegments = null;
+                    hideLoadingState();
                     return;
                 }
                 
-                const allWheels = await wheelsResponse.json();
-                if (allWheels.length === 0) {
-                    console.log('No spinning wheels configured - using default segments');
+                const wheelData = await response.json();
+                
+                if (!wheelData.segments || wheelData.segments.length === 0) {
+                    console.log('No active spinning wheel segments found - using default segments');
                     availableCoupons = [];
                     cachedWheelSegments = null;
+                    hideLoadingState();
                     return;
                 }
                 
-                // Check if any wheel is active
-                // Handle both SQLite (1/0) and Supabase (true/false) boolean values
-        const activeWheel = allWheels.find(wheel => wheel.is_active === 1 || wheel.is_active === true);
-                if (!activeWheel) {
-                    console.log('No active spinning wheel configured - using default segments');
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                    return;
-                }
-                
+                // Convert secure segments to the format expected by the wheel
+                availableCoupons = wheelData.segments.map(segment => ({
+                    id: segment.coupon_id,
+                    type: segment.type,
+                    discount_percentage: segment.type === 'percentage' ? segment.value : null,
+                    free_days: segment.type === 'free_days' ? segment.value : null,
+                    code: segment.code,
+                    available_codes: segment.available_codes
+                }));
 
+                // Always clear cache to ensure fresh data
+                cachedWheelSegments = null;
                 
-                // Then fetch coupons that are enabled for this specific wheel
-                const wheelCouponsResponse = await fetch(`${apiUrl}/api/spinning-wheels/${activeWheel.id}/coupons`);
-                if (!wheelCouponsResponse.ok) {
-                    console.error('Failed to get wheel coupons, status:', wheelCouponsResponse.status);
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                    return;
-                }
+                console.log(`✅ Loaded ${availableCoupons.length} secure segments for wheel`);
+                hideLoadingState();
                 
-                const wheelCoupons = await wheelCouponsResponse.json();
-
-                
-                // Get all coupons and filter by those enabled for this wheel
-                const response = await fetch(`${apiUrl}/api/coupons`);
-
-                
-                if (response.ok) {
-                    const allCoupons = await response.json();
-
-                    
-                    // Create a set of enabled coupon IDs for this wheel
-                    const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
-                    
-                    // Filter only active coupons that are enabled for this specific wheel
-                const filteredCoupons = allCoupons.filter(coupon => 
-                        (coupon.is_active === 1 || coupon.is_active === true) && 
-                        enabledCouponIds.has(coupon.id)
-                    );
-                
-                // Sort by coupon_id to match the API order (same as random-winning-index endpoint)
-                availableCoupons = filteredCoupons.sort((a, b) => a.id - b.id);
-
-                    // Always clear cache to ensure fresh data
-                    cachedWheelSegments = null;
-                } else {
-                    console.error('Failed to fetch coupons, status:', response.status);
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                }
             } catch (error) {
-                console.error('Error fetching coupons:', error);
+                console.error('Error fetching secure wheel data:', error);
                 availableCoupons = [];
                 cachedWheelSegments = null;
+                hideLoadingState();
             }
         }
 
@@ -795,12 +820,15 @@
 
         // Create wheel segments with optimized performance
         function createWheelSegments() {
+            console.log('Creating wheel segments...');
+            
             // Use DocumentFragment for better performance
             const fragment = document.createDocumentFragment();
             const wheelSegments = getWheelSegments();
 
             const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
 
+            console.log(`Creating ${wheelSegments.length} segments...`);
             
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
@@ -849,6 +877,7 @@
             // Clear and append all at once
             wheel.innerHTML = '';
             wheel.appendChild(fragment);
+            console.log('Wheel segments created successfully!');
         }
 
         // Generate clip-path for a segment
@@ -897,7 +926,7 @@
         // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/random-winning-index`);
+                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/secure/random-winning-index`);
                 if (response.ok) {
                     const data = await response.json();
                     return data.winningIndex;
@@ -961,6 +990,12 @@
         // Spin the wheel with optimized performance
         async function spinWheel() {
             if (isSpinning || hasSpun) return;
+
+            // Check if phone number is provided
+            if (!userPhoneNumber) {
+                alert('Please provide a phone number to spin the wheel');
+                return;
+            }
 
             isSpinning = true;
             centerButton.disabled = true;
@@ -1087,9 +1122,12 @@
         // Initialize wheel and load language
         loadLanguage().then(async () => {
     
-            // Fetch coupons first, then create wheel segments
+            // Get phone number from URL parameters
+            userPhoneNumber = getPhoneNumberFromURL();
+            console.log('Phone number from URL:', userPhoneNumber);
+    
+            // Fetch coupons and create wheel segments
             await fetchCoupons();
-
             createWheelSegments();
             // Ensure wheel starts at 0 degrees and has proper transition
             wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';

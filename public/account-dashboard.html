@@ -81,6 +81,22 @@
       }
       
       /* Override MDB button styles to use gray instead of purple */
+      .btn-secondary {
+        color: #fff !important;
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+      }
+      
+      .btn-secondary:hover {
+        color: #fff !important;
+        background-color: #5a6268 !important;
+        border-color: #545b62 !important;
+      }
+      
+      .btn-secondary:focus {
+        box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5) !important;
+      }
+      
       .btn-outline-secondary {
         color: #6c757d !important;
         border-color: #6c757d !important;
@@ -2436,6 +2452,36 @@
 			
         </div>
         <!-- content close -->
+
+        <!-- Phone Number Modal -->
+        <div class="modal fade" id="phoneNumberModal" tabindex="-1" aria-labelledby="phoneNumberModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="phoneNumberModalLabel">
+                  <i class="fa fa-gift"></i> Spin the Wheel for a Bonus!
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <p class="text-muted mb-3">You can spin a wheel to get a random bonus.</p>
+                </div>
+                <form id="phoneNumberForm">
+                  <div class="mb-3">
+                    <input type="tel" class="form-control" id="phoneNumberInput" placeholder="Enter your phone number" required>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitPhoneNumberBtn">
+                  <i class="fa fa-check"></i> Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Spinning Wheel Preview Modal -->
         <div class="modal fade" id="spinningWheelModal" tabindex="-1" aria-labelledby="spinningWheelModalLabel" aria-hidden="true">
@@ -5748,16 +5794,9 @@
           
           if (openSpinningWheelBtn) {
             openSpinningWheelBtn.addEventListener('click', () => {
-              // Open spinning wheel in a modal popup
-              const modal = new bootstrap.Modal(document.getElementById('spinningWheelModal'));
-              const iframe = document.getElementById('spinningWheelIframe');
-              
-              // Refresh the iframe content to get latest data
-              if (iframe) {
-                iframe.src = iframe.src;
-              }
-              
-              modal.show();
+              // Show phone number modal first
+              const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
+              phoneModal.show();
             });
           }
           
@@ -5772,6 +5811,9 @@
           
           // Load spinning wheel data when tab is shown
           loadSpinningWheelData();
+          
+          // Initialize phone number modal handlers
+          initializePhoneNumberModal();
         }
 
         function showWheelConfiguration(wheelId) {
@@ -5872,6 +5914,50 @@
             
           } catch (error) {
             console.error('Error loading spinning wheel data:', error);
+          }
+        }
+
+        function initializePhoneNumberModal() {
+          const submitPhoneNumberBtn = document.getElementById('submitPhoneNumberBtn');
+          const phoneNumberInput = document.getElementById('phoneNumberInput');
+          const phoneNumberForm = document.getElementById('phoneNumberForm');
+          
+          if (submitPhoneNumberBtn) {
+            submitPhoneNumberBtn.addEventListener('click', () => {
+              const phoneNumber = phoneNumberInput.value.trim();
+              
+              if (!phoneNumber) {
+                alert('Please enter a phone number');
+                return;
+              }
+              
+              // Close phone number modal
+              const phoneModal = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));
+              phoneModal.hide();
+              
+              // Clear the input
+              phoneNumberInput.value = '';
+              
+              // Open spinning wheel modal with phone number
+              const wheelModal = new bootstrap.Modal(document.getElementById('spinningWheelModal'));
+              const iframe = document.getElementById('spinningWheelIframe');
+              
+              // Pass phone number to iframe via URL parameter
+              if (iframe) {
+                const currentSrc = iframe.src.split('?')[0];
+                iframe.src = `${currentSrc}?phone=${encodeURIComponent(phoneNumber)}`;
+              }
+              
+              wheelModal.show();
+            });
+          }
+          
+          // Handle form submission on Enter key
+          if (phoneNumberForm) {
+            phoneNumberForm.addEventListener('submit', (e) => {
+              e.preventDefault();
+              submitPhoneNumberBtn.click();
+            });
           }
         }
 
