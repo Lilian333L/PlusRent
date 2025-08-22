@@ -40,48 +40,41 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get active spinning wheel
+// Get all active spinning wheels
 router.get('/active', async (req, res) => {
   // Check if we're using Supabase
   const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for active spinning wheel fetch');
+      console.log('🔍 Using Supabase for active spinning wheels fetch');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
         .select('*')
         .eq('is_active', true)
-        .single();
+        .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('❌ Supabase error fetching active spinning wheel:', error);
+        console.error('❌ Supabase error fetching active spinning wheels:', error);
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      if (!data) {
-        return res.status(404).json({ error: 'No active spinning wheel found' });
-      }
-      
-      console.log('✅ Active spinning wheel fetched successfully from Supabase');
-      res.json(data);
+      console.log('✅ Active spinning wheels fetched successfully from Supabase');
+      res.json(data || []);
       
     } catch (error) {
-      console.error('❌ Supabase error fetching active spinning wheel:', error);
+      console.error('❌ Supabase error fetching active spinning wheels:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
   } else {
     // Use SQLite
-  db.get('SELECT * FROM spinning_wheels WHERE is_active = 1', (err, wheel) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!wheel) {
-      return res.status(404).json({ error: 'No active spinning wheel found' });
-    }
-    res.json(wheel);
-  });
+    db.all('SELECT * FROM spinning_wheels WHERE is_active = 1 ORDER BY created_at DESC', (err, wheels) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json(wheels || []);
+    });
   }
 });
 
@@ -94,17 +87,20 @@ router.get('/secure/active-data', async (req, res) => {
     try {
       console.log('🔍 Using Supabase for secure active wheel data fetch');
       
-      // Get active wheel
-      const { data: activeWheel, error: wheelError } = await supabase
+      // Get first active wheel (for backward compatibility)
+      const { data: activeWheels, error: wheelError } = await supabase
         .from('spinning_wheels')
         .select('id')
         .eq('is_active', true)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1);
       
-      if (wheelError || !activeWheel) {
+      if (wheelError || !activeWheels || activeWheels.length === 0) {
         console.log('No active spinning wheel found');
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
+      
+      const activeWheel = activeWheels[0];
       
       // Get wheel coupons (only coupon_id, no sensitive data)
       const { data: wheelCoupons, error: wheelCouponsError } = await supabase
@@ -221,6 +217,315 @@ router.get('/secure/active-data', async (req, res) => {
             res.json({ segments: segments });
           }
         );
+      });
+    });
+  }
+});
+
+// Secure endpoint for specific wheel data (minimal data exposure)
+router.get('/:id/secure-data', async (req, res) => {
+  const wheelId = req.params.id;
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log(`🔍 Using Supabase for secure wheel data fetch for wheel ${wheelId}`);
+      
+      // Check if wheel exists
+      const { data: wheel, error: wheelError } = await supabase
+        .from('spinning_wheels')
+        .select('id')
+        .eq('id', wheelId)
+        .single();
+      
+      if (wheelError || !wheel) {
+        console.log(`Wheel ${wheelId} not found`);
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // Get wheel coupons (only coupon_id, no sensitive data)
+      const { data: wheelCoupons, error: wheelCouponsError } = await supabase
+        .from('wheel_coupons')
+        .select('coupon_id')
+        .eq('wheel_id', wheelId);
+      
+      if (wheelCouponsError) {
+        console.error('❌ Supabase error fetching wheel coupons:', wheelCouponsError);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Get active coupons with minimal data
+      const enabledCouponIds = wheelCoupons.map(wc => wc.coupon_id);
+      
+      if (enabledCouponIds.length === 0) {
+        return res.json({ segments: [] });
+      }
+      
+      const { data: coupons, error: couponsError } = await supabase
+        .from('coupon_codes')
+        .select('id, type, discount_percentage, free_days, code')
+        .in('id', enabledCouponIds)
+        .eq('is_active', true)
+        .order('id', { ascending: true });
+      
+      if (couponsError) {
+        console.error('❌ Supabase error fetching coupons:', couponsError);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      // Create secure segments with minimal data
+      const segments = coupons.map((coupon, index) => {
+        let text;
+        if (coupon.type === 'percentage') {
+          text = `${coupon.discount_percentage}%`;
+        } else if (coupon.type === 'free_days') {
+          text = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+        } else {
+          text = `${coupon.discount_percentage}%`;
+        }
+        
+        return {
+          index: index,
+          text: text,
+          type: coupon.type,
+          value: coupon.type === 'percentage' ? coupon.discount_percentage : coupon.free_days,
+          coupon_id: coupon.id,
+          code: coupon.code
+        };
+      });
+      
+      console.log(`✅ Secure wheel data fetched successfully for wheel ${wheelId}`);
+      res.json({ segments: segments });
+      
+    } catch (error) {
+      console.error('❌ Supabase error fetching secure wheel data:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    // Use SQLite
+    db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, wheel) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!wheel) {
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // Get wheel coupons
+      db.all('SELECT coupon_id FROM wheel_coupons WHERE wheel_id = ?', [wheelId], (err, wheelCoupons) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        const enabledCouponIds = wheelCoupons.map(wc => wc.coupon_id);
+        
+        if (enabledCouponIds.length === 0) {
+          return res.json({ segments: [] });
+        }
+        
+        const placeholders = enabledCouponIds.map(() => '?').join(',');
+        db.all(
+          `SELECT id, type, discount_percentage, free_days, code 
+           FROM coupon_codes 
+           WHERE id IN (${placeholders}) AND is_active = 1 
+           ORDER BY id ASC`,
+          enabledCouponIds,
+          (err, coupons) => {
+            if (err) {
+              return res.status(500).json({ error: 'Database error' });
+            }
+            
+            const segments = coupons.map((coupon, index) => {
+              let text;
+              if (coupon.type === 'percentage') {
+                text = `${coupon.discount_percentage}%`;
+              } else if (coupon.type === 'free_days') {
+                text = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+              } else {
+                text = `${coupon.discount_percentage}%`;
+              }
+              
+              return {
+                index: index,
+                text: text,
+                type: coupon.type,
+                value: coupon.type === 'percentage' ? coupon.discount_percentage : coupon.free_days,
+                coupon_id: coupon.id,
+                code: coupon.code
+              };
+            });
+            
+            res.json({ segments: segments });
+          }
+        );
+      });
+    });
+  }
+});
+
+// Secure random winning index endpoint for specific wheel (no sensitive data exposure)
+router.get('/:id/secure/random-winning-index', async (req, res) => {
+  const wheelId = req.params.id;
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log(`🔍 Using Supabase for secure random winning index for wheel ${wheelId}`);
+      
+      // Check if wheel exists
+      const { data: wheel, error: wheelError } = await supabase
+        .from('spinning_wheels')
+        .select('id')
+        .eq('id', wheelId)
+        .single();
+      
+      if (wheelError || !wheel) {
+        console.log(`Wheel ${wheelId} not found`);
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // Get wheel coupons with percentages (minimal data) - same order as secure-data endpoint
+      const { data: wheelCoupons, error: couponsError } = await supabase
+        .from('wheel_coupons')
+        .select('coupon_id, percentage')
+        .eq('wheel_id', wheelId)
+        .order('coupon_id', { ascending: true });
+      
+      if (couponsError) {
+        console.error('❌ Supabase error fetching wheel coupons:', couponsError);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      if (!wheelCoupons || wheelCoupons.length === 0) {
+        console.log('No enabled coupons found for wheel');
+        return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
+      }
+      
+      // Filter out coupons with 0% probability
+      const validCoupons = wheelCoupons.filter(wc => (wc.percentage || 0) > 0);
+      
+      if (validCoupons.length === 0) {
+        console.log('No coupons with valid percentages, using equal distribution for all coupons');
+        // If no coupons have valid percentages, use equal distribution for all coupons
+        const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
+        return res.json({ 
+          winningIndex: randomIndex
+        });
+      }
+      
+      // Calculate total percentage only for valid coupons
+      const totalPercentage = validCoupons.reduce((sum, wc) => sum + (wc.percentage || 0), 0);
+      
+      // Generate random number between 0 and total percentage
+      const randomValue = Math.random() * totalPercentage;
+      
+      // Find the winning coupon based on cumulative percentages
+      let cumulativePercentage = 0;
+      let winningIndex = 0;
+      
+      console.log('🔍 Probability calculation debug:');
+      console.log('Random value:', randomValue);
+      console.log('Total percentage:', totalPercentage);
+      
+      for (let i = 0; i < wheelCoupons.length; i++) {
+        const coupon = wheelCoupons[i];
+        const couponPercentage = coupon.percentage || 0;
+        
+        console.log(`Index ${i}: coupon_id ${coupon.coupon_id}, percentage ${couponPercentage}`);
+        
+        // Skip coupons with 0% probability
+        if (couponPercentage === 0) {
+          console.log(`  Skipping index ${i} (0% probability)`);
+          continue;
+        }
+        
+        const rangeStart = cumulativePercentage;
+        const rangeEnd = cumulativePercentage + couponPercentage;
+        console.log(`  Range: ${rangeStart} - ${rangeEnd}`);
+        
+        if (randomValue <= rangeEnd) {
+          winningIndex = i;
+          console.log(`  WINNER: index ${i} (random ${randomValue} <= ${rangeEnd})`);
+          break;
+        }
+        
+        cumulativePercentage += couponPercentage;
+      }
+      
+      console.log(`✅ Secure random winning index calculated successfully for wheel ${wheelId}`);
+      res.json({ 
+        winningIndex: winningIndex
+      });
+      
+    } catch (error) {
+      console.error('❌ Supabase error calculating secure random winning index:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    // Use SQLite
+    db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, wheel) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!wheel) {
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // Get wheel coupons with percentages
+      db.all('SELECT coupon_id, percentage FROM wheel_coupons WHERE wheel_id = ? ORDER BY coupon_id ASC', [wheelId], (err, wheelCoupons) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!wheelCoupons || wheelCoupons.length === 0) {
+          return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
+        }
+        
+        // Filter out coupons with 0% probability
+        const validCoupons = wheelCoupons.filter(wc => (wc.percentage || 0) > 0);
+        
+        if (validCoupons.length === 0) {
+          // If no coupons have valid percentages, use equal distribution for all coupons
+          const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
+          return res.json({ 
+            winningIndex: randomIndex
+          });
+        }
+        
+        // Calculate total percentage only for valid coupons
+        const totalPercentage = validCoupons.reduce((sum, wc) => sum + (wc.percentage || 0), 0);
+        
+        // Generate random number between 0 and total percentage
+        const randomValue = Math.random() * totalPercentage;
+        
+        // Find the winning coupon based on cumulative percentages
+        let cumulativePercentage = 0;
+        let winningIndex = 0;
+        
+        for (let i = 0; i < wheelCoupons.length; i++) {
+          const coupon = wheelCoupons[i];
+          const couponPercentage = coupon.percentage || 0;
+          
+          // Skip coupons with 0% probability
+          if (couponPercentage === 0) {
+            continue;
+          }
+          
+          if (randomValue <= cumulativePercentage + couponPercentage) {
+            winningIndex = i;
+            break;
+          }
+          
+          cumulativePercentage += couponPercentage;
+        }
+        
+        res.json({ 
+          winningIndex: winningIndex
+        });
       });
     });
   }
@@ -987,7 +1292,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Activate a spinning wheel (deactivates all others)
+// Activate a spinning wheel
 router.patch('/:id/activate', async (req, res) => {
   const id = req.params.id;
   
@@ -998,18 +1303,7 @@ router.patch('/:id/activate', async (req, res) => {
     try {
       console.log('🔍 Using Supabase for spinning wheel activation');
       
-      // First, deactivate all active wheels
-      const { error: deactivateError } = await supabase
-        .from('spinning_wheels')
-        .update({ is_active: false })
-        .eq('is_active', true);
-      
-      if (deactivateError) {
-        console.error('❌ Supabase error deactivating wheels:', deactivateError);
-        return res.status(500).json({ error: 'Database error: ' + deactivateError.message });
-      }
-      
-      // Then activate the selected wheel
+      // Activate the selected wheel
       const { data, error: activateError } = await supabase
         .from('spinning_wheels')
         .update({ 
@@ -1037,20 +1331,12 @@ router.patch('/:id/activate', async (req, res) => {
     }
   } else {
     // Use SQLite
-  // First, deactivate all wheels
-  db.run('UPDATE spinning_wheels SET is_active = 0', (err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    // Then activate the selected wheel
     db.run('UPDATE spinning_wheels SET is_active = 1 WHERE id = ?', [id], (err) => {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
       res.json({ success: true });
     });
-  });
   }
 });
 

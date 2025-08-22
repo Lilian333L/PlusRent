@@ -634,6 +634,12 @@
             return urlParams.get('phone');
         }
 
+        // Get wheel ID from URL parameters
+        function getWheelIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('wheel');
+        }
+
         // Show loading state
         function showLoadingState() {
             const wheel = document.getElementById('wheel');
@@ -688,9 +694,16 @@
                 
                 const apiUrl = window.API_BASE_URL;
     
+                // Get wheel ID from URL parameters
+                const wheelId = getWheelIdFromURL();
+                
                 // Use secure endpoint that doesn't expose sensitive data
+                const endpoint = wheelId && wheelId !== 'active' 
+                    ? `${apiUrl}/api/spinning-wheels/${wheelId}/secure-data`
+                    : `${apiUrl}/api/spinning-wheels/secure/active-data`;
+                
                 const response = await Promise.race([
-                    fetch(`${apiUrl}/api/spinning-wheels/secure/active-data`),
+                    fetch(endpoint),
                     timeoutPromise
                 ]);
                 
@@ -972,7 +985,15 @@
         // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/secure/random-winning-index`);
+                // Get wheel ID from URL parameters
+                const wheelId = getWheelIdFromURL();
+                
+                // Use specific wheel endpoint if wheel ID is provided
+                const endpoint = wheelId && wheelId !== 'active' 
+                    ? `${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/secure/random-winning-index`
+                    : `${window.API_BASE_URL}/api/spinning-wheels/secure/random-winning-index`;
+                
+                const response = await fetch(endpoint);
                 if (response.ok) {
                     const data = await response.json();
                     return data.winningIndex;

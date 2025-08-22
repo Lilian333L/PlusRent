@@ -1044,6 +1044,16 @@
     background-color: rgba(0, 0, 0, .02);
     border-color: #b23cfd;
   }
+
+  /* Remove right margin from preview button icon */
+  .btn-outline-info .fa-eye {
+    margin-right: 0;
+  }
+
+  /* Remove right margin from delete button icon */
+  .btn-outline-danger .fa-trash {
+    margin-right: 0;
+  }
   
   .de-item.mb30 {
     transition: box-shadow 0.25s, transform 0.25s;
@@ -2417,11 +2427,8 @@
                     <div style="width: 50%;">
                       <div class="card shadow-sm">
                         <div class="card-body">
-                          <p class="text-muted mb-3">Select a wheel to configure</p>
+                          <p class="text-muted mb-3">Select a wheel to configure (multiple wheels can be active)</p>
                           <div class="mb-4">
-                            <button id="openSpinningWheelBtn" type="button" class="btn btn-success btn-lg w-100 mb-2">
-                              <i class="fa fa-play"></i> Open Active Wheel
-                            </button>
                             <button id="addWheelBtn" type="button" class="btn btn-outline-primary btn-lg w-100">
                               <i class="fa fa-plus"></i> Add New Wheel
                             </button>
@@ -5807,16 +5814,7 @@
 
         // Spinning Wheel Management Functions
         function initializeSpinningWheel() {
-          const openSpinningWheelBtn = document.getElementById('openSpinningWheelBtn');
           const addWheelBtn = document.getElementById('addWheelBtn');
-          
-          if (openSpinningWheelBtn) {
-            openSpinningWheelBtn.addEventListener('click', () => {
-              // Show phone number modal first
-              const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
-              phoneModal.show();
-            });
-          }
           
           if (addWheelBtn) {
             addWheelBtn.addEventListener('click', () => {
@@ -5832,6 +5830,17 @@
           
           // Initialize phone number modal handlers
           initializePhoneNumberModal();
+        }
+
+        // Preview a specific wheel
+        function previewWheel(wheelId) {
+          // Show phone number modal first
+          const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
+          
+          // Store the wheel ID to use when opening the preview
+          phoneModal._wheelId = wheelId;
+          
+          phoneModal.show();
         }
 
         function showWheelConfiguration(wheelId) {
@@ -5915,9 +5924,12 @@
                       <small class="text-muted d-block">${wheel.description || 'No description'}</small>
                     </div>
                     <div class="d-flex align-items-center gap-1" onclick="event.stopPropagation();">
+                      <button class="btn btn-sm btn-outline-info" onclick="previewWheel(${wheel.id})" title="Preview this wheel">
+                        <i class="fa fa-eye"></i>
+                      </button>
                       <button class="btn btn-sm ${wheel.is_active ? 'btn-success' : 'btn-outline-secondary'}" 
                               style="${!wheel.is_active ? 'color: #6c757d; border-color: #6c757d;' : ''}"
-                              onclick="activateWheel(${wheel.id})" title="${wheel.is_active ? 'Currently Active' : 'Activate this wheel'}">
+                              onclick="activateWheel(${wheel.id})" title="${wheel.is_active ? 'Currently Active - Click to Deactivate' : 'Activate this wheel'}">
                         <i class="fa ${wheel.is_active ? 'fa-check' : 'fa-play'}"></i>
                         ${wheel.is_active ? 'Active' : 'Activate'}
                       </button>
@@ -5988,14 +6000,18 @@
               // Clear the input
               phoneNumberInput.value = '';
               
-              // Open spinning wheel modal with phone number
+              // Open spinning wheel modal with phone number and wheel ID
               const wheelModal = new bootstrap.Modal(document.getElementById('spinningWheelModal'));
               const iframe = document.getElementById('spinningWheelIframe');
               
-              // Pass phone number to iframe via URL parameter
+              // Get the wheel ID from the modal instance
+              const phoneModalInstance = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));
+              const wheelId = phoneModalInstance._wheelId || 'active';
+              
+              // Pass phone number and wheel ID to iframe via URL parameter
               if (iframe) {
                 const currentSrc = iframe.src.split('?')[0];
-                iframe.src = `${currentSrc}?phone=${encodeURIComponent(phoneNumber)}`;
+                iframe.src = `${currentSrc}?phone=${encodeURIComponent(phoneNumber)}&wheel=${wheelId}`;
               }
               
               wheelModal.show();
