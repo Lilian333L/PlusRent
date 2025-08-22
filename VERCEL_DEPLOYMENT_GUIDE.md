@@ -2,7 +2,6 @@
 
 ## Current Status
 ✅ **Local server is running perfectly on http://localhost:3001**
-✅ **Login functionality is working with default credentials: admin / admin123**
 ✅ **All API endpoints are functional**
 
 ## Manual Vercel Deployment Steps
@@ -64,10 +63,6 @@ Once deployed, you can test:
 4. **Login API**: `https://your-project.vercel.app/api/auth/login`
 
 ## Default Login Credentials
-
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Email**: `admin@rentaly.com`
 
 ## Environment Variables (if needed)
 

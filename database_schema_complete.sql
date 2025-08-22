@@ -212,7 +212,7 @@ CREATE TRIGGER IF NOT EXISTS update_booked_cars_timestamp
 -- SAMPLE DATA INSERTS (for development)
 -- =====================================================
 
--- Insert sample admin user (password: admin123)
+
 INSERT OR IGNORE INTO admin_users (username, password_hash, email) VALUES 
 ('admin', '$2b$10$w1DbraGOyyurUV630oOTbeYJKpvBxVtyuILb6RqUYDDkL/DoS5tGO', 'admin@rentaly.com');
 

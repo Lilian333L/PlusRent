@@ -41,7 +41,6 @@ Since the project is linked to GitHub (Kyroot/carrental):
 
 ✅ **Updated server.js** with proper routing
 ✅ **API endpoints** working correctly
-✅ **Login functionality** with admin/admin123
 ✅ **Database configuration** ready
 ✅ **vercel.json** configured for serverless functions
 
@@ -54,9 +53,6 @@ Once deployed, test these URLs:
 3. **API Health**: https://carrental-rho-rose.vercel.app/api/auth/health
 4. **Login API**: https://carrental-rho-rose.vercel.app/api/auth/login
 
-## Login Credentials
-- **Username**: admin
-- **Password**: admin123
 
 ## Quick Deploy Command (if CLI works)
 

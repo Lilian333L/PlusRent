@@ -4,8 +4,9 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
+const db = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
-const { supabase, supabaseAdmin } = require('../lib/supabaseClient');
+const { supabase, supabaseAdmin, uploadCarImage, getCarImageUrl } = require('../lib/supabaseClient');
 
 // Check if we're in Vercel environment
 const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
@@ -378,8 +379,13 @@ router.post('/', async (req, res) => {
         originalname: `head.${headImageData.extension || 'jpg'}`
       };
       
+
+      // Upload to Supabase Storage (we'll get the car ID later)
+      headImageUrl = headFile; // Store the file object for later upload
+
       // Store the file object for later upload (we need the car ID first)
       headImageUrl = headFile;
+
       console.log('✅ Head image prepared for Supabase upload');
     } catch (error) {
       console.error('❌ Error preparing head image:', error);
@@ -693,6 +699,174 @@ router.post('/', async (req, res) => {
       console.error('❌ Supabase car creation error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
+
+  } else {
+    // Use SQLite
+  db.run(
+    `INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, engine_capacity, car_type, num_doors, num_passengers, price_policy, booked, booked_until, luggage, mileage, drive, fuel_economy, exterior_color, interior_color, rca_insurance_price, casco_insurance_price, likes, description, head_image, gallery_images, is_premium)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)` ,
+    [
+      make_name,
+      model_name,
+      production_year,
+      gear_type,
+      fuel_type,
+      engineCapacityValue,
+      car_type,
+      num_doors,
+      num_passengers,
+      JSON.stringify(pricePolicyStringified),
+      booked_until || null,
+      luggage || null,
+      mileageValue,
+      drive || null,
+      fuelEconomyValue,
+      exterior_color || null,
+      interior_color || null,
+      rcaInsuranceValue,
+      cascoInsuranceValue,
+      likesValue,
+      descriptionJson,
+      headImagePath,
+      JSON.stringify(galleryImagePaths)
+    ],
+    async function (err) {
+      if (err) {
+        console.error('Database error details:', err);
+        console.error('Error code:', err.code);
+        console.error('Error message:', err.message);
+        return res.status(500).json({ error: 'Database error', details: err.message });
+      }
+      
+
+      const carId = this.lastID;
+      // Send Telegram notification - COMMENTED OUT
+      // try {
+      //   const telegram = new TelegramNotifier();
+      //   const carData = {
+      //     make_name,
+      //     model_name,
+      //     production_year,
+      //     gear_type,
+      //     fuel_type,
+      //     car_type,
+      //     num_doors,
+      //     num_passengers,
+      //     price_policy: pricePolicyStringified,
+      //     rca_insurance_price: rcaInsuranceValue,
+      //     casco_insurance_price: cascoInsuranceValue
+      //   };
+      //   await telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+      // } catch (error) {
+      //   console.error('Error sending Telegram notification:', error);
+      // }
+      
+      // Upload images to Supabase Storage
+      if (headImageUrl || galleryImageUrls.length > 0) {
+        console.log('📁 Uploading images to Supabase Storage for car ID:', carId);
+        
+        let finalHeadImageUrl = null;
+        let finalGalleryImageUrls = [];
+        
+        // Upload head image if provided
+        if (headImageUrl) {
+          try {
+            console.log('🖼️ Uploading head image to Supabase Storage...');
+            finalHeadImageUrl = await uploadCarImage(headImageUrl, carId, 'head');
+            console.log('✅ Head image uploaded successfully:', finalHeadImageUrl);
+          } catch (error) {
+            console.error('❌ Error uploading head image to Supabase:', error);
+          }
+        }
+        
+        // Upload gallery images if provided
+        for (let i = 0; i < galleryImageUrls.length; i++) {
+          try {
+            console.log(`🖼️ Uploading gallery image ${i + 1} to Supabase Storage...`);
+            const galleryUrl = await uploadCarImage(galleryImageUrls[i], carId, 'gallery');
+            finalGalleryImageUrls.push(galleryUrl);
+            console.log(`✅ Gallery image ${i + 1} uploaded successfully:`, galleryUrl);
+          } catch (error) {
+            console.error(`❌ Error uploading gallery image ${i + 1} to Supabase:`, error);
+          }
+        }
+        
+        // Update database with Supabase Storage URLs
+        const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
+        console.log('🖼️ Updating database with Supabase Storage URLs:');
+        console.log('  Head image URL:', finalHeadImageUrl);
+        console.log('  Gallery image URLs:', finalGalleryImageUrls);
+        console.log('  Car ID:', carId);
+        
+        console.log('🔍 About to execute database update with:');
+        console.log('  SQL:', updateSql);
+        console.log('  Parameters:', [finalHeadImageUrl, JSON.stringify(finalGalleryImageUrls), carId]);
+        
+        db.run(updateSql, [
+          finalHeadImageUrl,
+          JSON.stringify(finalGalleryImageUrls),
+          carId
+        ], (updateErr) => {
+          if (updateErr) {
+            console.error('❌ Error updating image URLs:', updateErr);
+          } else {
+            console.log('✅ Image URLs updated successfully in database');
+            console.log('  Updated car ID:', carId);
+            console.log('  Final head image URL:', finalHeadImageUrl);
+            console.log('  Final gallery image URLs:', finalGalleryImageUrls);
+          }
+          
+          // Send Telegram notification
+          try {
+            const telegram = new TelegramNotifier();
+            const carData = {
+              make_name,
+              model_name,
+              production_year,
+              gear_type,
+              fuel_type,
+              car_type,
+              num_doors,
+              num_passengers,
+              price_policy: pricePolicyStringified,
+              rca_insurance_price: rcaInsuranceValue,
+              casco_insurance_price: cascoInsuranceValue
+            };
+            telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+          } catch (error) {
+            console.error('Error sending Telegram notification:', error);
+          }
+          
+          res.json({ success: true, id: carId });
+        });
+      } else {
+        // No images to upload, send response immediately
+        try {
+          const telegram = new TelegramNotifier();
+          const carData = {
+            make_name,
+            model_name,
+            production_year,
+            gear_type,
+            fuel_type,
+            car_type,
+            num_doors,
+            num_passengers,
+            price_policy: pricePolicyStringified,
+            rca_insurance_price: rcaInsuranceValue,
+            casco_insurance_price: cascoInsuranceValue
+          };
+          telegram.sendMessage(telegram.formatCarAddedMessage(carData));
+        } catch (error) {
+          console.error('Error sending Telegram notification:', error);
+        }
+        
+        res.json({ success: true, id: carId });
+      }
+    }
+  );
+
+
   }
 });
 
@@ -1246,28 +1420,22 @@ router.post('/:id/images', async (req, res) => {
       console.log('🖼️ Processing head image upload...');
       try {
         const headImageData = req.body.head_image;
-        console.log('📊 Head image data:', {
-          hasData: !!headImageData.data,
-          dataLength: headImageData.data ? headImageData.data.length : 0,
-          extension: headImageData.extension,
-          mimetype: headImageData.mimetype || 'image/jpeg'
-        });
+
         
         // Convert base64 to buffer
         const imageBuffer = Buffer.from(headImageData.data, 'base64');
-        console.log('📦 Image buffer created, size:', imageBuffer.length, 'bytes');
         
-        // Create file object for Supabase upload
-        const file = {
+        // Create a file object for Supabase upload
+        const headFile = {
           buffer: imageBuffer,
-          originalname: `head.${headImageData.extension || 'jpg'}`,
-          mimetype: headImageData.mimetype || 'image/jpeg'
+          mimetype: `image/${headImageData.extension || 'jpeg'}`,
+          originalname: `head.${headImageData.extension || 'jpg'}`
         };
         
-        console.log('📤 Uploading head image to Supabase Storage...');
-        headImageUrl = await uploadToSupabaseStorage(file, carId, 'head');
-        console.log('✅ Head image uploaded to Supabase:', headImageUrl);
-        
+        // Upload to Supabase Storage
+        console.log('🖼️ Uploading head image to Supabase Storage...');
+        headImagePath = await uploadCarImage(headFile, carId, 'head');
+        console.log('✅ Head image uploaded to Supabase:', headImagePath);
       } catch (error) {
         console.error('❌ Error uploading head image to Supabase:', error);
         return res.status(500).json({ error: 'Failed to upload head image: ' + error.message });
@@ -1283,23 +1451,22 @@ router.post('/:id/images', async (req, res) => {
         const imageData = req.body.gallery_images[index];
         if (imageData && imageData.data) {
           try {
-            console.log(`📤 Uploading gallery image ${index + 1}/${req.body.gallery_images.length}...`);
-            
+
             // Convert base64 to buffer
             const imageBuffer = Buffer.from(imageData.data, 'base64');
-            console.log(`📦 Gallery image ${index + 1} buffer created, size:`, imageBuffer.length, 'bytes');
             
-            // Create file object for Supabase upload
-            const file = {
+            // Create a file object for Supabase upload
+            const galleryFile = {
               buffer: imageBuffer,
-              originalname: `gallery_${Date.now()}_${index}.${imageData.extension || 'jpg'}`,
-              mimetype: imageData.mimetype || 'image/jpeg'
+              mimetype: `image/${imageData.extension || 'jpeg'}`,
+              originalname: `gallery_${index}.${imageData.extension || 'jpg'}`
             };
             
-            const galleryImageUrl = await uploadToSupabaseStorage(file, carId, 'gallery');
-            galleryImageUrls.push(galleryImageUrl);
-            console.log(`✅ Gallery image ${index + 1} uploaded to Supabase:`, galleryImageUrl);
-            
+            // Upload to Supabase Storage
+            console.log(`🖼️ Uploading gallery image ${index + 1} to Supabase Storage...`);
+            const galleryImageUrl = await uploadCarImage(galleryFile, carId, 'gallery');
+            galleryImagePaths.push(galleryImageUrl);
+            console.log('✅ Gallery image uploaded to Supabase:', galleryImageUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${index + 1}:`, error);
             return res.status(500).json({ error: `Failed to upload gallery image ${index + 1}: ` + error.message });
