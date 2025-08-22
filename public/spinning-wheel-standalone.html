@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spinning Wheel</title>
     <script src="js/config.js"></script>
+    <script src="js/i18n-init.js"></script>
     <script>
         // Fallback if config.js doesn't load
         if (!window.API_BASE_URL) {
             window.API_BASE_URL = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3001' 
                 : `https://${window.location.hostname}`;
+        }
+
+        // Translation function
+        function getTranslation(key) {
+            if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+                return i18next.t(key);
+            }
+            return null;
         }
 
     </script>
@@ -475,7 +484,7 @@
 
                             <!-- Center button -->
                             <button class="center-button" id="centerButton">
-                                <span class="center-icon">START</span>
+                                <span class="center-icon" data-i18n="wheel.start">START</span>
                             </button>
                         </div>
                     </div>
@@ -615,6 +624,12 @@
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
             document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
             
+            // Update START button
+            const centerIcon = document.querySelector('.center-icon');
+            if (centerIcon) {
+                centerIcon.textContent = wheel.start || "START";
+            }
+            
             // Update wheel segments if coupons are loaded
             if (availableCoupons.length > 0) {
                 createWheelSegments();
@@ -669,7 +684,7 @@
             const centerButton = document.getElementById('centerButton');
             if (centerButton) {
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = 'START';
+                centerButton.querySelector('.center-icon').textContent = getTranslation('wheel.start') || 'START';
             }
         }
 
@@ -1112,7 +1127,7 @@
                 isSpinning = false;
                 hasSpun = true;
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = 'START';
+                centerButton.querySelector('.center-icon').textContent = getTranslation('wheel.start') || 'START';
 
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
