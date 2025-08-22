@@ -5923,7 +5923,7 @@
           const phoneNumberForm = document.getElementById('phoneNumberForm');
           
           if (submitPhoneNumberBtn) {
-            submitPhoneNumberBtn.addEventListener('click', () => {
+            submitPhoneNumberBtn.addEventListener('click', async () => {
               const phoneNumber = phoneNumberInput.value.trim();
               
               if (!phoneNumber) {
@@ -5942,6 +5942,26 @@
               
               // Clear any previous validation message
               phoneNumberInput.setCustomValidity('');
+              
+              // Track phone number for spinning wheel
+              try {
+                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/track-phone`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ phoneNumber: phoneNumber })
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('📞 Phone number tracking result:', result);
+                } else {
+                  console.error('❌ Failed to track phone number');
+                }
+              } catch (error) {
+                console.error('❌ Error tracking phone number:', error);
+              }
               
               // Close phone number modal
               const phoneModal = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));

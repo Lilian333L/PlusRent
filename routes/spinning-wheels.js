@@ -226,6 +226,47 @@ router.get('/secure/active-data', async (req, res) => {
   }
 });
 
+// Track phone number for spinning wheel
+router.post('/track-phone', async (req, res) => {
+  const { phoneNumber } = req.body;
+  
+  if (!phoneNumber) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for phone number tracking');
+      
+      const { trackPhoneNumberForSpinningWheel } = require('../lib/phoneNumberTracker');
+      const result = await trackPhoneNumberForSpinningWheel(phoneNumber);
+      
+      if (result.success) {
+        console.log('✅ Phone number tracked successfully for spinning wheel');
+        res.json(result);
+      } else {
+        console.error('❌ Failed to track phone number:', result.error);
+        res.status(500).json(result);
+      }
+      
+    } catch (error) {
+      console.error('❌ Supabase error tracking phone number:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    // Use SQLite - for now just return success since we don't have phone tracking in SQLite
+    console.log('📞 Phone number tracking not implemented for SQLite');
+    res.json({ 
+      success: true, 
+      message: 'Phone number tracking (SQLite not implemented)',
+      isNew: false
+    });
+  }
+});
+
 // Secure coupon redemption endpoint
 router.post('/secure/redeem-coupon', async (req, res) => {
   const { couponId, phoneNumber } = req.body;
@@ -284,13 +325,18 @@ router.post('/secure/redeem-coupon', async (req, res) => {
         return res.status(500).json({ error: 'Failed to update coupon codes' });
       }
       
-      // Track phone number for this booking (using existing phone number tracker)
+      // Add coupon code to user's available coupons
       try {
-        const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
-        await trackPhoneNumberForBooking(phoneNumber, `coupon_${couponId}_${Date.now()}`);
-      } catch (trackingError) {
-        console.error('❌ Error tracking phone number:', trackingError);
-        // Don't fail the redemption if phone tracking fails
+        const { addAvailableCoupon } = require('../lib/phoneNumberTracker');
+        const addResult = await addAvailableCoupon(phoneNumber, codeToRedeem);
+        if (addResult.success) {
+          console.log(`✅ Added coupon code ${codeToRedeem} to user's available coupons`);
+        } else {
+          console.error('❌ Failed to add coupon to user\'s available coupons:', addResult.error);
+        }
+      } catch (addError) {
+        console.error('❌ Error adding coupon to user\'s available coupons:', addError);
+        // Don't fail the redemption if adding to available coupons fails
       }
       
       console.log('✅ Coupon redeemed successfully:', codeToRedeem);
@@ -712,6 +758,37 @@ router.get('/secure/random-winning-index', async (req, res) => {
         });
       });
     });
+  }
+});
+
+// Temporary endpoint to check phone numbers (for debugging)
+router.get('/debug/phone-numbers', async (req, res) => {
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      const { data, error } = await supabase
+        .from('phone_numbers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (error) {
+        console.error('❌ Error fetching phone numbers:', error);
+        return res.status(500).json({ error: 'Database error' });
+      }
+      
+      res.json({
+        success: true,
+        count: data.length,
+        data: data
+      });
+    } catch (error) {
+      console.error('❌ Error:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    res.json({ error: 'Not implemented for SQLite' });
   }
 });
 
