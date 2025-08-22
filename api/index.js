@@ -161,13 +161,27 @@ app.use((err, req, res, next) => {
 app.get('/test', async (req, res) => {
   try {
     console.log('Testing Supabase connection...');
+    
+    // Debug environment variables
+    console.log('Environment variables in /test:');
+    console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
+    console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set');
+    console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
+    
     const { data, error, count } = await supabase
       .from('cars')
       .select('*', { count: 'exact', head: true });
     
     if (error) {
       console.error('Database test error:', error);
-      return res.status(500).json({ error: 'Database connection failed: ' + error.message });
+      return res.status(500).json({ 
+        error: 'Database connection failed: ' + error.message,
+        debug: {
+          supabaseUrl: process.env.SUPABASE_URL ? 'Set' : 'Not set',
+          supabaseAnonKey: process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set',
+          supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set'
+        }
+      });
     }
     
     console.log('Database test successful, car count:', count);
