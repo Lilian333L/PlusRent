@@ -6058,8 +6058,27 @@
             }
             
             const wheel = await wheelResponse.json();
-                          // Handle both SQLite (1/0) and Supabase (true/false) boolean values
-              const isCurrentlyActive = wheel.is_active === 1 || wheel.is_active === true;
+            // Handle both SQLite (1/0) and Supabase (true/false) boolean values
+            const isCurrentlyActive = wheel.is_active === 1 || wheel.is_active === true;
+            
+            // If trying to activate a wheel, check the count of active wheels first
+            if (!isCurrentlyActive) {
+              // Get all wheels to count active ones
+              const allWheelsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels`);
+              if (!allWheelsResponse.ok) {
+                showCustomAlert('Error getting wheels information', 'error');
+                return;
+              }
+              
+              const allWheels = await allWheelsResponse.json();
+              const activeWheelsCount = allWheels.filter(w => w.is_active === 1 || w.is_active === true).length;
+              
+              // Check if we already have 2 active wheels
+              if (activeWheelsCount >= 2) {
+                showCustomAlert('You already have 2 active wheels. Please disable one if you want to enable another one.', 'warning');
+                return;
+              }
+            }
             
             // Choose endpoint based on current state
             const endpoint = isCurrentlyActive ? 'deactivate' : 'activate';
@@ -6077,7 +6096,12 @@
               showWheelConfiguration(wheelId);
             } else {
               const error = await response.json();
-              showCustomAlert(`Error ${isCurrentlyActive ? 'deactivating' : 'activating'} wheel: ` + error.error, 'error');
+              // Check if it's the maximum limit error
+              if (response.status === 400 && error.error && error.error.includes('Maximum limit reached')) {
+                showCustomAlert('You already have 2 active wheels. Please disable one if you want to enable another one.', 'warning');
+              } else {
+                showCustomAlert(`Error ${isCurrentlyActive ? 'deactivating' : 'activating'} wheel: ` + error.error, 'error');
+              }
             }
           } catch (error) {
             console.error('Error toggling wheel state:', error);

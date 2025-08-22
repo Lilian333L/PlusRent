@@ -1303,6 +1303,47 @@ router.patch('/:id/activate', async (req, res) => {
     try {
       console.log('🔍 Using Supabase for spinning wheel activation');
       
+      // First, check if this wheel is already active
+      const { data: currentWheel, error: wheelError } = await supabase
+        .from('spinning_wheels')
+        .select('is_active')
+        .eq('id', id)
+        .single();
+      
+      if (wheelError) {
+        console.error('❌ Supabase error checking wheel status:', wheelError);
+        return res.status(500).json({ error: 'Database error: ' + wheelError.message });
+      }
+      
+      if (!currentWheel) {
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // If wheel is already active, just return success
+      if (currentWheel.is_active) {
+        console.log('✅ Wheel is already active');
+        return res.json({ success: true });
+      }
+      
+      // Check count of active wheels before activating
+      const { data: activeWheels, error: countError } = await supabase
+        .from('spinning_wheels')
+        .select('id')
+        .eq('is_active', true);
+      
+      if (countError) {
+        console.error('❌ Supabase error counting active wheels:', countError);
+        return res.status(500).json({ error: 'Database error: ' + countError.message });
+      }
+      
+      // Check if we already have 2 active wheels
+      if (activeWheels && activeWheels.length >= 2) {
+        console.log('❌ Maximum active wheels limit reached (2)');
+        return res.status(400).json({ 
+          error: 'Maximum limit reached. You can only have 2 active wheels at a time. Please disable one wheel before activating another.' 
+        });
+      }
+      
       // Activate the selected wheel
       const { data, error: activateError } = await supabase
         .from('spinning_wheels')
@@ -1331,11 +1372,44 @@ router.patch('/:id/activate', async (req, res) => {
     }
   } else {
     // Use SQLite
-    db.run('UPDATE spinning_wheels SET is_active = 1 WHERE id = ?', [id], (err) => {
+    // First check if wheel is already active
+    db.get('SELECT is_active FROM spinning_wheels WHERE id = ?', [id], (err, wheel) => {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
-      res.json({ success: true });
+      if (!wheel) {
+        return res.status(404).json({ error: 'Spinning wheel not found' });
+      }
+      
+      // If wheel is already active, just return success
+      if (wheel.is_active === 1) {
+        console.log('✅ Wheel is already active');
+        return res.json({ success: true });
+      }
+      
+      // Check count of active wheels
+      db.all('SELECT id FROM spinning_wheels WHERE is_active = 1', (err, activeWheels) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database error' });
+        }
+        
+        // Check if we already have 2 active wheels
+        if (activeWheels && activeWheels.length >= 2) {
+          console.log('❌ Maximum active wheels limit reached (2)');
+          return res.status(400).json({ 
+            error: 'Maximum limit reached. You can only have 2 active wheels at a time. Please disable one wheel before activating another.' 
+          });
+        }
+        
+        // Activate the wheel
+        db.run('UPDATE spinning_wheels SET is_active = 1 WHERE id = ?', [id], (err) => {
+          if (err) {
+            return res.status(500).json({ error: 'Database error' });
+          }
+          console.log('✅ Spinning wheel activated successfully in SQLite');
+          res.json({ success: true });
+        });
+      });
     });
   }
 });
