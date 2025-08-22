@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const { supabase } = require('../lib/supabaseClient');
 const TelegramNotifier = require('../config/telegram');
+const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
 
 // Create a new booking
 router.post('/', async (req, res) => {
@@ -175,6 +176,25 @@ router.post('/', async (req, res) => {
         await telegram.sendMessage(telegram.formatBookingMessage(telegramData));
       } catch (error) {
         console.error('Error sending Telegram notification:', error);
+      }
+
+      // Track phone number for this booking (only track when booking is created, not when confirmed)
+      try {
+        const phoneNumber = customer_phone || contact_phone;
+        if (phoneNumber) {
+          console.log(`📞 Tracking phone number for new booking: ${phoneNumber}`);
+          const trackingResult = await trackPhoneNumberForBooking(phoneNumber, newBooking.id.toString());
+          if (trackingResult.success) {
+            console.log('✅ Phone number tracked successfully:', trackingResult.message);
+          } else {
+            console.error('❌ Failed to track phone number:', trackingResult.error);
+          }
+        } else {
+          console.log('⚠️  No phone number found for booking, skipping phone tracking');
+        }
+      } catch (trackingError) {
+        console.error('❌ Error tracking phone number:', trackingError);
+        // Don't fail the booking creation if phone tracking fails
       }
 
       console.log('✅ Booking created successfully in Supabase');
@@ -502,9 +522,11 @@ router.put('/:id/status', (req, res) => {
   });
 });
 
-// Admin: Confirm booking and mark car as unavailable
+    // Admin: Confirm booking and mark car as unavailable
 router.put('/:id/confirm', (req, res) => {
   const bookingId = req.params.id;
+  
+  console.log(`🔔 Booking confirmation requested for ID: ${bookingId}`);
   
   db.get('SELECT * FROM bookings WHERE id = ?', [bookingId], (err, booking) => {
     if (err) {
@@ -554,9 +576,31 @@ router.put('/:id/confirm', (req, res) => {
           booking.total_price,
           new Date().toISOString(),
           new Date().toISOString()
-        ], function(bookedCarErr) {
+        ], async function(bookedCarErr) {
           if (bookedCarErr) {
             console.error('Failed to insert into booked_cars:', bookedCarErr);
+          }
+
+          // Track phone number for this booking
+          try {
+            const phoneNumber = booking.contact_phone || booking.customer_phone;
+            console.log(`📞 Phone number from booking: ${phoneNumber || 'NOT FOUND'}`);
+            
+            if (phoneNumber) {
+              console.log(`📞 Tracking phone number for confirmed booking: ${phoneNumber}`);
+              const trackingResult = await trackPhoneNumberForBooking(phoneNumber, bookingId.toString());
+              if (trackingResult.success) {
+                console.log('✅ Phone number tracked successfully:', trackingResult.message);
+                console.log('📊 Tracking data:', trackingResult.data);
+              } else {
+                console.error('❌ Failed to track phone number:', trackingResult.error);
+              }
+            } else {
+              console.log('⚠️  No phone number found for booking, skipping phone tracking');
+            }
+          } catch (trackingError) {
+            console.error('❌ Error tracking phone number:', trackingError);
+            // Don't fail the booking confirmation if phone tracking fails
           }
 
           res.json({ 
