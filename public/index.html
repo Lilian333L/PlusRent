@@ -1209,8 +1209,9 @@
         margin-left: 0;
         margin-right: 0;
         gap: 1.5rem 0;
+        justify-content: center;
       }
-      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-6 {
+      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-4 {
         padding-left: 10px;
         padding-right: 10px;
         margin-bottom: 24px;
@@ -1229,6 +1230,8 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
+        min-height: 420px;
       }
       .car-unavailable {
         opacity: 0.6;
@@ -1240,17 +1243,33 @@
       }
       .unavailable-badge {
         position: absolute;
-        top: 12px;
-        left: 12px;
-        background: rgba(60,60,60,0.82);
+        top: 0px;
+        right: 0;
+        background: #ff6b5b;
         color: #fff;
-        font-size: 0.98rem;
-        font-weight: 500;
-        padding: 6px 14px;
-        border-radius: 6px;
+        font-size: 0.52rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 5px 14px 4px 14px;
+        border-radius: 7px;
         z-index: 2;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10);
         pointer-events: none;
+        border: none;
+      }
+      
+      .btn-unavailable {
+        background: #ececec !important;
+        color: #888 !important;
+        border: 2px solid #ececec !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+        font-weight: 700;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        transition: background 0.2s, color 0.2s, border 0.2s;
       }
       .d-img {
         position: relative;
@@ -1324,8 +1343,9 @@
         margin-left: 0;
         margin-right: 0;
         gap: 1.5rem 0;
+        justify-content: center;
       }
-      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-4 {
         padding-left: 10px;
         padding-right: 10px;
         margin-bottom: 24px;
@@ -1344,6 +1364,8 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
+        min-height: 420px;
       }
       #section-cars .car-unavailable {
         opacity: 0.6;
@@ -1441,7 +1463,7 @@
         }
       }
       @media (max-width: 600px) {
-        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-4 {
           min-width: 100%;
           max-width: 100%;
           padding-left: 0;
@@ -2264,7 +2286,7 @@
               console.log('Fleet section: Generated URL for car', car.id, ':', rentNowUrl);
               
               return `
-                <div class=\"col-xl-4 col-lg-6\">
+                <div class=\"col-xl-4 col-lg-4 col-md-6\">
                   <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
                     <div class=\"d-img${isUnavailable ? ' img-unavailable' : ''}\">
                       <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">

@@ -126,8 +126,6 @@ router.post('/', async (req, res) => {
       insurance_type,
       pickup_location,
       dropoff_location,
-      contact_person: customer_name || contact_person || 'Not provided',
-      contact_phone: customer_phone || contact_phone || 'Not provided',
       special_instructions,
       total_price,
       price_breakdown,
