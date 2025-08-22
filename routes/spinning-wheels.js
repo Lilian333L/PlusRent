@@ -126,7 +126,7 @@ router.get('/secure/active-data', async (req, res) => {
       
       const { data: coupons, error: couponsError } = await supabase
         .from('coupon_codes')
-        .select('id, type, discount_percentage, free_days, code, available_codes')
+        .select('id, type, discount_percentage, free_days, code')
         .in('id', enabledCouponIds)
         .eq('is_active', true)
         .order('id', { ascending: true });
@@ -153,8 +153,7 @@ router.get('/secure/active-data', async (req, res) => {
           type: coupon.type,
           value: coupon.type === 'percentage' ? coupon.discount_percentage : coupon.free_days,
           coupon_id: coupon.id,
-          code: coupon.code,
-          available_codes: coupon.available_codes
+          code: coupon.code
         };
       });
       
@@ -189,7 +188,7 @@ router.get('/secure/active-data', async (req, res) => {
         
         const placeholders = enabledCouponIds.map(() => '?').join(',');
         db.all(
-          `SELECT id, type, discount_percentage, free_days, code, available_codes 
+          `SELECT id, type, discount_percentage, free_days, code 
            FROM coupon_codes 
            WHERE id IN (${placeholders}) AND is_active = 1 
            ORDER BY id ASC`,
@@ -215,8 +214,7 @@ router.get('/secure/active-data', async (req, res) => {
                 type: coupon.type,
                 value: coupon.type === 'percentage' ? coupon.discount_percentage : coupon.free_days,
                 coupon_id: coupon.id,
-                code: coupon.code,
-                available_codes: coupon.available_codes
+                code: coupon.code
               };
             });
             
@@ -224,6 +222,138 @@ router.get('/secure/active-data', async (req, res) => {
           }
         );
       });
+    });
+  }
+});
+
+// Secure coupon redemption endpoint
+router.post('/secure/redeem-coupon', async (req, res) => {
+  const { couponId, phoneNumber } = req.body;
+  
+  if (!couponId || !phoneNumber) {
+    return res.status(400).json({ error: 'Coupon ID and phone number are required' });
+  }
+  
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for secure coupon redemption');
+      
+      // Get the coupon with available codes
+      const { data: coupon, error: couponError } = await supabase
+        .from('coupon_codes')
+        .select('id, code, available_codes, showed_codes')
+        .eq('id', couponId)
+        .eq('is_active', true)
+        .single();
+      
+      if (couponError || !coupon) {
+        console.error('❌ Coupon not found or inactive:', couponId);
+        return res.status(404).json({ error: 'Coupon not found or inactive' });
+      }
+      
+      // Parse available codes
+      const availableCodes = JSON.parse(coupon.available_codes || '[]');
+      const showedCodes = JSON.parse(coupon.showed_codes || '[]');
+      
+      if (availableCodes.length === 0) {
+        console.error('❌ No available codes for coupon:', couponId);
+        return res.status(400).json({ error: 'No available codes for this coupon' });
+      }
+      
+      // Get the first available code
+      const codeToRedeem = availableCodes[0];
+      
+      // Remove the code from available and add to showed
+      availableCodes.shift();
+      showedCodes.push(codeToRedeem);
+      
+      // Update the coupon
+      const { error: updateError } = await supabase
+        .from('coupon_codes')
+        .update({
+          available_codes: JSON.stringify(availableCodes),
+          showed_codes: JSON.stringify(showedCodes)
+        })
+        .eq('id', couponId);
+      
+      if (updateError) {
+        console.error('❌ Error updating coupon codes:', updateError);
+        return res.status(500).json({ error: 'Failed to update coupon codes' });
+      }
+      
+      // Track phone number for this booking (using existing phone number tracker)
+      try {
+        const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
+        await trackPhoneNumberForBooking(phoneNumber, `coupon_${couponId}_${Date.now()}`);
+      } catch (trackingError) {
+        console.error('❌ Error tracking phone number:', trackingError);
+        // Don't fail the redemption if phone tracking fails
+      }
+      
+      console.log('✅ Coupon redeemed successfully:', codeToRedeem);
+      res.json({ 
+        success: true,
+        code: codeToRedeem,
+        message: 'Coupon redeemed successfully'
+      });
+      
+    } catch (error) {
+      console.error('❌ Supabase error redeeming coupon:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+  } else {
+    // Use SQLite
+    db.get('SELECT id, code, available_codes, showed_codes FROM coupon_codes WHERE id = ? AND is_active = 1', [couponId], (err, coupon) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (!coupon) {
+        return res.status(404).json({ error: 'Coupon not found or inactive' });
+      }
+      
+      // Parse available codes
+      const availableCodes = JSON.parse(coupon.available_codes || '[]');
+      const showedCodes = JSON.parse(coupon.showed_codes || '[]');
+      
+      if (availableCodes.length === 0) {
+        return res.status(400).json({ error: 'No available codes for this coupon' });
+      }
+      
+      // Get the first available code
+      const codeToRedeem = availableCodes[0];
+      
+      // Remove the code from available and add to showed
+      availableCodes.shift();
+      showedCodes.push(codeToRedeem);
+      
+      // Update the coupon
+      db.run(
+        'UPDATE coupon_codes SET available_codes = ?, showed_codes = ? WHERE id = ?',
+        [JSON.stringify(availableCodes), JSON.stringify(showedCodes), couponId],
+        (err) => {
+          if (err) {
+            return res.status(500).json({ error: 'Failed to update coupon codes' });
+          }
+          
+          // Track phone number for this booking (using existing phone number tracker)
+          try {
+            const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
+            trackPhoneNumberForBooking(phoneNumber, `coupon_${couponId}_${Date.now()}`);
+          } catch (trackingError) {
+            console.error('❌ Error tracking phone number:', trackingError);
+            // Don't fail the redemption if phone tracking fails
+          }
+          
+          res.json({ 
+            success: true,
+            code: codeToRedeem,
+            message: 'Coupon redeemed successfully'
+          });
+        }
+      );
     });
   }
 });
@@ -454,9 +584,7 @@ router.get('/secure/random-winning-index', async (req, res) => {
         // If all percentages are 0, use equal distribution
         const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
         return res.json({ 
-          winningIndex: randomIndex,
-          totalPercentage: 0,
-          usedEqualDistribution: true
+          winningIndex: randomIndex
         });
       }
       
@@ -481,9 +609,7 @@ router.get('/secure/random-winning-index', async (req, res) => {
       
       console.log('✅ Secure random winning index calculated successfully');
       res.json({ 
-        winningIndex: winningIndex,
-        totalPercentage: totalPercentage,
-        usedEqualDistribution: false
+        winningIndex: winningIndex
       });
       
     } catch (error) {
@@ -516,9 +642,7 @@ router.get('/secure/random-winning-index', async (req, res) => {
           // If all percentages are 0, use equal distribution
           const randomIndex = Math.floor(Math.random() * coupons.length);
           return res.json({ 
-            winningIndex: randomIndex,
-            totalPercentage: 0,
-            usedEqualDistribution: true
+            winningIndex: randomIndex
           });
         }
         
@@ -542,9 +666,7 @@ router.get('/secure/random-winning-index', async (req, res) => {
         }
         
         res.json({ 
-          winningIndex: winningIndex,
-          totalPercentage: totalPercentage,
-          usedEqualDistribution: false
+          winningIndex: winningIndex
         });
       });
     });
