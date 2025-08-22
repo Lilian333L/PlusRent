@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase, supabaseAdmin } = require('../lib/supabaseClient');
 const TelegramNotifier = require('../config/telegram');
+const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
 
 // Create a new booking
 router.post('/', async (req, res) => {
@@ -92,51 +93,66 @@ router.post('/', async (req, res) => {
           } else {
             console.log('✅ Redemption code marked as used');
           }
+        } else {
+          // If not a valid redemption code, try regular coupon validation
+          const response = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/validate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: discount_code })
+          });
+          
+          const result = await response.json();
+          if (!result.valid) {
+            validatedDiscountCode = null;
+            console.log('Invalid discount code provided');
+          }
         }
       } catch (error) {
-        console.error('Error validating/marking redemption code:', error);
+        console.error('Error validating discount code:', error);
+        validatedDiscountCode = null;
       }
     }
 
-    // Create booking data
+    // Create booking in Supabase
     const bookingData = {
       car_id,
       pickup_date,
       pickup_time,
       return_date,
       return_time,
-      discount_code: validatedDiscountCode || null,
+      discount_code: validatedDiscountCode,
       insurance_type,
       pickup_location,
       dropoff_location,
-      customer_name: customer_name || null,
-      customer_phone: customer_phone || null,
-      customer_email: customer_email || null,
-      special_instructions: special_instructions || null,
+      contact_person: customer_name || contact_person || 'Not provided',
+      contact_phone: customer_phone || contact_phone || 'Not provided',
+      special_instructions,
       total_price,
-      price_breakdown: price_breakdown ? JSON.stringify(price_breakdown) : null,
+      price_breakdown,
+      customer_name: customer_name || contact_person || 'Not provided',
+      customer_email: customer_email || 'Not provided',
+      customer_phone: customer_phone || contact_phone || 'Not provided',
       status: 'pending',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
-    // Remove null/undefined values
-    Object.keys(bookingData).forEach(key => {
-      if (bookingData[key] === null || bookingData[key] === undefined || bookingData[key] === '') {
-        delete bookingData[key];
-      }
-    });
+    console.log('📊 Creating booking with data:', bookingData);
 
-    // Insert booking
-    const { data: newBooking, error: insertError } = await supabase
+    const { data: newBooking, error } = await supabase
       .from('bookings')
       .insert(bookingData)
       .select()
       .single();
 
-    if (insertError) {
-      console.error('❌ Supabase error creating booking:', insertError);
-      return res.status(500).json({ error: 'Failed to create booking', details: insertError.message });
+    if (error) {
+      console.error('❌ Error creating booking:', error);
+      return res.status(500).json({ error: 'Failed to create booking: ' + error.message });
     }
+
+    console.log('✅ Booking created in Supabase:', newBooking);
 
     // Send Telegram notification
     try {
@@ -164,6 +180,25 @@ router.post('/', async (req, res) => {
       console.error('Error sending Telegram notification:', error);
     }
 
+    // Track phone number for this booking (only track when booking is created, not when confirmed)
+    try {
+      const phoneNumber = customer_phone || contact_phone;
+      if (phoneNumber) {
+        console.log(`📞 Tracking phone number for new booking: ${phoneNumber}`);
+        const trackingResult = await trackPhoneNumberForBooking(phoneNumber, newBooking.id.toString());
+        if (trackingResult.success) {
+          console.log('✅ Phone number tracked successfully:', trackingResult.message);
+        } else {
+          console.error('❌ Failed to track phone number:', trackingResult.error);
+        }
+      } else {
+        console.log('⚠️  No phone number found for booking, skipping phone tracking');
+      }
+    } catch (trackingError) {
+      console.error('❌ Error tracking phone number:', trackingError);
+      // Don't fail the booking creation if phone tracking fails
+    }
+
     console.log('✅ Booking created successfully in Supabase');
     res.json({ 
       success: true, 
@@ -178,11 +213,11 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all bookings (admin)
+// Admin: Get all bookings
 router.get('/', async (req, res) => {
+  console.log('📋 Fetching all bookings from Supabase');
+  
   try {
-    console.log('🔍 Fetching all bookings from Supabase');
-    
     const { data: bookings, error } = await supabase
       .from('bookings')
       .select(`
@@ -196,11 +231,11 @@ router.get('/', async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('❌ Supabase error fetching bookings:', error);
-      return res.status(500).json({ error: 'Failed to fetch bookings', details: error.message });
+      console.error('❌ Error fetching bookings:', error);
+      return res.status(500).json({ error: 'Failed to fetch bookings' });
     }
 
-    console.log('✅ Bookings fetched successfully:', bookings.length);
+    console.log(`✅ Found ${bookings.length} bookings`);
     res.json(bookings);
 
   } catch (error) {
@@ -209,152 +244,39 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get all booked cars with customer info (admin)
-router.get('/booked-cars', async (req, res) => {
-  try {
-    console.log('🔍 Fetching booked cars from Supabase');
-    
-    const { data: bookedCars, error } = await supabase
-      .from('booked_cars')
-      .select(`
-        *,
-        cars (
-          make_name,
-          model_name,
-          production_year,
-          car_type
-        )
-      `)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('❌ Supabase error fetching booked cars:', error);
-      return res.status(500).json({ error: 'Failed to fetch booked cars', details: error.message });
-    }
-
-    console.log('✅ Booked cars fetched successfully:', bookedCars.length);
-    res.json(bookedCars);
-
-  } catch (error) {
-    console.error('❌ Error fetching booked cars:', error);
-    res.status(500).json({ error: 'Database error: ' + error.message });
-  }
-});
-
-// Get booking by ID
-router.get('/:id', async (req, res) => {
-  const bookingId = req.params.id;
+// Admin: Update booking status
+router.put('/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
   
+  console.log(`📝 Updating booking ${id} status to: ${status}`);
+
+  if (!status || !['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, or completed' });
+  }
+
   try {
-    console.log('🔍 Fetching booking from Supabase:', bookingId);
-    
-    const { data: booking, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('bookings')
-      .select(`
-        *,
-        cars (
-          make_name,
-          model_name,
-          production_year
-        )
-      `)
-      .eq('id', bookingId)
+      .update({ 
+        status, 
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', id)
+      .select()
       .single();
 
     if (error) {
-      console.error('❌ Supabase error fetching booking:', error);
-      return res.status(404).json({ error: 'Booking not found' });
-    }
-
-    console.log('✅ Booking fetched successfully');
-    res.json(booking);
-
-  } catch (error) {
-    console.error('❌ Error fetching booking:', error);
-    res.status(500).json({ error: 'Database error: ' + error.message });
-  }
-});
-
-// Update booking status
-router.put('/:id/status', async (req, res) => {
-  const bookingId = req.params.id;
-  const { status } = req.body;
-
-  if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
-  }
-
-  try {
-    console.log('🔄 Updating booking status:', bookingId, 'to:', status);
-    
-    const { error: updateError } = await supabaseAdmin
-      .from('bookings')
-      .update({ 
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', bookingId);
-
-    if (updateError) {
-      console.error('❌ Error updating booking status:', updateError);
+      console.error('❌ Error updating booking status:', error);
       return res.status(500).json({ error: 'Failed to update booking status' });
     }
 
-    // If booking is confirmed, update car availability
-    if (status === 'confirmed') {
-      const { data: booking } = await supabase
-        .from('bookings')
-        .select('car_id, return_date')
-        .eq('id', bookingId)
-        .single();
-
-      if (booking) {
-        const { error: carUpdateError } = await supabaseAdmin
-          .from('cars')
-          .update({ 
-            booked: true, 
-            booked_until: booking.return_date,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', booking.car_id);
-
-        if (carUpdateError) {
-          console.error('Failed to update car booking status:', carUpdateError);
-        }
-      }
-    }
-
-    // If booking is cancelled, ensure car is available
-    if (status === 'cancelled') {
-      const { data: booking } = await supabase
-        .from('bookings')
-        .select('car_id')
-        .eq('id', bookingId)
-        .single();
-
-      if (booking) {
-        const { error: carUpdateError } = await supabaseAdmin
-          .from('cars')
-          .update({ 
-            booked: false, 
-            booked_until: null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', booking.car_id);
-
-        if (carUpdateError) {
-          console.error('Failed to update car availability:', carUpdateError);
-        }
-      }
+    if (!data) {
+      return res.status(404).json({ error: 'Booking not found' });
     }
 
     console.log('✅ Booking status updated successfully');
-    res.json({ 
-      success: true, 
-      message: `Booking ${status} successfully`,
-      status: status 
-    });
+    res.json({ success: true, booking: data });
 
   } catch (error) {
     console.error('❌ Error updating booking status:', error);
@@ -431,7 +353,7 @@ router.put('/:id/confirm', async (req, res) => {
       insurance_type: booking.insurance_type,
       pickup_location: booking.pickup_location,
       dropoff_location: booking.dropoff_location,
-      total_price: booking.total_price,
+      total_price: booking.total_price || 0,
       status: 'active',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -444,6 +366,25 @@ router.put('/:id/confirm', async (req, res) => {
     if (bookedCarError) {
       console.error('❌ Error inserting into booked_cars:', bookedCarError);
       // Don't fail the request, just log the error
+    }
+
+    // Track phone number for this booking (when confirmed)
+    try {
+      const phoneNumber = booking.customer_phone || booking.contact_phone;
+      if (phoneNumber) {
+        console.log(`📞 Tracking phone number for confirmed booking: ${phoneNumber}`);
+        const trackingResult = await trackPhoneNumberForBooking(phoneNumber, bookingId.toString());
+        if (trackingResult.success) {
+          console.log('✅ Phone number tracked successfully:', trackingResult.message);
+        } else {
+          console.error('❌ Failed to track phone number:', trackingResult.error);
+        }
+      } else {
+        console.log('⚠️  No phone number found for booking, skipping phone tracking');
+      }
+    } catch (trackingError) {
+      console.error('❌ Error tracking phone number:', trackingError);
+      // Don't fail the booking confirmation if phone tracking fails
     }
 
     console.log('✅ Booking confirmed successfully');
@@ -460,12 +401,11 @@ router.put('/:id/confirm', async (req, res) => {
   }
 });
 
-// Admin: Reject booking (car remains available)
-router.put('/:id/reject', async (req, res) => {
+// Admin: Cancel booking
+router.put('/:id/cancel', async (req, res) => {
   const bookingId = req.params.id;
-  const { reason } = req.body;
   
-  console.log('❌ Admin rejecting booking:', bookingId, 'Reason:', reason);
+  console.log('❌ Admin cancelling booking:', bookingId);
   
   try {
     // Get booking details
@@ -480,11 +420,6 @@ router.put('/:id/reject', async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    if (booking.status !== 'pending') {
-      console.error('❌ Booking not pending, status:', booking.status);
-      return res.status(400).json({ error: 'Booking is not pending confirmation' });
-    }
-
     // Update booking status to cancelled
     const { error: updateError } = await supabaseAdmin
       .from('bookings')
@@ -496,65 +431,12 @@ router.put('/:id/reject', async (req, res) => {
 
     if (updateError) {
       console.error('❌ Error updating booking status:', updateError);
-      return res.status(500).json({ error: 'Failed to update booking status' });
+      return res.status(500).json({ error: 'Failed to cancel booking' });
     }
 
-    console.log('✅ Booking rejected successfully');
-    res.json({ 
-      success: true, 
-      message: 'Booking rejected successfully',
-      booking_id: bookingId,
-      reason: reason || 'No reason provided'
-    });
-
-  } catch (error) {
-    console.error('❌ Error rejecting booking:', error);
-    res.status(500).json({ error: 'Database error: ' + error.message });
-  }
-});
-
-// Delete booking
-router.delete('/:id', async (req, res) => {
-  const bookingId = req.params.id;
-  
-  console.log('🗑️ Deleting booking:', bookingId);
-  
-  try {
-    // Get booking details first
-    const { data: booking, error: bookingError } = await supabase
-      .from('bookings')
-      .select('*')
-      .eq('id', bookingId)
-      .single();
-
-    if (bookingError || !booking) {
-      console.error('❌ Booking not found:', bookingError);
-      return res.status(404).json({ error: 'Booking not found' });
-    }
-
-    // Delete booking
-    const { error: deleteError } = await supabaseAdmin
-      .from('bookings')
-      .delete()
-      .eq('id', bookingId);
-
-    if (deleteError) {
-      console.error('❌ Error deleting booking:', deleteError);
-      return res.status(500).json({ error: 'Failed to delete booking' });
-    }
-
-    // If booking was confirmed, also remove from booked_cars
+    // If booking was confirmed, free up the car
     if (booking.status === 'confirmed') {
-      const { error: bookedCarError } = await supabaseAdmin
-        .from('booked_cars')
-        .delete()
-        .eq('booking_id', bookingId);
-
-      if (bookedCarError) {
-        console.error('❌ Error removing from booked_cars:', bookedCarError);
-      }
-
-      // Mark car as available again
+      // Mark car as available
       const { error: carUpdateError } = await supabaseAdmin
         .from('cars')
         .update({ 
@@ -567,89 +449,61 @@ router.delete('/:id', async (req, res) => {
       if (carUpdateError) {
         console.error('❌ Error updating car status:', carUpdateError);
       }
+
+      // Remove from booked_cars table
+      const { error: bookedCarError } = await supabaseAdmin
+        .from('booked_cars')
+        .delete()
+        .eq('booking_id', bookingId);
+
+      if (bookedCarError) {
+        console.error('❌ Error removing from booked_cars:', bookedCarError);
+      }
     }
 
-    console.log('✅ Booking deleted successfully');
+    console.log('✅ Booking cancelled successfully');
     res.json({ 
       success: true, 
-      message: 'Booking deleted successfully',
-      booking_id: bookingId
+      message: 'Booking cancelled successfully',
+      booking_id: bookingId 
     });
 
   } catch (error) {
-    console.error('❌ Error deleting booking:', error);
+    console.error('❌ Error cancelling booking:', error);
     res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });
 
-// Sober Driver Callback Request
-router.post('/sober-driver-callback', async (req, res) => {
-  const { phone_number, customer_name, customer_email, special_instructions } = req.body;
-
-  console.log('📞 Sober Driver callback request received:', req.body);
-
-  // Validate required fields
-  if (!phone_number) {
-    console.log('Missing required field: phone_number');
-    return res.status(400).json({ error: 'Phone number is required' });
-  }
-
+// Get booking by ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  console.log(`📋 Fetching booking ${id} from Supabase`);
+  
   try {
-    console.log('🔍 Using Supabase for sober driver callback');
-    
-    // Create callback request data
-    const callbackData = {
-      phone_number,
-      customer_name: customer_name || null,
-      customer_email: customer_email || null,
-      special_instructions: special_instructions || null,
-      status: 'pending',
-      created_at: new Date().toISOString()
-    };
-
-    // Remove null/undefined values
-    Object.keys(callbackData).forEach(key => {
-      if (callbackData[key] === null || callbackData[key] === undefined || callbackData[key] === '') {
-        delete callbackData[key];
-      }
-    });
-
-    // Insert callback request
-    const { data: newCallback, error: insertError } = await supabase
-      .from('sober_driver_callbacks')
-      .insert(callbackData)
-      .select()
+    const { data: booking, error } = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        cars (
+          make_name,
+          model_name,
+          production_year
+        )
+      `)
+      .eq('id', id)
       .single();
 
-    if (insertError) {
-      console.error('❌ Supabase error creating sober driver callback:', insertError);
-      return res.status(500).json({ error: 'Failed to create callback request', details: insertError.message });
+    if (error) {
+      console.error('❌ Error fetching booking:', error);
+      return res.status(404).json({ error: 'Booking not found' });
     }
 
-    // Send Telegram notification
-    try {
-      const telegram = new TelegramNotifier();
-      const telegramData = {
-        phone_number,
-        customer_name: customer_name || 'Not provided',
-        customer_email: customer_email || 'Not provided',
-        special_instructions: special_instructions || 'None provided'
-      };
-      await telegram.sendMessage(telegram.formatSoberDriverCallbackMessage(telegramData));
-    } catch (error) {
-      console.error('Error sending Telegram notification:', error);
-    }
-
-    console.log('✅ Sober driver callback created successfully in Supabase');
-    res.json({ 
-      success: true, 
-      callback_id: newCallback.id,
-      message: 'Callback request submitted successfully! We will call you back within minutes.',
-      status: 'pending'
-    });
+    console.log('✅ Booking found');
+    res.json(booking);
 
   } catch (error) {
-    console.error('❌ Supabase error creating sober driver callback:', error);
+    console.error('❌ Error fetching booking:', error);
     res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });
