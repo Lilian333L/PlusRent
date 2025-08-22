@@ -1425,29 +1425,54 @@ router.delete('/:id/images', async (req, res) => {
       return res.status(500).json({ error: 'Database error: ' + updateError.message });
     }
     
-    // Only after successful database update, delete the actual file from filesystem
-    let filePath = imagePath;
-    // Handle full URLs - extract just the path part
-    if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-      const url = new URL(filePath);
-      filePath = url.pathname;
-    }
-    // Remove leading slash if present
-    if (filePath.startsWith('/')) {
-      filePath = filePath.substring(1);
-    }
-    
-    const fullPath = path.join(__dirname, '..', filePath);
-    console.log('Attempting to delete file:', fullPath);
-    
-    fs.unlink(fullPath, (fileErr) => {
-      if (fileErr) {
-        console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
-        // Don't fail the request if file deletion fails, but log the issue
-      } else {
-        console.log(`Successfully deleted file: ${fullPath}`);
+    // Delete from Supabase Storage if it's a Supabase URL
+    if (imagePath.startsWith('https://lupoqmzqppynyybbvwah.supabase.co')) {
+      try {
+        // Extract the file path from the Supabase URL
+        const url = new URL(imagePath);
+        const filePath = url.pathname.replace('/storage/v1/object/public/car-images/', '');
+        
+        console.log('🗑️ Deleting from Supabase Storage:', filePath);
+        
+        const { error: deleteError } = await supabaseAdmin.storage
+          .from('car-images')
+          .remove([filePath]);
+        
+        if (deleteError) {
+          console.error('❌ Error deleting from Supabase Storage:', deleteError);
+          // Don't fail the request if storage deletion fails, but log the issue
+        } else {
+          console.log('✅ Successfully deleted from Supabase Storage:', filePath);
+        }
+      } catch (error) {
+        console.error('❌ Error in Supabase Storage deletion:', error);
+        // Don't fail the request if storage deletion fails, but log the issue
       }
-    });
+    } else {
+      // Handle local file deletion (legacy)
+      let filePath = imagePath;
+      // Handle full URLs - extract just the path part
+      if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+        const url = new URL(filePath);
+        filePath = url.pathname;
+      }
+      // Remove leading slash if present
+      if (filePath.startsWith('/')) {
+        filePath = filePath.substring(1);
+      }
+      
+      const fullPath = path.join(__dirname, '..', filePath);
+      console.log('Attempting to delete local file:', fullPath);
+      
+      fs.unlink(fullPath, (fileErr) => {
+        if (fileErr) {
+          console.log(`Warning: Could not delete file ${fullPath}:`, fileErr);
+          // Don't fail the request if file deletion fails, but log the issue
+        } else {
+          console.log(`Successfully deleted file: ${fullPath}`);
+        }
+      });
+    }
     
     // Return success response
     if (imageType === 'head') {

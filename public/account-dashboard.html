@@ -1059,7 +1059,7 @@
   
   .d-img img {
     width: 100%;
-    height: 200px;
+    height: auto;
     object-fit: cover;
     box-shadow: 3px 3px 9px rgba(164,164,186,.5);
   }
@@ -4239,6 +4239,45 @@
         }
       };
       
+      window.removeGalleryImageByUrl = async function(imageUrl) {
+        const editForm = document.getElementById('editCarForm');
+        const carId = editForm.dataset.carId;
+        
+        if (!carId) {
+          console.error('No car ID found for gallery image deletion');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imageUrl)}&type=gallery`, {
+            method: 'DELETE'
+          });
+          
+          if (response.ok) {
+            // Find and remove the specific image element by URL
+            const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+            const imageElements = editGalleryImagesPreview.querySelectorAll('img');
+            
+            for (let imgElement of imageElements) {
+              if (imgElement.src === imageUrl || imgElement.src === window.API_BASE_URL + imageUrl) {
+                // Remove the parent div containing this image
+                imgElement.closest('div').remove();
+                break;
+              }
+            }
+            
+            showCustomAlert('Gallery image deleted successfully!', 'success');
+          } else {
+            const error = await response.json();
+            console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
+            showCustomAlert('Error deleting gallery image: ' + error.error, 'error');
+          }
+        } catch (error) {
+          console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
+          showCustomAlert('Error deleting gallery image', 'error');
+        }
+      };
+      
       // Car Form Submit
       const carForm = document.getElementById('carForm');
       if (carForm && !carForm.dataset.initialized) {
@@ -5051,7 +5090,7 @@
           editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
             <div style="position: relative; display: inline-block; margin: 5px;">
               <img src="${img.startsWith('http') ? img : window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImage(${index})">×</button>
+              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImageByUrl('${img}')">×</button>
             </div>
           `).join('');
         } else {
