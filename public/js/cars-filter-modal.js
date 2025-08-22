@@ -19,7 +19,7 @@ class CarsFilterModal {
     setTimeout(() => {
       this.openModal();
       this.hasShownOnLoad = true;
-    }, 500); // Small delay to ensure page is fully loaded
+    }, 1000); // Increased delay to ensure all functions are loaded
   }
 
   createModal() {
@@ -155,15 +155,19 @@ class CarsFilterModal {
     // Apply new filter based on type
     switch (filterType) {
       case 'econom':
+        console.log('Setting econom filter: 0-30 EUR');
         this.setPriceFilter(0, 30);
         break;
       case 'standard':
+        console.log('Setting standard filter: 31-60 EUR');
         this.setPriceFilter(31, 60);
         break;
       case 'premium':
+        console.log('Setting premium filter: 61+ EUR');
         this.setPriceFilter(61, null);
         break;
       case 'all':
+        console.log('Setting all types filter: no price limit');
         // No price filter - show all cars
         break;
     }
@@ -187,24 +191,45 @@ class CarsFilterModal {
   }
 
   setPriceFilter(minPrice, maxPrice) {
+    console.log('Setting price filter:', { minPrice, maxPrice });
+    
     // Set desktop price filters
     const desktopMinPrice = document.getElementById('filter-price-min');
     const desktopMaxPrice = document.getElementById('filter-price-max');
-    if (desktopMinPrice) desktopMinPrice.value = minPrice;
-    if (desktopMaxPrice) desktopMaxPrice.value = maxPrice || '';
+    if (desktopMinPrice) {
+      desktopMinPrice.value = minPrice;
+      console.log('Set desktop min price:', minPrice);
+    }
+    if (desktopMaxPrice) {
+      desktopMaxPrice.value = maxPrice || '';
+      console.log('Set desktop max price:', maxPrice || '');
+    }
     
     // Set mobile price filters
     const mobileMinPrice = document.getElementById('mobile-filter-price-min');
     const mobileMaxPrice = document.getElementById('mobile-filter-price-max');
-    if (mobileMinPrice) mobileMinPrice.value = minPrice;
-    if (mobileMaxPrice) mobileMaxPrice.value = maxPrice || '';
+    if (mobileMinPrice) {
+      mobileMinPrice.value = minPrice;
+      console.log('Set mobile min price:', minPrice);
+    }
+    if (mobileMaxPrice) {
+      mobileMaxPrice.value = maxPrice || '';
+      console.log('Set mobile max price:', maxPrice || '');
+    }
   }
 
   updateCarList() {
-    // Check if the existing fetchAndRenderCars function exists
-    if (typeof fetchAndRenderCars === 'function') {
+    console.log('Updating car list...');
+    
+    // Check if the existing updateFiltersAndFetch function exists
+    if (typeof updateFiltersAndFetch === 'function') {
+      console.log('Calling updateFiltersAndFetch...');
+      updateFiltersAndFetch();
+    } else if (typeof fetchAndRenderCars === 'function') {
+      console.log('updateFiltersAndFetch not found, calling fetchAndRenderCars...');
       fetchAndRenderCars();
     } else {
+      console.log('No filter functions found, using fallback...');
       // Fallback: manually update URL and reload
       this.updateURLAndReload();
     }
@@ -279,7 +304,10 @@ class CarsFilterModal {
 let carsFilterModal;
 
 document.addEventListener('DOMContentLoaded', () => {
-  carsFilterModal = new CarsFilterModal();
+  // Wait a bit more to ensure all scripts are loaded
+  setTimeout(() => {
+    carsFilterModal = new CarsFilterModal();
+  }, 100);
 });
 
 // Export for global access
