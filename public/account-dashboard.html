@@ -1026,6 +1026,24 @@
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
   }
+
+  /* Ensure delete button text turns white on hover */
+  .btn-outline-danger:hover {
+    color: #ffffff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+
+  .btn-outline-danger:hover i {
+    color: #ffffff;
+  }
+
+  /* Fix secondary button hover to use purple color */
+  .btn-outline-secondary:hover {
+    color: #b23cfd;
+    background-color: rgba(0, 0, 0, .02);
+    border-color: #b23cfd;
+  }
   
   .de-item.mb30 {
     transition: box-shadow 0.25s, transform 0.25s;
@@ -5898,7 +5916,7 @@
                     </div>
                     <div class="d-flex align-items-center gap-1" onclick="event.stopPropagation();">
                       <button class="btn btn-sm ${wheel.is_active ? 'btn-success' : 'btn-outline-secondary'}" 
-                              style="${!wheel.is_active ? 'color: #6c757d !important; border-color: #6c757d !important;' : ''}"
+                              style="${!wheel.is_active ? 'color: #6c757d; border-color: #6c757d;' : ''}"
                               onclick="activateWheel(${wheel.id})" title="${wheel.is_active ? 'Currently Active' : 'Activate this wheel'}">
                         <i class="fa ${wheel.is_active ? 'fa-check' : 'fa-play'}"></i>
                         ${wheel.is_active ? 'Active' : 'Activate'}
@@ -6335,6 +6353,9 @@
                 
                 // Update the button state
                 updateSaveChangesButton();
+                
+                // Initialize the total percentage display
+                updateTotalPercentageDisplay();
               }
               
 
@@ -6459,6 +6480,9 @@
           // Update the Save Changes button
           updateSaveChangesButton();
           
+          // Update the total percentage display
+          updateTotalPercentageDisplay();
+          
           showCustomAlert(`Coupon will be ${!currentStatus ? 'enabled' : 'disabled'} when you save changes`, 'info');
         }
 
@@ -6481,7 +6505,70 @@
           // Update the Save Changes button
           updateSaveChangesButton();
           
+          // Update the total percentage display
+          updateTotalPercentageDisplay();
+          
           showCustomAlert(`Percentage will be updated to ${numPercentage}% when you save changes`, 'info');
+        }
+
+        function updateTotalPercentageDisplay() {
+          // Calculate current total percentage
+          const enabledCoupons = Array.from(document.querySelectorAll('.coupon-item.enabled'));
+          let totalPercentage = 0;
+          const percentageDetails = [];
+
+          for (const couponItem of enabledCoupons) {
+            const couponId = couponItem.getAttribute('data-coupon-id');
+            const percentageInput = document.getElementById(`percentage-${couponId}`);
+            
+            if (percentageInput) {
+              // Check if this coupon has a pending percentage change
+              let percentage = pendingWheelChanges.percentageChanges.has(parseInt(couponId)) 
+                ? pendingWheelChanges.percentageChanges.get(parseInt(couponId))
+                : parseFloat(percentageInput.value) || 0;
+              
+              totalPercentage += percentage;
+              percentageDetails.push(`${couponItem.querySelector('strong').textContent}: ${percentage}%`);
+            }
+          }
+
+          // Round to 2 decimal places
+          totalPercentage = Math.round(totalPercentage * 100) / 100;
+
+          // Update or create the total percentage display
+          let totalDisplay = document.getElementById('total-percentage-display');
+          if (!totalDisplay) {
+            totalDisplay = document.createElement('div');
+            totalDisplay.id = 'total-percentage-display';
+            totalDisplay.className = 'alert mt-3';
+            
+            // Insert before the Save Changes button
+            const saveButtonContainer = document.querySelector('.mt-4.text-center');
+            if (saveButtonContainer) {
+              saveButtonContainer.parentNode.insertBefore(totalDisplay, saveButtonContainer);
+            }
+          }
+
+          // Set the display style based on the total
+          if (totalPercentage === 100) {
+            totalDisplay.className = 'alert alert-success mt-3';
+            totalDisplay.innerHTML = `
+              <i class="fa fa-check-circle"></i> 
+              <strong>Total Percentage: ${totalPercentage}%</strong> - Ready to save!
+            `;
+          } else if (totalPercentage > 100) {
+            totalDisplay.className = 'alert alert-danger mt-3';
+            totalDisplay.innerHTML = `
+              <i class="fa fa-exclamation-triangle"></i> 
+              <strong>Total Percentage: ${totalPercentage}%</strong> - Exceeds 100%!
+            `;
+          } else {
+            totalDisplay.className = 'alert alert-warning mt-3';
+            totalDisplay.innerHTML = `
+              <i class="fa fa-info-circle"></i> 
+              <strong>Total Percentage: ${totalPercentage}%</strong> - Need ${100 - totalPercentage}% more
+            `;
+          }
         }
 
         async function saveWheelChanges() {
@@ -6497,6 +6584,44 @@
           
           if (!hasChanges) {
             showCustomAlert('No changes to save', 'info');
+            return;
+          }
+
+          // Validate that total percentage equals exactly 100%
+          try {
+            // Get all enabled coupons and their percentages
+            const enabledCoupons = Array.from(document.querySelectorAll('.coupon-item.enabled'));
+            let totalPercentage = 0;
+            const percentageDetails = [];
+
+            for (const couponItem of enabledCoupons) {
+              const couponId = couponItem.getAttribute('data-coupon-id');
+              const percentageInput = document.getElementById(`percentage-${couponId}`);
+              
+              if (percentageInput) {
+                // Check if this coupon has a pending percentage change
+                let percentage = pendingWheelChanges.percentageChanges.has(parseInt(couponId)) 
+                  ? pendingWheelChanges.percentageChanges.get(parseInt(couponId))
+                  : parseFloat(percentageInput.value) || 0;
+                
+                totalPercentage += percentage;
+                percentageDetails.push(`${couponItem.querySelector('strong').textContent}: ${percentage}%`);
+              }
+            }
+
+            // Round to 2 decimal places to handle floating point precision issues
+            totalPercentage = Math.round(totalPercentage * 100) / 100;
+
+            if (totalPercentage !== 100) {
+              const errorMessage = `Total percentage must equal exactly 100%. Current total: ${totalPercentage}%\n\nBreakdown:\n${percentageDetails.join('\n')}`;
+              showCustomAlert(errorMessage, 'error');
+              return;
+            }
+
+            console.log('Percentage validation passed. Total:', totalPercentage);
+          } catch (error) {
+            console.error('Error during percentage validation:', error);
+            showCustomAlert('Error validating percentages', 'error');
             return;
           }
           
@@ -6632,7 +6757,13 @@
               percentageChanges: new Map()
             };
             
-                          // Reload the coupons list to update the display
+            // Clear the total percentage display
+            const totalDisplay = document.getElementById('total-percentage-display');
+            if (totalDisplay) {
+              totalDisplay.remove();
+            }
+            
+            // Reload the coupons list to update the display
             console.log('Reloading wheel coupons to show final state...');
             await loadWheelCoupons();
             

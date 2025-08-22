@@ -1159,6 +1159,22 @@
         // Event listeners
         centerButton.addEventListener('click', spinWheel);
         resetButton.addEventListener('click', resetWheel);
+        
+        // Add click handler for the book now button
+        const bookNowButton = document.getElementById('bookNowButton');
+        if (bookNowButton) {
+            bookNowButton.addEventListener('click', function() {
+                // Navigate to the cars page
+                // Check if we're in an iframe (embedded) or standalone
+                if (window.parent && window.parent !== window) {
+                    // If embedded in an iframe, navigate the parent window
+                    window.parent.location.href = 'cars.html';
+                } else {
+                    // If standalone, navigate this window
+                    window.location.href = 'cars.html';
+                }
+            });
+        }
 
         // Initialize wheel and load language
         loadLanguage().then(async () => {
