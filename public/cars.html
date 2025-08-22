@@ -18,6 +18,8 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <!-- Cars Filter Modal CSS -->
+    <link href="css/cars-filter-modal.css" rel="stylesheet" type="text/css">
     <!-- Ensure config.js is loaded first -->
     <script src="js/config.js"></script>
     <!-- i18n dependencies -->
@@ -333,6 +335,34 @@
                         <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" data-i18n="cars.filter_price_to">
                     </div>
                 </div>
+                <hr class="filter-divider">
+                <div class="filter-category">
+                    <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
+                    <div class="filter-option-row">
+                        <label>
+                            <input type="radio" name="price-category" value="econom" id="price-category-econom">
+                            <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
+                        </label>
+                    </div>
+                    <div class="filter-option-row">
+                        <label>
+                            <input type="radio" name="price-category" value="standard" id="price-category-standard">
+                            <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
+                        </label>
+                    </div>
+                    <div class="filter-option-row">
+                        <label>
+                            <input type="radio" name="price-category" value="premium" id="price-category-premium">
+                            <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
+                        </label>
+                    </div>
+                    <div class="filter-option-row">
+                        <label>
+                            <input type="radio" name="price-category" value="all" id="price-category-all" checked>
+                            <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -390,7 +420,35 @@
                             <span>-</span>
                             <input type="number" id="mobile-filter-price-max" class="form-control" placeholder="To" min="0" data-i18n="cars.filter_price_to">
                         </div>
+                    </div>
+                    <hr class="filter-divider">
+                    <div class="filter-category">
+                        <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
+                        <div class="filter-option-row">
+                            <label>
+                                <input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom">
+                                <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
+                            </label>
                         </div>
+                        <div class="filter-option-row">
+                            <label>
+                                <input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard">
+                                <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
+                            </label>
+                        </div>
+                        <div class="filter-option-row">
+                            <label>
+                                <input type="radio" name="mobile-price-category" value="premium" id="mobile-price-category-premium">
+                                <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
+                            </label>
+                        </div>
+                        <div class="filter-option-row">
+                            <label>
+                                <input type="radio" name="mobile-price-category" value="all" id="mobile-price-category-all" checked>
+                                <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
+                            </label>
+                        </div>
+                    </div>
                     </div>
                     <div class="mobile-filter-actions">
                         <button class="btn btn-outline-secondary" onclick="clearAllFilters()">
@@ -1002,6 +1060,23 @@ function renderSidebarOptions(allCarsFull) {
   renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsFull, 'num_passengers'), selectedPassengers, allCarsFull, currentFilters, 'num_passengers');
   document.getElementById('filter-price-min').value = priceMin;
   document.getElementById('filter-price-max').value = priceMax;
+  
+  // Set price category radio button based on current price range
+  const priceCategoryRadios = document.querySelectorAll('input[name="price-category"]');
+  priceCategoryRadios.forEach(radio => {
+    radio.checked = false;
+  });
+  
+  // Determine which category matches the current price range
+  if (priceMin === '0' && priceMax === '30') {
+    document.getElementById('price-category-econom').checked = true;
+  } else if (priceMin === '31' && priceMax === '60') {
+    document.getElementById('price-category-standard').checked = true;
+  } else if (priceMin === '61' && priceMax === '') {
+    document.getElementById('price-category-premium').checked = true;
+  } else {
+    document.getElementById('price-category-all').checked = true;
+  }
 
   // Attach change listeners
   ['filter-make-options','filter-gear-options','filter-fuel-options','filter-type-options','filter-doors-options','filter-passengers-options'].forEach(id => {
@@ -1011,6 +1086,42 @@ function renderSidebarOptions(allCarsFull) {
   });
   document.getElementById('filter-price-min').addEventListener('change', updateFiltersAndFetch);
   document.getElementById('filter-price-max').addEventListener('change', updateFiltersAndFetch);
+  
+  // Add price category radio button handlers
+  document.querySelectorAll('input[name="price-category"]').forEach(radio => {
+    radio.addEventListener('change', handlePriceCategoryChange);
+  });
+}
+
+// Handle price category radio button changes
+function handlePriceCategoryChange(e) {
+  const selectedCategory = e.target.value;
+  
+  // Clear existing price filters
+  document.getElementById('filter-price-min').value = '';
+  document.getElementById('filter-price-max').value = '';
+  
+  // Apply new filter based on category
+  switch (selectedCategory) {
+    case 'econom':
+      document.getElementById('filter-price-min').value = '0';
+      document.getElementById('filter-price-max').value = '30';
+      break;
+    case 'standard':
+      document.getElementById('filter-price-min').value = '31';
+      document.getElementById('filter-price-max').value = '60';
+      break;
+    case 'premium':
+      document.getElementById('filter-price-min').value = '61';
+      document.getElementById('filter-price-max').value = '';
+      break;
+    case 'all':
+      // No price filter - already cleared above
+      break;
+  }
+  
+  // Update filters and fetch cars
+  updateFiltersAndFetch();
 }
 
 // Mobile Filter Functions
@@ -1087,6 +1198,29 @@ function applyMobileFilters() {
   const passengers = getSelectedValues('mobile-filter-passengers-options');
   const priceMin = document.getElementById('mobile-filter-price-min').value;
   const priceMax = document.getElementById('mobile-filter-price-max').value;
+  
+  // Handle mobile price category selection
+  const mobilePriceCategory = document.querySelector('input[name="mobile-price-category"]:checked');
+  if (mobilePriceCategory && mobilePriceCategory.value !== 'all') {
+    // Clear manual price inputs and apply category filter
+    document.getElementById('mobile-filter-price-min').value = '';
+    document.getElementById('mobile-filter-price-max').value = '';
+    
+    switch (mobilePriceCategory.value) {
+      case 'econom':
+        document.getElementById('mobile-filter-price-min').value = '0';
+        document.getElementById('mobile-filter-price-max').value = '30';
+        break;
+      case 'standard':
+        document.getElementById('mobile-filter-price-min').value = '31';
+        document.getElementById('mobile-filter-price-max').value = '60';
+        break;
+      case 'premium':
+        document.getElementById('mobile-filter-price-min').value = '61';
+        document.getElementById('mobile-filter-price-max').value = '';
+        break;
+    }
+  }
 
   // Build query parameters
   const params = new URLSearchParams();
@@ -1115,6 +1249,11 @@ function clearAllFilters() {
   document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
   document.getElementById('mobile-filter-price-min').value = '';
   document.getElementById('mobile-filter-price-max').value = '';
+  
+  // Reset price category radio buttons to "All Types"
+  document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+    radio.checked = radio.value === 'all';
+  });
 }
 
 // Close mobile filter when clicking outside
@@ -1236,6 +1375,8 @@ document.getElementById('clear-filters-link').addEventListener('click', function
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
+    <!-- Cars Filter Modal JavaScript -->
+    <script src="js/cars-filter-modal.js"></script>
     <script>
       // Ensure i18n is properly initialized and update content
       document.addEventListener('DOMContentLoaded', function() {
