@@ -223,7 +223,8 @@ router.get('/', async (req, res) => {
         cars (
           make_name,
           model_name,
-          production_year
+          production_year,
+          head_image
         )
       `)
       .order('created_at', { ascending: false });
