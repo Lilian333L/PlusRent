@@ -1434,8 +1434,8 @@ router.post('/:id/images', async (req, res) => {
         
         // Upload to Supabase Storage
         console.log('🖼️ Uploading head image to Supabase Storage...');
-        headImagePath = await uploadCarImage(headFile, carId, 'head');
-        console.log('✅ Head image uploaded to Supabase:', headImagePath);
+        headImageUrl = await uploadCarImage(headFile, carId, 'head');
+        console.log('✅ Head image uploaded to Supabase:', headImageUrl);
       } catch (error) {
         console.error('❌ Error uploading head image to Supabase:', error);
         return res.status(500).json({ error: 'Failed to upload head image: ' + error.message });
@@ -1465,7 +1465,7 @@ router.post('/:id/images', async (req, res) => {
             // Upload to Supabase Storage
             console.log(`🖼️ Uploading gallery image ${index + 1} to Supabase Storage...`);
             const galleryImageUrl = await uploadCarImage(galleryFile, carId, 'gallery');
-            galleryImagePaths.push(galleryImageUrl);
+            galleryImageUrls.push(galleryImageUrl);
             console.log('✅ Gallery image uploaded to Supabase:', galleryImageUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${index + 1}:`, error);
