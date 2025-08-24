@@ -14,33 +14,16 @@ const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'product
 // Function to upload file to Supabase Storage
 async function uploadToSupabaseStorage(file, carId, fileType = 'gallery') {
   try {
-    console.log('🔍 uploadToSupabaseStorage called with:', {
-      carId,
-      fileType,
-      hasFile: !!file,
-      hasBuffer: !!file?.buffer,
-      bufferSize: file?.buffer?.length,
-      originalname: file?.originalname,
-      mimetype: file?.mimetype
-    });
+
     
     const timestamp = Date.now();
     const ext = path.extname(file.originalname) || '.jpg';
     const fileName = fileType === 'head' ? `head${ext}` : `gallery_${timestamp}${ext}`;
     const filePath = `cars/${carId}/${fileName}`;
     
-    console.log('📤 Uploading to Supabase Storage:', {
-      filePath,
-      fileName,
-      ext,
-      timestamp
-    });
+
     
-    console.log('🔍 Supabase client check:', {
-      hasSupabase: !!supabase,
-      hasStorage: !!supabase?.storage,
-      hasFrom: !!supabase?.storage?.from
-    });
+
     
     const { data, error } = await supabaseAdmin.storage
       .from('car-images')
@@ -60,14 +43,10 @@ async function uploadToSupabaseStorage(file, carId, fileType = 'gallery') {
       throw error;
     }
     
-    console.log('✅ Supabase Storage upload successful:', data);
-    
     // Get public URL
     const { data: urlData } = supabase.storage
       .from('car-images')
       .getPublicUrl(filePath);
-    
-    console.log('✅ File uploaded to Supabase Storage:', urlData.publicUrl);
     return urlData.publicUrl;
     
   } catch (error) {
@@ -138,16 +117,12 @@ router.get('/', async (req, res) => {
   // Check if we're using Supabase
   const isSupabase = true; // Force Supabase usage
   
-  console.log('🔍 Cars API - Environment check:', {
-    NODE_ENV: process.env.NODE_ENV,
-    VERCEL: process.env.VERCEL,
-    isSupabase: isSupabase
-  });
+
   
   if (isSupabase) {
     // Use native Supabase client for filtering
     try {
-      console.log('🔍 Using Supabase client for cars filtering');
+
       let query = supabase.from('cars').select('*');
       
       // Helper to add filters
@@ -189,12 +164,7 @@ router.get('/', async (req, res) => {
       
       const { data, error } = await query;
       
-      console.log('🔍 Supabase query result:', { 
-        hasData: !!data, 
-        dataLength: data ? data.length : 0,
-        hasError: !!error,
-        error: error ? error.message : null
-      });
+
       
       if (error) {
         console.error('❌ Supabase query error:', error);
@@ -256,7 +226,7 @@ router.get('/booking/available', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for available cars fetch');
+  
       
       const { data, error } = await supabase
         .from('cars')
@@ -317,7 +287,7 @@ router.get('/:id', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for single car fetch');
+  
       
       const { data, error } = await supabase
         .from('cars')
@@ -570,7 +540,7 @@ router.post('/', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for car creation');
+  
       
       // Prepare car data for Supabase
       const carData = {
@@ -633,9 +603,7 @@ router.post('/', async (req, res) => {
         // Upload head image if provided
         if (headImageUrl) {
           try {
-            console.log('🖼️ Uploading head image to Supabase Storage...');
             finalHeadImageUrl = await uploadToSupabaseStorage(headImageUrl, carId, 'head');
-            console.log('✅ Head image uploaded successfully:', finalHeadImageUrl);
           } catch (error) {
             console.error('❌ Error uploading head image to Supabase:', error);
           }
@@ -644,10 +612,8 @@ router.post('/', async (req, res) => {
         // Upload gallery images if provided
         for (let i = 0; i < galleryImageUrls.length; i++) {
           try {
-            console.log(`🖼️ Uploading gallery image ${i + 1} to Supabase Storage...`);
             const galleryUrl = await uploadToSupabaseStorage(galleryImageUrls[i], carId, 'gallery');
             finalGalleryImageUrls.push(galleryUrl);
-            console.log(`✅ Gallery image ${i + 1} uploaded successfully:`, galleryUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${i + 1} to Supabase:`, error);
           }
@@ -666,8 +632,6 @@ router.post('/', async (req, res) => {
           
           if (updateError) {
             console.error('❌ Error updating image URLs:', updateError);
-          } else {
-            console.log('✅ Image URLs updated successfully in database');
           }
         }
       }
@@ -763,17 +727,13 @@ router.post('/', async (req, res) => {
       
       // Upload images to Supabase Storage
       if (headImageUrl || galleryImageUrls.length > 0) {
-        console.log('📁 Uploading images to Supabase Storage for car ID:', carId);
-        
         let finalHeadImageUrl = null;
         let finalGalleryImageUrls = [];
         
         // Upload head image if provided
         if (headImageUrl) {
           try {
-            console.log('🖼️ Uploading head image to Supabase Storage...');
             finalHeadImageUrl = await uploadCarImage(headImageUrl, carId, 'head');
-            console.log('✅ Head image uploaded successfully:', finalHeadImageUrl);
           } catch (error) {
             console.error('❌ Error uploading head image to Supabase:', error);
           }
@@ -782,10 +742,8 @@ router.post('/', async (req, res) => {
         // Upload gallery images if provided
         for (let i = 0; i < galleryImageUrls.length; i++) {
           try {
-            console.log(`🖼️ Uploading gallery image ${i + 1} to Supabase Storage...`);
             const galleryUrl = await uploadCarImage(galleryImageUrls[i], carId, 'gallery');
             finalGalleryImageUrls.push(galleryUrl);
-            console.log(`✅ Gallery image ${i + 1} uploaded successfully:`, galleryUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${i + 1} to Supabase:`, error);
           }
@@ -793,14 +751,6 @@ router.post('/', async (req, res) => {
         
         // Update database with Supabase Storage URLs
         const updateSql = `UPDATE cars SET head_image = ?, gallery_images = ? WHERE id = ?`;
-        console.log('🖼️ Updating database with Supabase Storage URLs:');
-        console.log('  Head image URL:', finalHeadImageUrl);
-        console.log('  Gallery image URLs:', finalGalleryImageUrls);
-        console.log('  Car ID:', carId);
-        
-        console.log('🔍 About to execute database update with:');
-        console.log('  SQL:', updateSql);
-        console.log('  Parameters:', [finalHeadImageUrl, JSON.stringify(finalGalleryImageUrls), carId]);
         
         db.run(updateSql, [
           finalHeadImageUrl,
@@ -809,11 +759,6 @@ router.post('/', async (req, res) => {
         ], (updateErr) => {
           if (updateErr) {
             console.error('❌ Error updating image URLs:', updateErr);
-          } else {
-            console.log('✅ Image URLs updated successfully in database');
-            console.log('  Updated car ID:', carId);
-            console.log('  Final head image URL:', finalHeadImageUrl);
-            console.log('  Final gallery image URLs:', finalGalleryImageUrls);
           }
           
           // Send Telegram notification
@@ -883,29 +828,10 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
   }
   next();
 }, async (req, res) => {
-  console.log('🔍 SERVER - Multer middleware executed');
   const id = req.params.id;
   
   // Check if we're using Supabase
   const isSupabase = true; // Force Supabase usage
-  
-  console.log('🔍 SERVER - PUT /api/cars/:id received request');
-  console.log('  Car ID:', id);
-  console.log('  Content-Type:', req.headers['content-type']);
-  console.log('  Raw body keys:', Object.keys(req.body));
-  console.log('  Raw body:', req.body);
-  console.log('  Files in request:', req.files);
-  if (req.files && req.files.length > 0) {
-    console.log('  Files details:');
-    req.files.forEach((file, index) => {
-      console.log(`    File ${index + 1}:`, {
-        fieldname: file.fieldname,
-        originalname: file.originalname,
-        size: file.size,
-        mimetype: file.mimetype
-      });
-    });
-  }
   const {
     make_name,
     model_name,
@@ -943,24 +869,7 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
     return res.status(400).json({ error: 'Invalid price_policy format' });
   }
   
-  console.log('🔍 SERVER - Extracted values:');
-  console.log('  make_name:', make_name);
-  console.log('  model_name:', model_name);
-  console.log('  production_year:', production_year);
-  console.log('  gear_type:', gear_type);
-  console.log('  fuel_type:', fuel_type);
-  console.log('  engine_capacity:', engine_capacity);
-  console.log('  car_type:', car_type);
-  console.log('  num_doors:', num_doors);
-  console.log('  num_passengers:', num_passengers);
-  console.log('  rawPricePolicy:', rawPricePolicy);
-  console.log('  parsed price_policy:', price_policy);
-  console.log('  rca_insurance_price:', rca_insurance_price);
-  console.log('  casco_insurance_price:', casco_insurance_price);
-  console.log('  likes:', likes);
-  console.log('  description_en:', description_en);
-  console.log('  description_ro:', description_ro);
-  console.log('  description_ru:', description_ru);
+
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -1088,15 +997,12 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
     if (req.body.gallery_images) {
       try {
         galleryImagePaths = JSON.parse(req.body.gallery_images);
-        console.log('🔍 SERVER - Using gallery images from form data:', galleryImagePaths);
       } catch (e) {
-        console.log('Could not parse gallery images from form data, using existing ones');
         if (existingCar.gallery_images) {
           try {
             galleryImagePaths = JSON.parse(existingCar.gallery_images);
-            console.log('🔍 SERVER - Using existing gallery images:', galleryImagePaths);
           } catch (e2) {
-            console.log('Could not parse existing gallery images');
+            // Could not parse existing gallery images
           }
         }
       }
@@ -1104,34 +1010,27 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
       // No gallery_images in form data, preserve existing ones
       try {
         galleryImagePaths = JSON.parse(existingCar.gallery_images);
-        console.log('🔍 SERVER - Preserving existing gallery images:', galleryImagePaths);
       } catch (e) {
-        console.log('Could not parse existing gallery images');
+        // Could not parse existing gallery images
       }
     }
     
     // Process new file uploads
     if (req.files && req.files.length > 0) {
-      console.log('🔍 SERVER - Processing uploaded files...');
-      
       // Create car directory
       const carDir = isVercel 
         ? path.join('/tmp', 'uploads', `car-${id}`)
         : path.join(__dirname, '..', 'uploads', `car-${id}`);
       fs.mkdirSync(carDir, { recursive: true });
-      console.log('📁 Created car directory:', carDir);
       
       // Process each uploaded file
       req.files.forEach((file, index) => {
-        console.log(`🔍 SERVER - Processing file ${index + 1}:`, file.fieldname, file.originalname);
-        
         if (file.fieldname === 'head_image') {
           // Save head image
           const headFileName = `head${path.extname(file.originalname)}`;
           const headFilePath = path.join(carDir, headFileName);
           fs.writeFileSync(headFilePath, file.buffer);
           headImagePath = headFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
-          console.log('✅ Head image saved:', headImagePath);
         } else if (file.fieldname === 'gallery_images') {
           // Save gallery image
           const galleryFileName = `gallery_${Date.now()}_${index}${path.extname(file.originalname)}`;
@@ -1139,7 +1038,6 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
           fs.writeFileSync(galleryFilePath, file.buffer);
           const galleryImagePath = galleryFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
           galleryImagePaths.push(galleryImagePath);
-          console.log('✅ Gallery image saved:', galleryImagePath);
         }
       });
     }
@@ -1177,7 +1075,7 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
 
     if (isSupabase) {
       try {
-        console.log('🔍 Using Supabase for car update');
+    
         
         // Prepare update data for Supabase
         const updateData = {
@@ -1274,7 +1172,7 @@ router.delete('/:id', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for car deletion');
+  
       
       // First, get the car data to check for images
       const { data: carData, error: carError } = await supabase
@@ -1342,7 +1240,7 @@ router.patch('/:id/premium', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for premium toggle');
+  
       
       const { data, error } = await supabase
         .from('cars')
@@ -1377,14 +1275,7 @@ router.patch('/:id/premium', async (req, res) => {
 router.post('/:id/images', async (req, res) => {
   const carId = req.params.id;
   
-  console.log('🔍 SERVER - POST /api/cars/:id/images received request');
-  console.log('  Car ID:', carId);
-  console.log('  Request body keys:', Object.keys(req.body || {}));
-  console.log('  Environment check:', {
-    NODE_ENV: process.env.NODE_ENV,
-    VERCEL: process.env.VERCEL,
-    isVercel: isVercel
-  });
+
   
   try {
     // Check if we're using Supabase
@@ -1408,16 +1299,12 @@ router.post('/:id/images', async (req, res) => {
       }
       
       car = carData;
-      console.log('✅ Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
-      
       // Parse existing gallery images
       galleryImageUrls = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-      console.log('📸 Existing gallery images:', galleryImageUrls);
     }
     
     // Process head image if provided
     if (req.body.head_image && req.body.head_image.data) {
-      console.log('🖼️ Processing head image upload...');
       try {
         const headImageData = req.body.head_image;
 
@@ -1433,9 +1320,7 @@ router.post('/:id/images', async (req, res) => {
         };
         
         // Upload to Supabase Storage
-        console.log('🖼️ Uploading head image to Supabase Storage...');
         headImageUrl = await uploadCarImage(headFile, carId, 'head');
-        console.log('✅ Head image uploaded to Supabase:', headImageUrl);
       } catch (error) {
         console.error('❌ Error uploading head image to Supabase:', error);
         return res.status(500).json({ error: 'Failed to upload head image: ' + error.message });
@@ -1444,9 +1329,6 @@ router.post('/:id/images', async (req, res) => {
     
     // Process gallery images if provided
     if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
-      console.log('🖼️ Processing gallery images upload...');
-      console.log('📊 Gallery images to process:', req.body.gallery_images.length);
-      
       for (let index = 0; index < req.body.gallery_images.length; index++) {
         const imageData = req.body.gallery_images[index];
         if (imageData && imageData.data) {
@@ -1463,19 +1345,14 @@ router.post('/:id/images', async (req, res) => {
             };
             
             // Upload to Supabase Storage
-            console.log(`🖼️ Uploading gallery image ${index + 1} to Supabase Storage...`);
             const galleryImageUrl = await uploadCarImage(galleryFile, carId, 'gallery');
             galleryImageUrls.push(galleryImageUrl);
-            console.log('✅ Gallery image uploaded to Supabase:', galleryImageUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${index + 1}:`, error);
             return res.status(500).json({ error: `Failed to upload gallery image ${index + 1}: ` + error.message });
           }
         }
       }
-      
-      console.log('📸 Final gallery images count:', galleryImageUrls.length);
-      console.log('📸 Final gallery images:', galleryImageUrls);
     }
     
     // Update car with new image URLs
@@ -1484,7 +1361,7 @@ router.post('/:id/images', async (req, res) => {
       gallery_images: JSON.stringify(galleryImageUrls)
     };
     
-    console.log('🔍 Updating car with data:', updateData);
+
     
     if (isSupabase) {
       // Update in Supabase
@@ -1498,7 +1375,7 @@ router.post('/:id/images', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + updateError.message });
       }
       
-      console.log('✅ Car images updated successfully in Supabase');
+
     }
     
     res.json({ 
@@ -1671,7 +1548,7 @@ router.post('/reorder', async (req, res) => {
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for car reordering');
+  
       
       // Update each car's display_order using Supabase
       const updatePromises = carOrder.map((carId, index) => {

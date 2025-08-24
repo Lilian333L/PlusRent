@@ -3577,7 +3577,14 @@
         // For add car form, any non-empty value indicates unsaved changes
         if (formId === 'carForm') {
           // Check for both text inputs and select dropdowns
-          if (input.value && input.value !== '' && input.value !== 'Select Make' && input.value !== 'Select Model' && input.value !== 'Select Production Year' && input.value !== 'Select Gear Type' && input.value !== 'Select Fuel Type' && input.value !== 'Select Car Type' && input.value !== 'Select Number of Doors' && input.value !== 'Select Number of Passengers') {
+          // Only consider it a change if it's not empty AND not a default/placeholder value
+          if (input.value && input.value !== '' && 
+              input.value !== 'Select Make' && input.value !== 'Select Model' && 
+              input.value !== 'Select Production Year' && input.value !== 'Select Gear Type' && 
+              input.value !== 'Select Fuel Type' && input.value !== 'Select Car Type' && 
+              input.value !== 'Select Number of Doors' && input.value !== 'Select Number of Passengers' &&
+              input.value !== 'Automatic' && input.value !== 'Gasoline' && input.value !== 'Crossover' &&
+              input.value !== '0') {
             return true;
           }
         } else {
@@ -3630,10 +3637,10 @@
         const originalHeadImage = form.dataset.originalHeadImage;
         const originalGalleryImages = form.dataset.originalGalleryImages;
         
-        if (originalHeadImage && (!headImagePreview || headImagePreview.innerHTML === '')) {
+        if (originalHeadImage && (!headImagePreview || headImagePreview.innerHTML.trim() === '' || !headImagePreview.querySelector('img'))) {
           return true;
         }
-        if (originalGalleryImages && (!galleryImagesPreview || galleryImagesPreview.innerHTML === '')) {
+        if (originalGalleryImages && (!galleryImagesPreview || galleryImagesPreview.innerHTML.trim() === '' || !galleryImagesPreview.querySelector('img'))) {
           return true;
         }
       }
@@ -3714,12 +3721,20 @@
       const editCarForm = document.getElementById('editCarForm');
       const adminOverlay = document.getElementById('adminOverlay');
       
+      // Clear pending deletion flags since we're closing without saving
+      delete editCarForm.dataset.pendingHeadImageDeletion;
+      delete editCarForm.dataset.pendingGalleryImageDeletions;
+      
       // Reset form and clear image previews
       editCarForm.reset();
       document.getElementById('editHeadImagePreview').innerHTML = '';
       document.getElementById('editGalleryImagesPreview').innerHTML = '';
       document.getElementById('editHeadImageInput').value = '';
       document.getElementById('editGalleryImagesInput').value = '';
+      
+      // Clear original image data
+      delete editCarForm.dataset.originalHeadImageData;
+      delete editCarForm.dataset.originalGalleryImagesData;
       
       editCarPanel.classList.remove('active');
       adminOverlay.classList.remove('active');
@@ -3754,7 +3769,7 @@
     }
 
     // Add Car Button
-    console.log('🔍 Initializing add car form handlers...');
+    
     const showAddCarBtn = document.getElementById('showAddCarBtn');
     const addCarPanel = document.getElementById('addCarPanel');
     const closeAddCarPanel = document.getElementById('closeAddCarPanel');
@@ -3824,11 +3839,13 @@
           e.preventDefault();
           e.stopPropagation();
           
-          const hasChanges = hasUnsavedChanges('editCarForm');
+                  const hasChanges = hasUnsavedChanges('editCarForm');
           
           if (window.bypassUnsavedChangesCheck || !hasChanges) {
+            console.log('✅ EDIT CAR - Closing without confirmation');
             closeEditCarPanelFunction();
           } else {
+            console.log('⚠️ EDIT CAR - Showing unsaved changes confirmation');
             showUnsavedChangesConfirmation('editCarPanel');
           }
         });
@@ -3955,6 +3972,59 @@
               showCustomAlert('Image upload failed', 'error');
               return; // Don't proceed with car update if image upload failed
             }
+          }
+          
+          // Handle pending image deletions
+          if (editCarForm.dataset.pendingHeadImageDeletion || editCarForm.dataset.pendingGalleryImageDeletions) {
+                    // Delete head image if pending
+        if (editCarForm.dataset.pendingHeadImageDeletion) {
+          const headImagePath = editCarForm.dataset.pendingHeadImageDeletion;
+              
+              try {
+                const deleteResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(headImagePath)}&type=head`, {
+                  method: 'DELETE'
+                });
+                
+                if (deleteResponse.ok) {
+                  console.log('✅ Head image deleted successfully');
+                } else {
+                  const error = await deleteResponse.json();
+                  console.error('❌ Error deleting head image:', error);
+                  showCustomAlert('Error deleting head image: ' + error.error, 'error');
+                }
+              } catch (error) {
+                console.error('❌ Error deleting head image:', error);
+                showCustomAlert('Error deleting head image', 'error');
+              }
+            }
+            
+                    // Delete gallery images if pending
+        if (editCarForm.dataset.pendingGalleryImageDeletions) {
+          const galleryImagePaths = editCarForm.dataset.pendingGalleryImageDeletions.split(',').filter(p => p);
+              
+              for (const imagePath of galleryImagePaths) {
+                try {
+                  const deleteResponse = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=gallery`, {
+                    method: 'DELETE'
+                  });
+                  
+                  if (deleteResponse.ok) {
+                    console.log('✅ Gallery image deleted successfully:', imagePath);
+                  } else {
+                    const error = await deleteResponse.json();
+                    console.error('❌ Error deleting gallery image:', error);
+                    showCustomAlert('Error deleting gallery image: ' + error.error, 'error');
+                  }
+                } catch (error) {
+                  console.error('❌ Error deleting gallery image:', error);
+                  showCustomAlert('Error deleting gallery image', 'error');
+                }
+              }
+            }
+            
+            // Clear pending deletion flags
+            delete editCarForm.dataset.pendingHeadImageDeletion;
+            delete editCarForm.dataset.pendingGalleryImageDeletions;
           }
           
           // Now update car data with JSON (including any new images)
@@ -4245,25 +4315,15 @@
         }
         
         const imagePath = headImage.src.replace(window.API_BASE_URL, '');
-        console.log('🔍 EDIT CAR - Deleting head image:', imagePath);
         
-        try {
-          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=head`, {
-            method: 'DELETE'
-          });
-          
-          if (response.ok) {
-            console.log('🔍 EDIT CAR - Head image deleted successfully');
-            editHeadImagePreview.innerHTML = '';
-          } else {
-            const error = await response.json();
-            console.error('🔍 EDIT CAR - Error deleting head image:', error);
-            showCustomAlert('Error deleting head image: ' + error.error, 'error');
-          }
-        } catch (error) {
-          console.error('🔍 EDIT CAR - Error deleting head image:', error);
-          showCustomAlert('Error deleting head image', 'error');
+        // Store the image path for pending deletion instead of deleting immediately
+        if (!editForm.dataset.pendingHeadImageDeletion) {
+          editForm.dataset.pendingHeadImageDeletion = imagePath;
         }
+        
+        // Remove from preview (but don't delete from database yet)
+        editHeadImagePreview.innerHTML = '';
+        showCustomAlert('Head image will be deleted when you save the form', 'info');
       };
       
       window.removeGalleryImage = async function(index) {
@@ -4291,22 +4351,17 @@
         
         const imagePath = imgElement.src.replace(window.API_BASE_URL, '');
         
-        try {
-          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imagePath)}&type=gallery`, {
-            method: 'DELETE'
-          });
-          
-          if (response.ok) {
-            images[index].remove();
-          } else {
-            const error = await response.json();
-            console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
-            showCustomAlert('Error deleting gallery image: ' + error.error, 'error');
-          }
-        } catch (error) {
-          console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
-          showCustomAlert('Error deleting gallery image', 'error');
+        // Store the image path for pending deletion
+        if (!editForm.dataset.pendingGalleryImageDeletions) {
+          editForm.dataset.pendingGalleryImageDeletions = '';
         }
+        const pendingDeletions = editForm.dataset.pendingGalleryImageDeletions.split(',').filter(p => p);
+        pendingDeletions.push(imagePath);
+        editForm.dataset.pendingGalleryImageDeletions = pendingDeletions.join(',');
+        
+        // Remove from preview (but don't delete from database yet)
+        images[index].remove();
+        showCustomAlert('Gallery image will be deleted when you save the form', 'info');
       };
       
       window.removeGalleryImageByUrl = async function(imageUrl) {
@@ -4318,34 +4373,30 @@
           return;
         }
         
-        try {
-          const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/images?path=${encodeURIComponent(imageUrl)}&type=gallery`, {
-            method: 'DELETE'
-          });
-          
-          if (response.ok) {
-            // Find and remove the specific image element by URL
-            const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
-            const imageElements = editGalleryImagesPreview.querySelectorAll('img');
-            
-            for (let imgElement of imageElements) {
-              if (imgElement.src === imageUrl || imgElement.src === window.API_BASE_URL + imageUrl) {
-                // Remove the parent div containing this image
-                imgElement.closest('div').remove();
-                break;
-              }
-            }
-            
-            showCustomAlert('Gallery image deleted successfully!', 'success');
-          } else {
-            const error = await response.json();
-            console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
-            showCustomAlert('Error deleting gallery image: ' + error.error, 'error');
-          }
-        } catch (error) {
-          console.error('🔍 EDIT CAR - Error deleting gallery image:', error);
-          showCustomAlert('Error deleting gallery image', 'error');
+
+        
+        // Store the image path for pending deletion
+        if (!editForm.dataset.pendingGalleryImageDeletions) {
+          editForm.dataset.pendingGalleryImageDeletions = '';
         }
+        const pendingDeletions = editForm.dataset.pendingGalleryImageDeletions.split(',').filter(p => p);
+        pendingDeletions.push(imageUrl);
+        editForm.dataset.pendingGalleryImageDeletions = pendingDeletions.join(',');
+        
+        // Find and remove the specific image element by URL
+        const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
+        const imageElements = editGalleryImagesPreview.querySelectorAll('img');
+        
+        for (let imgElement of imageElements) {
+          if (imgElement.src === imageUrl || imgElement.src === window.API_BASE_URL + imageUrl) {
+            // Remove the parent div containing this image
+            imgElement.closest('div').remove();
+
+            break;
+          }
+        }
+        
+        showCustomAlert('Gallery image will be deleted when you save the form', 'info');
       };
       
       // Car Form Submit
@@ -5141,6 +5192,10 @@
             bookedUntilInput.value = '';
           }
         }
+        
+        // Store original image data for restoration if form is closed without saving
+        editForm.dataset.originalHeadImageData = car.head_image || '';
+        editForm.dataset.originalGalleryImagesData = car.gallery_images ? JSON.stringify(car.gallery_images) : '';
         
         // Show current images if they exist
         const editHeadImagePreview = document.getElementById('editHeadImagePreview');
