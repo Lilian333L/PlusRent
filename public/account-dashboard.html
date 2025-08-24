@@ -680,6 +680,7 @@
     width: 20px;
     height: 20px;
     margin-bottom: 4px;
+    margin-top: 4px;
     color: #666;
   }
   
@@ -1546,11 +1547,7 @@
                               <label class="form-label">Head Image</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="addHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
+                                  <i class="fa fa-upload admin-upload-icon"></i>
                                   <div class="admin-upload-text">Upload Head Image</div>
                                 </div>
                                 <input type="file" id="addHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
@@ -1561,11 +1558,7 @@
                               <label class="form-label">Gallery Images</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="addGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
+                                  <i class="fa fa-upload admin-upload-icon"></i>
                                   <div class="admin-upload-text">Upload Gallery Images</div>
                                 </div>
                                 <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
@@ -1884,11 +1877,7 @@
                               <label class="form-label">Head Image</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="editHeadImageButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
+                                  <i class="fa fa-upload admin-upload-icon"></i>
                                   <div class="admin-upload-text">Upload Head Image</div>
                                 </div>
                                 <input type="file" id="editHeadImageInput" name="head_image" accept="image/*" class="admin-upload-input">
@@ -1899,11 +1888,7 @@
                               <label class="form-label">Gallery Images</label>
                               <div class="admin-upload-area">
                                 <div class="admin-upload-button" id="editGalleryImagesButton">
-                                  <svg class="admin-upload-icon" viewBox="0 0 24 24" style="display: block;">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17,8 12,3 7,8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                  </svg>
+                                  <i class="fa fa-upload admin-upload-icon"></i>
                                   <div class="admin-upload-text">Upload Gallery Images</div>
                                 </div>
                                 <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*" multiple class="admin-upload-input">
@@ -3601,10 +3586,9 @@
             if (input.value !== input.dataset.originalValue) {
               return true;
             }
-          } else if (input.value !== '') {
-            // If no original value is set, check if current value is not empty
-            return true;
           }
+          // If no original value is set, assume no changes (don't show modal)
+          // This prevents false positives when original values haven't been stored yet
         }
       }
       
@@ -3631,8 +3615,12 @@
         const galleryImagesInput = document.getElementById('editGalleryImagesInput');
         
         // Check if new files were selected
-        if (headImageInput && headImageInput.files.length > 0) return true;
-        if (galleryImagesInput && galleryImagesInput.files.length > 0) return true;
+        if (headImageInput && headImageInput.files.length > 0) {
+          return true;
+        }
+        if (galleryImagesInput && galleryImagesInput.files.length > 0) {
+          return true;
+        }
         
         // Check if images were removed from preview (indicating deletion)
         const headImagePreview = document.getElementById('editHeadImagePreview');
@@ -3642,8 +3630,12 @@
         const originalHeadImage = form.dataset.originalHeadImage;
         const originalGalleryImages = form.dataset.originalGalleryImages;
         
-        if (originalHeadImage && (!headImagePreview || headImagePreview.innerHTML === '')) return true;
-        if (originalGalleryImages && (!galleryImagesPreview || galleryImagesPreview.innerHTML === '')) return true;
+        if (originalHeadImage && (!headImagePreview || headImagePreview.innerHTML === '')) {
+          return true;
+        }
+        if (originalGalleryImages && (!galleryImagesPreview || galleryImagesPreview.innerHTML === '')) {
+          return true;
+        }
       }
       
       return false;
@@ -3807,17 +3799,18 @@
       }
       
       // Close modal when clicking overlay
-      if (adminOverlay) {
-        adminOverlay.addEventListener('click', () => {
-          if (addCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('carForm')) {
-            showUnsavedChangesConfirmation('addCarPanel');
-          } else if (editCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('editCarForm')) {
-            showUnsavedChangesConfirmation('editCarPanel');
-          } else {
-            closeAllPanels();
-          }
-        });
-      }
+                      if (adminOverlay && !adminOverlay.dataset.listenerAttached) {
+          adminOverlay.dataset.listenerAttached = 'true';
+          adminOverlay.addEventListener('click', (e) => {
+            if (addCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('carForm')) {
+              showUnsavedChangesConfirmation('addCarPanel');
+            } else if (editCarPanel.classList.contains('active') && !window.bypassUnsavedChangesCheck && hasUnsavedChanges('editCarForm')) {
+              showUnsavedChangesConfirmation('editCarPanel');
+            } else {
+              closeAllPanels();
+            }
+          });
+        }
       
       // Edit Car Panel functionality
       const editCarPanel = document.getElementById('editCarPanel');
@@ -3825,9 +3818,15 @@
       
 
       
-      if (closeEditCarPanel) {
-        closeEditCarPanel.addEventListener('click', () => {
-          if (window.bypassUnsavedChangesCheck || !hasUnsavedChanges('editCarForm')) {
+      if (closeEditCarPanel && !closeEditCarPanel.dataset.listenerAttached) {
+        closeEditCarPanel.dataset.listenerAttached = 'true';
+        closeEditCarPanel.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const hasChanges = hasUnsavedChanges('editCarForm');
+          
+          if (window.bypassUnsavedChangesCheck || !hasChanges) {
             closeEditCarPanelFunction();
           } else {
             showUnsavedChangesConfirmation('editCarPanel');
