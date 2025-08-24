@@ -413,13 +413,12 @@
             }
 
             .center-icon {
-                font-size: 1.5rem;
+                font-size: 0.8rem;
             }
 
             .arrow {
                 border-left: 15px solid transparent;
                 border-right: 15px solid transparent;
-                border-bottom: 25px solid #ff4757;
             }
 
             .instructions-card,
@@ -1037,11 +1036,20 @@
         async function spinWheel() {
             if (isSpinning || hasSpun) return;
 
-            // Check if phone number is provided
-            if (!userPhoneNumber) {
+                    // Check if phone number is provided (either from URL or from localStorage)
+        if (!userPhoneNumber) {
+            // Check if phone number was entered in the parent modal
+            const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
+            const storedPhone = localStorage.getItem('spinningWheelPhone');
+            
+            if (phoneEntered === 'true' && storedPhone) {
+                userPhoneNumber = storedPhone;
+                console.log('Using phone number from localStorage:', userPhoneNumber);
+            } else {
                 alert('Please provide a phone number to spin the wheel');
                 return;
             }
+        }
 
             isSpinning = true;
             centerButton.disabled = true;
@@ -1183,9 +1191,21 @@
         // Initialize wheel and load language
         loadLanguage().then(async () => {
     
-            // Get phone number from URL parameters
+            // Get phone number from URL parameters or localStorage
             userPhoneNumber = getPhoneNumberFromURL();
-            console.log('Phone number from URL:', userPhoneNumber);
+            
+            // If no phone number in URL, check localStorage
+            if (!userPhoneNumber) {
+                const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
+                const storedPhone = localStorage.getItem('spinningWheelPhone');
+                
+                if (phoneEntered === 'true' && storedPhone) {
+                    userPhoneNumber = storedPhone;
+                    console.log('Using phone number from localStorage:', userPhoneNumber);
+                }
+            }
+            
+            console.log('Phone number from URL or localStorage:', userPhoneNumber);
     
             // Fetch coupons and create wheel segments
             await fetchCoupons();
@@ -1205,11 +1225,21 @@
             }, 100);
         });
 
-        // Listen for language changes from parent window
+        // Listen for messages from parent window
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'languageChange') {
                 currentLanguage = event.data.language;
                 loadLanguage();
+            }
+            
+            // Listen for phone number from parent modal
+            if (event.data && event.data.type === 'phoneNumberEntered') {
+                userPhoneNumber = event.data.phoneNumber;
+                console.log('Received phone number from parent modal:', userPhoneNumber);
+                
+                // Also store in localStorage for consistency
+                localStorage.setItem('spinningWheelPhone', userPhoneNumber);
+                localStorage.setItem('spinningWheelPhoneEntered', 'true');
             }
         });
 
