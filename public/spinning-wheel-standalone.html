@@ -250,30 +250,7 @@
             50% { transform: translateX(-50%) scale(1.1); }
         }
 
-        .reset-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #20b2aa, #1e90ff);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.3);
-            transition: all 0.3s ease;
-        }
 
-        .reset-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.4);
-        }
-
-        .reset-icon {
-            font-size: 1.2rem;
-        }
 
         .info-section {
             flex: 1;
@@ -484,7 +461,7 @@
 
                             <!-- Center button -->
                             <button class="center-button" id="centerButton">
-                                <span class="center-icon" data-i18n="wheel.start">START</span>
+                                <span class="center-icon">START</span>
                             </button>
                         </div>
                     </div>
@@ -495,11 +472,7 @@
                     </div>
                 </div>
 
-                <!-- Spin again button -->
-                <button class="reset-button" id="resetButton" style="display: none;">
-                    <span class="reset-icon">🔄</span>
-                    <span id="spinAgainText">Spin Again (New Visit)</span>
-                </button>
+
             </div>
 
             <!-- Right Side - Instructions/Result -->
@@ -598,8 +571,7 @@
                         you_won: "You won",
                         free_days: "FREE DAYS",
                         use_code: "Use code:",
-                        book_now: "Book Now & Apply Bonus",
-                        spin_again: "Spin Again (New Visit)"
+                        book_now: "Book Now & Apply Bonus"
                     }
                 };
                 updateTexts();
@@ -622,7 +594,7 @@
             document.getElementById('youWonText').textContent = wheel.you_won || "You won";
             document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
-            document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
+
             
             // Update START button
             const centerIcon = document.querySelector('.center-icon');
@@ -684,7 +656,12 @@
             const centerButton = document.getElementById('centerButton');
             if (centerButton) {
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = getTranslation('wheel.start') || 'START';
+                const centerIcon = centerButton.querySelector('.center-icon');
+                if (centerIcon) {
+                    // Use the translations object if available, otherwise fallback to 'START'
+                    const wheelTranslations = translations.wheel || {};
+                    centerIcon.textContent = wheelTranslations.start || 'START';
+                }
             }
         }
 
@@ -860,7 +837,6 @@
 
         const wheel = document.getElementById('wheel');
         const centerButton = document.getElementById('centerButton');
-        const resetButton = document.getElementById('resetButton');
         const instructionsCard = document.getElementById('instructionsCard');
         const resultCard = document.getElementById('resultCard');
         const prizeDisplay = document.getElementById('prizeDisplay');
@@ -1127,7 +1103,12 @@
                 isSpinning = false;
                 hasSpun = true;
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = getTranslation('wheel.start') || 'START';
+                const centerIcon = centerButton.querySelector('.center-icon');
+                if (centerIcon) {
+                    // Use the translations object if available, otherwise fallback to 'START'
+                    const wheelTranslations = translations.wheel || {};
+                    centerIcon.textContent = wheelTranslations.start || 'START';
+                }
 
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
@@ -1175,26 +1156,13 @@
                 // Show result card
                 instructionsCard.style.display = 'none';
                 resultCard.classList.add('show');
-
-                // Show reset button
-                resetButton.style.display = 'flex';
             }, 5000);
         }
 
-        // Reset wheel
-        function resetWheel() {
-            hasSpun = false;
-            currentRotation = 0;
-            // Ensure wheel starts at 0 degrees
-            wheel.style.transform = 'rotate(0deg)';
-            instructionsCard.style.display = 'block';
-            resultCard.classList.remove('show');
-            resetButton.style.display = 'none';
-        }
+
 
         // Event listeners
         centerButton.addEventListener('click', spinWheel);
-        resetButton.addEventListener('click', resetWheel);
         
         // Add click handler for the book now button
         const bookNowButton = document.getElementById('bookNowButton');
