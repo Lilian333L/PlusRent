@@ -2832,13 +2832,21 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-8">
-                    <h5 class="card-title">${booking.make_name} ${booking.model_name} (${booking.production_year})</h5>
+                    ${booking.cars && booking.cars.head_image ? 
+                      `<div class="mb-3">
+                        <img src="${booking.cars.head_image}" alt="Car Image" class="img-fluid rounded" style="max-width: 200px; max-height: 150px; object-fit: cover;">
+                      </div>` : 
+                      ''
+                    }
+                    <h5 class="card-title">
+                      ${booking.cars ? `${booking.cars.make_name} ${booking.cars.model_name} (${booking.cars.production_year})` : `Car ID: ${booking.car_id}`}
+                    </h5>
                     <p class="card-text">
                       <strong>Dates:</strong> ${booking.pickup_date} ${booking.pickup_time} - ${booking.return_date} ${booking.return_time}<br>
                       <strong>Insurance:</strong> ${booking.insurance_type}<br>
                       <strong>Pickup:</strong> ${booking.pickup_location} | <strong>Dropoff:</strong> ${booking.dropoff_location}<br>
                       <strong>Total Price:</strong> €${booking.total_price}<br>
-                      <strong>Contact:</strong> ${booking.contact_person || 'Not provided'} | ${booking.contact_phone || 'Not provided'}<br>
+                      <strong>Contact:</strong> ${booking.customer_name || 'Not provided'} | ${booking.customer_phone || 'Not provided'}<br>
                       <strong>Special Instructions:</strong> ${booking.special_instructions || 'None'}
                     </p>
                   </div>
@@ -2904,11 +2912,8 @@
 
     // Initialize Form Dropdowns
     function initializeFormDropdowns() {
-      console.log('Initializing form dropdowns...');
-      
       // Production Year dropdown (current year to 1990)
       const productionYearSelects = document.querySelectorAll('select[name="production_year"]');
-      console.log('Found production year selects:', productionYearSelects.length);
       const currentYear = new Date().getFullYear();
       productionYearSelects.forEach(select => {
         // Clear existing options first
@@ -2923,7 +2928,6 @@
       
       // Number of Doors dropdown
       const numDoorsSelects = document.querySelectorAll('select[name="num_doors"]');
-      console.log('Found num doors selects:', numDoorsSelects.length);
       numDoorsSelects.forEach(select => {
         // Clear existing options first
         select.innerHTML = '<option value="">Select Doors</option>';
@@ -2938,7 +2942,6 @@
       
       // Number of Passengers dropdown
       const numPassengersSelects = document.querySelectorAll('select[name="num_passengers"]');
-      console.log('Found num passengers selects:', numPassengersSelects.length);
       numPassengersSelects.forEach(select => {
         // Clear existing options first
         select.innerHTML = '<option value="">Select Passengers</option>';
@@ -3842,10 +3845,8 @@
                   const hasChanges = hasUnsavedChanges('editCarForm');
           
           if (window.bypassUnsavedChangesCheck || !hasChanges) {
-            console.log('✅ EDIT CAR - Closing without confirmation');
             closeEditCarPanelFunction();
           } else {
-            console.log('⚠️ EDIT CAR - Showing unsaved changes confirmation');
             showUnsavedChangesConfirmation('editCarPanel');
           }
         });
@@ -3954,7 +3955,6 @@
               });
               
               if (imageResponse.ok) {
-                console.log('✅ Images uploaded successfully');
                 // Get the updated image data from the response
                 const imageResult = await imageResponse.json();
                 if (imageResult.gallery_images) {
@@ -3986,7 +3986,6 @@
                 });
                 
                 if (deleteResponse.ok) {
-                  console.log('✅ Head image deleted successfully');
                 } else {
                   const error = await deleteResponse.json();
                   console.error('❌ Error deleting head image:', error);
@@ -4009,7 +4008,6 @@
                   });
                   
                   if (deleteResponse.ok) {
-                    console.log('✅ Gallery image deleted successfully:', imagePath);
                   } else {
                     const error = await deleteResponse.json();
                     console.error('❌ Error deleting gallery image:', error);
@@ -4036,8 +4034,6 @@
             });
             
             if (response.ok) {
-              console.log('✅ Car data updated successfully');
-              
               showCustomAlert('Car updated successfully!', 'success');
               
               // Clear only the file inputs, but keep image previews
@@ -4310,7 +4306,6 @@
         // Get the current head image path from the preview
         const headImage = editHeadImagePreview.querySelector('img');
         if (!headImage) {
-          console.log('No head image to delete');
           return;
         }
         
@@ -4850,7 +4845,6 @@
       const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
       if (closeEditCouponPanel) {
         closeEditCouponPanel.addEventListener('click', () => {
-          console.log('🎯 Edit coupon close button clicked!');
           const hasChanges = hasUnsavedChanges('editCouponForm');
           
           if (!hasChanges) {
@@ -4868,13 +4862,10 @@
             if (couponOverlay) couponOverlay.classList.remove('active');
             document.body.classList.remove('admin-popup-open');
             
-            console.log('✅ Edit coupon panel closed');
           } else {
             showUnsavedChangesConfirmation('editCouponPanel');
           }
         });
-      } else {
-        console.log('❌ closeEditCouponPanel element not found');
       }
       
       // Close modal when clicking overlay
@@ -5411,13 +5402,10 @@
           `).join('');
         }
         
-        console.log('✅ Dynamic codes loaded:', { availableCodes, showedCodes });
-        
         // Set the href for the "See all codes" link
         const seeAllCodesBtn = document.getElementById('seeAllCodesBtn');
         if (seeAllCodesBtn) {
           seeAllCodesBtn.href = `all-codes?id=${couponId}`;
-          console.log('🔗 Set link href to:', seeAllCodesBtn.href);
         }
 
         
@@ -5430,17 +5418,9 @@
 
     // Function to show custom delete confirmation overlay
     function showDeleteConfirmation(couponId) {
-      console.log('🔧 showDeleteConfirmation called with couponId:', couponId);
-      
       const overlay = document.getElementById('deleteConfirmationOverlay');
       const confirmBtn = document.getElementById('confirmDeleteBtn');
       const cancelBtn = document.getElementById('cancelDeleteBtn');
-      
-      console.log('🔧 Elements found:', {
-        overlay: !!overlay,
-        confirmBtn: !!confirmBtn,
-        cancelBtn: !!cancelBtn
-      });
       
       if (!overlay || !confirmBtn || !cancelBtn) {
         console.error('❌ Delete confirmation elements not found');
@@ -5453,18 +5433,15 @@
       
       // Show overlay
       overlay.style.display = 'block';
-      console.log('✅ Overlay displayed');
       
       // Handle confirm button click
       const handleConfirm = async () => {
-        console.log('🔧 Confirm button clicked');
         overlay.style.display = 'none';
         await performDeleteCoupon(couponId);
       };
       
       // Handle cancel button click
       const handleCancel = () => {
-        console.log('🔧 Cancel button clicked');
         overlay.style.display = 'none';
       };
       
@@ -5475,12 +5452,10 @@
       // Add event listeners
       confirmBtn.addEventListener('click', handleConfirm);
       cancelBtn.addEventListener('click', handleCancel);
-      console.log('✅ Event listeners attached');
       
       // Close overlay when clicking outside
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
-          console.log('🔧 Clicked outside overlay');
           handleCancel();
         }
       });
@@ -5488,17 +5463,12 @@
     
     // Function to perform the actual delete operation
     async function performDeleteCoupon(couponId) {
-      console.log('🔧 performDeleteCoupon called with couponId:', couponId);
       try {
-        console.log('🔧 Making DELETE request to:', `${window.API_BASE_URL}/api/coupons/${couponId}`);
         const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
           method: 'DELETE'
         });
         
-        console.log('🔧 Response status:', response.status);
-        
         if (response.ok) {
-          console.log('✅ Coupon deleted successfully');
           showCustomAlert('Coupon deleted successfully!', 'success');
           loadCoupons();
         } else {
@@ -5518,14 +5488,12 @@
 
     // Global functions for onclick handlers
     function handleCancelDelete() {
-      console.log('🔧 handleCancelDelete called');
       if (currentDeleteOverlay) {
         currentDeleteOverlay.style.display = 'none';
       }
     }
 
     function handleConfirmDelete() {
-      console.log('🔧 handleConfirmDelete called');
       if (currentDeleteOverlay) {
         currentDeleteOverlay.style.display = 'none';
       }
@@ -5535,7 +5503,6 @@
     }
 
     async function deleteCoupon(couponId) {
-      console.log('🔧 deleteCoupon called with couponId:', couponId);
       // Show custom delete confirmation overlay
       showDeleteConfirmation(couponId);
     }
@@ -6039,7 +6006,6 @@
                 
                 if (response.ok) {
                   const result = await response.json();
-                  console.log('📞 Phone number tracking result:', result);
                 } else {
                   console.error('❌ Failed to track phone number');
                 }
@@ -6324,9 +6290,8 @@
           }
         }
 
-        async function loadWheelCoupons() {
-          console.log('loadWheelCoupons called');
-          try {
+            async function loadWheelCoupons() {
+      try {
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
             const coupons = await response.json();
             
@@ -6338,13 +6303,10 @@
               const wheelCouponsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/coupons?t=${Date.now()}`);
               if (wheelCouponsResponse.ok) {
                 wheelCoupons = await wheelCouponsResponse.json();
-                console.log('API returned wheel coupons:', wheelCoupons);
               }
               
               // Create a set of enabled coupon IDs for this wheel
               enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
-              console.log('Enabled coupon IDs:', Array.from(enabledCouponIds));
-              console.log('Full wheel coupons data:', wheelCoupons);
             }
             
             // Reset pending changes when loading
@@ -6372,11 +6334,7 @@
                   const wheelCoupon = wheelCoupons.find(wc => wc.coupon_id === coupon.id);
                   const currentPercentage = wheelCoupon ? wheelCoupon.percentage || 0 : 0;
                   
-                  console.log(`Rendering coupon ${coupon.id} (${coupon.code}): isEnabledForWheel = ${isEnabledForWheel}`);
-                  
-
-                  
-                  // Check if coupon has active codes
+                                    // Check if coupon has active codes
                   const availableCodes = JSON.parse(coupon.available_codes || '[]');
                   const hasActiveCodes = availableCodes.length > 0;
                   
@@ -6423,7 +6381,7 @@
                       <div class="d-flex align-items-center gap-2 ms-3">
                         <button type="button" class="btn btn-sm wheel-coupon-button ${isEnabledForWheel ? 'btn-success' : 'btn-outline-secondary'}" 
                                 style="position: relative; z-index: 1000;"
-                                onclick="console.log('Button clicked, data-enabled:', this.getAttribute('data-enabled'), 'disabled:', this.disabled); toggleCouponForWheel(${coupon.id}, this.getAttribute('data-enabled') === 'true')"
+                                onclick="toggleCouponForWheel(${coupon.id}, this.getAttribute('data-enabled') === 'true')"
                                 data-coupon-id="${coupon.id}"
                                 data-enabled="${isEnabledForWheel}"
                                 ${!hasActiveCodes && !isEnabledForWheel ? 'disabled' : ''}
@@ -6466,7 +6424,6 @@
 
 
         function toggleCouponForWheel(couponId, currentStatus) {
-          console.log('toggleCouponForWheel called:', { couponId, currentStatus });
           if (!currentEditingWheelId) {
             showCustomAlert('Please save the wheel first before managing coupons', 'error');
             return;
@@ -6484,12 +6441,8 @@
             item.getAttribute('data-coupon-id') == couponId
           )?.classList.contains('enabled') || false;
           
-          console.log(`Original enabled state for coupon ${couponId}:`, originalEnabledState);
-          console.log(`Current UI state for coupon ${couponId}:`, currentStatus);
-          
           // Calculate the final desired state
           const finalDesiredState = !currentStatus;
-          console.log(`Final desired state for coupon ${couponId}:`, finalDesiredState);
           
           // Clear any existing pending changes for this coupon
           pendingWheelChanges.enabledCoupons.delete(couponId);
@@ -6500,27 +6453,16 @@
           if (finalDesiredState) {
             // Want to enable it
             pendingWheelChanges.enabledCoupons.add(couponId);
-            console.log(`Added coupon ${couponId} to enabledCoupons`);
           } else {
             // Want to disable it
             pendingWheelChanges.disabledCoupons.add(couponId);
-            console.log(`Added coupon ${couponId} to disabledCoupons`);
           }
-          
-          // Debug: Log the current state of pending changes
-          console.log('Pending changes after toggle:', {
-            enabled: Array.from(pendingWheelChanges.enabledCoupons),
-            disabled: Array.from(pendingWheelChanges.disabledCoupons),
-            percentages: Array.from(pendingWheelChanges.percentageChanges.entries())
-          });
           
           // Update the UI immediately to show the change
           const couponItem = document.querySelector(`[data-coupon-id="${couponId}"]`);
           if (couponItem) {
             const button = couponItem.querySelector('button');
             const newStatus = !currentStatus;
-            
-            console.log(`Updating UI for coupon ${couponId}: currentStatus=${currentStatus}, newStatus=${newStatus}`);
             
             if (newStatus) {
               couponItem.classList.remove('disabled');
@@ -6561,7 +6503,6 @@
               button.style.color = '';
               button.style.borderColor = '';
               button.setAttribute('data-enabled', 'false');
-              console.log('Button after disable - data-enabled:', button.getAttribute('data-enabled'), 'disabled:', button.disabled, 'className:', button.className, 'onclick:', button.onclick);
               
               // Remove percentage field
               const percentageField = couponItem.querySelector('.percentage-field');
@@ -6712,7 +6653,6 @@
               return;
             }
 
-            console.log('Percentage validation passed. Total:', totalPercentage);
           } catch (error) {
             console.error('Error during percentage validation:', error);
             showCustomAlert('Error validating percentages', 'error');
@@ -6720,20 +6660,12 @@
           }
           
           try {
-            console.log('Starting to save wheel changes...');
-            console.log('Pending changes:', {
-              enabled: Array.from(pendingWheelChanges.enabledCoupons),
-              disabled: Array.from(pendingWheelChanges.disabledCoupons),
-              percentages: Array.from(pendingWheelChanges.percentageChanges.entries())
-            });
-            
             // Apply all pending changes in the correct order
             const promises = [];
             
             // First, enable coupons (but exclude any that are also in disabledCoupons)
             for (const couponId of pendingWheelChanges.enabledCoupons) {
               if (!pendingWheelChanges.disabledCoupons.has(couponId)) {
-                console.log(`Enabling coupon ${couponId} in save operation`);
                 promises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
               method: 'PATCH',
@@ -6745,12 +6677,9 @@
                     }
                     return response.json();
                   }).then(data => {
-                    console.log(`Successfully enabled coupon ${couponId}:`, data);
                     return data;
                   })
                 );
-              } else {
-                console.log(`Skipping coupon ${couponId} - it's in both enabled and disabled sets`);
               }
             }
             
@@ -6769,7 +6698,6 @@
               // Update percentage if the coupon is being enabled (it will exist in the wheel after enable)
               // OR if it's already enabled in the database (we need to check this)
               if (pendingWheelChanges.enabledCoupons.has(couponId)) {
-                console.log(`Updating percentage for coupon ${couponId} to ${percentage}% (after enable)`);
                 percentagePromises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
                     method: 'PATCH',
@@ -6786,7 +6714,6 @@
               } else if (!pendingWheelChanges.disabledCoupons.has(couponId)) {
                 // If the coupon is not being enabled or disabled, it means it was already enabled
                 // and we're just updating its percentage
-                console.log(`Updating percentage for already-enabled coupon ${couponId} to ${percentage}%`);
                 percentagePromises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
                     method: 'PATCH',
@@ -6811,7 +6738,6 @@
             // Finally, disable coupons (do this last to avoid conflicts)
             const disablePromises = [];
             for (const couponId of pendingWheelChanges.disabledCoupons) {
-              console.log(`Disabling coupon ${couponId} in save operation`);
               disablePromises.push(
                 fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
                   method: 'PATCH',
@@ -6823,7 +6749,6 @@
                   }
                   return response.json();
                 }).then(data => {
-                  console.log(`Successfully disabled coupon ${couponId}:`, data);
                   return data;
                 })
               );
@@ -6833,14 +6758,6 @@
             if (disablePromises.length > 0) {
               await Promise.all(disablePromises);
             }
-            
-            // Log the final state that should be in the database
-            console.log('=== SAVE OPERATION COMPLETE ===');
-            console.log('Final state summary:');
-            console.log('- Coupons that were enabled:', Array.from(pendingWheelChanges.enabledCoupons));
-            console.log('- Coupons that were disabled:', Array.from(pendingWheelChanges.disabledCoupons));
-            console.log('- Coupons with percentage changes:', Array.from(pendingWheelChanges.percentageChanges.entries()));
-            console.log('=== END SAVE OPERATION ===');
             
             showCustomAlert('All changes saved successfully!', 'success');
             
@@ -6858,7 +6775,6 @@
             }
             
             // Reload the coupons list to update the display
-            console.log('Reloading wheel coupons to show final state...');
             await loadWheelCoupons();
             
           } catch (error) {

@@ -223,7 +223,8 @@ router.get('/', async (req, res) => {
         cars (
           make_name,
           model_name,
-          production_year
+          production_year,
+          head_image
         )
       `)
       .order('created_at', { ascending: false });
@@ -249,8 +250,8 @@ router.put('/:id/status', async (req, res) => {
   
   console.log(`📝 Updating booking ${id} status to: ${status}`);
 
-  if (!status || !['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
-    return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, or completed' });
+  if (!status || !['pending', 'confirmed', 'cancelled', 'completed', 'rejected'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, completed, or rejected' });
   }
 
   try {
@@ -468,6 +469,58 @@ router.put('/:id/cancel', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error cancelling booking:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
+});
+
+// Admin: Reject booking
+router.put('/:id/reject', async (req, res) => {
+  const bookingId = req.params.id;
+  const { reason } = req.body;
+  
+  console.log('❌ Admin rejecting booking:', bookingId, 'Reason:', reason);
+  
+  try {
+    // Get booking details
+    const { data: booking, error: bookingError } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('id', bookingId)
+      .single();
+
+    if (bookingError || !booking) {
+      console.error('❌ Booking not found:', bookingError);
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    if (booking.status !== 'pending') {
+      console.error('❌ Booking is not pending, status:', booking.status);
+      return res.status(400).json({ error: 'Only pending bookings can be rejected' });
+    }
+
+    // Update booking status to rejected
+    const { error: updateError } = await supabaseAdmin
+      .from('bookings')
+      .update({ 
+        status: 'rejected',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', bookingId);
+
+    if (updateError) {
+      console.error('❌ Error updating booking status:', updateError);
+      return res.status(500).json({ error: 'Failed to reject booking' });
+    }
+
+    console.log('✅ Booking rejected successfully');
+    res.json({ 
+      success: true, 
+      message: 'Booking rejected successfully',
+      booking_id: bookingId 
+    });
+
+  } catch (error) {
+    console.error('❌ Error rejecting booking:', error);
     res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });
