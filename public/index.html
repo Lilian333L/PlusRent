@@ -1081,8 +1081,29 @@
 
       /* Modal body styles */
       body.modal-open {
-        overflow: hidden;
-      }
+                    overflow: hidden;
+          }
+          
+          /* Ensure modal can be closed */
+          .modal-backdrop {
+            z-index: 1040;
+          }
+          
+          .modal {
+            z-index: 1050;
+          }
+          
+          /* Force modal close button to work */
+          .close-modal, .btn-close-calc {
+            cursor: pointer !important;
+            z-index: 1060 !important;
+            position: relative !important;
+          }
+          
+          /* Ensure modal content is clickable */
+          .price-calculator-content {
+            pointer-events: auto !important;
+          }
       
       /* Ensure smooth scrolling for modal content */
       .price-calculator-content {
@@ -2099,6 +2120,9 @@
                                                 </div>
                                             </div>
                                             
+                                            <!-- Hidden field for total price from calculator -->
+                                            <input type="hidden" name="total_price" id="total_price" value="0">
+                                            
                                             <div class="col-lg-12">
                                                 <div class="field-set">
                                                     <p id='submit'>
@@ -2866,30 +2890,7 @@
         </div>
     </div>
 
-    <script>
-        // Price calculator functionality
-        function applyModalCalculation() {
-            // Apply the calculated values to the main booking form
-            const totalEstimate = document.getElementById('modal-total-estimate').textContent;
-            const dailyRate = document.getElementById('modal-daily-rate').textContent;
-            const duration = document.getElementById('modal-rental-duration').textContent;
-            
-            // Update the main form with calculated values
-            if (document.getElementById('total_price')) {
-                document.getElementById('total_price').value = totalEstimate.replace('€', '');
-            }
-            
-            // Close the modal
-            closePriceCalculator();
-        }
-        
-        function closePriceCalculator() {
-            const modal = document.getElementById('priceCalculatorModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Price calculator functions are defined in validation-booking.js -->
     
     <!-- Contact Pop-up Module -->
     <div id="contactPopup" class="contact-popup-overlay">
