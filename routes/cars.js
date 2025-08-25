@@ -78,7 +78,7 @@ const tempImageStorage = multer.diskStorage({
 });
 
 // Multer storage config for car images (with car ID)
-const carImageStorage = isVercel ? memoryStorage : multer.diskStorage({
+const carImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const carId = req.params.id;
     const dir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
