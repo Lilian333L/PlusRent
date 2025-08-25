@@ -156,88 +156,62 @@ $(document).ready(function(){
         return { isValid, errors };
     }
     
-    // Collect form data for API submission
-    function collectFormData() {
-        const vehicleSelect = $('#vehicle_type');
-        const selectedOption = vehicleSelect.find('option:selected');
-        
-        return {
-            car_id: selectedOption.attr('data-car-id'),
-            customer_name: $('#name').val().trim(),
-            customer_email: $('#email').val().trim(),
-            customer_phone: $('#phone').val().trim(),
-            pickup_date: $('#date-picker').val(),
-            pickup_time: $('#pickup_time').val(),
-            return_date: $('#date-picker-2').val(),
-            return_time: $('#return_time').val(),
-            pickup_location: $('input[name="pickup_location"]:checked').val(),
-            dropoff_location: $('input[name="destination"]:checked').val(),
-            special_instructions: $('#message').val().trim() || null,
-            total_price: 0, // Will be calculated by backend
-            price_breakdown: {}
-        };
-    }
+         // Collect form data for API submission
+     window.collectFormData = function() {
+         const vehicleSelect = $('#vehicle_type');
+         const selectedOption = vehicleSelect.find('option:selected');
+         
+         return {
+             car_id: selectedOption.attr('data-car-id'),
+             customer_name: $('#name').val().trim(),
+             customer_email: $('#email').val().trim(),
+             customer_phone: $('#phone').val().trim(),
+             pickup_date: $('#modal-pickup-date').val(),
+             pickup_time: $('#modal-pickup-time').val(),
+             return_date: $('#modal-return-date').val(),
+             return_time: $('#modal-return-time').val(),
+             pickup_location: $('input[name="pickup_location"]:checked').val(),
+             dropoff_location: $('input[name="destination"]:checked').val(),
+             insurance_type: 'basic', // Default insurance type (required by backend)
+             special_instructions: $('#message').val().trim() || null,
+             total_price: parseFloat($('#total_price').val()) || 0, // Get from hidden field
+             price_breakdown: {}
+         };
+     }
     
-    // Show loading state
-    function showLoading() {
-        submitButton.attr('disabled', true).val('Processing...');
-        submitButton.css('opacity', '0.7');
-        submitButton.prepend('<span class="loading-spinner"></span>');
-    }
+         // Show loading state
+     window.showLoading = function() {
+         const submitButton = $('#send_message');
+         submitButton.attr('disabled', true).val('Processing...');
+         submitButton.css('opacity', '0.7');
+         submitButton.prepend('<span class="loading-spinner"></span>');
+     }
+     
+     // Hide loading state
+     window.hideLoading = function() {
+         const submitButton = $('#send_message');
+         submitButton.attr('disabled', false).val('Submit');
+         submitButton.css('opacity', '1');
+         submitButton.find('.loading-spinner').remove();
+     }
     
-    // Hide loading state
-    function hideLoading() {
-        submitButton.attr('disabled', false).val('Submit');
-        submitButton.css('opacity', '1');
-        submitButton.find('.loading-spinner').remove();
-    }
+    // Show success message - This function is now defined later in the file with the professional modal
     
-    // Show success message
-    function showSuccess(bookingData) {
-        // Populate booking summary
-        const bookingSummary = $('#booking-summary');
-        const vehicleSelect = $('#vehicle_type');
-        const selectedOption = vehicleSelect.find('option:selected');
-        
-        const summaryHTML = `
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Vehicle:</strong> ${selectedOption.text()}</p>
-                    <p><strong>Customer:</strong> ${bookingData.customer_name}</p>
-                    <p><strong>Email:</strong> ${bookingData.customer_email}</p>
-                    <p><strong>Phone:</strong> ${bookingData.customer_phone}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Pickup:</strong> ${bookingData.pickup_date} at ${bookingData.pickup_time}</p>
-                    <p><strong>Return:</strong> ${bookingData.return_date} at ${bookingData.return_time}</p>
-                    <p><strong>Location:</strong> ${bookingData.pickup_location}</p>
-                    <p><strong>Dropoff:</strong> ${bookingData.dropoff_location}</p>
-                </div>
-            </div>
-        `;
-        
-        bookingSummary.html(summaryHTML);
-        
-        bookingForm.hide();
-        successMessage.fadeIn(500);
-        
-        // Scroll to success message
-        $('html, body').animate({
-            scrollTop: successMessage.offset().top - 100
-        }, 500);
-    }
-    
-    // Show error message
-    function showError(message) {
-        errorMessage.html(message).show().addClass('show');
-        successMessage.hide();
-        mailFail.hide();
-        
-        // Scroll to error message
-        $('html, body').animate({
-            scrollTop: errorMessage.offset().top - 100
-        }, 500);
-    }
+         // Show error message
+     window.showError = function(message) {
+         const errorMessage = $('#error_message');
+         const successMessage = $('#success_message');
+         const mailFail = $('#mail_fail');
+         
+         errorMessage.html(message).show().addClass('show');
+         successMessage.hide();
+         mailFail.hide();
+         
+         // Scroll to error message
+         $('html, body').animate({
+             scrollTop: errorMessage.offset().top - 100
+         }, 500);
+     }
     
     // Clear error states when user starts typing
     $('input, select, textarea').on('input change', function() {
@@ -264,8 +238,10 @@ $(document).ready(function(){
     // Handle form submission - now opens price calculator modal
     submitButton.click(function(e) {
         e.preventDefault();
+        e.stopPropagation();
         
-        console.log('Submit button clicked');
+        console.log('🔍 Submit button clicked');
+        console.log('🔍 Form validation starting...');
         
         // Debug: Check radio button values
         console.log('Pickup location checked:', $('input[name="pickup_location"]:checked').val());
@@ -301,11 +277,31 @@ $(document).ready(function(){
         openPriceCalculator();
     });
     
-    // Send confirmation email (optional enhancement)
-    function sendConfirmationEmail(bookingData) {
-        // This could be handled by the backend or a separate service
-        console.log('Sending confirmation email for booking:', bookingData);
-    }
+         // Send confirmation email (optional enhancement)
+     window.closeSuccessModal = function() {
+    console.log('🔍 closeSuccessModal called');
+    
+    // Hide the success modal with animation
+    $('#booking-success-modal').fadeOut(300, function() {
+        // Remove the modal from DOM after animation
+        $(this).remove();
+        
+        // Reset the form
+        $('#booking_form')[0].reset();
+        $('#total_price').val('0');
+        
+        // Clear any error states
+        $('.error_input').removeClass('error_input');
+        $('.field-error').remove();
+        
+        console.log('🔍 Success modal closed and form reset');
+    });
+}
+
+function sendConfirmationEmail(bookingData) {
+    // This could be handled by the backend or a separate service
+    console.log('Sending confirmation email for booking:', bookingData);
+}
     
     // Initialize date pickers with better UX
     function initializeDatePickers() {
@@ -492,6 +488,8 @@ function initializePriceCalculatorModal() {
 }
 
 function openPriceCalculator() {
+    console.log('🔍 openPriceCalculator called');
+    
     // Since we removed date/time fields from main form, we'll set default values
     const today = new Date();
     const tomorrow = new Date(today);
@@ -592,11 +590,51 @@ function openPriceCalculator() {
     // Show modal
     $('#price-calculator-modal').fadeIn(300);
     $('body').addClass('modal-open');
+    
+    // Add keyboard event listener for Escape key
+    $(document).on('keydown.modal', function(e) {
+        if (e.key === 'Escape' && $('#price-calculator-modal').is(':visible')) {
+            console.log('🔍 Escape key pressed, closing modal');
+            closePriceCalculator();
+        }
+    });
+    
+    // Add click event listener to close modal when clicking outside
+    // Use setTimeout to prevent immediate triggering from the opening click
+    setTimeout(function() {
+        $(document).on('click.modal', function(e) {
+            if ($(e.target).closest('#price-calculator-modal').length === 0 && 
+                $('#price-calculator-modal').is(':visible')) {
+                console.log('🔍 Clicked outside modal, closing');
+                closePriceCalculator();
+            }
+        });
+    }, 100);
 }
 
 function closePriceCalculator() {
+    console.log('🔍 closePriceCalculator called');
+    
+    // Hide the modal
     $('#price-calculator-modal').fadeOut(300);
+    
+    // Remove modal-open class to restore normal page functionality
     $('body').removeClass('modal-open');
+    
+    // Ensure body scroll is restored
+    $('body').css('overflow', '');
+    
+    // Remove any remaining modal backdrop if present
+    $('.modal-backdrop').remove();
+    
+    // Re-enable any disabled elements
+    $('button, input, select, textarea').prop('disabled', false);
+    
+    // Remove event listeners to prevent memory leaks
+    $(document).off('keydown.modal');
+    $(document).off('click.modal');
+    
+    console.log('🔍 Modal closed successfully');
 }
 
 function calculateModalPrice() {
@@ -637,8 +675,8 @@ function calculateModalPrice() {
     const baseCost = dailyRate * daysDiff;
     
     // Calculate location fees (using backend logic)
-    const pickupLocation = $('#pickup_location').val();
-    const dropoffLocation = $('#destination').val();
+    const pickupLocation = $('input[name="pickup_location"]:checked').val();
+    const dropoffLocation = $('input[name="destination"]:checked').val();
     
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
@@ -720,133 +758,549 @@ function updateVehiclePriceDisplay() {
 
 
 function applyModalCalculation() {
-    // Close the modal first
-    closePriceCalculator();
+    console.log('🔍 applyModalCalculation called');
     
-    // Show loading state
-    const submitButton = $('#send_message');
-    submitButton.attr('disabled', true).val('Processing...');
-    submitButton.css('opacity', '0.7');
-    submitButton.prepend('<span class="loading-spinner"></span>');
-    
-    // Collect form data
-    const bookingData = collectFormData();
-    console.log('Submitting booking data:', bookingData);
-    
-    // Submit to API
-    $.ajax({
-                    url: `${window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`)}/api/bookings`,
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(bookingData),
-        success: function(response) {
-            console.log('Booking successful:', response);
-            
-            // Hide loading state
-            submitButton.attr('disabled', false).val('Submit');
-            submitButton.css('opacity', '1');
-            submitButton.find('.loading-spinner').remove();
-            
-            // Show success message
-            showSuccess(bookingData);
-            
-            // Send confirmation email (optional)
-            sendConfirmationEmail(bookingData);
-        },
-        error: function(xhr, status, error) {
-            console.error('Booking failed:', xhr.responseText);
-            
-            // Hide loading state
-            submitButton.attr('disabled', false).val('Submit');
-            submitButton.css('opacity', '1');
-            submitButton.find('.loading-spinner').remove();
-            
-            let errorMsg = 'An error occurred while processing your booking. Please try again.';
-            if (xhr.responseJSON && xhr.responseJSON.error) {
-                errorMsg = xhr.responseJSON.error;
-            }
-            showError(errorMsg);
+    try {
+        // Apply the calculated values to the main booking form
+        const totalEstimate = document.getElementById('modal-total-estimate').textContent;
+        const dailyRate = document.getElementById('modal-daily-rate').textContent;
+        const duration = document.getElementById('modal-rental-duration').textContent;
+        
+        console.log('🔍 Modal values:', { totalEstimate, dailyRate, duration });
+        
+        // Update the main form with calculated values
+        if (document.getElementById('total_price')) {
+            document.getElementById('total_price').value = totalEstimate.replace('€', '');
+            console.log('🔍 Updated total_price field with:', totalEstimate.replace('€', ''));
+        } else {
+            console.error('🔍 total_price field not found!');
         }
-    });
+        
+        // Close the modal properly
+        closePriceCalculator();
+        
+        // Now submit the booking automatically
+        console.log('🔍 About to call submitBooking()');
+        submitBooking();
+        
+        console.log('🔍 applyModalCalculation completed');
+    } catch (error) {
+        console.error('🔍 Error in applyModalCalculation:', error);
+        alert('Error processing booking. Please try again.');
+    }
+}
+
+function submitBooking() {
+    console.log('🔍 submitBooking called');
+    
+    try {
+        // Collect form data
+        const bookingData = collectFormData();
+        console.log('🔍 Booking data:', bookingData);
+        
+        // Validate booking data
+        if (!bookingData.car_id || !bookingData.customer_name || !bookingData.customer_phone) {
+            console.error('🔍 Missing required booking data');
+            alert('Missing required booking information. Please check your form.');
+            return;
+        }
+        
+        // Show loading state
+        showLoading();
+        
+        // API base URL
+        const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+        console.log('🔍 API URL:', `${apiBaseUrl}/api/bookings`);
+        
+        // Submit booking to API
+        fetch(`${apiBaseUrl}/api/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingData)
+        })
+        .then(response => {
+            console.log('🔍 API Response status:', response.status);
+            return response.json();
+        })
+                 .then(data => {
+             console.log('🔍 API Response data:', data);
+             hideLoading();
+             
+             if (data.success) {
+                 console.log('🔍 Booking successful, calling showSuccess');
+                 showSuccess(bookingData);
+                 // Clear form
+                 $('#booking_form')[0].reset();
+                 $('#total_price').val('0');
+             } else {
+                 console.error('🔍 Booking failed:', data.message || data.error);
+                 showError(data.message || data.error || 'Booking failed. Please try again.');
+             }
+         })
+        .catch(error => {
+            console.error('🔍 API Error:', error);
+            hideLoading();
+            showError('Network error. Please check your connection and try again.');
+        });
+    } catch (error) {
+        console.error('🔍 Error in submitBooking:', error);
+        hideLoading();
+        alert('Error submitting booking. Please try again.');
+    }
+}
+
+function showModalSuccessMessage(message) {
+    // Create a temporary success message
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success';
+    successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+    successDiv.innerHTML = `
+        <i class="fa fa-check-circle"></i> ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()" style="float: right;"></button>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+        if (successDiv.parentElement) {
+            successDiv.remove();
+        }
+    }, 3000);
 }
 
 // Helper functions for modal submission
-function collectFormData() {
-    const vehicleSelect = $('#vehicle_type');
-    const selectedOption = vehicleSelect.find('option:selected');
-    
-    // Get selected radio button values for locations
-    const pickupLocation = $('input[name="pickup_location"]:checked').val();
-    const dropoffLocation = $('input[name="destination"]:checked').val();
-    
-    return {
-        car_id: selectedOption.attr('data-car-id'),
-        customer_name: $('#name').val().trim(),
-        customer_email: $('#email').val().trim(),
-        customer_phone: $('#phone').val().trim(),
-        pickup_date: $('#modal-pickup-date').val(),
-        pickup_time: $('#modal-pickup-time').val(),
-        return_date: $('#modal-return-date').val(),
-        return_time: $('#modal-return-time').val(),
-        pickup_location: pickupLocation,
-        dropoff_location: dropoffLocation,
-        insurance_type: 'basic', // Default insurance type
-        special_instructions: $('#message').val().trim() || null,
-        total_price: 0, // Will be calculated by backend
-        price_breakdown: {}
-    };
-}
+// collectFormData is now defined globally above
 
-function showSuccess(bookingData) {
-    const bookingForm = $('#booking_form');
-    const successMessage = $('#success_message');
+window.showSuccess = function(bookingData) {
+    console.log('🔍 showSuccess called with booking data:', bookingData);
     
-    // Populate booking summary
-    const bookingSummary = $('#booking-summary');
-    const vehicleSelect = $('#vehicle_type');
-    const selectedOption = vehicleSelect.find('option:selected');
-    
-    // Get translated labels using i18n
-    const vehicleLabel = typeof i18next !== 'undefined' ? i18next.t('booking.vehicle') : 'Vehicle';
-    const customerLabel = typeof i18next !== 'undefined' ? i18next.t('booking.customer') : 'Customer';
-    const emailLabel = typeof i18next !== 'undefined' ? i18next.t('booking.email') : 'Email';
-    const phoneLabel = typeof i18next !== 'undefined' ? i18next.t('booking.phone') : 'Phone';
-    const pickupLabel = typeof i18next !== 'undefined' ? i18next.t('booking.pickup') : 'Pickup';
-    const returnLabel = typeof i18next !== 'undefined' ? i18next.t('booking.return') : 'Return';
-    const locationLabel = typeof i18next !== 'undefined' ? i18next.t('booking.location') : 'Location';
-    const dropoffLabel = typeof i18next !== 'undefined' ? i18next.t('booking.dropoff') : 'Dropoff';
-    
-    const summaryHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <p><strong>${vehicleLabel}:</strong> ${selectedOption.text()}</p>
-                <p><strong>${customerLabel}:</strong> ${bookingData.customer_name}</p>
-                <p><strong>${emailLabel}:</strong> ${bookingData.customer_email}</p>
-                <p><strong>${phoneLabel}:</strong> ${bookingData.customer_phone}</p>
-            </div>
-            <div class="col-md-6">
-                <p><strong>${pickupLabel}:</strong> ${bookingData.pickup_date} at ${bookingData.pickup_time}</p>
-                <p><strong>${returnLabel}:</strong> ${bookingData.return_date} at ${bookingData.return_time}</p>
-                <p><strong>${locationLabel}:</strong> ${bookingData.pickup_location}</p>
-                <p><strong>${dropoffLabel}:</strong> ${bookingData.dropoff_location}</p>
+    // Create a clean, modern success modal
+    const successModalHTML = `
+        <div id="booking-success-modal" class="booking-success-modal">
+            <div class="success-modal-content">
+                <div class="success-modal-header">
+                    <div class="success-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="24" fill="#28a745"/>
+                            <path d="M20 32L14 26L15.4 24.6L20 29.2L32.6 16.6L34 18L20 32Z" fill="white"/>
+                        </svg>
+                    </div>
+                    <h2 class="success-title">Booking Confirmed!</h2>
+                    <p class="success-subtitle">Your booking has been submitted successfully</p>
+                </div>
+                
+                <div class="success-modal-body">
+                    <div class="booking-summary-card">
+                        <div class="summary-compact">
+                            <div class="summary-main">
+                                <div class="vehicle-info">
+                                    <span class="vehicle-name">${$('#vehicle_type option:selected').text()}</span>
+                                    <span class="customer-name">${bookingData.customer_name}</span>
+                                </div>
+                                <div class="booking-dates">
+                                    <span class="date-range">${bookingData.pickup_date} - ${bookingData.return_date}</span>
+                                    <span class="time-range">${bookingData.pickup_time} - ${bookingData.return_time}</span>
+                                </div>
+                                <div class="location-info">
+                                    <span class="location-text">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
+                                </div>
+                            </div>
+                            <div class="price-highlight">
+                                <span class="price-label">Total Price</span>
+                                <span class="price-value">€${bookingData.total_price}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="next-steps-compact">
+                        <div class="steps-icon">📞</div>
+                        <div class="steps-content">
+                            <h5>Next Steps</h5>
+                            <p>We'll contact you within 24 hours to confirm your booking</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-modal-footer">
+                    <button class="btn-success-primary" onclick="closeSuccessModal()">
+                        <i class="fa fa-check"></i> Got it!
+                    </button>
+                    <button class="btn-success-secondary" onclick="location.reload()">
+                        <i class="fa fa-plus"></i> Book Another
+                    </button>
+                </div>
             </div>
         </div>
     `;
     
-    bookingSummary.html(summaryHTML);
+    // Add the modal to the page
+    $('body').append(successModalHTML);
     
-    bookingForm.hide();
-    successMessage.fadeIn(500);
+    // Add CSS for the clean success modal
+    const successModalCSS = `
+        <style>
+            .booking-success-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.3s ease-out;
+            }
+            
+            .success-modal-content {
+                background: #ffffff;
+                border-radius: 16px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                max-width: 480px;
+                width: 90%;
+                max-height: 85vh;
+                overflow-y: auto;
+                animation: slideIn 0.4s ease-out;
+            }
+            
+            .success-modal-header {
+                text-align: center;
+                padding: 32px 24px 24px;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                border-radius: 16px 16px 0 0;
+                position: relative;
+            }
+            
+            .success-icon {
+                margin-bottom: 16px;
+                animation: iconBounce 0.6s ease-out;
+            }
+            
+            .success-icon svg {
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            }
+            
+            .success-title {
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin: 0 0 8px;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .success-subtitle {
+                font-size: 0.95rem;
+                margin: 0;
+                opacity: 0.95;
+                font-weight: 400;
+            }
+            
+            .success-modal-body {
+                padding: 24px;
+            }
+            
+            .booking-summary-card {
+                background: #f8f9fa;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px solid #e9ecef;
+            }
+            
+            .summary-compact {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .summary-main {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .vehicle-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .vehicle-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #495057;
+            }
+            
+            .customer-name {
+                font-size: 0.95rem;
+                color: #6c757d;
+                font-weight: 500;
+            }
+            
+            .booking-dates {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .date-range {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #495057;
+            }
+            
+            .time-range {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .location-info {
+                margin-top: 4px;
+            }
+            
+            .location-text {
+                font-size: 0.9rem;
+                color: #495057;
+                font-weight: 500;
+            }
+            
+            .price-highlight {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                padding: 16px;
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: 600;
+            }
+            
+            .price-label {
+                font-size: 0.9rem;
+            }
+            
+            .price-value {
+                font-size: 1.1rem;
+            }
+            
+            .next-steps-compact {
+                background: #e8f5e8;
+                border-radius: 12px;
+                padding: 16px;
+                border-left: 4px solid #28a745;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .steps-icon {
+                font-size: 1.4rem;
+                flex-shrink: 0;
+            }
+            
+            .steps-content h5 {
+                color: #28a745;
+                margin: 0 0 4px 0;
+                font-weight: 600;
+                font-size: 0.95rem;
+            }
+            
+            .steps-content p {
+                margin: 0;
+                color: #495057;
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+            
+            .success-modal-footer {
+                padding: 20px 24px 24px;
+                text-align: center;
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .btn-success-primary, .btn-success-secondary {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .btn-success-primary {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            }
+            
+            .btn-success-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            }
+            
+            .btn-success-secondary {
+                background: #6c757d;
+                color: white;
+                box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+            }
+            
+            .btn-success-secondary:hover {
+                background: #5a6268;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideIn {
+                from { 
+                    opacity: 0;
+                    transform: translateY(-30px) scale(0.95);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            @keyframes iconBounce {
+                0% { 
+                    transform: scale(0.3);
+                    opacity: 0;
+                }
+                50% { 
+                    transform: scale(1.1);
+                }
+                100% { 
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .success-modal-content {
+                    width: 95%;
+                    margin: 10px;
+                    max-height: 90vh;
+                }
+                
+                .success-modal-header {
+                    padding: 24px 20px 20px;
+                }
+                
+                .success-icon svg {
+                    width: 40px;
+                    height: 40px;
+                }
+                
+                .success-title {
+                    font-size: 1.5rem;
+                }
+                
+                .success-subtitle {
+                    font-size: 0.9rem;
+                }
+                
+                .success-modal-body {
+                    padding: 20px;
+                }
+                
+                .booking-summary-card {
+                    padding: 16px;
+                    margin-bottom: 16px;
+                }
+                
+                .vehicle-name {
+                    font-size: 1rem;
+                }
+                
+                .customer-name {
+                    font-size: 0.9rem;
+                }
+                
+                .date-range {
+                    font-size: 0.9rem;
+                }
+                
+                .time-range {
+                    font-size: 0.8rem;
+                }
+                
+                .location-text {
+                    font-size: 0.85rem;
+                }
+                
+                .price-highlight {
+                    padding: 14px;
+                }
+                
+                .price-value {
+                    font-size: 1rem;
+                }
+                
+                .next-steps-compact {
+                    padding: 14px;
+                    gap: 10px;
+                }
+                
+                .steps-icon {
+                    font-size: 1.2rem;
+                }
+                
+                .steps-content h5 {
+                    font-size: 0.9rem;
+                }
+                
+                .steps-content p {
+                    font-size: 0.8rem;
+                }
+                
+                .success-modal-footer {
+                    padding: 16px 20px 20px;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .btn-success-primary, .btn-success-secondary {
+                    width: 100%;
+                    justify-content: center;
+                    padding: 14px 20px;
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+    `;
     
-    // Update i18n content after showing the success message
+    // Add CSS to head if not already present
+    if (!$('#success-modal-styles').length) {
+        $('head').append(successModalCSS);
+    }
+    
+    // Show the modal with animation
+    $('#booking-success-modal').fadeIn(300);
+    
+    // Update i18n content if available
     if (typeof updateContent === 'function') {
         updateContent();
     }
     
-    // Scroll to success message
-    $('html, body').animate({
-        scrollTop: successMessage.offset().top - 100
-    }, 500);
+    console.log('🔍 Success modal displayed');
 }
 
 function showError(message) {

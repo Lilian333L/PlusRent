@@ -100,7 +100,14 @@ function updateContent() {
 }
 
 function updateLangPickerUI() {
-  var lang = i18next.language || 'ro';
+  // Check if i18next is available before using it
+  if (typeof i18next === 'undefined') {
+    // Use localStorage as fallback
+    var lang = localStorage.getItem('lang') || 'ro';
+  } else {
+    var lang = i18next.language || 'ro';
+  }
+  
   var flag = '🇷🇴', code = 'RO';
   if (lang === 'en') { flag = '🇬🇧'; code = 'EN'; }
   if (lang === 'ru') { flag = '🇷🇺'; code = 'RU'; }
