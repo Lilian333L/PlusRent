@@ -668,6 +668,34 @@
   color: #222;
   font-size: 1rem;
   font-weight: 500;
+}
+
+/* Disabled filter option styles */
+.filter-option-row.disabled-option {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.filter-option-row.disabled-option label {
+  cursor: not-allowed;
+}
+
+.filter-option-row.disabled-option input[type=checkbox] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.option-label.disabled-text {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.option-count.disabled-count {
+  color: #999;
+  font-weight: 400;
+}
+
+.option-count {
   min-width: 24px;
   text-align: right;
   margin-left: 10px;
@@ -1016,14 +1044,15 @@ function renderFilterOptions(containerId, options, selectedValues, allCarsFull, 
   const html = options.map(opt => {
     const count = countCache.get(opt) || 0;
     const isSelected = selectedValues.includes(String(opt));
+    const isDisabled = count === 0 && !isSelected; // Disable if count is 0 and not selected
     
     return `
-      <div class="filter-option-row">
+      <div class="filter-option-row ${isDisabled ? 'disabled-option' : ''}">
         <label>
-          <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''}>
-          <span class="option-label">${opt}</span>
+          <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+          <span class="option-label ${isDisabled ? 'disabled-text' : ''}">${opt}</span>
         </label>
-        <span class="option-count">${count}</span>
+        <span class="option-count ${isDisabled ? 'disabled-count' : ''}">${count}</span>
       </div>
     `;
   }).join('');
