@@ -317,7 +317,7 @@ router.get('/', async (req, res) => {
 
       
       console.log('✅ Availability calculation completed');
-      res.json(carsWithAvailability);
+      res.json(filteredCars);
       
     } catch (error) {
       console.error('❌ Supabase error:', error);
