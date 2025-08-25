@@ -24,33 +24,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Update last login with retry mechanism
-    let retryCount = 0;
-    const maxRetries = 3;
-    
-    while (retryCount < maxRetries) {
-      try {
-        await AdminUser.updateLastLogin(adminUser.id);
-        break; // Success, exit retry loop
-      } catch (error) {
-        retryCount++;
-        console.error(`Login update attempt ${retryCount} failed:`, error.message);
-        
-        if (error.message.includes('SQLITE_READONLY')) {
-          if (retryCount < maxRetries) {
-            console.log(`Retrying login update in 1 second... (${retryCount}/${maxRetries})`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            continue;
-          } else {
-            console.error('Max retries reached for login update, proceeding without update');
-            // Continue with login even if update fails
-            break;
-          }
-        } else {
-          // Non-readonly error, don't retry
-          throw error;
-        }
-      }
+    // Update last login
+    try {
+      await AdminUser.updateLastLogin(adminUser.id);
+    } catch (error) {
+      console.error('Failed to update last login:', error);
+      // Continue with login even if update fails
     }
 
     // Generate JWT token
@@ -68,15 +47,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    
-    if (error.message.includes('SQLITE_READONLY')) {
-      res.status(503).json({ 
-        error: 'Database temporarily unavailable',
-        details: 'Please try again in a few moments. If the issue persists, restart the server.'
-      });
-    } else {
-      res.status(500).json({ error: 'Login failed' });
-    }
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 

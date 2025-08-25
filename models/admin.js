@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const db = require('../config/database');
+const { supabase } = require('../lib/supabaseClient');
 
 class AdminUser {
   // Create a new admin user
@@ -7,53 +7,56 @@ class AdminUser {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
-    return new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO admin_users (username, password_hash, email) VALUES (?, ?, ?)',
-        [username, passwordHash, email],
-        function(err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({ id: this.lastID, username, email });
-          }
-        }
-      );
-    });
+    const { data, error } = await supabase
+      .from('admin_users')
+      .insert([
+        { username, password_hash: passwordHash, email }
+      ])
+      .select();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { id: data[0].id, username, email };
   }
 
   // Find admin user by username
-  static findByUsername(username) {
-    return new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM admin_users WHERE username = ?',
-        [username],
-        (err, row) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
+  static async findByUsername(username) {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('username', username)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned
+        return null;
+      }
+      throw error;
+    }
+    
+    return data;
   }
 
   // Find admin user by ID
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM admin_users WHERE id = ?',
-        [id],
-        (err, row) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
+  static async findById(id) {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned
+        return null;
+      }
+      throw error;
+    }
+    
+    return data;
   }
 
   // Verify password
@@ -62,53 +65,43 @@ class AdminUser {
   }
 
   // Update last login
-  static updateLastLogin(id) {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
-        [id],
-        (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+  static async updateLastLogin(id) {
+    const { error } = await supabase
+      .from('admin_users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', id);
+    
+    if (error) {
+      throw error;
+    }
   }
 
   // Get all admin users
-  static getAll() {
-    return new Promise((resolve, reject) => {
-      db.all(
-        'SELECT id, username, email, created_at, last_login FROM admin_users ORDER BY created_at DESC',
-        (err, rows) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        }
-      );
-    });
+  static async getAll() {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('id, username, email, created_at, last_login')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
   }
 
   // Delete admin user
-  static delete(id) {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'DELETE FROM admin_users WHERE id = ?',
-        [id],
-        function(err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({ deletedRows: this.changes });
-          }
-        }
-      );
-    });
+  static async delete(id) {
+    const { error } = await supabase
+      .from('admin_users')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return { deletedRows: 1 };
   }
 }
 

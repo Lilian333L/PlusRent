@@ -1,10 +1,17 @@
-const path = require('path');
-const fs = require('fs');
 const https = require('https');
+const { createClient } = require('@supabase/supabase-js');
 
-// Supabase configuration
-const SUPABASE_URL = 'https://lupoqmzqppynyybbvwah.supabase.co/rest/v1/';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1cG9xbXpxcHB5bnl5YmJ2d2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTI0MzMsImV4cCI6MjA3MDkyODQzM30.DLz96LRZNw6BZsK6qhYDIbe70m7GAsPDMKAq6z1gfgI';
+// Supabase configuration - use environment variables
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lupoqmzqppynyybbvwah.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+// Validate required environment variable
+if (!SUPABASE_ANON_KEY) {
+  throw new Error('SUPABASE_ANON_KEY environment variable is required');
+}
+
+// Create Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Check if we're in production (Vercel)
 const isProduction = process.env.NODE_ENV === 'production';
@@ -14,16 +21,10 @@ const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERC
 // For local development testing, we can force Supabase usage
 const forceSupabase = process.env.FORCE_SUPABASE === 'true';
 
-// Always use Supabase in production, Vercel, or if explicitly configured
-const useSupabase = isProduction || isVercel || isVercelDev || process.env.SUPABASE_URL || process.env.DATABASE_URL || forceSupabase;
+// Always use Supabase - removed SQLite fallback
+const useSupabase = true;
 
-console.log('Environment:', process.env.NODE_ENV);
-console.log('Is Production:', isProduction);
-console.log('Is Vercel:', isVercel);
-console.log('Is Vercel Dev:', isVercelDev);
-console.log('Use Supabase:', useSupabase);
-console.log('VERCEL env:', process.env.VERCEL);
-console.log('VERCEL_ENV:', process.env.VERCEL_ENV);
+console.log('🔗 Using Supabase database only');
 
 let db;
 
@@ -438,51 +439,7 @@ function createSupabaseDB() {
   };
 }
 
-// Always use Supabase in production or on Vercel
-if (useSupabase) {
-  db = createSupabaseDB();
-} else {
-  // Only try SQLite in development if not in production
-  try {
-    const sqlite3 = require('sqlite3').verbose();
-    const dbPath = path.join(__dirname, '..', 'carrental.db');
-    const dbExists = fs.existsSync(dbPath);
-
-    db = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        console.error('Error connecting to SQLite database:', err.message);
-      } else {
-        console.log('Connected to SQLite database.');
-        // Always check if tables exist and create them if they don't
-        console.log('Checking SQLite tables...');
-        const schemaPath = path.join(__dirname, '..', 'database_schema_complete.sql');
-        if (fs.existsSync(schemaPath)) {
-          const schema = fs.readFileSync(schemaPath, 'utf8');
-          db.serialize(() => {
-            // Split schema into individual statements and execute them
-            const statements = schema.split(';').filter(stmt => stmt.trim());
-            statements.forEach(statement => {
-              if (statement.trim() && !statement.toLowerCase().includes('sqlite_sequence')) {
-                // Use CREATE TABLE IF NOT EXISTS for each table
-                const createTableStatement = statement.replace(/CREATE TABLE (\w+)/, 'CREATE TABLE IF NOT EXISTS $1');
-                db.run(createTableStatement, (err) => {
-                  if (err && !err.message.includes('already exists')) {
-                    console.error('Error creating table:', err.message);
-                  }
-                });
-              }
-            });
-            console.log('SQLite tables checked/created.');
-          });
-        } else {
-          console.error('Database schema file not found:', schemaPath);
-        }
-      }
-    });
-  } catch (error) {
-    console.error('SQLite3 not available, falling back to Supabase:', error.message);
-    db = createSupabaseDB();
-  }
-}
+// Always use Supabase - SQLite removed
+db = createSupabaseDB();
 
 module.exports = db; 

@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spinning Wheel</title>
     <script src="js/config.js"></script>
+    <script src="js/i18n-init.js"></script>
     <script>
         // Fallback if config.js doesn't load
         if (!window.API_BASE_URL) {
             window.API_BASE_URL = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3001' 
                 : `https://${window.location.hostname}`;
+        }
+
+        // Translation function
+        function getTranslation(key) {
+            if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+                return i18next.t(key);
+            }
+            return null;
         }
 
     </script>
@@ -29,6 +38,11 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .spinning-wheel-container {
             width: 100%;
             height: 100vh;
@@ -36,6 +50,13 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .spinning-wheel-container {
+                align-items: flex-start;
+                padding-top: 30px;
+            }
         }
 
         .wheel-content {
@@ -51,7 +72,39 @@
             .wheel-content {
                 flex-direction: row;
                 justify-content: center;
-                align-items: flex-start;
+                align-items: center;
+            }
+        }
+        
+        /* Spinning wheel SVG and text styling */
+        .wheel-container svg {
+            width: 30px;
+            height: 30px ;
+        }
+        
+        .wheel-container .segment-text {
+            font-size: 18px;
+        }
+        @media only screen and (max-width: 430px) {
+            .wheel-container svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            
+            .wheel-container .segment-text {
+                font-size: 15px !important;
+            }
+        }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 430px) {
+            .wheel-container svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            
+            .wheel-container .segment-text {
+                font-size: 15px !important;
             }
         }
 
@@ -89,7 +142,7 @@
             height: 100%;
             border-radius: 50%;
             background: white;
-            padding: 4px;
+            padding: 0;
             box-shadow: 0 0 30px rgba(32, 178, 170, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.8);
         }
 
@@ -107,15 +160,24 @@
 
         .wheel-segment {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -2px;
+            left: -2px;
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
             transform-origin: center;
             transition: all 0.3s ease;
             will-change: transform;
             transform: translateZ(0);
-            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .segment-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
         }
 
         .segment-content {
@@ -194,9 +256,11 @@
         }
 
         .center-icon {
-            font-size: 2rem;
+            font-size: 1.2rem;
             color: white;
             display: block;
+            font-weight: bold;
+            text-align: center;
         }
 
         .arrow-pointer {
@@ -206,6 +270,12 @@
             transform: translateX(-50%);
             z-index: 30;
             animation: arrowPulse 2s ease-in-out infinite;
+        }
+
+        @media only screen and (max-width: 430px) {
+            .arrow-pointer {
+                top: -14px !important;
+            }
         }
 
         .arrow {
@@ -225,30 +295,7 @@
             50% { transform: translateX(-50%) scale(1.1); }
         }
 
-        .reset-button {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #20b2aa, #1e90ff);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.3);
-            transition: all 0.3s ease;
-        }
 
-        .reset-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.4);
-        }
-
-        .reset-icon {
-            font-size: 1.2rem;
-        }
 
         .info-section {
             flex: 1;
@@ -275,6 +322,15 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
+        @media only screen and (max-width: 430px) {
+            .instructions-title {
+                font-size: 1.2rem;
+            }
+            .instruction-step {
+                padding: 0.2rem !important;
+            }
+        }
+
         .instructions-list {
             list-style: none;
             padding: 0;
@@ -291,6 +347,12 @@
             transition: all 0.3s ease;
         }
 
+        @media only screen and (max-width: 430px) {
+            .instruction-step {
+                margin-bottom: 0.3rem;
+            }
+        }
+
         .instruction-step:hover {
             background: rgba(32, 178, 170, 0.1);
             transform: translateX(5px);
@@ -299,7 +361,7 @@
         .step-number {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #20b2aa, #1e90ff);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -308,7 +370,7 @@
             font-weight: 700;
             font-size: 0.9rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(32, 178, 170, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .step-text {
@@ -334,11 +396,7 @@
             display: block;
         }
 
-        .trophy-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
+
 
         .congratulations {
             font-size: 2rem;
@@ -355,7 +413,7 @@
 
         .prize-display {
             background: rgba(255, 255, 255, 0.9);
-            color: #ff6b6b;
+            color: #176be6;
             font-size: 1.5rem;
             font-weight: 800;
             padding: 1rem 2rem;
@@ -382,7 +440,7 @@
 
         .book-now-button {
             background: white;
-            color: #ff6b6b;
+            color: #176be6;
             border: none;
             padding: 1rem 2rem;
             border-radius: 50px;
@@ -415,13 +473,12 @@
             }
 
             .center-icon {
-                font-size: 1.5rem;
+                font-size: 0.8rem;
             }
 
             .arrow {
                 border-left: 15px solid transparent;
                 border-right: 15px solid transparent;
-                border-bottom: 25px solid #ff4757;
             }
 
             .instructions-card,
@@ -463,7 +520,7 @@
 
                             <!-- Center button -->
                             <button class="center-button" id="centerButton">
-                                <span class="center-icon">🎁</span>
+                                <span class="center-icon">START</span>
                             </button>
                         </div>
                     </div>
@@ -474,11 +531,7 @@
                     </div>
                 </div>
 
-                <!-- Spin again button -->
-                <button class="reset-button" id="resetButton" style="display: none;">
-                    <span class="reset-icon">🔄</span>
-                    <span id="spinAgainText">Spin Again (New Visit)</span>
-                </button>
+
             </div>
 
             <!-- Right Side - Instructions/Result -->
@@ -506,11 +559,10 @@
                 </div>
 
                 <div class="result-card" id="resultCard">
-                    <div class="trophy-icon">🏆</div>
-                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS! 🎉</h3>
+                    <h3 class="congratulations" id="congratulationsText">CONGRATULATIONS!</h3>
                     <p class="you-won" id="youWonText">You won</p>
                     <div class="prize-display" id="prizeDisplay">0% OFF</div>
-                    <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode">SPIN0FREE</span></p>
+                    <p class="code-text"><span id="useCodeText">Use code:</span> <span class="discount-code" id="discountCode"></span></p>
                     <button class="book-now-button" id="bookNowButton">Book Now & Apply Bonus</button>
                 </div>
             </div>
@@ -574,12 +626,11 @@
                         step2: "Watch the wheel spin and stop on your prize",
                         step3: "Copy your discount code",
                         step4: "Use it when you make your next reservation",
-                        congratulations: "CONGRATULATIONS! 🎉",
+                        congratulations: "CONGRATULATIONS!",
                         you_won: "You won",
                         free_days: "FREE DAYS",
                         use_code: "Use code:",
-                        book_now: "Book Now & Apply Bonus",
-                        spin_again: "Spin Again (New Visit)"
+                        book_now: "Book Now & Apply Bonus"
                     }
                 };
                 updateTexts();
@@ -602,7 +653,13 @@
             document.getElementById('youWonText').textContent = wheel.you_won || "You won";
             document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
-            document.getElementById('spinAgainText').textContent = wheel.spin_again || "Spin Again (New Visit)";
+
+            
+            // Update START button
+            const centerIcon = document.querySelector('.center-icon');
+            if (centerIcon) {
+                centerIcon.textContent = wheel.start || "START";
+            }
             
             // Update wheel segments if coupons are loaded
             if (availableCoupons.length > 0) {
@@ -615,10 +672,69 @@
         let currentWinningCoupon = null;
         let cachedWheelSegments = null;
         let randomWinningIndex = null;
+        let userPhoneNumber = null;
+
+        // Get phone number from URL parameters
+        function getPhoneNumberFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('phone');
+        }
+
+        // Get wheel ID from URL parameters
+        function getWheelIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('wheel');
+        }
+
+        // Show loading state
+        function showLoadingState() {
+            const wheel = document.getElementById('wheel');
+            const centerButton = document.getElementById('centerButton');
+            
+            if (wheel) {
+                wheel.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: white; font-size: 16px;">
+                        <div style="margin-bottom: 10px;">
+                            <svg width="40" height="40" viewBox="0 0 40 40" style="animation: spin 1s linear infinite;">
+                                <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="30 100" stroke-dashoffset="0"/>
+                            </svg>
+                        </div>
+                        <div>Loading wheel...</div>
+                    </div>
+                `;
+            }
+            
+            if (centerButton) {
+                centerButton.disabled = true;
+                centerButton.querySelector('.center-icon').textContent = '⏳';
+            }
+        }
+
+        // Hide loading state
+        function hideLoadingState() {
+            const centerButton = document.getElementById('centerButton');
+            if (centerButton) {
+                centerButton.disabled = false;
+                const centerIcon = centerButton.querySelector('.center-icon');
+                if (centerIcon) {
+                    // Use the translations object if available, otherwise fallback to 'START'
+                    const wheelTranslations = translations.wheel || {};
+                    centerIcon.textContent = wheelTranslations.start || 'START';
+                }
+            }
+        }
 
         // Fetch coupons from the API
         async function fetchCoupons() {
             try {
+                // Show loading state
+                showLoadingState();
+                
+                // Add timeout to prevent infinite loading
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                );
+                
                 // Ensure API_BASE_URL is set
                 if (!window.API_BASE_URL) {
                     console.warn('API_BASE_URL not found, using default');
@@ -629,79 +745,57 @@
                 
                 const apiUrl = window.API_BASE_URL;
     
+                // Get wheel ID from URL parameters
+                const wheelId = getWheelIdFromURL();
                 
-                // First, check if any spinning wheels exist
-                const wheelsResponse = await fetch(`${apiUrl}/api/spinning-wheels`);
-                if (!wheelsResponse.ok) {
-                    console.error('Failed to get spinning wheels, status:', wheelsResponse.status);
+                // Use secure endpoint that doesn't expose sensitive data
+                const endpoint = wheelId && wheelId !== 'active' 
+                    ? `${apiUrl}/api/spinning-wheels/${wheelId}/secure-data`
+                    : `${apiUrl}/api/spinning-wheels/secure/active-data`;
+                
+                const response = await Promise.race([
+                    fetch(endpoint),
+                    timeoutPromise
+                ]);
+                
+                if (!response.ok) {
+                    console.error('Failed to get secure wheel data, status:', response.status);
                     availableCoupons = [];
                     cachedWheelSegments = null;
+                    hideLoadingState();
                     return;
                 }
                 
-                const allWheels = await wheelsResponse.json();
-                if (allWheels.length === 0) {
-                    console.log('No spinning wheels configured - using default segments');
+                const wheelData = await response.json();
+                
+                if (!wheelData.segments || wheelData.segments.length === 0) {
+                    console.log('No active spinning wheel segments found - using default segments');
                     availableCoupons = [];
                     cachedWheelSegments = null;
+                    hideLoadingState();
                     return;
                 }
                 
-                // Check if any wheel is active
-                // Handle both SQLite (1/0) and Supabase (true/false) boolean values
-        const activeWheel = allWheels.find(wheel => wheel.is_active === 1 || wheel.is_active === true);
-                if (!activeWheel) {
-                    console.log('No active spinning wheel configured - using default segments');
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                    return;
-                }
-                
+                // Convert secure segments to the format expected by the wheel
+                availableCoupons = wheelData.segments.map(segment => ({
+                    id: segment.coupon_id,
+                    type: segment.type,
+                    discount_percentage: segment.type === 'percentage' ? segment.value : null,
+                    free_days: segment.type === 'free_days' ? segment.value : null,
+                    code: segment.code
+                }));
 
+                // Always clear cache to ensure fresh data
+                cachedWheelSegments = null;
                 
-                // Then fetch coupons that are enabled for this specific wheel
-                const wheelCouponsResponse = await fetch(`${apiUrl}/api/spinning-wheels/${activeWheel.id}/coupons`);
-                if (!wheelCouponsResponse.ok) {
-                    console.error('Failed to get wheel coupons, status:', wheelCouponsResponse.status);
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                    return;
-                }
+                console.log(`✅ Loaded ${availableCoupons.length} secure segments for wheel`);
+                hideLoadingState();
                 
-                const wheelCoupons = await wheelCouponsResponse.json();
-
-                
-                // Get all coupons and filter by those enabled for this wheel
-                const response = await fetch(`${apiUrl}/api/coupons`);
-
-                
-                if (response.ok) {
-                    const allCoupons = await response.json();
-
-                    
-                    // Create a set of enabled coupon IDs for this wheel
-                    const enabledCouponIds = new Set(wheelCoupons.map(wc => wc.coupon_id));
-                    
-                    // Filter only active coupons that are enabled for this specific wheel
-                const filteredCoupons = allCoupons.filter(coupon => 
-                        (coupon.is_active === 1 || coupon.is_active === true) && 
-                        enabledCouponIds.has(coupon.id)
-                    );
-                
-                // Sort by coupon_id to match the API order (same as random-winning-index endpoint)
-                availableCoupons = filteredCoupons.sort((a, b) => a.id - b.id);
-
-                    // Always clear cache to ensure fresh data
-                    cachedWheelSegments = null;
-                } else {
-                    console.error('Failed to fetch coupons, status:', response.status);
-                    availableCoupons = [];
-                    cachedWheelSegments = null;
-                }
             } catch (error) {
-                console.error('Error fetching coupons:', error);
+                console.error('Error fetching secure wheel data:', error);
                 availableCoupons = [];
                 cachedWheelSegments = null;
+                hideLoadingState();
             }
         }
 
@@ -753,12 +847,27 @@
                         break;
                 }
                 
-                // Determine text based on coupon type
+                // Determine text based on coupon type with translations
                 let segmentText;
                 if (coupon.type === 'percentage') {
                     segmentText = `${coupon.discount_percentage}%`;
                 } else if (coupon.type === 'free_days') {
-                    segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                    // Use translations for free days
+                    const wheelTranslations = translations.wheel?.wheel_segments || {};
+                    if (coupon.free_days === 1 && wheelTranslations['1_day']) {
+                        segmentText = wheelTranslations['1_day'];
+                    } else if (coupon.free_days === 2 && wheelTranslations['2_days']) {
+                        segmentText = wheelTranslations['2_days'];
+                    } else if (coupon.free_days === 3 && wheelTranslations['3_days']) {
+                        segmentText = wheelTranslations['3_days'];
+                    } else if (coupon.free_days === 4 && wheelTranslations['4_days']) {
+                        segmentText = wheelTranslations['4_days'];
+                    } else if (coupon.free_days === 6 && wheelTranslations['6_days']) {
+                        segmentText = wheelTranslations['6_days'];
+                    } else {
+                        // Fallback to English if translation not found
+                        segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
+                    }
                 } else {
                     // Fallback for old coupons without type
                     segmentText = `${coupon.discount_percentage}%`;
@@ -787,7 +896,6 @@
 
         const wheel = document.getElementById('wheel');
         const centerButton = document.getElementById('centerButton');
-        const resetButton = document.getElementById('resetButton');
         const instructionsCard = document.getElementById('instructionsCard');
         const resultCard = document.getElementById('resultCard');
         const prizeDisplay = document.getElementById('prizeDisplay');
@@ -795,12 +903,15 @@
 
         // Create wheel segments with optimized performance
         function createWheelSegments() {
+            console.log('Creating wheel segments...');
+            
             // Use DocumentFragment for better performance
             const fragment = document.createDocumentFragment();
             const wheelSegments = getWheelSegments();
 
             const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
 
+            console.log(`Creating ${wheelSegments.length} segments...`);
             
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
@@ -849,6 +960,11 @@
             // Clear and append all at once
             wheel.innerHTML = '';
             wheel.appendChild(fragment);
+            
+            // Add white border lines between segments
+            addSegmentBorders(wheelSegments.length);
+            
+            console.log('Wheel segments created successfully!');
         }
 
         // Generate clip-path for a segment
@@ -890,6 +1006,28 @@
             return `polygon(${points.join(', ')})`;
         }
 
+        // Add black border lines between segments
+        function addSegmentBorders(numSegments) {
+            const segmentAngle = 360 / numSegments;
+            
+            for (let i = 0; i < numSegments; i++) {
+                const borderElement = document.createElement('div');
+                borderElement.className = 'segment-border';
+                borderElement.style.position = 'absolute';
+                borderElement.style.top = '50%';
+                borderElement.style.left = '50%';
+                borderElement.style.width = '2px';
+                borderElement.style.height = '50%';
+                borderElement.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                borderElement.style.transformOrigin = 'bottom center';
+                borderElement.style.transform = `translate(-50%, -100%) rotate(${i * segmentAngle}deg)`;
+                borderElement.style.zIndex = '15';
+                borderElement.style.pointerEvents = 'none';
+                
+                wheel.appendChild(borderElement);
+            }
+        }
+
 
 
 
@@ -897,7 +1035,15 @@
         // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/random-winning-index`);
+                // Get wheel ID from URL parameters
+                const wheelId = getWheelIdFromURL();
+                
+                // Use specific wheel endpoint if wheel ID is provided
+                const endpoint = wheelId && wheelId !== 'active' 
+                    ? `${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/secure/random-winning-index`
+                    : `${window.API_BASE_URL}/api/spinning-wheels/secure/random-winning-index`;
+                
+                const response = await fetch(endpoint);
                 if (response.ok) {
                     const data = await response.json();
                     return data.winningIndex;
@@ -909,58 +1055,61 @@
             }
         }
 
-        // Move a code from available_codes to showed_codes
-        async function moveCodeFromAvailableToShowed(couponId, codeToMove) {
+        // Redeem a coupon securely via backend
+        async function redeemCouponSecurely(couponId, phoneNumber) {
             try {
-                console.log(`Moving code ${codeToMove} from available to showed for coupon ${couponId}`);
+                console.log(`Redeeming coupon ${couponId} for phone ${phoneNumber}`);
                 
-                // Get current coupon data
-                const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`);
-                if (!response.ok) {
-                    console.error('Failed to get coupon data for code movement');
-                    return;
-                }
-                
-                const coupon = await response.json();
-                const availableCodes = JSON.parse(coupon.available_codes || '[]');
-                const showedCodes = JSON.parse(coupon.showed_codes || '[]');
-                
-                // Find and remove the code from available_codes
-                const codeIndex = availableCodes.indexOf(codeToMove);
-                if (codeIndex === -1) {
-                    console.error(`Code ${codeToMove} not found in available_codes`);
-                    return;
-                }
-                
-                // Remove from available and add to showed
-                availableCodes.splice(codeIndex, 1);
-                showedCodes.push(codeToMove);
-                
-                // Update the coupon via API
-                const updateResponse = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
-                    method: 'PATCH',
+                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/secure/redeem-coupon`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        available_codes: availableCodes,
-                        showed_codes: showedCodes
+                        couponId: couponId,
+                        phoneNumber: phoneNumber
                     })
                 });
                 
-                if (updateResponse.ok) {
-                    console.log(`Successfully moved code ${codeToMove} from available to showed`);
+                if (!response.ok) {
+                    console.error('Failed to redeem coupon');
+                    discountCode.textContent = 'ERROR';
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log(`Successfully redeemed coupon code: ${result.code}`);
+                    discountCode.textContent = result.code;
                 } else {
-                    console.error('Failed to update coupon codes');
+                    console.error('Failed to redeem coupon:', result.error);
+                    discountCode.textContent = 'ERROR';
                 }
             } catch (error) {
-                console.error('Error moving code from available to showed:', error);
+                console.error('Error redeeming coupon:', error);
+                discountCode.textContent = 'ERROR';
             }
         }
 
         // Spin the wheel with optimized performance
         async function spinWheel() {
             if (isSpinning || hasSpun) return;
+
+                    // Check if phone number is provided (either from URL or from localStorage)
+        if (!userPhoneNumber) {
+            // Check if phone number was entered in the parent modal
+            const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
+            const storedPhone = localStorage.getItem('spinningWheelPhone');
+            
+            if (phoneEntered === 'true' && storedPhone) {
+                userPhoneNumber = storedPhone;
+                console.log('Using phone number from localStorage:', userPhoneNumber);
+            } else {
+                alert('Please provide a phone number to spin the wheel');
+                return;
+            }
+        }
 
             isSpinning = true;
             centerButton.disabled = true;
@@ -1022,7 +1171,12 @@
                 isSpinning = false;
                 hasSpun = true;
                 centerButton.disabled = false;
-                centerButton.querySelector('.center-icon').textContent = '🎁';
+                const centerIcon = centerButton.querySelector('.center-icon');
+                if (centerIcon) {
+                    // Use the translations object if available, otherwise fallback to 'START'
+                    const wheelTranslations = translations.wheel || {};
+                    centerIcon.textContent = wheelTranslations.start || 'START';
+                }
 
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
@@ -1034,62 +1188,87 @@
                     if (winningSegment.coupon.type === 'percentage') {
                         prizeDisplay.textContent = `${winningSegment.coupon.discount_percentage}% OFF`;
                     } else if (winningSegment.coupon.type === 'free_days') {
-                        prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                        // Use translations for the result display
+                        const wheelTranslations = translations.wheel?.wheel_segments || {};
+                        const freeDaysText = translations.wheel?.free_days || 'FREE DAYS';
+                        
+                        if (winningSegment.coupon.free_days === 1 && wheelTranslations['1_day']) {
+                            prizeDisplay.textContent = `${wheelTranslations['1_day']}`;
+                        } else if (winningSegment.coupon.free_days === 2 && wheelTranslations['2_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['2_days']}`;
+                        } else if (winningSegment.coupon.free_days === 3 && wheelTranslations['3_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['3_days']}`;
+                        } else if (winningSegment.coupon.free_days === 4 && wheelTranslations['4_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['4_days']}`;
+                        } else if (winningSegment.coupon.free_days === 6 && wheelTranslations['6_days']) {
+                            prizeDisplay.textContent = `${wheelTranslations['6_days']}`;
+                        } else {
+                            // Fallback to English if translation not found
+                            prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
+                        }
                     } else {
                         // Fallback for old coupons without type
                         prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     }
-                    // Get the first active coupon code instead of the coupon name
-                    const availableCodes = JSON.parse(winningSegment.coupon.available_codes || '[]');
-                    const showedCodes = JSON.parse(winningSegment.coupon.showed_codes || '[]');
                     
-                    if (availableCodes.length > 0) {
-                        const codeToShow = availableCodes[0]; // Get first active code
-                        discountCode.textContent = codeToShow; // Show first active code
-                        
-                        // Move the code from available to showed
-                        moveCodeFromAvailableToShowed(winningSegment.coupon.id, codeToShow);
-                    } else {
-                        discountCode.textContent = winningSegment.coupon.code; // Fallback to coupon name if no active codes
-                    }
+                    // Redeem the coupon securely via backend
+                    redeemCouponSecurely(winningSegment.coupon.id, userPhoneNumber);
     
                 } else {
                     // Fallback for segments without real coupons
                     prizeDisplay.textContent = `${winningSegment.text} OFF`;
-                    discountCode.textContent = `SPIN${winningSegment.id}FREE`;
+                    discountCode.textContent = 'ERROR';
                     console.log('Displaying fallback:', winningSegment.text);
                 }
 
                 // Show result card
                 instructionsCard.style.display = 'none';
                 resultCard.classList.add('show');
-
-                // Show reset button
-                resetButton.style.display = 'flex';
             }, 5000);
         }
 
-        // Reset wheel
-        function resetWheel() {
-            hasSpun = false;
-            currentRotation = 0;
-            // Ensure wheel starts at 0 degrees
-            wheel.style.transform = 'rotate(0deg)';
-            instructionsCard.style.display = 'block';
-            resultCard.classList.remove('show');
-            resetButton.style.display = 'none';
-        }
+
 
         // Event listeners
         centerButton.addEventListener('click', spinWheel);
-        resetButton.addEventListener('click', resetWheel);
+        
+        // Add click handler for the book now button
+        const bookNowButton = document.getElementById('bookNowButton');
+        if (bookNowButton) {
+            bookNowButton.addEventListener('click', function() {
+                // Navigate to the cars page
+                // Check if we're in an iframe (embedded) or standalone
+                if (window.parent && window.parent !== window) {
+                    // If embedded in an iframe, navigate the parent window
+                    window.parent.location.href = 'cars.html';
+                } else {
+                    // If standalone, navigate this window
+                    window.location.href = 'cars.html';
+                }
+            });
+        }
 
         // Initialize wheel and load language
         loadLanguage().then(async () => {
     
-            // Fetch coupons first, then create wheel segments
+            // Get phone number from URL parameters or localStorage
+            userPhoneNumber = getPhoneNumberFromURL();
+            
+            // If no phone number in URL, check localStorage
+            if (!userPhoneNumber) {
+                const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
+                const storedPhone = localStorage.getItem('spinningWheelPhone');
+                
+                if (phoneEntered === 'true' && storedPhone) {
+                    userPhoneNumber = storedPhone;
+                    console.log('Using phone number from localStorage:', userPhoneNumber);
+                }
+            }
+            
+            console.log('Phone number from URL or localStorage:', userPhoneNumber);
+    
+            // Fetch coupons and create wheel segments
             await fetchCoupons();
-
             createWheelSegments();
             // Ensure wheel starts at 0 degrees and has proper transition
             wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
@@ -1106,11 +1285,21 @@
             }, 100);
         });
 
-        // Listen for language changes from parent window
+        // Listen for messages from parent window
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'languageChange') {
                 currentLanguage = event.data.language;
                 loadLanguage();
+            }
+            
+            // Listen for phone number from parent modal
+            if (event.data && event.data.type === 'phoneNumberEntered') {
+                userPhoneNumber = event.data.phoneNumber;
+                console.log('Received phone number from parent modal:', userPhoneNumber);
+                
+                // Also store in localStorage for consistency
+                localStorage.setItem('spinningWheelPhone', userPhoneNumber);
+                localStorage.setItem('spinningWheelPhoneEntered', 'true');
             }
         });
 

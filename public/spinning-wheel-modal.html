@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinning Wheel Modal</title>
+    <style>
+        /* Modal Styles */
+        .spinning-wheel-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .spinning-wheel-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close:hover {
+            background: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-subtitle {
+            font-size: 1rem;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 1024px) {
+            .modal-content {
+                width: 95%;
+                max-width: 1200px;
+                max-height: 90vh;
+            }
+            
+            .modal-header {
+                padding: 30px 40px;
+            }
+            
+            .modal-title {
+                font-size: 2rem;
+            }
+            
+            .modal-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .wheel-content {
+                min-height: 600px !important;
+            }
+            
+            .left-column {
+                padding: 40px !important;
+            }
+            
+            .right-column {
+                padding: 50px !important;
+            }
+        }
+        
+        /* Tablet and medium devices (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .modal-content {
+                width: 95% !important;
+                max-width: 1000px !important;
+                max-height: 95vh !important;
+            }
+            
+            .modal-header {
+                padding: 25px 30px !important;
+            }
+            
+            .modal-title {
+                font-size: 1.8rem !important;
+            }
+            
+            .modal-subtitle {
+                font-size: 1.1rem !important;
+            }
+            
+            .wheel-content {
+                min-height: 700px !important;
+            }
+            
+            .left-column {
+                padding: 40px !important;
+            }
+            
+            /* Increase iframe height for tablets */
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+                max-height: calc(100vh - 20px);
+            }
+            
+            .modal-header {
+                padding: 15px;
+            }
+            
+            .modal-title {
+                font-size: 1.3rem;
+            }
+            
+            .modal-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .wheel-content {
+                flex-direction: column !important;
+                min-height: auto !important;
+            }
+            
+            .left-column {
+                padding: 20px !important;
+            }
+            
+            .input-group {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            
+            .phone-submit-btn {
+                width: 100% !important;
+            }
+            
+            
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Spinning Wheel Modal -->
+    <div id="spinningWheelModal" class="spinning-wheel-modal">
+        <div class="modal-content">
+            <!-- Close button -->
+            <button class="modal-close" id="modalClose" onclick="closeModal()">×</button>
+            
+            <!-- Modal header -->
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">🎉 Special Offer!</h2>
+                <p class="modal-subtitle" id="modalSubtitle">Spin the wheel and win amazing discounts!</p>
+            </div>
+            
+            <!-- Spinning wheel content will be loaded here -->
+            <div id="wheelContent"></div>
+        </div>
+    </div>
+
+    <!-- Demo content to simulate website browsing -->
+    <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h1>Website Demo</h1>
+        <p>Browse around for 5 minutes to see the spinning wheel modal appear!</p>
+        <p>Time on page: <span id="timeCounter">0:00</span></p>
+        <button onclick="showModalNow()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Show Modal Now (for testing)
+        </button>
+    </div>
+
+    <script>
+        // Set API base URL for API calls
+        if (!window.API_BASE_URL) {
+            window.API_BASE_URL = window.location.hostname === 'localhost'
+                ? 'http://localhost:3003'
+                : window.location.origin;
+        }
+        
+        // Modal functionality
+        let modalShown = false;
+        let startTime = Date.now();
+        let timeCounter = 0;
+
+        // Check if user has already seen the modal today
+        function hasSeenModalToday() {
+            const lastSeen = localStorage.getItem('spinningWheelLastSeen');
+            if (!lastSeen) return false;
+            
+            const lastSeenDate = new Date(lastSeen);
+            const today = new Date();
+            
+            return lastSeenDate.toDateString() === today.toDateString();
+        }
+
+        // Mark modal as seen today
+        function markModalAsSeen() {
+            localStorage.setItem('spinningWheelLastSeen', new Date().toISOString());
+        }
+
+        // Show the modal
+        function showModal() {
+            if (modalShown) return;
+            
+            const modal = document.getElementById('spinningWheelModal');
+            const wheelContent = document.getElementById('wheelContent');
+            
+            // Load the spinning wheel content
+            wheelContent.innerHTML = `
+                <div class="wheel-content" style="display: flex; min-height: 500px;">
+                    <!-- Phone number input step -->
+                    <div class="left-column" id="phoneStep" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: white;">
+                        <div class="phone-input-container" style="text-align: center; max-width: 400px; width: 100%;">
+                            <h3 style="color: #333; font-size: 1.8rem; margin: 0 0 15px 0; font-weight: 600;">📱 Enter Your Phone Number</h3>
+                            <p style="color: #666; font-size: 1.1rem; margin: 0 0 30px 0; line-height: 1.5;">Please provide your phone number to spin the wheel and win amazing discounts!</p>
+                            
+                            <form id="phoneForm" class="phone-form" style="margin-bottom: 20px;">
+                                <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                    <input type="tel" 
+                                           id="phoneInput" 
+                                           placeholder="Enter your phone number" 
+                                           required 
+                                           pattern="[0-9+\-\s\(\)]+"
+                                           style="flex: 1; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 1rem;">
+                                    <button type="submit" style="padding: 15px 25px; background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Continue</button>
+                                </div>
+                            </form>
+                            
+                            <div class="phone-info" style="color: #888; font-size: 0.9rem;">
+                                <small>We'll use this to send you your discount code</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Spinning wheel step (hidden initially) -->
+                    <div class="left-column" id="wheelStep" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: white; display: none;">
+                        <iframe src="spinning-wheel-standalone.html" 
+                                style="width: 100%; height: 500px; border: none; border-radius: 15px;"
+                                id="wheelIframe">
+                        </iframe>
+                    </div>
+                    
+
+                </div>
+            `;
+            
+            // Show modal
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+            modalShown = true;
+            
+            // Mark as seen
+            markModalAsSeen();
+            
+            // Listen for messages from the wheel iframe
+            window.addEventListener('message', handleWheelMessage);
+        }
+
+        // Close the modal
+        function closeModal() {
+            const modal = document.getElementById('spinningWheelModal');
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            
+            // Clean up iframe
+            const wheelContent = document.getElementById('wheelContent');
+            wheelContent.innerHTML = '';
+            
+            // Remove event listener
+            window.removeEventListener('message', handleWheelMessage);
+        }
+
+        // Handle messages from the spinning wheel iframe
+        function handleWheelMessage(event) {
+            // Handle any communication from the wheel if needed
+            if (event.data && event.data.type === 'wheelClosed') {
+                closeModal();
+            }
+        }
+
+        // Show modal immediately (for testing)
+        function showModalNow() {
+            showModal();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('spinningWheelModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalShown) {
+                closeModal();
+            }
+        });
+
+        // Timer to show modal after 5 minutes
+        function startTimer() {
+            const timer = setInterval(() => {
+                timeCounter++;
+                const minutes = Math.floor(timeCounter / 60);
+                const seconds = timeCounter % 60;
+                
+                // Update time counter display
+                document.getElementById('timeCounter').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Check if 5 minutes have passed
+                if (timeCounter >= 300 && !modalShown && !hasSeenModalToday()) { // 300 seconds = 5 minutes
+                    showModal();
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has already seen the modal today
+            if (hasSeenModalToday()) {
+                document.getElementById('modalSubtitle').textContent = 
+                    'You\'ve already seen today\'s offer. Come back tomorrow!';
+            }
+            
+            // Start the timer
+            startTimer();
+        });
+        
+        // Handle phone number submission
+        async function handlePhoneSubmit(e) {
+            e.preventDefault();
+            
+            const phoneInput = document.getElementById('phoneInput');
+            const phoneNumber = phoneInput.value.trim();
+            
+            if (!phoneNumber) {
+                alert('Please enter a phone number');
+                return;
+            }
+            
+            // Basic phone validation
+            if (phoneNumber.length < 8) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+            
+            try {
+                // Track phone number in database (same as account dashboard)
+                const response = await fetch('/api/spinning-wheels/track-phone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Phone number tracked successfully:', result);
+                } else {
+                    console.error('❌ Failed to track phone number');
+                }
+            } catch (error) {
+                console.error('❌ Error tracking phone number:', error);
+            }
+            
+            // Store phone number (you can modify this to send to your backend)
+            localStorage.setItem('spinningWheelPhone', phoneNumber);
+            
+            // Also set a flag that the spinning wheel can check
+            localStorage.setItem('spinningWheelPhoneEntered', 'true');
+            
+            // Hide phone step and show wheel step
+            const phoneStep = document.getElementById('phoneStep');
+            const wheelStep = document.getElementById('wheelStep');
+            
+            if (phoneStep && wheelStep) {
+                phoneStep.style.display = 'none';
+                wheelStep.style.display = 'flex';
+                
+                // Wait for iframe to load, then send phone number
+                setTimeout(() => {
+                    const iframe = document.getElementById('wheelIframe');
+                    if (iframe && iframe.contentWindow) {
+                        try {
+                            // Send phone number to iframe
+                            iframe.contentWindow.postMessage({
+                                type: 'phoneNumberEntered',
+                                phoneNumber: phoneNumber
+                            }, '*');
+                        } catch (e) {
+                            console.log('Could not send message to iframe yet');
+                        }
+                    }
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>

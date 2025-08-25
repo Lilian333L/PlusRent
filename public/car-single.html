@@ -185,6 +185,100 @@
       .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
       .lang-flag { font-size: 15px; width: 15px; }
     }
+    
+    /* Call Now Button Styles */
+    .call-now-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #1E90FF, #187bcd);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: pulse 2s infinite;
+    }
+    
+    .call-now-btn:hover {
+      background: linear-gradient(135deg, #187bcd, #1565c0);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+    
+    .call-now-btn:active {
+      transform: translateY(0);
+    }
+    
+    .call-now-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .call-now-btn:hover::before {
+      left: 100%;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+      }
+      50% {
+        box-shadow: 0 4px 20px rgba(30, 144, 255, 0.5);
+      }
+      100% {
+        box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+      }
+    }
+    
+    @keyframes ring {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    
+    .call-now-btn:hover i {
+      animation: ring 0.6s ease-in-out;
+    }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .call-now-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      .call-now-btn i {
+        font-size: 10px;
+      }
+      
+      .call-now-btn span {
+        display: none;
+      }
+      
+      .call-now-btn i {
+        margin: 0;
+      }
+    }
     </style>
 </head>
 
@@ -246,6 +340,13 @@
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Call Now Button -->
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
+                                        <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
+                                            <span data-i18n="call_now">Call Now</span>
+                                        </a>
+                                    </div>
                                     <!-- Language Picker -->
                                     <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                                       <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
@@ -681,10 +782,10 @@ console.log(car);
   let thumbImages = [];
 
   if (car.gallery_images && car.gallery_images.length) {
-    mainImages = car.gallery_images.map(img => `${window.API_BASE_URL}${img}`);
+    mainImages = car.gallery_images.map(img => img.startsWith('http') ? img : `${window.API_BASE_URL}${img}`);
     thumbImages = mainImages;
   } else if (car.head_image) {
-    mainImages = [window.API_BASE_URL + car.head_image];
+    mainImages = [car.head_image.startsWith('http') ? car.head_image : window.API_BASE_URL + car.head_image];
     thumbImages = mainImages;
   } else {
     mainImages = [window.API_BASE_URL + '/uploads/placeholder.png'];
@@ -1398,6 +1499,9 @@ header.smaller {
 
 <!-- Translation System -->
 <script src="js/i18n-init.js"></script>
+
+<!-- Universal Spinning Wheel -->
+<script src="js/universal-include.js"></script>
 
 </body>
 

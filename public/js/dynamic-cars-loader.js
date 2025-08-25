@@ -7,7 +7,7 @@ class DynamicCarsLoader {
     this.selectElement = options.selectElement || document.getElementById('vehicle_type');
     this.onLoad = options.onLoad || this.defaultOnLoad;
     this.onError = options.onError || this.defaultOnError;
-    this.defaultImagePath = 'images/cars-alt/default-car.png';
+    this.defaultImagePath = '/uploads/placeholder.png';
   }
 
   // Load available cars from API

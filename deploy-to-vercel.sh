@@ -26,7 +26,6 @@ else
     echo ""
     echo "📋 Current project status:"
     echo "✅ Local server running on http://localhost:3001"
-    echo "✅ Login working with: admin / admin123"
     echo "✅ API endpoints functional"
     echo ""
     echo "🌐 Open these URLs to test locally:"

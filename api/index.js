@@ -1,9 +1,12 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Import database configuration
-const db = require('../config/database');
+// Import Supabase client
+const { supabase } = require('../lib/supabaseClient');
 
 // Import routes
 const authRoutes = require('../routes/auth');
@@ -45,23 +48,25 @@ app.use((req, res, next) => {
 
 // Serve uploaded images
 app.get('/uploads/*', (req, res) => {
-  const filePath = path.join(__dirname, '..', 'uploads', req.params[0]);
+  // Extract the file path from the URL
+  const filePath = req.params[0];
+  const fullPath = path.join(__dirname, '..', 'uploads', filePath);
   
-  console.log('📁 Serving file:', req.params[0]);
-  console.log('📁 Full path:', filePath);
+  console.log('📁 Serving file:', filePath);
+  console.log('📁 Full path:', fullPath);
   
   // Check if file exists
   const fs = require('fs');
-  if (!fs.existsSync(filePath)) {
-    console.log('❌ File not found:', filePath);
-    return res.status(404).json({ error: 'File not found' });
+  if (!fs.existsSync(fullPath)) {
+    console.log('❌ File not found:', fullPath);
+    return res.status(404).json({ error: 'File not found', path: filePath });
   }
   
   // Get file stats
-  const stats = fs.statSync(filePath);
+  const stats = fs.statSync(fullPath);
   
   // Set appropriate headers
-  const ext = path.extname(filePath).toLowerCase();
+  const ext = path.extname(fullPath).toLowerCase();
   const mimeTypes = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -75,9 +80,10 @@ app.get('/uploads/*', (req, res) => {
   res.setHeader('Content-Type', contentType);
   res.setHeader('Content-Length', stats.size);
   res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+  res.setHeader('Access-Control-Allow-Origin', '*');
   
   // Stream the file
-  const fileStream = fs.createReadStream(filePath);
+  const fileStream = fs.createReadStream(fullPath);
   fileStream.pipe(res);
   
   fileStream.on('error', (error) => {
@@ -139,18 +145,7 @@ try {
   console.error('❌ Failed to mount spinning wheel routes:', error);
 }
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Catch-all for SPA routing (if needed, Vercel rewrites handle this mostly)
-app.get('*', (req, res) => {
-  const filePath = path.join(__dirname, '../public', req.path);
-  if (filePath.endsWith('.html')) {
-    res.sendFile(filePath);
-  } else {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'));
-  }
-});
+// Note: Static file serving is handled by Vercel, not by the API
 
 // Error handling middleware - must be last
 app.use((err, req, res, next) => {
@@ -163,17 +158,34 @@ app.use((err, req, res, next) => {
 });
 
 // Test endpoint to check database connection
-app.get('/test', (req, res) => {
+app.get('/test', async (req, res) => {
   try {
-    console.log('Testing database connection...');
-    db.get('SELECT COUNT(*) as count FROM cars', (err, result) => {
-      if (err) {
-        console.error('Database test error:', err);
-        return res.status(500).json({ error: 'Database connection failed: ' + err.message });
-      }
-      console.log('Database test successful:', result);
-      res.json({ success: true, message: 'Database connection working', carCount: result.count });
-    });
+    console.log('Testing Supabase connection...');
+    
+    // Debug environment variables
+    console.log('Environment variables in /test:');
+    console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
+    console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set');
+    console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
+    
+    const { data, error, count } = await supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) {
+      console.error('Database test error:', error);
+      return res.status(500).json({ 
+        error: 'Database connection failed: ' + error.message,
+        debug: {
+          supabaseUrl: process.env.SUPABASE_URL ? 'Set' : 'Not set',
+          supabaseAnonKey: process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set',
+          supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set'
+        }
+      });
+    }
+    
+    console.log('Database test successful, car count:', count);
+    res.json({ success: true, message: 'Database connection working', carCount: count });
   } catch (err) {
     console.error('Test endpoint error:', err);
     res.status(500).json({ error: 'Test endpoint failed: ' + err.message });

@@ -5,7 +5,62 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/database');
 const TelegramNotifier = require('../config/telegram');
-const { supabase, uploadCarImage, getCarImageUrl } = require('../lib/supabaseClient');
+
+const { supabase, supabaseAdmin, uploadCarImage, getCarImageUrl } = require('../lib/supabaseClient');
+
+// Function to check if a car is currently unavailable and when it will be available
+async function getNextAvailableDate(carId) {
+  try {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Compare dates only
+    
+    // Get all CONFIRMED bookings for this car (only confirmed bookings make car unavailable)
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('pickup_date, return_date')
+      .eq('car_id', carId)
+      .eq('status', 'confirmed');
+
+    if (error) {
+      console.error('Error fetching bookings for availability check:', error);
+      return null;
+    }
+
+    if (!bookings || bookings.length === 0) {
+      return null; // Available now
+    }
+
+    // Check if car is currently being used (between pickup and return dates)
+    const currentBookings = bookings.filter(booking => {
+      const pickupDate = new Date(booking.pickup_date);
+      const returnDate = new Date(booking.return_date);
+      pickupDate.setHours(0, 0, 0, 0);
+      returnDate.setHours(0, 0, 0, 0);
+      
+      // Car is currently being used if current date is between pickup and return dates
+      return currentDate >= pickupDate && currentDate <= returnDate;
+    });
+
+    if (currentBookings.length > 0) {
+      // Car is currently being used, find the latest return date
+      const latestReturnDate = new Date(Math.max(...currentBookings.map(b => new Date(b.return_date))));
+      latestReturnDate.setHours(0, 0, 0, 0);
+      
+      // Add one day to get the next available date
+      const nextAvailable = new Date(latestReturnDate);
+      nextAvailable.setDate(nextAvailable.getDate() + 1);
+      
+      return nextAvailable;
+    }
+
+    // Car is not currently being used and no current bookings
+    // Don't return future booking dates - car is available now
+    return null;
+  } catch (error) {
+    console.error('Error in getNextAvailableDate:', error);
+    return null;
+  }
+}
 
 // Multer storage config for initial car creation (temporary storage)
 const tempImageStorage = multer.diskStorage({
@@ -23,7 +78,7 @@ const tempImageStorage = multer.diskStorage({
 });
 
 // Multer storage config for car images (with car ID)
-const carImageStorage = multer.diskStorage({
+const carImageStorage = isVercel ? memoryStorage : multer.diskStorage({
   destination: function (req, file, cb) {
     const carId = req.params.id;
     const dir = path.join(__dirname, '..', 'uploads', `car-${carId}`);
@@ -167,7 +222,35 @@ router.get('/', async (req, res) => {
         });
       }
       
-      res.json(filteredCars);
+      // Calculate availability for each car
+      console.log('🔍 Calculating availability for cars...');
+      const carsWithAvailability = await Promise.all(filteredCars.map(async (car) => {
+        try {
+          const nextAvailableDate = await getNextAvailableDate(car.id);
+          const currentDate = new Date();
+          currentDate.setHours(0, 0, 0, 0); // Compare dates only
+          
+          if (nextAvailableDate) {
+            // Car is unavailable
+            car.booked = true;
+            car.booked_until = nextAvailableDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+          } else {
+            // Car is available
+            car.booked = false;
+            car.booked_until = null;
+          }
+        } catch (error) {
+          console.error(`Error calculating availability for car ${car.id}:`, error);
+          // Default to available if there's an error
+          car.booked = false;
+          car.booked_until = null;
+        }
+        
+        return car;
+      }));
+      
+      console.log('✅ Availability calculation completed');
+      res.json(carsWithAvailability);
       
     } catch (error) {
       console.error('❌ Supabase error:', error);

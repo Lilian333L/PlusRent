@@ -53,11 +53,6 @@ This will:
 node server.js
 ```
 
-### 4. Default Credentials
-- **Username:** `admin`
-- **Password:** `admin123`
-- **Email:** `admin@rentaly.com`
-
 ### 4. Access the Application
 - **Website**: http://localhost:3001
 - **Cars**: http://localhost:3001/cars.html
@@ -237,7 +232,7 @@ headers: {
 const response = await fetch('/api/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username: 'admin', password: 'admin123' })
+
 });
 
 // Get cars with filters

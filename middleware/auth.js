@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const AdminUser = require('../models/admin');
 
-// JWT secret key (in production, use environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// JWT secret key - use environment variable or default for development
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {

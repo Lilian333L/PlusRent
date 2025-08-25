@@ -1209,8 +1209,9 @@
         margin-left: 0;
         margin-right: 0;
         gap: 1.5rem 0;
+        justify-content: center;
       }
-      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-6 {
+      .fleet-car-grid .col-xl-4, .fleet-car-grid .col-lg-4 {
         padding-left: 10px;
         padding-right: 10px;
         margin-bottom: 24px;
@@ -1229,6 +1230,8 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
+        min-height: 420px;
       }
       .car-unavailable {
         opacity: 0.6;
@@ -1240,17 +1243,33 @@
       }
       .unavailable-badge {
         position: absolute;
-        top: 12px;
-        left: 12px;
-        background: rgba(60,60,60,0.82);
+        top: 0px;
+        right: 0;
+        background: #ff6b5b;
         color: #fff;
-        font-size: 0.98rem;
-        font-weight: 500;
-        padding: 6px 14px;
-        border-radius: 6px;
+        font-size: 0.52rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 5px 14px 4px 14px;
+        border-radius: 7px;
         z-index: 2;
         box-shadow: 0 2px 8px rgba(0,0,0,0.10);
         pointer-events: none;
+        border: none;
+      }
+      
+      .btn-unavailable {
+        background: #ececec !important;
+        color: #888 !important;
+        border: 2px solid #ececec !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+        font-weight: 700;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        transition: background 0.2s, color 0.2s, border 0.2s;
       }
       .d-img {
         position: relative;
@@ -1324,8 +1343,9 @@
         margin-left: 0;
         margin-right: 0;
         gap: 1.5rem 0;
+        justify-content: center;
       }
-      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+      #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-4 {
         padding-left: 10px;
         padding-right: 10px;
         margin-bottom: 24px;
@@ -1344,6 +1364,8 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        height: 100%;
+        min-height: 420px;
       }
       #section-cars .car-unavailable {
         opacity: 0.6;
@@ -1441,7 +1463,7 @@
         }
       }
       @media (max-width: 600px) {
-        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-6 {
+        #section-cars .fleet-car-grid .col-xl-4, #section-cars .fleet-car-grid .col-lg-4 {
           min-width: 100%;
           max-width: 100%;
           padding-left: 0;
@@ -1484,6 +1506,363 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+      
+      /* Call Now Button Styles */
+      .call-now-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #1E90FF, #187bcd);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: pulse 2s infinite;
+      }
+      
+      .call-now-btn:hover {
+        background: linear-gradient(135deg, #187bcd, #1565c0);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+      
+      .call-now-btn:active {
+        transform: translateY(0);
+      }
+      
+      .call-now-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+      
+      .call-now-btn:hover::before {
+        left: 100%;
+      }
+      
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+        }
+        50% {
+          box-shadow: 0 4px 20px rgba(30, 144, 255, 0.5);
+        }
+        100% {
+          box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+        }
+      }
+      
+      @keyframes ring {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      
+      .call-now-btn:hover i {
+        animation: ring 0.6s ease-in-out;
+      }
+      
+      /* Mobile responsive adjustments */
+      @media (max-width: 768px) {
+        .call-now-btn {
+          padding: 8px 12px;
+          font-size: 12px;
+        }
+        
+        .call-now-btn i {
+          font-size: 10px;
+        }
+        
+        .call-now-btn span {
+          display: none;
+        }
+        
+        .call-now-btn i {
+          margin: 0;
+        }
+      }
+      
+      /* Contact Pop-up Module Styles */
+      .contact-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+      }
+      
+      .contact-popup {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: 20px;
+        padding: 0;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: popupSlideIn 0.3s ease-out;
+      }
+      
+      @keyframes popupSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .contact-popup-header {
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        padding: 20px 25px 20px 25px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+      }
+      
+      .contact-popup-header h3 {
+        color: #ffffff;
+        margin: 0 0 5px 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      .contact-popup-header p {
+        color: #bdc3c7;
+        margin: 0;
+        font-size: 14px;
+      }
+      
+      .contact-popup-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #ffffff;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 10;
+      }
+      
+      .contact-popup-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(1.1);
+      }
+      
+      .contact-popup-close i {
+        font-size: 16px;
+      }
+      
+      .contact-popup-body {
+        padding: 20px;
+      }
+      
+      .contact-option {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .contact-option:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      .contact-option:last-child {
+        margin-bottom: 0;
+      }
+      
+      .contact-option-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 18px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+      }
+      
+      .contact-option:nth-child(1) .contact-option-icon {
+        background: linear-gradient(135deg, #25d366, #128c7e);
+      }
+      
+      .contact-option:nth-child(2) .contact-option-icon {
+        background: linear-gradient(135deg, #7360f2, #5b4bc4);
+      }
+      
+      .contact-option:nth-child(3) .contact-option-icon {
+        background: linear-gradient(135deg, #0088cc, #006699);
+      }
+      
+      .contact-option:nth-child(4) .contact-option-icon {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+      }
+      
+      .contact-option-content {
+        flex: 1;
+      }
+      
+      .contact-option-title {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 2px;
+      }
+      
+      .contact-option-subtitle {
+        color: #bdc3c7;
+        font-size: 13px;
+      }
+      
+      /* Floating Contact Button */
+      .floating-contact-btn {
+        position: fixed;
+        bottom: 80px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #1E90FF, #187bcd);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        animation: bounce 2s infinite;
+      }
+      
+      .floating-contact-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(30, 144, 255, 0.6);
+      }
+      
+      .floating-contact-btn i {
+        color: #ffffff;
+        font-size: 24px;
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+      
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        .contact-popup {
+          width: 85%;
+          max-width: 350px;
+          max-height: 75vh;
+          margin-right: 10px;
+        }
+        
+        .contact-popup-header {
+          padding: 15px 20px;
+        }
+        
+        .contact-popup-header h3 {
+          font-size: 16px;
+          padding-right: 40px;
+        }
+        
+        .contact-popup-header p {
+          font-size: 13px;
+          padding-right: 40px;
+        }
+        
+        .contact-popup-close {
+          top: 15px;
+          right: 15px;
+          width: 30px;
+          height: 30px;
+        }
+        
+        .contact-popup-close i {
+          font-size: 14px;
+        }
+        
+        .floating-contact-btn {
+          bottom: 70px;
+          right: 20px;
+          width: 55px;
+          height: 55px;
+          font-size: 20px;
+        }
+        
+        .contact-option {
+          padding: 12px 15px;
+        }
+        
+        .contact-option-icon {
+          width: 40px;
+          height: 40px;
+        }
+        
+        .contact-option-icon i {
+          font-size: 16px;
+        }
+        
+        .contact-option-title {
+          font-size: 14px;
+        }
+        
+        .contact-option-subtitle {
+          font-size: 12px;
+        }
       }
     </style>
 </head>
@@ -1546,6 +1925,13 @@
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                    <!-- Call Now Button -->
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
+                                        <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
+                                            <span data-i18n="call_now">Call Now</span>
+                                        </a>
+                                    </div>
                                     <!-- Language Picker -->
                                     <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                                       <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
@@ -2264,10 +2650,10 @@
               console.log('Fleet section: Generated URL for car', car.id, ':', rentNowUrl);
               
               return `
-                <div class=\"col-xl-4 col-lg-6\">
+                <div class=\"col-xl-4 col-lg-4 col-md-6\">
                   <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
                     <div class=\"d-img${isUnavailable ? ' img-unavailable' : ''}\">
-                      <img src=\"${car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'}\" class=\"img-fluid\" alt=\"\">
+                      <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">
                       ${badge}
                       ${isPremium ? '<div class=\"premium-badge\">PREMIUM</div>' : ''}
                     </div>
@@ -2504,6 +2890,102 @@
             }
         }
     </script>
+    
+    <!-- Contact Pop-up Module -->
+    <div id="contactPopup" class="contact-popup-overlay">
+        <div class="contact-popup">
+            <div class="contact-popup-header">
+                <button class="contact-popup-close" onclick="closeContactPopup()">
+                    <i class="fa fa-times"></i>
+                </button>
+                <h3 data-i18n="contact_popup.title">Contact Us 24/7</h3>
+                <p data-i18n="contact_popup.subtitle">Choose your preferred way to get in touch</p>
+            </div>
+            <div class="contact-popup-body">
+                <div class="contact-option" onclick="openWhatsApp()">
+                    <div class="contact-option-icon">
+                        <i class="fa fa-whatsapp"></i>
+                    </div>
+                    <div class="contact-option-content">
+                        <div class="contact-option-title" data-i18n="contact_popup.whatsapp">WhatsApp</div>
+                        <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Quick chat support</div>
+                    </div>
+                </div>
+                
+                <div class="contact-option" onclick="openViber()">
+                    <div class="contact-option-icon">
+                        <i class="fa fa-phone"></i>
+                    </div>
+                    <div class="contact-option-content">
+                        <div class="contact-option-title" data-i18n="contact_popup.viber">Viber</div>
+                        <div class="contact-option-subtitle" data-i18n="contact_popup.viber_desc">Voice and text messages</div>
+                    </div>
+                </div>
+                
+                <div class="contact-option" onclick="openTelegram()">
+                    <div class="contact-option-icon">
+                        <i class="fa fa-paper-plane"></i>
+                    </div>
+                    <div class="contact-option-content">
+                        <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
+                        <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">Fast messaging</div>
+                    </div>
+                </div>
+                
+                <div class="contact-option" onclick="makeDirectCall()">
+                    <div class="contact-option-icon">
+                        <i class="fa fa-phone"></i>
+                    </div>
+                    <div class="contact-option-content">
+                        <div class="contact-option-title" data-i18n="contact_popup.direct_call">Direct Call</div>
+                        <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">Call us now</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Contact Button -->
+    <div class="floating-contact-btn" onclick="openContactPopup()">
+        <i class="fa fa-comments"></i>
+    </div>
+    
+    <script>
+        // Contact pop-up functionality
+        function openContactPopup() {
+            document.getElementById('contactPopup').style.display = 'flex';
+        }
+        
+        function closeContactPopup() {
+            document.getElementById('contactPopup').style.display = 'none';
+        }
+        
+        function openWhatsApp() {
+            window.open('https://wa.me/2083339296?text=Hello! I need assistance with car rental.', '_blank');
+        }
+        
+        function openViber() {
+            window.open('viber://chat?number=2083339296', '_blank');
+        }
+        
+        function openTelegram() {
+            window.open('https://t.me/plusrent', '_blank');
+        }
+        
+        function makeDirectCall() {
+            window.location.href = 'tel:+2083339296';
+        }
+        
+        // Close popup when clicking outside
+        document.getElementById('contactPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContactPopup();
+            }
+        });
+    </script>
+    
+    <!-- Spinning Wheel Modal Trigger -->
+    <script src="js/spinning-wheel-trigger.js"></script>
 </body>
 
 </html>
