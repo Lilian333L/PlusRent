@@ -124,6 +124,9 @@ async function getNextAvailableDate(carId) {
 // Use memory storage for Vercel (files will be uploaded to Supabase Storage)
 const memoryStorage = multer.memoryStorage();
 
+// Check if running on Vercel
+const isVercel = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+
 // Multer storage config - use memory storage for Vercel, disk storage for local dev
 const tempImageStorage = isVercel ? memoryStorage : multer.diskStorage({
 
