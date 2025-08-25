@@ -66,7 +66,7 @@
                     
                     <!-- Modal header -->
                     <div class="spinning-wheel-modal-header">
-                        <h2 class="spinning-wheel-modal-title">🎉 Special Offer!</h2>
+                        <h2 class="spinning-wheel-modal-title">Special Offer!</h2>
                         <p class="spinning-wheel-modal-subtitle">Spin the wheel and win amazing discounts!</p>
                     </div>
                     
@@ -160,7 +160,7 @@
 
             .spinning-wheel-modal-content {
                 background: white;
-                border-radius: 20px;
+                border-radius: 20px !important;
                 padding: 0;
                 width: 95%;
                 max-width: 1200px;
@@ -178,8 +178,8 @@
                 background: rgba(255, 255, 255, 0.9);
                 border: none;
                 border-radius: 50%;
-                width: 40px;
-                height: 40px;
+                width: 30px;
+                height: 30px;
                 font-size: 20px;
                 cursor: pointer;
                 z-index: 1000;
@@ -211,11 +211,11 @@
                 margin: 0;
                 text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
                 font-family: Arial, sans-serif;
+                color: white;
             }
 
             .spinning-wheel-modal-subtitle {
                 font-size: 1rem;
-                margin: 10px 0 0 0;
                 opacity: 0.9;
                 font-family: Arial, sans-serif;
             }
@@ -336,9 +336,9 @@
 
             @media (min-width: 1024px) {
                 .spinning-wheel-modal-content {
-                    width: 80%;
+                    width: 80% !important;
                     max-width: 1200px;
-                    max-height: 90vh;
+                    max-height: 80vh !important;
                     height: 80vh;
                 }
                 
@@ -399,7 +399,7 @@
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
-                    padding: 40px !important;
+                    padding: 20px !important;
                 }
                 
                 .phone-input-container {
@@ -415,9 +415,6 @@
                 }
                 
                 /* Increase iframe height for tablets */
-                #spinningWheelIframe {
-                    height: 650px !important;
-                }
                 
                 /* Better spacing for phone input on tablets */
                 .phone-input-container {

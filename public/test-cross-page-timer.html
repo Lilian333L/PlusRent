@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cross-Page Timer - Spinning Wheel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .timer-display {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .nav-links a {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: #0056b3;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Cross-Page Timer</h1>
+    
+    <div class="info-box">
+        <h3>🎯 What This Tests</h3>
+        <p>This page demonstrates how the spinning wheel timer works across different pages on your website. The timer tracks total time spent browsing, not just time on one page.</p>
+    </div>
+
+    <div class="test-section">
+        <h3>⏱️ Current Timer Status</h3>
+        <div class="timer-display" id="timerDisplay">
+            Loading timer...
+        </div>
+        <p><strong>Website Start Time:</strong> <span id="startTime">-</span></p>
+        <p><strong>Total Time on Website:</strong> <span id="totalTime">-</span></p>
+        <p><strong>Time Until Spinning Wheel:</strong> <span id="timeUntil">-</span></p>
+        <p><strong>Modal Seen Today:</strong> <span id="modalSeen">-</span></p>
+    </div>
+
+    <div class="test-section">
+        <h3>🧭 Test Navigation</h3>
+        <p>Navigate between these pages to test the cross-page timer:</p>
+        <div class="nav-links">
+            <a href="index.html">🏠 Homepage</a>
+            <a href="cars.html">🚗 Cars</a>
+            <a href="about.html">ℹ️ About</a>
+            <a href="contact.html">📞 Contact</a>
+            <a href="test-cross-page-timer.html">🧪 This Test Page</a>
+        </div>
+        <p><em>Try navigating between pages within 5 seconds to see how the timer accumulates!</em></p>
+    </div>
+
+    <div class="warning">
+        <h3>⚠️ Important Notes</h3>
+        <ul>
+            <li>The spinning wheel will appear after <strong>5 seconds total</strong> of browsing across all pages</li>
+            <li>Navigating to different pages doesn't reset the timer</li>
+            <li>The timer only shows once per day per user</li>
+            <li>If you've already seen the modal today, it won't show again until tomorrow</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 How It Works</h3>
+        <ol>
+            <li>When you first visit any page, a timer starts in localStorage</li>
+            <li>As you navigate between pages, the timer continues counting</li>
+            <li>After 5 seconds total browsing time, the spinning wheel appears</li>
+            <li>The modal only shows once per day, regardless of page navigation</li>
+        </ol>
+    </div>
+
+    <script>
+        // Update timer display every second
+        function updateTimerDisplay() {
+            const startTime = localStorage.getItem('websiteStartTime');
+            const totalTime = localStorage.getItem('websiteTotalTime');
+            const modalSeen = localStorage.getItem('spinningWheelLastSeen');
+            
+            if (startTime) {
+                const start = new Date(parseInt(startTime));
+                document.getElementById('startTime').textContent = start.toLocaleTimeString();
+                
+                const now = Date.now();
+                const currentSessionTime = now - parseInt(startTime);
+                const storedTotal = totalTime ? parseInt(totalTime) : 0;
+                const actualTotal = storedTotal + currentSessionTime;
+                
+                document.getElementById('totalTime').textContent = formatTime(actualTotal);
+                
+                const timeUntil = Math.max(0, 5000 - actualTotal);
+                document.getElementById('timeUntil').textContent = formatTime(timeUntil);
+                
+                if (timeUntil === 0) {
+                    document.getElementById('timeUntil').textContent = 'READY! 🎉';
+                }
+            } else {
+                document.getElementById('startTime').textContent = 'Not started';
+                document.getElementById('totalTime').textContent = '0s';
+                document.getElementById('timeUntil').textContent = '5s';
+            }
+            
+            if (modalSeen) {
+                const seenDate = new Date(modalSeen);
+                const today = new Date();
+                const isToday = seenDate.toDateString() === today.toDateString();
+                document.getElementById('modalSeen').textContent = isToday ? 'Yes (today)' : 'Yes (different day)';
+            } else {
+                document.getElementById('modalSeen').textContent = 'No';
+            }
+        }
+        
+        function formatTime(ms) {
+            if (ms < 1000) return '0s';
+            return Math.ceil(ms / 1000) + 's';
+        }
+        
+        // Update every second
+        setInterval(updateTimerDisplay, 1000);
+        updateTimerDisplay();
+        
+        // Show current page info
+        console.log('🧪 Test Page Loaded');
+        console.log('Current URL:', window.location.href);
+        console.log('Website Start Time:', localStorage.getItem('websiteStartTime'));
+        console.log('Total Time:', localStorage.getItem('websiteTotalTime'));
+        console.log('Modal Seen:', localStorage.getItem('spinningWheelLastSeen'));
+    </script>
+
+    <!-- Universal Spinning Wheel -->
+    <script src="js/universal-include.js"></script>
+</body>
+</html>
