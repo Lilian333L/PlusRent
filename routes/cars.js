@@ -77,6 +77,105 @@ async function uploadToSupabaseStorage(file, carId, fileType = 'gallery') {
   }
 }
 
+// Function to check if a car is available for specific dates
+async function checkCarAvailability(carId, pickupDate, returnDate) {
+  try {
+    // Get all bookings for this car (both pending and confirmed)
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('pickup_date, return_date, status')
+      .eq('car_id', carId)
+      .in('status', ['pending', 'confirmed']);
+
+    if (error) {
+      console.error('Error fetching bookings for availability check:', error);
+      return { available: false, reason: 'Database error' };
+    }
+
+    const requestedPickup = new Date(pickupDate);
+    const requestedReturn = new Date(returnDate);
+
+    // Check for date conflicts with existing bookings
+    for (const booking of bookings) {
+      const bookingPickup = new Date(booking.pickup_date);
+      const bookingReturn = new Date(booking.return_date);
+
+      // Check if there's any overlap between the requested dates and existing booking dates
+      if (
+        (requestedPickup <= bookingReturn && requestedReturn >= bookingPickup) ||
+        (bookingPickup <= requestedReturn && bookingReturn >= requestedPickup)
+      ) {
+        return { 
+          available: false, 
+          reason: `Car is booked from ${bookingPickup.toLocaleDateString()} to ${bookingReturn.toLocaleDateString()}` 
+        };
+      }
+    }
+
+    return { available: true };
+  } catch (error) {
+    console.error('Error in checkCarAvailability:', error);
+    return { available: false, reason: 'System error' };
+  }
+}
+
+// Function to check if a car is currently unavailable and when it will be available
+async function getNextAvailableDate(carId) {
+  try {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Compare dates only
+    
+    // Get all CONFIRMED bookings for this car (only confirmed bookings make car unavailable)
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('pickup_date, return_date')
+      .eq('car_id', carId)
+      .eq('status', 'confirmed');
+
+    if (error) {
+      console.error('Error fetching bookings for availability check:', error);
+      return null;
+    }
+
+    if (!bookings || bookings.length === 0) {
+      return null; // Available now
+    }
+
+    // Check if car is currently being used (between pickup and return dates)
+    const currentBookings = bookings.filter(booking => {
+      const pickupDate = new Date(booking.pickup_date);
+      const returnDate = new Date(booking.return_date);
+      pickupDate.setHours(0, 0, 0, 0);
+      returnDate.setHours(0, 0, 0, 0);
+      
+      // Car is currently being used if current date is between pickup and return dates
+      return currentDate >= pickupDate && currentDate <= returnDate;
+    });
+
+    if (currentBookings.length > 0) {
+      // Car is currently being used, find the latest return date
+      const latestReturnDate = new Date(Math.max(...currentBookings.map(b => new Date(b.return_date))));
+      latestReturnDate.setHours(0, 0, 0, 0);
+      
+      // Add one day to get the next available date
+      const nextAvailable = new Date(latestReturnDate);
+      nextAvailable.setDate(nextAvailable.getDate() + 1);
+      
+      return nextAvailable;
+    }
+
+    // Car is not currently being used and no current bookings
+    // Don't return future booking dates - car is available now
+    return null;
+
+    // No current or future bookings, car is available
+    return null;
+  } catch (error) {
+    console.error('Error in getNextAvailableDate:', error);
+    return null;
+  }
+}
+
 // Use memory storage for Vercel (files will be uploaded to Supabase Storage)
 const memoryStorage = multer.memoryStorage();
 
@@ -223,13 +322,39 @@ router.get('/', async (req, res) => {
         
         return car;
       });
+
+      // Calculate availability for each car dynamically
+      const carsWithAvailability = await Promise.all(cars.map(async (car) => {
+        try {
+          const nextAvailableDate = await getNextAvailableDate(car.id);
+          const currentDate = new Date();
+          currentDate.setHours(0, 0, 0, 0); // Compare dates only
+          
+          if (nextAvailableDate) {
+            // Car is unavailable
+            car.booked = true;
+            car.booked_until = nextAvailableDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+          } else {
+            // Car is available
+            car.booked = false;
+            car.booked_until = null;
+          }
+        } catch (error) {
+          console.error(`Error calculating availability for car ${car.id}:`, error);
+          // Default to available if there's an error
+          car.booked = false;
+          car.booked_until = null;
+        }
+        
+        return car;
+      }));
       
       // In-memory price filtering based on price_policy['1-2']
       const minPrice = (req.query.min_price && req.query.min_price !== '') ? parseFloat(req.query.min_price) : null;
       const maxPrice = (req.query.max_price && req.query.max_price !== '') ? parseFloat(req.query.max_price) : null;
-      let filteredCars = cars;
+      let filteredCars = carsWithAvailability;
       if (minPrice !== null || maxPrice !== null) {
-        filteredCars = cars.filter(car => {
+        filteredCars = carsWithAvailability.filter(car => {
           const pp = car.price_policy || {};
           const rateRaw = pp['1-2'];
           const rate = rateRaw !== undefined && rateRaw !== null ? parseFloat(rateRaw) : NaN;
@@ -1697,6 +1822,24 @@ router.post('/reorder', async (req, res) => {
       console.error('❌ Supabase reorder error:', error);
       res.status(500).json({ error: 'Failed to update car order' });
     }
+  }
+});
+
+// Check car availability for specific dates
+router.get('/:id/availability', async (req, res) => {
+  const carId = req.params.id;
+  const { pickup_date, return_date } = req.query;
+  
+  if (!pickup_date || !return_date) {
+    return res.status(400).json({ error: 'pickup_date and return_date are required' });
+  }
+  
+  try {
+    const availability = await checkCarAvailability(carId, pickup_date, return_date);
+    res.json(availability);
+  } catch (error) {
+    console.error('Error checking car availability:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });
 

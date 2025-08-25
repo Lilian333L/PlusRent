@@ -35,7 +35,23 @@ class BookingFormHandler {
       const validationResult = this.validateBookingData(bookingData);
       
       if (!validationResult.isValid) {
-        throw new Error(validationResult.error);
+        // Call validation error handler directly instead of throwing
+        this.onValidationError(validationResult.error);
+        return; // Exit early without proceeding to server submission
+      }
+
+      // Check car availability for the selected dates
+      if (bookingData.car_id) {
+        const availabilityResult = await this.checkCarAvailability(
+          bookingData.car_id, 
+          bookingData.pickup_date, 
+          bookingData.return_date
+        );
+        
+        if (!availabilityResult.available) {
+          this.onValidationError(availabilityResult.reason);
+          return; // Exit early if car is not available
+        }
       }
 
       // Send booking to server
@@ -53,13 +69,8 @@ class BookingFormHandler {
         error: error
       });
       
-      if (error.message.includes('Please select') || 
-          error.message.includes('required') ||
-          error.message.includes('must be')) {
-        this.onValidationError(error.message);
-      } else {
-        this.onError(error.message || 'An unexpected error occurred');
-      }
+      // Handle server errors (not validation errors)
+      this.onError(error.message || 'An unexpected error occurred');
     } finally {
       // Restore button state
       this.setButtonNormal(submitButton, originalText);
@@ -159,7 +170,14 @@ class BookingFormHandler {
       return { isValid: false, error: 'Pickup date must be today or in the future' };
     }
 
-    if (returnDate <= pickupDate) {
+    // Handle same-day rentals
+    if (bookingData.pickup_date === bookingData.return_date) {
+      // Same day rental: return time must be after pickup time
+      if (bookingData.pickup_time >= bookingData.return_time) {
+        return { isValid: false, error: 'For same-day rentals, return time must be after pickup time' };
+      }
+    } else if (returnDate <= pickupDate) {
+      // Different days: return date must be after pickup date
       return { isValid: false, error: 'Return date must be after pickup date' };
     }
 
@@ -174,6 +192,31 @@ class BookingFormHandler {
         }
 
     return { isValid: true };
+  }
+
+  // Check car availability for specific dates
+  async checkCarAvailability(carId, pickupDate, returnDate) {
+    try {
+      const response = await fetch(
+        `${this.apiBaseUrl}/api/cars/${carId}/availability?pickup_date=${pickupDate}&return_date=${returnDate}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to check availability');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error checking car availability:', error);
+      return { available: false, reason: 'Unable to check availability. Please try again.' };
+    }
   }
 
   // Submit booking to server
@@ -203,9 +246,9 @@ class BookingFormHandler {
       // If price calculator returns 0, try to get the displayed price from the UI
       if (totalPrice === 0) {
         // Look for the total price in the price breakdown display
-        const priceBreakdown = document.getElementById('price-breakdown');
-        if (priceBreakdown) {
-          const totalPriceText = priceBreakdown.textContent;
+        const priceContent = document.getElementById('price-content');
+        if (priceContent) {
+          const totalPriceText = priceContent.textContent;
           const totalPriceMatch = totalPriceText.match(/Total price:\s*(\d+)\s*€/);
           if (totalPriceMatch) {
             const displayedPrice = parseInt(totalPriceMatch[1]);

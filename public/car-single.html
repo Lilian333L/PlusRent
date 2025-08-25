@@ -89,6 +89,137 @@
     /* Language Picker Styles */
     .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
     
+    /* Booking Form Improvements */
+    .booking-section {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .booking-section h5 {
+      margin-bottom: 15px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+    }
+    
+    .booking-section .row {
+      margin-left: -7px;
+      margin-right: -7px;
+    }
+    
+    .booking-section .col-6 {
+      padding-left: 7px;
+      padding-right: 7px;
+    }
+    
+    .booking-section input,
+    .booking-section select {
+      font-size: 14px !important;
+      padding: 8px !important;
+    }
+    
+    .booking-section label {
+      font-size: 14px !important;
+      margin-bottom: 5px !important;
+    }
+    
+    .mb15 {
+      margin-bottom: 15px !important;
+    }
+    
+    /* Force horizontal booking form layout - Full width */
+    .horizontal-booking-form {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 20px !important;
+      flex-wrap: wrap !important;
+      align-items: flex-start !important;
+      width: 100% !important;
+    }
+    
+    .booking-column {
+      flex: 1 !important;
+      min-width: 200px !important;
+      max-width: 300px !important;
+      display: block !important;
+    }
+    
+    /* Responsive design for different screen sizes */
+    @media (max-width: 1000px) {
+      .booking-form-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .booking-form-container {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+      }
+      
+      .booking-section {
+        width: 100% !important;
+        position: relative !important;
+      }
+      
+
+      
+      /* Target only first 3 sections for accordion functionality */
+      .booking-section:nth-of-type(-n+3) h5 {
+        cursor: pointer !important;
+        user-select: none !important;
+        position: relative !important;
+        padding-right: 30px !important;
+      }
+      
+      .booking-section:nth-of-type(-n+3) h5::after {
+        content: '▼' !important;
+        position: absolute !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 12px !important;
+        color: #666 !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+      
+      .booking-section:nth-of-type(-n+3).collapsed h5::after {
+        transform: translateY(-50%) rotate(-90deg) !important;
+      }
+      
+      .booking-section:nth-of-type(-n+3) > div:not(h5) {
+        max-height: 1000px !important;
+        overflow: hidden !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s ease !important;
+      }
+      
+      .booking-section:nth-of-type(-n+3).collapsed > div:not(h5) {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        transform: translateY(-10px) !important;
+      }
+      
+
+      
+      /* Keep first section expanded by default */
+      .booking-section:first-child {
+        margin-bottom: 0 !important;
+      }
+      
+      .booking-section:first-child .section-content {
+        max-height: 1000px !important;
+      }
+    }
+    
+    .form-row {
+      margin-bottom: 10px !important;
+      width: 100% !important;
+    }
+    
     .lang-picker-btn {
       display: flex;
       align-items: center;
@@ -236,13 +367,13 @@
                                 </div>
                             </div>
                             <div class="de-flex-col header-col-mid">
-                                <ul id="mainmenu">
-                                                    <li><a class="menu-item" href="/">Home</a></li>
-                <li><a class="menu-item" href="/cars">Cars</a></li>
-                <li><a class="menu-item" href="/about">About</a></li>
-                <li><a class="menu-item" href="/contact">Contact</a></li>
-                <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver">Sober Driver</a></li>
-                                </ul>
+                                                                    <ul id="mainmenu">
+                                        <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                        <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                        <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                        <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                        <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
+                                    </ul>
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
@@ -298,30 +429,250 @@
             <section id="section-car-details">
                 <div class="container">
                     <div class="row g-5">
-                        <div class="col-lg-8">
-                                            <div class="custom-carousel">
-                  <div class="custom-carousel-main" id="car-images">
-                    <!-- Main images will be inserted here -->
-                  </div>
-                  <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)">‹</button>
-                  <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)">›</button>
-                  <div class="custom-carousel-nav" id="car-thumbs">
-                    <!-- Thumbnail images will be inserted here -->
-                  </div>
-                </div>
-                            
-                            <div class="spacer-single"></div>
-                            
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="custom-carousel">
+                                        <div class="custom-carousel-main" id="car-images">
+                                            <!-- Main images will be inserted here -->
+                                        </div>
+                                        <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)">‹</button>
+                                        <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)">›</button>
+                                        <div class="custom-carousel-nav" id="car-thumbs">
+                                            <!-- Thumbnail images will be inserted here -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <!-- Daily Rate From Section -->
+                                    <div class="daily-rate-from" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px;">
+                                        <div style="font-size: 14px; color: #666; margin-bottom: 6px;" data-i18n="cars.daily_rate">Daily rate from</div>
+                                        <div id="car-price-sidebar" style="font-size: 28px; font-weight: bold; color: #007bff;">€60</div>
+                                    </div>
+                                    
+                                    <!-- Daily Price Details Section -->
+                                    <div class="price-details-section" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); width: 100%;">
+                                        <h5 style="margin-bottom: 12px; color: #333; font-weight: 600; text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 6px; font-size: 16px;">
+                                            <i class="fa fa-euro" style="color: #007bff; margin-right: 6px;"></i>
+                                            <span data-i18n="cars.pricing_breakdown"></span>
+                                        </h5>
+                                        <div id="price-tiers-main" style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                            <!-- Price tiers will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <h3 id="car-name"></h3>
                             
-                            <!-- Quick Specs Section -->
+                            <!-- Compact Quick Specs Section - Under Images -->
                             <div class="spacer-10"></div>
-                            <h4 data-i18n="cars.quick_specs">Quick Specs</h4>
-                            <div class="de-spec" id="car-specs"></div>
+                            <div class="compact-specs-container" style="background: white; border-radius: 8px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                                <h4 style="margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;" data-i18n="cars.quick_specs"></h4>
+                                <div class="compact-specs-grid" id="car-specs-compact" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%;">
+                                    <!-- Specs will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            
+                            <!-- Booking Form Section - Moved from sidebar -->
+                            <div class="spacer-single"></div>
+                            <div class="booking-form-main" style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 30px; width: 100% !important; max-width: none !important;">
+                                
+                                <!-- Booking Success Notification -->
+                                <div id="booking-success-notification" style="display: none; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                                        <i class="fa fa-check-circle" style="color: #155724; font-size: 24px;"></i>
+                                        <h4 style="color: #155724; margin: 0;" data-i18n="booking.success_title">Booking Submitted Successfully!</h4>
+                                    </div>
+                                    <p style="color: #155724; margin: 0; font-size: 14px;" data-i18n="booking.success_message">
+                                        Thank you for your booking request. We will contact you shortly to confirm your reservation.
+                                    </p>
+                                </div>
+                                
+                                <form name="contactForm" id='contact_form' method="post">
+                                    <h4 style="margin-bottom: 20px; color: #333;" data-i18n="cars.book_now"></h4>
+                                    
+                                    <!-- Responsive Booking Form -->
+                                    <div class="booking-form-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                                        
+                                        <!-- Booking Details -->
+                                        <div class="booking-section" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <h5 style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #007bff; padding-bottom: 5px;">
+                                                <i class="fa fa-calendar" style="color: #007bff; margin-right: 8px;"></i>
+                                                <span data-i18n="cars.booking_details"></span>
+                                            </h5>
+                                            
+                                            <!-- Date and Time Fields -->
+                                            <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                                                <div style="flex: 1; min-width: 120px;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_date"></label>
+                                                    <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                </div>
+                                                <div style="flex: 1; min-width: 120px;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_time"></label>
+                                                    <select id="pickup-time" name="Pick Up Time" class="form-control" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                        <option value="00:00">00:00</option>
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="04:00">04:00</option>
+                                                        <option value="05:00">05:00</option>
+                                                        <option value="06:00">06:00</option>
+                                                        <option value="07:00">07:00</option>
+                                                        <option value="08:00">08:00</option>
+                                                        <option value="09:00" selected>09:00</option>
+                                                        <option value="10:00">10:00</option>
+                                                        <option value="11:00">11:00</option>
+                                                        <option value="12:00">12:00</option>
+                                                        <option value="13:00">13:00</option>
+                                                        <option value="14:00">14:00</option>
+                                                        <option value="15:00">15:00</option>
+                                                        <option value="16:00">16:00</option>
+                                                        <option value="17:00">17:00</option>
+                                                        <option value="18:00">18:00</option>
+                                                        <option value="19:00">19:00</option>
+                                                        <option value="20:00">20:00</option>
+                                                        <option value="21:00">21:00</option>
+                                                        <option value="22:00">22:00</option>
+                                                        <option value="23:00">23:00</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                                <div style="flex: 1; min-width: 120px;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_date"></label>
+                                                    <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                </div>
+                                                <div style="flex: 1; min-width: 120px;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_time"></label>
+                                                    <select id="collection-time" name="Collection Time" class="form-control" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                        <option value="00:00">00:00</option>
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="04:00">04:00</option>
+                                                        <option value="05:00">05:00</option>
+                                                        <option value="06:00">06:00</option>
+                                                        <option value="07:00">07:00</option>
+                                                        <option value="08:00">08:00</option>
+                                                        <option value="09:00" selected>09:00</option>
+                                                        <option value="10:00">10:00</option>
+                                                        <option value="11:00">11:00</option>
+                                                        <option value="12:00">12:00</option>
+                                                        <option value="13:00">13:00</option>
+                                                        <option value="14:00">14:00</option>
+                                                        <option value="15:00">15:00</option>
+                                                        <option value="16:00">16:00</option>
+                                                        <option value="17:00">17:00</option>
+                                                        <option value="18:00">18:00</option>
+                                                        <option value="19:00">19:00</option>
+                                                        <option value="20:00">20:00</option>
+                                                        <option value="21:00">21:00</option>
+                                                        <option value="22:00">22:00</option>
+                                                        <option value="23:00">23:00</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Outside Hours Notice - Compact Version -->
+                                            <div id="outside-hours-notice" style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 6px; margin-top: 8px; font-size: 10px;">
+                                                <div style="display: flex; align-items: center; gap: 3px; margin-bottom: 2px;">
+                                                    <i class="fa fa-clock-o" style="color: #856404; font-size: 10px;"></i>
+                                                    <strong style="color: #856404; font-size: 10px;">Outside Working Hours</strong>
+                                                </div>
+                                                <div id="outside-hours-details" style="font-size: 11px; color: #856404; margin-bottom: 2px;">
+                                                    <!-- Details will be populated by JavaScript -->
+                                                </div>
+                                                <div style="font-size: 10px; color: #856404;">
+                                                    <strong>Working Hours:</strong> 08:00 - 18:00 | <strong>Fee:</strong> €15 per pickup/return
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Location Details -->
+                                        <div class="booking-section" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <h5 style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">
+                                                <i class="fa fa-map-marker" style="color: #28a745; margin-right: 8px;"></i>
+                                                <span data-i18n="cars.location_details"></span>
+                                            </h5>
+                                            
+                                            <!-- Location Fields -->
+                                            <div style="display: flex; gap: 15px;">
+                                                <div style="flex: 1;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 5px; display: block;" data-i18n="cars.pickup_location"></label>
+                                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                        <label style="font-size: 11px;"><input type="radio" name="pickup_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport"></span></label>
+                                                        <label style="font-size: 11px;"><input type="radio" name="pickup_location" value="Our Office"> <span data-i18n="cars.our_office"></span></label>
+                                                        <label style="font-size: 11px;"><input type="radio" name="pickup_location" value="Iasi Airport" checked> <span data-i18n="cars.iasi_airport"></span></label>
+                                                    </div>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 5px; display: block;" data-i18n="cars.dropoff_location"></label>
+                                                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                        <label style="font-size: 11px;"><input type="radio" name="dropoff_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport"></span></label>
+                                                        <label style="font-size: 11px;"><input type="radio" name="dropoff_location" value="Our Office" checked> <span data-i18n="cars.our_office"></span></label>
+                                                        <label style="font-size: 11px;"><input type="radio" name="dropoff_location" value="Iasi Airport"> <span data-i18n="cars.iasi_airport"></span></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Contact Information -->
+                                        <div class="booking-section" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <h5 style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #ffc107; padding-bottom: 5px;">
+                                                <i class="fa fa-user" style="color: #ffc107; margin-right: 8px;"></i>
+                                                <span data-i18n="cars.contact_information"></span>
+                                            </h5>
+                                            
+                                            <!-- Contact Fields -->
+                                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                <div>
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.email_address"></label>
+                                                    <input type="email" name="customer_email" placeholder="your.email@example.com" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                </div>
+                                                <div>
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.phone_number"></label>
+                                                    <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                </div>
+                                                <div>
+                                                    <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.discount_code"></label>
+                                                    <input type="text" name="discount_code" placeholder="Enter discount code" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Price Summary -->
+                                        <div class="booking-section" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                            <h5 style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #dc3545; padding-bottom: 5px;">
+                                                <i class="fa fa-calculator" style="color: #dc3545; margin-right: 8px;"></i>
+                                                <span data-i18n="cars.total_price_breakdown"></span>
+                                            </h5>
+                                            
+                                            <!-- Price Summary Display -->
+                                            <!-- <div id="price-breakdown" style="min-height: 80px; background: #f8f9fa; border-radius: 6px; border: 1px solid #ddd; padding: 12px; font-size: 13px;"> -->
+                                                <div id="price-loading" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 100%;">
+                                                    <div style="width: 14px; height: 14px; border: 2px solid #f3f3f3; border-top: 2px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                                    <span style="font-size: 12px; color: #6c757d;">Loading...</span>
+                                                </div>
+                                                <div id="price-content" style="display: none;">
+                                                    <!-- Price content will be populated by JavaScript -->
+                                                </div>
+                                            <!-- </div> -->
+                                        </div>
+                                    </div>
+                                    
+                                    <input type='submit' id='send_message' value='Book Now' class="btn-main btn-fullwidth" style="margin-top: 15px; border-radius: 8px; padding: 12px; font-weight: 600; font-size: 16px;" data-i18n="cars.book_now">
+                                    <div class="clearfix"></div>
+                                </form>
+                            </div>
+                            
+
                             
                             <!-- Description Section -->
                             <div class="spacer-10"></div>
-                            <h4 data-i18n="cars.description">Description</h4>
+                            <h4 data-i18n="cars.description"></h4>
                             <p id="car-description"></p>
 
                             <div class="spacer-single"></div>
@@ -330,172 +681,7 @@
                             <ul class="ul-style-2" id="car-features"></ul> -->
                         </div>
 
-                        <div class="col-lg-4">
-                            <div class="de-box mb25" style="background: #f8f9fa; border-radius: 12px; padding: 30px;">
-                                <div class="de-price text-center" id="car-price" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px;"></div>
-                                
-                                <!-- Price Guide Section -->
-                                <div id="price-guide" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px;">
-                                    <h5 style="margin-bottom: 15px; color: #333; font-weight: 600; text-align: center;">
-                                        <i class="fa fa-info-circle" style="color: #007bff; margin-right: 8px;"></i>
-                                        <span data-i18n="cars.pricing_breakdown">Pricing Breakdown per Day</span>
-                                    </h5>
-                                    <div id="price-tiers" style="font-size: 14px;">
-                                        <!-- Price tiers will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                                <!-- Booking Success Notification -->
-                                <div id="booking-success-notification" style="display: none; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
-                                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-                                        <i class="fa fa-check-circle" style="color: #155724; font-size: 24px;"></i>
-                                        <h4 style="color: #155724; margin: 0;">Booking Submitted Successfully!</h4>
-                                    </div>
-                                    <p style="color: #155724; margin: 0; font-size: 14px;">
-                                        Thank you for your booking request. We will contact you shortly to confirm your reservation.
-                                    </p>
-                                </div>
-                                
-                                <form name="contactForm" id='contact_form' method="post">
-                                    <h4 style="margin-bottom: 25px; color: #333;" data-i18n="cars.book_now">Book Now</h4>
-                                    <div class="row">
-                                        <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_date">Pick-up Date</label>
-                                            <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
-                                        </div>
-                                        <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_time">Pick-up Time</label>
-                                            <select id="pickup-time" name="Pick Up Time" class="form-control" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
-                                                <option value="00:00">00:00</option>
-                                                <option value="01:00">01:00</option>
-                                                <option value="02:00">02:00</option>
-                                                <option value="03:00">03:00</option>
-                                                <option value="04:00">04:00</option>
-                                                <option value="05:00">05:00</option>
-                                                <option value="06:00">06:00</option>
-                                                <option value="07:00">07:00</option>
-                                                <option value="08:00">08:00</option>
-                                                <option value="09:00" selected>09:00</option>
-                                                <option value="10:00">10:00</option>
-                                                <option value="11:00">11:00</option>
-                                                <option value="12:00">12:00</option>
-                                                <option value="13:00">13:00</option>
-                                                <option value="14:00">14:00</option>
-                                                <option value="15:00">15:00</option>
-                                                <option value="16:00">16:00</option>
-                                                <option value="17:00">17:00</option>
-                                                <option value="18:00">18:00</option>
-                                                <option value="19:00">19:00</option>
-                                                <option value="20:00">20:00</option>
-                                                <option value="21:00">21:00</option>
-                                                <option value="22:00">22:00</option>
-                                                <option value="23:00">23:00</option>
-                                                
-                                            </select>
-                                        </div>
-                                        <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.return_date">Return Date</label>
-                                            <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
-                                        </div>
-                                        <div class="col-6 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.return_time">Return Time</label>
-                                            <select id="collection-time" name="Collection Time" class="form-control" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
-                                                <option value="00:00">00:00</option>
-                                                <option value="01:00">01:00</option>
-                                                <option value="02:00">02:00</option>
-                                                <option value="03:00">03:00</option>
-                                                <option value="04:00">04:00</option>
-                                                <option value="05:00">05:00</option>
-                                                <option value="06:00">06:00</option>
-                                                <option value="07:00">07:00</option>
-                                                <option value="08:00">08:00</option>
-                                                <option value="09:00" selected>09:00</option>
-                                                <option value="10:00">10:00</option>
-                                                <option value="11:00">11:00</option>
-                                                <option value="12:00">12:00</option>
-                                                <option value="13:00">13:00</option>
-                                                <option value="14:00">14:00</option>
-                                                <option value="15:00">15:00</option>
-                                                <option value="16:00">16:00</option>
-                                                <option value="17:00">17:00</option>
-                                                <option value="18:00">18:00</option>
-                                                <option value="19:00">19:00</option>
-                                                <option value="20:00">20:00</option>
-                                                <option value="21:00">21:00</option>
-                                                <option value="22:00">22:00</option>
-                                                <option value="23:00">23:00</option>
-                                               
-                                            </select>
-                                        </div>
-                                        <div class="col-12 mb20">
-                                            <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.discount_code">Discount Code (Optional)</label>
-                                            <input type="text" name="discount_code" placeholder="Discount Code" style="border-radius: 6px; border: 1px solid #ddd; width: 100%;">
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Outside Hours Notice -->
-                                    <div id="outside-hours-notice" class="mb20" style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                            <i class="fa fa-clock-o" style="color: #856404;"></i>
-                                            <strong style="color: #856404;">Outside Working Hours Notice</strong>
-                                        </div>
-                                        <div id="outside-hours-details" style="font-size: 14px; color: #856404;">
-                                            <!-- Details will be populated by JavaScript -->
-                                        </div>
-                                        <div style="font-size: 12px; color: #856404; margin-top: 8px;">
-                                            <strong>Working Hours:</strong> 08:00 - 18:00 (8 AM - 6 PM)<br>
-                                            <strong>Outside Hours Fee:</strong> €15 per pickup/return outside working hours
-                                        </div>
-                                        
 
-                                    </div>
-
-                                    <div class="mb20">
-                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.pickup_location">Pick-up Location</label>
-                                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                            <label><input type="radio" name="pickup_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
-                                            <label><input type="radio" name="pickup_location" value="Our Office"> <span data-i18n="cars.our_office">Our Office</span></label>
-                                            <label><input type="radio" name="pickup_location" value="Iasi Airport" checked> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
-                                        </div>
-                                    </div>
-                                    <div class="mb20">
-                                        <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.dropoff_location">Drop-off Location</label>
-                                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                            <label><input type="radio" name="dropoff_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
-                                            <label><input type="radio" name="dropoff_location" value="Our Office" checked> <span data-i18n="cars.our_office">Our Office</span></label>
-                                            <label><input type="radio" name="dropoff_location" value="Iasi Airport"> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Optional Customer Information -->
-                                    <div class="mb20" style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #eee;">
-                                        <h5 style="margin-bottom: 20px; color: #333;" data-i18n="cars.contact_information">Contact Information (Optional)</h5>
-                                        <div class="row">
-                                            <div class="col-6 mb20">
-                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.email_address">Email Address</label>
-                                                <input type="email" name="customer_email" placeholder="your.email@example.com" style="border-radius: 6px; border: 1px solid #ddd; width: 100%; padding: 10px;">
-                                            </div>
-                                            <div class="col-6 mb20">
-                                                <label style="font-size: 15px; font-weight: 500; margin-bottom: 8px; display: block;" data-i18n="cars.phone_number">Phone Number *</label>
-                                                <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required style="border-radius: 6px; border: 1px solid #ddd; width: 100%; padding: 10px;">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb20" style="margin-top: 32px;">
-                                        <div id="price-breakdown">
-                                            <!-- Loading state to prevent layout shift -->
-                                            <div id="price-loading" style="text-align: center; color: #666; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                                                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                                    <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                                                    <span>Loading price calculator...</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <input type='submit' id='send_message' value='Book Now' class="btn-main btn-fullwidth" style="margin-top: 20px; border-radius: 8px; padding: 12px; font-weight: 600;" data-i18n="cars.book_now">
-                                    <div class="clearfix"></div>
-                                </form>
-                            </div>
 
                            
                         </div>
@@ -574,8 +760,8 @@
                                     </a>
                                 </div>
                                 <ul class="menu-simple">
-                                                    <li><a href="#" data-i18n="footer.terms">Terms &amp; Conditions</a></li>
-                <li><a href="#" data-i18n="footer.privacy">Privacy Policy</a></li>
+                                                    <li><a href="#" data-i18n="footer.terms"></a></li>
+                <li><a href="#" data-i18n="footer.privacy"></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -610,6 +796,21 @@ document.addEventListener('DOMContentLoaded', async function() {
   console.log('Car single page: DOM loaded');
   console.log('Car single page: Current URL:', window.location.href);
   
+        // Wait for i18n to be initialized and then update content
+      function waitForI18n() {
+        if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
+          updateContent();
+        } else {
+          setTimeout(waitForI18n, 100);
+        }
+      }
+      waitForI18n();
+      
+      // Initialize accordion functionality for mobile
+      console.log('About to call initializeAccordion...');
+      initializeAccordion();
+      console.log('initializeAccordion called successfully');
+  
   // Get car ID from URL, e.g. car-single.html?id=123
   const urlParams = new URLSearchParams(window.location.search);
   const carId = urlParams.get('id');
@@ -631,6 +832,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         bookingForm.style.display = 'none';
       }
       
+      // Hide any existing info message
+      const infoMessage = document.getElementById('booking-info-message');
+      if (infoMessage) {
+        infoMessage.style.display = 'none';
+      }
+      
       // Show success notification
       const successNotification = document.getElementById('booking-success-notification');
       if (successNotification) {
@@ -644,7 +851,72 @@ document.addEventListener('DOMContentLoaded', async function() {
       // Booking failed - no alert needed
     },
     onValidationError: function(errorMessage) {
-      alert('Please fix the following issues:\n' + errorMessage);
+      // Show validation info message near the Book Now button
+      const submitButton = document.getElementById('send_message');
+      const successNotification = document.getElementById('booking-success-notification');
+      
+      // Hide success notification if it's showing
+      if (successNotification) {
+        successNotification.style.display = 'none';
+      }
+      
+      // Create or update info message
+      let infoMessage = document.getElementById('booking-info-message');
+      if (!infoMessage) {
+        infoMessage = document.createElement('div');
+        infoMessage.id = 'booking-info-message';
+        infoMessage.style.cssText = 'display: block; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-top: 10px; text-align: center; font-size: 13px; color: #0056b3;';
+        
+        // Insert after the submit button
+        if (submitButton) {
+          submitButton.parentNode.insertBefore(infoMessage, submitButton.nextSibling);
+        }
+      } else {
+        // If element exists, make sure it's visible
+        infoMessage.style.display = 'block';
+      }
+      
+      // Translate the error message if i18next is available
+      let translatedMessage = errorMessage;
+      if (typeof i18next !== 'undefined') {
+        // Map error messages to translation keys
+        const errorTranslations = {
+          'For same-day rentals, return time must be after pickup time': 'booking.validation.same_day_time',
+          'Return date must be after pickup date': 'booking.validation.return_date_after_pickup',
+          'Please select pickup and return dates': 'booking.validation.select_dates',
+          'Please select pickup and return times': 'booking.validation.select_times',
+          'Please select pickup and dropoff locations': 'booking.validation.select_locations',
+          'Please enter your phone number': 'booking.validation.phone_required',
+          'Please enter a valid phone number': 'booking.validation.phone_invalid',
+          'Please enter a valid email address': 'booking.validation.email_invalid',
+          'Pickup date must be today or in the future': 'booking.validation.pickup_date_future',
+          'Phone number is required for outside hours pickup/dropoff': 'booking.validation.phone_required_outside_hours'
+        };
+        
+        const translationKey = errorTranslations[errorMessage];
+        if (translationKey) {
+          translatedMessage = i18next.t(translationKey, errorMessage);
+        }
+      }
+      
+      infoMessage.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fa fa-info-circle" style="font-size: 16px;"></i>
+          <span>${translatedMessage}</span>
+        </div>
+      `;
+      
+      // Clear any existing timeout
+      if (window.bookingInfoTimeout) {
+        clearTimeout(window.bookingInfoTimeout);
+      }
+      
+      // Auto-hide after 5 seconds
+      window.bookingInfoTimeout = setTimeout(() => {
+        if (infoMessage) {
+          infoMessage.style.display = 'none';
+        }
+      }, 5000);
     }
   });
 
@@ -801,10 +1073,13 @@ console.log(car);
     lowestPrice = Math.min(...prices).toString();
   }
   
-  document.getElementById('car-price').innerHTML = `<span data-i18n="cars.daily_rate">Daily rate from</span> <h3>€${lowestPrice}</h3>`;
+  document.getElementById('car-price-sidebar').innerHTML = `€${lowestPrice}`;
   
   // Populate price guide with car data
   populatePriceGuide(car);
+  
+  // Show immediate basic price info in the breakdown section
+  showImmediatePriceInfo(car, lowestPrice);
 
   // Function to get mapped display text for car attributes with multilanguage support
   function getMappedDisplayText(attributeType, value) {
@@ -893,6 +1168,10 @@ console.log(car);
   if (typeof i18next !== 'undefined') {
     i18next.on('languageChanged', function() {
       updateCarDescription();
+      // Update all data-i18n elements when language changes
+      if (typeof updateContent === 'function') {
+        updateContent();
+      }
     });
   }
 
@@ -949,21 +1228,75 @@ console.log(car);
     'Semi-Automatic': i18next.t('cars.transmission.semi_automatic', 'Semi-Automatic')
   };
   
-  document.getElementById('car-specs').innerHTML = `
-    <div class="d-row"><span class="d-title">${specLabels.body}</span><span class="d-value">${carTypeMapping[car.car_type] || car.car_type || '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.seat}</span><span class="d-value">${car.num_passengers || '-'} ${i18next.t('cars.specs.seats', 'seats')}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.door}</span><span class="d-value">${car.num_doors || '-'} ${i18next.t('cars.specs.doors', 'doors')}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.luggage}</span><span class="d-value">${getMappedDisplayText('luggage', car.luggage)}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.fuel_type}</span><span class="d-value">${fuelTypeMapping[car.fuel_type] || car.fuel_type || '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.engine}</span><span class="d-value">${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.year}</span><span class="d-value">${car.production_year || '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.mileage}</span><span class="d-value">${car.mileage ? car.mileage + ' km' : '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.transmission}</span><span class="d-value">${transmissionMapping[car.gear_type] || car.gear_type || '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.drive}</span><span class="d-value">${getMappedDisplayText('drive', car.drive)}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.fuel_economy}</span><span class="d-value">${car.fuel_economy ? (car.fuel_type === 'Electric' ? car.fuel_economy + ' kWh/100km' : car.fuel_economy + ' L/100km') : '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.exterior_color}</span><span class="d-value">${car.exterior_color || '-'}</span></div>
-    <div class="d-row"><span class="d-title">${specLabels.interior_color}</span><span class="d-value">${car.interior_color || '-'}</span></div>
+  // Create compact specs layout with custom SVG icons
+  const compactSpecsHTML = `
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; min-height: 70px; display: flex; flex-direction: column; justify-content: center;">
+      <div style="margin-bottom: 4px; display: flex; justify-content: center;">
+        <svg fill="#7699a2" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235">
+          <path d="M211.744,6.089C208.081,2.163,203.03,0,197.52,0h-15.143c-11.16,0-21.811,8.942-23.74,19.934l-0.955,5.436 c-0.96,5.47,0.332,10.651,3.639,14.589c3.307,3.938,8.186,6.106,13.74,6.106h19.561c2.714,0,5.339-0.542,7.778-1.504l-2.079,17.761 c-2.001-0.841-4.198-1.289-6.507-1.289h-22.318c-9.561,0-18.952,7.609-20.936,16.961l-19.732,93.027l-93.099-6.69 c-5.031-0.36-9.231,1.345-11.835,4.693c-2.439,3.136-3.152,7.343-2.009,11.847l10.824,42.618 c2.345,9.233,12.004,16.746,21.53,16.746h78.049h1.191h39.729c9.653,0,18.336-7.811,19.354-17.411l15.272-143.981 c0.087-0.823,0.097-1.634,0.069-2.437l5.227-44.648c0.738-1.923,1.207-3.967,1.354-6.087l0.346-4.97 C217.214,15.205,215.407,10.016,211.744,6.089z"></path>
+        </svg>
+      </div>
+
+      <div style="font-size: 11px; font-weight: 600; color: #333;">${car.num_passengers || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: center;">
+      <div style="margin-bottom: 4px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#5daada">
+          <path d="M11 6H8C7.05719 6 6.58579 6 6.29289 6.29289C6 6.58579 6 7.05719 6 8C6 8.94281 6 9.41421 6.29289 9.70711C6.58579 10 7.05719 10 8 10H11C11.9428 10 12.4142 10 12.7071 9.70711C13 9.41421 13 8.94281 13 8C13 7.05719 13 6.58579 12.7071 6.29289C12.4142 6 11.9428 6 11 6Z" stroke="#465791" stroke-width="1.5"></path>
+          <path d="M7 17H12" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M17 22H2" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M19.5 4L20.7331 4.98647C20.8709 5.09673 20.9398 5.15186 21.0025 5.20805C21.5937 5.73807 21.9508 6.48086 21.9953 7.27364C22 7.35769 22 7.44594 22 7.62244V18.5C22 19.3284 21.3284 20 20.5 20C19.6716 20 19 19.3284 19 18.5V18.4286C19 17.6396 18.3604 17 17.5714 17H16" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M22 8H20.5C19.6716 8 19 8.67157 19 9.5V11.9189C19 12.5645 19.4131 13.1377 20.0257 13.3419L22 14" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M16 22V15M3 22V18M3 14V8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H10C12.8284 2 14.2426 2 15.1213 2.87868C16 3.75736 16 5.17157 16 8V11" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 11px; font-weight: 600; color: #333;">${fuelTypeMapping[car.fuel_type] || car.fuel_type || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M6 20C6 21.1046 5.10457 22 4 22C2.89543 22 2 21.1046 2 20C2 18.8954 2.89543 18 4 18C5.10457 18 6 18.8954 6 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 20C14 21.1046 13.1046 22 12 22C10.8954 22 10 21.1046 10 20C10 18.8954 10.8954 18 12 18C13.1046 18 14 18.8954 14 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 4C14 5.10457 13.1046 6 12 6C10.8954 6 10 5.10457 10 4C10 2.89543 10.8954 2 12 2C13.1046 2 14 2.89543 14 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M22 4C22 5.10457 21.1046 6 20 6C18.8954 6 18 5.10457 18 4C18 2.89543 18.8954 2 20 2C21.1046 2 22 2.89543 22 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path opacity="0.5" d="M4.75 6C4.75 5.58579 4.41421 5.25 4 5.25C3.58579 5.25 3.25 5.58579 3.25 6H4.75ZM3.25 18C3.25 18.4142 3.58579 18.75 4 18.75C4.41421 18.75 4.75 18.4142 4.75 18H3.25ZM12.75 6C12.75 5.58579 12.4142 5.25 12 5.25C11.5858 5.25 11.25 5.58579 11.25 6H12.75ZM11.25 18C11.25 18.4142 11.5858 18.75 12 18.75C12.4142 18.75 12.75 18.4142 12.75 18H11.25ZM20.75 6C20.75 5.58579 20.4142 5.25 20 5.25C19.5858 5.25 19.25 5.58579 19.25 6H20.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM19.4142 11.4142L18.8839 10.8839L18.8839 10.8839L19.4142 11.4142ZM3.25 6V18H4.75V6H3.25ZM11.25 6V18H12.75V6H11.25ZM19.25 6V8H20.75V6H19.25ZM16 11.25H4V12.75H16V11.25ZM19.25 8C19.25 8.96401 19.2484 9.61157 19.1835 10.0946C19.1214 10.5561 19.0142 10.7536 18.8839 10.8839L19.9445 11.9445C20.4 11.4891 20.5857 10.9223 20.6701 10.2945C20.7516 9.68826 20.75 8.92161 20.75 8H19.25ZM16 12.75C16.9216 12.75 17.6883 12.7516 18.2945 12.6701C18.9223 12.5857 19.4891 12.4 19.9445 11.9445L18.8839 10.8839C18.7536 11.0142 18.5561 11.1214 18.0946 11.1835C17.6116 11.2484 16.964 11.25 16 11.25V12.75Z" fill="#1C274C"></path>
+          <path d="M18 15V14.25C17.5858 14.25 17.25 14.5858 17.25 15H18ZM17.25 22C17.25 22.4142 17.5858 22.75 18 22.75C18.4142 22.75 18.75 22.4142 18.75 22H17.25ZM21.3604 22.3916C21.5766 22.7449 22.0384 22.8559 22.3916 22.6396C22.7449 22.4234 22.8559 21.9616 22.6396 21.6084L21.3604 22.3916ZM18 15.75H20.2857V14.25H18V15.75ZM18.75 18.5V15H17.25V18.5H18.75ZM21.25 16.75C21.25 17.3169 20.8038 17.75 20.2857 17.75V19.25C21.6612 19.25 22.75 18.1161 22.75 16.75H21.25ZM20.2857 15.75C20.8038 15.75 21.25 16.1831 21.25 16.75H22.75C22.75 15.3839 21.6612 14.25 20.2857 14.25V15.75ZM20.2857 17.75H19.8571V19.25H20.2857V17.75ZM19.8571 17.75H18V19.25H19.8571V17.75ZM19.2175 18.8916L21.3604 22.3916L22.6396 21.6084L20.4968 18.1084L19.2175 18.8916ZM17.25 18.5V22H18.75V18.5H17.25Z" fill="#1C274C"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${transmissionMapping[car.gear_type] || car.gear_type || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#505b77" viewBox="0 -39.69 122.88 122.88" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" style="enable-background:new 0 0 122.88 43.49">
+          <path d="M103.94,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76c-5.39,0-9.76-4.37-9.76-9.76 C94.18,28.34,98.55,23.97,103.94,23.97L103.94,23.97z M23,29.07v3.51h3.51C26.09,30.86,24.73,29.49,23,29.07L23,29.07z M26.52,34.87H23v3.51C24.73,37.97,26.09,36.6,26.52,34.87L26.52,34.87z M20.71,38.39v-3.51H17.2 C17.62,36.6,18.99,37.96,20.71,38.39L20.71,38.39z M17.2,32.59h3.51v-3.51C18.99,29.49,17.62,30.86,17.2,32.59L17.2,32.59z M105.09,29.07v3.51h3.51C108.18,30.86,106.82,29.49,105.09,29.07L105.09,29.07z M108.6,34.87h-3.51v3.51 C106.82,37.97,108.18,36.6,108.6,34.87L108.6,34.87z M102.8,38.39v-3.51h-3.51C99.71,36.6,101.07,37.96,102.8,38.39L102.8,38.39z M99.28,32.59h3.51v-3.51C101.07,29.49,99.71,30.86,99.28,32.59L99.28,32.59z M49.29,12.79c-1.54-0.35-3.07-0.35-4.61-0.28 C56.73,6.18,61.46,2.07,75.57,2.9l-1.94,12.87L50.4,16.65c0.21-0.61,0.33-0.94,0.37-1.55C50.88,13.36,50.86,13.15,49.29,12.79 L49.29,12.79z M79.12,3.13L76.6,15.6l24.13-0.98c2.48-0.1,2.91-1.19,1.41-3.28c-0.68-0.95-1.44-1.89-2.31-2.82 C93.59,1.86,87.38,3.24,79.12,3.13L79.12,3.13z M0.46,27.28H1.2c0.46-2.04,1.37-3.88,2.71-5.53c2.94-3.66,4.28-3.2,8.65-3.99 l24.46-4.61c5.43-3.86,11.98-7.3,19.97-10.2C64.4,0.25,69.63-0.01,77.56,0c4.54,0.01,9.14,0.28,13.81,0.84 c2.37,0.15,4.69,0.47,6.97,0.93c2.73,0.55,5.41,1.31,8.04,2.21l9.8,5.66c2.89,1.67,3.51,3.62,3.88,6.81l1.38,11.78h1.43v6.51 c-0.2,2.19-1.06,2.52-2.88,2.52h-2.37c0.92-20.59-28.05-24.11-27.42,1.63H34.76c3.73-17.75-14.17-23.91-22.96-13.76 c-2.67,3.09-3.6,7.31-3.36,12.3H2.03c-0.51-0.24-0.91-0.57-1.21-0.98c-1.05-1.43-0.82-5.74-0.74-8.23 C0.09,27.55-0.12,27.28,0.46,27.28L0.46,27.28z M21.86,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76 c-5.39,0-9.76-4.37-9.76-9.76C12.1,28.34,16.47,23.97,21.86,23.97L21.86,23.97z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${carTypeMapping[car.car_type] || car.car_type || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#5a7990" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 491.52 491.52">
+          <path d="M471.04,163.84h-32.768c-8.192,0-16.384,6.144-20.48,14.336l-18.432,81.92l-14.336-40.96 c0-8.192-8.192-14.336-16.384-14.336h-40.96v-20.48c0-12.288-8.192-20.48-20.48-20.48H81.92c-10.24,0-20.48,8.192-20.48,20.48 v163.84c0,2.048,0,6.144,2.048,8.192l28.672,61.44c4.096,8.192,10.24,12.288,18.432,12.288H358.4 c8.192,0,14.336-4.096,18.432-10.24l18.432-30.72h6.144l18.432,49.152c4.096,8.192,10.24,12.288,18.432,12.288h32.768 c12.288,0,20.48-8.192,20.48-20.48V184.32C491.52,172.032,483.328,163.84,471.04,163.84z M458.752,421.888l-24.576-61.44 c-4.096-6.144-10.24-12.288-20.48-12.288h-32.768c-8.192,0-14.336,4.096-18.432,10.24l-16.384,30.72H124.928L102.4,344.064V204.8 h184.32v20.48c0,12.288,8.192,20.48,20.48,20.48h47.104l8.192,26.624c2.048,8.192,10.24,14.336,18.432,14.336h32.768 c8.192,0,16.384-6.144,20.48-14.336l24.576-81.92V421.888z"></path>
+          <path d="M81.92,266.24H20.48C8.192,266.24,0,274.432,0,286.72c0,12.288,10.24,20.48,20.48,20.48h61.44 c12.288,0,20.48-8.192,20.48-20.48C102.4,274.432,94.208,266.24,81.92,266.24z"></path>
+          <path d="M20.48,225.28C8.192,225.28,0,233.472,0,245.76v81.92c0,12.288,8.192,20.48,20.48,20.48c12.288,0,20.48-8.192,20.48-20.48 v-81.92C40.96,233.472,32.768,225.28,20.48,225.28z"></path>
+          <path d="M245.76,102.4h-81.92c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h81.92 c12.288,0,20.48-8.192,20.48-20.48v-61.44C266.24,110.592,258.048,102.4,245.76,102.4z M225.28,163.84h-40.96v-20.48h40.96V163.84 z"></path>
+          <path d="M286.72,40.96H122.88c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h163.84 c12.288,0,20.48-8.192,20.48-20.48V61.44C307.2,49.152,299.008,40.96,286.72,40.96z M266.24,102.4H143.36V81.92h122.88V102.4z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" ifill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#485284" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.production_year || '-'}</div>
+    </div>
   `;
+  
+  document.getElementById('car-specs-compact').innerHTML = compactSpecsHTML;
 
   // Features
 //   document.getElementById('car-features').innerHTML = (car.features || []).map(f => `<li>${f}</li>`).join('');
@@ -986,7 +1319,7 @@ console.log(car);
     }, 100);
   }
     
-    // Ensure date inputs display properly
+    // Ensure date inputs display properly and set up event listeners after price calculator is ready
     setTimeout(() => {
       const pickupDateInput = document.getElementById('date-picker');
       const returnDateInput = document.getElementById('date-picker-2');
@@ -1004,58 +1337,217 @@ console.log(car);
       // Add single event listeners for date changes
       const newPickupInput = document.getElementById('date-picker');
       const newReturnInput = document.getElementById('date-picker-2');
+      const pickupTimeSelect = document.getElementById('pickup-time');
+      const returnTimeSelect = document.getElementById('collection-time');
       
-      if (newPickupInput) {
-        newPickupInput.addEventListener('change', function() {
-          console.log('Pickup date changed:', this.value);
-          if (window.priceCalculator) {
-            window.priceCalculator.debouncedRecalculate();
-          }
-        });
+      // Function to update outside hours notice
+      function updateOutsideHoursNotice() {
+        if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
+          const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
+          const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
+          window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
+        }
       }
       
-      if (newReturnInput) {
-        newReturnInput.addEventListener('change', function() {
-          console.log('Return date changed:', this.value);
-          if (window.priceCalculator) {
-            window.priceCalculator.debouncedRecalculate();
+      // Only set up event listeners if price calculator is ready
+      if (window.priceCalculator && window.currentCarData) {
+        if (newPickupInput) {
+          newPickupInput.addEventListener('change', function() {
+            console.log('Pickup date changed:', this.value);
+            if (window.priceCalculator) {
+              window.priceCalculator.debouncedRecalculate();
+            }
+            // Update outside hours notice when date changes
+            updateOutsideHoursNotice();
+          });
+        }
+        
+        if (newReturnInput) {
+          newReturnInput.addEventListener('change', function() {
+            console.log('Return date changed:', this.value);
+            if (window.priceCalculator) {
+              window.priceCalculator.debouncedRecalculate();
+            }
+            // Update outside hours notice when date changes
+            updateOutsideHoursNotice();
+          });
+        }
+        
+        // Add direct event listeners for time changes to update outside hours notice
+        if (pickupTimeSelect) {
+          pickupTimeSelect.addEventListener('change', function() {
+            console.log('Pickup time changed:', this.value);
+            updateOutsideHoursNotice();
+          });
+        }
+        
+        if (returnTimeSelect) {
+          returnTimeSelect.addEventListener('change', function() {
+            console.log('Return time changed:', this.value);
+            updateOutsideHoursNotice();
+          });
+        }
+      } else {
+        // If price calculator isn't ready yet, wait a bit more
+        setTimeout(() => {
+          if (window.priceCalculator && window.currentCarData) {
+            // Set up event listeners now
+            if (newPickupInput) {
+              newPickupInput.addEventListener('change', function() {
+                console.log('Pickup date changed:', this.value);
+                if (window.priceCalculator) {
+                  window.priceCalculator.debouncedRecalculate();
+                }
+                updateOutsideHoursNotice();
+              });
+            }
+            
+            if (newReturnInput) {
+              newReturnInput.addEventListener('change', function() {
+                console.log('Return date changed:', this.value);
+                if (window.priceCalculator) {
+                  window.priceCalculator.debouncedRecalculate();
+                }
+                updateOutsideHoursNotice();
+              });
+            }
+            
+            if (pickupTimeSelect) {
+              pickupTimeSelect.addEventListener('change', function() {
+                console.log('Pickup time changed:', this.value);
+                updateOutsideHoursNotice();
+              });
+            }
+            
+            if (returnTimeSelect) {
+              returnTimeSelect.addEventListener('change', function() {
+                console.log('Return time changed:', this.value);
+                updateOutsideHoursNotice();
+              });
+            }
           }
-        });
+        }, 500);
       }
     }, 200);
     
-    // Prevent header animations during initial load to reduce CLS
-    document.addEventListener('DOMContentLoaded', function() {
-      // Fix specific layout shift elements
-      const carDetailsSection = document.getElementById('section-car-details');
-      if (carDetailsSection) {
-        carDetailsSection.style.minHeight = '600px';
-        carDetailsSection.style.position = 'relative';
+    // Accordion functionality for mobile devices - only first 3 sections
+    function initializeAccordion() {
+      console.log('initializeAccordion called');
+      
+      const bookingSections = document.querySelectorAll('.booking-section');
+      console.log('Found booking sections:', bookingSections.length);
+      
+      // Function to check if we're on mobile
+      function isMobile() {
+        const mobile = window.innerWidth <= 767 || window.matchMedia('(max-width: 767px)').matches;
+        console.log('isMobile check:', mobile, 'window.innerWidth:', window.innerWidth);
+        return mobile;
       }
       
-      const priceLoading = document.getElementById('price-loading');
-      if (priceLoading) {
-        priceLoading.style.minHeight = '120px';
-        priceLoading.style.display = 'flex';
-        priceLoading.style.alignItems = 'center';
-        priceLoading.style.justifyContent = 'center';
+      // Function to apply mobile/desktop states
+      function applyResponsiveState() {
+        const mobile = isMobile();
+        console.log('Responsive state changed:', mobile ? 'mobile' : 'desktop');
+        
+        bookingSections.forEach((section, index) => {
+          console.log(`Processing section ${index + 1}:`, section);
+          // All sections expanded by default on both mobile and desktop
+          section.classList.remove('collapsed');
+          console.log(`Section ${index + 1} expanded`);
+        });
       }
       
-      const sendMessage = document.getElementById('send_message');
-      if (sendMessage) {
-        sendMessage.style.minHeight = '50px';
-        sendMessage.style.boxSizing = 'border-box';
-      }
-    });
+      bookingSections.forEach((section, index) => {
+        const title = section.querySelector('h5');
+        console.log(`Section ${index + 1} title:`, title);
+        
+        if (title && index < 3) { // Only first 3 sections
+          console.log(`Adding click listener to section ${index + 1}`);
+          title.addEventListener('click', function(e) {
+            console.log(`Section ${index + 1} clicked!`, e);
+            console.log(`Section ${index + 1} clicked, mobile:`, isMobile());
+            // Only toggle on mobile
+            if (isMobile()) {
+              const isCollapsed = section.classList.contains('collapsed');
+              console.log(`Section ${index + 1} isCollapsed:`, isCollapsed);
+              
+              // Toggle current section
+              if (isCollapsed) {
+                section.classList.remove('collapsed');
+                console.log(`Section ${index + 1} expanded`);
+              } else {
+                section.classList.add('collapsed');
+                console.log(`Section ${index + 1} collapsed`);
+              }
+            }
+          });
+        }
+      });
+      
+      // Apply initial state
+      console.log('Applying initial state...');
+      applyResponsiveState();
+      
+      // Handle window resize and orientation change
+      window.addEventListener('resize', function() {
+        console.log('Window resized');
+        applyResponsiveState();
+      });
+      window.addEventListener('orientationchange', function() {
+        console.log('Orientation changed');
+        applyResponsiveState();
+      });
+      
+      // Also listen for media query changes (for responsive mode)
+      const mediaQuery = window.matchMedia('(max-width: 767px)');
+      mediaQuery.addEventListener('change', function(e) {
+        console.log('Media query changed:', e.matches);
+        applyResponsiveState();
+      });
+    }
   });
   
+  // Function to show immediate price information
+  function showImmediatePriceInfo(car, lowestPrice) {
+    const priceContent = document.getElementById('price-content');
+    const priceLoading = document.getElementById('price-loading');
+    
+    if (priceContent && priceLoading) {
+      // Hide loading, show content
+      priceLoading.style.display = 'none';
+      priceContent.style.display = 'block';
+      
+      // Show basic price info immediately
+      priceContent.innerHTML = `
+        <div style="text-align: center; color: #333;">
+          <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #007bff;">
+            €${lowestPrice}/day
+          </div>
+          <div style="font-size: 12px; color: #666;">
+            <span data-i18n="cars.daily_rate"></span>
+          </div>
+          <div style="font-size: 11px; color: #999; margin-top: 6px;">
+            <i class="fa fa-info-circle"></i> 
+            Loading detailed breakdown...
+          </div>
+        </div>
+      `;
+      
+      // Update translations for the new content
+      if (typeof updateContent === 'function') {
+        updateContent();
+      }
+    }
+  }
+
   // Function to populate the price guide with car data
   function populatePriceGuide(car) {
-    const priceTiersDiv = document.getElementById('price-tiers');
-    if (priceTiersDiv && car.price_policy) {
+    // Populate main section price tiers
+    const priceTiersMainDiv = document.getElementById('price-tiers-main');
+    if (priceTiersMainDiv && car.price_policy) {
       const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
       
-      const tiersHTML = Object.entries(pricePolicy).map(([period, price]) => {
+      const mainTiersHTML = Object.entries(pricePolicy).map(([period, price]) => {
         const periodText = period === '1-2' ? '1-2 days' : 
                           period === '3-7' ? '3-7 days' : 
                           period === '8-20' ? '8-20 days' : 
@@ -1063,14 +1555,14 @@ console.log(car);
                           period === '46+' ? '46+ days' : period;
         
         return `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-            <span style="color: #666;">${periodText}</span>
-            <span style="font-weight: 600; color: #333;">€${price}/day</span>
+          <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #007bff; text-align: center; min-width: 80px; flex: 1;">
+            <div style="font-size: 11px; color: #666; margin-bottom: 3px; line-height: 1.2;">${periodText}</div>
+            <div style="font-size: 14px; font-weight: 700; color: #007bff; line-height: 1.2;">€${price}/day</div>
           </div>
         `;
       }).join('');
       
-      priceTiersDiv.innerHTML = tiersHTML;
+      priceTiersMainDiv.innerHTML = mainTiersHTML;
     }
   }
   </script>
@@ -1402,3 +1894,4 @@ header.smaller {
 </body>
 
 </html>
+

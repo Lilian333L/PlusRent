@@ -322,20 +322,11 @@ router.put('/:id/confirm', async (req, res) => {
       return res.status(500).json({ error: 'Failed to update booking status' });
     }
 
-    // Mark car as booked
-    const { error: carUpdateError } = await supabaseAdmin
-      .from('cars')
-      .update({ 
-        booked: true, 
-        booked_until: booking.return_date,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', booking.car_id);
+    // Note: We no longer update the booked_until field since availability is calculated dynamically
+    // The car's availability will be determined by checking all bookings (pending + confirmed)
+    // when the cars API is called
 
-    if (carUpdateError) {
-      console.error('❌ Error updating car status:', carUpdateError);
-      return res.status(500).json({ error: 'Failed to update car status' });
-    }
+    // No longer updating car status since availability is calculated dynamically
 
     // Insert into booked_cars table for active rentals tracking
     const bookedCarData = {
@@ -432,21 +423,9 @@ router.put('/:id/cancel', async (req, res) => {
       return res.status(500).json({ error: 'Failed to cancel booking' });
     }
 
-    // If booking was confirmed, free up the car
+    // If booking was confirmed, remove from booked_cars table
+    // Note: We no longer update the car's booked_until field since availability is calculated dynamically
     if (booking.status === 'confirmed') {
-      // Mark car as available
-      const { error: carUpdateError } = await supabaseAdmin
-        .from('cars')
-        .update({ 
-          booked: false, 
-          booked_until: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', booking.car_id);
-
-      if (carUpdateError) {
-        console.error('❌ Error updating car status:', carUpdateError);
-      }
 
       // Remove from booked_cars table
       const { error: bookedCarError } = await supabaseAdmin

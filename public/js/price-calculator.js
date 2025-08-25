@@ -208,10 +208,17 @@ class PriceCalculator {
 
   // Update the price display
   updatePriceDisplay(priceData) {
-    const priceContainer = document.getElementById('price-breakdown');
+    const priceContainer = document.getElementById('price-content');
     const loadingElement = document.getElementById('price-loading');
     
-    if (!priceContainer) return;
+    console.log('updatePriceDisplay called with:', priceData);
+    console.log('priceContainer found:', !!priceContainer);
+    console.log('loadingElement found:', !!loadingElement);
+    
+    if (!priceContainer) {
+      console.error('price-content element not found!');
+      return;
+    }
 
     // Hide loading state
     if (loadingElement) {
@@ -220,10 +227,41 @@ class PriceCalculator {
 
     // Check if we have valid data
     if (!priceData || priceData.totalPrice === 0) {
-      priceContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">Please fill in the dates and times to see the price breakdown</div>';
+      let message = typeof i18next !== 'undefined' ? i18next.t('cars.please_fill_dates') : 'Please fill in the dates and times to see the price breakdown';
+      let messageStyle = 'color: #666; background: white; border: 1px solid #ddd;';
+      
+      // Show specific error message if provided
+      if (priceData.error) {
+        message = priceData.error;
+        messageStyle = 'color: #dc3545; background: #f8d7da; border: 1px solid #f5c6cb;';
+      }
+      
+      // Show specific message if provided (not an error)
+      if (priceData.message) {
+        message = priceData.message;
+        messageStyle = 'color: #666; background: white; border: 1px solid #ddd;';
+      }
+      
+      priceContainer.innerHTML = `<div style="text-align: center; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); ${messageStyle}">${message}</div>`;
       return;
     }
 
+    const t = (key) => {
+      const fallbackTranslations = {
+        'cars.price_breakdown': 'Price Breakdown',
+        'cars.price_per_day': 'Price per day',
+        'cars.total_days': 'Total days',
+        'cars.pickup': 'Pickup',
+        'cars.dropoff': 'Dropoff',
+        'cars.insurance': 'Insurance',
+        'cars.total_price': 'Total price',
+        'cars.please_fill_dates': 'Please fill in the dates and times to see the price breakdown',
+        'cars.chisinau_airport': 'Chisinau Airport',
+        'cars.iasi_airport': 'Iasi Airport'
+      };
+      return fallbackTranslations[key] || key;
+    };
+    
     let html = '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">';
     html += '<h5 style="margin-bottom: 15px; color: #333;">Price Breakdown</h5>';
 
@@ -237,12 +275,14 @@ class PriceCalculator {
     
     if (pickupLocation !== 'Our Office') {
       const pickupFee = pickupLocation === 'Chisinau Airport' ? 25 : 35;
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Pickup: ${pickupLocation}</span><span>${pickupFee}€</span></div>`;
+      const locationName = pickupLocation === 'Chisinau Airport' ? 'Chisinau Airport' : 'Iasi Airport';
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Pickup: ${locationName}</span><span>${pickupFee}€</span></div>`;
     }
     
     if (dropoffLocation !== 'Our Office') {
       const dropoffFee = dropoffLocation === 'Chisinau Airport' ? 25 : 35;
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Dropoff: ${dropoffLocation}</span><span>${dropoffFee}€</span></div>`;
+      const locationName = dropoffLocation === 'Chisinau Airport' ? 'Chisinau Airport' : 'Iasi Airport';
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Dropoff: ${locationName}</span><span>${dropoffFee}€</span></div>`;
     }
     
     // Add breakdown items that have costs
@@ -429,7 +469,7 @@ class PriceCalculator {
 
   // Show loading state
   showLoading() {
-    const priceContainer = document.getElementById('price-breakdown');
+    const priceContainer = document.getElementById('price-content');
     const loadingElement = document.getElementById('price-loading');
     
     if (priceContainer && loadingElement) {
@@ -455,6 +495,7 @@ class PriceCalculator {
 
   // Recalculate price based on current form values
   async recalculatePrice() {
+    console.log('recalculatePrice called');
     try {
       const pickupDateInput = document.getElementById('date-picker');
       const returnDateInput = document.getElementById('date-picker-2');
@@ -496,21 +537,32 @@ class PriceCalculator {
       // Validate dates
       if (!pickupDate || !returnDate) {
         console.log('Missing dates, showing default message');
-        this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
+        this.updatePriceDisplay({ 
+          totalPrice: 0, 
+          breakdown: [],
+          message: 'Please select both pickup and return dates to see pricing'
+        });
         return;
       }
 
       const pickupDateTime = new Date(`${pickupDate}T${pickupTime}`);
       const returnDateTime = new Date(`${returnDate}T${returnTime}`);
 
-      if (pickupDateTime >= returnDateTime) {
-        this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
-        return;
-      }
+      // No validation here - let the booking form handle validation
+      console.log('Proceeding with calculation');
 
-      // Calculate rental days - fix the calculation
-      const timeDiff = returnDateTime.getTime() - pickupDateTime.getTime();
-      const rentalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      // Calculate rental days - handle edge cases
+      let rentalDays = 0;
+      
+      if (pickupDate && returnDate) {
+        const timeDiff = returnDateTime.getTime() - pickupDateTime.getTime();
+        rentalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        
+        // Ensure minimum 1 day rental
+        if (rentalDays <= 0) {
+          rentalDays = 1;
+        }
+      }
       
       console.log('Date calculation:', {
         pickupDate,
@@ -519,18 +571,25 @@ class PriceCalculator {
         returnTime,
         pickupDateTime: pickupDateTime.toISOString(),
         returnDateTime: returnDateTime.toISOString(),
-        timeDiff,
+        timeDiff: pickupDate && returnDate ? returnDateTime.getTime() - pickupDateTime.getTime() : 0,
         rentalDays
       });
 
-      if (rentalDays <= 0) {
-        this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
-        return;
-      }
-
       // Get base price based on rental days
+      console.log('Car data available:', !!this.car);
+      console.log('Car price policy:', this.car?.price_policy);
+      console.log('Rental days:', rentalDays);
+      
       let basePrice = 0;
-      if (rentalDays >= 1 && rentalDays <= 2) {
+      if (rentalDays === 0) {
+        // No dates selected or invalid dates - show default message
+        this.updatePriceDisplay({ 
+          totalPrice: 0, 
+          breakdown: [],
+          message: 'Please select both pickup and return dates to see pricing'
+        });
+        return;
+      } else if (rentalDays >= 1 && rentalDays <= 2) {
         basePrice = this.car.price_policy['1-2'] || 0;
       } else if (rentalDays >= 3 && rentalDays <= 7) {
         basePrice = this.car.price_policy['3-7'] || 0;
@@ -541,6 +600,8 @@ class PriceCalculator {
       } else {
         basePrice = this.car.price_policy['46+'] || 0;
       }
+      
+      console.log('Selected base price:', basePrice);
 
       // Calculate total base price
       const totalBasePrice = basePrice * rentalDays;
