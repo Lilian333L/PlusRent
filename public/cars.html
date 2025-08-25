@@ -687,7 +687,6 @@
 
 .option-label.disabled-text {
   color: #999;
-  text-decoration: line-through;
 }
 
 .option-count.disabled-count {
@@ -1109,7 +1108,7 @@ async function fetchAndRenderCars() {
   const cars = await res.json();
   if (!cars.length) {
     carListDiv.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
-    renderSidebarOptions([]); // This will now be handled by renderSidebarOptions
+    renderSidebarOptions(allCarsFullCache); // Always use the full cache to keep all filter options visible
     return;
   }
   carListDiv.innerHTML = cars.map(car => {

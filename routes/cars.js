@@ -506,7 +506,7 @@ router.get('/booking/available', async (req, res) => {
           display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
           // For backward compatibility with existing select options
           value: `${car.make_name} ${car.model_name}`,
-          data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
+          data_src: car.head_image ? (car.head_image.startsWith('http') ? car.head_image : `${req.protocol}://${req.get('host')}${car.head_image}`) : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
         };
       });
       
@@ -556,7 +556,7 @@ router.get('/booking/available', async (req, res) => {
         display_name: `${car.make_name} ${car.model_name} - $${dailyPrice}`,
         // For backward compatibility with existing select options
         value: `${car.make_name} ${car.model_name}`,
-        data_src: car.head_image ? `${req.protocol}://${req.get('host')}${car.head_image}` : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
+        data_src: car.head_image ? (car.head_image.startsWith('http') ? car.head_image : `${req.protocol}://${req.get('host')}${car.head_image}`) : `images/cars-alt/${car.make_name.toLowerCase()}-${car.model_name.toLowerCase().replace(/\s+/g, '-')}.png`
       };
     });
     
