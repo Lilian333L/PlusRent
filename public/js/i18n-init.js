@@ -97,6 +97,7 @@ function updateContent() {
   });
   
   updateLangPickerUI();
+  highlightAboutOffer();
 }
 
 function updateLangPickerUI() {
@@ -137,6 +138,7 @@ function setupI18nEvents() {
     updateContent();
     localStorage.setItem('lang', i18next.language);
     updateLangPickerUI();
+    highlightAboutOffer();
     
     // Send language change message to spinning wheel iframe
     const wheelIframe = document.querySelector('.wheel-container iframe');
@@ -405,6 +407,37 @@ function loadFallbackTranslations(lang) {
         }
       });
     }
+  }
+}
+
+// Function to handle About Us page offer text translation and highlighting
+function highlightAboutOffer() {
+  const aboutOfferH2 = document.querySelector('h2:not([data-i18n])');
+  if (aboutOfferH2 && aboutOfferH2.textContent.includes('We offer customers')) {
+    const currentLang = i18next.language || 'ro';
+    
+    let offerText, commercialCars, luxuryCars;
+    
+    if (currentLang === 'ro') {
+      offerText = 'Oferim clienților o gamă largă de mașini comerciale și mașini de lux pentru orice ocazie.';
+      commercialCars = 'mașini comerciale';
+      luxuryCars = 'mașini de lux';
+    } else if (currentLang === 'ru') {
+      offerText = 'Мы предлагаем клиентам широкий выбор коммерческих автомобилей и автомобилей класса люкс для любого случая.';
+      commercialCars = 'коммерческих автомобилей';
+      luxuryCars = 'автомобилей класса люкс';
+    } else {
+      offerText = 'We offer customers a wide range of commercial cars and luxury cars for any occasion.';
+      commercialCars = 'commercial cars';
+      luxuryCars = 'luxury cars';
+    }
+    
+    // Replace the text with highlighted versions
+    let highlightedText = offerText
+      .replace(commercialCars, `<span class="id-color">${commercialCars}</span>`)
+      .replace(luxuryCars, `<span class="id-color">${luxuryCars}</span>`);
+    
+    aboutOfferH2.innerHTML = highlightedText;
   }
 }
 
