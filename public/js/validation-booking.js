@@ -877,76 +877,50 @@ function showModalSuccessMessage(message) {
 window.showSuccess = function(bookingData) {
     console.log('🔍 showSuccess called with booking data:', bookingData);
     
-    // Create a professional success modal
+    // Create a clean, modern success modal
     const successModalHTML = `
         <div id="booking-success-modal" class="booking-success-modal">
             <div class="success-modal-content">
                 <div class="success-modal-header">
-                    <div class="success-icon-container">
-                        <div class="success-checkmark">
-                            <div class="check-icon">
-                                <span class="icon-line line-tip"></span>
-                                <span class="icon-line line-long"></span>
-                                <div class="icon-circle"></div>
-                                <div class="icon-fix"></div>
-                            </div>
-                        </div>
+                    <div class="success-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="24" fill="#28a745"/>
+                            <path d="M20 32L14 26L15.4 24.6L20 29.2L32.6 16.6L34 18L20 32Z" fill="white"/>
+                        </svg>
                     </div>
-                    <h2 class="success-title">🎉 Congratulations!</h2>
+                    <h2 class="success-title">Booking Confirmed!</h2>
                     <p class="success-subtitle">Your booking has been submitted successfully</p>
                 </div>
                 
                 <div class="success-modal-body">
                     <div class="booking-summary-card">
-                        <h4>📋 Booking Summary</h4>
-                        <div class="summary-grid">
-                            <div class="summary-item">
-                                <span class="summary-label">🚗 Vehicle:</span>
-                                <span class="summary-value">${$('#vehicle_type option:selected').text()}</span>
+                        <div class="summary-compact">
+                            <div class="summary-main">
+                                <div class="vehicle-info">
+                                    <span class="vehicle-name">${$('#vehicle_type option:selected').text()}</span>
+                                    <span class="customer-name">${bookingData.customer_name}</span>
+                                </div>
+                                <div class="booking-dates">
+                                    <span class="date-range">${bookingData.pickup_date} - ${bookingData.return_date}</span>
+                                    <span class="time-range">${bookingData.pickup_time} - ${bookingData.return_time}</span>
+                                </div>
+                                <div class="location-info">
+                                    <span class="location-text">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
+                                </div>
                             </div>
-                            <div class="summary-item">
-                                <span class="summary-label">👤 Customer:</span>
-                                <span class="summary-value">${bookingData.customer_name}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📧 Email:</span>
-                                <span class="summary-value">${bookingData.customer_email}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📞 Phone:</span>
-                                <span class="summary-value">${bookingData.customer_phone}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📅 Pickup:</span>
-                                <span class="summary-value">${bookingData.pickup_date} at ${bookingData.pickup_time}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📅 Return:</span>
-                                <span class="summary-value">${bookingData.return_date} at ${bookingData.return_time}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📍 Pickup Location:</span>
-                                <span class="summary-value">${bookingData.pickup_location}</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">📍 Dropoff Location:</span>
-                                <span class="summary-value">${bookingData.dropoff_location}</span>
-                            </div>
-                            <div class="summary-item total-price">
-                                <span class="summary-label">💰 Total Price:</span>
-                                <span class="summary-value">€${bookingData.total_price}</span>
+                            <div class="price-highlight">
+                                <span class="price-label">Total Price</span>
+                                <span class="price-value">€${bookingData.total_price}</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="next-steps">
-                        <h5>📝 What happens next?</h5>
-                        <ul>
-                            <li>✅ We'll review your booking within 24 hours</li>
-                            <li>📞 You'll receive a confirmation call or email</li>
-                            <li>🚗 Your vehicle will be prepared for pickup</li>
-                            <li>🎯 Enjoy your rental experience!</li>
-                        </ul>
+                    <div class="next-steps-compact">
+                        <div class="steps-icon">📞</div>
+                        <div class="steps-content">
+                            <h5>Next Steps</h5>
+                            <p>We'll contact you within 24 hours to confirm your booking</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -955,7 +929,7 @@ window.showSuccess = function(bookingData) {
                         <i class="fa fa-check"></i> Got it!
                     </button>
                     <button class="btn-success-secondary" onclick="location.reload()">
-                        <i class="fa fa-plus"></i> Book Another Vehicle
+                        <i class="fa fa-plus"></i> Book Another
                     </button>
                 </div>
             </div>
@@ -965,7 +939,7 @@ window.showSuccess = function(bookingData) {
     // Add the modal to the page
     $('body').append(successModalHTML);
     
-    // Add CSS for the success modal
+    // Add CSS for the clean success modal
     const successModalCSS = `
         <style>
             .booking-success-modal {
@@ -984,238 +958,180 @@ window.showSuccess = function(bookingData) {
             }
             
             .success-modal-content {
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                border-radius: 20px;
+                background: #ffffff;
+                border-radius: 16px;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                max-width: 600px;
+                max-width: 480px;
                 width: 90%;
-                max-height: 90vh;
+                max-height: 85vh;
                 overflow-y: auto;
                 animation: slideIn 0.4s ease-out;
             }
             
             .success-modal-header {
                 text-align: center;
-                padding: 30px 30px 20px;
+                padding: 32px 24px 24px;
                 background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
                 color: white;
-                border-radius: 20px 20px 0 0;
-            }
-            
-            .success-icon-container {
-                margin-bottom: 20px;
-            }
-            
-            .success-checkmark {
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
-                display: block;
-                stroke-width: 2;
-                stroke: #fff;
-                stroke-miterlimit: 10;
-                margin: 0 auto;
-                box-shadow: inset 0px 0px 0px #28a745;
-                animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-            }
-            
-            .check-icon {
-                width: 80px;
-                height: 80px;
+                border-radius: 16px 16px 0 0;
                 position: relative;
-                border-radius: 50%;
-                box-sizing: content-box;
-                border: 4px solid #fff;
             }
             
-            .check-icon::before {
-                top: 3px;
-                left: -2px;
-                width: 30px;
-                transform-origin: 100% 50%;
-                border-radius: 100px 0 0 100px;
+            .success-icon {
+                margin-bottom: 16px;
+                animation: iconBounce 0.6s ease-out;
             }
             
-            .check-icon::after {
-                top: 0;
-                left: 30px;
-                width: 60px;
-                transform-origin: 0 50%;
-                border-radius: 0 100px 100px 0;
-                animation: rotate-circle 4.25s ease-in;
-            }
-            
-            .check-icon::before, .check-icon::after {
-                content: '';
-                height: 100px;
-                position: absolute;
-                background: #28a745;
-                transform: rotate(-45deg);
-            }
-            
-            .icon-line {
-                height: 5px;
-                background-color: #fff;
-                display: block;
-                border-radius: 2px;
-                position: absolute;
-                z-index: 10;
-            }
-            
-            .icon-line.line-tip {
-                top: 46px;
-                left: 14px;
-                width: 25px;
-                transform: rotate(45deg);
-                animation: icon-line-tip 0.75s;
-            }
-            
-            .icon-line.line-long {
-                top: 38px;
-                right: 8px;
-                width: 47px;
-                transform: rotate(-45deg);
-                animation: icon-line-long 0.75s;
-            }
-            
-            .icon-circle {
-                top: -4px;
-                left: -4px;
-                z-index: 10;
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
-                position: absolute;
-                box-sizing: content-box;
-                border: 4px solid rgba(255, 255, 255, 0.5);
-            }
-            
-            .icon-fix {
-                top: 8px;
-                width: 5px;
-                height: 90px;
-                z-index: 1;
-                border-radius: 2px;
-                position: absolute;
-                background-color: #28a745;
-                transform: rotate(-45deg);
-                left: 30px;
+            .success-icon svg {
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
             }
             
             .success-title {
-                font-size: 2.5rem;
+                font-size: 1.75rem;
                 font-weight: 700;
-                margin: 0 0 10px;
+                margin: 0 0 8px;
                 text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
             
             .success-subtitle {
-                font-size: 1.1rem;
+                font-size: 0.95rem;
                 margin: 0;
-                opacity: 0.9;
+                opacity: 0.95;
+                font-weight: 400;
             }
             
             .success-modal-body {
-                padding: 30px;
+                padding: 24px;
             }
             
             .booking-summary-card {
                 background: #f8f9fa;
-                border-radius: 15px;
-                padding: 25px;
-                margin-bottom: 25px;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 20px;
                 border: 1px solid #e9ecef;
             }
             
-            .booking-summary-card h4 {
-                color: #495057;
-                margin-bottom: 20px;
-                font-weight: 600;
+            .summary-compact {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
             }
             
-            .summary-grid {
-                display: grid;
-                grid-template-columns: 1fr;
+            .summary-main {
+                display: flex;
+                flex-direction: column;
                 gap: 12px;
             }
             
-            .summary-item {
+            .vehicle-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .vehicle-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #495057;
+            }
+            
+            .customer-name {
+                font-size: 0.95rem;
+                color: #6c757d;
+                font-weight: 500;
+            }
+            
+            .booking-dates {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .date-range {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #495057;
+            }
+            
+            .time-range {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .location-info {
+                margin-top: 4px;
+            }
+            
+            .location-text {
+                font-size: 0.9rem;
+                color: #495057;
+                font-weight: 500;
+            }
+            
+            .price-highlight {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                padding: 16px;
+                border-radius: 8px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 8px 0;
-                border-bottom: 1px solid #e9ecef;
-            }
-            
-            .summary-item:last-child {
-                border-bottom: none;
-            }
-            
-            .summary-item.total-price {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                margin-top: 10px;
                 font-weight: 600;
+            }
+            
+            .price-label {
+                font-size: 0.9rem;
+            }
+            
+            .price-value {
                 font-size: 1.1rem;
             }
             
-            .summary-label {
-                font-weight: 600;
-                color: #495057;
-            }
-            
-            .summary-value {
-                color: #6c757d;
-                text-align: right;
-                max-width: 60%;
-                word-wrap: break-word;
-            }
-            
-            .summary-item.total-price .summary-label,
-            .summary-item.total-price .summary-value {
-                color: white;
-            }
-            
-            .next-steps {
+            .next-steps-compact {
                 background: #e8f5e8;
-                border-radius: 15px;
-                padding: 20px;
+                border-radius: 12px;
+                padding: 16px;
                 border-left: 4px solid #28a745;
+                display: flex;
+                align-items: center;
+                gap: 12px;
             }
             
-            .next-steps h5 {
+            .steps-icon {
+                font-size: 1.4rem;
+                flex-shrink: 0;
+            }
+            
+            .steps-content h5 {
                 color: #28a745;
-                margin-bottom: 15px;
+                margin: 0 0 4px 0;
                 font-weight: 600;
+                font-size: 0.95rem;
             }
             
-            .next-steps ul {
+            .steps-content p {
                 margin: 0;
-                padding-left: 20px;
-            }
-            
-            .next-steps li {
-                margin-bottom: 8px;
                 color: #495057;
+                font-size: 0.85rem;
+                line-height: 1.4;
             }
             
             .success-modal-footer {
-                padding: 20px 30px 30px;
+                padding: 20px 24px 24px;
                 text-align: center;
                 display: flex;
-                gap: 15px;
+                gap: 12px;
                 justify-content: center;
                 flex-wrap: wrap;
             }
             
             .btn-success-primary, .btn-success-secondary {
-                padding: 12px 30px;
+                padding: 12px 24px;
                 border: none;
-                border-radius: 25px;
+                border-radius: 8px;
                 font-weight: 600;
-                font-size: 1rem;
+                font-size: 0.9rem;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 text-decoration: none;
@@ -1255,7 +1171,7 @@ window.showSuccess = function(bookingData) {
             @keyframes slideIn {
                 from { 
                     opacity: 0;
-                    transform: translateY(-50px) scale(0.9);
+                    transform: translateY(-30px) scale(0.95);
                 }
                 to { 
                     opacity: 1;
@@ -1263,69 +1179,109 @@ window.showSuccess = function(bookingData) {
                 }
             }
             
-            @keyframes fill {
-                100% { box-shadow: inset 0px 0px 0px 30px #28a745; }
-            }
-            
-            @keyframes scale {
-                0%, 100% { transform: none; }
-                50% { transform: scale3d(1.1, 1.1, 1); }
-            }
-            
-            @keyframes icon-line-tip {
-                0% { width: 0; left: 1px; top: 19px; }
-                54% { width: 0; left: 1px; top: 19px; }
-                70% { width: 65px; left: -8px; top: 37px; }
-                84% { width: 17px; left: 21px; top: 48px; }
-                100% { width: 25px; left: 14px; top: 46px; }
-            }
-            
-            @keyframes icon-line-long {
-                0% { width: 0; right: 46px; top: 54px; }
-                65% { width: 0; right: 46px; top: 54px; }
-                84% { width: 55px; right: 0px; top: 35px; }
-                100% { width: 47px; right: 8px; top: 38px; }
-            }
-            
-            @keyframes rotate-circle {
-                0% { transform: rotate(-45deg); }
-                5% { transform: rotate(-45deg); }
-                12% { transform: rotate(-405deg); }
-                100% { transform: rotate(-405deg); }
+            @keyframes iconBounce {
+                0% { 
+                    transform: scale(0.3);
+                    opacity: 0;
+                }
+                50% { 
+                    transform: scale(1.1);
+                }
+                100% { 
+                    transform: scale(1);
+                    opacity: 1;
+                }
             }
             
             @media (max-width: 768px) {
                 .success-modal-content {
                     width: 95%;
-                    margin: 20px;
+                    margin: 10px;
+                    max-height: 90vh;
+                }
+                
+                .success-modal-header {
+                    padding: 24px 20px 20px;
+                }
+                
+                .success-icon svg {
+                    width: 40px;
+                    height: 40px;
                 }
                 
                 .success-title {
-                    font-size: 2rem;
+                    font-size: 1.5rem;
                 }
                 
-                .summary-grid {
-                    grid-template-columns: 1fr;
+                .success-subtitle {
+                    font-size: 0.9rem;
                 }
                 
-                .summary-item {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 5px;
+                .success-modal-body {
+                    padding: 20px;
                 }
                 
-                .summary-value {
-                    max-width: 100%;
-                    text-align: left;
+                .booking-summary-card {
+                    padding: 16px;
+                    margin-bottom: 16px;
+                }
+                
+                .vehicle-name {
+                    font-size: 1rem;
+                }
+                
+                .customer-name {
+                    font-size: 0.9rem;
+                }
+                
+                .date-range {
+                    font-size: 0.9rem;
+                }
+                
+                .time-range {
+                    font-size: 0.8rem;
+                }
+                
+                .location-text {
+                    font-size: 0.85rem;
+                }
+                
+                .price-highlight {
+                    padding: 14px;
+                }
+                
+                .price-value {
+                    font-size: 1rem;
+                }
+                
+                .next-steps-compact {
+                    padding: 14px;
+                    gap: 10px;
+                }
+                
+                .steps-icon {
+                    font-size: 1.2rem;
+                }
+                
+                .steps-content h5 {
+                    font-size: 0.9rem;
+                }
+                
+                .steps-content p {
+                    font-size: 0.8rem;
                 }
                 
                 .success-modal-footer {
+                    padding: 16px 20px 20px;
                     flex-direction: column;
+                    gap: 10px;
                 }
                 
                 .btn-success-primary, .btn-success-secondary {
                     width: 100%;
                     justify-content: center;
+                    padding: 14px 20px;
+                    font-size: 0.9rem;
                 }
             }
         </style>
