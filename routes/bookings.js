@@ -23,16 +23,23 @@ router.post('/', async (req, res) => {
     price_breakdown,
     customer_name,
     customer_email,
-    customer_phone
+    customer_phone,
+    customer_age
   } = req.body;
 
   console.log('📝 Booking request received:', req.body);
 
   // Validate required fields
   if (!car_id || !pickup_date || !pickup_time || !return_date || !return_time || 
-      !insurance_type || !pickup_location || !dropoff_location) {
-    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, insurance_type, pickup_location, dropoff_location });
+      !insurance_type || !pickup_location || !dropoff_location || !customer_age) {
+    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, insurance_type, pickup_location, dropoff_location, customer_age });
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Validate age
+  const age = parseInt(customer_age);
+  if (isNaN(age) || age < 18 || age > 100) {
+    return res.status(400).json({ error: 'Age must be between 18 and 100 years' });
   }
 
   // Validate dates
@@ -132,6 +139,7 @@ router.post('/', async (req, res) => {
       customer_name: customer_name || contact_person || 'Not provided',
       customer_email: customer_email || 'Not provided',
       customer_phone: customer_phone || contact_phone || 'Not provided',
+      customer_age: customer_age || null,
       status: 'pending',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -159,6 +167,7 @@ router.post('/', async (req, res) => {
         contact_person: customer_name || contact_person || 'Not provided',
         contact_phone: customer_phone || contact_phone || 'Not provided',
         email: customer_email || 'Not provided',
+        age: customer_age || 'Not provided',
         make_name: car.make_name,
         model_name: car.model_name,
         production_year: car.production_year,
@@ -234,6 +243,44 @@ router.get('/', async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch bookings' });
     }
 
+    // Auto-mark confirmed bookings as finished if return date has passed
+    const now = new Date();
+    const bookingsToUpdate = [];
+    
+    for (const booking of bookings) {
+      if (booking.status === 'confirmed') {
+        const returnDateTime = new Date(`${booking.return_date}T${booking.return_time || '23:59'}`);
+        if (returnDateTime < now) {
+          bookingsToUpdate.push(booking.id);
+        }
+      }
+    }
+    
+    // Update bookings to finished status
+    if (bookingsToUpdate.length > 0) {
+      console.log(`🔄 Auto-marking ${bookingsToUpdate.length} bookings as finished`);
+      const { error: updateError } = await supabaseAdmin
+        .from('bookings')
+        .update({ 
+          status: 'finished',
+          updated_at: new Date().toISOString() 
+        })
+        .in('id', bookingsToUpdate);
+      
+      if (updateError) {
+        console.error('❌ Error auto-marking bookings as finished:', updateError);
+      } else {
+        console.log(`✅ Successfully marked ${bookingsToUpdate.length} bookings as finished`);
+        
+        // Update the local bookings array to reflect the status change
+        bookings.forEach(booking => {
+          if (bookingsToUpdate.includes(booking.id)) {
+            booking.status = 'finished';
+          }
+        });
+      }
+    }
+
     console.log(`✅ Found ${bookings.length} bookings`);
     res.json(bookings);
 
@@ -250,8 +297,8 @@ router.put('/:id/status', async (req, res) => {
   
   console.log(`📝 Updating booking ${id} status to: ${status}`);
 
-  if (!status || !['pending', 'confirmed', 'cancelled', 'completed', 'rejected'].includes(status)) {
-    return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, completed, or rejected' });
+  if (!status || !['pending', 'confirmed', 'cancelled', 'completed', 'rejected', 'finished'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, completed, rejected, or finished' });
   }
 
   try {

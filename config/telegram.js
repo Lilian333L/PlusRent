@@ -108,6 +108,7 @@ class TelegramNotifier {
 • Name: ${bookingData.contact_person || 'Not provided'}
 • Phone: ${bookingData.contact_phone || 'Not provided'}
 • Email: ${bookingData.email || 'Not provided'}
+• Age: ${bookingData.age || 'Not provided'}
 
 <b>Car Details:</b>
 • Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})

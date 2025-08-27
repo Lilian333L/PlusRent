@@ -147,23 +147,25 @@
   }
   .admin-flex-row {
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
+    gap: 32px;
     justify-content: flex-start;
     width: 100%;
   }
   .admin-btn-col {
-    width: 100%;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    min-width: 180px;
     margin-top: 0.5rem;
     margin-right: 0;
   }
   .admin-form-col {
-    width: 100%;
+    flex: 1 1 0;
     position: relative;
+    min-width: 340px;
+    max-width: 1100px;
   }
   .admin-form-panel {
     display: none;
@@ -429,9 +431,8 @@
   }
   .admin-flex-row {
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
+    gap: 32px;
     justify-content: flex-start;
     width: 100%;
   }
@@ -784,37 +785,13 @@
     
     /* Fix booking cards overflow */
     .booking-card {
-      margin: 0 0 15px 0;
+      margin: 0;
       width: 100%;
       overflow-x: hidden;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .booking-card .card-body {
-      padding: 12px;
-    }
-    
-    /* Make booking cards more compact */
-    .booking-card .card-title {
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-    
-    .booking-card .card-text {
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    
-    .booking-card .badge {
-      font-size: 11px;
-      padding: 4px 8px;
-    }
-    
-    .booking-card .btn {
-      font-size: 12px;
-      padding: 6px 12px;
-      margin: 2px;
+      padding: 15px;
     }
     
     /* Make booking details stack vertically */
@@ -888,109 +865,6 @@
   .admin-tab-content.active {
     display: block;
   }
-  
-  /* Compact layout for booking management */
-  #bookings-tab .admin-flex-row {
-    gap: 15px;
-  }
-  
-  #bookings-tab .admin-btn-col {
-    margin-bottom: 5px;
-  }
-  
-  #bookings-tab .admin-btn-col h6 {
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-  
-  #bookings-tab .btn-group-sm .btn {
-    font-size: 11px;
-    padding: 3px 6px;
-  }
-  
-  #bookingsList {
-    margin-top: 5px;
-  }
-  
-  #bookingsList .row {
-    margin: 0;
-  }
-  
-  #bookingsList .col-md-6 {
-    padding: 0 5px;
-  }
-  
-  /* Responsive grid adjustments */
-  @media (min-width: 1200px) {
-    #bookingsList .row {
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-  }
-  
-  @media (min-width: 1400px) {
-    #bookingsList .row {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-  }
-  
-  @media (max-width: 768px) {
-    #bookingsList .row {
-      grid-template-columns: 1fr;
-    }
-    
-    .admin-flex-row {
-      flex-direction: column;
-    }
-    
-    .admin-btn-col {
-      flex: none;
-      width: 100%;
-    }
-  }
-  
-  /* Make booking cards display in a more horizontal grid */
-  #bookingsList .row {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 15px;
-    margin: 0;
-  }
-  
-  #bookingsList .col-md-6 {
-    width: 100%;
-    padding: 0;
-  }
-  
-  /* Make booking cards more compact */
-  .booking-card {
-    height: fit-content;
-    margin: 0;
-  }
-  
-  .booking-card .card-body {
-    padding: 10px;
-  }
-  
-  .booking-card .card-title {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  
-  .booking-card .card-text {
-    font-size: 12px;
-    margin-bottom: 4px;
-  }
-  
-  .booking-card .badge {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
-  
-  .booking-card .btn {
-    font-size: 11px;
-    padding: 4px 8px;
-    margin: 1px;
-  }
 
   .spinning-wheel-tab {
     width: 90%;
@@ -1058,48 +932,6 @@
   .btn-cancel:active {
     transform: scale(0.95);
     background: #ffc107 !important;
-  }
-  
-  /* Enhanced Rental Completed Badge */
-  .rental-completed-badge {
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .rental-completed-badge::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-  }
-  
-  .rental-completed-badge:hover::before {
-    left: 100%;
-  }
-  
-  .rental-completed-badge:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
-  }
-  
-  .rental-completed-badge i {
-    animation: pulse-glow 2s infinite;
-  }
-  
-  @keyframes pulse-glow {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-    }
   }
   
   /* Loading Animation */
@@ -2573,39 +2405,33 @@
                 <div id="bookings-tab" class="admin-tab-content">
                   <div class="admin-flex-row">
                     <div class="admin-btn-col">
-                      <h6 class="mb-1">Booking Management</h6>
-                      <p class="text-muted small mb-2">Manage all booking requests and their status</p>
+                      <h4>Booking Management</h4>
+                      <p class="text-muted">Manage all booking requests and their status</p>
                       
                       <!-- Status Filter Buttons -->
-                      <div class="mb-3">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Booking status filter" style="flex-wrap: wrap; gap: 2px;">
-                          <button type="button" class="btn btn-outline-primary" onclick="loadAllBookings('all')" style="font-size: 11px; padding: 3px 6px;">
+                      <div class="mb-4">
+                        <div class="btn-group" role="group" aria-label="Booking status filter">
+                          <button type="button" class="btn btn-outline-primary" onclick="loadAllBookings('all')">
                             <i class="fa fa-list"></i> All
                           </button>
-                          <button type="button" class="btn btn-outline-warning" onclick="loadAllBookings('pending')" style="font-size: 11px; padding: 3px 6px;">
+                          <button type="button" class="btn btn-outline-warning" onclick="loadAllBookings('pending')">
                             <i class="fa fa-clock-o"></i> Pending
                           </button>
-                          <button type="button" class="btn btn-outline-success" onclick="loadAllBookings('confirmed')" style="font-size: 11px; padding: 3px 6px;">
+                          <button type="button" class="btn btn-outline-success" onclick="loadAllBookings('confirmed')">
                             <i class="fa fa-check"></i> Confirmed
                           </button>
-                          <button type="button" class="btn btn-outline-danger" onclick="loadAllBookings('cancelled')" style="font-size: 11px; padding: 3px 6px;">
+                          <button type="button" class="btn btn-outline-danger" onclick="loadAllBookings('cancelled')">
                             <i class="fa fa-ban"></i> Cancelled
                           </button>
-                                              <button type="button" class="btn btn-outline-secondary" onclick="loadAllBookings('rejected')" style="font-size: 11px; padding: 3px 6px;">
-                      <i class="fa fa-times"></i> Rejected
-                    </button>
-                    <button type="button" class="btn btn-outline-info" onclick="loadAllBookings('finished')" style="font-size: 11px; padding: 3px 6px;">
-                      <i class="fa fa-flag-checkered"></i> Finished
-                    </button>
+                          <button type="button" class="btn btn-outline-secondary" onclick="loadAllBookings('rejected')">
+                            <i class="fa fa-times"></i> Rejected
+                          </button>
                         </div>
                       </div>
                     </div>
                     <div class="admin-form-col">
-                      <div id="bookingsList" class="row g-3">
+                      <div id="bookingsList" class="row g-4">
                         <!-- Bookings will be loaded here -->
-                      </div>
-                      <div id="paginationControls">
-                        <!-- Pagination controls will be loaded here -->
                       </div>
                     </div>
                   </div>
@@ -3076,45 +2902,19 @@
       }, 3000);
     }
 
-    // Global variables for pagination
-    let allBookings = [];
-    let currentFilter = 'all';
-    let currentPage = 1;
-    const bookingsPerPage = 10;
-    let isLoading = false;
-    
-    // Global function to load all bookings with status filtering and pagination
-    async function loadAllBookings(statusFilter = 'all', page = 1) {
+    // Global function to load all bookings with status filtering
+    async function loadAllBookings(statusFilter = 'all') {
       if (!window.API_BASE_URL) {
         console.error('API_BASE_URL not defined');
         return;
       }
       
-      if (isLoading) return;
-      
       try {
-        isLoading = true;
-        
-        const bookingsList = document.getElementById('bookingsList');
-        if (!bookingsList) return;
-        
-        // Show loading indicator
-        bookingsList.innerHTML = `
-          <div class="col-12 text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading bookings...</p>
-          </div>
-        `;
-        
         const response = await fetch(`${window.API_BASE_URL}/api/bookings`);
         const bookings = await response.json();
         
-        // Store all bookings globally
-        allBookings = bookings;
-        currentFilter = statusFilter;
-        currentPage = page;
+        const bookingsList = document.getElementById('bookingsList');
+        if (!bookingsList) return;
         
         // Filter bookings based on status
         let filteredBookings = bookings;
@@ -3125,177 +2925,80 @@
         if (filteredBookings.length === 0) {
           const statusText = statusFilter === 'all' ? 'bookings' : `${statusFilter} bookings`;
           bookingsList.innerHTML = `<div class="col-12"><div class="alert alert-info">No ${statusText} found.</div></div>`;
-          document.getElementById('paginationControls').innerHTML = '';
           return;
         }
         
-        // Render paginated bookings
-        renderPaginatedBookings(filteredBookings);
-        
-      } catch (error) {
-        console.error('Error loading bookings:', error);
-        document.getElementById('bookingsList').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading bookings.</div></div>';
-      } finally {
-        isLoading = false;
-      }
-    }
-    
-    // Function to render paginated bookings
-    function renderPaginatedBookings(bookings) {
-      const startIndex = (currentPage - 1) * bookingsPerPage;
-      const endIndex = startIndex + bookingsPerPage;
-      const paginatedBookings = bookings.slice(startIndex, endIndex);
-      
-      // Render bookings
-      renderBookings(paginatedBookings);
-      
-      // Render pagination controls
-      renderPaginationControls(bookings.length);
-    }
-    
-    // Function to render pagination controls
-    function renderPaginationControls(totalBookings) {
-      const totalPages = Math.ceil(totalBookings / bookingsPerPage);
-      
-      if (totalPages <= 1) {
-        document.getElementById('paginationControls').innerHTML = '';
-        return;
-      }
-      
-      const paginationHTML = `
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <div class="pagination-info">
-            <small class="text-muted">
-              Showing ${(currentPage - 1) * bookingsPerPage + 1} to ${Math.min(currentPage * bookingsPerPage, totalBookings)} of ${totalBookings} bookings
-            </small>
-          </div>
-          <div class="pagination-controls">
-            <button class="btn btn-outline-primary btn-sm" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-              <i class="fa fa-chevron-left"></i> Previous
-            </button>
-            <span class="mx-2">
-              Page ${currentPage} of ${totalPages}
-            </span>
-            <button class="btn btn-outline-primary btn-sm" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-              Next <i class="fa fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('paginationControls').innerHTML = paginationHTML;
-    }
-    
-    // Function to change page
-    function changePage(page) {
-      if (page < 1) return;
-      
-      // Filter bookings based on current filter
-      let filteredBookings = allBookings;
-      if (currentFilter !== 'all') {
-        filteredBookings = allBookings.filter(booking => booking.status === currentFilter);
-      }
-      
-      const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
-      if (page > totalPages) return;
-      
-      currentPage = page;
-      renderPaginatedBookings(filteredBookings);
-      
-      // Scroll to top of bookings list
-      document.getElementById('bookingsList').scrollIntoView({ behavior: 'smooth' });
-    }
-        
-
-    
-    // Function to render bookings (extracted from the map function)
-    function renderBookings(bookings) {
-      const bookingsList = document.getElementById('bookingsList');
-      if (!bookingsList) return;
-      
-      const bookingCardsHTML = bookings.map(booking => {
-        // Get status badge color
-        const statusColors = {
-          'pending': 'warning',
-          'confirmed': 'success',
-          'cancelled': 'danger',
-          'rejected': 'secondary',
-          'finished': 'info'
-        };
-        const statusColor = statusColors[booking.status] || 'info';
-        
-        // Generate action buttons based on status
-        let actionButtons = '';
-        if (booking.status === 'pending') {
-          actionButtons = `
-            <button class="btn btn-success mb-2 btn-approve" onclick="approveBooking(${booking.id}, this)">
-              <i class="fa fa-check"></i> Approve
-            </button>
-            <button class="btn btn-danger btn-reject" onclick="rejectBooking(${booking.id}, this)">
-              <i class="fa fa-times"></i> Reject
-            </button>
-          `;
-        } else if (booking.status === 'confirmed') {
-          actionButtons = `
-            <button class="btn btn-warning btn-cancel" onclick="cancelBooking(${booking.id}, this)">
-              <i class="fa fa-ban"></i> Cancel
-            </button>
-          `;
-        } else if (booking.status === 'finished') {
-          actionButtons = `
-            <div class="rental-completed-badge" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; padding: 8px 12px; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3); border: 1px solid rgba(255,255,255,0.2);">
-              <div style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600;">
-                <i class="fa fa-flag-checkered" style="font-size: 12px;"></i>
-                <span>Rental Completed</span>
-              </div>
-              <div style="font-size: 9px; opacity: 0.9; margin-top: 2px; font-weight: 400;">
-                ✓ Successfully finished
-              </div>
-            </div>
-          `;
-        }
-        
-        return `
-          <div class="col-12">
-            <div class="card booking-card" data-booking-id="${booking.id}">
-              <div class="card-body">
-                <div class="row align-items-start">
-                  <div class="col-md-3">
-                    ${booking.cars && booking.cars.head_image ? 
-                      `<div class="mb-2">
-                        <img src="${booking.cars.head_image}" alt="Car Image" class="img-fluid rounded" style="max-width: 180px; max-height: 120px; object-fit: cover;">
-                      </div>` : 
-                      ''
-                    }
-                  </div>
-                  <div class="col-md-6">
-                    <h5 class="card-title">
-                      ${booking.cars ? `${booking.cars.make_name} ${booking.cars.model_name} (${booking.cars.production_year})` : `Car ID: ${booking.car_id}`}
-                      <span class="badge bg-${statusColor} ms-2">${booking.status.toUpperCase()}</span>
-                    </h5>
-                    <p class="card-text">
-                      <strong>Dates:</strong> ${booking.pickup_date} ${booking.pickup_time} - ${booking.return_date} ${booking.return_time}<br>
-                      <strong>Insurance:</strong> ${booking.insurance_type}<br>
-                      <strong>Pickup:</strong> ${booking.pickup_location} | <strong>Dropoff:</strong> ${booking.dropoff_location}<br>
-                      <strong>Total Price:</strong> €${booking.total_price}<br>
-                      <strong>Contact:</strong> ${booking.customer_name || 'Not provided'} | ${booking.customer_phone || 'Not provided'} | Age: ${booking.customer_age || 'Not provided'}<br>
-                      <strong>Special Instructions:</strong> ${booking.special_instructions || 'None'}<br>
-                      <strong>Created:</strong> ${new Date(booking.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div class="col-md-3 text-end">
-                    <div class="btn-group-vertical w-100">
-                      ${actionButtons}
+        bookingsList.innerHTML = filteredBookings.map(booking => {
+          // Get status badge color
+          const statusColors = {
+            'pending': 'warning',
+            'confirmed': 'success',
+            'cancelled': 'danger',
+            'rejected': 'secondary'
+          };
+          const statusColor = statusColors[booking.status] || 'info';
+          
+          // Generate action buttons based on status
+          let actionButtons = '';
+          if (booking.status === 'pending') {
+            actionButtons = `
+              <button class="btn btn-success mb-2 btn-approve" onclick="approveBooking(${booking.id}, this)">
+                <i class="fa fa-check"></i> Approve
+              </button>
+              <button class="btn btn-danger btn-reject" onclick="rejectBooking(${booking.id}, this)">
+                <i class="fa fa-times"></i> Reject
+              </button>
+            `;
+          } else if (booking.status === 'confirmed') {
+            actionButtons = `
+              <button class="btn btn-warning btn-cancel" onclick="cancelBooking(${booking.id}, this)">
+                <i class="fa fa-ban"></i> Cancel
+              </button>
+            `;
+          }
+          
+          return `
+            <div class="col-12">
+              <div class="card booking-card" data-booking-id="${booking.id}">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-8">
+                      ${booking.cars && booking.cars.head_image ? 
+                        `<div class="mb-3">
+                          <img src="${booking.cars.head_image}" alt="Car Image" class="img-fluid rounded" style="max-width: 200px; max-height: 150px; object-fit: cover;">
+                        </div>` : 
+                        ''
+                      }
+                      <h5 class="card-title">
+                        ${booking.cars ? `${booking.cars.make_name} ${booking.cars.model_name} (${booking.cars.production_year})` : `Car ID: ${booking.car_id}`}
+                        <span class="badge bg-${statusColor} ms-2">${booking.status.toUpperCase()}</span>
+                      </h5>
+                      <p class="card-text">
+                        <strong>Dates:</strong> ${booking.pickup_date} ${booking.pickup_time} - ${booking.return_date} ${booking.return_time}<br>
+                        <strong>Insurance:</strong> ${booking.insurance_type}<br>
+                        <strong>Pickup:</strong> ${booking.pickup_location} | <strong>Dropoff:</strong> ${booking.dropoff_location}<br>
+                        <strong>Total Price:</strong> €${booking.total_price}<br>
+                        <strong>Contact:</strong> ${booking.customer_name || 'Not provided'} | ${booking.customer_phone || 'Not provided'}<br>
+                        <strong>Special Instructions:</strong> ${booking.special_instructions || 'None'}<br>
+                        <strong>Created:</strong> ${new Date(booking.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                      <div class="btn-group-vertical w-100">
+                        ${actionButtons}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        `;
-      }).join('');
-      
-      bookingsList.innerHTML = bookingCardsHTML;
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Error loading bookings:', error);
+        document.getElementById('bookingsList').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading bookings.</div></div>';
+      }
     }
 
     // Function to load pending bookings (for backward compatibility)
@@ -3303,7 +3006,23 @@
       await loadAllBookings('pending');
     }
 
-
+    // Admin Dashboard Main Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tab navigation
+      initializeTabs();
+      
+      // Initialize form dropdowns
+      initializeFormDropdowns();
+      
+      // Load initial data
+      loadCars();
+      loadCoupons();
+      loadAllBookings(); // Load all bookings by default
+      
+      // Initialize form handlers
+      initializeCarForms();
+      initializeCouponForms();
+    });
 
     // Tab Navigation
     function initializeTabs() {
@@ -7298,46 +7017,11 @@
           });
         }
 
-        // Main initialization - consolidated
+        // Add spinning wheel initialization to the main initialization
         document.addEventListener('DOMContentLoaded', function() {
-          // Wait a bit to ensure all functions are loaded
-          setTimeout(() => {
-            try {
-              // Initialize tab navigation
-              if (typeof initializeTabs === 'function') {
-                initializeTabs();
-              }
-              
-              // Initialize form dropdowns
-              if (typeof initializeFormDropdowns === 'function') {
-                initializeFormDropdowns();
-              }
-              
-              // Load initial data
-              if (typeof loadCars === 'function') {
-                loadCars();
-              }
-              if (typeof loadCoupons === 'function') {
-                loadCoupons();
-              }
-              if (typeof loadAllBookings === 'function') {
-                loadAllBookings(); // Load all bookings by default
-              }
-              
-              // Initialize form handlers
-              if (typeof initializeCarForms === 'function') {
-                initializeCarForms();
-              }
-              if (typeof initializeCouponForms === 'function') {
-                initializeCouponForms();
-              }
-              if (typeof initializeSpinningWheel === 'function') {
-                initializeSpinningWheel();
-              }
-            } catch (error) {
-              console.error('Error during initialization:', error);
-            }
-          }, 100);
+          initializeFormDropdowns();
+          initializeCarForms();
+          initializeSpinningWheel();
         });
     </script>
 </body>

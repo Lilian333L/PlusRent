@@ -166,6 +166,7 @@ $(document).ready(function(){
              customer_name: $('#name').val().trim(),
              customer_email: $('#email').val().trim(),
              customer_phone: $('#phone').val().trim(),
+             customer_age: $('#modal-customer-age').val().trim() || $('#customer_age').val().trim(),
              pickup_date: $('#modal-pickup-date').val(),
              pickup_time: $('#modal-pickup-time').val(),
              return_date: $('#modal-return-date').val(),
@@ -776,6 +777,24 @@ function applyModalCalculation() {
             console.error('🔍 total_price field not found!');
         }
         
+        // Apply customer age from modal to main form
+        const modalCustomerAge = $('#modal-customer-age').val().trim();
+        
+        // Store age in a hidden field for the main form
+        if (modalCustomerAge) {
+            if (!$('#customer_age').length) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'customer_age',
+                    name: 'customer_age',
+                    value: modalCustomerAge
+                }).appendTo('#booking_form');
+            } else {
+                $('#customer_age').val(modalCustomerAge);
+            }
+            console.log('🔍 Applied customer age from modal:', modalCustomerAge);
+        }
+        
         // Close the modal properly
         closePriceCalculator();
         
@@ -802,6 +821,20 @@ function submitBooking() {
         if (!bookingData.car_id || !bookingData.customer_name || !bookingData.customer_phone) {
             console.error('🔍 Missing required booking data');
             alert('Missing required booking information. Please check your form.');
+            return;
+        }
+        
+        // Validate age
+        if (!bookingData.customer_age) {
+            console.error('🔍 Missing customer age');
+            alert('Please enter your age. Age is required for booking.');
+            return;
+        }
+        
+        const age = parseInt(bookingData.customer_age);
+        if (isNaN(age) || age < 18 || age > 100) {
+            console.error('🔍 Invalid age:', bookingData.customer_age);
+            alert('Age must be between 18 and 100 years.');
             return;
         }
         

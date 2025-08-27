@@ -27,7 +27,8 @@ This guide will help you set up Supabase Storage to handle car image uploads ins
 3. **Add the following policies:**
 
 ### Policy 1: Public Read Access
-- **Policy name**: `Public read access`
+- **Policy name**: `
+- Public read access`
 - **Allowed operation**: `SELECT`
 - **Target roles**: `public`
 - **Policy definition**: `true`

@@ -70,7 +70,7 @@ class BookingFormHandler {
       });
       
       // Handle server errors (not validation errors)
-      this.onError(error.message || 'An unexpected error occurred');
+        this.onError(error.message || 'An unexpected error occurred');
     } finally {
       // Restore button state
       this.setButtonNormal(submitButton, originalText);
@@ -113,7 +113,8 @@ class BookingFormHandler {
       price_breakdown: this.getPriceBreakdown(),
       customer_name: formData.get('customer_name'),
       customer_email: formData.get('customer_email'),
-      customer_phone: formData.get('customer_phone')
+      customer_phone: formData.get('customer_phone'),
+      customer_age: formData.get('customer_age')
     };
   }
 
@@ -145,6 +146,16 @@ class BookingFormHandler {
     const phoneRegex = /.*[0-9].*/;
     if (!phoneRegex.test(bookingData.customer_phone)) {
       return { isValid: false, error: 'Please enter a valid phone number' };
+    }
+
+    // Validate age
+    if (!bookingData.customer_age) {
+      return { isValid: false, error: 'Please enter your age' };
+    }
+
+    const age = parseInt(bookingData.customer_age);
+    if (isNaN(age) || age < 18 || age > 100) {
+      return { isValid: false, error: 'Age must be between 18 and 100 years' };
     }
 
     // Validate email format if provided
