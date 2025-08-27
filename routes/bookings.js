@@ -78,8 +78,13 @@ router.post('/', async (req, res) => {
     let validatedDiscountCode = discount_code;
     if (discount_code) {
       try {
-        // First try to validate as redemption code
-        const redemptionResponse = await fetch(`${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}`);
+        // First try to validate as redemption code with phone number validation
+        const customerPhone = customer_phone || contact_phone;
+        const redemptionUrl = customerPhone 
+          ? `${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}?phone=${encodeURIComponent(customerPhone)}`
+          : `${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}`;
+        
+        const redemptionResponse = await fetch(redemptionUrl);
         const redemptionResult = await redemptionResponse.json();
         
         if (redemptionResult.valid) {

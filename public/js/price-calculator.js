@@ -182,8 +182,18 @@ class PriceCalculator {
     }
     
     try {
-      // First try to validate as a redemption code (individual codes)
-      const redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}`);
+      // Get customer phone number for validation
+      const customerPhone = document.querySelector('#phone')?.value?.trim() || 
+                           document.querySelector('[name="customer_phone"]')?.value?.trim();
+      
+      // First try to validate as a redemption code (individual codes) with phone number if available
+      let redemptionResponse;
+      if (customerPhone) {
+        redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}?phone=${encodeURIComponent(customerPhone)}`);
+      } else {
+        redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}`);
+      }
+      
       const redemptionResult = await redemptionResponse.json();
       
       if (redemptionResult.valid) {

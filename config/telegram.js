@@ -120,6 +120,7 @@ class TelegramNotifier {
 • Dropoff Location: ${bookingData.dropoff_location}
 • Insurance: ${bookingData.insurance_type}
 • Total Price: €${bookingData.total_price}
+${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
 
 <b>Special Instructions:</b>
 ${bookingData.special_instructions || 'None provided'}

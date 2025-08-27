@@ -32,7 +32,7 @@ class BookingFormHandler {
       const bookingData = this.collectFormData(formElement);
       console.log('Collected booking data:', bookingData);
       
-      const validationResult = this.validateBookingData(bookingData);
+      const validationResult = await this.validateBookingData(bookingData);
       
       if (!validationResult.isValid) {
         // Call validation error handler directly instead of throwing
@@ -119,7 +119,7 @@ class BookingFormHandler {
   }
 
   // Validate booking data
-  validateBookingData(bookingData) {
+  async validateBookingData(bookingData) {
     // Check required fields
     if (!bookingData.car_id) {
       return { isValid: false, error: 'Please select a car' };
@@ -147,12 +147,11 @@ class BookingFormHandler {
     if (!phoneRegex.test(bookingData.customer_phone)) {
       return { isValid: false, error: 'Please enter a valid phone number' };
     }
-
+    
     // Validate age
     if (!bookingData.customer_age) {
       return { isValid: false, error: 'Please enter your age' };
     }
-
     const age = parseInt(bookingData.customer_age);
     if (isNaN(age) || age < 18 || age > 100) {
       return { isValid: false, error: 'Age must be between 18 and 100 years' };
@@ -201,6 +200,38 @@ class BookingFormHandler {
             if (isOutsideHours && !bookingData.customer_phone) {
             return { isValid: false, error: 'Phone number is required for outside hours pickup/dropoff' };
         }
+
+    // Validate coupon code if provided
+    if (bookingData.discount_code && bookingData.discount_code.trim()) {
+      try {
+        const couponCode = bookingData.discount_code.trim();
+        const customerPhone = bookingData.customer_phone;
+        
+        // Try redemption code validation first (with phone number if available)
+        let response;
+        if (customerPhone) {
+          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`);
+        } else {
+          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`);
+        }
+        
+        let result = await response.json();
+        
+        // If redemption code validation fails, try regular coupon validation
+        if (!result.valid) {
+          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate/${couponCode}`);
+          result = await response.json();
+        }
+        
+        if (!response.ok || !result.valid) {
+          const errorMessage = result.message || result.error || 'Invalid coupon code. Please enter a valid coupon or remove it.';
+          return { isValid: false, error: errorMessage };
+        }
+      } catch (error) {
+        console.error('Error validating coupon:', error);
+        return { isValid: false, error: 'Error validating coupon code. Please try again.' };
+      }
+    }
 
     return { isValid: true };
   }
