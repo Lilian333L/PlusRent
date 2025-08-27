@@ -180,6 +180,10 @@ class GlobalBookingSystem {
           <label class="form-label">Customer Phone</label>
           <input type="tel" name="customer_phone" class="form-control" required>
         </div>
+        <div class="col-md-6">
+          <label class="form-label">Customer Age</label>
+          <input type="number" name="customer_age" class="form-control" min="18" max="100" required>
+        </div>
         <div class="col-12">
           <label class="form-label">Special Instructions</label>
           <textarea name="special_instructions" class="form-control" rows="3"></textarea>
@@ -276,10 +280,26 @@ class GlobalBookingSystem {
   // Validate coupon code
   async validateCoupon(code, inputElement) {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/api/coupons/validate/${code}`);
-      const result = await response.json();
+      // Get customer phone number for validation
+      const customerPhone = document.querySelector('[name="customer_phone"]')?.value?.trim();
       
-      if (response.ok && result.isValid) {
+      // Try redemption code validation first (with phone number if available)
+      let response;
+      if (customerPhone) {
+        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${code}?phone=${encodeURIComponent(customerPhone)}`);
+      } else {
+        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${code}`);
+      }
+      
+      let result = await response.json();
+      
+      // If redemption code validation fails, try regular coupon validation
+      if (!result.valid) {
+        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate/${code}`);
+        result = await response.json();
+      }
+      
+      if (response.ok && result.valid) {
         inputElement.classList.remove('is-invalid');
         inputElement.classList.add('is-valid');
         this.showCouponMessage('Coupon applied successfully!', 'success');
@@ -287,7 +307,7 @@ class GlobalBookingSystem {
       } else {
         inputElement.classList.remove('is-valid');
         inputElement.classList.add('is-invalid');
-        this.showCouponMessage(result.error || 'Invalid coupon code', 'error');
+        this.showCouponMessage(result.message || result.error || 'Invalid coupon code', 'error');
       }
     } catch (error) {
       console.error('Error validating coupon:', error);
@@ -330,6 +350,19 @@ class GlobalBookingSystem {
       submitButton.textContent = 'Submitting...';
       
       try {
+        // Validate coupon code if provided
+        const discountCode = form.querySelector('[name="discount_code"]').value.trim();
+        if (discountCode) {
+          const couponInput = form.querySelector('[name="discount_code"]');
+          await this.validateCoupon(discountCode, couponInput);
+          
+          // Check if coupon validation failed
+          if (couponInput.classList.contains('is-invalid')) {
+            this.showCouponMessage('Please enter a valid coupon code before submitting', 'error');
+            return; // Prevent form submission
+          }
+        }
+        
         // Collect form data
         const formData = new FormData(form);
         const bookingData = {
@@ -344,6 +377,7 @@ class GlobalBookingSystem {
           discount_code: formData.get('discount_code') || null,
           customer_name: formData.get('customer_name'),
           customer_phone: formData.get('customer_phone'),
+          customer_age: formData.get('customer_age'),
           special_instructions: formData.get('special_instructions') || null,
           total_price: this.priceCalculator ? this.priceCalculator.getTotalPrice() : 0,
           price_breakdown: this.priceCalculator ? this.priceCalculator.getPriceBreakdown() : {}
@@ -371,6 +405,7 @@ class GlobalBookingSystem {
         
       } catch (error) {
         console.error('Booking error:', error);
+        this.showCouponMessage('Booking failed. Please try again.', 'error');
       } finally {
         // Re-enable submit button
         submitButton.disabled = false;

@@ -182,8 +182,18 @@ class PriceCalculator {
     }
     
     try {
-      // First try to validate as a redemption code (individual codes)
-      const redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}`);
+      // Get customer phone number for validation
+      const customerPhone = document.querySelector('#phone')?.value?.trim() || 
+                           document.querySelector('[name="customer_phone"]')?.value?.trim();
+      
+      // First try to validate as a redemption code (individual codes) with phone number if available
+      let redemptionResponse;
+      if (customerPhone) {
+        redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}?phone=${encodeURIComponent(customerPhone)}`);
+      } else {
+        redemptionResponse = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code.trim()}`);
+      }
+      
       const redemptionResult = await redemptionResponse.json();
       
       if (redemptionResult.valid) {
@@ -261,7 +271,7 @@ class PriceCalculator {
       };
       return fallbackTranslations[key] || key;
     };
-    
+
     let html = '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">';
     html += '<h5 style="margin-bottom: 15px; color: #333;">Price Breakdown</h5>';
 
@@ -555,7 +565,7 @@ class PriceCalculator {
       let rentalDays = 0;
       
       if (pickupDate && returnDate) {
-        const timeDiff = returnDateTime.getTime() - pickupDateTime.getTime();
+      const timeDiff = returnDateTime.getTime() - pickupDateTime.getTime();
         rentalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
         
         // Ensure minimum 1 day rental

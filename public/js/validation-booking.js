@@ -166,6 +166,7 @@ $(document).ready(function(){
              customer_name: $('#name').val().trim(),
              customer_email: $('#email').val().trim(),
              customer_phone: $('#phone').val().trim(),
+             customer_age: $('#modal-customer-age').val().trim() || $('#customer_age').val().trim(),
              pickup_date: $('#modal-pickup-date').val(),
              pickup_time: $('#modal-pickup-time').val(),
              return_date: $('#modal-return-date').val(),
@@ -757,7 +758,7 @@ function updateVehiclePriceDisplay() {
 
 
 
-function applyModalCalculation() {
+async function applyModalCalculation() {
     console.log('🔍 applyModalCalculation called');
     
     try {
@@ -776,12 +777,30 @@ function applyModalCalculation() {
             console.error('🔍 total_price field not found!');
         }
         
+        // Apply customer age from modal to main form
+        const modalCustomerAge = $('#modal-customer-age').val().trim();
+        
+        // Store age in a hidden field for the main form
+        if (modalCustomerAge) {
+            if (!$('#customer_age').length) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'customer_age',
+                    name: 'customer_age',
+                    value: modalCustomerAge
+                }).appendTo('#booking_form');
+            } else {
+                $('#customer_age').val(modalCustomerAge);
+            }
+            console.log('🔍 Applied customer age from modal:', modalCustomerAge);
+        }
+        
         // Close the modal properly
         closePriceCalculator();
         
         // Now submit the booking automatically
         console.log('🔍 About to call submitBooking()');
-        submitBooking();
+        await submitBooking();
         
         console.log('🔍 applyModalCalculation completed');
     } catch (error) {
@@ -790,7 +809,7 @@ function applyModalCalculation() {
     }
 }
 
-function submitBooking() {
+async function submitBooking() {
     console.log('🔍 submitBooking called');
     
     try {
@@ -803,6 +822,56 @@ function submitBooking() {
             console.error('🔍 Missing required booking data');
             alert('Missing required booking information. Please check your form.');
             return;
+        }
+        
+        // Validate age
+        if (!bookingData.customer_age) {
+            console.error('🔍 Missing customer age');
+            alert('Please enter your age. Age is required for booking.');
+            return;
+        }
+        
+        const age = parseInt(bookingData.customer_age);
+        if (isNaN(age) || age < 18 || age > 100) {
+            console.error('🔍 Invalid age:', bookingData.customer_age);
+            alert('Age must be between 18 and 100 years.');
+            return;
+        }
+        
+        // Validate coupon code if provided
+        if (bookingData.discount_code && bookingData.discount_code.trim()) {
+            try {
+                const couponCode = bookingData.discount_code.trim();
+                const customerPhone = bookingData.customer_phone;
+                const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+                
+                // Try redemption code validation first (with phone number if available)
+                let response;
+                if (customerPhone) {
+                    response = await fetch(`${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`);
+                } else {
+                    response = await fetch(`${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`);
+                }
+                
+                let result = await response.json();
+                
+                // If redemption code validation fails, try regular coupon validation
+                if (!result.valid) {
+                    response = await fetch(`${apiBaseUrl}/api/coupons/validate/${couponCode}`);
+                    result = await response.json();
+                }
+                
+                if (!response.ok || !result.valid) {
+                    console.error('🔍 Invalid coupon code:', couponCode);
+                    const errorMessage = result.message || result.error || 'Invalid coupon code. Please enter a valid coupon or remove it.';
+                    alert(errorMessage);
+                    return;
+                }
+            } catch (error) {
+                console.error('🔍 Error validating coupon:', error);
+                alert('Error validating coupon code. Please try again.');
+                return;
+            }
         }
         
         // Show loading state

@@ -53,65 +53,23 @@ async function getNextAvailableDate(carId) {
       return nextAvailable;
     }
 
-    // Car is not currently being used and no current bookings
-    // Don't return future booking dates - car is available now
-    return null;
-  } catch (error) {
-    console.error('Error in getNextAvailableDate:', error);
-    return null;
-  }
-}
-
-
-
-// Function to check if a car is currently unavailable and when it will be available
-async function getNextAvailableDate(carId) {
-  try {
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); // Compare dates only
-    
-    // Get all CONFIRMED bookings for this car (only confirmed bookings make car unavailable)
-    const { data: bookings, error } = await supabase
-      .from('bookings')
-      .select('pickup_date, return_date')
-      .eq('car_id', carId)
-      .eq('status', 'confirmed');
-
-    if (error) {
-      console.error('Error fetching bookings for availability check:', error);
-      return null;
-    }
-
-    if (!bookings || bookings.length === 0) {
-      return null; // Available now
-    }
-
-    // Check if car is currently being used (between pickup and return dates)
-    const currentBookings = bookings.filter(booking => {
+    // Check for future bookings (pickup date is in the future)
+    const futureBookings = bookings.filter(booking => {
       const pickupDate = new Date(booking.pickup_date);
-      const returnDate = new Date(booking.return_date);
       pickupDate.setHours(0, 0, 0, 0);
-      returnDate.setHours(0, 0, 0, 0);
       
-      // Car is currently being used if current date is between pickup and return dates
-      return currentDate >= pickupDate && currentDate <= returnDate;
+      // Future booking if pickup date is after current date
+      return pickupDate > currentDate;
     });
 
-    if (currentBookings.length > 0) {
-      // Car is currently being used, find the latest return date
-      const latestReturnDate = new Date(Math.max(...currentBookings.map(b => new Date(b.return_date))));
-      latestReturnDate.setHours(0, 0, 0, 0);
+    if (futureBookings.length > 0) {
+      // Car has future bookings, find the earliest pickup date
+      const earliestPickupDate = new Date(Math.min(...futureBookings.map(b => new Date(b.pickup_date))));
+      earliestPickupDate.setHours(0, 0, 0, 0);
       
-      // Add one day to get the next available date
-      const nextAvailable = new Date(latestReturnDate);
-      nextAvailable.setDate(nextAvailable.getDate() + 1);
-      
-      return nextAvailable;
+      // Car is unavailable until the earliest pickup date
+      return earliestPickupDate;
     }
-
-    // Car is not currently being used and no current bookings
-    // Don't return future booking dates - car is available now
-    return null;
 
     // No current or future bookings, car is available
     return null;
@@ -653,7 +611,7 @@ router.post('/', async (req, res) => {
         mimetype: `image/${headImageData.extension || 'jpeg'}`,
         originalname: `head.${headImageData.extension || 'jpg'}`
       };
-      
+
       // Upload to Supabase Storage (we'll get the car ID later)
       headImageUrl = headFile; // Store the file object for later upload
       console.log('✅ Head image prepared for Supabase upload');
@@ -1088,41 +1046,11 @@ router.post('/', async (req, res) => {
 });
 
 // Update car
-router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: 'File too large. Maximum size is 50MB.' });
-    }
-    if (err.code === 'LIMIT_FIELD_SIZE') {
-      return res.status(413).json({ error: 'Field too large. Maximum size is 50MB.' });
-    }
-    return res.status(400).json({ error: 'File upload error: ' + err.message });
-  }
-  next();
-}, async (req, res) => {
-  console.log('🔍 SERVER - Multer middleware executed');
-  const id = req.params.id;
-  
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
+router.put('/:id', async (req, res) => {
   console.log('🔍 SERVER - PUT /api/cars/:id received request');
+  const id = req.params.id;
   console.log('  Car ID:', id);
-  console.log('  Content-Type:', req.headers['content-type']);
-  console.log('  Raw body keys:', Object.keys(req.body));
-  console.log('  Raw body:', req.body);
-  console.log('  Files in request:', req.files);
-  if (req.files && req.files.length > 0) {
-    console.log('  Files details:');
-    req.files.forEach((file, index) => {
-      console.log(`    File ${index + 1}:`, {
-        fieldname: file.fieldname,
-        originalname: file.originalname,
-        size: file.size,
-        mimetype: file.mimetype
-      });
-    });
-  }
+  console.log('  Request body:', req.body);
   const {
     make_name,
     model_name,
@@ -1279,227 +1207,86 @@ router.put('/:id', formDataUpload.any(), (err, req, res, next) => {
     }
   }
 
-  // Handle file uploads if any files were uploaded
-  let headImagePath = null;
-  let galleryImagePaths = [];
-  
-  // First, get existing images from database to preserve them
-  db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [id], async (err, existingCar) => {
-    if (!err && existingCar) {
-      // Preserve existing head image if no new one uploaded
-      if (!req.files || !req.files.find(f => f.fieldname === 'head_image')) {
-        headImagePath = existingCar.head_image;
-      }
-      
-      // Use gallery images from form data if provided, otherwise preserve existing ones
-      if (req.body.gallery_images) {
-        try {
-          galleryImagePaths = JSON.parse(req.body.gallery_images);
-          console.log('🔍 SERVER - Using gallery images from form data:', galleryImagePaths);
-        } catch (e) {
-          console.log('Could not parse gallery images from form data, using existing ones');
-          if (existingCar.gallery_images) {
-            try {
-              galleryImagePaths = JSON.parse(existingCar.gallery_images);
-              console.log('🔍 SERVER - Using existing gallery images:', galleryImagePaths);
-            } catch (e2) {
-              console.log('Could not parse existing gallery images');
-            }
-          }
-        }
-      } else if (existingCar.gallery_images) {
-        // No gallery_images in form data, preserve existing ones
-        try {
-          galleryImagePaths = JSON.parse(existingCar.gallery_images);
-          console.log('🔍 SERVER - Preserving existing gallery images:', galleryImagePaths);
-        } catch (e) {
-          console.log('Could not parse existing gallery images');
-        }
-      }
-    }
+  try {
+    console.log('🔍 Using Supabase for car update');
     
-    // Process new file uploads
-    if (req.files && req.files.length > 0) {
-      console.log('🔍 SERVER - Processing uploaded files...');
-      
-      // Create car directory
-      const carDir = path.join(__dirname, '..', 'uploads', `car-${id}`);
-      fs.mkdirSync(carDir, { recursive: true });
-      console.log('📁 Created car directory:', carDir);
-      
-      // Process each uploaded file
-      req.files.forEach((file, index) => {
-        console.log(`🔍 SERVER - Processing file ${index + 1}:`, file.fieldname, file.originalname);
-        
-        if (file.fieldname === 'head_image') {
-          // Save head image
-          const headFileName = `head${path.extname(file.originalname)}`;
-          const headFilePath = path.join(carDir, headFileName);
-          fs.writeFileSync(headFilePath, file.buffer);
-          headImagePath = headFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
-          console.log('✅ Head image saved:', headImagePath);
-        } else if (file.fieldname === 'gallery_images') {
-          // Save gallery image
-          const galleryFileName = `gallery_${Date.now()}_${index}${path.extname(file.originalname)}`;
-          const galleryFilePath = path.join(carDir, galleryFileName);
-          fs.writeFileSync(galleryFilePath, file.buffer);
-          const galleryImagePath = galleryFilePath.replace(/\\/g, '/').replace(/.*uploads/, '/uploads');
-          galleryImagePaths.push(galleryImagePath);
-          console.log('✅ Gallery image saved:', galleryImagePath);
-        }
-      });
-    }
-    
-    // Continue with database update
-    const finalHeadImagePath = headImagePath || existingCar.head_image;
-    
-    const updateParams = [
+    // Prepare update data for Supabase
+    const updateData = {
       make_name,
       model_name,
-      production_year,
+      production_year: parseInt(production_year),
       gear_type,
       fuel_type,
-      engineCapacityValue,
+      engine_capacity: engineCapacityValue,
       car_type,
-      num_doors,
-      num_passengers,
-      JSON.stringify(pricePolicyStringified),
-      bookedStatus,
-      booked_until || null,
-      galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
-      luggage || null,
-      mileageValue,
-      drive || null,
-      fuelEconomyValue,
-      exterior_color || null,
-      interior_color || null,
-      rcaInsuranceValue,
-      cascoInsuranceValue,
-      likesValue,
-      descriptionJson,
-      finalHeadImagePath, // Use existing head image if no new one uploaded
-      id
-    ];
-
-    if (isSupabase) {
-      try {
-        console.log('🔍 Using Supabase for car update');
-        
-        // Prepare update data for Supabase
-        const updateData = {
-          make_name,
-          model_name,
-          production_year: parseInt(production_year),
-          gear_type,
-          fuel_type,
-          engine_capacity: engineCapacityValue,
-          car_type,
-          num_doors: parseInt(num_doors),
-          num_passengers: parseInt(num_passengers),
-          price_policy: JSON.stringify(pricePolicyStringified),
-          booked: bookedStatus,
-          booked_until: booked_until || null,
-          gallery_images: galleryImagePaths.length > 0 ? JSON.stringify(galleryImagePaths) : null,
-          luggage: luggage || null,
-          mileage: mileageValue,
-          drive: drive || null,
-          fuel_economy: fuelEconomyValue,
-          exterior_color: exterior_color || null,
-          interior_color: interior_color || null,
-          rca_insurance_price: rcaInsuranceValue,
-          casco_insurance_price: cascoInsuranceValue,
-          likes: likesValue,
-          description: descriptionJson,
-          head_image: finalHeadImagePath
-        };
-        
-        // Remove null/undefined values to avoid Supabase errors
-        Object.keys(updateData).forEach(key => {
-          if (updateData[key] === null || updateData[key] === undefined) {
-            delete updateData[key];
-          }
-        });
-        
-        const { data, error } = await supabase
-          .from('cars')
-          .update(updateData)
-          .eq('id', id)
-          .select();
-        
-        if (error) {
-          console.error('❌ Supabase car update error:', error);
-          return res.status(500).json({ error: 'Database error: ' + error.message });
-        }
-        
-        if (!data || data.length === 0) {
-          return res.status(404).json({ error: 'Car not found' });
-        }
-        
-        console.log('✅ Car updated successfully in Supabase');
-        
-        // Send Telegram notification
-        try {
-          const telegram = new TelegramNotifier();
-          const carData = {
-            make_name,
-            model_name,
-            production_year,
-            gear_type,
-            fuel_type,
-            car_type,
-            num_doors,
-            num_passengers,
-            price_policy: pricePolicyStringified,
-            rca_insurance_price: rcaInsuranceValue,
-            casco_insurance_price: cascoInsuranceValue
-          };
-          await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
-        } catch (error) {
-          console.error('Error sending Telegram notification:', error);
-        }
-        
-        res.json({ success: true });
-        
-      } catch (error) {
-        console.error('❌ Supabase car update error:', error);
-        res.status(500).json({ error: 'Database error: ' + error.message });
+      num_doors: parseInt(num_doors),
+      num_passengers: parseInt(num_passengers),
+      price_policy: JSON.stringify(pricePolicyStringified),
+      booked: bookedStatus,
+      booked_until: booked_until || null,
+      luggage: luggage || null,
+      mileage: mileageValue,
+      drive: drive || null,
+      fuel_economy: fuelEconomyValue,
+      exterior_color: exterior_color || null,
+      interior_color: interior_color || null,
+      rca_insurance_price: rcaInsuranceValue,
+      casco_insurance_price: cascoInsuranceValue,
+      likes: likesValue,
+      description: descriptionJson
+    };
+    
+    // Remove null/undefined values to avoid Supabase errors
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === null || updateData[key] === undefined) {
+        delete updateData[key];
       }
-    } else {
-      // Use SQLite
-    db.run(
-      `UPDATE cars SET make_name=?, model_name=?, production_year=?, gear_type=?, fuel_type=?, engine_capacity=?, car_type=?, num_doors=?, num_passengers=?, price_policy=?, booked=?, booked_until=?, gallery_images=?, luggage=?, mileage=?, drive=?, fuel_economy=?, exterior_color=?, interior_color=?, rca_insurance_price=?, casco_insurance_price=?, likes=?, description=?, head_image=? WHERE id=?`,
-      updateParams,
-      async function (err) {
-        if (err) {
-          console.error('Database error in PUT /api/cars/:id:', err);
-          return res.status(500).json({ error: 'Database error: ' + err.message });
-        }
-        
-        // Send Telegram notification
-        try {
-          const telegram = new TelegramNotifier();
-          const carData = {
-            make_name,
-            model_name,
-            production_year,
-            gear_type,
-            fuel_type,
-            car_type,
-            num_doors,
-            num_passengers,
-            price_policy: pricePolicyStringified,
-            rca_insurance_price: rcaInsuranceValue,
-            casco_insurance_price: cascoInsuranceValue
-          };
-          await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
-        } catch (error) {
-          console.error('Error sending Telegram notification:', error);
-        }
-        res.json({ success: true });
-      }
-    );
+    });
+    
+    const { data, error } = await supabase
+      .from('cars')
+      .update(updateData)
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      console.error('❌ Supabase car update error:', error);
+      return res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  });
+    
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+    
+    console.log('✅ Car updated successfully in Supabase');
+    
+    // Send Telegram notification
+    try {
+      const telegram = new TelegramNotifier();
+      const carData = {
+        make_name,
+        model_name,
+        production_year,
+        gear_type,
+        fuel_type,
+        car_type,
+        num_doors,
+        num_passengers,
+        price_policy: pricePolicyStringified,
+        rca_insurance_price: rcaInsuranceValue,
+        casco_insurance_price: cascoInsuranceValue
+      };
+      await telegram.sendMessage(telegram.formatCarUpdatedMessage(carData));
+    } catch (error) {
+      console.error('Error sending Telegram notification:', error);
+    }
+    
+    res.json({ success: true });
+    
+  } catch (error) {
+    console.error('❌ Supabase car update error:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
 });
 
 // Delete car
@@ -1699,38 +1486,20 @@ router.post('/:id/images', async (req, res) => {
         .eq('id', carId)
         .single();
       
-      if (carError || !carData) {
+      if (carError) {
+        console.log('❌ Supabase error fetching car:', carError);
+        return res.status(500).json({ error: 'Database error: ' + carError.message });
+      }
+      
+      if (!carData) {
         console.log('Car not found for ID:', carId);
         return res.status(404).json({ error: 'Car not found' });
       }
       
       car = carData;
-      headImagePath = car.head_image;
-      galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
-    } else {
-      // Use SQLite
-      console.log('🔍 Using SQLite for car lookup, ID:', carId);
-      car = await new Promise((resolve, reject) => {
-        db.get('SELECT head_image, gallery_images FROM cars WHERE id = ?', [carId], (err, row) => {
-          if (err) {
-            console.error('❌ SQLite query error:', err);
-            reject(err);
-          } else {
-            console.log('🔍 SQLite query result:', row);
-            resolve(row);
-          }
-        });
-      });
-      
-      if (!car) {
-        console.log('Car not found for ID:', carId);
-        return res.status(404).json({ error: 'Car not found' });
-      }
-      
-      headImagePath = car.head_image;
+      headImagePath = car.head_image || null;
       galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
     }
-    
     // Process head image if provided
     if (req.body.head_image && req.body.head_image.data) {
       try {
@@ -1841,7 +1610,7 @@ router.post('/:id/images', async (req, res) => {
 });
 
 // Delete a specific image from a car
-router.delete('/:id/images', (req, res) => {
+router.delete('/:id/images', async (req, res) => {
   const carId = req.params.id;
   const imagePath = req.query.path;
   const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
@@ -1852,14 +1621,130 @@ router.delete('/:id/images', (req, res) => {
     return res.status(400).json({ error: 'Image path is required' });
   }
   
-  db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
-    if (err) {
-      console.error('Database error in image deletion:', err);
-      return res.status(500).json({ error: 'Database error: ' + err.message });
+  // Check if we're using Supabase
+  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isSupabase) {
+    try {
+      console.log('🔍 Using Supabase for image deletion');
+      
+      // Get car data from Supabase
+      const { data: car, error: carError } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', carId)
+        .single();
+      
+      if (carError) {
+        console.error('❌ Supabase error fetching car:', carError);
+        return res.status(500).json({ error: 'Database error: ' + carError.message });
+      }
+      
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+      
+      console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
+      
+      let updateData = {};
+      
+      if (imageType === 'head') {
+        // Handle head image deletion
+        if (car.head_image !== imagePath) {
+          console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
+          return res.status(400).json({ error: 'Head image path does not match' });
+        }
+        updateData.head_image = null;
+      } else {
+        // Handle gallery image deletion
+        let galleryImages = [];
+        try {
+          galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+          // Ensure it's an array
+          if (!Array.isArray(galleryImages)) {
+            console.log('Gallery images is not an array, converting:', galleryImages);
+            galleryImages = [];
+          }
+        } catch (e) {
+          console.error('Error parsing gallery_images:', e);
+          galleryImages = [];
+        }
+        
+        // Debug logs for troubleshooting
+        console.log('Gallery images in DB:', galleryImages);
+        console.log('Requested to delete:', imagePath);
+        
+        // Check if the image exists in the gallery
+        if (!galleryImages.includes(imagePath)) {
+          console.log('Image not found in gallery:', imagePath);
+          return res.status(400).json({ error: 'Image not found in gallery' });
+        }
+        
+        // Remove the image from gallery_images array
+        const updatedGallery = galleryImages.filter(img => img !== imagePath);
+        // Also remove any duplicates that might exist
+        const uniqueGallery = [...new Set(updatedGallery)];
+        console.log('Updated gallery (after removal):', uniqueGallery);
+        updateData.gallery_images = JSON.stringify(uniqueGallery);
+      }
+      
+      // Update car in Supabase
+      const { error: updateError } = await supabase
+        .from('cars')
+        .update(updateData)
+        .eq('id', carId);
+      
+      if (updateError) {
+        console.error('❌ Supabase error updating car:', updateError);
+        return res.status(500).json({ error: 'Database error: ' + updateError.message });
+      }
+      
+      // Delete the file from Supabase Storage
+      try {
+        // Extract file path from URL
+        const url = new URL(imagePath);
+        const filePath = url.pathname.replace('/storage/v1/object/public/car-images/', '');
+        
+        const { error: deleteError } = await supabaseAdmin.storage
+          .from('car-images')
+          .remove([filePath]);
+        
+        if (deleteError) {
+          console.error('❌ Supabase Storage error:', deleteError);
+          // Don't fail the request if file deletion fails, but log the issue
+        } else {
+          console.log('✅ File deleted from Supabase Storage:', filePath);
+        }
+      } catch (error) {
+        console.error('❌ Error deleting from Supabase Storage:', error);
+        // Don't fail the request if file deletion fails
+      }
+      
+      // Return success response
+      if (imageType === 'head') {
+        res.json({ success: true, message: 'Head image deleted successfully' });
+      } else {
+        res.json({ 
+          success: true, 
+          gallery_images: JSON.parse(updateData.gallery_images), 
+          message: 'Gallery image deleted successfully' 
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Supabase image deletion error:', error);
+      res.status(500).json({ error: 'Database error: ' + error.message });
     }
-    if (!car) {
-      return res.status(404).json({ error: 'Car not found' });
-    }
+  } else {
+    // Use SQLite
+    db.get('SELECT * FROM cars WHERE id = ?', [carId], (err, car) => {
+      if (err) {
+        console.error('Database error in image deletion:', err);
+        return res.status(500).json({ error: 'Database error: ' + err.message });
+      }
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
     
     console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
     
@@ -1938,17 +1823,18 @@ router.delete('/:id/images', (req, res) => {
           console.log(`Successfully deleted file: ${fullPath}`);
         }
       });
-      
-      // Return success response
-      if (imageType === 'head') {
-        res.json({ success: true, message: 'Head image deleted successfully' });
-      } else {
-        // Get updated gallery images for response
-        const updatedGallery = JSON.parse(updateParams[0]);
-        res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
-      }
+    
+    // Return success response
+    if (imageType === 'head') {
+      res.json({ success: true, message: 'Head image deleted successfully' });
+    } else {
+      // Get updated gallery images for response
+      const updatedGallery = JSON.parse(updateParams[0]);
+      res.json({ success: true, gallery_images: updatedGallery, message: 'Gallery image deleted successfully' });
+    }
     });
   });
+  }
 });
 
 // Reorder cars endpoint
@@ -2029,6 +1915,72 @@ router.post('/reorder', async (req, res) => {
   });
   }
 });
+
+// Function to check car availability for specific dates
+async function checkCarAvailability(carId, pickupDate, returnDate) {
+  try {
+    // Check if we're using Supabase
+    const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+    
+    if (isSupabase) {
+      console.log('🔍 Using Supabase for availability check');
+      
+      // Get confirmed bookings for this car in the date range
+      const { data: bookings, error } = await supabase
+        .from('bookings')
+        .select('pickup_date, return_date')
+        .eq('car_id', carId)
+        .eq('status', 'confirmed')
+        .or(`pickup_date.lte.${returnDate},return_date.gte.${pickupDate}`);
+      
+      if (error) {
+        console.error('❌ Supabase availability check error:', error);
+        throw new Error('Failed to check availability in Supabase');
+      }
+      
+      // Check for overlapping bookings
+      const hasConflict = bookings.some(booking => {
+        const bookingPickup = new Date(booking.pickup_date);
+        const bookingReturn = new Date(booking.return_date);
+        const requestedPickup = new Date(pickupDate);
+        const requestedReturn = new Date(returnDate);
+        
+        return (bookingPickup <= requestedReturn && bookingReturn >= requestedPickup);
+      });
+      
+      return {
+        available: !hasConflict,
+        conflicting_bookings: hasConflict ? bookings.length : 0
+      };
+      
+    } else {
+      // Use SQLite
+      return new Promise((resolve, reject) => {
+        db.get(
+          `SELECT COUNT(*) as count FROM bookings 
+           WHERE car_id = ? AND status = 'confirmed' 
+           AND ((pickup_date <= ? AND return_date >= ?) 
+                OR (pickup_date <= ? AND return_date >= ?) 
+                OR (pickup_date >= ? AND return_date <= ?))`,
+          [carId, returnDate, pickupDate, returnDate, returnDate, pickupDate, returnDate],
+          (err, row) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({
+                available: row.count === 0,
+                conflicting_bookings: row.count
+              });
+            }
+          }
+        );
+      });
+    }
+  } catch (error) {
+    console.error('Error in checkCarAvailability:', error);
+    throw error;
+  }
+}
 
 // Check car availability for specific dates
 router.get('/:id/availability', async (req, res) => {

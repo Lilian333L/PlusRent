@@ -850,16 +850,17 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Validate redemption code (individual codes from available_codes array)
+// Validate redemption code with phone number (individual codes from available_codes array)
 router.get('/validate-redemption/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
+  const phoneNumber = req.query.phone; // Get phone number from query parameter
   
   // Check if we're using Supabase
   const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   if (isSupabase) {
     try {
-      console.log('🔍 Using Supabase for redemption code validation');
+      console.log('🔍 Using Supabase for redemption code validation with phone:', phoneNumber);
       
       // Get all active coupons and check their available_codes
       const { data, error } = await supabase
@@ -886,15 +887,23 @@ router.get('/validate-redemption/:code', async (req, res) => {
         
         // Parse available_codes array
         let availableCodes = [];
+        let showedCodes = [];
         try {
           availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+          showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+          console.log(`🔍 Coupon ${coupon.id} available_codes:`, availableCodes);
+          console.log(`🔍 Coupon ${coupon.id} showed_codes:`, showedCodes);
+          console.log(`🔍 Looking for code: ${code}`);
+          console.log(`🔍 Code found in available_codes: ${availableCodes.includes(code)}`);
+          console.log(`🔍 Code found in showed_codes: ${showedCodes.includes(code)}`);
         } catch (parseError) {
-          console.error('Error parsing available_codes:', parseError);
+          console.error('Error parsing codes:', parseError);
           continue;
         }
         
-        // Check if the code exists in available_codes
-        if (availableCodes.includes(code)) {
+        // Check if the code exists in available_codes or showed_codes
+        if (availableCodes.includes(code) || showedCodes.includes(code)) {
+          console.log(`✅ Found valid coupon: ${coupon.id}`);
           validCoupon = coupon;
           break;
         }
@@ -905,14 +914,46 @@ router.get('/validate-redemption/:code', async (req, res) => {
         return res.json({ valid: false, message: 'Invalid redemption code' });
       }
       
+      // If phone number is provided, validate it against the phone_numbers table
+      if (phoneNumber) {
+        try {
+          const { getPhoneNumberData } = require('../lib/phoneNumberTracker');
+          const phoneData = await getPhoneNumberData(phoneNumber);
+          
+          if (!phoneData) {
+            console.log('❌ Phone number not found in tracking system:', phoneNumber);
+            return res.json({ valid: false, message: 'Phone number not authorized for this coupon' });
+          }
+          
+          // Check if the redemption code is available for this phone number
+          const availableCoupons = phoneData.available_coupons || [];
+          if (!availableCoupons.includes(code)) {
+            console.log('❌ Redemption code not available for phone number:', code, phoneNumber);
+            return res.json({ valid: false, message: 'This coupon is not available for your phone number' });
+          }
+          
+          // Check if the code has already been redeemed by this phone number
+          const redeemedCoupons = phoneData.redeemed_coupons || [];
+          if (redeemedCoupons.includes(code)) {
+            console.log('❌ Redemption code already redeemed by phone number:', code, phoneNumber);
+            return res.json({ valid: false, message: 'This coupon has already been used with your phone number' });
+          }
+          
+          console.log('✅ Phone number validation passed for redemption code:', code, phoneNumber);
+        } catch (phoneError) {
+          console.error('❌ Error validating phone number:', phoneError);
+          return res.json({ valid: false, message: 'Error validating phone number authorization' });
+        }
+      }
+      
       console.log('✅ Redemption code validated successfully in Supabase');
-             res.json({ 
-         valid: true, 
-         discount_percentage: validCoupon.discount_percentage,
-         description: validCoupon.description,
-         coupon_id: validCoupon.id,
-         redemption_code: code
-       });
+      res.json({ 
+        valid: true, 
+        discount_percentage: validCoupon.discount_percentage,
+        description: validCoupon.description,
+        coupon_id: validCoupon.id,
+        redemption_code: code
+      });
       
     } catch (error) {
       console.error('❌ Supabase error validating redemption code:', error);

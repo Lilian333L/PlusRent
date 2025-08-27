@@ -108,6 +108,7 @@ class TelegramNotifier {
 • Name: ${bookingData.contact_person || 'Not provided'}
 • Phone: ${bookingData.contact_phone || 'Not provided'}
 • Email: ${bookingData.email || 'Not provided'}
+• Age: ${bookingData.age || 'Not provided'}
 
 <b>Car Details:</b>
 • Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
@@ -119,6 +120,7 @@ class TelegramNotifier {
 • Dropoff Location: ${bookingData.dropoff_location}
 • Insurance: ${bookingData.insurance_type}
 • Total Price: €${bookingData.total_price}
+${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
 
 <b>Special Instructions:</b>
 ${bookingData.special_instructions || 'None provided'}
