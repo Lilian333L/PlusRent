@@ -1488,7 +1488,7 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
     const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
     
     let car;
-    let headImagePath;
+    let headImagePath = null; // Initialize to null
     let galleryImagePaths = [];
     
     if (isSupabase) {
@@ -1512,6 +1512,11 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
       car = carData;
       headImagePath = car.head_image || null;
       galleryImagePaths = car.gallery_images ? JSON.parse(car.gallery_images) : [];
+    } else {
+      // Fallback for non-Supabase environments (shouldn't happen in production)
+      console.log('⚠️ Warning: Not using Supabase for car image upload');
+      headImagePath = null;
+      galleryImagePaths = [];
     }
     // Process head image if provided
     if (req.body.head_image && req.body.head_image.data) {
