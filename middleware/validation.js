@@ -109,28 +109,28 @@ const carCreateSchema = Joi.object({
   mileage: Joi.number().integer().min(0).max(1000000).allow(null, ''),
   drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null, ''),
   fuel_economy: Joi.number().positive().max(50).allow(null, ''),
-  exterior_color: Joi.string().max(50).trim().allow(null),
-  interior_color: Joi.string().max(50).trim().allow(null),
-  air_conditioning: Joi.boolean().allow(null),
-  min_age: Joi.number().integer().min(18).max(80).allow(null),
-  deposit: Joi.number().positive().max(10000).allow(null),
-  insurance_cost: Joi.number().positive().max(1000).allow(null),
-  rca_insurance_price: Joi.number().positive().max(10000).allow(null),
-  casco_insurance_price: Joi.number().positive().max(10000).allow(null),
+  exterior_color: Joi.string().max(50).trim().allow(null,''),
+  interior_color: Joi.string().max(50).trim().allow(null,''),
+  air_conditioning: Joi.boolean().allow(null,''),
+  min_age: Joi.number().integer().min(18).max(80).allow(null,''),
+  deposit: Joi.number().positive().max(10000).allow(null,''),
+  insurance_cost: Joi.number().positive().max(1000).allow(null,''),
+  rca_insurance_price: Joi.number().positive().max(10000).allow(null,''),
+  casco_insurance_price: Joi.number().positive().max(10000).allow(null,''),
   likes: Joi.number().integer().min(0).default(0),
-  description_en: Joi.string().max(2000).trim().allow(null),
-  description_ro: Joi.string().max(2000).trim().allow(null),
-  description_ru: Joi.string().max(2000).trim().allow(null),
+  description_en: Joi.string().max(2000).trim().allow(null,''),
+  description_ro: Joi.string().max(2000).trim().allow(null,''),
+  description_ru: Joi.string().max(2000).trim().allow(null,''),
   head_image: Joi.object({
     data: Joi.string().base64().required(),
     extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
-  }).allow(null),
+  }).allow(null,''),
   gallery_images: Joi.array().items(
     Joi.object({
       data: Joi.string().base64().required(),
       extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
     })
-  ).allow(null)
+  ).allow(null,'')
 });
 
 const carUpdateSchema = Joi.object({
