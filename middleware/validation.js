@@ -94,13 +94,20 @@ const carCreateSchema = Joi.object({
     '21-45': Joi.number().positive().required(),
     '46+': Joi.number().positive().required()
   }).required(),
-  booked_until: Joi.date().iso().allow(null),
-  luggage: Joi.number().integer().min(0).max(1000).allow(null),
+  booked_until: Joi.alternatives().try(
+    Joi.date().iso(),
+    Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
+  ).allow(null),
+  luggage: Joi.string().valid('Small', 'Medium', 'Large').allow(null),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null),
-  drive: Joi.string().valid('FWD', 'RWD', 'AWD', '4WD').allow(null),
+  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
   fuel_economy: Joi.number().positive().max(50).allow(null),
   exterior_color: Joi.string().max(50).trim().allow(null),
   interior_color: Joi.string().max(50).trim().allow(null),
+  air_conditioning: Joi.boolean().allow(null),
+  min_age: Joi.number().integer().min(18).max(80).allow(null),
+  deposit: Joi.number().positive().max(10000).allow(null),
+  insurance_cost: Joi.number().positive().max(1000).allow(null),
   rca_insurance_price: Joi.number().positive().max(10000).allow(null),
   casco_insurance_price: Joi.number().positive().max(10000).allow(null),
   likes: Joi.number().integer().min(0).default(0),
@@ -141,19 +148,26 @@ const carUpdateSchema = Joi.object({
     '46+': Joi.number().positive()
   }),
   booked: Joi.boolean(),
-  booked_until: Joi.date().iso().allow(null),
+  booked_until: Joi.alternatives().try(
+    Joi.date().iso(),
+    Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
+  ).allow(null),
   gallery_images: Joi.array().items(
     Joi.object({
       data: Joi.string().base64().required(),
       extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
     })
   ).allow(null),
-  luggage: Joi.number().integer().min(0).max(1000).allow(null),
+  luggage: Joi.string().valid('Small', 'Medium', 'Large').allow(null),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null),
-  drive: Joi.string().valid('FWD', 'RWD', 'AWD', '4WD').allow(null),
+  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
   fuel_economy: Joi.number().positive().max(50).allow(null),
   exterior_color: Joi.string().max(50).trim().allow(null),
   interior_color: Joi.string().max(50).trim().allow(null),
+  air_conditioning: Joi.boolean().allow(null),
+  min_age: Joi.number().integer().min(18).max(80).allow(null),
+  deposit: Joi.number().positive().max(10000).allow(null),
+  insurance_cost: Joi.number().positive().max(1000).allow(null),
   rca_insurance_price: Joi.number().positive().max(10000).allow(null),
   casco_insurance_price: Joi.number().positive().max(10000).allow(null),
   likes: Joi.number().integer().min(0),
