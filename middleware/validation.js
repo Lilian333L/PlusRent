@@ -98,7 +98,14 @@ const carCreateSchema = Joi.object({
     Joi.date().iso(),
     Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
   ).allow(null, ''),
-  luggage: Joi.string().valid('Small', 'Medium', 'Large').allow(null),
+  luggage: Joi.string().valid(
+    '1_small', '2_small', '1_large', '2_large', '3_large',
+    '1_small_1_large', '2_small_1_large', '1_small_2_large', 
+    '2_small_2_large', '3_small_1_large', '4_small', '5_small',
+    '4_large', '5_large',
+    // Legacy values for backward compatibility
+    'Small', 'Medium', 'Large'
+  ).allow(null, ''),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null),
   drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
   fuel_economy: Joi.number().positive().max(50).allow(null),
@@ -158,7 +165,14 @@ const carUpdateSchema = Joi.object({
       extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
     })
   ).allow(null),
-  luggage: Joi.string().valid('Small', 'Medium', 'Large').allow(null),
+  luggage: Joi.string().valid(
+    '1_small', '2_small', '1_large', '2_large', '3_large',
+    '1_small_1_large', '2_small_1_large', '1_small_2_large', 
+    '2_small_2_large', '3_small_1_large', '4_small', '5_small',
+    '4_large', '5_large',
+    // Legacy values for backward compatibility
+    'Small', 'Medium', 'Large'
+  ).allow(null, ''),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null),
   drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
   fuel_economy: Joi.number().positive().max(50).allow(null),
