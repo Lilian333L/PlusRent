@@ -97,7 +97,7 @@ const carCreateSchema = Joi.object({
   booked_until: Joi.alternatives().try(
     Joi.date().iso(),
     Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
-  ).allow(null),
+  ).allow(null, ''),
   luggage: Joi.string().valid('Small', 'Medium', 'Large').allow(null),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null),
   drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
@@ -151,7 +151,7 @@ const carUpdateSchema = Joi.object({
   booked_until: Joi.alternatives().try(
     Joi.date().iso(),
     Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
-  ).allow(null),
+  ).allow(null, ''),
   gallery_images: Joi.array().items(
     Joi.object({
       data: Joi.string().base64().required(),
