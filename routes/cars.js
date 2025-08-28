@@ -837,8 +837,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         casco_insurance_price: cascoInsuranceValue,
         likes: likesValue,
         description: descriptionJson,
-        head_image: headImagePath,
-        gallery_images: JSON.stringify(galleryImagePaths),
+        head_image: headImageUrl,
+        gallery_images: JSON.stringify(galleryImageUrls),
         is_premium: false,
         display_order: 0,
         status: 'active'
@@ -917,8 +917,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
       cascoInsuranceValue,
       likesValue,
       descriptionJson,
-      headImagePath,
-      JSON.stringify(galleryImagePaths)
+      headImageUrl,
+      JSON.stringify(galleryImageUrls)
     ],
     async function (err) {
       if (err) {
