@@ -2,8 +2,10 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
+
+// Import custom CORS middleware
+const { corsMiddleware } = require('../middleware/cors');
 
 // Import Supabase client
 const { supabase } = require('../lib/supabaseClient');
@@ -18,7 +20,7 @@ const spinningWheelRoutes = require('../routes/spinning-wheels');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(corsMiddleware);
 
 // Use urlencoded parser for form data
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

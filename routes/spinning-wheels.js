@@ -3,6 +3,21 @@ const router = express.Router();
 const db = require('../config/database');
 const { supabase } = require('../lib/supabaseClient');
 
+// Import validation middleware and schemas
+const { 
+  validate, 
+  validateParams,
+  spinningWheelCreateSchema, 
+  spinningWheelUpdateSchema, 
+  spinningWheelIdSchema, 
+  spinningWheelCouponSchema, 
+  spinningWheelBulkCouponsSchema,
+  phoneNumberSchema
+} = require('../middleware/validation');
+
+// Import authentication middleware
+const { authenticateToken } = require('../middleware/auth');
+
 // Get all spinning wheels
 router.get('/', async (req, res) => {
   // Check if we're using Supabase
@@ -532,7 +547,7 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
 });
 
 // Track phone number for spinning wheel
-router.post('/track-phone', async (req, res) => {
+router.post('/track-phone', validate(phoneNumberSchema), async (req, res) => {
   const { phoneNumber } = req.body;
   
   if (!phoneNumber) {
@@ -1184,7 +1199,7 @@ router.get('/:id/coupons', async (req, res) => {
 });
 
 // Add new spinning wheel
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, validate(spinningWheelCreateSchema), async (req, res) => {
   const { name, description } = req.body;
 
   if (!name) {
@@ -1236,7 +1251,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update spinning wheel
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, validateParams(spinningWheelIdSchema), validate(spinningWheelUpdateSchema), async (req, res) => {
   const id = req.params.id;
   const { name, description } = req.body;
 
@@ -1293,7 +1308,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Activate a spinning wheel
-router.patch('/:id/activate', async (req, res) => {
+router.patch('/:id/activate', authenticateToken, async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
@@ -1415,7 +1430,7 @@ router.patch('/:id/activate', async (req, res) => {
 });
 
 // Deactivate a spinning wheel
-router.patch('/:id/deactivate', async (req, res) => {
+router.patch('/:id/deactivate', authenticateToken, async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
@@ -1462,7 +1477,7 @@ router.patch('/:id/deactivate', async (req, res) => {
 });
 
 // Delete spinning wheel
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, validateParams(spinningWheelIdSchema), async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
@@ -1518,7 +1533,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Add coupon to wheel
-router.post('/:id/coupons', async (req, res) => {
+router.post('/:id/coupons', authenticateToken, async (req, res) => {
   const wheelId = req.params.id;
   const { coupon_id, percentage = 0 } = req.body;
 
@@ -1570,7 +1585,7 @@ router.post('/:id/coupons', async (req, res) => {
 });
 
 // Remove coupon from wheel
-router.delete('/:id/coupons/:couponId', async (req, res) => {
+router.delete('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
   const wheelId = req.params.id;
   const couponId = req.params.couponId;
 
@@ -1616,7 +1631,7 @@ router.delete('/:id/coupons/:couponId', async (req, res) => {
 });
 
 // Update coupon percentage in wheel
-router.patch('/:id/coupons/:couponId', async (req, res) => {
+router.patch('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
   const wheelId = req.params.id;
   const couponId = req.params.couponId;
   const { percentage } = req.body;
@@ -1674,7 +1689,7 @@ router.patch('/:id/coupons/:couponId', async (req, res) => {
 });
 
 // Bulk update wheel coupons (for the admin dashboard)
-router.post('/:id/coupons/bulk', async (req, res) => {
+router.post('/:id/coupons/bulk', authenticateToken, async (req, res) => {
   const wheelId = req.params.id;
   const { enabled, disabled, percentages } = req.body;
 

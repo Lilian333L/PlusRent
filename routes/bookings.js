@@ -4,8 +4,21 @@ const { supabase, supabaseAdmin } = require('../lib/supabaseClient');
 const TelegramNotifier = require('../config/telegram');
 const { trackPhoneNumberForBooking } = require('../lib/phoneNumberTracker');
 
+// Import validation middleware and schemas
+const { 
+  validate, 
+  validateParams,
+  bookingCreateSchema, 
+  bookingStatusSchema, 
+  bookingIdSchema, 
+  bookingRejectSchema 
+} = require('../middleware/validation');
+
+// Import authentication middleware
+const { authenticateToken } = require('../middleware/auth');
+
 // Create a new booking
-router.post('/', async (req, res) => {
+router.post('/', validate(bookingCreateSchema), async (req, res) => {
   const {
     car_id,
     pickup_date,
@@ -296,7 +309,7 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: Update booking status
-router.put('/:id/status', async (req, res) => {
+router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), validate(bookingStatusSchema), async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   
@@ -336,7 +349,7 @@ router.put('/:id/status', async (req, res) => {
 });
 
 // Admin: Confirm booking and mark car as unavailable
-router.put('/:id/confirm', async (req, res) => {
+router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), async (req, res) => {
   const bookingId = req.params.id;
   
   console.log('✅ Admin confirming booking:', bookingId);
@@ -444,7 +457,7 @@ router.put('/:id/confirm', async (req, res) => {
 });
 
 // Admin: Cancel booking
-router.put('/:id/cancel', async (req, res) => {
+router.put('/:id/cancel', authenticateToken, async (req, res) => {
   const bookingId = req.params.id;
   
   console.log('❌ Admin cancelling booking:', bookingId);
@@ -505,7 +518,7 @@ router.put('/:id/cancel', async (req, res) => {
 });
 
 // Admin: Reject booking
-router.put('/:id/reject', async (req, res) => {
+router.put('/:id/reject', authenticateToken, validateParams(bookingIdSchema), validate(bookingRejectSchema), async (req, res) => {
   const bookingId = req.params.id;
   const { reason } = req.body;
   

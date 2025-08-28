@@ -4,6 +4,20 @@ const db = require('../config/database');
 const { supabase } = require('../lib/supabaseClient');
 // const TelegramNotifier = require('../config/telegram');
 
+// Import validation middleware and schemas
+const { 
+  validate, 
+  validateParams,
+  couponCreateSchema, 
+  couponUpdateSchema, 
+  couponIdSchema, 
+  couponUseSchema, 
+  couponWheelSchema 
+} = require('../middleware/validation');
+
+// Import authentication middleware
+const { authenticateToken } = require('../middleware/auth');
+
 // Debug middleware for all coupon routes
 router.use((req, res, next) => {
   console.log('🔍 COUPON ROUTE ACCESSED:', req.method, req.originalUrl);
@@ -61,8 +75,8 @@ router.get('/debug-table', (req, res) => {
 
 
 
-// Toggle wheel enabled status for a coupon
-router.patch('/:id/toggle-wheel', async (req, res) => {
+// Toggle wheel enabled status for a coupon (Admin only)
+router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
   const id = req.params.id;
   const wheelId = req.query.wheelId; // Get wheel ID from query parameter
   
@@ -224,7 +238,7 @@ router.patch('/:id/toggle-wheel', async (req, res) => {
 });
 
 // Update dynamic coupon fields (available_codes and showed_codes)
-router.patch('/:id/dynamic-fields', async (req, res) => {
+router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
   const couponId = req.params.id;
   const { available_codes, showed_codes } = req.body;
   
@@ -367,7 +381,7 @@ router.patch('/:id/dynamic-fields', async (req, res) => {
 });
 
 // Update coupon percentage for a specific wheel
-router.patch('/:id/wheel-percentage', async (req, res) => {
+router.patch('/:id/wheel-percentage', authenticateToken, async (req, res) => {
   const couponId = req.params.id;
   const { wheelId, percentage } = req.body;
   
@@ -490,7 +504,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Add new coupon code
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, validate(couponCreateSchema), async (req, res) => {
   console.log('📥 Received coupon data:', req.body);
   console.log('📥 Request headers:', req.headers);
   console.log('📥 Content-Type:', req.headers['content-type']);
@@ -670,7 +684,7 @@ router.use('*', (req, res, next) => {
 });
 
 // Update coupon code
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(couponUpdateSchema), async (req, res) => {
   console.log('🚨 PUT REQUEST RECEIVED!');
   console.log('📥 Edit coupon request - ID:', req.params.id);
   console.log('📥 Edit coupon request - Body:', req.body);
@@ -799,7 +813,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete coupon code
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, validateParams(couponIdSchema), async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
@@ -1082,7 +1096,7 @@ router.get('/validate/:code', async (req, res) => {
 });
 
 // Mark redemption code as used (move from available_codes to showed_codes)
-router.post('/use-redemption-code', async (req, res) => {
+router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) => {
   const { coupon_id, redemption_code } = req.body;
   
   if (!coupon_id || !redemption_code) {

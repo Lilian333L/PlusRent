@@ -3,8 +3,15 @@ const router = express.Router();
 const AdminUser = require('../models/admin');
 const { generateToken, authenticateToken } = require('../middleware/auth');
 
+// Import validation middleware and schemas
+const { 
+  validate, 
+  loginSchema, 
+  registerSchema 
+} = require('../middleware/validation');
+
 // Admin login
-router.post('/login', async (req, res) => {
+router.post('/login', validate(loginSchema), async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -132,7 +139,7 @@ router.get('/health', async (req, res) => {
 });
 
 // Create new admin user (protected route)
-router.post('/register', authenticateToken, async (req, res) => {
+router.post('/register', authenticateToken, validate(registerSchema), async (req, res) => {
   try {
     const { username, password, email } = req.body;
 

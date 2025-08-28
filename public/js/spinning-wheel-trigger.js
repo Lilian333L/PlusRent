@@ -12,7 +12,7 @@
 
     // Configuration
     const CONFIG = {
-        TRIGGER_DELAY: 5 * 1000, // ⚠️ TESTING MODE: 5 seconds (change to 5 * 60 * 1000 for production)
+        TRIGGER_DELAY: 5 * 60 * 1000, // ⚠️ PROD MODE: 5 seconds (change to 5 * 1000 for test)
         STORAGE_KEY: 'spinningWheelLastSeen',
         MODAL_ID: 'spinningWheelModal',
         IFRAME_SRC: 'spinning-wheel-standalone.html',

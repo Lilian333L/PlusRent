@@ -8,6 +8,19 @@ const TelegramNotifier = require('../config/telegram');
 
 const { supabase, supabaseAdmin, uploadCarImage, getCarImageUrl } = require('../lib/supabaseClient');
 
+// Import validation middleware and schemas
+const { 
+  validate, 
+  validateParams,
+  carCreateSchema, 
+  carUpdateSchema, 
+  carIdSchema, 
+  carReorderSchema 
+} = require('../middleware/validation');
+
+// Import authentication middleware
+const { authenticateToken } = require('../middleware/auth');
+
 // Function to check if a car is currently unavailable and when it will be available
 async function getNextAvailableDate(carId) {
   try {
@@ -585,8 +598,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Add new car
-router.post('/', async (req, res) => {
+// Add new car (Admin only)
+router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) => {
   console.log('Car creation request body:', req.body);
   console.log('Request body keys:', Object.keys(req.body || {}));
   
@@ -1045,8 +1058,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update car
-router.put('/:id', async (req, res) => {
+// Update car (Admin only)
+router.put('/:id', authenticateToken, validateParams(carIdSchema), validate(carUpdateSchema), async (req, res) => {
   console.log('🔍 SERVER - PUT /api/cars/:id received request');
   const id = req.params.id;
   console.log('  Car ID:', id);
@@ -1289,8 +1302,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete car
-router.delete('/:id', async (req, res) => {
+// Delete car (Admin only)
+router.delete('/:id', authenticateToken, validateParams(carIdSchema), async (req, res) => {
   const id = req.params.id;
   
   // Check if we're using Supabase
@@ -1400,7 +1413,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Toggle premium status for a car
-router.patch('/:id/premium', async (req, res) => {
+router.patch('/:id/premium', authenticateToken, async (req, res) => {
   const id = req.params.id;
   const { is_premium } = req.body;
   
@@ -1463,7 +1476,7 @@ router.patch('/:id/premium', async (req, res) => {
 });
 
 // Upload car images
-router.post('/:id/images', async (req, res) => {
+router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async (req, res) => {
   const carId = req.params.id;
   
   console.log('🔍 SERVER - POST /api/cars/:id/images received request');
@@ -1610,7 +1623,7 @@ router.post('/:id/images', async (req, res) => {
 });
 
 // Delete a specific image from a car
-router.delete('/:id/images', async (req, res) => {
+router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), async (req, res) => {
   const carId = req.params.id;
   const imagePath = req.query.path;
   const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
@@ -1838,7 +1851,7 @@ router.delete('/:id/images', async (req, res) => {
 });
 
 // Reorder cars endpoint
-router.post('/reorder', async (req, res) => {
+router.post('/reorder', authenticateToken, validate(carReorderSchema), async (req, res) => {
   const { carOrder } = req.body;
   
   if (!carOrder || !Array.isArray(carOrder)) {
