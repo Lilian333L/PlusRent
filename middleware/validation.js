@@ -164,7 +164,7 @@ const carUpdateSchema = Joi.object({
       data: Joi.string().base64().required(),
       extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
     })
-  ).allow(null),
+  ).allow(null, ''),
   luggage: Joi.string().valid(
     '1_small', '2_small', '1_large', '2_large', '3_large',
     '1_small_1_large', '2_small_1_large', '1_small_2_large', 

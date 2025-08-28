@@ -625,8 +625,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         originalname: `head.${headImageData.extension || 'jpg'}`
       };
 
-      // Upload to Supabase Storage (we'll get the car ID later)
-      headImageUrl = headFile; // Store the file object for later upload
+      // We'll upload this after creating the car record
+      headImageUrl = headFile; // Store the file object for upload after car creation
       console.log('✅ Head image prepared for Supabase upload');
     } catch (error) {
       console.error('❌ Error preparing head image:', error);
@@ -837,8 +837,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         casco_insurance_price: cascoInsuranceValue,
         likes: likesValue,
         description: descriptionJson,
-        head_image: headImageUrl,
-        gallery_images: JSON.stringify(galleryImageUrls),
+        head_image: null, // Will be updated after image upload
+        gallery_images: JSON.stringify([]), // Will be updated after image upload
         is_premium: false,
         display_order: 0,
         status: 'active'
@@ -863,6 +863,55 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
       
       console.log('✅ Car created successfully in Supabase');
       
+      const carId = data[0].id;
+      
+      // Upload images to Supabase Storage now that we have the car ID
+      let finalHeadImageUrl = null;
+      let finalGalleryImageUrls = [];
+      
+      // Upload head image if provided
+      if (headImageUrl && typeof headImageUrl === 'object') {
+        try {
+          console.log('🖼️ Uploading head image to Supabase Storage...');
+          finalHeadImageUrl = await uploadCarImage(headImageUrl, carId, 'head');
+          console.log('✅ Head image uploaded successfully:', finalHeadImageUrl);
+        } catch (error) {
+          console.error('❌ Error uploading head image to Supabase:', error);
+        }
+      }
+      
+      // Upload gallery images if provided
+      for (let i = 0; i < galleryImageUrls.length; i++) {
+        if (galleryImageUrls[i] && typeof galleryImageUrls[i] === 'object') {
+          try {
+            console.log(`🖼️ Uploading gallery image ${i + 1} to Supabase Storage...`);
+            const galleryUrl = await uploadCarImage(galleryImageUrls[i], carId, 'gallery');
+            finalGalleryImageUrls.push(galleryUrl);
+            console.log(`✅ Gallery image ${i + 1} uploaded successfully:`, galleryUrl);
+          } catch (error) {
+            console.error(`❌ Error uploading gallery image ${i + 1} to Supabase:`, error);
+          }
+        }
+      }
+      
+      // Update car with image URLs if any images were uploaded
+      if (finalHeadImageUrl || finalGalleryImageUrls.length > 0) {
+        const imageUpdateData = {};
+        if (finalHeadImageUrl) imageUpdateData.head_image = finalHeadImageUrl;
+        if (finalGalleryImageUrls.length > 0) imageUpdateData.gallery_images = JSON.stringify(finalGalleryImageUrls);
+        
+        const { error: updateError } = await supabase
+          .from('cars')
+          .update(imageUpdateData)
+          .eq('id', carId);
+          
+        if (updateError) {
+          console.error('❌ Error updating car with image URLs:', updateError);
+        } else {
+          console.log('✅ Car updated with image URLs successfully');
+        }
+      }
+      
       // Send Telegram notification
       try {
         const telegram = new TelegramNotifier();
@@ -884,7 +933,7 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         console.error('Error sending Telegram notification:', error);
       }
       
-      res.json({ success: true, id: data[0].id });
+      res.json({ success: true, id: carId });
       
     } catch (error) {
       console.error('❌ Supabase car creation error:', error);
