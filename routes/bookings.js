@@ -192,7 +192,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
         return_time,
         pickup_location,
         dropoff_location,
-        insurance_type,
+
         total_price,
         special_instructions,
         discount_code: validatedDiscountCode

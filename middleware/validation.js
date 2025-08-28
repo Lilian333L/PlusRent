@@ -205,7 +205,7 @@ const bookingCreateSchema = Joi.object({
   special_instructions: Joi.string().max(1000).trim().allow(null, ''),
   total_price: Joi.number().positive().required(),
   price_breakdown: Joi.object().required(),
-  customer_name: Joi.string().min(1).max(100).required().trim(),
+  customer_name: Joi.string().min(1).max(100).trim().allow(null, ''),
   customer_email: Joi.string().email().required().trim(),
   customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\(\)]{8,20}$/).required(),
   customer_age: Joi.number().integer().min(18).max(100).required()
