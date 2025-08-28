@@ -1,6 +1,6 @@
 const cors = require('cors');
 
-// Development CORS Configuration - PERMISSIVE FOR DEVELOPMENT
+// Production CORS Configuration - STRICT SECURITY
 const corsOptions = {
   // Allow credentials (cookies, authorization headers)
   credentials: true,
@@ -26,63 +26,52 @@ const corsOptions = {
   maxAge: 86400, // 24 hours
 };
 
-// Development origins (localhost)
-const devOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001', 
-  'http://localhost:5000',
-  'http://localhost:8080',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:5000',
-  'http://127.0.0.1:8080'
+// Production origins - UPDATE THESE WITH YOUR ACTUAL DOMAINS
+const productionOrigins = [
+  'https://yourdomain.com',
+  'https://www.yourdomain.com',
+  'https://rentaly.vercel.app',
+  // Add your other production domains here
 ];
 
-// Get allowed origins based on environment
+// Get allowed origins for production
 function getAllowedOrigins() {
-  const origins = [...devOrigins];
-  
-  // Add Vercel preview URLs
-  if (process.env.VERCEL_URL) {
-    origins.push(`https://${process.env.VERCEL_URL}`);
-  }
+  const origins = [...productionOrigins];
   
   // Add custom origins from environment variable
   if (process.env.ALLOWED_ORIGINS) {
     const customOrigins = process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
     origins.push(...customOrigins);
+    console.log('🌐 Added custom origins from ALLOWED_ORIGINS:', customOrigins);
   }
   
+  console.log('🔒 Production allowed origins:', origins);
   return origins;
 }
 
-// CORS origin validation function - PERMISSIVE FOR DEVELOPMENT
+// CORS origin validation function - STRICT FOR PRODUCTION
 function validateOrigin(origin, callback) {
   const allowedOrigins = getAllowedOrigins();
   
   // Allow requests with no origin (like mobile apps or Postman)
   if (!origin) {
+    console.log('✅ Production: Allowing request with no origin');
     return callback(null, true);
   }
   
   // Check if origin is in allowed list
   if (allowedOrigins.includes(origin)) {
+    console.log(`✅ Production: Allowing origin: ${origin}`);
     return callback(null, true);
   }
   
-  // Check if origin matches Vercel preview pattern
-  if (process.env.VERCEL_URL && origin.includes(process.env.VERCEL_URL)) {
-    return callback(null, true);
-  }
+  // Log blocked origins for security monitoring
+  console.log(`🚫 Production CORS blocked: ${origin}`);
+  console.log(`🔒 Allowed origins:`, allowedOrigins);
+  console.log(`🏭 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🌐 VERCEL_URL: ${process.env.VERCEL_URL}`);
   
-  // Check if origin matches custom domain pattern
-  if (process.env.CUSTOM_DOMAIN && origin.includes(process.env.CUSTOM_DOMAIN)) {
-    return callback(null, true);
-  }
-  
-  // For development, be permissive - allow all origins
-  console.log(`🔓 Development: Allowing origin: ${origin}`);
-  return callback(null, true);
+  return callback(new Error('Not allowed by CORS'));
 }
 
 // Create CORS middleware with origin validation
@@ -91,24 +80,25 @@ const corsMiddleware = cors({
   origin: validateOrigin
 });
 
-// Development CORS middleware (completely permissive)
-const devCorsMiddleware = cors({
+// Production CORS middleware (strict)
+const productionCorsMiddleware = cors({
   ...corsOptions,
-  origin: true // Allow all origins in development
+  origin: (origin, callback) => {
+    const allowedOrigins = getAllowedOrigins();
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`🚫 Production CORS blocked: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 });
 
 // Get appropriate CORS middleware based on environment
 function getCorsMiddleware() {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isVercel = process.env.VERCEL === '1';
-  
-  if (isProduction) {
-    console.log('🔒 Using strict CORS for production');
-    return corsMiddleware;
-  } else {
-    console.log('🔓 Using permissive CORS for development');
-    return devCorsMiddleware;
-  }
+  console.log('🔒 Using STRICT CORS for production');
+  return productionCorsMiddleware;
 }
 
 // CORS preflight handler
@@ -119,7 +109,7 @@ const corsPreflight = (req, res) => {
 // Export middleware and utilities
 module.exports = {
   corsMiddleware: getCorsMiddleware(),
-  devCorsMiddleware,
+  productionCorsMiddleware,
   corsPreflight,
   getAllowedOrigins,
   validateOrigin
