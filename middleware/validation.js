@@ -125,12 +125,16 @@ const carCreateSchema = Joi.object({
     data: Joi.string().base64().required(),
     extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
   }).allow(null,''),
-  gallery_images: Joi.array().items(
-    Joi.object({
-      data: Joi.string().base64().required(),
-      extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
-    })
-  ).allow(null,'')
+  gallery_images: Joi.alternatives().try(
+    Joi.array().items(
+      Joi.object({
+        data: Joi.string().base64().required(),
+        extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+      })
+    ),
+    Joi.string().allow('').empty('').default([]),
+    Joi.allow(null).default([])
+  ).default([])
 });
 
 const carUpdateSchema = Joi.object({
@@ -159,12 +163,16 @@ const carUpdateSchema = Joi.object({
     Joi.date().iso(),
     Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
   ).allow(null, ''),
-  gallery_images: Joi.array().items(
-    Joi.object({
-      data: Joi.string().base64().required(),
-      extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
-    })
-  ).allow(null, ''),
+  gallery_images: Joi.alternatives().try(
+    Joi.array().items(
+      Joi.object({
+        data: Joi.string().base64().required(),
+        extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+      })
+    ),
+    Joi.string().allow('').empty('').default([]),
+    Joi.allow(null).default([])
+  ).default([]),
   luggage: Joi.string().valid(
     '1_small', '2_small', '1_large', '2_large', '3_large',
     '1_small_1_large', '2_small_1_large', '1_small_2_large', 
