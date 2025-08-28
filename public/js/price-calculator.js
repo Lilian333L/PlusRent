@@ -296,10 +296,7 @@ class PriceCalculator {
     }
     
     // Add breakdown items that have costs
-    if (priceData.insuranceCost > 0) {
-      const insuranceType = this.getSelectedRadioValue('insurance_type') || 'RCA';
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Insurance (${insuranceType})</span><span>${priceData.insuranceCost}€</span></div>`;
-    }
+    // Insurance removed - no longer needed
     
     if (priceData.outsideHoursFees > 0) {
       const pickupHour = parseInt(priceData.pickupTime.split(':')[0]);
@@ -371,7 +368,7 @@ class PriceCalculator {
       const pickupTimeSelect = document.getElementById('pickup-time');
       const returnTimeSelect = document.getElementById('collection-time');
       const discountCodeInput = document.querySelector('input[name="discount_code"]');
-      const insuranceTypeInputs = document.querySelectorAll('input[name="insurance_type"]');
+
       const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
       const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
 
@@ -391,9 +388,6 @@ class PriceCalculator {
       if (discountCodeInput) {
         discountCodeInput.addEventListener('input', () => this.debouncedRecalculate());
       }
-      insuranceTypeInputs.forEach(input => {
-        input.addEventListener('change', () => this.debouncedRecalculate());
-      });
       pickupLocationInputs.forEach(input => {
         input.addEventListener('change', () => this.debouncedRecalculate());
       });
@@ -449,12 +443,6 @@ class PriceCalculator {
     const ourOfficeRadio = document.querySelector('input[name="pickup_location"][value="Our Office"]');
     if (ourOfficeRadio) {
       ourOfficeRadio.checked = true;
-    }
-    
-    // Set RCA as default insurance
-    const rcaRadio = document.querySelector('input[name="insurance_type"][value="RCA"]');
-    if (rcaRadio) {
-      rcaRadio.checked = true;
     }
   }
 
@@ -512,7 +500,7 @@ class PriceCalculator {
       const pickupTimeSelect = document.getElementById('pickup-time');
       const returnTimeSelect = document.getElementById('collection-time');
       const discountCodeInput = document.querySelector('input[name="discount_code"]');
-      const insuranceTypeInputs = document.querySelectorAll('input[name="insurance_type"]');
+
       const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
 
       if (!pickupDateInput || !returnDateInput || !pickupTimeSelect || !returnTimeSelect) {
@@ -526,7 +514,7 @@ class PriceCalculator {
       const pickupTime = pickupTimeSelect.value;
       const returnTime = returnTimeSelect.value;
       const discountCode = discountCodeInput ? discountCodeInput.value.trim() : '';
-      const insuranceType = Array.from(insuranceTypeInputs).find(input => input.checked)?.value || 'RCA';
+
       const pickupLocation = Array.from(pickupLocationInputs).find(input => input.checked)?.value || 'Our Office';
       
       // Get dropoff location
@@ -539,7 +527,7 @@ class PriceCalculator {
         pickupTime,
         returnTime,
         discountCode,
-        insuranceType,
+
         pickupLocation,
         dropoffLocation
       });
@@ -751,12 +739,11 @@ class PriceCalculator {
     const returnDate = document.getElementById('date-picker-2')?.value;
     const pickupTime = document.getElementById('pickup-time')?.value;
     const returnTime = document.getElementById('collection-time')?.value;
-    const insuranceType = this.getSelectedRadioValue('insurance_type');
     const pickupLocation = this.getSelectedRadioValue('pickup_location');
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
     const discountCode = document.querySelector('input[name="discount_code"]')?.value;
 
-    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !insuranceType || !pickupLocation || !dropoffLocation) {
+    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !pickupLocation || !dropoffLocation) {
       return 0;
     }
 
@@ -765,7 +752,6 @@ class PriceCalculator {
       returnDate,
       pickupTime,
       returnTime,
-      insuranceType,
       pickupLocation,
       dropoffLocation,
       discountCode
@@ -781,12 +767,11 @@ class PriceCalculator {
     const returnDate = document.getElementById('date-picker-2')?.value;
     const pickupTime = document.getElementById('pickup-time')?.value;
     const returnTime = document.getElementById('collection-time')?.value;
-    const insuranceType = this.getSelectedRadioValue('insurance_type');
     const pickupLocation = this.getSelectedRadioValue('pickup_location');
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
     const discountCode = document.querySelector('input[name="discount_code"]')?.value;
 
-    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !insuranceType || !pickupLocation || !dropoffLocation) {
+    if (!pickupDate || !returnDate || !pickupTime || !returnTime || !pickupLocation || !dropoffLocation) {
       return {};
     }
 
@@ -795,7 +780,6 @@ class PriceCalculator {
       returnDate,
       pickupTime,
       returnTime,
-      insuranceType,
       pickupLocation,
       dropoffLocation,
       discountCode

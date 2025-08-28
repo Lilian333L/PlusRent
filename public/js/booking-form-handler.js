@@ -105,7 +105,7 @@ class BookingFormHandler {
       return_date: formData.get('Collection Date'),
       return_time: formData.get('Collection Time'),
       discount_code: formData.get('discount_code'),
-      insurance_type: getRadioValue('insurance_type') || 'RCA', // Default to RCA if not selected
+  
       pickup_location: getRadioValue('pickup_location'),
       dropoff_location: getRadioValue('dropoff_location'),
       special_instructions: formData.get('special_instructions'),

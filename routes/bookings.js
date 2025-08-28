@@ -26,11 +26,8 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     return_date,
     return_time,
     discount_code,
-    insurance_type,
     pickup_location,
     dropoff_location,
-    contact_person,
-    contact_phone,
     special_instructions,
     total_price,
     price_breakdown,
@@ -44,8 +41,8 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
 
   // Validate required fields
   if (!car_id || !pickup_date || !pickup_time || !return_date || !return_time || 
-      !insurance_type || !pickup_location || !dropoff_location || !customer_age) {
-    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, insurance_type, pickup_location, dropoff_location, customer_age });
+      !pickup_location || !dropoff_location || !customer_age) {
+    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, pickup_location, dropoff_location, customer_age });
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -92,7 +89,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     if (discount_code) {
       try {
         // First try to validate as redemption code with phone number validation
-        const customerPhone = customer_phone || contact_phone;
+        const customerPhone = customer_phone;
         const redemptionUrl = customerPhone 
           ? `${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}?phone=${encodeURIComponent(customerPhone)}`
           : `${req.protocol}://${req.get('host')}/api/coupons/validate-redemption/${discount_code}`;
@@ -148,15 +145,15 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       return_date,
       return_time,
       discount_code: validatedDiscountCode,
-      insurance_type,
+
       pickup_location,
       dropoff_location,
       special_instructions,
       total_price,
       price_breakdown,
-      customer_name: customer_name || contact_person || 'Not provided',
+      customer_name: customer_name || 'Not provided',
       customer_email: customer_email || 'Not provided',
-      customer_phone: customer_phone || contact_phone || 'Not provided',
+      customer_phone: customer_phone || 'Not provided',
       customer_age: customer_age || null,
       status: 'pending',
       created_at: new Date().toISOString(),
@@ -182,8 +179,8 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     try {
       const telegram = new TelegramNotifier();
       const telegramData = {
-        contact_person: customer_name || contact_person || 'Not provided',
-        contact_phone: customer_phone || contact_phone || 'Not provided',
+        contact_person: customer_name || 'Not provided',
+        contact_phone: customer_phone || 'Not provided',
         email: customer_email || 'Not provided',
         age: customer_age || 'Not provided',
         make_name: car.make_name,
@@ -207,7 +204,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
 
     // Track phone number for this booking (only track when booking is created, not when confirmed)
     try {
-      const phoneNumber = customer_phone || contact_phone;
+      const phoneNumber = customer_phone;
       if (phoneNumber) {
         console.log(`📞 Tracking phone number for new booking: ${phoneNumber}`);
         const trackingResult = await trackPhoneNumberForBooking(phoneNumber, newBooking.id.toString());
@@ -405,7 +402,7 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
       pickup_time: booking.pickup_time,
       return_date: booking.return_date,
       return_time: booking.return_time,
-      insurance_type: booking.insurance_type,
+
       pickup_location: booking.pickup_location,
       dropoff_location: booking.dropoff_location,
       total_price: booking.total_price || 0,
@@ -425,7 +422,7 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
 
     // Track phone number for this booking (when confirmed)
     try {
-      const phoneNumber = booking.customer_phone || booking.contact_phone;
+      const phoneNumber = booking.customer_phone;
       if (phoneNumber) {
         console.log(`📞 Tracking phone number for confirmed booking: ${phoneNumber}`);
         const trackingResult = await trackPhoneNumberForBooking(phoneNumber, bookingId.toString());

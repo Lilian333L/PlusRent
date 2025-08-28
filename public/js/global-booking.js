@@ -2,8 +2,11 @@
 // This script provides booking functionality that can be used across all pages
 
 class GlobalBookingSystem {
-  constructor() {
-            this.apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+  constructor() {    this.apiBaseUrl =
+      window.API_BASE_URL ||
+      (window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : `https://${window.location.hostname}`);
     this.currentCar = null;
     this.priceCalculator = null;
   }
@@ -12,21 +15,21 @@ class GlobalBookingSystem {
   init() {
     this.setupBookingButtons();
     this.setupCouponValidation();
-    console.log('Global booking system initialized');
+    console.log("Global booking system initialized");
   }
 
   // Setup booking buttons on cars page
   setupBookingButtons() {
     // Find all "Book Now" buttons
-    const bookButtons = document.querySelectorAll('[data-booking-action]');
-    
-    bookButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
+    const bookButtons = document.querySelectorAll("[data-booking-action]");
+
+    bookButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
         e.preventDefault();
-        const carId = button.getAttribute('data-car-id');
-        const action = button.getAttribute('data-booking-action');
-        
-        if (action === 'book') {
+        const carId = button.getAttribute("data-car-id");
+        const action = button.getAttribute("data-booking-action");
+
+        if (action === "book") {
           this.openBookingModal(carId);
         }
       });
@@ -35,10 +38,10 @@ class GlobalBookingSystem {
 
   // Setup coupon validation
   setupCouponValidation() {
-    const couponInputs = document.querySelectorAll('[data-coupon-input]');
-    
-    couponInputs.forEach(input => {
-      input.addEventListener('blur', async (e) => {
+    const couponInputs = document.querySelectorAll("[data-coupon-input]");
+
+    couponInputs.forEach((input) => {
+      input.addEventListener("blur", async (e) => {
         const code = e.target.value.trim();
         if (code) {
           await this.validateCoupon(code, e.target);
@@ -53,19 +56,18 @@ class GlobalBookingSystem {
       // Fetch car data
       const response = await fetch(`${this.apiBaseUrl}/api/cars/${carId}`);
       const car = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error('Car not found');
+        throw new Error("Car not found");
       }
 
       this.currentCar = car;
-      
+
       // Create and show booking modal
       this.showBookingModal(car);
-      
     } catch (error) {
-      console.error('Error loading car data:', error);
-      alert('Error loading car information. Please try again.');
+      console.error("Error loading car data:", error);
+      alert("Error loading car information. Please try again.");
     }
   }
 
@@ -77,17 +79,29 @@ class GlobalBookingSystem {
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Book ${car.make_name} ${car.model_name}</h5>
+              <h5 class="modal-title">Book ${car.make_name} ${
+      car.model_name
+    }</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-4">
-                  <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" 
-                       class="img-fluid rounded" alt="${car.make_name} ${car.model_name}">
+                  <img src="${
+                    car.head_image && car.head_image.startsWith("http")
+                      ? car.head_image
+                      : car.head_image
+                      ? window.API_BASE_URL + car.head_image
+                      : window.API_BASE_URL + "/uploads/placeholder.png"
+                  }" 
+                       class="img-fluid rounded" alt="${car.make_name} ${
+      car.model_name
+    }">
                 </div>
                 <div class="col-md-8">
-                  <h6>${car.make_name} ${car.model_name} (${car.production_year})</h6>
+                  <h6>${car.make_name} ${car.model_name} (${
+      car.production_year
+    })</h6>
                   <p class="text-muted">
                     ${car.car_type} • ${car.fuel_type} • ${car.gear_type}<br>
                     ${car.num_passengers} passengers • ${car.num_doors} doors
@@ -104,25 +118,27 @@ class GlobalBookingSystem {
     `;
 
     // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
     // Load booking form
     this.loadBookingForm(car);
-    
+
     // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+    const modal = new bootstrap.Modal(document.getElementById("bookingModal"));
     modal.show();
-    
+
     // Clean up when modal is hidden
-    document.getElementById('bookingModal').addEventListener('hidden.bs.modal', () => {
-      document.getElementById('bookingModal').remove();
-    });
+    document
+      .getElementById("bookingModal")
+      .addEventListener("hidden.bs.modal", () => {
+        document.getElementById("bookingModal").remove();
+      });
   }
 
   // Load booking form
   async loadBookingForm(car) {
-    const container = document.querySelector('.booking-form-container');
-    
+    const container = document.querySelector(".booking-form-container");
+
     // Create booking form HTML
     const formHTML = `
       <form id="globalBookingForm" class="row g-3">
@@ -160,14 +176,7 @@ class GlobalBookingSystem {
             <option value="Iasi Airport">Iasi Airport</option>
           </select>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Insurance Type</label>
-          <select name="insurance_type" class="form-control" required>
-            <option value="">Select insurance</option>
-            <option value="RCA">RCA (€${car.rca_insurance_price || 15}/day)</option>
-            <option value="Casco">Casco (€${car.casco_insurance_price || 25}/day)</option>
-          </select>
-        </div>
+
         <div class="col-md-6">
           <label class="form-label">Coupon Code (Optional)</label>
           <input type="text" name="discount_code" class="form-control" data-coupon-input>
@@ -199,15 +208,15 @@ class GlobalBookingSystem {
         </div>
       </form>
     `;
-    
+
     container.innerHTML = formHTML;
-    
+
     // Initialize price calculator
     this.initPriceCalculator(car);
-    
+
     // Setup form submission
     this.setupFormSubmission();
-    
+
     // Setup coupon validation
     this.setupCouponValidation();
   }
@@ -216,13 +225,13 @@ class GlobalBookingSystem {
   initPriceCalculator(car) {
     if (window.PriceCalculator) {
       this.priceCalculator = new window.PriceCalculator(car);
-      
+
       // Add event listeners for price calculation
-      const form = document.getElementById('globalBookingForm');
-      const inputs = form.querySelectorAll('input, select');
-      
-      inputs.forEach(input => {
-        input.addEventListener('change', () => {
+      const form = document.getElementById("globalBookingForm");
+      const inputs = form.querySelectorAll("input, select");
+
+      inputs.forEach((input) => {
+        input.addEventListener("change", () => {
           this.updatePrice();
         });
       });
@@ -232,39 +241,39 @@ class GlobalBookingSystem {
   // Update price display
   async updatePrice() {
     if (!this.priceCalculator) return;
-    
-    const form = document.getElementById('globalBookingForm');
+
+    const form = document.getElementById("globalBookingForm");
     const formData = new FormData(form);
-    
+
     const bookingData = {
-      pickup_date: formData.get('pickup_date'),
-      pickup_time: formData.get('pickup_time'),
-      return_date: formData.get('return_date'),
-      return_time: formData.get('return_time'),
-      pickup_location: formData.get('pickup_location'),
-      dropoff_location: formData.get('dropoff_location'),
-      insurance_type: formData.get('insurance_type'),
-      discount_code: formData.get('discount_code')
+      pickup_date: formData.get("pickup_date"),
+      pickup_time: formData.get("pickup_time"),
+      return_date: formData.get("return_date"),
+      return_time: formData.get("return_time"),
+      pickup_location: formData.get("pickup_location"),
+      dropoff_location: formData.get("dropoff_location"),
+
+      discount_code: formData.get("discount_code"),
     };
-    
+
     // Check if we have all required data
-    if (!bookingData.pickup_date || !bookingData.return_date || !bookingData.insurance_type) {
+    if (!bookingData.pickup_date || !bookingData.return_date) {
       return;
     }
-    
+
     try {
       const priceData = await this.priceCalculator.calculatePrice(bookingData);
       this.updatePriceDisplay(priceData);
     } catch (error) {
-      console.error('Error calculating price:', error);
+      console.error("Error calculating price:", error);
     }
   }
 
   // Update price display
   updatePriceDisplay(priceData) {
-    const breakdown = document.getElementById('priceBreakdown');
+    const breakdown = document.getElementById("priceBreakdown");
     if (!breakdown) return;
-    
+
     breakdown.innerHTML = `
       <strong>Total Price: €${priceData.total}</strong><br>
       <small>
@@ -272,7 +281,7 @@ class GlobalBookingSystem {
         Insurance: €${priceData.insurance}<br>
         Location Fees: €${priceData.locationFees}<br>
         Outside Hours: €${priceData.outsideHours}<br>
-        ${priceData.discount ? `Discount: -€${priceData.discount}<br>` : ''}
+        ${priceData.discount ? `Discount: -€${priceData.discount}<br>` : ""}
       </small>
     `;
   }
@@ -281,55 +290,72 @@ class GlobalBookingSystem {
   async validateCoupon(code, inputElement) {
     try {
       // Get customer phone number for validation
-      const customerPhone = document.querySelector('[name="customer_phone"]')?.value?.trim();
-      
+      const customerPhone = document
+        .querySelector('[name="customer_phone"]')
+        ?.value?.trim();
+
       // Try redemption code validation first (with phone number if available)
       let response;
       if (customerPhone) {
-        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${code}?phone=${encodeURIComponent(customerPhone)}`);
+        response = await fetch(
+          `${
+            this.apiBaseUrl
+          }/api/coupons/validate-redemption/${code}?phone=${encodeURIComponent(
+            customerPhone
+          )}`
+        );
       } else {
-        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${code}`);
+        response = await fetch(
+          `${this.apiBaseUrl}/api/coupons/validate-redemption/${code}`
+        );
       }
-      
+
       let result = await response.json();
-      
+
       // If redemption code validation fails, try regular coupon validation
       if (!result.valid) {
-        response = await fetch(`${this.apiBaseUrl}/api/coupons/validate/${code}`);
+        response = await fetch(
+          `${this.apiBaseUrl}/api/coupons/validate/${code}`
+        );
         result = await response.json();
       }
-      
+
       if (response.ok && result.valid) {
-        inputElement.classList.remove('is-invalid');
-        inputElement.classList.add('is-valid');
-        this.showCouponMessage('Coupon applied successfully!', 'success');
+        inputElement.classList.remove("is-invalid");
+        inputElement.classList.add("is-valid");
+        this.showCouponMessage("Coupon applied successfully!", "success");
         this.updatePrice(); // Recalculate with discount
       } else {
-        inputElement.classList.remove('is-valid');
-        inputElement.classList.add('is-invalid');
-        this.showCouponMessage(result.message || result.error || 'Invalid coupon code', 'error');
+        inputElement.classList.remove("is-valid");
+        inputElement.classList.add("is-invalid");
+        this.showCouponMessage(
+          result.message || result.error || "Invalid coupon code",
+          "error"
+        );
       }
     } catch (error) {
-      console.error('Error validating coupon:', error);
-      inputElement.classList.remove('is-valid');
-      inputElement.classList.add('is-invalid');
-      this.showCouponMessage('Error validating coupon', 'error');
+      console.error("Error validating coupon:", error);
+      inputElement.classList.remove("is-valid");
+      inputElement.classList.add("is-invalid");
+      this.showCouponMessage("Error validating coupon", "error");
     }
   }
 
   // Show coupon message
   showCouponMessage(message, type) {
     // Remove existing message
-    const existingMessage = document.querySelector('.coupon-message');
+    const existingMessage = document.querySelector(".coupon-message");
     if (existingMessage) {
       existingMessage.remove();
     }
-    
+
     // Create new message
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} coupon-message`;
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `alert alert-${
+      type === "success" ? "success" : "danger"
+    } coupon-message`;
     messageDiv.textContent = message;
-    
+
     // Insert after coupon input
     const couponInput = document.querySelector('[name="discount_code"]');
     if (couponInput) {
@@ -339,91 +365,101 @@ class GlobalBookingSystem {
 
   // Setup form submission
   setupFormSubmission() {
-    const form = document.getElementById('globalBookingForm');
+    const form = document.getElementById("globalBookingForm");
     const submitButton = form.querySelector('button[type="submit"]');
-    
-    form.addEventListener('submit', async (e) => {
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
+
       // Disable submit button
       submitButton.disabled = true;
-      submitButton.textContent = 'Submitting...';
-      
+      submitButton.textContent = "Submitting...";
+
       try {
         // Validate coupon code if provided
-        const discountCode = form.querySelector('[name="discount_code"]').value.trim();
+        const discountCode = form
+          .querySelector('[name="discount_code"]')
+          .value.trim();
         if (discountCode) {
           const couponInput = form.querySelector('[name="discount_code"]');
           await this.validateCoupon(discountCode, couponInput);
-          
+
           // Check if coupon validation failed
-          if (couponInput.classList.contains('is-invalid')) {
-            this.showCouponMessage('Please enter a valid coupon code before submitting', 'error');
+          if (couponInput.classList.contains("is-invalid")) {
+            this.showCouponMessage(
+              "Please enter a valid coupon code before submitting",
+              "error"
+            );
             return; // Prevent form submission
           }
         }
-        
+
         // Collect form data
         const formData = new FormData(form);
         const bookingData = {
           car_id: this.currentCar.id,
-          pickup_date: formData.get('pickup_date'),
-          pickup_time: formData.get('pickup_time'),
-          return_date: formData.get('return_date'),
-          return_time: formData.get('return_time'),
-          pickup_location: formData.get('pickup_location'),
-          dropoff_location: formData.get('dropoff_location'),
-          insurance_type: formData.get('insurance_type'),
-          discount_code: formData.get('discount_code') || null,
-          customer_name: formData.get('customer_name'),
-          customer_phone: formData.get('customer_phone'),
-          customer_age: formData.get('customer_age'),
-          special_instructions: formData.get('special_instructions') || null,
-          total_price: this.priceCalculator ? this.priceCalculator.getTotalPrice() : 0,
-          price_breakdown: this.priceCalculator ? this.priceCalculator.getPriceBreakdown() : {}
+          pickup_date: formData.get("pickup_date"),
+          pickup_time: formData.get("pickup_time"),
+          return_date: formData.get("return_date"),
+          return_time: formData.get("return_time"),
+          pickup_location: formData.get("pickup_location"),
+          dropoff_location: formData.get("dropoff_location"),
+
+          discount_code: formData.get("discount_code") || null,
+          customer_name: formData.get("customer_name"),
+          customer_phone: formData.get("customer_phone"),
+          customer_age: formData.get("customer_age"),
+          special_instructions: formData.get("special_instructions") || null,
+          total_price: this.priceCalculator
+            ? this.priceCalculator.getTotalPrice()
+            : 0,
+          price_breakdown: this.priceCalculator
+            ? this.priceCalculator.getPriceBreakdown()
+            : {},
         };
-        
+
         // Submit booking
         const response = await fetch(`${this.apiBaseUrl}/api/bookings`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(bookingData)
+          body: JSON.stringify(bookingData),
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Booking failed');
+          throw new Error(errorData.error || "Booking failed");
         }
-        
+
         const result = await response.json();
-        
+
         // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("bookingModal")
+        );
         modal.hide();
-        
       } catch (error) {
-        console.error('Booking error:', error);
-        this.showCouponMessage('Booking failed. Please try again.', 'error');
+        console.error("Booking error:", error);
+        this.showCouponMessage("Booking failed. Please try again.", "error");
       } finally {
         // Re-enable submit button
         submitButton.disabled = false;
-        submitButton.textContent = 'Submit Booking';
+        submitButton.textContent = "Submit Booking";
       }
     });
   }
 
   // Add booking button to car card
   addBookingButton(carElement, carData) {
-    const button = document.createElement('button');
-    button.className = 'btn btn-primary btn-sm';
-    button.textContent = 'Book Now';
-    button.setAttribute('data-booking-action', 'book');
-    button.setAttribute('data-car-id', carData.id);
-    
+    const button = document.createElement("button");
+    button.className = "btn btn-primary btn-sm";
+    button.textContent = "Book Now";
+    button.setAttribute("data-booking-action", "book");
+    button.setAttribute("data-car-id", carData.id);
+
     // Add button to car element
-    const actionArea = carElement.querySelector('.d-info .d-text');
+    const actionArea = carElement.querySelector(".d-info .d-text");
     if (actionArea) {
       actionArea.appendChild(button);
     }
@@ -431,7 +467,7 @@ class GlobalBookingSystem {
 }
 
 // Initialize global booking system when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   window.globalBooking = new GlobalBookingSystem();
   window.globalBooking.init();
-}); 
+});

@@ -118,7 +118,7 @@ class TelegramNotifier {
 • Return: ${bookingData.return_date} at ${bookingData.return_time}
 • Pickup Location: ${bookingData.pickup_location}
 • Dropoff Location: ${bookingData.dropoff_location}
-• Insurance: ${bookingData.insurance_type}
+
 • Total Price: €${bookingData.total_price}
 ${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
 

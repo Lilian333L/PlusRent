@@ -173,7 +173,7 @@ $(document).ready(function(){
              return_time: $('#modal-return-time').val(),
              pickup_location: $('input[name="pickup_location"]:checked').val(),
              dropoff_location: $('input[name="destination"]:checked').val(),
-             insurance_type: 'basic', // Default insurance type (required by backend)
+         
              special_instructions: $('#message').val().trim() || null,
              total_price: parseFloat($('#total_price').val()) || 0, // Get from hidden field
              price_breakdown: {}
