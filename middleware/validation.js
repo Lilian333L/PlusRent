@@ -182,7 +182,20 @@ const carReorderSchema = Joi.object({
 // Booking schemas
 const bookingCreateSchema = Joi.object({
   car_id: Joi.number().integer().positive().required(),
-  pickup_date: Joi.date().iso().min('now').required(),
+  pickup_date: Joi.date().iso().required().custom((value, helpers) => {
+    const now = new Date();
+    const pickupDate = new Date(value);
+    
+    // Set both dates to start of day for comparison
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const pickupDay = new Date(pickupDate.getFullYear(), pickupDate.getMonth(), pickupDate.getDate());
+    
+    if (pickupDay < today) {
+      return helpers.error('any.invalid', { message: 'Pickup date must be today or in the future' });
+    }
+    
+    return value;
+  }),
   pickup_time: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
   return_date: Joi.date().iso().greater(Joi.ref('pickup_date')).required(),
   return_time: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
