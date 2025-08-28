@@ -2495,6 +2495,11 @@
                               </select>
                             </div>
                           </div>
+                          
+                          <!-- Update Button -->
+                          <div class="mt-4">
+                            <button type="submit" id="editCouponFormSubmitBtn" class="btn btn-main btn-lg">Update Coupon</button>
+                          </div>
                         </form>
                         
                         <!-- Dynamic Codes Tables -->
@@ -2558,11 +2563,7 @@
                         <div class="mt-3">
                           <a href="#" id="seeAllCodesBtn" target="_blank" class="btn btn-outline-primary">See all codes</a>
                         </div>
-                        
-                        <!-- Update Button -->
-                        <div class="mt-4">
-                          <button type="submit" id="editCouponFormSubmitBtn" class="btn btn-main btn-lg">Update Coupon</button>
-                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -5496,11 +5497,23 @@ if (!window.API_BASE_URL) {
       
       // Edit Coupon Form Submit
       const editCouponForm = document.getElementById('editCouponForm');
+      const editCouponSubmitBtn = document.getElementById('editCouponFormSubmitBtn');
+      
+      // Add click event listener to button as backup
+      if (editCouponSubmitBtn) {
+        editCouponSubmitBtn.addEventListener('click', (e) => {
+          console.log('🔧 Update Coupon button clicked');
+          // Let the form submit event handle it
+        });
+      }
+      
       if (editCouponForm) {
         editCouponForm.addEventListener('submit', async (e) => {
           e.preventDefault();
+          console.log('🔧 Edit coupon form submitted');
           
           const couponId = editCouponForm.dataset.couponId;
+          console.log('🔧 Coupon ID:', couponId);
           if (!couponId) {
             showCustomAlert('No coupon ID found', 'error');
             return;
@@ -5531,8 +5544,10 @@ if (!window.API_BASE_URL) {
           }
           
           try {
-            
+            console.log('🔧 Making PUT request to update coupon');
             const token = localStorage.getItem('adminToken');
+            console.log('🔧 Token available:', !!token);
+            console.log('🔧 Coupon data:', couponData);
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
               method: 'PUT',
               headers: { 
@@ -5542,6 +5557,7 @@ if (!window.API_BASE_URL) {
               body: JSON.stringify(couponData)
             });
             
+            console.log('🔧 Response status:', response.status);
             if (response.ok) {
               showCustomAlert('Coupon updated successfully!', 'success');
               editCouponForm.reset();

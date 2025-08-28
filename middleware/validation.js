@@ -274,8 +274,17 @@ const couponCreateSchema = Joi.object({
     then: Joi.number().integer().min(1).max(30).required(),
     otherwise: Joi.number().allow(null)
   }),
-  description: Joi.string().max(500).trim().allow(null),
-  expires_at: Joi.date().iso().greater('now').allow(null)
+  description: Joi.string().max(500).trim().allow(null, ''),
+  expires_at: Joi.alternatives().try(
+    Joi.date().iso().greater('now'),
+    Joi.string().pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/).custom((value) => {
+      const date = new Date(value);
+      if (isNaN(date.getTime())) throw new Error('Invalid date format');
+      if (date <= new Date()) throw new Error('Date must be in the future');
+      return date.toISOString();
+    }),
+    Joi.string().allow('').custom(() => null)
+  ).allow(null)
 });
 
 const couponUpdateSchema = Joi.object({
@@ -291,9 +300,25 @@ const couponUpdateSchema = Joi.object({
     then: Joi.number().integer().min(1).max(30),
     otherwise: Joi.number().allow(null)
   }),
-  description: Joi.string().max(500).trim().allow(null),
-  is_active: Joi.boolean(),
-  expires_at: Joi.date().iso().greater('now').allow(null)
+  description: Joi.string().max(500).trim().allow(null, ''),
+  is_active: Joi.alternatives().try(
+    Joi.boolean(),
+    Joi.string().valid('0', '1', 'true', 'false').custom((value) => {
+      if (value === '1' || value === 'true') return true;
+      if (value === '0' || value === 'false') return false;
+      return value;
+    })
+  ),
+  expires_at: Joi.alternatives().try(
+    Joi.date().iso().greater('now'),
+    Joi.string().pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/).custom((value) => {
+      const date = new Date(value);
+      if (isNaN(date.getTime())) throw new Error('Invalid date format');
+      if (date <= new Date()) throw new Error('Date must be in the future');
+      return date.toISOString();
+    }),
+    Joi.string().allow('').custom(() => null)
+  ).allow(null)
 });
 
 const couponIdSchema = Joi.object({
