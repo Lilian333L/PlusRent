@@ -196,10 +196,14 @@ const carUpdateSchema = Joi.object({
   description_en: Joi.string().max(2000).trim().allow(null,''),
   description_ro: Joi.string().max(2000).trim().allow(null,''),
   description_ru: Joi.string().max(2000).trim().allow(null,''),
-  head_image: Joi.object({
-    data: Joi.string().base64().required(),
-    extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
-  }).allow(null)
+  head_image: Joi.alternatives().try(
+    Joi.object({
+      data: Joi.string().base64().required(),
+      extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+    }),
+    Joi.string().allow(''),
+    Joi.allow(null)
+  )
 });
 
 const carIdSchema = Joi.object({
