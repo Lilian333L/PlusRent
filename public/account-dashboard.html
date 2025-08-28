@@ -2896,9 +2896,13 @@
       bookingCard.classList.add('approving');
       
       try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/confirm`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (response.ok) {
@@ -2954,9 +2958,13 @@
       const reason = ''; // No prompt needed
       
       try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/reject`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ reason: reason || 'No reason provided' })
         });
         
@@ -3016,9 +3024,13 @@
       bookingCard.classList.add('cancelling');
       
       try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${window.API_BASE_URL}/api/bookings/${bookingId}/cancel`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (response.ok) {
@@ -5385,9 +5397,13 @@
           }
           
           try {
+            const token = localStorage.getItem('adminToken');
             const response = await fetch(`${window.API_BASE_URL}/api/coupons`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
               body: JSON.stringify(couponData)
             });
             
@@ -5501,9 +5517,13 @@
           
           try {
             
+            const token = localStorage.getItem('adminToken');
             const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
               body: JSON.stringify(couponData)
             });
             
@@ -5916,8 +5936,12 @@
     // Function to perform the actual delete operation
     async function performDeleteCoupon(couponId) {
       try {
+        const token = localStorage.getItem('adminToken');
         const response = await fetch(`${window.API_BASE_URL}/api/coupons/${couponId}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         
         if (response.ok) {
@@ -6446,9 +6470,9 @@
               // Clear any previous validation message
               phoneNumberInput.setCustomValidity('');
               
-              // Track phone number for spinning wheel
-              try {
-                const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/track-phone`, {
+                              // Track phone number for spinning wheel
+                try {
+  const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/track-phone`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'
@@ -6554,9 +6578,13 @@
             
             // Choose endpoint based on current state
             const endpoint = isCurrentlyActive ? 'deactivate' : 'activate';
+            const token = localStorage.getItem('adminToken');
             const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/${endpoint}`, {
               method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
             });
             
             if (response.ok) {
@@ -7121,7 +7149,10 @@
                 promises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
               method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+              }
                   }).then(response => {
                     if (!response.ok) {
                       console.error(`Failed to enable coupon ${couponId}:`, response.status, response.statusText);
@@ -7153,7 +7184,10 @@
                 percentagePromises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
                     body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: percentage })
                   }).then(response => {
                     if (!response.ok) {
@@ -7169,7 +7203,10 @@
                 percentagePromises.push(
                   fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/wheel-percentage`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
                     body: JSON.stringify({ wheelId: currentEditingWheelId, percentage: percentage })
                   }).then(response => {
                     if (!response.ok) {
@@ -7193,7 +7230,10 @@
               disablePromises.push(
                 fetch(`${window.API_BASE_URL}/api/coupons/${couponId}/toggle-wheel?wheelId=${currentEditingWheelId}`, {
                   method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' }
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                  }
                 }).then(response => {
                   if (!response.ok) {
                     console.error(`Failed to disable coupon ${couponId}:`, response.status, response.statusText);
@@ -7251,9 +7291,13 @@
             
             const method = currentEditingWheelId ? 'PUT' : 'POST';
             
+            const token = localStorage.getItem('adminToken');
             const response = await fetch(url, {
               method: method,
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
               body: JSON.stringify({ name, description })
             });
             
@@ -7297,9 +7341,13 @@
           }
           
           try {
+            const token = localStorage.getItem('adminToken');
             const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${currentEditingWheelId}/activate`, {
               method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
             });
             
             if (response.ok) {

@@ -288,10 +288,12 @@
                         const allActiveCodes = [...currentActiveCodes, ...newCodes];
 
                         // Update the database
+                        const token = localStorage.getItem('adminToken');
                         const updateResponse = await fetch(`${API_BASE_URL}/api/coupons/${couponId}/dynamic-fields`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
                             },
                             body: JSON.stringify({
                                 available_codes: allActiveCodes

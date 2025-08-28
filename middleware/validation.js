@@ -78,9 +78,9 @@ const carCreateSchema = Joi.object({
   model_name: Joi.string().min(1).max(100).required().trim(),
   production_year: Joi.number().integer().min(1900).max(new Date().getFullYear() + 1).required(),
   gear_type: Joi.string().valid('Manual', 'Automatic').required(),
-  fuel_type: Joi.string().valid('gasoline', 'diesel', 'hybrid', 'electric').required(),
+  fuel_type: Joi.string().valid('Gasoline', 'Diesel', 'Hybrid', 'Electric').required(),
   engine_capacity: Joi.when('fuel_type', {
-    is: 'electric',
+    is: 'Electric',
     then: Joi.number().allow(null),
     otherwise: Joi.number().positive().required()
   }),
@@ -124,9 +124,9 @@ const carUpdateSchema = Joi.object({
   model_name: Joi.string().min(1).max(100).trim(),
   production_year: Joi.number().integer().min(1900).max(new Date().getFullYear() + 1),
   gear_type: Joi.string().valid('Manual', 'Automatic'),
-  fuel_type: Joi.string().valid('gasoline', 'diesel', 'hybrid', 'electric'),
+  fuel_type: Joi.string().valid('Gasoline', 'Diesel', 'Hybrid', 'Electric'),
   engine_capacity: Joi.when('fuel_type', {
-    is: 'electric',
+    is: 'Electric',
     then: Joi.number().allow(null),
     otherwise: Joi.number().positive()
   }),
