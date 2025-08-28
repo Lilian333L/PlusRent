@@ -106,9 +106,9 @@ const carCreateSchema = Joi.object({
     // Legacy values for backward compatibility
     'Small', 'Medium', 'Large'
   ).allow(null, ''),
-  mileage: Joi.number().integer().min(0).max(1000000).allow(null),
-  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
-  fuel_economy: Joi.number().positive().max(50).allow(null),
+  mileage: Joi.number().integer().min(0).max(1000000).allow(null, ''),
+  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null, ''),
+  fuel_economy: Joi.number().positive().max(50).allow(null, ''),
   exterior_color: Joi.string().max(50).trim().allow(null),
   interior_color: Joi.string().max(50).trim().allow(null),
   air_conditioning: Joi.boolean().allow(null),
@@ -174,7 +174,7 @@ const carUpdateSchema = Joi.object({
     'Small', 'Medium', 'Large'
   ).allow(null, ''),
   mileage: Joi.number().integer().min(0).max(1000000).allow(null,''),
-  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null),
+  drive: Joi.string().valid('Front Wheel Drive', 'Rear Wheel Drive', 'All Wheel Drive', '4 Wheel Drive', 'AWD').allow(null, ''),
   fuel_economy: Joi.number().positive().max(50).allow(null,''),
   exterior_color: Joi.string().max(50).trim().allow(null,''),
   interior_color: Joi.string().max(50).trim().allow(null,''),
