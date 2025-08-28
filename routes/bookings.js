@@ -151,6 +151,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       special_instructions,
       total_price,
       price_breakdown,
+      insurance_type: 'Basic', // Default insurance type for database compatibility
       customer_name: customer_name || 'Not provided',
       customer_email: customer_email || 'Not provided',
       customer_phone: customer_phone || 'Not provided',
@@ -403,6 +404,7 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
       return_date: booking.return_date,
       return_time: booking.return_time,
 
+      insurance_type: 'Basic', // Default insurance type for database compatibility
       pickup_location: booking.pickup_location,
       dropoff_location: booking.dropoff_location,
       total_price: booking.total_price || 0,
