@@ -21,11 +21,7 @@ class PriceCalculator {
       'Iasi Airport': 35
     };
     
-    // Insurance costs - use database values if available, otherwise fallback
-    this.insuranceCosts = {
-      'RCA': car && car.rca_insurance_price ? parseFloat(car.rca_insurance_price) : 0,
-      'Casco': car && car.casco_insurance_price ? parseFloat(car.casco_insurance_price) : 25
-    };
+    // Insurance costs removed - no longer needed
     
     // Outside working hours fees
     this.outsideHoursFee = 15; // Fee for pickup/dropoff outside working hours
@@ -40,13 +36,9 @@ class PriceCalculator {
       ? parseInt(car.price_policy['1-2']) 
       : 60;
     
-    // Update insurance costs from database
-    this.insuranceCosts = {
-      'RCA': car && car.rca_insurance_price ? parseFloat(car.rca_insurance_price) : 0,
-      'Casco': car && car.casco_insurance_price ? parseFloat(car.casco_insurance_price) : 25
-    };
+    // Insurance costs removed - no longer needed
     
-    console.log('Updated car data, base price:', this.basePrice, 'insurance costs:', this.insuranceCosts);
+    console.log('Updated car data, base price:', this.basePrice);
   }
 
   // Check if time is outside working hours (8:00-18:00)
@@ -74,10 +66,7 @@ class PriceCalculator {
     return this.locationFees[location] || 0;
   }
 
-  // Calculate insurance cost
-  calculateInsuranceCost(insuranceType, days) {
-    return this.insuranceCosts[insuranceType] * days;
-  }
+
 
   // Calculate outside working hours fees
   calculateOutsideHoursFees(pickupTime, returnTime) {
@@ -112,7 +101,7 @@ class PriceCalculator {
       returnDate,
       returnTime,
       pickupLocation,
-      insuranceType,
+
       discountCode
     } = rentalData;
 
@@ -141,8 +130,8 @@ class PriceCalculator {
     
     const totalLocationFee = pickupLocationFee + dropoffLocationFee;
     
-    // Calculate insurance cost
-    const insuranceCost = this.calculateInsuranceCost(insuranceType, days);
+    // Insurance cost removed - no longer needed
+    const insuranceCost = 0;
     
     // Calculate outside hours fees
     const outsideHoursFees = this.calculateOutsideHoursFees(pickupTime, returnTime);
@@ -167,7 +156,7 @@ class PriceCalculator {
         'Price per day': `${this.basePrice}€`,
         'Total days': `x ${days}`,
         'Location delivery': totalLocationFee > 0 ? `+ ${totalLocationFee} €` : 'Included',
-        'Insurance cost': insuranceCost > 0 ? `+ ${insuranceCost} €` : 'Included',
+
         'Outside hours pickup': this.isOutsideWorkingHours(pickupTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
         'Outside hours return': this.isOutsideWorkingHours(returnTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
         'Discount': discountCode ? `- ${Math.round(0)} €` : 'None' // No hardcoded discount rates
@@ -622,13 +611,8 @@ class PriceCalculator {
       
       const totalLocationFee = pickupLocationFee + dropoffLocationFee;
 
-      // Calculate insurance cost
+      // Insurance cost removed - no longer needed
       let insuranceCost = 0;
-      if (insuranceType === 'RCA') {
-        insuranceCost = (this.car.rca_insurance_price || 0) * rentalDays;
-      } else if (insuranceType === 'Casco') {
-        insuranceCost = (this.car.casco_insurance_price || 0) * rentalDays;
-      }
 
       // Calculate outside hours fees
       const outsideHoursFees = this.calculateOutsideHoursFees(pickupTime, returnTime);
