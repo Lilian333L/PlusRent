@@ -7476,7 +7476,57 @@ if (!window.API_BASE_URL) {
           
           container.innerHTML = '';
           
+          // Group settings into logical categories
+          const groupedSettings = {
+            locationFees: [],
+            priceFilters: [],
+            otherFees: []
+          };
+          
           feeSettingsData.forEach(setting => {
+            if (setting.setting_key.includes('price')) {
+              groupedSettings.priceFilters.push(setting);
+            } else if (setting.setting_key.includes('airport') || setting.setting_key.includes('office')) {
+              groupedSettings.locationFees.push(setting);
+            } else {
+              groupedSettings.otherFees.push(setting);
+            }
+          });
+          
+          // Sort price filters in logical order
+          groupedSettings.priceFilters.sort((a, b) => {
+            const order = {
+              'economy_price_min': 1,
+              'economy_price_max': 2,
+              'standard_price_min': 3,
+              'standard_price_max': 4,
+              'premium_price_min': 5,
+              'premium_price_max': 6
+            };
+            return (order[a.setting_key] || 999) - (order[b.setting_key] || 999);
+          });
+          
+          // Sort location fees in logical order
+          groupedSettings.locationFees.sort((a, b) => {
+            const order = {
+              'chisinau_airport_pickup': 1,
+              'chisinau_airport_dropoff': 2,
+              'iasi_airport_pickup': 3,
+              'iasi_airport_dropoff': 4,
+              'office_pickup': 5,
+              'office_dropoff': 6
+            };
+            return (order[a.setting_key] || 999) - (order[b.setting_key] || 999);
+          });
+          
+          // Render settings in order: location fees, other fees, price filters
+          const allSettings = [
+            ...groupedSettings.locationFees,
+            ...groupedSettings.otherFees,
+            ...groupedSettings.priceFilters
+          ];
+          
+          allSettings.forEach(setting => {
             const col = document.createElement('div');
             col.className = 'col-md-6 col-lg-4';
             col.innerHTML = `

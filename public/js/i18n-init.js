@@ -56,9 +56,19 @@ function updateContent() {
     var key = el.getAttribute('data-i18n');
     var date = el.getAttribute('data-i18n-date');
     
+    // Handle dynamic price filter values
+    var min = el.getAttribute('data-i18n-min');
+    var max = el.getAttribute('data-i18n-max');
+    
     if (date) {
       // Handle custom interpolation for unavailable badges
       var value = i18next.t(key, { date: date });
+    } else if (min || max) {
+      // Handle dynamic price filter interpolation
+      var interpolation = {};
+      if (min) interpolation.min = min;
+      if (max) interpolation.max = max;
+      var value = i18next.t(key, interpolation);
     } else {
       var value = i18next.t(key);
     }

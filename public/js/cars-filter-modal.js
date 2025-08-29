@@ -66,89 +66,41 @@ class CarsFilterModal {
       return;
     }
     
-    // Try i18n first, fallback to direct text if it fails
-    let useI18n = false;
-    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-      useI18n = true;
-      console.log('🔧 Using i18n system for translations');
-    } else {
-      console.log('🔧 i18n not available, using fallback text');
-    }
+    // Instead of directly setting text content, update the data-i18n attributes
+    // with the dynamic values, then let the i18n system handle the translation
     
     // Update economy description
     const economDesc = this.modal.querySelector('.filter-card.econom .filter-card-description');
     console.log('🔧 Economy desc element found:', !!economDesc);
     if (economDesc) {
-      let newText;
-      if (useI18n) {
-        newText = i18next.t('cars.filter_econom_desc', { 
-          max: this.priceFilterSettings.economy.max 
-        });
-      } else {
-        // Fallback text based on current language
-        const currentLang = localStorage.getItem('lang') || 'ro';
-        if (currentLang === 'ru') {
-          newText = `Автомобили до ${this.priceFilterSettings.economy.max} EUR`;
-        } else if (currentLang === 'en') {
-          newText = `Cars up to ${this.priceFilterSettings.economy.max} EUR`;
-        } else {
-          newText = `Mașini până la ${this.priceFilterSettings.economy.max} EUR`;
-        }
-      }
-      economDesc.textContent = newText;
-      console.log('🔧 Updated economy description to:', newText);
+      // Update the data-i18n attribute with dynamic values
+      economDesc.setAttribute('data-i18n', `cars.filter_econom_desc`);
+      economDesc.setAttribute('data-i18n-max', this.priceFilterSettings.economy.max);
+      console.log('🔧 Updated economy data-i18n attributes');
     }
     
     // Update standard description
     const standardDesc = this.modal.querySelector('.filter-card.standard .filter-card-description');
     console.log('🔧 Standard desc element found:', !!standardDesc);
     if (standardDesc) {
-      let newText;
-      if (useI18n) {
-        newText = i18next.t('cars.filter_standard_desc', { 
-          min: this.priceFilterSettings.standard.min,
-          max: this.priceFilterSettings.standard.max 
-        });
-      } else {
-        // Fallback text based on current language
-        const currentLang = localStorage.getItem('lang') || 'ro';
-        if (currentLang === 'ru') {
-          newText = `Автомобили от ${this.priceFilterSettings.standard.min} до ${this.priceFilterSettings.standard.max} EUR`;
-        } else if (currentLang === 'en') {
-          newText = `Cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR`;
-        } else {
-          newText = `Mașini între ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR`;
-        }
-      }
-      standardDesc.textContent = newText;
-      console.log('🔧 Updated standard description to:', newText);
+      // Update the data-i18n attribute with dynamic values
+      standardDesc.setAttribute('data-i18n', `cars.filter_standard_desc`);
+      standardDesc.setAttribute('data-i18n-min', this.priceFilterSettings.standard.min);
+      standardDesc.setAttribute('data-i18n-max', this.priceFilterSettings.standard.max);
+      console.log('🔧 Updated standard data-i18n attributes');
     }
     
     // Update premium description
     const premiumDesc = this.modal.querySelector('.filter-card.premium .filter-card-description');
     console.log('🔧 Premium desc element found:', !!premiumDesc);
     if (premiumDesc) {
-      let newText;
-      if (useI18n) {
-        newText = i18next.t('cars.filter_premium_desc', { 
-          min: this.priceFilterSettings.premium.min 
-        });
-      } else {
-        // Fallback text based on current language
-        const currentLang = localStorage.getItem('lang') || 'ro';
-        if (currentLang === 'ru') {
-          newText = `Автомобили от ${this.priceFilterSettings.premium.min} EUR и выше`;
-        } else if (currentLang === 'en') {
-          newText = `Cars ${this.priceFilterSettings.premium.min} EUR and above`;
-        } else {
-          newText = `Mașini ${this.priceFilterSettings.premium.min} EUR și peste`;
-        }
-      }
-      premiumDesc.textContent = newText;
-      console.log('🔧 Updated premium description to:', newText);
+      // Update the data-i18n attribute with dynamic values
+      premiumDesc.setAttribute('data-i18n', `cars.filter_premium_desc`);
+      premiumDesc.setAttribute('data-i18n-min', this.priceFilterSettings.premium.min);
+      console.log('🔧 Updated premium data-i18n attributes');
     }
     
-    console.log('🔧 Updated modal descriptions with dynamic values');
+    console.log('🔧 Updated modal data-i18n attributes with dynamic values');
   }
 
   createModal() {
@@ -382,13 +334,13 @@ class CarsFilterModal {
       }
     }, 300);
     
-    // Update i18n if available
+    // Update descriptions with dynamic values first
+    this.updateModalDescriptions();
+    
+    // Then update i18n to apply the translations with dynamic values
     if (typeof updateContent === 'function') {
       updateContent();
     }
-    
-    // Update descriptions with dynamic values after modal opens
-    this.updateModalDescriptions();
   }
 
   closeModal() {
