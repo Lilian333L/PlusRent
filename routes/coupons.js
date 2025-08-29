@@ -140,8 +140,19 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
           .eq('coupon_id', id);
         
         if (deleteError) {
-          console.error('Delete error:', deleteError);
-          return res.status(500).json({ error: 'Database error' });
+          console.error('Delete error details:', {
+            error: deleteError,
+            message: deleteError.message,
+            code: deleteError.code,
+            details: deleteError.details,
+            hint: deleteError.hint,
+            wheelId: wheelId,
+            couponId: id
+          });
+          return res.status(500).json({ 
+            error: 'Database error', 
+            details: deleteError.message || 'Failed to disable coupon for wheel'
+          });
         }
         
         console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
@@ -155,8 +166,19 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
           .select();
         
         if (insertError) {
-          console.error('Insert error:', insertError);
-          return res.status(500).json({ error: 'Database error' });
+          console.error('Insert error details:', {
+            error: insertError,
+            message: insertError.message,
+            code: insertError.code,
+            details: insertError.details,
+            hint: insertError.hint,
+            wheelId: wheelId,
+            couponId: id
+          });
+          return res.status(500).json({ 
+            error: 'Database error', 
+            details: insertError.message || 'Failed to enable coupon for wheel'
+          });
         }
         
         console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
