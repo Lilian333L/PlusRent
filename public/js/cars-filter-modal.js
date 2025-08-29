@@ -66,47 +66,89 @@ class CarsFilterModal {
       return;
     }
     
-    // Check if i18next is available
-    if (typeof i18next === 'undefined' || !i18next.isInitialized) {
-      console.log('🔧 i18next not available, skipping i18n update');
-      return;
+    // Try i18n first, fallback to direct text if it fails
+    let useI18n = false;
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      useI18n = true;
+      console.log('🔧 Using i18n system for translations');
+    } else {
+      console.log('🔧 i18n not available, using fallback text');
     }
     
-    // Update economy description using i18n with dynamic values
+    // Update economy description
     const economDesc = this.modal.querySelector('.filter-card.econom .filter-card-description');
     console.log('🔧 Economy desc element found:', !!economDesc);
     if (economDesc) {
-      const newText = i18next.t('cars.filter_econom_desc', { 
-        max: this.priceFilterSettings.economy.max 
-      });
+      let newText;
+      if (useI18n) {
+        newText = i18next.t('cars.filter_econom_desc', { 
+          max: this.priceFilterSettings.economy.max 
+        });
+      } else {
+        // Fallback text based on current language
+        const currentLang = localStorage.getItem('lang') || 'ro';
+        if (currentLang === 'ru') {
+          newText = `Автомобили до ${this.priceFilterSettings.economy.max} EUR`;
+        } else if (currentLang === 'en') {
+          newText = `Cars up to ${this.priceFilterSettings.economy.max} EUR`;
+        } else {
+          newText = `Mașini până la ${this.priceFilterSettings.economy.max} EUR`;
+        }
+      }
       economDesc.textContent = newText;
       console.log('🔧 Updated economy description to:', newText);
     }
     
-    // Update standard description using i18n with dynamic values
+    // Update standard description
     const standardDesc = this.modal.querySelector('.filter-card.standard .filter-card-description');
     console.log('🔧 Standard desc element found:', !!standardDesc);
     if (standardDesc) {
-      const newText = i18next.t('cars.filter_standard_desc', { 
-        min: this.priceFilterSettings.standard.min,
-        max: this.priceFilterSettings.standard.max 
-      });
+      let newText;
+      if (useI18n) {
+        newText = i18next.t('cars.filter_standard_desc', { 
+          min: this.priceFilterSettings.standard.min,
+          max: this.priceFilterSettings.standard.max 
+        });
+      } else {
+        // Fallback text based on current language
+        const currentLang = localStorage.getItem('lang') || 'ro';
+        if (currentLang === 'ru') {
+          newText = `Автомобили от ${this.priceFilterSettings.standard.min} до ${this.priceFilterSettings.standard.max} EUR`;
+        } else if (currentLang === 'en') {
+          newText = `Cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR`;
+        } else {
+          newText = `Mașini între ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR`;
+        }
+      }
       standardDesc.textContent = newText;
       console.log('🔧 Updated standard description to:', newText);
     }
     
-    // Update premium description using i18n with dynamic values
+    // Update premium description
     const premiumDesc = this.modal.querySelector('.filter-card.premium .filter-card-description');
     console.log('🔧 Premium desc element found:', !!premiumDesc);
     if (premiumDesc) {
-      const newText = i18next.t('cars.filter_premium_desc', { 
-        min: this.priceFilterSettings.premium.min 
-      });
+      let newText;
+      if (useI18n) {
+        newText = i18next.t('cars.filter_premium_desc', { 
+          min: this.priceFilterSettings.premium.min 
+        });
+      } else {
+        // Fallback text based on current language
+        const currentLang = localStorage.getItem('lang') || 'ro';
+        if (currentLang === 'ru') {
+          newText = `Автомобили от ${this.priceFilterSettings.premium.min} EUR и выше`;
+        } else if (currentLang === 'en') {
+          newText = `Cars ${this.priceFilterSettings.premium.min} EUR and above`;
+        } else {
+          newText = `Mașini ${this.priceFilterSettings.premium.min} EUR și peste`;
+        }
+      }
       premiumDesc.textContent = newText;
       console.log('🔧 Updated premium description to:', newText);
     }
     
-    console.log('🔧 Updated modal descriptions with dynamic values using i18n');
+    console.log('🔧 Updated modal descriptions with dynamic values');
   }
 
   createModal() {
@@ -123,33 +165,33 @@ class CarsFilterModal {
           
           <div class="filter-modal-body">
             <div class="filter-cards-grid">
-              <div class="filter-card econom" data-filter="econom" tabindex="0" role="button" aria-label="Filter economy cars up to ${this.priceFilterSettings.economy.max} EUR">
+              <div class="filter-card econom" data-filter="econom" tabindex="0" role="button" aria-label="Filter economy cars">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-leaf"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_econom">Econom</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_econom_desc">Cars up to ${this.priceFilterSettings.economy.max} EUR</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_econom_desc">Cars up to {{max}} EUR</div>
                 </div>
               </div>
               
-              <div class="filter-card standard" data-filter="standard" tabindex="0" role="button" aria-label="Filter standard cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR">
+              <div class="filter-card standard" data-filter="standard" tabindex="0" role="button" aria-label="Filter standard cars">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-car"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_standard">Standard</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_standard_desc">Cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_standard_desc">Cars between {{min}}-{{max}} EUR</div>
                 </div>
               </div>
               
-              <div class="filter-card premium" data-filter="premium" tabindex="0" role="button" aria-label="Filter premium cars ${this.priceFilterSettings.premium.min} EUR and above">
+              <div class="filter-card premium" data-filter="premium" tabindex="0" role="button" aria-label="Filter premium cars">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-diamond"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_premium">Premium</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_premium_desc">Cars ${this.priceFilterSettings.premium.min} EUR and above</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_premium_desc">Cars {{min}} EUR and above</div>
                 </div>
               </div>
               
