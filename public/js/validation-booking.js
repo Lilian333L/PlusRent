@@ -220,7 +220,8 @@ $(document).ready(function(){
          
          if (errorMessage.length === 0) {
              console.error('❌ Error message element not found!');
-             alert('Error: ' + message); // Fallback to alert
+             console.error('showError fallback - no error display system available:', message);
+        alert('Error: ' + message); // Fallback to alert
              return;
          }
          
@@ -538,7 +539,11 @@ function openPriceCalculator() {
     const selectedVehicle = $('#vehicle_type option:selected');
     
     if (!selectedVehicle.val()) {
-        alert('Please select a vehicle first.');
+        if (window.showError && typeof window.showError === 'function') {
+            window.showError('Please select a vehicle first.');
+        } else {
+            alert('Please select a vehicle first.');
+        }
         return;
     }
     
@@ -615,7 +620,11 @@ function openPriceCalculator() {
             const return_dt = new Date(returnDate);
             
             if (return_dt <= pickup) {
-                alert('Return date must be after pickup date');
+                if (window.showError && typeof window.showError === 'function') {
+            window.showError('Return date must be after pickup date');
+        } else {
+            alert('Return date must be after pickup date');
+        }
                 return;
             }
         }
@@ -830,23 +839,42 @@ async function applyModalCalculation() {
             console.error('🔍 total_price field not found!');
         }
         
-        // Apply customer age from modal to main form
+        // Validate age field before proceeding
         const modalCustomerAge = $('#modal-customer-age').val().trim();
+        const ageInput = document.getElementById('modal-customer-age');
+        
+        // Check if age field is empty or invalid
+        if (!modalCustomerAge) {
+            console.log('🔍 Age field is empty, focusing on it');
+            ageInput.focus();
+            ageInput.reportValidity(); // This will show the browser's native validation message
+            return; // Don't proceed with submission
+        }
+        
+        // Check if age is within valid range
+        const age = parseInt(modalCustomerAge);
+        if (isNaN(age) || age < 18 || age > 100) {
+            console.log('🔍 Age is invalid:', age);
+            ageInput.focus();
+            ageInput.reportValidity(); // This will show the browser's native validation message
+            return; // Don't proceed with submission
+        }
+        
+        // Age is valid, proceed with form submission
+        console.log('🔍 Age is valid:', age);
         
         // Store age in a hidden field for the main form
-        if (modalCustomerAge) {
-            if (!$('#customer_age').length) {
-                $('<input>').attr({
-                    type: 'hidden',
-                    id: 'customer_age',
-                    name: 'customer_age',
-                    value: modalCustomerAge
-                }).appendTo('#booking_form');
-            } else {
-                $('#customer_age').val(modalCustomerAge);
-            }
-            console.log('🔍 Applied customer age from modal:', modalCustomerAge);
+        if (!$('#customer_age').length) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'customer_age',
+                name: 'customer_age',
+                value: modalCustomerAge
+            }).appendTo('#booking_form');
+        } else {
+            $('#customer_age').val(modalCustomerAge);
         }
+        console.log('🔍 Applied customer age from modal:', modalCustomerAge);
         
         // Close the modal properly
         closePriceCalculator();
@@ -858,7 +886,11 @@ async function applyModalCalculation() {
         console.log('🔍 applyModalCalculation completed');
     } catch (error) {
         console.error('🔍 Error in applyModalCalculation:', error);
-        alert('Error processing booking. Please try again.');
+        if (window.showError && typeof window.showError === 'function') {
+            window.showError('Error processing booking. Please try again.');
+        } else {
+            alert('Error processing booking. Please try again.');
+        }
     }
 }
 
@@ -873,23 +905,16 @@ async function submitBooking() {
         // Validate booking data
         if (!bookingData.car_id || !bookingData.customer_name || !bookingData.customer_phone) {
             console.error('🔍 Missing required booking data');
-            alert('Missing required booking information. Please check your form.');
+            if (window.showError && typeof window.showError === 'function') {
+                window.showError('Missing required booking information. Please check your form.');
+            } else {
+                alert('Missing required booking information. Please check your form.');
+            }
             return;
         }
         
-        // Validate age
-        if (!bookingData.customer_age) {
-            console.error('🔍 Missing customer age');
-            alert('Please enter your age. Age is required for booking.');
-            return;
-        }
-        
-        const age = parseInt(bookingData.customer_age);
-        if (isNaN(age) || age < 18 || age > 100) {
-            console.error('🔍 Invalid age:', bookingData.customer_age);
-            alert('Age must be between 18 and 100 years.');
-            return;
-        }
+        // Age validation is now handled by HTML5 required attribute and min/max constraints
+        // The browser will show native validation messages for empty or invalid age
         
         // Validate coupon code if provided
         if (bookingData.discount_code && bookingData.discount_code.trim()) {
@@ -914,15 +939,23 @@ async function submitBooking() {
                     result = await response.json();
                 }
                 
-                if (!response.ok || !result.valid) {
-                    console.error('🔍 Invalid coupon code:', couponCode);
-                    const errorMessage = result.message || result.error || 'Invalid coupon code. Please enter a valid coupon or remove it.';
-                    alert(errorMessage);
-                    return;
-                }
+                        if (!response.ok || !result.valid) {
+            console.error('🔍 Invalid coupon code:', couponCode);
+            const errorMessage = result.message || result.error || 'Invalid coupon code. Please enter a valid coupon or remove it.';
+            if (window.showError && typeof window.showError === 'function') {
+                window.showError(errorMessage);
+            } else {
+                alert(errorMessage);
+            }
+            return;
+        }
             } catch (error) {
                 console.error('🔍 Error validating coupon:', error);
-                alert('Error validating coupon code. Please try again.');
+                if (window.showError && typeof window.showError === 'function') {
+                    window.showError('Error validating coupon code. Please try again.');
+                } else {
+                    alert('Error validating coupon code. Please try again.');
+                }
                 return;
             }
         }
@@ -1016,7 +1049,11 @@ async function submitBooking() {
     } catch (error) {
         console.error('🔍 Error in submitBooking:', error);
         hideLoading();
-        alert('Error submitting booking. Please try again.');
+        if (window.showError && typeof window.showError === 'function') {
+            window.showError('Error submitting booking. Please try again.');
+        } else {
+            alert('Error submitting booking. Please try again.');
+        }
     }
 }
 

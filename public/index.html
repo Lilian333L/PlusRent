@@ -3041,6 +3041,38 @@ document.addEventListener('DOMContentLoaded', function() {
   // Wait a bit for API_BASE_URL to be initialized
   setTimeout(updateIndexFeeDisplays, 500);
 });
+
+// Error display function for index page (similar to car-single)
+window.showError = function(message) {
+  console.log('🔍 showError called with message:', message);
+  
+  // Hide success notification if it's showing
+  const successNotification = document.getElementById('booking-success-notification');
+  if (successNotification) {
+    successNotification.style.display = 'none';
+  }
+  
+  // Show error message
+  const errorMessage = document.getElementById('error_message');
+  
+  if (errorMessage) {
+    console.log('🔍 Found error element, displaying message');
+    errorMessage.innerHTML = message;
+    errorMessage.style.display = 'block';
+    
+    // Scroll to error message
+    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      errorMessage.style.display = 'none';
+    }, 5000);
+  } else {
+    console.log('🔍 Error elements not found, using fallback');
+    // Fallback to alert if error elements not found
+    alert(message);
+  }
+};
 </script>
 <script src="js/spinning-wheel-trigger.js"></script>
 </body>
