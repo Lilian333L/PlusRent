@@ -1697,10 +1697,11 @@
                 
                 <!-- Tab Navigation -->
                 <div class="admin-tabs mb-4">
-                  <button class="admin-tab-btn active" data-tab="cars">Manage Cars</button>
-                  <button class="admin-tab-btn" data-tab="coupons">Manage Coupon Codes</button>
-                  <button class="admin-tab-btn" data-tab="bookings">Manage Bookings</button>
-                  <button class="admin-tab-btn" data-tab="spinning-wheel">Manage Spinning Wheel</button>
+                                  <button class="admin-tab-btn active" data-tab="cars">Manage Cars</button>
+                <button class="admin-tab-btn" data-tab="coupons">Manage Coupon Codes</button>
+                <button class="admin-tab-btn" data-tab="fee-settings">Manage Fees</button>
+                <button class="admin-tab-btn" data-tab="bookings">Manage Bookings</button>
+                <button class="admin-tab-btn" data-tab="spinning-wheel">Manage Spinning Wheel</button>
                 </div>
                 
                 <!-- Language Switcher for Cars -->
@@ -2570,6 +2571,31 @@
                   <div id="couponCards" class="row g-4 mt-4"></div>
                 </div>
 
+                <!-- Fee Settings Tab Content -->
+                <div id="fee-settings-tab" class="admin-tab-content">
+                  <div class="admin-flex-row">
+                    <div class="admin-btn-col">
+                      <h6 class="mb-1">Fee Management</h6>
+                      <p class="text-muted small mb-2">Manage airport pickup/dropoff fees and outside working hours charges</p>
+                      
+                      <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                          <h5 class="card-title mb-4">Fee Settings</h5>
+                          
+                          <div id="feeSettingsContainer" class="row g-3">
+                            <!-- Fee settings will be loaded here dynamically -->
+                          </div>
+                          
+                          <div class="mt-4">
+                            <button type="button" id="saveFeeSettings" class="btn btn-main btn-lg">Save Changes</button>
+                            <button type="button" id="resetFeeSettings" class="btn btn-outline-secondary btn-lg ms-2">Reset to Defaults</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Bookings Tab Content -->
                 <div id="bookings-tab" class="admin-tab-content">
                   <div class="admin-flex-row">
@@ -3350,6 +3376,11 @@ if (!window.API_BASE_URL) {
           // Add active class to clicked button and corresponding content
           this.classList.add('active');
           document.getElementById(targetTab + '-tab').classList.add('active');
+          
+          // Load data when switching to specific tabs
+          if (targetTab === 'fee-settings') {
+            loadFeeSettings();
+          }
         });
       });
     }
@@ -7414,6 +7445,109 @@ if (!window.API_BASE_URL) {
           });
         }
 
+        // Fee Settings Management
+        let feeSettingsData = {};
+        
+        async function loadFeeSettings() {
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/fee-settings`);
+            
+            if (response.ok) {
+              feeSettingsData = await response.json();
+              console.log('🔄 Reloaded fee settings:', feeSettingsData.map(s => ({key: s.setting_key, amount: s.amount})));
+              renderFeeSettings();
+            } else {
+              showCustomAlert('Failed to load fee settings', 'error');
+            }
+          } catch (error) {
+            console.error('Error loading fee settings:', error);
+            showCustomAlert('Error loading fee settings', 'error');
+          }
+        }
+        
+        function renderFeeSettings() {
+          const container = document.getElementById('feeSettingsContainer');
+          if (!container) return;
+          
+          container.innerHTML = '';
+          
+          feeSettingsData.forEach(setting => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4';
+            col.innerHTML = `
+              <div class="card h-100">
+                <div class="card-body">
+                  <h6 class="card-title">${setting.setting_name}</h6>
+                  <p class="card-text small text-muted">${setting.description || ''}</p>
+                  <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="number" 
+                           class="form-control fee-input" 
+                           data-setting-key="${setting.setting_key}"
+                           value="${setting.amount}" 
+                           min="0" 
+                           step="0.01"
+                           ${setting.setting_key.includes('chisinau_airport_pickup') ? 'readonly title="Chisinau airport pickup is free as per requirements"' : ''}>
+                  </div>
+                  <div class="form-check mt-2">
+                    <input class="form-check-input active-checkbox" 
+                           type="checkbox" 
+                           data-setting-key="${setting.setting_key}"
+                           ${setting.is_active ? 'checked' : ''}>
+                    <label class="form-check-label">Active</label>
+                  </div>
+                </div>
+              </div>
+            `;
+            container.appendChild(col);
+          });
+        }
+        
+        async function saveFeeSettings() {
+          try {
+            const settings = [];
+            
+            feeSettingsData.forEach(setting => {
+              const amountInput = document.querySelector(`input.fee-input[data-setting-key="${setting.setting_key}"]`);
+              const activeCheckbox = document.querySelector(`input.active-checkbox[data-setting-key="${setting.setting_key}"]`);
+              
+              if (amountInput && activeCheckbox) {
+                settings.push({
+                  setting_key: setting.setting_key,
+                  amount: parseFloat(amountInput.value) || 0,
+                  is_active: activeCheckbox.checked
+                });
+              }
+            });
+            
+            const token = localStorage.getItem('adminToken');
+            
+            const response = await fetch(`${window.API_BASE_URL}/api/fee-settings`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ settings })
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              showCustomAlert('Fee settings updated successfully', 'success');
+              // Add a small delay to ensure database is updated before reloading
+              setTimeout(() => {
+                loadFeeSettings(); // Reload to show updated data
+              }, 500);
+            } else {
+              const error = await response.json();
+              showCustomAlert('Failed to update fee settings: ' + (error.error || 'Unknown error'), 'error');
+            }
+          } catch (error) {
+            console.error('Error saving fee settings:', error);
+            showCustomAlert('Error saving fee settings', 'error');
+          }
+        }
+        
         // Main initialization - consolidated
         document.addEventListener('DOMContentLoaded', function() {
           // Wait a bit to ensure all functions are loaded
@@ -7435,6 +7569,12 @@ if (!window.API_BASE_URL) {
               }
               if (typeof loadCoupons === 'function') {
                 loadCoupons();
+              }
+              
+              // Add fee settings event listeners
+              const saveFeeSettingsBtn = document.getElementById('saveFeeSettings');
+              if (saveFeeSettingsBtn) {
+                saveFeeSettingsBtn.addEventListener('click', saveFeeSettings);
               }
               if (typeof loadAllBookings === 'function') {
                 loadAllBookings(); // Load all bookings by default

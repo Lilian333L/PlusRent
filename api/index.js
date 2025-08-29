@@ -16,6 +16,7 @@ const carRoutes = require('../routes/cars');
 const couponRoutes = require('../routes/coupons');
 const bookingRoutes = require('../routes/bookings');
 const spinningWheelRoutes = require('../routes/spinning-wheels');
+const feeSettingsRoutes = require('../routes/fee-settings');
 
 const app = express();
 
@@ -145,6 +146,14 @@ try {
   console.log('✅ Spinning wheel routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount spinning wheel routes:', error);
+}
+
+try {
+  console.log('🔧 Mounting fee settings routes...');
+  app.use('/fee-settings', feeSettingsRoutes);
+  console.log('✅ Fee settings routes mounted');
+} catch (error) {
+  console.error('❌ Failed to mount fee settings routes:', error);
 }
 
 // Note: Static file serving is handled by Vercel, not by the API

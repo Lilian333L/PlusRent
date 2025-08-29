@@ -14,19 +14,68 @@ class PriceCalculator {
       end: 18   // 6:00 PM
     };
     
-    // Location-based delivery fees (same for pickup and dropoff)
+    // Dynamic fee settings - will be loaded from API
+    this.feeSettings = {
+      outside_hours_fee: 15,
+      chisinau_airport_pickup: 0,
+      chisinau_airport_dropoff: 25,
+      iasi_airport_pickup: 35,
+      iasi_airport_dropoff: 35,
+      office_pickup: 0,
+      office_dropoff: 0
+    };
+    
+    // Legacy location fees (for backward compatibility)
     this.locationFees = {
       'Chisinau Airport': 25,
       'Our Office': 0,
       'Iasi Airport': 35
     };
     
-    // Insurance costs removed - no longer needed
+    // Legacy outside hours fee (for backward compatibility)
+    this.outsideHoursFee = 15;
     
-    // Outside working hours fees
-    this.outsideHoursFee = 15; // Fee for pickup/dropoff outside working hours
+    // Load dynamic fee settings from API
+    this.loadFeeSettings();
     
     // Discount codes are managed via backend API - no hardcoded rates needed
+  }
+
+  // Load fee settings from API
+  async loadFeeSettings() {
+    console.log('🔄 loadFeeSettings called');
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+      if (response.ok) {
+        const feeData = await response.json();
+        // Update fee settings with API data
+        Object.assign(this.feeSettings, feeData);
+        
+        // Update legacy properties for backward compatibility
+        this.outsideHoursFee = this.feeSettings.outside_hours_fee || 15;
+        this.locationFees = {
+          'Chisinau Airport': this.feeSettings.chisinau_airport_pickup || 0,
+          'Our Office': 0,
+          'Iasi Airport': this.feeSettings.iasi_airport_pickup || 35
+        };
+        
+        console.log('✅ Fee settings loaded:', this.feeSettings);
+        console.log('🔍 Chisinau airport dropoff fee:', this.feeSettings.chisinau_airport_dropoff);
+        console.log('🔍 Chisinau airport pickup fee:', this.feeSettings.chisinau_airport_pickup);
+        
+        // Trigger price recalculation after fee settings are loaded
+        if (this.recalculatePrice) {
+          this.recalculatePrice().catch(error => {
+            console.error('Error recalculating price after fee settings load:', error);
+          });
+        }
+      } else {
+        console.warn('⚠️ Failed to load fee settings, using defaults');
+      }
+    } catch (error) {
+      console.error('❌ Error loading fee settings:', error);
+      console.log('Using default fee settings');
+    }
   }
 
   // Update car data (called when car data is loaded)
@@ -74,12 +123,12 @@ class PriceCalculator {
     
     // Check if pickup is outside working hours (8:00-18:00)
     if (this.isOutsideWorkingHours(pickupTime)) {
-      fees += 15; // €15 fee for pickup outside working hours
+      fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for pickup outside working hours
     }
     
     // Check if return is outside working hours (8:00-18:00)
     if (this.isOutsideWorkingHours(returnTime)) {
-      fees += 15; // €15 fee for return outside working hours
+      fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for return outside working hours
     }
     
     return fees;
@@ -111,21 +160,29 @@ class PriceCalculator {
     // Calculate base price
     const basePrice = this.calculateBasePrice(days);
     
-    // Calculate location fees for both pickup and dropoff
+    // Get dropoff location from rentalData
+    const dropoffLocation = rentalData.dropoffLocation || rentalData.destination || '';
+    
+    // Calculate location fees using dynamic fee settings
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
-    let dropoffLocation = "";
     
+    // Pickup fees
     if (pickupLocation === 'Chisinau Airport') {
-      pickupLocationFee = 25;
+      pickupLocationFee = this.feeSettings.chisinau_airport_pickup || 0;
     } else if (pickupLocation === 'Iasi Airport') {
-      pickupLocationFee = 35;
+      pickupLocationFee = this.feeSettings.iasi_airport_pickup || 35;
+    } else {
+      pickupLocationFee = this.feeSettings.office_pickup || 0;
     }
     
+    // Dropoff fees
     if (dropoffLocation === 'Chisinau Airport') {
-      dropoffLocationFee = 25;
+      dropoffLocationFee = this.feeSettings.chisinau_airport_dropoff || 25;
     } else if (dropoffLocation === 'Iasi Airport') {
-      dropoffLocationFee = 35;
+      dropoffLocationFee = this.feeSettings.iasi_airport_dropoff || 35;
+    } else {
+      dropoffLocationFee = this.feeSettings.office_dropoff || 0;
     }
     
     const totalLocationFee = pickupLocationFee + dropoffLocationFee;
@@ -273,15 +330,33 @@ class PriceCalculator {
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location') || 'Our Office';
     
     if (pickupLocation !== 'Our Office') {
-      const pickupFee = pickupLocation === 'Chisinau Airport' ? 25 : 35;
-      const locationName = pickupLocation === 'Chisinau Airport' ? 'Chisinau Airport' : 'Iasi Airport';
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Pickup: ${locationName}</span><span>${pickupFee}€</span></div>`;
+      let pickupFee = 0;
+      let locationName = pickupLocation;
+      
+      if (pickupLocation === 'Chisinau Airport') {
+        pickupFee = this.feeSettings.chisinau_airport_pickup ?? 0;
+      } else if (pickupLocation === 'Iasi Airport') {
+        pickupFee = this.feeSettings.iasi_airport_pickup ?? 35;
+      }
+      
+      if (pickupFee > 0) {
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Pickup: ${locationName}</span><span>${pickupFee}€</span></div>`;
+      }
     }
     
     if (dropoffLocation !== 'Our Office') {
-      const dropoffFee = dropoffLocation === 'Chisinau Airport' ? 25 : 35;
-      const locationName = dropoffLocation === 'Chisinau Airport' ? 'Chisinau Airport' : 'Iasi Airport';
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Dropoff: ${locationName}</span><span>${dropoffFee}€</span></div>`;
+      let dropoffFee = 0;
+      let locationName = dropoffLocation;
+      
+      if (dropoffLocation === 'Chisinau Airport') {
+        dropoffFee = this.feeSettings.chisinau_airport_dropoff ?? 25;
+      } else if (dropoffLocation === 'Iasi Airport') {
+        dropoffFee = this.feeSettings.iasi_airport_dropoff ?? 35;
+      }
+      
+      if (dropoffFee > 0) {
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Dropoff: ${locationName}</span><span>${dropoffFee}€</span></div>`;
+      }
     }
     
     // Add breakdown items that have costs
@@ -290,15 +365,16 @@ class PriceCalculator {
     if (priceData.outsideHoursFees > 0) {
       const pickupHour = parseInt(priceData.pickupTime.split(':')[0]);
       const returnHour = parseInt(priceData.returnTime.split(':')[0]);
+      const outsideHoursFee = this.feeSettings.outside_hours_fee ?? 15;
       
       // Show separate fees for pickup and dropoff if both are outside hours
       if ((pickupHour < 8 || pickupHour >= 18) && (returnHour < 8 || returnHour >= 18)) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>15€</span></div>`;
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>15€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
       } else if (pickupHour < 8 || pickupHour >= 18) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>15€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
       } else if (returnHour < 8 || returnHour >= 18) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>15€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
       }
     }
     
@@ -392,12 +468,26 @@ class PriceCalculator {
 
   // Show default calculation on page load
   async showDefaultCalculation() {
+    console.log('🔄 showDefaultCalculation called');
+    
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const pickupDateInput = document.getElementById('date-picker');
     const returnDateInput = document.getElementById('date-picker-2');
+    const pickupTimeSelect = document.getElementById('pickup-time');
+    const returnTimeSelect = document.getElementById('collection-time');
+
+    console.log('Found form elements:', {
+      pickupDateInput: !!pickupDateInput,
+      returnDateInput: !!returnDateInput,
+      pickupTimeSelect: !!pickupTimeSelect,
+      returnTimeSelect: !!returnTimeSelect
+    });
+
+    // Wait for daterangepicker to be initialized
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     if (pickupDateInput && returnDateInput) {
       // Set the values in YYYY-MM-DD format
@@ -409,7 +499,28 @@ class PriceCalculator {
         tomorrow: tomorrowFormatted
       });
       
-      // Set the values directly
+      // Try to set dates using jQuery daterangepicker if available
+      if (window.jQuery && window.jQuery.fn.daterangepicker) {
+        try {
+          // Set dates using daterangepicker's setStartDate method
+          const $pickupPicker = window.jQuery('#date-picker');
+          const $returnPicker = window.jQuery('#date-picker-2');
+          
+          if ($pickupPicker.length && $pickupPicker.data('daterangepicker')) {
+            $pickupPicker.data('daterangepicker').setStartDate(window.moment(todayFormatted));
+            console.log('Set pickup date via daterangepicker');
+          }
+          
+          if ($returnPicker.length && $returnPicker.data('daterangepicker')) {
+            $returnPicker.data('daterangepicker').setStartDate(window.moment(tomorrowFormatted));
+            console.log('Set return date via daterangepicker');
+          }
+        } catch (error) {
+          console.log('Error setting dates via daterangepicker:', error);
+        }
+      }
+      
+      // Also set the values directly as backup
       pickupDateInput.value = todayFormatted;
       returnDateInput.value = tomorrowFormatted;
       
@@ -417,11 +528,62 @@ class PriceCalculator {
       pickupDateInput.setAttribute('value', todayFormatted);
       returnDateInput.setAttribute('value', tomorrowFormatted);
       
+      // Also set the defaultValue property
+      pickupDateInput.defaultValue = todayFormatted;
+      returnDateInput.defaultValue = tomorrowFormatted;
+      
+      // Trigger multiple events to ensure the browser recognizes the change
+      ['input', 'change', 'blur'].forEach(eventType => {
+        pickupDateInput.dispatchEvent(new Event(eventType, { bubbles: true }));
+        returnDateInput.dispatchEvent(new Event(eventType, { bubbles: true }));
+      });
+      
       console.log('Date inputs after setting:', {
         pickupValue: pickupDateInput.value,
-        returnValue: returnDateInput.value
+        returnValue: returnDateInput.value,
+        pickupDefaultValue: pickupDateInput.defaultValue,
+        returnDefaultValue: returnDateInput.defaultValue
       });
+      
+      // Double-check the values are set
+      setTimeout(() => {
+        console.log('Date inputs after timeout:', {
+          pickupValue: pickupDateInput.value,
+          returnValue: returnDateInput.value
+        });
+      }, 100);
     }
+
+    // Set default times if time selects exist
+    if (pickupTimeSelect && pickupTimeSelect.options.length > 0) {
+      // Set to 08:00 (start of working hours) if available, otherwise first option
+      const eightAMOption = Array.from(pickupTimeSelect.options).find(option => option.value === '08:00');
+      if (eightAMOption) {
+        pickupTimeSelect.value = '08:00';
+      } else {
+        pickupTimeSelect.value = pickupTimeSelect.options[0].value;
+      }
+      pickupTimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('Set default pickup time:', pickupTimeSelect.value);
+    }
+    
+    if (returnTimeSelect && returnTimeSelect.options.length > 0) {
+      // Set to 18:00 (end of working hours) if available, otherwise first option
+      const sixPMOption = Array.from(returnTimeSelect.options).find(option => option.value === '17:00');
+      if (sixPMOption) {
+        returnTimeSelect.value = '17:00';
+      } else {
+        returnTimeSelect.value = returnTimeSelect.options[0].value;
+      }
+      returnTimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('Set default return time:', returnTimeSelect.value);
+    }
+
+    // Set default radio button selections
+    this.setDefaultRadioSelections();
+
+    // Wait a bit to ensure all changes are processed
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     await this.recalculatePrice();
   }
@@ -432,6 +594,17 @@ class PriceCalculator {
     const ourOfficeRadio = document.querySelector('input[name="pickup_location"][value="Our Office"]');
     if (ourOfficeRadio) {
       ourOfficeRadio.checked = true;
+      console.log('Set default pickup location: Our Office');
+    }
+    
+    // Set Our Office as default dropoff location - try both possible names
+    let ourOfficeDropoffRadio = document.querySelector('input[name="dropoff_location"][value="Our Office"]');
+    if (!ourOfficeDropoffRadio) {
+      ourOfficeDropoffRadio = document.querySelector('input[name="destination"][value="Our Office"]');
+    }
+    if (ourOfficeDropoffRadio) {
+      ourOfficeDropoffRadio.checked = true;
+      console.log('Set default dropoff location: Our Office');
     }
   }
 
@@ -482,7 +655,8 @@ class PriceCalculator {
 
   // Recalculate price based on current form values
   async recalculatePrice() {
-    console.log('recalculatePrice called');
+    console.log('🔄 recalculatePrice called');
+    console.log('🔄 Fee settings available:', this.feeSettings);
     try {
       const pickupDateInput = document.getElementById('date-picker');
       const returnDateInput = document.getElementById('date-picker-2');
@@ -506,8 +680,11 @@ class PriceCalculator {
 
       const pickupLocation = Array.from(pickupLocationInputs).find(input => input.checked)?.value || 'Our Office';
       
-      // Get dropoff location
-      const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+      // Get dropoff location - try both possible names
+      let dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+      if (dropoffLocationInputs.length === 0) {
+        dropoffLocationInputs = document.querySelectorAll('input[name="destination"]');
+      }
       const dropoffLocation = Array.from(dropoffLocationInputs).find(input => input.checked)?.value || 'Our Office';
 
       console.log('Form values:', {
@@ -567,6 +744,17 @@ class PriceCalculator {
       console.log('Car price policy:', this.car?.price_policy);
       console.log('Rental days:', rentalDays);
       
+      // Check if car data is available
+      if (!this.car || !this.car.price_policy) {
+        console.log('⚠️ Car data not available yet, skipping price calculation');
+        this.updatePriceDisplay({ 
+          totalPrice: 0, 
+          breakdown: [],
+          message: 'Loading car data...'
+        });
+        return;
+      }
+      
       let basePrice = 0;
       if (rentalDays === 0) {
         // No dates selected or invalid dates - show default message
@@ -593,20 +781,29 @@ class PriceCalculator {
       // Calculate total base price
       const totalBasePrice = basePrice * rentalDays;
 
-      // Calculate location fees for both pickup and dropoff
+      // Calculate location fees for both pickup and dropoff using dynamic fee settings
       let pickupLocationFee = 0;
       let dropoffLocationFee = 0;
       
       if (pickupLocation === 'Chisinau Airport') {
-        pickupLocationFee = 25;
+        pickupLocationFee = this.feeSettings.chisinau_airport_pickup ?? 0;
       } else if (pickupLocation === 'Iasi Airport') {
-        pickupLocationFee = 35;
+        pickupLocationFee = this.feeSettings.iasi_airport_pickup ?? 35;
+      } else {
+        pickupLocationFee = this.feeSettings.office_pickup ?? 0;
       }
       
       if (dropoffLocation === 'Chisinau Airport') {
-        dropoffLocationFee = 25;
+        dropoffLocationFee = this.feeSettings.chisinau_airport_dropoff ?? 25;
+        console.log('🔍 Chisinau dropoff calculation:', {
+          setting: this.feeSettings.chisinau_airport_dropoff,
+          fallback: 25,
+          final: dropoffLocationFee
+        });
       } else if (dropoffLocation === 'Iasi Airport') {
-        dropoffLocationFee = 35;
+        dropoffLocationFee = this.feeSettings.iasi_airport_dropoff ?? 35;
+      } else {
+        dropoffLocationFee = this.feeSettings.office_dropoff ?? 0;
       }
       
       const totalLocationFee = pickupLocationFee + dropoffLocationFee;

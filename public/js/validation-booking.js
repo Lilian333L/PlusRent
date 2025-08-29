@@ -161,20 +161,26 @@ $(document).ready(function(){
          const vehicleSelect = $('#vehicle_type');
          const selectedOption = vehicleSelect.find('option:selected');
          
+         // Helper function to safely get and trim values
+         const safeTrim = (selector) => {
+             const element = $(selector);
+             return element.length > 0 ? (element.val() || '').trim() : '';
+         };
+         
          return {
              car_id: selectedOption.attr('data-car-id'),
-             customer_name: $('#name').val().trim(),
-             customer_email: $('#email').val().trim(),
-             customer_phone: $('#phone').val().trim(),
-             customer_age: $('#modal-customer-age').val().trim() || $('#customer_age').val().trim(),
-             pickup_date: $('#modal-pickup-date').val(),
-             pickup_time: $('#modal-pickup-time').val(),
-             return_date: $('#modal-return-date').val(),
-             return_time: $('#modal-return-time').val(),
-             pickup_location: $('input[name="pickup_location"]:checked').val(),
-             dropoff_location: $('input[name="destination"]:checked').val(),
+             customer_name: safeTrim('#name'),
+             customer_email: safeTrim('#email'),
+             customer_phone: safeTrim('#phone'),
+             customer_age: safeTrim('#modal-customer-age') || safeTrim('#customer_age'),
+             pickup_date: $('#modal-pickup-date').val() || '',
+             pickup_time: $('#modal-pickup-time').val() || '',
+             return_date: $('#modal-return-date').val() || '',
+             return_time: $('#modal-return-time').val() || '',
+             pickup_location: $('input[name="pickup_location"]:checked').val() || '',
+             dropoff_location: $('input[name="destination"]:checked').val() || '',
          
-             special_instructions: $('#message').val().trim() || null,
+             special_instructions: safeTrim('#message') || null,
              total_price: parseFloat($('#total_price').val()) || 0, // Get from hidden field
              price_breakdown: {}
          };
@@ -200,18 +206,43 @@ $(document).ready(function(){
     
          // Show error message
      window.showError = function(message) {
-         const errorMessage = $('#error_message');
-         const successMessage = $('#success_message');
-         const mailFail = $('#mail_fail');
+         console.log('🔍 showError called with message:', message);
          
-         errorMessage.html(message).show().addClass('show');
+         const errorMessage = $('#error_message');
+         const errorMessageText = $('#error_message_text');
+         const successMessage = $('#booking-success-notification');
+         
+         console.log('🔍 Found elements:', {
+             errorMessage: errorMessage.length,
+             errorMessageText: errorMessageText.length,
+             successMessage: successMessage.length
+         });
+         
+         if (errorMessage.length === 0) {
+             console.error('❌ Error message element not found!');
+             alert('Error: ' + message); // Fallback to alert
+             return;
+         }
+         
+         if (errorMessageText.length === 0) {
+             console.error('❌ Error message text element not found!');
+             errorMessage.html(message).show().addClass('show');
+         } else {
+             // Set the error message text
+             errorMessageText.html(message);
+             
+             // Show error, hide success
+             errorMessage.show().addClass('show');
+         }
+         
          successMessage.hide();
-         mailFail.hide();
          
          // Scroll to error message
          $('html, body').animate({
              scrollTop: errorMessage.offset().top - 100
          }, 500);
+         
+         console.log('🔍 Error message displayed:', message);
      }
     
     // Clear error states when user starts typing
@@ -220,7 +251,7 @@ $(document).ready(function(){
         $(this).siblings('.field-error').remove();
         
         // Hide error message when user starts interacting
-        errorMessage.hide().removeClass('show');
+        $('#error_message').hide().removeClass('show');
     });
     
     // Clear error states for radio buttons
@@ -233,11 +264,17 @@ $(document).ready(function(){
         $('.radio-group:has(input[name="' + name + '"])').siblings('.field-error').remove();
         
         // Hide error message when user starts interacting
-        errorMessage.hide().removeClass('show');
+        $('#error_message').hide().removeClass('show');
     });
     
     // Handle form submission - now opens price calculator modal
     submitButton.click(function(e) {
+        // Skip old validation system if we're on car-single page (using new BookingFormHandler)
+        if (window.location.pathname.includes('car-single')) {
+            console.log('🔍 Skipping old validation system on car-single page');
+            return; // Don't prevent default, let the new BookingFormHandler handle it
+        }
+        
         e.preventDefault();
         e.stopPropagation();
         
@@ -261,9 +298,8 @@ $(document).ready(function(){
         console.log('Direct selector test - pickup:', testPickup.length, 'destination:', testDest.length);
         
         // Hide any existing messages
-        successMessage.hide();
-        errorMessage.hide();
-        mailFail.hide();
+        $('#booking-success-notification').hide();
+        $('#error_message').hide();
         
         // Validate form
         const validation = validateForm();
@@ -638,7 +674,7 @@ function closePriceCalculator() {
     console.log('🔍 Modal closed successfully');
 }
 
-function calculateModalPrice() {
+async function calculateModalPrice() {
     const pickupDateStr = $('#modal-pickup-date').val();
     const returnDateStr = $('#modal-return-date').val();
     const selectedVehicle = $('#vehicle_type option:selected');
@@ -675,28 +711,45 @@ function calculateModalPrice() {
     // Calculate base cost
     const baseCost = dailyRate * daysDiff;
     
-    // Calculate location fees (using backend logic)
+    // Calculate location fees using dynamic fee settings
     const pickupLocation = $('input[name="pickup_location"]:checked').val();
     const dropoffLocation = $('input[name="destination"]:checked').val();
     
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
     
+    // Fetch dynamic fee settings directly from API
+    let outsideHoursFee = 15;
+    let chisinauDropoffFee = 25;
+    let iasiDropoffFee = 35;
+    
+    try {
+        const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+        if (response.ok) {
+            const fees = await response.json();
+            outsideHoursFee = fees.outside_hours_fee ?? 15;
+            chisinauDropoffFee = fees.chisinau_airport_dropoff ?? 25;
+            iasiDropoffFee = fees.iasi_airport_dropoff ?? 35;
+        }
+    } catch (error) {
+        console.error('Error fetching dynamic fees for modal:', error);
+    }
+    
     if (pickupLocation === 'Chisinau Airport') {
-        pickupLocationFee = 25;
+        pickupLocationFee = 0; // Chisinau pickup is free
     } else if (pickupLocation === 'Iasi Airport') {
-        pickupLocationFee = 35;
+        pickupLocationFee = iasiDropoffFee;
     }
     
     if (dropoffLocation === 'Chisinau Airport') {
-        dropoffLocationFee = 25;
+        dropoffLocationFee = chisinauDropoffFee;
     } else if (dropoffLocation === 'Iasi Airport') {
-        dropoffLocationFee = 35;
+        dropoffLocationFee = iasiDropoffFee;
     }
     
     const totalLocationFee = pickupLocationFee + dropoffLocationFee;
     
-    // Calculate outside working hours fees (using backend logic)
+    // Calculate outside working hours fees using dynamic fee settings
     const pickupTime = $('#modal-pickup-time').val();
     const returnTime = $('#modal-return-time').val();
     
@@ -705,13 +758,13 @@ function calculateModalPrice() {
     // Check if pickup is outside working hours (8:00-18:00)
     const pickupHour = parseInt(pickupTime.split(':')[0]);
     if (pickupHour < 8 || pickupHour >= 18) {
-        outsideHoursFees += 15; // €15 fee for pickup outside working hours
+        outsideHoursFees += outsideHoursFee; // Dynamic fee for pickup outside working hours
     }
     
     // Check if return is outside working hours (8:00-18:00)
     const returnHour = parseInt(returnTime.split(':')[0]);
     if (returnHour < 8 || returnHour >= 18) {
-        outsideHoursFees += 15; // €15 fee for return outside working hours
+        outsideHoursFees += outsideHoursFee; // Dynamic fee for return outside working hours
     }
     
     // Calculate total (removed insurance as requested)
@@ -905,7 +958,54 @@ async function submitBooking() {
                  $('#total_price').val('0');
              } else {
                  console.error('🔍 Booking failed:', data.message || data.error);
-                 showError(data.message || data.error || 'Booking failed. Please try again.');
+                 console.log('🔍 Full error data:', data);
+                 
+                 // Handle validation errors with translations
+                 if (data.error === 'Validation error' && data.field) {
+                     console.log('🔍 Handling validation error for field:', data.field);
+                     
+                     // Get translation key based on field
+                     let translationKey = '';
+                     switch (data.field) {
+                         case 'customer_phone':
+                             translationKey = 'booking.validation.phone_invalid';
+                             break;
+                         case 'customer_email':
+                             translationKey = 'booking.validation.email_invalid';
+                             break;
+                         case 'customer_age':
+                             translationKey = 'booking.validation.age_invalid';
+                             break;
+                         case 'pickup_date':
+                         case 'return_date':
+                             translationKey = 'booking.validation.select_dates';
+                             break;
+                         case 'pickup_time':
+                         case 'return_time':
+                             translationKey = 'booking.validation.select_times';
+                             break;
+                         case 'pickup_location':
+                         case 'dropoff_location':
+                             translationKey = 'booking.validation.select_locations';
+                             break;
+                         default:
+                             translationKey = 'booking.form_error';
+                     }
+                     
+                     console.log('🔍 Translation key:', translationKey);
+                     
+                     // Get translated message or fallback to server message
+                     const translatedMessage = window.i18n && window.i18n.t ? window.i18n.t(translationKey) : data.details;
+                     const finalMessage = translatedMessage || data.details || 'Booking failed. Please try again.';
+                     
+                     console.log('🔍 Final error message:', finalMessage);
+                     console.log('🔍 About to call showError with:', finalMessage);
+                     
+                     showError(finalMessage);
+                 } else {
+                     console.log('🔍 Not a validation error, showing generic error');
+                     showError(data.message || data.error || 'Booking failed. Please try again.');
+                 }
              }
          })
         .catch(error => {

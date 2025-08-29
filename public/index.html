@@ -2735,8 +2735,8 @@
                     <h6><i class="fa fa-info-circle"></i> Working Hours & Location Fees</h6>
                     <div class="tariff-details">
                         <div><span class="working-hours">Working Hours (8:00 AM - 6:00 PM):</span> Standard pricing</div>
-                        <div><span class="outside-hours">Outside Working Hours:</span> +€15 fee per pickup/return</div>
-                        <div><span class="location-fees">Airport Delivery:</span> Chisinau +€25, Iasi +€35</div>
+                                              <div><span class="outside-hours">Outside Working Hours:</span> +<span id="index-outside-hours-fee">€15</span> fee per pickup/return</div>
+                      <div><span class="location-fees">Airport Delivery:</span> Chisinau +<span id="index-chisinau-fee">€25</span>, Iasi +<span id="index-iasi-fee">€35</span></div>
                         <div><i class="fa fa-clock-o"></i> Minimum rental: 24 hours</div>
                     </div>
                 </div>
@@ -2879,7 +2879,7 @@
                         <span id="modal-location-fees">€0</span>
                     </div>
                     <div class="modal-price-item">
-                        <span>Outside Hours Fees:</span>
+                                                    <span>Outside Hours Fees:</span> <span id="modal-outside-hours-fee">€15</span>
                         <span id="modal-night-premium">€0</span>
                     </div>
                     <div class="modal-price-item total">
@@ -2997,7 +2997,52 @@
     </script>
     
     <!-- Spinning Wheel Modal Trigger -->
-    <script src="js/spinning-wheel-trigger.js"></script>
+    <script>
+// Load and update dynamic fee displays
+async function updateIndexFeeDisplays() {
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+    if (response.ok) {
+      const fees = await response.json();
+      
+      // Update outside hours fee displays
+      const outsideHoursFeeElements = [
+        document.getElementById('index-outside-hours-fee'),
+        document.getElementById('modal-outside-hours-fee')
+      ];
+      outsideHoursFeeElements.forEach(element => {
+        if (element && fees.outside_hours_fee !== undefined) {
+          element.textContent = `€${fees.outside_hours_fee}`;
+        }
+      });
+      
+      // Update airport fee displays (using dropoff fees for display as they're typically higher)
+      const chisinauFeeElement = document.getElementById('index-chisinau-fee');
+      if (chisinauFeeElement && fees.chisinau_airport_dropoff !== undefined) {
+        chisinauFeeElement.textContent = `€${fees.chisinau_airport_dropoff}`;
+      }
+      
+      const iasiFeeElement = document.getElementById('index-iasi-fee');
+      if (iasiFeeElement && fees.iasi_airport_dropoff !== undefined) {
+        iasiFeeElement.textContent = `€${fees.iasi_airport_dropoff}`;
+      }
+      
+      console.log('✅ Index page fee displays updated with dynamic values');
+    } else {
+      console.warn('⚠️ Failed to load dynamic fees for index page, keeping defaults');
+    }
+  } catch (error) {
+    console.error('❌ Error loading dynamic fees for index page:', error);
+  }
+}
+
+// Load fees when page is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait a bit for API_BASE_URL to be initialized
+  setTimeout(updateIndexFeeDisplays, 500);
+});
+</script>
+<script src="js/spinning-wheel-trigger.js"></script>
 </body>
 
 </html>

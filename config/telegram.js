@@ -7,6 +7,21 @@ class TelegramNotifier {
     this.baseUrl = `https://api.telegram.org/bot${this.botToken}`;
   }
 
+  // Helper function to format dates in a user-friendly way
+  formatDate(dateString) {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return dateString; // Return original if parsing fails
+    }
+  }
+
   async sendMessage(message) {
     if (!this.botToken || !this.chatId) {
       console.log('Telegram bot not configured. Skipping notification.');
@@ -114,8 +129,8 @@ class TelegramNotifier {
 • Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
 
 <b>Booking Details:</b>
-• Pickup: ${bookingData.pickup_date} at ${bookingData.pickup_time}
-• Return: ${bookingData.return_date} at ${bookingData.return_time}
+• Pickup: ${this.formatDate(bookingData.pickup_date)} at ${bookingData.pickup_time}
+• Return: ${this.formatDate(bookingData.return_date)} at ${bookingData.return_time}
 • Pickup Location: ${bookingData.pickup_location}
 • Dropoff Location: ${bookingData.dropoff_location}
 

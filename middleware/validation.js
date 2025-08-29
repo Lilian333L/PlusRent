@@ -7,10 +7,28 @@ const validate = (schema) => {
     
     if (error) {
       const errorMessage = error.details.map(detail => detail.message).join(', ');
+      const field = error.details[0].path.join('.');
+      
+      // Provide user-friendly error messages for common fields
+      let userFriendlyMessage = errorMessage;
+      if (field === 'customer_phone') {
+        userFriendlyMessage = 'Please enter a valid phone number.';
+      } else if (field === 'customer_email') {
+        userFriendlyMessage = 'Please enter a valid email address.';
+      } else if (field === 'customer_age') {
+        userFriendlyMessage = 'Please enter a valid age between 18 and 100 years.';
+      } else if (field === 'pickup_date' || field === 'return_date') {
+        userFriendlyMessage = 'Please select valid pickup and return dates.';
+      } else if (field === 'pickup_time' || field === 'return_time') {
+        userFriendlyMessage = 'Please select valid pickup and return times.';
+      } else if (field === 'pickup_location' || field === 'dropoff_location') {
+        userFriendlyMessage = 'Please select pickup and dropoff locations.';
+      }
+      
       return res.status(400).json({ 
         error: 'Validation error', 
-        details: errorMessage,
-        field: error.details[0].path.join('.')
+        details: userFriendlyMessage,
+        field: field
       });
     }
     
@@ -244,7 +262,11 @@ const bookingCreateSchema = Joi.object({
   price_breakdown: Joi.object().required(),
   customer_name: Joi.string().min(1).max(100).trim().allow(null, ''),
   customer_email: Joi.string().email().trim().allow(null, ''),
-  customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\(\)]{8,20}$/).required(),
+  customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\(\)]{8,20}$/).required()
+    .messages({
+      'string.pattern.base': 'Please enter a valid phone number.',
+      'any.required': 'Phone number is required'
+    }),
   customer_age: Joi.number().integer().min(18).max(100).required()
 });
 

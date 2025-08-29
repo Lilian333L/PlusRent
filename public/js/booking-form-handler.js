@@ -59,8 +59,36 @@ class BookingFormHandler {
       const response = await this.submitBooking(bookingData);
       console.log('Server response:', response);
       
-      // Handle success
-      this.onSuccess(response, bookingData);
+      // Check if response contains an error
+      if (response.error) {
+        console.log('🔍 Server returned error:', response);
+        
+        // Handle validation errors
+        if (response.error === 'Validation error' && response.field) {
+          console.log('🔍 Handling validation error for field:', response.field);
+          
+          // Get user-friendly error message
+          let errorMessage = response.details || 'Please check your form and try again.';
+          
+          // Use translation if available
+          if (window.i18n && window.i18n.t) {
+            const translationKey = `booking.validation.${response.field}_invalid`;
+            const translatedMessage = window.i18n.t(translationKey);
+            if (translatedMessage && translatedMessage !== translationKey) {
+              errorMessage = translatedMessage;
+            }
+          }
+          
+          console.log('🔍 Showing validation error:', errorMessage);
+          this.onValidationError(errorMessage);
+        } else {
+          // Handle other errors
+          this.onError(response.details || response.error || 'Booking failed. Please try again.');
+        }
+      } else {
+        // Handle success
+        this.onSuccess(response, bookingData);
+      }
       
     } catch (error) {
       console.error('Booking error details:', {
@@ -69,8 +97,8 @@ class BookingFormHandler {
         error: error
       });
       
-      // Handle server errors (not validation errors)
-        this.onError(error.message || 'An unexpected error occurred');
+      // Handle unexpected errors
+      this.onError(error.message || 'An unexpected error occurred');
     } finally {
       // Restore button state
       this.setButtonNormal(submitButton, originalText);
@@ -263,20 +291,41 @@ class BookingFormHandler {
 
   // Submit booking to server
   async submitBooking(bookingData) {
-    const response = await fetch(`${this.apiBaseUrl}/api/bookings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bookingData)
-    });
+    console.log('🔍 submitBooking called with data:', bookingData);
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Booking failed');
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      });
+      
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response ok:', response.ok);
+      
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log('🔍 Response data:', responseData);
+      } catch (jsonError) {
+        console.error('🔍 Error parsing JSON:', jsonError);
+        return { error: true, details: 'Invalid server response' };
+      }
+      
+      if (!response.ok) {
+        console.log('🔍 Response not ok, returning error data');
+        // Return the error data instead of throwing
+        return { error: true, ...responseData };
+      }
+      
+      console.log('🔍 Response ok, returning success data');
+      return responseData;
+    } catch (error) {
+      console.error('🔍 Error in submitBooking:', error);
+      return { error: true, details: error.message };
     }
-    
-    return await response.json();
   }
 
   // Get total price from price calculator
@@ -357,7 +406,19 @@ class BookingFormHandler {
 
   // Default validation error handler
   defaultValidationErrorHandler(errorMessage) {
-    alert('Please fix the following issues:\n' + errorMessage);
+    console.log('🔍 Default validation error handler called with:', errorMessage);
+    console.log('🔍 window.showError available:', typeof window.showError);
+    console.log('🔍 window.showError function:', window.showError);
+    
+    // Try to use the showError function if available
+    if (window.showError && typeof window.showError === 'function') {
+      console.log('🔍 Calling window.showError with:', errorMessage);
+      window.showError(errorMessage);
+    } else {
+      console.log('🔍 showError not available, using alert fallback');
+      // Fallback to alert
+      alert('Please fix the following issues:\n' + errorMessage);
+    }
   }
 
   // Initialize form handler for a specific form

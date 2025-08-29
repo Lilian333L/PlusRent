@@ -591,6 +591,17 @@
                                     </p>
                                 </div>
                                 
+                                <!-- Booking Error Notification -->
+                                <div id="error_message" style="display: none; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                                        <i class="fa fa-exclamation-triangle" style="color: #721c24; font-size: 24px;"></i>
+                                        <h4 style="color: #721c24; margin: 0;">Booking Error</h4>
+                                    </div>
+                                    <p id="error_message_text" style="color: #721c24; margin: 0; font-size: 14px;">
+                                        Please check your form and try again.
+                                    </p>
+                                </div>
+                                
                                 <form name="contactForm" id='contact_form' method="post">
                                     <h4 style="margin-bottom: 20px; color: #333;" data-i18n="cars.book_now"></h4>
                                     
@@ -687,7 +698,7 @@
                                                     <!-- Details will be populated by JavaScript -->
                                                 </div>
                                                 <div style="font-size: 10px; color: #856404;">
-                                                    <strong>Working Hours:</strong> 08:00 - 18:00 | <strong>Fee:</strong> €15 per pickup/return
+                                                    <strong>Working Hours:</strong> 08:00 - 18:00 | <strong>Fee:</strong> <span id="outside-hours-fee">€15</span> per pickup/return
                                                 </div>
                                             </div>
                                         </div>
@@ -886,6 +897,7 @@
     <script src="js/config.js"></script>
     <script src="js/price-calculator.js"></script>
             <script src="js/booking-form-handler.js?v=1.1"></script>
+    <script src="js/validation-booking.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     <script>
 // Global formatting function
@@ -956,76 +968,91 @@ document.addEventListener('DOMContentLoaded', async function() {
       // Booking failed - no alert needed
     },
     onValidationError: function(errorMessage) {
-      // Show validation info message near the Book Now button
-      const submitButton = document.getElementById('send_message');
-      const successNotification = document.getElementById('booking-success-notification');
+      console.log('🔍 Custom onValidationError called with:', errorMessage);
       
-      // Hide success notification if it's showing
-      if (successNotification) {
-        successNotification.style.display = 'none';
-      }
-      
-      // Create or update info message
-      let infoMessage = document.getElementById('booking-info-message');
-      if (!infoMessage) {
-        infoMessage = document.createElement('div');
-        infoMessage.id = 'booking-info-message';
-        infoMessage.style.cssText = 'display: block; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-top: 10px; text-align: center; font-size: 13px; color: #0056b3;';
+      // Wait a bit for showError to be available (in case of timing issues)
+      setTimeout(() => {
+        // Use the showError function if available
+        if (window.showError && typeof window.showError === 'function') {
+          console.log('🔍 Using window.showError');
+          window.showError(errorMessage);
+        } else {
+          console.log('🔍 showError not available, using fallback');
+          console.log('🔍 window.showError:', window.showError);
+          console.log('🔍 typeof window.showError:', typeof window.showError);
         
-        // Insert after the submit button
-        if (submitButton) {
-          submitButton.parentNode.insertBefore(infoMessage, submitButton.nextSibling);
-        }
-      } else {
-        // If element exists, make sure it's visible
-        infoMessage.style.display = 'block';
-      }
-      
-      // Translate the error message if i18next is available
-      let translatedMessage = errorMessage;
-      if (typeof i18next !== 'undefined') {
-        // Map error messages to translation keys
-        const errorTranslations = {
-          'For same-day rentals, return time must be after pickup time': 'booking.validation.same_day_time',
-          'Return date must be after pickup date': 'booking.validation.return_date_after_pickup',
-          'Please select pickup and return dates': 'booking.validation.select_dates',
-          'Please select pickup and return times': 'booking.validation.select_times',
-          'Please select pickup and dropoff locations': 'booking.validation.select_locations',
-          'Please enter your phone number': 'booking.validation.phone_required',
-          'Please enter a valid phone number': 'booking.validation.phone_invalid',
-          'Please enter a valid email address': 'booking.validation.email_invalid',
-          'Pickup date must be today or in the future': 'booking.validation.pickup_date_future',
-          'Phone number is required for outside hours pickup/dropoff': 'booking.validation.phone_required_outside_hours',
-          'Please enter your age': 'booking.validation.age_required',
-          'Age must be between 18 and 100 years': 'booking.validation.age_invalid'
-        };
+        // Fallback to the original info message system
+        const submitButton = document.getElementById('send_message');
+        const successNotification = document.getElementById('booking-success-notification');
         
-        const translationKey = errorTranslations[errorMessage];
-        if (translationKey) {
-          translatedMessage = i18next.t(translationKey, errorMessage);
+        // Hide success notification if it's showing
+        if (successNotification) {
+          successNotification.style.display = 'none';
         }
-      }
-      
-      infoMessage.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <i class="fa fa-info-circle" style="font-size: 16px;"></i>
-          <span>${translatedMessage}</span>
-        </div>
-      `;
-      
-      // Clear any existing timeout
-      if (window.bookingInfoTimeout) {
-        clearTimeout(window.bookingInfoTimeout);
-      }
-      
-      // Auto-hide after 5 seconds
-      window.bookingInfoTimeout = setTimeout(() => {
-        if (infoMessage) {
-          infoMessage.style.display = 'none';
+        
+        // Create or update info message
+        let infoMessage = document.getElementById('booking-info-message');
+        if (!infoMessage) {
+          infoMessage = document.createElement('div');
+          infoMessage.id = 'booking-info-message';
+          infoMessage.style.cssText = 'display: block; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-top: 10px; text-align: center; font-size: 13px; color: #0056b3;';
+          
+          // Insert after the submit button
+          if (submitButton) {
+            submitButton.parentNode.insertBefore(infoMessage, submitButton.nextSibling);
+          }
+        } else {
+          // If element exists, make sure it's visible
+          infoMessage.style.display = 'block';
         }
-      }, 5000);
-    }
-  });
+        
+        // Translate the error message if i18next is available
+        let translatedMessage = errorMessage;
+        if (typeof i18next !== 'undefined') {
+          // Map error messages to translation keys
+          const errorTranslations = {
+            'For same-day rentals, return time must be after pickup time': 'booking.validation.same_day_time',
+            'Return date must be after pickup date': 'booking.validation.return_date_after_pickup',
+            'Please select pickup and return dates': 'booking.validation.select_dates',
+            'Please select pickup and return times': 'booking.validation.select_times',
+            'Please select pickup and dropoff locations': 'booking.validation.select_locations',
+            'Please enter your phone number': 'booking.validation.phone_required',
+            'Please enter a valid phone number': 'booking.validation.phone_invalid',
+            'Please enter a valid email address': 'booking.validation.email_invalid',
+            'Pickup date must be today or in the future': 'booking.validation.pickup_date_future',
+            'Phone number is required for outside hours pickup/dropoff': 'booking.validation.phone_required_outside_hours',
+            'Please enter your age': 'booking.validation.age_required',
+            'Age must be between 18 and 100 years': 'booking.validation.age_invalid'
+          };
+          
+          const translationKey = errorTranslations[errorMessage];
+          if (translationKey) {
+            translatedMessage = i18next.t(translationKey, errorMessage);
+          }
+        }
+        
+        infoMessage.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa fa-info-circle" style="font-size: 16px;"></i>
+            <span>${translatedMessage}</span>
+          </div>
+        `;
+        
+        // Clear any existing timeout
+        if (window.bookingInfoTimeout) {
+          clearTimeout(window.bookingInfoTimeout);
+        }
+        
+        // Auto-hide after 5 seconds
+        window.bookingInfoTimeout = setTimeout(() => {
+          if (infoMessage) {
+            infoMessage.style.display = 'none';
+          }
+        }, 5000);
+      }
+    }, 100); // 100ms delay to check for showError
+  }
+});
 
   // Initialize the booking form
   bookingHandler.initForm('contact_form', 'send_message');
@@ -1416,20 +1443,40 @@ console.log(car);
   // Features
 //   document.getElementById('car-features').innerHTML = (car.features || []).map(f => `<li>${f}</li>`).join('');
   
+  // Define updateFeeDisplays function globally
+  window.updateFeeDisplays = async function() {
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+      if (response.ok) {
+        const fees = await response.json();
+        
+        // Update outside hours fee display
+        const outsideHoursFeeElement = document.getElementById('outside-hours-fee');
+        if (outsideHoursFeeElement && fees.outside_hours_fee !== undefined) {
+          outsideHoursFeeElement.textContent = `€${fees.outside_hours_fee}`;
+        }
+        
+        console.log('✅ Fee displays updated with dynamic values');
+      } else {
+        console.warn('⚠️ Failed to load dynamic fees, keeping defaults');
+      }
+    } catch (error) {
+      console.error('❌ Error loading dynamic fees:', error);
+    }
+  };
+
   // Initialize price calculator after car data is loaded
   if (window.priceCalculator) {
     window.priceCalculator.updateCarData(car);
-    window.priceCalculator.init().catch(error => {
-      console.error('Error initializing price calculator:', error);
-    });
+    // Load dynamic fee displays
+    updateFeeDisplays();
   } else {
     // If price calculator hasn't loaded yet, wait a bit and try again
     setTimeout(async () => {
       if (window.priceCalculator) {
         window.priceCalculator.updateCarData(car);
-        await window.priceCalculator.init().catch(error => {
-          console.error('Error initializing price calculator:', error);
-        });
+        // Load dynamic fee displays
+        updateFeeDisplays();
       }
     }, 100);
   }
@@ -1455,6 +1502,8 @@ console.log(car);
       const pickupTimeSelect = document.getElementById('pickup-time');
       const returnTimeSelect = document.getElementById('collection-time');
       
+      // Load and update dynamic fee displays (function already defined globally)
+
       // Function to update outside hours notice
       function updateOutsideHoursNotice() {
         if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
@@ -2008,6 +2057,29 @@ header.smaller {
 
 <!-- Universal Spinning Wheel -->
 <script src="js/universal-include.js"></script>
+
+<!-- Initialize Price Calculator -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔄 Initializing Price Calculator...');
+  
+  // Create price calculator instance
+  window.priceCalculator = new PriceCalculator();
+  
+  // Initialize the price calculator
+  window.priceCalculator.init().then(() => {
+    console.log('✅ Price Calculator initialized successfully');
+    
+    // Trigger initial price calculation if car data is available
+    if (window.currentCarData) {
+      console.log('🔄 Triggering initial price calculation...');
+      window.priceCalculator.recalculatePrice();
+    }
+  }).catch(error => {
+    console.error('❌ Error initializing Price Calculator:', error);
+  });
+});
+</script>
 
 </body>
 
