@@ -170,99 +170,7 @@
         align-self: flex-start;
       }
       
-      /* Call Now Button Styles */
-      .call-now-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #1E90FF, #187bcd);
-        color: white;
-        padding: 10px 16px;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-        animation: pulse 2s infinite;
-      }
-      
-      .call-now-btn:hover {
-        background: linear-gradient(135deg, #187bcd, #1565c0);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
-        color: white;
-        text-decoration: none;
-      }
-      
-      .call-now-btn:active {
-        transform: translateY(0);
-      }
-      
-      .call-now-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-      }
-      
-      .call-now-btn:hover::before {
-        left: 100%;
-      }
-      
-      @keyframes pulse {
-        0% {
-          box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
-        }
-        50% {
-          box-shadow: 0 4px 20px rgba(30, 144, 255, 0.5);
-        }
-        100% {
-          box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
-        }
-      }
-      
-      @keyframes ring {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-      
-      .call-now-btn:hover i {
-        animation: ring 0.6s ease-in-out;
-      }
-      
-      /* Mobile responsive adjustments */
-      @media (max-width: 768px) {
-        .call-now-btn {
-          padding: 8px 12px;
-          font-size: 12px;
-        }
-        
-        .call-now-btn i {
-          font-size: 10px;
-        }
-        
-        .call-now-btn span {
-          display: none;
-        }
-        
-        .call-now-btn i {
-          margin: 0;
-        }
-      }
+      /* Call Now Button styles are now in global CSS */
     </style>
 </head>
 
@@ -708,7 +616,7 @@
   margin-left: 0;
   margin-right: 0;
   gap: 1.5rem 0;
-  justify-content: flex-start;
+  justify-content: flex-start; /* Desktop: left-aligned */
 }
 
 /* Additional responsive adjustments */
@@ -720,7 +628,17 @@
   
   .car-list-row {
     gap: 1rem 0;
-    justify-content: flex-start;
+    justify-content: center;
+  }
+  
+  .car-list-row > .col-12 {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .car-list-row > .col-12 > .de-item {
+    max-width: 320px;
+    width: 100%;
   }
 }
 
@@ -1130,7 +1048,7 @@ async function fetchAndRenderCars() {
     }
     const isPremium = car.is_premium === 1 || car.is_premium === true;
     return `
-                                <div class="col-xl-4 col-lg-4 col-md-6">
+                                <div class="col-xl-4 col-lg-4 col-md-6 col-12">
                                     <div class="de-item mb30${isPremium ? ' premium' : ''}${isUnavailable ? ' car-unavailable' : ''}">
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
             <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image + '?v=' + Date.now() : (car.head_image ? window.API_BASE_URL + car.head_image + '?v=' + Date.now() : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="" onerror="this.onerror=null; this.src=window.API_BASE_URL + '/uploads/placeholder.png';">
@@ -1220,6 +1138,50 @@ function renderSidebarOptions(allCarsFull) {
   document.querySelectorAll('input[name="price-category"]').forEach(radio => {
     radio.addEventListener('change', handlePriceCategoryChange);
   });
+  
+  // Add mobile price category radio button handlers
+  document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+    radio.addEventListener('change', handleMobilePriceCategoryChange);
+  });
+}
+
+// Global variable to store price filter settings
+let priceFilterSettings = {};
+
+// Load price filter settings from API
+async function loadPriceFilterSettings() {
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+    if (response.ok) {
+      const feeSettings = await response.json();
+      
+      // Extract price filter settings
+      priceFilterSettings = {
+        economy: {
+          min: feeSettings.economy_price_min ?? 0,
+          max: feeSettings.economy_price_max ?? 30
+        },
+        standard: {
+          min: feeSettings.standard_price_min ?? 31,
+          max: feeSettings.standard_price_max ?? 60
+        },
+        premium: {
+          min: feeSettings.premium_price_min ?? 61,
+          max: feeSettings.premium_price_max ?? 999
+        }
+      };
+      
+      console.log('🔧 Loaded price filter settings:', priceFilterSettings);
+    }
+  } catch (error) {
+    console.error('Error loading price filter settings:', error);
+    // Fallback to default values
+    priceFilterSettings = {
+      economy: { min: 0, max: 30 },
+      standard: { min: 31, max: 60 },
+      premium: { min: 61, max: 999 }
+    };
+  }
 }
 
 // Handle price category radio button changes
@@ -1230,19 +1192,19 @@ function handlePriceCategoryChange(e) {
   document.getElementById('filter-price-min').value = '';
   document.getElementById('filter-price-max').value = '';
   
-  // Apply new filter based on category
+  // Apply new filter based on dynamic settings
   switch (selectedCategory) {
-    case 'econom':
-      document.getElementById('filter-price-min').value = '0';
-      document.getElementById('filter-price-max').value = '30';
+    case 'econom': // HTML uses 'econom' but API uses 'economy'
+      document.getElementById('filter-price-min').value = priceFilterSettings.economy.min;
+      document.getElementById('filter-price-max').value = priceFilterSettings.economy.max;
       break;
     case 'standard':
-      document.getElementById('filter-price-min').value = '31';
-      document.getElementById('filter-price-max').value = '60';
+      document.getElementById('filter-price-min').value = priceFilterSettings.standard.min;
+      document.getElementById('filter-price-max').value = priceFilterSettings.standard.max;
       break;
     case 'premium':
-      document.getElementById('filter-price-min').value = '61';
-      document.getElementById('filter-price-max').value = '';
+      document.getElementById('filter-price-min').value = priceFilterSettings.premium.min;
+      document.getElementById('filter-price-max').value = priceFilterSettings.premium.max;
       break;
     case 'all':
       // No price filter - already cleared above
@@ -1251,6 +1213,41 @@ function handlePriceCategoryChange(e) {
   
   // Update filters and fetch cars
   updateFiltersAndFetch();
+}
+
+// Handle mobile price category radio button changes
+function handleMobilePriceCategoryChange(e) {
+  const selectedCategory = e.target.value;
+  
+  // Clear existing mobile price filters
+  const priceMinEl = document.getElementById('mobile-filter-price-min');
+  const priceMaxEl = document.getElementById('mobile-filter-price-max');
+  
+  if (!priceMinEl || !priceMaxEl) {
+    return;
+  }
+  
+  priceMinEl.value = '';
+  priceMaxEl.value = '';
+  
+  // Apply new filter based on dynamic settings
+  switch (selectedCategory) {
+    case 'econom': // HTML uses 'econom' but API uses 'economy'
+      priceMinEl.value = priceFilterSettings.economy.min;
+      priceMaxEl.value = priceFilterSettings.economy.max;
+      break;
+    case 'standard':
+      priceMinEl.value = priceFilterSettings.standard.min;
+      priceMaxEl.value = priceFilterSettings.standard.max;
+      break;
+    case 'premium':
+      priceMinEl.value = priceFilterSettings.premium.min;
+      priceMaxEl.value = priceFilterSettings.premium.max;
+      break;
+    case 'all':
+      // No price filter - already cleared above
+      break;
+  }
 }
 
 // Mobile Filter Functions
@@ -1314,6 +1311,14 @@ function renderMobileFilterOptions() {
     // Hide loading and show options
     if (loadingEl) loadingEl.style.display = 'none';
     if (optionsEl) optionsEl.style.display = 'block';
+    
+    // Add mobile price category event listeners after elements are rendered
+    document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+      // Remove existing listeners to prevent duplicates
+      radio.removeEventListener('change', handleMobilePriceCategoryChange);
+      // Add new listener
+      radio.addEventListener('change', handleMobilePriceCategoryChange);
+    });
   });
 }
 
@@ -1509,6 +1514,9 @@ document.getElementById('clear-filters-link').addEventListener('click', function
     <script>
       // Ensure i18n is properly initialized and update content
       document.addEventListener('DOMContentLoaded', function() {
+        // Load price filter settings first
+        loadPriceFilterSettings();
+        
         // Function to check and update i18n content
         function checkAndUpdateI18n() {
           if (typeof i18next !== 'undefined' && i18next.isInitialized) {

@@ -7455,6 +7455,11 @@ if (!window.API_BASE_URL) {
             if (response.ok) {
               feeSettingsData = await response.json();
               console.log('🔄 Reloaded fee settings:', feeSettingsData.map(s => ({key: s.setting_key, amount: s.amount})));
+              
+              // Debug: Check if price filter settings are loaded
+              const priceFilterSettings = feeSettingsData.filter(s => s.setting_key.includes('price'));
+              console.log('🔍 Price filter settings found:', priceFilterSettings);
+              
               renderFeeSettings();
             } else {
               showCustomAlert('Failed to load fee settings', 'error');
@@ -7569,6 +7574,11 @@ if (!window.API_BASE_URL) {
               }
               if (typeof loadCoupons === 'function') {
                 loadCoupons();
+              }
+              
+              // Load fee settings on page load
+              if (typeof loadFeeSettings === 'function') {
+                loadFeeSettings();
               }
               
               // Add fee settings event listeners

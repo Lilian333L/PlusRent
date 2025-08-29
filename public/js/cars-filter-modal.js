@@ -8,18 +8,105 @@ class CarsFilterModal {
     this.modal = null;
     this.isOpen = false;
     this.hasShownOnLoad = false;
+    this.priceFilterSettings = {
+      economy: { min: 0, max: 30 },
+      standard: { min: 31, max: 60 },
+      premium: { min: 61, max: 999 }
+    };
     this.init();
   }
 
-  init() {
+  async init() {
+    await this.loadPriceFilterSettings();
     this.createModal();
     this.bindEvents();
     
     // Auto-open modal on page load (every time)
-    setTimeout(() => {
-      this.openModal();
-      this.hasShownOnLoad = true;
-    }, 1000); // Increased delay to ensure all functions are loaded
+    this.openModal();
+    this.hasShownOnLoad = true;
+  }
+
+  async loadPriceFilterSettings() {
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+      if (response.ok) {
+        const feeSettings = await response.json();
+        
+        // Extract price filter settings
+        this.priceFilterSettings = {
+          economy: {
+            min: feeSettings.economy_price_min,
+            max: feeSettings.economy_price_max
+          },
+          standard: {
+            min: feeSettings.standard_price_min,
+            max: feeSettings.standard_price_max
+          },
+          premium: {
+            min: feeSettings.premium_price_min,
+            max: feeSettings.premium_price_max
+          }
+        };
+        
+        console.log('🔧 Modal loaded price filter settings:', this.priceFilterSettings);
+      }
+    } catch (error) {
+      console.error('Error loading price filter settings for modal:', error);
+      // Keep default values if API fails
+    }
+  }
+
+  updateModalDescriptions() {
+    console.log('🔧 updateModalDescriptions called');
+    console.log('🔧 Modal exists:', !!this.modal);
+    console.log('🔧 Price filter settings:', this.priceFilterSettings);
+    
+    if (!this.modal) {
+      console.log('🔧 Modal not found, skipping update');
+      return;
+    }
+    
+    // Check if i18next is available
+    if (typeof i18next === 'undefined' || !i18next.isInitialized) {
+      console.log('🔧 i18next not available, skipping i18n update');
+      return;
+    }
+    
+    // Update economy description using i18n with dynamic values
+    const economDesc = this.modal.querySelector('.filter-card.econom .filter-card-description');
+    console.log('🔧 Economy desc element found:', !!economDesc);
+    if (economDesc) {
+      const newText = i18next.t('cars.filter_econom_desc', { 
+        max: this.priceFilterSettings.economy.max 
+      });
+      economDesc.textContent = newText;
+      console.log('🔧 Updated economy description to:', newText);
+    }
+    
+    // Update standard description using i18n with dynamic values
+    const standardDesc = this.modal.querySelector('.filter-card.standard .filter-card-description');
+    console.log('🔧 Standard desc element found:', !!standardDesc);
+    if (standardDesc) {
+      const newText = i18next.t('cars.filter_standard_desc', { 
+        min: this.priceFilterSettings.standard.min,
+        max: this.priceFilterSettings.standard.max 
+      });
+      standardDesc.textContent = newText;
+      console.log('🔧 Updated standard description to:', newText);
+    }
+    
+    // Update premium description using i18n with dynamic values
+    const premiumDesc = this.modal.querySelector('.filter-card.premium .filter-card-description');
+    console.log('🔧 Premium desc element found:', !!premiumDesc);
+    if (premiumDesc) {
+      const newText = i18next.t('cars.filter_premium_desc', { 
+        min: this.priceFilterSettings.premium.min 
+      });
+      premiumDesc.textContent = newText;
+      console.log('🔧 Updated premium description to:', newText);
+    }
+    
+    console.log('🔧 Updated modal descriptions with dynamic values using i18n');
   }
 
   createModal() {
@@ -36,33 +123,33 @@ class CarsFilterModal {
           
           <div class="filter-modal-body">
             <div class="filter-cards-grid">
-              <div class="filter-card econom" data-filter="econom" tabindex="0" role="button" aria-label="Filter economy cars up to 30 EUR">
+              <div class="filter-card econom" data-filter="econom" tabindex="0" role="button" aria-label="Filter economy cars up to ${this.priceFilterSettings.economy.max} EUR">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-leaf"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_econom">Econom</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_econom_desc">Cars up to 30 EUR</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_econom_desc">Cars up to ${this.priceFilterSettings.economy.max} EUR</div>
                 </div>
               </div>
               
-              <div class="filter-card standard" data-filter="standard" tabindex="0" role="button" aria-label="Filter standard cars between 31-60 EUR">
+              <div class="filter-card standard" data-filter="standard" tabindex="0" role="button" aria-label="Filter standard cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-car"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_standard">Standard</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_standard_desc">Cars between 31-60 EUR</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_standard_desc">Cars between ${this.priceFilterSettings.standard.min}-${this.priceFilterSettings.standard.max} EUR</div>
                 </div>
               </div>
               
-              <div class="filter-card premium" data-filter="premium" tabindex="0" role="button" aria-label="Filter premium cars 61 EUR and above">
+              <div class="filter-card premium" data-filter="premium" tabindex="0" role="button" aria-label="Filter premium cars ${this.priceFilterSettings.premium.min} EUR and above">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
                     <i class="fa fa-diamond"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_premium">Premium</div>
-                  <div class="filter-card-description" data-i18n="cars.filter_premium_desc">Cars 61 EUR and above</div>
+                  <div class="filter-card-description" data-i18n="cars.filter_premium_desc">Cars ${this.priceFilterSettings.premium.min} EUR and above</div>
                 </div>
               </div>
               
@@ -98,6 +185,9 @@ class CarsFilterModal {
     if (closeBtn) {
       closeBtn.addEventListener('click', () => this.closeModal());
     }
+
+    // Update descriptions after modal is created
+    this.updateModalDescriptions();
 
     // Filter cards
     const filterCards = this.modal.querySelectorAll('.filter-card');
@@ -150,16 +240,16 @@ class CarsFilterModal {
     // Clear existing price filters
     this.clearPriceFilters();
     
-    // Apply new filter based on type
+    // Apply new filter based on dynamic settings
     switch (filterType) {
-      case 'econom':
-        this.setPriceFilter(0, 30);
+      case 'econom': // HTML uses 'econom' but settings use 'economy'
+        this.setPriceFilter(this.priceFilterSettings.economy.min, this.priceFilterSettings.economy.max);
         break;
       case 'standard':
-        this.setPriceFilter(31, 60);
+        this.setPriceFilter(this.priceFilterSettings.standard.min, this.priceFilterSettings.standard.max);
         break;
       case 'premium':
-        this.setPriceFilter(61, null);
+        this.setPriceFilter(this.priceFilterSettings.premium.min, this.priceFilterSettings.premium.max);
         break;
       case 'all':
         // No price filter - show all cars
@@ -254,6 +344,9 @@ class CarsFilterModal {
     if (typeof updateContent === 'function') {
       updateContent();
     }
+    
+    // Update descriptions with dynamic values after modal opens
+    this.updateModalDescriptions();
   }
 
   closeModal() {
