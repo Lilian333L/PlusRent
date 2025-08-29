@@ -1114,12 +1114,12 @@ function renderSidebarOptions(allCarsFull) {
     radio.checked = false;
   });
   
-  // Determine which category matches the current price range
-  if (priceMin === '0' && priceMax === '30') {
+  // Determine which category matches the current price range using dynamic settings
+  if (priceFilterSettings.economy && priceMin === priceFilterSettings.economy.min.toString() && priceMax === priceFilterSettings.economy.max.toString()) {
     document.getElementById('price-category-econom').checked = true;
-  } else if (priceMin === '31' && priceMax === '60') {
+  } else if (priceFilterSettings.standard && priceMin === priceFilterSettings.standard.min.toString() && priceMax === priceFilterSettings.standard.max.toString()) {
     document.getElementById('price-category-standard').checked = true;
-  } else if (priceMin === '61' && priceMax === '') {
+  } else if (priceFilterSettings.premium && priceMin === priceFilterSettings.premium.min.toString() && priceMax === priceFilterSettings.premium.max.toString()) {
     document.getElementById('price-category-premium').checked = true;
   } else {
     document.getElementById('price-category-all').checked = true;
@@ -1312,6 +1312,23 @@ function renderMobileFilterOptions() {
     if (loadingEl) loadingEl.style.display = 'none';
     if (optionsEl) optionsEl.style.display = 'block';
     
+    // Update mobile price category radio buttons based on current price range
+    const mobilePriceCategoryRadios = document.querySelectorAll('input[name="mobile-price-category"]');
+    mobilePriceCategoryRadios.forEach(radio => {
+      radio.checked = false;
+    });
+    
+    // Determine which mobile category matches the current price range using dynamic settings
+    if (priceFilterSettings.economy && priceMin === priceFilterSettings.economy.min.toString() && priceMax === priceFilterSettings.economy.max.toString()) {
+      document.getElementById('mobile-price-category-econom').checked = true;
+    } else if (priceFilterSettings.standard && priceMin === priceFilterSettings.standard.min.toString() && priceMax === priceFilterSettings.standard.max.toString()) {
+      document.getElementById('mobile-price-category-standard').checked = true;
+    } else if (priceFilterSettings.premium && priceMin === priceFilterSettings.premium.min.toString() && priceMax === priceFilterSettings.premium.max.toString()) {
+      document.getElementById('mobile-price-category-premium').checked = true;
+    } else {
+      document.getElementById('mobile-price-category-all').checked = true;
+    }
+    
     // Add mobile price category event listeners after elements are rendered
     document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
       // Remove existing listeners to prevent duplicates
@@ -1342,16 +1359,16 @@ function applyMobileFilters() {
     
     switch (mobilePriceCategory.value) {
       case 'econom':
-        document.getElementById('mobile-filter-price-min').value = '0';
-        document.getElementById('mobile-filter-price-max').value = '30';
+        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.economy.min;
+        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.economy.max;
         break;
       case 'standard':
-        document.getElementById('mobile-filter-price-min').value = '31';
-        document.getElementById('mobile-filter-price-max').value = '60';
+        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.standard.min;
+        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.standard.max;
         break;
       case 'premium':
-        document.getElementById('mobile-filter-price-min').value = '61';
-        document.getElementById('mobile-filter-price-max').value = '';
+        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.premium.min;
+        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.premium.max;
         break;
     }
   }
