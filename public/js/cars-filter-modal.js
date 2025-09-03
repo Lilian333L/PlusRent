@@ -108,8 +108,10 @@ class CarsFilterModal {
       <div id="cars-filter-modal" class="filter-modal-overlay">
         <div class="filter-modal-container">
           <div class="filter-modal-header">
-            <h2 data-i18n="cars.filter_modal_title">Choose Your Car Category</h2>
-            <p data-i18n="cars.filter_modal_subtitle">Select a category to filter our car collection</p>
+            <div class="header-content">
+              <h2 data-i18n="cars.filter_modal_title">Choose Your Car Category</h2>
+              <p data-i18n="cars.filter_modal_subtitle">Select a category to filter our car collection</p>
+            </div>
             <button class="filter-modal-close" aria-label="Close modal">
               <i class="fa fa-times"></i>
             </button>

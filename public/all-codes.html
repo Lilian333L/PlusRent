@@ -14,6 +14,20 @@
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
     
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      window.API_BASE_URL = '';
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+    </script>
+    
     <style>
         
         .back-button {
@@ -138,10 +152,8 @@
         console.log('🔍 Coupon ID from URL:', couponId);
         console.log('🔍 Full URL:', window.location.href);
         
-        // API base URL
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000' 
-            : `https://${window.location.hostname}`;
+        // API base URL - use relative URLs for Vercel deployment
+        const API_BASE_URL = window.API_BASE_URL || '';
         
         // Load coupon data and codes
         async function loadCouponData() {

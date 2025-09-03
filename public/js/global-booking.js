@@ -2,11 +2,9 @@
 // This script provides booking functionality that can be used across all pages
 
 class GlobalBookingSystem {
-  constructor() {    this.apiBaseUrl =
-      window.API_BASE_URL ||
-      (window.location.hostname === "localhost"
-        ? "http://localhost:3000"
-        : `https://${window.location.hostname}`);
+  constructor() {
+    // Use relative API URLs for Vercel deployment
+    this.apiBaseUrl = window.API_BASE_URL || '';
     this.currentCar = null;
     this.priceCalculator = null;
   }

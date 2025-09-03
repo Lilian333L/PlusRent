@@ -18,6 +18,20 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      window.API_BASE_URL = '';
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+    </script>
     <style>
     /* Custom carousel styles */
     .custom-carousel {
@@ -112,6 +126,59 @@
     .booking-section .col-6 {
       padding-left: 7px;
       padding-right: 7px;
+    }
+    
+    /* Quick Specs Responsive Grid */
+    .compact-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      width: 100%;
+      align-items: stretch;
+    }
+    
+    .spec-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #e9ecef;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .spec-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive breakpoints */
+    @media (max-width: 768px) {
+      .compact-specs-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+      }
+      
+      .spec-card {
+        padding: 8px;
+        min-height: 70px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .compact-specs-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      
+      .spec-card {
+        padding: 6px;
+        min-height: 60px;
+      }
     }
     
     .booking-section input,
@@ -339,7 +406,7 @@
         <!-- <div id="de-preloader"></div> -->
         <!-- page preloader close -->
 
-        <!-- header begin -->
+                <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -379,17 +446,9 @@
                                     <!-- logo close -->
                                 </div>
                             </div>
-                            <div class="de-flex-col header-col-mid">
-                                <ul id="mainmenu">
-                                        <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                                        <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                                        <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                                        <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                                        <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
-                                </ul>
-                            </div>
+                            
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                                     <!-- Call Now Button -->
                                     <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
                                         <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
@@ -413,19 +472,27 @@
                                         <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
                                       </ul>
                                     </div>
-                                    <div id="menu-btn">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
+                                    
                                 </div>
+                              
                             </div>
+                            <div id="menu-btn">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-            <!-- header close -->
+            <ul id="mainmenu">
+              <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+<li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+<li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+<li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+<li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
+</ul>
+        </header><!-- header close -->
         <!-- content begin -->
         <div class="no-bottom no-top zebra" id="content">
             <div id="top"></div>
@@ -466,6 +533,7 @@
                                 
                                 <div class="col-lg-4">
                                     <!-- Daily Rate From Section -->
+                                    <h3 id="car-name"></h3>
                                     <div class="daily-rate-from" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px;">
                                         <div style="font-size: 14px; color: #666; margin-bottom: 6px;" data-i18n="cars.daily_rate">Daily rate from</div>
                                         <div id="car-price-sidebar" style="font-size: 28px; font-weight: bold; color: #007bff;">€60</div>
@@ -483,13 +551,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <h3 id="car-name"></h3>
                             
                             <!-- Compact Quick Specs Section - Under Images -->
                             <div class="spacer-10"></div>
-                            <div class="compact-specs-container" style="background: white; border-radius: 8px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                                <h4 style="margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px;" data-i18n="cars.quick_specs"></h4>
-                                <div class="compact-specs-grid" id="car-specs-compact" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%;">
+                            <div class="compact-specs-container" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                                <h4 style="margin-bottom: 15px; color: #333; font-weight: 600; font-size: 16px; text-align: center;" data-i18n="cars.quick_specs"></h4>
+                                <div class="compact-specs-grid" id="car-specs-compact">
                                     <!-- Specs will be populated by JavaScript -->
                                 </div>
                             </div>
@@ -799,6 +866,7 @@
                 <li><a href="#" data-i18n="footer.privacy"></a></li>
                                 </ul>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -1291,14 +1359,14 @@ console.log(car);
   
   // Create compact specs layout with custom SVG icons
   const compactSpecsHTML = `
-    <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; min-height: 70px; display: flex; flex-direction: column; justify-content: center;">
-      <div style="margin-bottom: 4px; display: flex; justify-content: center;">
-        <svg fill="#7699a2" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235">
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="margin-bottom: 8px; display: flex; justify-content: center; align-items: center;">
+        <svg fill="#7699a2" height="20px" width="20px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235">
           <path d="M211.744,6.089C208.081,2.163,203.03,0,197.52,0h-15.143c-11.16,0-21.811,8.942-23.74,19.934l-0.955,5.436 c-0.96,5.47,0.332,10.651,3.639,14.589c3.307,3.938,8.186,6.106,13.74,6.106h19.561c2.714,0,5.339-0.542,7.778-1.504l-2.079,17.761 c-2.001-0.841-4.198-1.289-6.507-1.289h-22.318c-9.561,0-18.952,7.609-20.936,16.961l-19.732,93.027l-93.099-6.69 c-5.031-0.36-9.231,1.345-11.835,4.693c-2.439,3.136-3.152,7.343-2.009,11.847l10.824,42.618 c2.345,9.233,12.004,16.746,21.53,16.746h78.049h1.191h39.729c9.653,0,18.336-7.811,19.354-17.411l15.272-143.981 c0.087-0.823,0.097-1.634,0.069-2.437l5.227-44.648c0.738-1.923,1.207-3.967,1.354-6.087l0.346-4.97 C217.214,15.205,215.407,10.016,211.744,6.089z"></path>
         </svg>
       </div>
 
-      <div style="font-size: 11px; font-weight: 600; color: #333;">${car.num_passengers || '-'}</div>
+      <div style="font-size: 12px; font-weight: 600; color: #333;">${car.num_passengers || '-'}</div>
     </div>
     <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: center;">
       <div style="margin-bottom: 4px; display: flex; justify-content: center;">

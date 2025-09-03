@@ -18,6 +18,20 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      window.API_BASE_URL = '';
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+    </script>
     <!-- Cars Filter Modal CSS -->
     <link href="css/cars-filter-modal.css" rel="stylesheet" type="text/css">
     <!-- Ensure config.js is loaded first -->
@@ -221,17 +235,9 @@
                                     <!-- logo close -->
                                 </div>
                             </div>
-                            <div class="de-flex-col header-col-mid">
-                                <ul id="mainmenu">
-                                                    <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
-                                </ul>
-                            </div>
+                            
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                                     <!-- Call Now Button -->
                                     <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
                                         <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
@@ -255,17 +261,26 @@
                                         <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
                                       </ul>
                                     </div>
-                                    <div id="menu-btn">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
+                                    
                                 </div>
+                              
                             </div>
+                            <div id="menu-btn">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <ul id="mainmenu">
+              <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+<li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+<li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+<li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+<li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
+</ul>
         </header>
             <!-- header close -->
         <!-- content begin -->
@@ -661,7 +676,7 @@
   margin-bottom: 24px;
   max-width: 320px;
   flex: 1 1 260px;
-  min-width: 240px;
+  
   display: flex;
 }
 .de-item.mb30 {
@@ -843,7 +858,6 @@
 
 .mobile-filter-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e0e0e0;
@@ -857,6 +871,8 @@
   margin: 0;
   font-weight: 600;
   color: #333;
+  flex: 1;
+  text-align: center;
 }
 
 .mobile-filter-close {
@@ -873,6 +889,7 @@
   justify-content: center;
   border-radius: 50%;
   transition: background-color 0.2s;
+  flex-shrink: 0;
 }
 
 .mobile-filter-close:hover {

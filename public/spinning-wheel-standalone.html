@@ -7,11 +7,9 @@
     <script src="js/config.js"></script>
     <script src="js/i18n-init.js"></script>
     <script>
-        // Fallback if config.js doesn't load
+        // Fallback if config.js doesn't load - use relative URLs for Vercel deployment
         if (!window.API_BASE_URL) {
-            window.API_BASE_URL = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3001' 
-                : `https://${window.location.hostname}`;
+            window.API_BASE_URL = '';
         }
 
         // Translation function
@@ -735,12 +733,10 @@
                     setTimeout(() => reject(new Error('Request timeout')), 10000)
                 );
                 
-                // Ensure API_BASE_URL is set
+                // Ensure API_BASE_URL is set - use relative URLs for Vercel deployment
                 if (!window.API_BASE_URL) {
-                    console.warn('API_BASE_URL not found, using default');
-                    window.API_BASE_URL = window.location.hostname === 'localhost' 
-                        ? 'http://localhost:3001' 
-                        : `https://${window.location.hostname}`;
+                    console.warn('API_BASE_URL not found, setting to empty string for relative URLs');
+                    window.API_BASE_URL = '';
                 }
                 
                 const apiUrl = window.API_BASE_URL;
