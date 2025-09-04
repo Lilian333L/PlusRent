@@ -19632,3 +19632,36 @@ input[type="date"] {
     color: inherit !important;
     background-color: inherit !important;
 }
+
+/* Chrome iOS specific date input fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    @supports (-webkit-touch-callout: none) {
+        input[type="date"][value] {
+            /* Force Chrome iOS to show the date value */
+            color: #333 !important;
+            background-color: white !important;
+        }
+        
+        input[type="date"][value]::-webkit-datetime-edit {
+            /* Force Chrome iOS to display the date text */
+            color: #333 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        input[type="date"][value]::-webkit-datetime-edit-fields-wrapper {
+            /* Force Chrome iOS to show date fields */
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        input[type="date"][value]::-webkit-datetime-edit-month-field,
+        input[type="date"][value]::-webkit-datetime-edit-day-field,
+        input[type="date"][value]::-webkit-datetime-edit-year-field {
+            /* Force Chrome iOS to show individual date parts */
+            color: #333 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+}
