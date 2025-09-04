@@ -18,6 +18,100 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      window.API_BASE_URL = '';
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+    </script>
+    
+    <style>
+        /* i18n Text Display */
+        [data-i18n] {
+            transition: all 0.3s ease;
+        }
+        
+        /* Ensure menu items have proper spacing */
+        #mainmenu li a {
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
+        }
+        
+        /* Desktop header alignment */
+        @media (min-width: 769px) {
+            .de-flex {
+                justify-content: flex-start !important;
+                align-items: center;
+                gap: 40px;
+            }
+            
+            .de-flex > .de-flex-col:nth-child(2) {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .de-flex > .de-flex-col:last-child {
+                flex-shrink: 0;
+                margin-left: auto;
+            }
+            
+            #mainmenu {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0 auto;
+                padding: 0;
+                list-style: none;
+                width: 100%;
+                position: relative;
+                top: 0;
+                left: 0;
+                transform: none;
+            }
+            
+            #mainmenu li {
+                margin: 0 15px;
+                display: inline-block;
+            }
+            
+            #mainmenu li a {
+                display: block;
+                padding: 15px 0;
+                text-decoration: none;
+                color: #fff;
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+            
+            .menu_side_area {
+                gap: 15px !important;
+                margin-left: auto;
+            }
+        }
+        
+        /* Language Picker Styles */
+        .lang-picker-wrapper { 
+            position: relative; 
+            display: inline-block; 
+            vertical-align: middle; 
+        }
+        
+        /* Login form improvements */
+        .form-border {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
 
 <body>
@@ -27,7 +121,7 @@
         <div id="de-preloader"></div>
         <!-- page preloader close -->
 
-        <!-- header begin -->
+                        <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -67,30 +161,40 @@
                                     <!-- logo close -->
                                 </div>
                             </div>
-                            <div class="de-flex-col header-col-mid">
+                            
+                            <div class="de-flex-col">
+                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
                                 <ul id="mainmenu">
-                                    <li><a class="menu-item" href="index.html">Home</a></li>
-                                    <li><a class="menu-item" href="cars.html">Cars</a></li>
-                                    <li><a class="menu-item" href="quick-booking.html">Booking</a></li>
-                                    <li><a class="menu-item" href="account-dashboard.html">My Account</a></li>
+                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                  <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
                                 </ul>
                             </div>
+                            
                             <div class="de-flex-col">
-                                <div class="menu_side_area">
-                                    <a href="login.html" class="btn-main">Sign In</a>
-                                    <div id="menu-btn">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                                    <!-- Call Now Button -->
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                                        <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
+                                            <span data-i18n="call_now">Call Now</span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div id="menu-btn">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-        <!-- header close -->
+        </header><!-- header close -->
         <!-- content begin -->
         <div class="no-bottom no-top" id="content">
             <div id="top"></div>
@@ -130,6 +234,7 @@
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/master-include.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('login-form');
@@ -195,6 +300,28 @@
                 setTimeout(() => {
                     loginMessage.style.display = 'none';
                 }, 5000);
+            }
+            
+            // Language switcher functionality
+            const languageSelector = document.getElementById('language-selector');
+            if (languageSelector) {
+                // Set current language
+                const currentLang = localStorage.getItem('lang') || 'en';
+                languageSelector.value = currentLang;
+                
+                // Handle language change
+                languageSelector.addEventListener('change', function() {
+                    const selectedLang = this.value;
+                    if (window.i18next && window.i18next.changeLanguage) {
+                        window.i18next.changeLanguage(selectedLang, function() {
+                            localStorage.setItem('lang', selectedLang);
+                            console.log('Language changed to:', selectedLang);
+                        });
+                    } else {
+                        localStorage.setItem('lang', selectedLang);
+                        console.log('Language preference saved:', selectedLang);
+                    }
+                });
             }
         });
     </script>

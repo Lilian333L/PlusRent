@@ -19,11 +19,9 @@
         Z_INDEX: 9999
     };
     
-    // Set API base URL for API calls
+    // Set API base URL for API calls - use relative URLs for Vercel deployment
     if (!window.API_BASE_URL) {
-        window.API_BASE_URL = window.location.hostname === 'localhost'
-            ? 'http://localhost:3003'
-            : window.location.origin;
+        window.API_BASE_URL = '';
     }
 
     // State management

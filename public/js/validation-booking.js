@@ -6,8 +6,8 @@ $(document).ready(function(){
     const errorMessage = $('#error_message');
     const mailFail = $('#mail_fail');
     
-    // API base URL from config
-    const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+    // API base URL from config - use relative URLs for Vercel deployment
+    const apiBaseUrl = window.API_BASE_URL || '';
     
     // Debug: Check if radio buttons are accessible on page load
     console.log('=== PAGE LOAD DEBUG ===');
@@ -921,7 +921,7 @@ async function submitBooking() {
             try {
                 const couponCode = bookingData.discount_code.trim();
                 const customerPhone = bookingData.customer_phone;
-                const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+                const apiBaseUrl = window.API_BASE_URL || '';
                 
                 // Try redemption code validation first (with phone number if available)
                 let response;
@@ -963,8 +963,8 @@ async function submitBooking() {
         // Show loading state
         showLoading();
         
-        // API base URL
-        const apiBaseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`);
+        // API base URL - use relative URLs for Vercel deployment
+        const apiBaseUrl = window.API_BASE_URL || '';
         console.log('🔍 API URL:', `${apiBaseUrl}/api/bookings`);
         
         // Submit booking to API

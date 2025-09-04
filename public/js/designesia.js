@@ -205,15 +205,17 @@
       * plugin | enquire.js
       * --------------------------------------------------*/
      function init_resize() {
-         enquire.register("screen and (min-width: 993px)", {
-             match: function() {
-                 mobile_menu_show = 1;
-             },
-             unmatch: function() {
-                 mobile_menu_show = 0;
-                 jQuery("#menu-btn").show();
-             }
-         });
+                 enquire.register("screen and (min-width: 993px)", {
+            match: function() {
+                mobile_menu_show = 0;
+                jQuery('header').removeClass('menu-open');
+                jQuery('header').css('height', 'auto');
+            },
+            unmatch: function() {
+                mobile_menu_show = 0;
+                jQuery("#menu-btn").show();
+            }
+        });
          enquire.register("screen and (max-width: 993px)", {
              match: function() {
                  $('header').addClass("header-mobile");
@@ -1817,17 +1819,14 @@
          // navigation for mobile
          // --------------------------------------------------
          jQuery('#menu-btn').on("click", function() {
-
-            var h = jQuery('header')[0].scrollHeight;
-            
              if (mobile_menu_show == 0) {
                  jQuery('header').addClass('menu-open');
-                 jQuery('header').css('height',$(window).innerHeight());
+                 jQuery('header').css('height', $(window).innerHeight());
                  mobile_menu_show = 1;
              } else {
                 jQuery('header').removeClass('menu-open');
-                jQuery('header').css('height','auto');
-                 mobile_menu_show = 0;
+                jQuery('header').css('height', 'auto');
+                mobile_menu_show = 0;
              }
          })
          jQuery("a.btn").on("click", function(evn) {

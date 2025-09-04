@@ -3,7 +3,8 @@
 
 class DynamicCarsLoader {
   constructor(options = {}) {
-    this.apiBaseUrl = options.apiBaseUrl || window.API_BASE_URL;
+    // Use relative API URLs for Vercel deployment
+    this.apiBaseUrl = options.apiBaseUrl || '';
     this.selectElement = options.selectElement || document.getElementById('vehicle_type');
     this.onLoad = options.onLoad || this.defaultOnLoad;
     this.onError = options.onError || this.defaultOnError;

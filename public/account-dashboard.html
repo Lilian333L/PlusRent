@@ -18,6 +18,26 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      // Note: API_BASE_URL is set to empty string in body section and made read-only
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: 'Will be set to empty string in body section',
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+      
+      // Global function to ensure API_BASE_URL is always available
+      window.ensureApiConfig = function() {
+        // API_BASE_URL is now read-only and always available
+        return window.API_BASE_URL || '';
+      };
+    </script>
     <style>
       /* Autocomplete styles */
       .autocomplete-container {
@@ -112,6 +132,77 @@
         box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5) !important;
       }
       
+      /* i18n Text Display */
+      [data-i18n] {
+        transition: all 0.3s ease;
+      }
+      
+      /* Ensure menu items have proper spacing */
+      #mainmenu li a {
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: clip;
+      }
+      
+      /* Desktop header alignment */
+      @media (min-width: 769px) {
+        .de-flex {
+          justify-content: flex-start !important;
+          align-items: center;
+          gap: 40px;
+        }
+        
+        .de-flex > .de-flex-col:nth-child(2) {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .de-flex > .de-flex-col:last-child {
+          flex-shrink: 0;
+          margin-left: auto;
+        }
+        
+        #mainmenu {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 auto;
+          padding: 0;
+          list-style: none;
+          width: 100%;
+          position: relative;
+          top: 0;
+          left: 0;
+          transform: none;
+        }
+        
+        #mainmenu li {
+          margin: 0 15px;
+          display: inline-block;
+        }
+        
+        #mainmenu li a {
+          display: block;
+          padding: 15px 0;
+          text-decoration: none;
+          color: #fff;
+          font-weight: 500;
+          transition: color 0.3s ease;
+        }
+        
+        .menu_side_area {
+          gap: 15px !important;
+          margin-left: auto;
+        }
+      }
+      
+      /* Language Picker Styles */
+      .lang-picker-wrapper { 
+        position: relative; 
+        display: inline-block; 
+        vertical-align: middle; 
+      }
       .btn-outline-secondary:active,
       .btn-outline-secondary.active {
         color: #fff !important;
@@ -1602,13 +1693,29 @@
 </head>
 
 <body>
+    <!-- Global API Configuration Check -->
+    <script>
+      // Force API_BASE_URL to empty string and make it read-only
+      window.API_BASE_URL = '';
+      
+      // Make it read-only to prevent other scripts from overriding it
+      Object.defineProperty(window, 'API_BASE_URL', {
+        value: '',
+        writable: false,
+        configurable: false
+      });
+      
+      console.log('🔒 API_BASE_URL locked to empty string for relative URLs');
+      console.log('🔌 Global API check - API_BASE_URL:', window.API_BASE_URL);
+    </script>
+    
     <div id="wrapper">
         
         <!-- page preloader begin -->
         <div id="de-preloader"></div>
         <!-- page preloader close -->
 
-        <!-- header begin -->
+                        <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -1648,29 +1755,40 @@
                                     <!-- logo close -->
                                 </div>
                             </div>
-                            <div class="de-flex-col header-col-mid">
+                            
+                            <div class="de-flex-col">
+                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
                                 <ul id="mainmenu">
-                                    <li><a class="menu-item" href="index.html">Home</a></li>
-                                    <li><a class="menu-item" href="cars.html">Cars</a></li>
-                                    <li><a class="menu-item" href="quick-booking.html">Booking</a></li>
-                                    <li><a class="menu-item" href="account-dashboard.html">Admin Panel</a></li>
+                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                  <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
                                 </ul>
                             </div>
+                            
                             <div class="de-flex-col">
-                                <div class="menu_side_area">
-                                        <div id="menu-btn">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                                    <!-- Call Now Button -->
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                                        <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
+                                            <span data-i18n="call_now">Call Now</span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div id="menu-btn">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-            <!-- header close -->
+        </header><!-- header close -->
         <!-- content begin -->
         <div class="no-bottom no-top zebra" id="content">
             <div id="top"></div>
@@ -2849,22 +2967,8 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
-    <script src="js/config.js"></script>
-<script>
-// Fallback API_BASE_URL configuration in case config.js doesn't load properly
-if (!window.API_BASE_URL) {
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  const port = window.location.port;
-  
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    window.API_BASE_URL = `${protocol}//${hostname}:${port || '3000'}`;
-  } else {
-    window.API_BASE_URL = `${protocol}//${hostname}${port ? ':' + port : ''}`;
-  }
-  console.log('🔧 Fallback API Base URL configured as:', window.API_BASE_URL);
-}
-</script>
+    <script src="js/master-include.js"></script>
+
     <script>
         // Authentication check
         document.addEventListener('DOMContentLoaded', function() {
@@ -2921,10 +3025,7 @@ if (!window.API_BASE_URL) {
     <script>
     // Global booking management functions
     async function approveBooking(bookingId, button) {
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       // Find the booking card
       const bookingCard = button.closest('.booking-card');
@@ -2981,10 +3082,7 @@ if (!window.API_BASE_URL) {
     }
 
     async function rejectBooking(bookingId, button) {
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       // Find the booking card
       const bookingCard = button.closest('.booking-card');
@@ -3044,10 +3142,7 @@ if (!window.API_BASE_URL) {
     }
 
     async function cancelBooking(bookingId, button) {
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       // Confirm cancellation
       if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
@@ -3139,10 +3234,7 @@ if (!window.API_BASE_URL) {
     
     // Global function to load all bookings with status filtering and pagination
     async function loadAllBookings(statusFilter = 'all', page = 1) {
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       if (isLoading) return;
       
@@ -3476,10 +3568,7 @@ if (!window.API_BASE_URL) {
 
     // Car Management Functions
     async function loadCars() {
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/cars`);
@@ -3654,11 +3743,7 @@ if (!window.API_BASE_URL) {
 
     // Coupon Management Functions
     async function loadCoupons() {
-      
-      if (!window.API_BASE_URL) {
-        console.error('API_BASE_URL not defined');
-        return;
-      }
+      // API_BASE_URL is now read-only and always available
       
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/coupons`);
@@ -7654,6 +7739,30 @@ if (!window.API_BASE_URL) {
               console.error('Error during initialization:', error);
             }
           }, 100);
+        });
+        
+        // Language switcher functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.getElementById('language-selector');
+            if (languageSelector) {
+                // Set current language
+                const currentLang = localStorage.getItem('lang') || 'en';
+                languageSelector.value = currentLang;
+                
+                // Handle language change
+                languageSelector.addEventListener('change', function() {
+                    const selectedLang = this.value;
+                    if (window.i18next && window.i18next.changeLanguage) {
+                        window.i18next.changeLanguage(selectedLang, function() {
+                            localStorage.setItem('lang', selectedLang);
+                            console.log('Language changed to:', selectedLang);
+                        });
+                    } else {
+                        localStorage.setItem('lang', selectedLang);
+                        console.log('Language preference saved:', selectedLang);
+                    }
+                });
+            }
         });
     </script>
 </body>

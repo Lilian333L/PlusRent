@@ -18,6 +18,36 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <!-- API Configuration -->
+    <script>
+      // Global API configuration for Vercel deployment
+      window.API_BASE_URL = '';
+      
+      // Cache busting for development
+      window.API_VERSION = Date.now();
+      
+      // Log API configuration
+      console.log('🔌 API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        version: window.API_VERSION,
+        isLocalhost: window.location.hostname === 'localhost',
+        hostname: window.location.hostname,
+        protocol: window.location.protocol
+      });
+      
+      // Global function to ensure API_BASE_URL is always available
+      window.ensureApiConfig = function() {
+        if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
+          console.warn('⚠️ ensureApiConfig: API_BASE_URL not found, setting to empty string');
+          window.API_BASE_URL = '';
+        }
+        return window.API_BASE_URL;
+      };
+      
+      // Ensure API_BASE_URL is available globally
+      window.API_BASE_URL = '';
+    </script>
+    
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
@@ -1238,7 +1268,7 @@
         margin-bottom: 24px;
         max-width: 320px;
         flex: 1 1 260px;
-        min-width: 240px;
+        
         display: flex;
       }
       .de-item.mb30 {
@@ -1372,7 +1402,7 @@
         margin-bottom: 24px;
         max-width: 320px;
         flex: 1 1 260px;
-        min-width: 240px;
+        
         display: flex;
       }
       #section-cars .de-item.mb30 {
@@ -1651,7 +1681,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 15px;
+        margin-right: 1.5vw;
         font-size: 18px;
         color: #ffffff;
         background: linear-gradient(135deg, #3498db, #2980b9);
@@ -1797,13 +1827,23 @@
 </head>
 
 <body onload="initialize()">
+    <!-- Global API Configuration Check -->
+    <script>
+      // Ensure API_BASE_URL is always available globally
+      if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
+        console.warn('⚠️ Global API check: API_BASE_URL not found, setting to empty string');
+        window.API_BASE_URL = '';
+      }
+      console.log('🔌 Global API check - API_BASE_URL:', window.API_BASE_URL);
+    </script>
+    
     <div id="wrapper">
         
         <!-- page preloader begin -->
         <div id="de-preloader"></div>
         <!-- page preloader close -->
 
-        <!-- header begin -->
+                        <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -1843,19 +1883,22 @@
                                     <!-- logo close -->
                                 </div>
                             </div>
-                            <div class="de-flex-col header-col-mid">
+                            
+                            <div class="de-flex-col">
+                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
                                 <ul id="mainmenu">
-                                                    <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
+                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                  <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
                                 </ul>
                             </div>
+                            
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 240px;">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                                     <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
                                         <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
                                             <i class="fa fa-phone" style="font-size: 12px;"></i>
                                             <span data-i18n="call_now">Call Now</span>
@@ -1877,19 +1920,19 @@
                                         <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag">🇷🇺</span> <span class="lang-code">RU</span></li>
                                       </ul>
                                     </div>
-                                    <div id="menu-btn">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
                                 </div>
                             </div>
+                            
+                            <div id="menu-btn">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-        <!-- header close -->
+        </header><!-- header close -->
         <!-- content begin -->
         <div class="no-bottom no-top" id="content">
             <div id="top"></div>
@@ -1898,8 +1941,8 @@
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-12 text-light">
-                            <div class="spacer-double"></div>
-                            <div class="spacer-double"></div>
+                            <div class="spacer-double mobile-hidden"></div>
+                            <div class="spacer-double mobile-hidden"></div>
                             <h1 class="mb-2" data-i18n="hero.title"></h1>
                             <div class="spacer-single"></div>
                         </div>
@@ -2533,6 +2576,9 @@
           return;
         }
         
+        // Ensure API configuration is available
+        window.ensureApiConfig();
+        
         console.log('Fleet section: Grid element found, API_BASE_URL:', window.API_BASE_URL);
         
         grid.className = 'fleet-car-grid car-list-row';
@@ -2904,11 +2950,43 @@
         });
     </script>
     
+    <!-- API Fallback Configuration -->
+    <script>
+      // Ensure API_BASE_URL is always available
+      if (typeof window.API_BASE_URL === 'undefined') {
+        console.warn('⚠️ API_BASE_URL not found, setting fallback');
+        window.API_BASE_URL = '';
+      }
+      
+      // Log final API configuration
+      console.log('🔌 Final API Configuration:', {
+        baseUrl: window.API_BASE_URL,
+        isDefined: typeof window.API_BASE_URL !== 'undefined',
+        isLocalhost: window.location.hostname === 'localhost'
+      });
+      
+      // Test API configuration
+      setTimeout(() => {
+        console.log('🧪 Testing API configuration...');
+        console.log('🧪 window.API_BASE_URL:', window.API_BASE_URL);
+        console.log('🧪 typeof window.API_BASE_URL:', typeof window.API_BASE_URL);
+        console.log('🧪 window.API_BASE_URL === "":', window.API_BASE_URL === '');
+        
+        // Test a simple API call
+        const testUrl = window.API_BASE_URL + '/api/health';
+        console.log('🧪 Test API URL:', testUrl);
+        console.log('🧪 Full URL would be:', window.location.origin + testUrl);
+      }, 1000);
+    </script>
+    
     <!-- Spinning Wheel Modal Trigger -->
     <script>
 // Load and update dynamic fee displays
 async function updateIndexFeeDisplays() {
   try {
+    // Ensure API configuration is available
+    window.ensureApiConfig();
+    
     const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
     if (response.ok) {
       const fees = await response.json();
