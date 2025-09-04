@@ -19589,3 +19589,37 @@ header.header-mobile #mainmenu a:hover {
         height: 16px;
     }
 }
+
+/* Chrome iOS specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    @supports (-webkit-touch-callout: none) {
+        input[type="date"] {
+            /* Chrome iOS specific fixes */
+            -webkit-appearance: none;
+            appearance: none;
+            /* Ensure Chrome iOS displays the date value properly */
+            color: #333 !important;
+            background-color: white !important;
+            /* Force Chrome iOS to show the date */
+            text-align: left !important;
+            text-align-last: left !important;
+        }
+        
+        input[type="date"]:not([value=""]) {
+            /* Chrome iOS: Ensure selected dates are visible */
+            color: #333 !important;
+            background-color: white !important;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit {
+            /* Chrome iOS: Force date text to be visible */
+            color: #333 !important;
+            opacity: 1 !important;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+            /* Chrome iOS: Ensure date fields are visible */
+            opacity: 1 !important;
+        }
+    }
+}

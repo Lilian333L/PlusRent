@@ -2106,10 +2106,41 @@ header.smaller {
 <!-- Universal Spinning Wheel -->
 <script src="js/universal-include.js"></script>
 
-<!-- Initialize Price Calculator -->
+<!-- Initialize Price Calculator and Mobile Date Picker Fixes -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔄 Initializing Price Calculator...');
+  console.log('🔄 Initializing Price Calculator and Mobile Date Picker Fixes...');
+  
+  // Set default dates for pickup and return FIRST
+  console.log('📅 Setting default dates...');
+  const pickupDateInput = document.getElementById('date-picker');
+  const returnDateInput = document.getElementById('date-picker-2');
+  
+  if (pickupDateInput && returnDateInput) {
+    // Set pickup date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    console.log('📅 Setting pickup date to:', tomorrowStr);
+    pickupDateInput.value = tomorrowStr;
+    pickupDateInput.min = tomorrowStr;
+    
+    // Set return date to day after tomorrow
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+    console.log('📅 Setting return date to:', dayAfterTomorrowStr);
+    returnDateInput.value = dayAfterTomorrowStr;
+    returnDateInput.min = tomorrowStr; // Can't return before pickup
+    
+    // Force the inputs to show the values
+    pickupDateInput.setAttribute('value', tomorrowStr);
+    returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+    
+    console.log('✅ Default dates set successfully');
+  } else {
+    console.warn('⚠️ Date inputs not found:', { pickupDateInput, returnDateInput });
+  }
   
   // Create price calculator instance
   window.priceCalculator = new PriceCalculator();
@@ -2126,31 +2157,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }).catch(error => {
     console.error('❌ Error initializing Price Calculator:', error);
   });
-});
-
-// Mobile Date Picker Fixes
-document.addEventListener('DOMContentLoaded', function() {
-  // Set default dates for pickup and return
-  const pickupDateInput = document.getElementById('date-picker');
-  const returnDateInput = document.getElementById('date-picker-2');
-  
-  if (pickupDateInput && returnDateInput) {
-    // Set pickup date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    pickupDateInput.value = tomorrowStr;
-    pickupDateInput.min = tomorrowStr;
-    
-    // Set return date to day after tomorrow
-    const dayAfterTomorrow = new Date();
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-    returnDateInput.value = dayAfterTomorrowStr;
-    returnDateInput.min = tomorrowStr; // Can't return before pickup
-  }
   
   // Fix for iOS date picker issues
+  console.log('📱 Setting up mobile date picker fixes...');
   const dateInputs = document.querySelectorAll('.mobile-date-input');
   
   dateInputs.forEach(input => {
@@ -2204,6 +2213,79 @@ document.addEventListener('DOMContentLoaded', function() {
   // Run on load and resize
   adjustLayoutForMobile();
   window.addEventListener('resize', adjustLayoutForMobile);
+  
+  console.log('✅ All initializations complete');
+  
+  // Fallback: Try to set dates again after a short delay to ensure they're set
+  setTimeout(() => {
+    console.log('🔄 Fallback: Checking if dates were set correctly...');
+    if (pickupDateInput && returnDateInput) {
+      const currentPickupValue = pickupDateInput.value;
+      const currentReturnValue = returnDateInput.value;
+      
+      if (!currentPickupValue || !currentReturnValue) {
+        console.log('⚠️ Dates not set, retrying...');
+        // Set pickup date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        pickupDateInput.value = tomorrowStr;
+        pickupDateInput.setAttribute('value', tomorrowStr);
+        
+        // Set return date to day after tomorrow
+        const dayAfterTomorrow = new Date();
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+        const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+        returnDateInput.value = dayAfterTomorrowStr;
+        returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+        
+        console.log('✅ Fallback dates set successfully');
+      } else {
+        console.log('✅ Dates already set correctly:', { currentPickupValue, currentReturnValue });
+      }
+    }
+  }, 500);
+  
+  // Chrome iOS specific fix - additional attempt with longer delay
+  setTimeout(() => {
+    console.log('🌐 Chrome iOS specific fix: Final attempt to set dates...');
+    if (pickupDateInput && returnDateInput) {
+      const currentPickupValue = pickupDateInput.value;
+      const currentReturnValue = returnDateInput.value;
+      
+      if (!currentPickupValue || !currentReturnValue) {
+        console.log('⚠️ Chrome iOS: Dates still not set, final attempt...');
+        
+        // Force Chrome iOS to recognize the values
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        const dayAfterTomorrow = new Date();
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+        const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+        
+        // Chrome iOS specific approach
+        pickupDateInput.removeAttribute('value');
+        returnDateInput.removeAttribute('value');
+        
+        setTimeout(() => {
+          pickupDateInput.setAttribute('value', tomorrowStr);
+          returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+          pickupDateInput.value = tomorrowStr;
+          returnDateInput.value = dayAfterTomorrowStr;
+          
+          // Force Chrome iOS to update the display
+          pickupDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+          returnDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+          
+          console.log('✅ Chrome iOS dates set with force update');
+        }, 100);
+      } else {
+        console.log('✅ Chrome iOS: Dates already set correctly');
+      }
+    }
+  }, 1000);
 });
 </script>
 
