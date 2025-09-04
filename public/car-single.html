@@ -667,7 +667,7 @@
                                             <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_date"></label>
-                                                    <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input">
+                                                    <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input" min="">
                                             </div>
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_time"></label>
@@ -703,7 +703,7 @@
                                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_date"></label>
-                                                    <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input">
+                                                    <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input" min="">
                                                 </div>
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_time"></label>
@@ -2130,6 +2130,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Mobile Date Picker Fixes
 document.addEventListener('DOMContentLoaded', function() {
+  // Set default dates for pickup and return
+  const pickupDateInput = document.getElementById('date-picker');
+  const returnDateInput = document.getElementById('date-picker-2');
+  
+  if (pickupDateInput && returnDateInput) {
+    // Set pickup date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    pickupDateInput.value = tomorrowStr;
+    pickupDateInput.min = tomorrowStr;
+    
+    // Set return date to day after tomorrow
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+    returnDateInput.value = dayAfterTomorrowStr;
+    returnDateInput.min = tomorrowStr; // Can't return before pickup
+  }
+  
   // Fix for iOS date picker issues
   const dateInputs = document.querySelectorAll('.mobile-date-input');
   
