@@ -2255,46 +2255,98 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('🌐 Browser detection:', { isChrome, isSafari, isIOS, userAgent: userAgent.substring(0, 100) });
   
   if (isChrome && isIOS) {
-    // Chrome iOS specific fix - additional attempt with longer delay
-    setTimeout(() => {
-      console.log('🌐 Chrome iOS specific fix: Final attempt to set dates...');
-      if (pickupDateInput && returnDateInput) {
-        const currentPickupValue = pickupDateInput.value;
-        const currentReturnValue = returnDateInput.value;
+    console.log('🌐 Chrome iOS detected - applying aggressive fixes...');
+    
+    // Chrome iOS needs multiple aggressive attempts
+    const chromeIOsAttempts = [
+      { delay: 100, method: 'immediate' },
+      { delay: 500, method: 'remove-re-add' },
+      { delay: 1000, method: 'force-update' },
+      { delay: 2000, method: 'nuclear' }
+    ];
+    
+    chromeIOsAttempts.forEach((attempt, index) => {
+      setTimeout(() => {
+        console.log(`🌐 Chrome iOS attempt ${index + 1}/${chromeIOsAttempts.length} (${attempt.method})...`);
         
-        if (!currentPickupValue || !currentReturnValue) {
-          console.log('⚠️ Chrome iOS: Dates still not set, final attempt...');
+        if (pickupDateInput && returnDateInput) {
+          const currentPickupValue = pickupDateInput.value;
+          const currentReturnValue = returnDateInput.value;
           
-          // Force Chrome iOS to recognize the values
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          const tomorrowStr = tomorrow.toISOString().split('T')[0];
-          
-          const dayAfterTomorrow = new Date();
-          dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-          const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-          
-          // Chrome iOS specific approach
-          pickupDateInput.removeAttribute('value');
-          returnDateInput.removeAttribute('value');
-          
-          setTimeout(() => {
-            pickupDateInput.setAttribute('value', tomorrowStr);
-            returnDateInput.setAttribute('value', dayAfterTomorrowStr);
-            pickupDateInput.value = tomorrowStr;
-            returnDateInput.value = dayAfterTomorrowStr;
+          if (!currentPickupValue || !currentReturnValue) {
+            console.log(`⚠️ Chrome iOS: Attempt ${index + 1} - Dates still not set...`);
             
-            // Force Chrome iOS to update the display
-            pickupDateInput.dispatchEvent(new Event('input', { bubbles: true }));
-            returnDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
             
-            console.log('✅ Chrome iOS dates set with force update');
-          }, 100);
-        } else {
-          console.log('✅ Chrome iOS: Dates already set correctly');
+            const dayAfterTomorrow = new Date();
+            dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+            const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+            
+            switch (attempt.method) {
+              case 'immediate':
+                // Simple value setting
+                pickupDateInput.value = tomorrowStr;
+                returnDateInput.value = dayAfterTomorrowStr;
+                pickupDateInput.setAttribute('value', tomorrowStr);
+                returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+                break;
+                
+              case 'remove-re-add':
+                // Remove and re-add attributes
+                pickupDateInput.removeAttribute('value');
+                returnDateInput.removeAttribute('value');
+                setTimeout(() => {
+                  pickupDateInput.setAttribute('value', tomorrowStr);
+                  returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+                  pickupDateInput.value = tomorrowStr;
+                  returnDateInput.value = dayAfterTomorrowStr;
+                }, 50);
+                break;
+                
+              case 'force-update':
+                // Force update with events
+                pickupDateInput.value = tomorrowStr;
+                returnDateInput.value = dayAfterTomorrowStr;
+                pickupDateInput.setAttribute('value', tomorrowStr);
+                returnDateInput.setAttribute('value', dayAfterTomorrowStr);
+                
+                // Force Chrome iOS to update the display
+                pickupDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                returnDateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                pickupDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                returnDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                break;
+                
+              case 'nuclear':
+                // Nuclear option - recreate inputs
+                console.log('🌐 Chrome iOS: Nuclear option - recreating inputs...');
+                const newPickupInput = pickupDateInput.cloneNode(true);
+                const newReturnInput = returnDateInput.cloneNode(true);
+                
+                newPickupInput.value = tomorrowStr;
+                newReturnInput.value = dayAfterTomorrowStr;
+                newPickupInput.setAttribute('value', tomorrowStr);
+                newReturnInput.setAttribute('value', dayAfterTomorrowStr);
+                
+                pickupDateInput.parentNode.replaceChild(newPickupInput, pickupDateInput);
+                returnDateInput.parentNode.replaceChild(newReturnInput, returnDateInput);
+                
+                // Update references
+                pickupDateInput = newPickupInput;
+                returnDateInput = newReturnInput;
+                break;
+            }
+            
+            console.log(`✅ Chrome iOS attempt ${index + 1} completed`);
+          } else {
+            console.log(`✅ Chrome iOS: Dates already set on attempt ${index + 1}`);
+          }
         }
-      }
-    }, 1000);
+      }, attempt.delay);
+    });
+    
   } else if (isSafari && isIOS) {
     // Safari iOS - simpler approach, just ensure values are set
     console.log('🍎 Safari iOS detected - using simple date setting');
