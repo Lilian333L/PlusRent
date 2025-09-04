@@ -132,6 +132,77 @@
         box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5) !important;
       }
       
+      /* i18n Text Display */
+      [data-i18n] {
+        transition: all 0.3s ease;
+      }
+      
+      /* Ensure menu items have proper spacing */
+      #mainmenu li a {
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: clip;
+      }
+      
+      /* Desktop header alignment */
+      @media (min-width: 769px) {
+        .de-flex {
+          justify-content: flex-start !important;
+          align-items: center;
+          gap: 40px;
+        }
+        
+        .de-flex > .de-flex-col:nth-child(2) {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+        }
+        
+        .de-flex > .de-flex-col:last-child {
+          flex-shrink: 0;
+          margin-left: auto;
+        }
+        
+        #mainmenu {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 auto;
+          padding: 0;
+          list-style: none;
+          width: 100%;
+          position: relative;
+          top: 0;
+          left: 0;
+          transform: none;
+        }
+        
+        #mainmenu li {
+          margin: 0 15px;
+          display: inline-block;
+        }
+        
+        #mainmenu li a {
+          display: block;
+          padding: 15px 0;
+          text-decoration: none;
+          color: #fff;
+          font-weight: 500;
+          transition: color 0.3s ease;
+        }
+        
+        .menu_side_area {
+          gap: 15px !important;
+          margin-left: auto;
+        }
+      }
+      
+      /* Language Picker Styles */
+      .lang-picker-wrapper { 
+        position: relative; 
+        display: inline-block; 
+        vertical-align: middle; 
+      }
       .btn-outline-secondary:active,
       .btn-outline-secondary.active {
         color: #fff !important;
@@ -1644,7 +1715,7 @@
         <div id="de-preloader"></div>
         <!-- page preloader close -->
 
-                <!-- header begin -->
+                        <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -1686,19 +1757,28 @@
                             </div>
                             
                             <div class="de-flex-col">
+                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
+                                <ul id="mainmenu">
+                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                  <li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="de-flex-col">
                                 <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                                     <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 20px;">
+                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
                                         <a href="tel:+2083339296" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
                                             <i class="fa fa-phone" style="font-size: 12px;"></i>
                                             <span data-i18n="call_now">Call Now</span>
                                         </a>
                                     </div>
-                                   
-                                    
                                 </div>
-                              
                             </div>
+                            
                             <div id="menu-btn">
                               <span></span>
                               <span></span>
@@ -1708,13 +1788,6 @@
                     </div>
                 </div>
             </div>
-            <ul id="mainmenu">
-              <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-<li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-<li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-<li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-<li><a class="menu-item" href="/sober-driver" data-i18n="menu.sober_driver"></a></li>
-</ul>
         </header><!-- header close -->
         <!-- content begin -->
         <div class="no-bottom no-top zebra" id="content">
@@ -2894,6 +2967,7 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
+    <script src="js/master-include.js"></script>
 
     <script>
         // Authentication check
@@ -7665,6 +7739,30 @@
               console.error('Error during initialization:', error);
             }
           }, 100);
+        });
+        
+        // Language switcher functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSelector = document.getElementById('language-selector');
+            if (languageSelector) {
+                // Set current language
+                const currentLang = localStorage.getItem('lang') || 'en';
+                languageSelector.value = currentLang;
+                
+                // Handle language change
+                languageSelector.addEventListener('change', function() {
+                    const selectedLang = this.value;
+                    if (window.i18next && window.i18next.changeLanguage) {
+                        window.i18next.changeLanguage(selectedLang, function() {
+                            localStorage.setItem('lang', selectedLang);
+                            console.log('Language changed to:', selectedLang);
+                        });
+                    } else {
+                        localStorage.setItem('lang', selectedLang);
+                        console.log('Language preference saved:', selectedLang);
+                    }
+                });
+            }
         });
     </script>
 </body>
