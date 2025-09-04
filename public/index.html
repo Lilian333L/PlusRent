@@ -2701,11 +2701,11 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <label class="form-label small">Pickup Date:</label>
-                            <input type="date" id="modal-pickup-date" class="form-control form-control-sm">
+                            <input type="date" id="modal-pickup-date" class="form-control form-control-sm mobile-date-input">
                         </div>
                         <div class="col-6">
                             <label class="form-label small">Return Date:</label>
-                            <input type="date" id="modal-return-date" class="form-control form-control-sm">
+                            <input type="date" id="modal-return-date" class="form-control form-control-sm mobile-date-input">
                         </div>
                     </div>
                     <div class="row g-2 mt-2">
@@ -3059,6 +3059,46 @@ window.showError = function(message) {
     alert(message);
   }
 };
+
+// Mobile Date Picker Fixes
+document.addEventListener('DOMContentLoaded', function() {
+  // Fix for iOS date picker issues
+  const dateInputs = document.querySelectorAll('.mobile-date-input');
+  
+  dateInputs.forEach(input => {
+    // Prevent zoom on iOS by setting font-size to 16px or larger
+    input.addEventListener('focus', function() {
+      // Ensure proper positioning for iOS date picker
+      this.style.position = 'relative';
+      this.style.zIndex = '9999';
+      
+      // Force viewport to handle iOS date picker properly
+      if (window.innerWidth <= 768) {
+        // Add a small delay to ensure the date picker opens properly
+        setTimeout(() => {
+          this.blur();
+          this.focus();
+        }, 100);
+      }
+    });
+    
+    // Reset positioning after date picker closes
+    input.addEventListener('blur', function() {
+      this.style.position = '';
+      this.style.zIndex = '';
+    });
+    
+    // Handle iOS date picker change event
+    input.addEventListener('change', function() {
+      // Ensure the value is properly set
+      if (this.value) {
+        console.log('Date selected:', this.value);
+        // Trigger any necessary validation or updates
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  });
+});
 </script>
 <script src="js/spinning-wheel-trigger.js"></script>
 </body>

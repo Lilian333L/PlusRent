@@ -396,6 +396,65 @@
     header.header-mobile #mainmenu a:hover {
       color: #1a1a1a !important;
     }
+    
+    /* Mobile Date Picker Fixes for iOS */
+    @media (max-width: 768px) {
+      .mobile-date-input {
+        /* Ensure proper sizing on mobile */
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        min-height: 44px !important; /* iOS minimum touch target */
+        padding: 8px 12px !important;
+        /* Ensure the date picker doesn't get cut off */
+        position: relative;
+        z-index: 1000;
+      }
+      
+      /* Fix for iOS date picker viewport issues */
+      .mobile-date-input::-webkit-calendar-picker-indicator {
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+      }
+      
+      /* Ensure the date picker container doesn't overflow */
+      .booking-section {
+        overflow: visible !important;
+        position: relative;
+      }
+      
+      /* Fix for flexbox wrapping on very small screens */
+      .booking-section > div[style*="display: flex"] {
+        flex-direction: column;
+        gap: 12px !important;
+      }
+      
+      .booking-section > div[style*="display: flex"] > div {
+        min-width: 100% !important;
+        flex: none !important;
+      }
+    }
+    
+    /* Specific fix for iPhone 14 Pro Max and similar devices */
+    @media only screen and (max-width: 430px) {
+      .mobile-date-input {
+        font-size: 18px !important;
+        padding: 10px 14px !important;
+        min-height: 48px !important;
+      }
+      
+      /* Ensure date picker modal is properly positioned */
+      .mobile-date-input:focus {
+        position: relative;
+        z-index: 9999;
+      }
+    }
     </style>
 </head>
 
@@ -608,7 +667,7 @@
                                             <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_date"></label>
-                                                    <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                    <input type="date" id="date-picker" name="Pick Up Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input">
                                             </div>
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.pickup_time"></label>
@@ -644,7 +703,7 @@
                                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_date"></label>
-                                                    <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
+                                                    <input type="date" id="date-picker-2" name="Collection Date" value="" style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;" class="mobile-date-input">
                                                 </div>
                                                 <div style="flex: 1; min-width: 120px;">
                                                     <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;" data-i18n="cars.return_time"></label>
@@ -2067,6 +2126,64 @@ document.addEventListener('DOMContentLoaded', function() {
   }).catch(error => {
     console.error('❌ Error initializing Price Calculator:', error);
   });
+});
+
+// Mobile Date Picker Fixes
+document.addEventListener('DOMContentLoaded', function() {
+  // Fix for iOS date picker issues
+  const dateInputs = document.querySelectorAll('.mobile-date-input');
+  
+  dateInputs.forEach(input => {
+    // Prevent zoom on iOS by setting font-size to 16px or larger
+    input.addEventListener('focus', function() {
+      // Ensure proper positioning for iOS date picker
+      this.style.position = 'relative';
+      this.style.zIndex = '9999';
+      
+      // Force viewport to handle iOS date picker properly
+      if (window.innerWidth <= 768) {
+        // Add a small delay to ensure the date picker opens properly
+        setTimeout(() => {
+          this.blur();
+          this.focus();
+        }, 100);
+      }
+    });
+    
+    // Reset positioning after date picker closes
+    input.addEventListener('blur', function() {
+      this.style.position = '';
+      this.style.zIndex = '';
+    });
+    
+    // Handle iOS date picker change event
+    input.addEventListener('change', function() {
+      // Ensure the value is properly set
+      if (this.value) {
+        console.log('Date selected:', this.value);
+        // Trigger any necessary validation or updates
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+  });
+  
+  // Fix for very small screens where flexbox might cause issues
+  function adjustLayoutForMobile() {
+    if (window.innerWidth <= 480) {
+      const bookingSections = document.querySelectorAll('.booking-section');
+      bookingSections.forEach(section => {
+        const flexContainers = section.querySelectorAll('div[style*="display: flex"]');
+        flexContainers.forEach(container => {
+          container.style.flexDirection = 'column';
+          container.style.gap = '12px';
+        });
+      });
+    }
+  }
+  
+  // Run on load and resize
+  adjustLayoutForMobile();
+  window.addEventListener('resize', adjustLayoutForMobile);
 });
 </script>
 
