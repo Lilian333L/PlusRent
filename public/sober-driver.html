@@ -18,44 +18,48 @@
     <link href="css/coloring.css" rel="stylesheet" type="text/css">
     <!-- color scheme -->
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+    <!-- i18n Support -->
+    <script src="js/master-include.js"></script>
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
       
-      /* Ensure proper header styling */
-      header.transparent {
-        background: #000 !important;
+      /* Ensure navigation is properly styled for mobile menu */
+      @media only screen and (max-width: 992px) {
+        #mainmenu {
+          background: #f8f6f3 !important;
+        }
       }
       
-      header.transparent.has-topbar {
-        background: #000 !important;
+      /* Hero section styling */
+      #subheader {
+        position: relative;
+        background: linear-gradient(135deg, #1E90FF, #187bcd);
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
       }
       
-      /* Ensure the main navigation container has proper background */
-      header .container {
-        background: #000 !important;
-        padding: 10px 0 !important;
+      #subheader h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
       }
       
-
-      
-      /* Ensure header is above hero section */
-      header {
-        position: relative !important;
-        z-index: 1000 !important;
+      #subheader .lead {
+        font-size: 1.3rem;
+        font-weight: 400;
+        opacity: 0.9;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
       
-      header.transparent .container {
-        background: transparent;
-      }
-      
-      /* Ensure navigation is properly styled */
-      #mainmenu {
-        background: transparent;
-      }
-      
-      #mainmenu li a {
-        color: white !important;
+      /* Topbar styling */
+      #topbar {
+        background: rgba(0, 0, 0, 0.9) !important;
       }
       
       /* Language picker styling - exact copy from home page */
@@ -243,6 +247,152 @@
         background: #0066CC;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+      }
+      
+      /* Mobile Responsiveness for Sober Driver Page */
+      @media (max-width: 768px) {
+        .contact-options {
+          padding: 20px 0;
+          margin-bottom: 0;
+        }
+        
+        .features-section {
+          padding: 30px 0;
+          margin-top: 0;
+        }
+        
+        /* Fix spacing between sections on mobile */
+        .contact-options + .features-section {
+          margin-top: 0;
+          padding-top: 20px;
+        }
+        
+        /* Add margin to column containers for proper section spacing */
+        .contact-options .col-lg-6,
+        .contact-options .col-md-6,
+        .contact-options .col-12 {
+          margin-bottom: 30px;
+        }
+        
+        .contact-card {
+          padding: 20px;
+        }
+        
+        .phone-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+        }
+        
+        .contact-card h3 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+        
+        .contact-card p {
+          font-size: 0.95rem;
+          margin-bottom: 15px;
+        }
+        
+        .phone-number {
+          font-size: 1.2rem;
+          padding: 12px 20px;
+        }
+        
+        .callback-form {
+          padding: 20px;
+        }
+        
+        .callback-form input[type="tel"] {
+          padding: 12px;
+          font-size: 16px;
+          margin-bottom: 15px;
+        }
+        
+        .btn-request-call {
+          padding: 12px 20px;
+          font-size: 16px;
+        }
+        
+        .features-section {
+          padding: 30px 0;
+        }
+        
+        .feature-item {
+          margin-bottom: 30px;
+          padding: 20px;
+        }
+        
+        .feature-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+        }
+        
+        .feature-item h4 {
+          font-size: 1.3rem;
+          margin-bottom: 10px;
+        }
+        
+        .feature-item p {
+          font-size: 0.95rem;
+        }
+        
+        .success-modal-content {
+          margin: 10% auto;
+          padding: 30px 20px;
+          width: 95%;
+        }
+        
+        .success-title {
+          font-size: 1.5rem;
+        }
+        
+        .success-message {
+          font-size: 1rem;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .contact-card {
+          padding: 15px;
+        }
+        
+        .callback-form {
+          padding: 15px;
+        }
+        
+        .phone-number {
+          font-size: 1.1rem;
+          padding: 10px 15px;
+        }
+        
+        .btn-request-call {
+          padding: 10px 15px;
+          font-size: 15px;
+        }
+        
+        .feature-item {
+          padding: 15px;
+        }
+        
+        /* Additional mobile spacing fixes */
+        .contact-options {
+          padding: 15px 0;
+        }
+        
+        .features-section {
+          padding: 20px 0;
+        }
+        
+        .contact-options + .features-section {
+          padding-top: 15px;
+        }
+        
+        /* Consistent column spacing for small mobile */
+        .contact-options .col-lg-6,
+        .contact-options .col-md-6,
+        .contact-options .col-12 {
+          margin-bottom: 20px;
+        }
       }
       
       .success-modal {
@@ -465,13 +615,28 @@
         <div class="no-bottom no-top" id="content">
             <div id="top"></div>
             
-
+            <!-- Hero Section -->
+            <section id="subheader" class="jarallax text-light">
+                <img src="images/background/2.jpg" class="jarallax-img" alt="">
+                <div class="center-y relative text-center">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <h1 data-i18n="sober_driver.title">Sober Driver Service</h1>
+                                <p class="lead" data-i18n="sober_driver.subtitle">Professional designated driver service for safe transportation</p>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Hero Section close -->
             
             <!-- Contact Options Section -->
             <section class="contact-options">
                 <div class="container">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 col-md-6 col-12">
                             <div class="contact-card">
                                 <div class="phone-icon">
                                     <i class="fa fa-phone"></i>
@@ -481,7 +646,7 @@
                                 <a href="tel:+37322123456" class="phone-number">+373 22 123 456</a>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 col-md-6 col-12">
                             <div class="contact-card">
                                 <div class="phone-icon">
                                     <i class="fa fa-clock-o"></i>
@@ -489,7 +654,7 @@
                                 <h3 data-i18n="sober_driver.callback">Request Callback</h3>
                                 <p data-i18n="sober_driver.callback_desc">Leave your phone number and we'll call you back within minutes to arrange your ride.</p>
                                 <form class="callback-form" id="callbackForm">
-                                    <input type="tel" id="callbackPhone" placeholder="Enter your phone number" required>
+                                    <input type="tel" id="callbackPhone" placeholder="" data-i18n-placeholder="sober_driver.phone_placeholder" required>
                                     <button type="submit" class="btn-request-call" data-i18n="sober_driver.request_call">Request Call</button>
                                 </form>
                             </div>
@@ -508,7 +673,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-4 col-md-6 col-12">
                             <div class="feature-item">
                                 <div class="feature-icon">
                                     <i class="fa fa-shield"></i>
@@ -517,7 +682,7 @@
                                 <p data-i18n="sober_driver.safety_desc">Our drivers are professionally trained and licensed. Your safety is our top priority.</p>
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-4 col-md-6 col-12">
                             <div class="feature-item">
                                 <div class="feature-icon">
                                     <i class="fa fa-clock-o"></i>
@@ -526,7 +691,7 @@
                                 <p data-i18n="sober_driver.availability_desc">Available round the clock, whenever you need us. No matter the time or day.</p>
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-4 col-md-6 col-12">
                             <div class="feature-item">
                                 <div class="feature-icon">
                                     <i class="fa fa-car"></i>
@@ -663,7 +828,7 @@
                 // Determine API base URL based on environment
                 let apiBaseUrl;
                 if (window.location.hostname === 'localhost') {
-                    apiBaseUrl = 'http://localhost:3001';
+                    apiBaseUrl = 'http://localhost:3000';
                 } else {
                     // For Vercel deployment, use relative path since frontend and API are on same domain
                     apiBaseUrl = '';
@@ -742,6 +907,69 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 document.getElementById('successModal').style.display = 'none';
+            }
+        });
+        
+        // Language switcher functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const langPickerBtn = document.getElementById('langPickerBtn');
+            const langDropdown = document.getElementById('langDropdown');
+            const langGlobe = document.getElementById('langGlobe');
+            const langFlag = document.getElementById('langFlag');
+            const langCode = document.getElementById('langCode');
+            
+            // Toggle dropdown
+            langPickerBtn.addEventListener('click', function() {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', !isExpanded);
+                langDropdown.classList.toggle('open');
+            });
+            
+            // Handle language selection
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    const flag = this.querySelector('.lang-flag').textContent;
+                    const code = this.querySelector('.lang-code').textContent;
+                    
+                    // Update button
+                    langFlag.textContent = flag;
+                    langCode.textContent = code;
+                    
+                    // Close dropdown
+                    langDropdown.classList.remove('open');
+                    langPickerBtn.setAttribute('aria-expanded', 'false');
+                    
+                    // Change language
+                    if (window.i18next && window.i18next.changeLanguage) {
+                        window.i18next.changeLanguage(lang);
+                    }
+                    
+                    // Store preference
+                    localStorage.setItem('language', lang);
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!langPickerBtn.contains(event.target) && !langDropdown.contains(event.target)) {
+                    langDropdown.classList.remove('open');
+                    langPickerBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            
+            // Set initial language
+            const savedLang = localStorage.getItem('language') || 'ro';
+            const savedOption = document.querySelector(`[data-lang="${savedLang}"]`);
+            if (savedOption) {
+                const flag = savedOption.querySelector('.lang-flag').textContent;
+                const code = savedOption.querySelector('.lang-code').textContent;
+                langFlag.textContent = flag;
+                langCode.textContent = code;
+                
+                if (window.i18next && window.i18next.changeLanguage) {
+                    window.i18next.changeLanguage(savedLang);
+                }
             }
         });
     </script>

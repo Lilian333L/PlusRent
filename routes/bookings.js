@@ -568,6 +568,66 @@ router.put('/:id/reject', authenticateToken, validateParams(bookingIdSchema), va
   }
 });
 
+// Sober driver callback request
+router.post('/sober-driver-callback', async (req, res) => {
+  const { phone_number, customer_name, customer_email, special_instructions } = req.body;
+  
+  console.log('🚗 Sober driver callback request received:', { phone_number, customer_name, customer_email, special_instructions });
+  
+  // Validate required fields
+  if (!phone_number) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+
+  try {
+    // Insert into sober_driver_callbacks table
+    const { data: callback, error } = await supabase
+      .from('sober_driver_callbacks')
+      .insert([{
+        phone_number,
+        customer_name,
+        customer_email,
+        special_instructions,
+        status: 'pending'
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Error creating sober driver callback:', error);
+      return res.status(500).json({ error: 'Failed to save callback request' });
+    }
+
+    console.log('✅ Sober driver callback saved to database:', callback);
+
+    // Send Telegram notification
+    try {
+      const telegram = new TelegramNotifier();
+      const telegramData = {
+        phone_number,
+        customer_name,
+        customer_email,
+        special_instructions
+      };
+      await telegram.sendMessage(telegram.formatSoberDriverCallbackMessage(telegramData));
+      console.log('✅ Telegram notification sent for sober driver callback');
+    } catch (telegramError) {
+      console.error('❌ Error sending Telegram notification:', telegramError);
+      // Don't fail the request if Telegram fails
+    }
+
+    res.json({ 
+      success: true, 
+      callback_id: callback.id,
+      message: 'Callback request submitted successfully! We will call you back within minutes.'
+    });
+
+  } catch (error) {
+    console.error('❌ Error processing sober driver callback:', error);
+    res.status(500).json({ error: 'Failed to process callback request' });
+  }
+});
+
 // Get booking by ID
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
