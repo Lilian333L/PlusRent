@@ -198,13 +198,6 @@ router.get('/', async (req, res) => {
       
       const { data, error } = await query;
       
-      console.log('🔍 Supabase query result:', { 
-        hasData: !!data, 
-        dataLength: data ? data.length : 0,
-        hasError: !!error,
-        error: error ? error.message : null
-      });
-      
       if (error) {
         console.error('❌ Supabase query error:', error);
         return res.status(500).json({ error: 'Database error', details: error.message });
@@ -277,7 +270,6 @@ router.get('/', async (req, res) => {
       
 
       
-      console.log('✅ Availability calculation completed');
       res.json(filteredCars);
       
     } catch (error) {
@@ -291,7 +283,6 @@ router.get('/', async (req, res) => {
 router.get('/booking/available', async (req, res) => {
 
     try {
-      console.log('🔍 Using Supabase for available cars fetch');
       
       const { data, error } = await supabase
         .from('cars')
@@ -333,7 +324,6 @@ router.get('/booking/available', async (req, res) => {
         };
       });
       
-      console.log('✅ Available cars fetched successfully from Supabase');
       res.json(cars);
       
     } catch (error) {
@@ -348,7 +338,6 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for single car fetch');
       
       const { data, error } = await supabase
         .from('cars')
@@ -373,7 +362,6 @@ router.get('/:id', async (req, res) => {
         data.gallery_images = data.gallery_images ? JSON.parse(data.gallery_images) : [];
       }
       
-      console.log('✅ Car fetched successfully from Supabase');
       res.json(data);
       
     } catch (error) {
@@ -385,8 +373,6 @@ router.get('/:id', async (req, res) => {
 
 // Add new car (Admin only)
 router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) => {
-  console.log('Car creation request body:', req.body);
-  console.log('Request body keys:', Object.keys(req.body || {}));
   
   
   // Handle base64 image uploads for Supabase Storage
@@ -410,7 +396,6 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
 
       // We'll upload this after creating the car record
       headImageUrl = headFile; // Store the file object for upload after car creation
-      console.log('✅ Head image prepared for Supabase upload');
     } catch (error) {
       console.error('❌ Error preparing head image:', error);
     }
@@ -432,17 +417,12 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
           };
           
           galleryImageUrls.push(galleryFile);
-          console.log('✅ Gallery image prepared for Supabase upload:', index);
         } catch (error) {
           console.error(`❌ Error preparing gallery image ${index}:`, error);
         }
       }
     });
   }
-  
-  console.log('📊 Summary:');
-  console.log('  Head image prepared:', headImageUrl ? 'Yes' : 'No');
-  console.log('  Gallery images prepared:', galleryImageUrls.length);
   
                     const {
                     make_name,
@@ -569,31 +549,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
   const descriptionJson = JSON.stringify(descriptionObj);
 
   // Store in DB, booked defaults to 0
-  console.log('Inserting car with data:', {
-    make_name,
-    model_name,
-    production_year,
-    gear_type,
-    fuel_type,
-    engineCapacityValue,
-    car_type,
-    num_doors,
-    num_passengers,
-    price_policy: JSON.stringify(pricePolicyStringified),
-    booked_until: booked_until || null,
-    luggage: luggage || null,
-    mileageValue,
-    drive: drive || null,
-    fuelEconomyValue,
-    exterior_color: exterior_color || null,
-    interior_color: interior_color || null,
-    rcaInsuranceValue,
-    cascoInsuranceValue,
-    likesValue
-  });
   
     try {
-      console.log('🔍 Using Supabase for car creation');
       
       // Prepare car data for Supabase
       const carData = {
@@ -643,8 +600,6 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Car created successfully in Supabase');
-      
       const carId = data[0].id;
       
       // Upload images to Supabase Storage now that we have the car ID
@@ -654,9 +609,7 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
       // Upload head image if provided
       if (headImageUrl && typeof headImageUrl === 'object') {
         try {
-          console.log('🖼️ Uploading head image to Supabase Storage...');
           finalHeadImageUrl = await uploadCarImage(headImageUrl, carId, 'head');
-          console.log('✅ Head image uploaded successfully:', finalHeadImageUrl);
         } catch (error) {
           console.error('❌ Error uploading head image to Supabase:', error);
         }
@@ -666,10 +619,8 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
       for (let i = 0; i < galleryImageUrls.length; i++) {
         if (galleryImageUrls[i] && typeof galleryImageUrls[i] === 'object') {
           try {
-            console.log(`🖼️ Uploading gallery image ${i + 1} to Supabase Storage...`);
             const galleryUrl = await uploadCarImage(galleryImageUrls[i], carId, 'gallery');
             finalGalleryImageUrls.push(galleryUrl);
-            console.log(`✅ Gallery image ${i + 1} uploaded successfully:`, galleryUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${i + 1} to Supabase:`, error);
           }
@@ -690,7 +641,6 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
         if (updateError) {
           console.error('❌ Error updating car with image URLs:', updateError);
         } else {
-          console.log('✅ Car updated with image URLs successfully');
         }
       }
       
@@ -725,10 +675,7 @@ router.post('/', authenticateToken, validate(carCreateSchema), async (req, res) 
 
 // Update car (Admin only)
 router.put('/:id', authenticateToken, validateParams(carIdSchema), validate(carUpdateSchema), async (req, res) => {
-  console.log('🔍 SERVER - PUT /api/cars/:id received request');
   const id = req.params.id;
-  console.log('  Car ID:', id);
-  console.log('  Request body:', req.body);
   const {
     make_name,
     model_name,
@@ -766,24 +713,6 @@ router.put('/:id', authenticateToken, validateParams(carIdSchema), validate(carU
     return res.status(400).json({ error: 'Invalid price_policy format' });
   }
   
-  console.log('🔍 SERVER - Extracted values:');
-  console.log('  make_name:', make_name);
-  console.log('  model_name:', model_name);
-  console.log('  production_year:', production_year);
-  console.log('  gear_type:', gear_type);
-  console.log('  fuel_type:', fuel_type);
-  console.log('  engine_capacity:', engine_capacity);
-  console.log('  car_type:', car_type);
-  console.log('  num_doors:', num_doors);
-  console.log('  num_passengers:', num_passengers);
-  console.log('  rawPricePolicy:', rawPricePolicy);
-  console.log('  parsed price_policy:', price_policy);
-  console.log('  rca_insurance_price:', rca_insurance_price);
-  console.log('  casco_insurance_price:', casco_insurance_price);
-  console.log('  likes:', likes);
-  console.log('  description_en:', description_en);
-  console.log('  description_ro:', description_ro);
-  console.log('  description_ru:', description_ru);
 
   // For electric cars, engine_capacity can be null
   const isElectric = fuel_type === 'Electric';
@@ -886,7 +815,6 @@ router.put('/:id', authenticateToken, validateParams(carIdSchema), validate(carU
   }
 
   try {
-    console.log('🔍 Using Supabase for car update');
     
     // Prepare update data for Supabase
     const updateData = {
@@ -936,7 +864,6 @@ router.put('/:id', authenticateToken, validateParams(carIdSchema), validate(carU
       return res.status(404).json({ error: 'Car not found' });
     }
     
-    console.log('✅ Car updated successfully in Supabase');
     
     // Send Telegram notification
     try {
@@ -972,7 +899,6 @@ router.delete('/:id', authenticateToken, validateParams(carIdSchema), async (req
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for car deletion');
       
       // First, get the car data to check for images
       const { data: carData, error: carError } = await supabase
@@ -1001,7 +927,6 @@ router.delete('/:id', authenticateToken, validateParams(carIdSchema), async (req
         return res.status(500).json({ error: 'Database error: ' + deleteError.message });
       }
       
-      console.log('✅ Car deleted successfully from Supabase');
       
       // Send Telegram notification
       try {
@@ -1037,7 +962,6 @@ router.patch('/:id/premium', authenticateToken, async (req, res) => {
   // Check if we're using Supabase
   
     try {
-      console.log('🔍 Using Supabase for premium toggle');
       
       const { data, error } = await supabase
         .from('cars')
@@ -1054,7 +978,6 @@ router.patch('/:id/premium', authenticateToken, async (req, res) => {
         return res.status(404).json({ error: 'Car not found' });
       }
       
-      console.log('✅ Premium status updated successfully in Supabase');
       res.json({ 
         success: true, 
         message: `Car ${is_premium ? 'marked as premium' : 'removed from premium'} successfully`,
@@ -1071,10 +994,6 @@ router.patch('/:id/premium', authenticateToken, async (req, res) => {
 router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async (req, res) => {
   const carId = req.params.id;
   
-  console.log('🔍 SERVER - POST /api/cars/:id/images received request');
-  console.log('  Car ID:', carId);
-  console.log('  Request body keys:', Object.keys(req.body || {}));
-  
   try {
     
     let car;
@@ -1088,12 +1007,10 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
         .single();
       
       if (carError) {
-        console.log('❌ Supabase error fetching car:', carError);
         return res.status(500).json({ error: 'Database error: ' + carError.message });
       }
       
       if (!carData) {
-        console.log('Car not found for ID:', carId);
         return res.status(404).json({ error: 'Car not found' });
       }
       
@@ -1116,9 +1033,7 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
         };
         
         // Upload to Supabase Storage
-        console.log('🖼️ Uploading head image to Supabase Storage...');
         headImagePath = await uploadCarImage(headFile, carId, 'head');
-        console.log('✅ Head image uploaded to Supabase:', headImagePath);
       } catch (error) {
         console.error('❌ Error uploading head image to Supabase:', error);
       }
@@ -1126,9 +1041,6 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
     
     // Process gallery images if provided
     if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
-      console.log('🔍 Processing gallery images. Current count:', galleryImagePaths.length);
-      console.log('🔍 New images to add:', req.body.gallery_images.length);
-      
       for (let index = 0; index < req.body.gallery_images.length; index++) {
         const imageData = req.body.gallery_images[index];
         if (imageData && imageData.data) {
@@ -1144,18 +1056,13 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
             };
             
             // Upload to Supabase Storage
-            console.log(`🖼️ Uploading gallery image ${index + 1} to Supabase Storage...`);
             const galleryImageUrl = await uploadCarImage(galleryFile, carId, 'gallery');
             galleryImagePaths.push(galleryImageUrl);
-            console.log('✅ Gallery image uploaded to Supabase:', galleryImageUrl);
           } catch (error) {
             console.error(`❌ Error uploading gallery image ${index} to Supabase:`, error);
           }
         }
       }
-      
-      console.log('🔍 Final gallery images count:', galleryImagePaths.length);
-      console.log('🔍 Final gallery images:', galleryImagePaths);
     }
     
     // Update car with new image paths
@@ -1163,8 +1070,6 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
       head_image: headImagePath,
       gallery_images: JSON.stringify(galleryImagePaths)
     };
-    
-    console.log('🔍 Updating car with data:', updateData);
     
       // Update in Supabase
       const { error: updateError } = await supabase
@@ -1177,7 +1082,6 @@ router.post('/:id/images', authenticateToken, validateParams(carIdSchema), async
         return res.status(500).json({ error: 'Database error: ' + updateError.message });
       }
       
-      console.log('✅ Car images updated successfully in Supabase');
     res.json({ 
       success: true, 
       head_image: headImagePath, 
@@ -1196,14 +1100,12 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
   const imagePath = req.query.path;
   const imageType = req.query.type || 'gallery'; // 'gallery' or 'head'
   
-  console.log('DELETE /api/cars/:id/images - Request:', { carId, imagePath, imageType });
   
   if (!imagePath) {
     return res.status(400).json({ error: 'Image path is required' });
   }
   
     try {
-      console.log('🔍 Using Supabase for image deletion');
       
       // Get car data from Supabase
       const { data: car, error: carError } = await supabase
@@ -1221,14 +1123,12 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
         return res.status(404).json({ error: 'Car not found' });
       }
       
-      console.log('Car found:', { id: car.id, head_image: car.head_image, gallery_images: car.gallery_images });
       
       let updateData = {};
       
       if (imageType === 'head') {
         // Handle head image deletion
         if (car.head_image !== imagePath) {
-          console.log('Head image path mismatch:', { expected: car.head_image, received: imagePath });
           return res.status(400).json({ error: 'Head image path does not match' });
         }
         updateData.head_image = null;
@@ -1239,7 +1139,6 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
           galleryImages = car.gallery_images ? JSON.parse(car.gallery_images) : [];
           // Ensure it's an array
           if (!Array.isArray(galleryImages)) {
-            console.log('Gallery images is not an array, converting:', galleryImages);
             galleryImages = [];
           }
         } catch (e) {
@@ -1248,12 +1147,9 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
         }
         
         // Debug logs for troubleshooting
-        console.log('Gallery images in DB:', galleryImages);
-        console.log('Requested to delete:', imagePath);
         
         // Check if the image exists in the gallery
         if (!galleryImages.includes(imagePath)) {
-          console.log('Image not found in gallery:', imagePath);
           return res.status(400).json({ error: 'Image not found in gallery' });
         }
         
@@ -1261,7 +1157,6 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
         const updatedGallery = galleryImages.filter(img => img !== imagePath);
         // Also remove any duplicates that might exist
         const uniqueGallery = [...new Set(updatedGallery)];
-        console.log('Updated gallery (after removal):', uniqueGallery);
         updateData.gallery_images = JSON.stringify(uniqueGallery);
       }
       
@@ -1290,7 +1185,6 @@ router.delete('/:id/images', authenticateToken, validateParams(carIdSchema), asy
           console.error('❌ Supabase Storage error:', deleteError);
           // Don't fail the request if file deletion fails, but log the issue
         } else {
-          console.log('✅ File deleted from Supabase Storage:', filePath);
         }
       } catch (error) {
         console.error('❌ Error deleting from Supabase Storage:', error);
@@ -1322,10 +1216,8 @@ router.post('/reorder', authenticateToken, validate(carReorderSchema), async (re
     return res.status(400).json({ error: 'Invalid car order array' });
   }
   
-  console.log('Reordering cars:', carOrder);
   
     try {
-      console.log('🔍 Using Supabase for car reordering');
       
       // Update each car's display_order using Supabase
       const updatePromises = carOrder.map((carId, index) => {
@@ -1344,7 +1236,6 @@ router.post('/reorder', authenticateToken, validate(carReorderSchema), async (re
         return res.status(500).json({ error: 'Failed to update car order in Supabase' });
       }
       
-      console.log('✅ Cars reordered successfully in Supabase');
       res.json({ success: true, message: 'Cars reordered successfully' });
       
     } catch (error) {
@@ -1356,8 +1247,6 @@ router.post('/reorder', authenticateToken, validate(carReorderSchema), async (re
 // Function to check car availability for specific dates
 async function checkCarAvailability(carId, pickupDate, returnDate) {
   try {
-    
-      console.log('🔍 Using Supabase for availability check');
       
       // Get confirmed bookings for this car in the date range
       const { data: bookings, error } = await supabase

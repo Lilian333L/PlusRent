@@ -81,7 +81,7 @@ function validateOrigin(origin, callback) {
   }
   
   // For development, be permissive - allow all origins
-  console.log(`🔓 Development: Allowing origin: ${origin}`);
+
   return callback(null, true);
 }
 
@@ -103,10 +103,8 @@ function getCorsMiddleware() {
   const isVercel = process.env.VERCEL === '1';
   
   if (isProduction) {
-    console.log('🔒 Using strict CORS for production');
     return corsMiddleware;
   } else {
-    console.log('🔓 Using permissive CORS for development');
     return devCorsMiddleware;
   }
 }

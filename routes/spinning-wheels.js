@@ -21,7 +21,6 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/', async (req, res) => {
 
     try {
-      console.log('🔍 Using Supabase for spinning wheels fetch');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -33,7 +32,6 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Spinning wheels fetched successfully from Supabase');
       res.json(data || []);
       
     } catch (error) {
@@ -46,7 +44,6 @@ router.get('/', async (req, res) => {
 router.get('/active', async (req, res) => {
 
     try {
-      console.log('🔍 Using Supabase for active spinning wheels fetch');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -59,7 +56,6 @@ router.get('/active', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Active spinning wheels fetched successfully from Supabase');
       res.json(data || []);
       
     } catch (error) {
@@ -72,7 +68,6 @@ router.get('/active', async (req, res) => {
 router.get('/secure/active-data', async (req, res) => {
 
     try {
-      console.log('🔍 Using Supabase for secure active wheel data fetch');
       
       // Get first active wheel (for backward compatibility)
       const { data: activeWheels, error: wheelError } = await supabase
@@ -83,7 +78,6 @@ router.get('/secure/active-data', async (req, res) => {
         .limit(1);
       
       if (wheelError || !activeWheels || activeWheels.length === 0) {
-        console.log('No active spinning wheel found');
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
       
@@ -140,7 +134,6 @@ router.get('/secure/active-data', async (req, res) => {
         };
       });
       
-      console.log('✅ Secure wheel data fetched successfully');
       res.json({ segments: segments });
       
     } catch (error) {
@@ -154,7 +147,6 @@ router.get('/:id/secure-data', async (req, res) => {
   const wheelId = req.params.id;
   
     try {
-      console.log(`🔍 Using Supabase for secure wheel data fetch for wheel ${wheelId}`);
       
       // Check if wheel exists
       const { data: wheel, error: wheelError } = await supabase
@@ -164,7 +156,6 @@ router.get('/:id/secure-data', async (req, res) => {
         .single();
       
       if (wheelError || !wheel) {
-        console.log(`Wheel ${wheelId} not found`);
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
@@ -219,7 +210,6 @@ router.get('/:id/secure-data', async (req, res) => {
         };
       });
       
-      console.log(`✅ Secure wheel data fetched successfully for wheel ${wheelId}`);
       res.json({ segments: segments });
       
     } catch (error) {
@@ -233,7 +223,6 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
   const wheelId = req.params.id;
   
     try {
-      console.log(`🔍 Using Supabase for secure random winning index for wheel ${wheelId}`);
       
       // Check if wheel exists
       const { data: wheel, error: wheelError } = await supabase
@@ -243,7 +232,6 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
         .single();
       
       if (wheelError || !wheel) {
-        console.log(`Wheel ${wheelId} not found`);
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
@@ -260,7 +248,6 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
       }
       
       if (!wheelCoupons || wheelCoupons.length === 0) {
-        console.log('No enabled coupons found for wheel');
         return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
       }
       
@@ -268,7 +255,6 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
       const validCoupons = wheelCoupons.filter(wc => (wc.percentage || 0) > 0);
       
       if (validCoupons.length === 0) {
-        console.log('No coupons with valid percentages, using equal distribution for all coupons');
         // If no coupons have valid percentages, use equal distribution for all coupons
         const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
         return res.json({ 
@@ -286,36 +272,29 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
       let cumulativePercentage = 0;
       let winningIndex = 0;
       
-      console.log('🔍 Probability calculation debug:');
-      console.log('Random value:', randomValue);
-      console.log('Total percentage:', totalPercentage);
+      
       
       for (let i = 0; i < wheelCoupons.length; i++) {
         const coupon = wheelCoupons[i];
         const couponPercentage = coupon.percentage || 0;
         
-        console.log(`Index ${i}: coupon_id ${coupon.coupon_id}, percentage ${couponPercentage}`);
         
         // Skip coupons with 0% probability
         if (couponPercentage === 0) {
-          console.log(`  Skipping index ${i} (0% probability)`);
           continue;
         }
         
         const rangeStart = cumulativePercentage;
         const rangeEnd = cumulativePercentage + couponPercentage;
-        console.log(`  Range: ${rangeStart} - ${rangeEnd}`);
         
         if (randomValue <= rangeEnd) {
           winningIndex = i;
-          console.log(`  WINNER: index ${i} (random ${randomValue} <= ${rangeEnd})`);
           break;
         }
         
         cumulativePercentage += couponPercentage;
       }
       
-      console.log(`✅ Secure random winning index calculated successfully for wheel ${wheelId}`);
       res.json({ 
         winningIndex: winningIndex
       });
@@ -335,13 +314,11 @@ router.post('/track-phone', validate(phoneNumberSchema), async (req, res) => {
   }
   
     try {
-      console.log('🔍 Using Supabase for phone number tracking');
       
       const { trackPhoneNumberForSpinningWheel } = require('../lib/phoneNumberTracker');
       const result = await trackPhoneNumberForSpinningWheel(phoneNumber);
       
       if (result.success) {
-        console.log('✅ Phone number tracked successfully for spinning wheel');
         res.json(result);
       } else {
         console.error('❌ Failed to track phone number:', result.error);
@@ -363,7 +340,6 @@ router.post('/secure/redeem-coupon', async (req, res) => {
   }
   
     try {
-      console.log('🔍 Using Supabase for secure coupon redemption');
       
       // Get the coupon with available codes
       const { data: coupon, error: couponError } = await supabase
@@ -413,7 +389,6 @@ router.post('/secure/redeem-coupon', async (req, res) => {
         const { addAvailableCoupon } = require('../lib/phoneNumberTracker');
         const addResult = await addAvailableCoupon(phoneNumber, codeToRedeem);
         if (addResult.success) {
-          console.log(`✅ Added coupon code ${codeToRedeem} to user's available coupons`);
         } else {
           console.error('❌ Failed to add coupon to user\'s available coupons:', addResult.error);
         }
@@ -422,7 +397,6 @@ router.post('/secure/redeem-coupon', async (req, res) => {
         // Don't fail the redemption if adding to available coupons fails
       }
       
-      console.log('✅ Coupon redeemed successfully:', codeToRedeem);
       res.json({ 
         success: true,
         code: codeToRedeem,
@@ -444,7 +418,6 @@ router.get('/test-simple', (req, res) => {
 router.get('/random-winning-index', async (req, res) => {
  
     try {
-      console.log('🔍 Using Supabase for random winning index');
       
       // Get the active wheel
       const { data: activeWheel, error: wheelError } = await supabase
@@ -459,7 +432,7 @@ router.get('/random-winning-index', async (req, res) => {
       }
       
       if (!activeWheel) {
-        console.log('No active wheel found');
+
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
       
@@ -487,7 +460,6 @@ router.get('/random-winning-index', async (req, res) => {
       }
       
       if (!wheelCoupons || wheelCoupons.length === 0) {
-        console.log('No enabled coupons found for wheel');
         return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
       }
       
@@ -505,7 +477,6 @@ router.get('/random-winning-index', async (req, res) => {
       const totalPercentage = transformedCoupons.reduce((sum, coupon) => sum + (coupon.percentage || 0), 0);
       
       if (totalPercentage === 0) {
-        console.log('Total percentage is 0, using equal distribution');
         // If all percentages are 0, use equal distribution
         const randomIndex = Math.floor(Math.random() * transformedCoupons.length);
         return res.json({ 
@@ -535,7 +506,6 @@ router.get('/random-winning-index', async (req, res) => {
         cumulativePercentage += couponPercentage;
       }
       
-      console.log('✅ Random winning index calculated successfully from Supabase');
       res.json({ 
         winningIndex: winningIndex,
         totalPercentage: totalPercentage,
@@ -552,7 +522,6 @@ router.get('/random-winning-index', async (req, res) => {
 router.get('/secure/random-winning-index', async (req, res) => {
 
     try {
-      console.log('🔍 Using Supabase for secure random winning index');
       
       // Get the active wheel
       const { data: activeWheel, error: wheelError } = await supabase
@@ -562,7 +531,6 @@ router.get('/secure/random-winning-index', async (req, res) => {
         .single();
       
       if (wheelError || !activeWheel) {
-        console.log('No active wheel found');
         return res.status(404).json({ error: 'No active spinning wheel found' });
       }
       
@@ -579,7 +547,6 @@ router.get('/secure/random-winning-index', async (req, res) => {
       }
       
       if (!wheelCoupons || wheelCoupons.length === 0) {
-        console.log('No enabled coupons found for wheel');
         return res.status(404).json({ error: 'No enabled coupons found for this wheel' });
       }
       
@@ -587,7 +554,6 @@ router.get('/secure/random-winning-index', async (req, res) => {
       const validCoupons = wheelCoupons.filter(wc => (wc.percentage || 0) > 0);
       
       if (validCoupons.length === 0) {
-        console.log('No coupons with valid percentages, using equal distribution for all coupons');
         // If no coupons have valid percentages, use equal distribution for all coupons
         const randomIndex = Math.floor(Math.random() * wheelCoupons.length);
         return res.json({ 
@@ -605,36 +571,28 @@ router.get('/secure/random-winning-index', async (req, res) => {
       let cumulativePercentage = 0;
       let winningIndex = 0;
       
-      console.log('🔍 Probability calculation debug:');
-      console.log('Random value:', randomValue);
-      console.log('Total percentage:', totalPercentage);
       
       for (let i = 0; i < wheelCoupons.length; i++) {
         const coupon = wheelCoupons[i];
         const couponPercentage = coupon.percentage || 0;
         
-        console.log(`Index ${i}: coupon_id ${coupon.coupon_id}, percentage ${couponPercentage}`);
         
         // Skip coupons with 0% probability
         if (couponPercentage === 0) {
-          console.log(`  Skipping index ${i} (0% probability)`);
           continue;
         }
         
         const rangeStart = cumulativePercentage;
         const rangeEnd = cumulativePercentage + couponPercentage;
-        console.log(`  Range: ${rangeStart} - ${rangeEnd}`);
         
         if (randomValue <= rangeEnd) {
           winningIndex = i;
-          console.log(`  WINNER: index ${i} (random ${randomValue} <= ${rangeEnd})`);
           break;
         }
         
         cumulativePercentage += couponPercentage;
       }
       
-      console.log('✅ Secure random winning index calculated successfully');
       res.json({ 
         winningIndex: winningIndex
       });
@@ -676,7 +634,6 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for single spinning wheel fetch');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -693,7 +650,7 @@ router.get('/:id', async (req, res) => {
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
-      console.log('✅ Spinning wheel fetched successfully from Supabase');
+
       res.json(data);
       
     } catch (error) {
@@ -708,7 +665,6 @@ router.get('/:id/coupons', async (req, res) => {
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for wheel coupons fetch');
       
       const { data, error } = await supabase
         .from('wheel_coupons')
@@ -720,7 +676,6 @@ router.get('/:id/coupons', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Wheel coupons fetched successfully from Supabase');
       res.json(data || []);
       
     } catch (error) {
@@ -738,7 +693,6 @@ router.post('/', authenticateToken, validate(spinningWheelCreateSchema), async (
   }
 
     try {
-      console.log('🔍 Using Supabase for spinning wheel creation');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -755,7 +709,6 @@ router.post('/', authenticateToken, validate(spinningWheelCreateSchema), async (
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Spinning wheel created successfully in Supabase');
       res.json({ success: true, id: data[0].id });
       
     } catch (error) {
@@ -773,7 +726,6 @@ router.put('/:id', authenticateToken, validateParams(spinningWheelIdSchema), val
     return res.status(400).json({ error: 'Name is required' });
   }
     try {
-      console.log('🔍 Using Supabase for spinning wheel update');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -794,7 +746,6 @@ router.put('/:id', authenticateToken, validateParams(spinningWheelIdSchema), val
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
-      console.log('✅ Spinning wheel updated successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -808,7 +759,6 @@ router.patch('/:id/activate', authenticateToken, async (req, res) => {
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for spinning wheel activation');
       
       // First, check if this wheel is already active
       const { data: currentWheel, error: wheelError } = await supabase
@@ -828,7 +778,6 @@ router.patch('/:id/activate', authenticateToken, async (req, res) => {
       
       // If wheel is already active, just return success
       if (currentWheel.is_active) {
-        console.log('✅ Wheel is already active');
         return res.json({ success: true });
       }
       
@@ -845,7 +794,7 @@ router.patch('/:id/activate', authenticateToken, async (req, res) => {
       
       // Check if we already have 2 active wheels
       if (activeWheels && activeWheels.length >= 2) {
-        console.log('❌ Maximum active wheels limit reached (2)');
+        
         return res.status(400).json({ 
           error: 'Maximum limit reached. You can only have 2 active wheels at a time. Please disable one wheel before activating another.' 
         });
@@ -870,7 +819,6 @@ router.patch('/:id/activate', authenticateToken, async (req, res) => {
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
-      console.log('✅ Spinning wheel activated successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -884,7 +832,6 @@ router.patch('/:id/deactivate', authenticateToken, async (req, res) => {
   const id = req.params.id;
 
     try {
-      console.log('🔍 Using Supabase for spinning wheel deactivation');
       
       const { data, error } = await supabase
         .from('spinning_wheels')
@@ -904,7 +851,6 @@ router.patch('/:id/deactivate', authenticateToken, async (req, res) => {
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
-      console.log('✅ Spinning wheel deactivated successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -918,8 +864,7 @@ router.delete('/:id', authenticateToken, validateParams(spinningWheelIdSchema), 
   const id = req.params.id;
 
     try {
-      console.log('🔍 Using Supabase for spinning wheel deletion');
-      
+        
       // First delete associated wheel_coupons
       const { error: wheelCouponsError } = await supabase
         .from('wheel_coupons')
@@ -947,7 +892,7 @@ router.delete('/:id', authenticateToken, validateParams(spinningWheelIdSchema), 
         return res.status(404).json({ error: 'Spinning wheel not found' });
       }
       
-      console.log('✅ Spinning wheel deleted successfully from Supabase');
+      
       res.json({ success: true });
       
     } catch (error) {
@@ -966,7 +911,6 @@ router.post('/:id/coupons', authenticateToken, async (req, res) => {
   }
 
     try {
-      console.log('🔍 Using Supabase for adding coupon to wheel');
       
       const { data, error } = await supabase
         .from('wheel_coupons')
@@ -982,7 +926,6 @@ router.post('/:id/coupons', authenticateToken, async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Coupon added to wheel successfully in Supabase');
       res.json({ success: true, id: data[0].id });
       
     } catch (error) {
@@ -997,7 +940,6 @@ router.delete('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
   const couponId = req.params.couponId;
 
     try {
-      console.log('🔍 Using Supabase for removing coupon from wheel');
       
       const { data, error } = await supabase
         .from('wheel_coupons')
@@ -1011,7 +953,6 @@ router.delete('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Coupon removed from wheel successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -1031,7 +972,6 @@ router.patch('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
   }
 
     try {
-      console.log('🔍 Using Supabase for updating coupon percentage in wheel');
       
       const { data, error } = await supabase
         .from('wheel_coupons')
@@ -1049,7 +989,6 @@ router.patch('/:id/coupons/:couponId', authenticateToken, async (req, res) => {
         return res.status(404).json({ error: 'Wheel coupon not found' });
       }
       
-      console.log('✅ Coupon percentage updated successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -1064,7 +1003,7 @@ router.post('/:id/coupons/bulk', authenticateToken, async (req, res) => {
   const { enabled, disabled, percentages } = req.body;
 
     try {
-      console.log('🔍 Using Supabase for bulk wheel coupon update');
+
       
       // Remove disabled coupons
       if (disabled && disabled.length > 0) {
@@ -1114,7 +1053,7 @@ router.post('/:id/coupons/bulk', authenticateToken, async (req, res) => {
         }
       }
       
-      console.log('✅ Bulk wheel coupon update completed successfully in Supabase');
+      
       res.json({ success: true });
       
     } catch (error) {

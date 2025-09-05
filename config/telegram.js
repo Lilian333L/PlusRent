@@ -24,7 +24,6 @@ class TelegramNotifier {
 
   async sendMessage(message) {
     if (!this.botToken || !this.chatId) {
-      console.log('Telegram bot not configured. Skipping notification.');
       return;
     }
 
@@ -35,7 +34,6 @@ class TelegramNotifier {
         parse_mode: 'HTML'
       });
       
-      console.log('Telegram notification sent successfully');
       return response.data;
     } catch (error) {
       console.error('Error sending Telegram notification:', error.message);
