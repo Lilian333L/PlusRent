@@ -37,12 +37,12 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     customer_age
   } = req.body;
 
-  console.log('📝 Booking request received:', req.body);
+
 
   // Validate required fields
   if (!car_id || !pickup_date || !pickup_time || !return_date || !return_time || 
       !pickup_location || !dropoff_location || !customer_age) {
-    console.log('Missing required fields:', { car_id, pickup_date, pickup_time, return_date, return_time, pickup_location, dropoff_location, customer_age });
+
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -71,7 +71,6 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
   }
 
   try {
-    console.log('🔍 Using Supabase for booking creation');
     
     // Check if car exists
     const { data: car, error: carError } = await supabase
@@ -113,7 +112,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
           if (!useResponse.ok) {
             console.error('Failed to mark redemption code as used');
           } else {
-            console.log('✅ Redemption code marked as used');
+            
           }
         } else {
           // If not a valid redemption code, try regular coupon validation
@@ -128,7 +127,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
           const result = await response.json();
           if (!result.valid) {
             validatedDiscountCode = null;
-            console.log('Invalid discount code provided');
+            
           }
         }
       } catch (error) {
@@ -161,7 +160,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       updated_at: new Date().toISOString()
     };
 
-    console.log('📊 Creating booking with data:', bookingData);
+
 
     const { data: newBooking, error } = await supabase
       .from('bookings')
@@ -174,7 +173,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       return res.status(500).json({ error: 'Failed to create booking: ' + error.message });
     }
 
-    console.log('✅ Booking created in Supabase:', newBooking);
+
 
     // Send Telegram notification
     try {
@@ -207,22 +206,20 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     try {
       const phoneNumber = customer_phone;
       if (phoneNumber) {
-        console.log(`📞 Tracking phone number for new booking: ${phoneNumber}`);
         const trackingResult = await trackPhoneNumberForBooking(phoneNumber, newBooking.id.toString());
         if (trackingResult.success) {
-          console.log('✅ Phone number tracked successfully:', trackingResult.message);
         } else {
           console.error('❌ Failed to track phone number:', trackingResult.error);
         }
       } else {
-        console.log('⚠️  No phone number found for booking, skipping phone tracking');
+        
       }
     } catch (trackingError) {
       console.error('❌ Error tracking phone number:', trackingError);
       // Don't fail the booking creation if phone tracking fails
     }
 
-    console.log('✅ Booking created successfully in Supabase');
+
     res.json({ 
       success: true, 
       booking_id: newBooking.id,
@@ -238,7 +235,6 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
 
 // Admin: Get all bookings
 router.get('/', async (req, res) => {
-  console.log('📋 Fetching all bookings from Supabase');
   
   try {
     const { data: bookings, error } = await supabase
@@ -274,7 +270,7 @@ router.get('/', async (req, res) => {
     
     // Update bookings to finished status
     if (bookingsToUpdate.length > 0) {
-      console.log(`🔄 Auto-marking ${bookingsToUpdate.length} bookings as finished`);
+      
       const { error: updateError } = await supabaseAdmin
         .from('bookings')
         .update({ 
@@ -286,7 +282,6 @@ router.get('/', async (req, res) => {
       if (updateError) {
         console.error('❌ Error auto-marking bookings as finished:', updateError);
       } else {
-        console.log(`✅ Successfully marked ${bookingsToUpdate.length} bookings as finished`);
         
         // Update the local bookings array to reflect the status change
         bookings.forEach(booking => {
@@ -297,7 +292,6 @@ router.get('/', async (req, res) => {
       }
     }
 
-    console.log(`✅ Found ${bookings.length} bookings`);
     res.json(bookings);
 
   } catch (error) {
@@ -311,7 +305,6 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
   const { id } = req.params;
   const { status } = req.body;
   
-  console.log(`📝 Updating booking ${id} status to: ${status}`);
 
   if (!status || !['pending', 'confirmed', 'cancelled', 'completed', 'rejected', 'finished'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status. Must be: pending, confirmed, cancelled, completed, rejected, or finished' });
@@ -337,7 +330,7 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    console.log('✅ Booking status updated successfully');
+
     res.json({ success: true, booking: data });
 
   } catch (error) {
@@ -350,7 +343,6 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
 router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), async (req, res) => {
   const bookingId = req.params.id;
   
-  console.log('✅ Admin confirming booking:', bookingId);
   
   try {
     // Get booking details
@@ -370,7 +362,7 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
       return res.status(400).json({ error: 'Booking is not pending confirmation' });
     }
 
-    console.log('📋 Found booking:', booking);
+
 
     // Update booking status to confirmed
     const { error: updateError } = await supabaseAdmin
@@ -426,22 +418,22 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
     try {
       const phoneNumber = booking.customer_phone;
       if (phoneNumber) {
-        console.log(`📞 Tracking phone number for confirmed booking: ${phoneNumber}`);
+        
         const trackingResult = await trackPhoneNumberForBooking(phoneNumber, bookingId.toString());
         if (trackingResult.success) {
-          console.log('✅ Phone number tracked successfully:', trackingResult.message);
+          
         } else {
           console.error('❌ Failed to track phone number:', trackingResult.error);
         }
       } else {
-        console.log('⚠️  No phone number found for booking, skipping phone tracking');
+        
       }
     } catch (trackingError) {
       console.error('❌ Error tracking phone number:', trackingError);
       // Don't fail the booking confirmation if phone tracking fails
     }
 
-    console.log('✅ Booking confirmed successfully');
+
     res.json({ 
       success: true, 
       message: 'Booking confirmed and car marked as unavailable',
@@ -459,7 +451,6 @@ router.put('/:id/confirm', authenticateToken, validateParams(bookingIdSchema), a
 router.put('/:id/cancel', authenticateToken, async (req, res) => {
   const bookingId = req.params.id;
   
-  console.log('❌ Admin cancelling booking:', bookingId);
   
   try {
     // Get booking details
@@ -503,7 +494,7 @@ router.put('/:id/cancel', authenticateToken, async (req, res) => {
       }
     }
 
-    console.log('✅ Booking cancelled successfully');
+
     res.json({ 
       success: true, 
       message: 'Booking cancelled successfully',
@@ -521,7 +512,6 @@ router.put('/:id/reject', authenticateToken, validateParams(bookingIdSchema), va
   const bookingId = req.params.id;
   const { reason } = req.body;
   
-  console.log('❌ Admin rejecting booking:', bookingId, 'Reason:', reason);
   
   try {
     // Get booking details
@@ -555,7 +545,7 @@ router.put('/:id/reject', authenticateToken, validateParams(bookingIdSchema), va
       return res.status(500).json({ error: 'Failed to reject booking' });
     }
 
-    console.log('✅ Booking rejected successfully');
+
     res.json({ 
       success: true, 
       message: 'Booking rejected successfully',
@@ -572,7 +562,6 @@ router.put('/:id/reject', authenticateToken, validateParams(bookingIdSchema), va
 router.post('/sober-driver-callback', async (req, res) => {
   const { phone_number, customer_name, customer_email, special_instructions } = req.body;
   
-  console.log('🚗 Sober driver callback request received:', { phone_number, customer_name, customer_email, special_instructions });
   
   // Validate required fields
   if (!phone_number) {
@@ -598,7 +587,7 @@ router.post('/sober-driver-callback', async (req, res) => {
       return res.status(500).json({ error: 'Failed to save callback request' });
     }
 
-    console.log('✅ Sober driver callback saved to database:', callback);
+
 
     // Send Telegram notification
     try {
@@ -610,7 +599,7 @@ router.post('/sober-driver-callback', async (req, res) => {
         special_instructions
       };
       await telegram.sendMessage(telegram.formatSoberDriverCallbackMessage(telegramData));
-      console.log('✅ Telegram notification sent for sober driver callback');
+      
     } catch (telegramError) {
       console.error('❌ Error sending Telegram notification:', telegramError);
       // Don't fail the request if Telegram fails
@@ -632,7 +621,6 @@ router.post('/sober-driver-callback', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   
-  console.log(`📋 Fetching booking ${id} from Supabase`);
   
   try {
     const { data: booking, error } = await supabase
@@ -653,7 +641,6 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    console.log('✅ Booking found');
     res.json(booking);
 
   } catch (error) {

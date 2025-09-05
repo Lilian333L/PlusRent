@@ -17,16 +17,11 @@ const {
 // Import authentication middleware
 const { authenticateToken } = require('../middleware/auth');
 
-// Debug middleware for all coupon routes
-router.use((req, res, next) => {
-  console.log('🔍 COUPON ROUTE ACCESSED:', req.method, req.originalUrl);
-  next();
-});
+
 
 // Get all coupon codes
 router.get('/', async (req, res) => {
     try {
-      console.log('🔍 Using Supabase for coupons fetch');
       
       const { data, error } = await supabase
         .from('coupon_codes')
@@ -38,7 +33,7 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Coupons fetched successfully from Supabase');
+      
       res.json(data);
       
     } catch (error) {
@@ -54,14 +49,12 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
   const id = req.params.id;
   const wheelId = req.query.wheelId; // Get wheel ID from query parameter
   
-  console.log('Toggle wheel request for coupon ID:', id, 'Wheel ID:', wheelId);
   
   if (!wheelId) {
     return res.status(400).json({ error: 'Wheel ID is required' });
   }
   
     try {
-      console.log('🔍 Using Supabase for toggle wheel operation');
       
       // Check if coupon exists
       const { data: coupon, error: couponError } = await supabase
@@ -71,7 +64,6 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
         .single();
       
       if (couponError || !coupon) {
-        console.log('Coupon not found for ID:', id);
         return res.status(404).json({ error: 'Coupon not found' });
       }
       
@@ -83,7 +75,6 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
         .single();
       
       if (wheelError || !wheel) {
-        console.log('Wheel not found for ID:', wheelId);
         return res.status(404).json({ error: 'Wheel not found' });
       }
       
@@ -102,7 +93,7 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
       
       if (existing) {
         // Remove from wheel
-        console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
+        
         const { error: deleteError } = await supabase
           .from('wheel_coupons')
           .delete()
@@ -125,11 +116,10 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
           });
         }
         
-        console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
         res.json({ success: true, wheel_enabled: false });
       } else {
         // Add to wheel
-        console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
+        
         const { data: insertData, error: insertError } = await supabase
           .from('wheel_coupons')
           .insert([{ wheel_id: wheelId, coupon_id: id }])
@@ -151,7 +141,6 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
           });
         }
         
-        console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
         res.json({ success: true, wheel_enabled: true });
       }
     } catch (error) {
@@ -165,8 +154,7 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
   const couponId = req.params.id;
   const { available_codes, showed_codes } = req.body;
   
-  console.log('🔧 Updating dynamic fields for coupon:', couponId);
-  console.log('📊 New values - available_codes:', available_codes, 'showed_codes:', showed_codes);
+  
   
   if (available_codes === undefined && showed_codes === undefined) {
     return res.status(400).json({ error: 'At least one field (available_codes or showed_codes) must be provided' });
@@ -199,7 +187,6 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
   }
   
     try {
-      console.log('🔍 Using Supabase for dynamic fields update');
       
       // Check if coupon exists
       const { data: existingCoupon, error: checkError } = await supabase
@@ -209,7 +196,7 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
         .single();
       
       if (checkError || !existingCoupon) {
-        console.log('Coupon not found for ID:', couponId);
+        
         return res.status(404).json({ error: 'Coupon not found' });
       }
       
@@ -234,7 +221,7 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Dynamic fields updated successfully in Supabase');
+      
       res.json({ 
         success: true, 
         available_codes: available_codes !== undefined ? available_codes : undefined,
@@ -271,7 +258,6 @@ router.patch('/:id/wheel-percentage', authenticateToken, async (req, res) => {
       .single();
     
     if (couponError || !coupon) {
-      console.log('Coupon not found for ID:', couponId);
       return res.status(404).json({ error: 'Coupon not found' });
     }
     
@@ -283,7 +269,6 @@ router.patch('/:id/wheel-percentage', authenticateToken, async (req, res) => {
       .single();
     
     if (wheelError || !wheel) {
-      console.log('Wheel not found for ID:', wheelId);
       return res.status(404).json({ error: 'Wheel not found' });
     }
     
@@ -328,7 +313,6 @@ router.get('/:id', async (req, res) => {
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for single coupon fetch');
       
       const { data, error } = await supabase
         .from('coupon_codes')
@@ -345,7 +329,6 @@ router.get('/:id', async (req, res) => {
         return res.status(404).json({ error: 'Coupon not found' });
       }
       
-      console.log('✅ Coupon fetched successfully from Supabase');
       res.json(data);
       
     } catch (error) {
@@ -356,22 +339,15 @@ router.get('/:id', async (req, res) => {
 
 // Add new coupon code
 router.post('/', authenticateToken, validate(couponCreateSchema), async (req, res) => {
-  console.log('📥 Received coupon data:', req.body);
-  console.log('📥 Request headers:', req.headers);
-  console.log('📥 Content-Type:', req.headers['content-type']);
     
   try {
     const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
 
-    console.log('🔍 Validating code and type...');
     if (!code || !type) {
-      console.log('❌ Missing code or type. Code:', code, 'Type:', type);
       return res.status(400).json({ error: 'Code and type are required' });
     }
 
-    console.log('🔍 Validating type value...');
     if (type !== 'percentage' && type !== 'free_days') {
-      console.log('❌ Invalid type:', type);
       return res.status(400).json({ error: 'Type must be either "percentage" or "free_days"' });
     }
 
@@ -379,34 +355,23 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
   let freeDaysValue = null;
 
   if (type === 'percentage') {
-    console.log('🔍 Validating percentage type...');
-    console.log('🔍 Discount percentage value:', discount_percentage);
     if (!discount_percentage) {
-      console.log('❌ Missing discount percentage for percentage type');
       return res.status(400).json({ error: 'Discount percentage is required for percentage type' });
     }
     discountValue = parseFloat(discount_percentage);
-    console.log('🔍 Parsed discount value:', discountValue);
     if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
-      console.log('❌ Invalid discount percentage:', discountValue);
       return res.status(400).json({ error: 'Discount percentage must be between 0 and 100' });
     }
   } else if (type === 'free_days') {
-    console.log('🔍 Validating free_days type...');
-    console.log('🔍 Free days value:', free_days);
     if (!free_days) {
-      console.log('❌ Missing free days for free_days type');
       return res.status(400).json({ error: 'Free days is required for free_days type' });
     }
     freeDaysValue = parseInt(free_days);
-    console.log('🔍 Parsed free days value:', freeDaysValue);
     if (isNaN(freeDaysValue) || freeDaysValue <= 0) {
-      console.log('❌ Invalid free days:', freeDaysValue);
       return res.status(400).json({ error: 'Free days must be a positive number' });
     }
   }
     try {
-      console.log('🔍 Using Supabase for coupon creation');
       
       // Prepare coupon data for Supabase
       const couponData = {
@@ -442,7 +407,6 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Coupon created successfully in Supabase');
       
       // Send Telegram notification
       try {
@@ -475,16 +439,11 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
 
 // Catch-all route to see what requests are coming in
 router.use('*', (req, res, next) => {
-  console.log('🔍 ALL REQUEST:', req.method, req.originalUrl);
-  console.log('🔍 Request body:', req.body);
   next();
 });
 
 // Update coupon code
 router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(couponUpdateSchema), async (req, res) => {
-  console.log('🚨 PUT REQUEST RECEIVED!');
-  console.log('📥 Edit coupon request - ID:', req.params.id);
-  console.log('📥 Edit coupon request - Body:', req.body);
   const id = req.params.id;
 
   const { code, type, discount_percentage, free_days, description, is_active, expires_at } = req.body;
@@ -518,12 +477,9 @@ router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(c
     }
   }
 
-  console.log('🔍 Edit coupon - Executing UPDATE query');
   const isActiveValue = is_active === '1' || is_active === true ? 1 : 0;
-  console.log('🔍 Edit coupon - Values:', [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id]);
   
     try {
-      console.log('🔍 Using Supabase for coupon update');
       
       // Prepare update data for Supabase
       const updateData = {
@@ -561,7 +517,6 @@ router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(c
         return res.status(404).json({ error: 'Coupon not found' });
       }
       
-      console.log('✅ Coupon updated successfully in Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -575,7 +530,6 @@ router.delete('/:id', authenticateToken, validateParams(couponIdSchema), async (
   const id = req.params.id;
   
     try {
-      console.log('🔍 Using Supabase for coupon deletion');
       
       const { error } = await supabase
         .from('coupon_codes')
@@ -587,7 +541,6 @@ router.delete('/:id', authenticateToken, validateParams(couponIdSchema), async (
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
       
-      console.log('✅ Coupon deleted successfully from Supabase');
       res.json({ success: true });
       
     } catch (error) {
@@ -602,7 +555,6 @@ router.get('/validate-redemption/:code', async (req, res) => {
   const phoneNumber = req.query.phone; // Get phone number from query parameter
   
     try {
-      console.log('🔍 Using Supabase for redemption code validation with phone:', phoneNumber);
       
       // Get all active coupons and check their available_codes
       const { data, error } = await supabase
@@ -633,11 +585,7 @@ router.get('/validate-redemption/:code', async (req, res) => {
         try {
           availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
           showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
-          console.log(`🔍 Coupon ${coupon.id} available_codes:`, availableCodes);
-          console.log(`🔍 Coupon ${coupon.id} showed_codes:`, showedCodes);
-          console.log(`🔍 Looking for code: ${code}`);
-          console.log(`🔍 Code found in available_codes: ${availableCodes.includes(code)}`);
-          console.log(`🔍 Code found in showed_codes: ${showedCodes.includes(code)}`);
+          
         } catch (parseError) {
           console.error('Error parsing codes:', parseError);
           continue;
@@ -645,14 +593,12 @@ router.get('/validate-redemption/:code', async (req, res) => {
         
         // Check if the code exists in available_codes or showed_codes
         if (availableCodes.includes(code) || showedCodes.includes(code)) {
-          console.log(`✅ Found valid coupon: ${coupon.id}`);
           validCoupon = coupon;
           break;
         }
       }
       
       if (!validCoupon) {
-        console.log('❌ Redemption code not found:', code);
         return res.json({ valid: false, message: 'Invalid redemption code' });
       }
       
@@ -663,32 +609,32 @@ router.get('/validate-redemption/:code', async (req, res) => {
           const phoneData = await getPhoneNumberData(phoneNumber);
           
           if (!phoneData) {
-            console.log('❌ Phone number not found in tracking system:', phoneNumber);
+            
             return res.json({ valid: false, message: 'Phone number not authorized for this coupon' });
           }
           
           // Check if the redemption code is available for this phone number
           const availableCoupons = phoneData.available_coupons || [];
           if (!availableCoupons.includes(code)) {
-            console.log('❌ Redemption code not available for phone number:', code, phoneNumber);
+            
             return res.json({ valid: false, message: 'This coupon is not available for your phone number' });
           }
           
           // Check if the code has already been redeemed by this phone number
           const redeemedCoupons = phoneData.redeemed_coupons || [];
           if (redeemedCoupons.includes(code)) {
-            console.log('❌ Redemption code already redeemed by phone number:', code, phoneNumber);
+            
             return res.json({ valid: false, message: 'This coupon has already been used with your phone number' });
           }
           
-          console.log('✅ Phone number validation passed for redemption code:', code, phoneNumber);
+          
         } catch (phoneError) {
           console.error('❌ Error validating phone number:', phoneError);
           return res.json({ valid: false, message: 'Error validating phone number authorization' });
         }
       }
       
-      console.log('✅ Redemption code validated successfully in Supabase');
+      
       res.json({ 
         valid: true, 
         discount_percentage: validCoupon.discount_percentage,
@@ -708,7 +654,6 @@ router.get('/validate/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
   
     try {
-      console.log('🔍 Using Supabase for coupon validation');
       
       const { data, error } = await supabase
         .from('coupon_codes')
@@ -718,7 +663,7 @@ router.get('/validate/:code', async (req, res) => {
         .single();
       
       if (error || !data) {
-        console.log('❌ Coupon not found or invalid:', code);
+        
         return res.json({ valid: false, message: 'Invalid coupon code' });
       }
       
@@ -731,7 +676,7 @@ router.get('/validate/:code', async (req, res) => {
         }
       }
       
-      console.log('✅ Coupon validated successfully in Supabase');
+      
       res.json({ 
         valid: true, 
         discount_percentage: data.discount_percentage,
@@ -753,7 +698,7 @@ router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) 
   }
   
     try {
-      console.log('🔍 Using Supabase to mark redemption code as used');
+      
       
       // Get the coupon
       const { data: coupon, error: fetchError } = await supabase
@@ -800,7 +745,7 @@ router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) 
         return res.status(500).json({ error: 'Database error: ' + updateError.message });
       }
       
-      console.log('✅ Redemption code marked as used in Supabase');
+      
       res.json({ success: true, message: 'Redemption code used successfully' });
       
     } catch (error) {

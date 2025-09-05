@@ -99,7 +99,6 @@ router.patch('/:setting_key', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    console.log(`✅ Updated fee setting: ${existing.setting_name} = €${amount}`);
     res.json({ 
       success: true, 
       message: `Updated ${existing.setting_name}`,
@@ -116,7 +115,6 @@ router.patch('/:setting_key', authenticateToken, async (req, res) => {
 router.patch('/', authenticateToken, async (req, res) => {
   const { settings } = req.body;
   
-  console.log('🔍 Received settings to update:', settings.map(s => s.setting_key));
   
   if (!settings || !Array.isArray(settings)) {
     return res.status(400).json({ error: 'Settings array is required' });
@@ -137,7 +135,6 @@ router.patch('/', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    console.log('🔍 Existing settings in DB:', existingSettings);
     
     // Test if we can find a specific record
     const testKey = 'outside_hours_fee';
@@ -147,7 +144,7 @@ router.patch('/', authenticateToken, async (req, res) => {
       .eq('setting_key', testKey)
       .single();
     
-    console.log(`🔍 Test query for ${testKey}:`, { data: testRecord, error: testError });
+    
     
     for (const setting of settings) {
       const { setting_key, amount, is_active, description } = setting;
@@ -167,7 +164,6 @@ router.patch('/', authenticateToken, async (req, res) => {
       if (is_active !== undefined) updateData.is_active = is_active;
       if (description !== undefined) updateData.description = description;
       
-      console.log(`Updating ${setting_key} with:`, updateData);
       
       const { data, error: updateError } = await supabaseAdmin
         .from('fee_settings')
@@ -175,7 +171,6 @@ router.patch('/', authenticateToken, async (req, res) => {
         .eq('setting_key', setting_key)
         .select();
       
-      console.log(`Supabase result for ${setting_key}:`, { data, error: updateError });
       
       if (updateError) {
         console.error(`Update error for ${setting_key}:`, updateError);
@@ -183,11 +178,10 @@ router.patch('/', authenticateToken, async (req, res) => {
       } else {
         // Check if the record was actually found and updated
         if (data && data.length > 0) {
-          console.log(`✅ Successfully updated ${setting_key}:`, data[0]);
+          
           results.push(data[0]);
         } else {
           // No data returned - this means the record wasn't found
-          console.log(`❌ No record found for setting_key: ${setting_key}`);
           errors.push({ setting_key, error: 'Setting not found' });
         }
       }
