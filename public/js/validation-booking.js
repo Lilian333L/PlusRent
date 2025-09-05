@@ -314,17 +314,6 @@ $(document).ready(function () {
     });
   };
 
-  function sendConfirmationEmail(bookingData) {
-    // This could be handled by the backend or a separate service
-  }
-
-  // Initialize date pickers with better UX
-  function initializeDatePickers() {
-    // Date picker initialization is now handled in the modal
-    // This function is kept for compatibility but doesn't need to do anything
-    // since date/time fields are now in the modal
-  }
-
   // Initialize price calculator (for modal only)
   function initializePriceCalculator() {
     // Add event listeners for price calculation (but don't show compact summary)
@@ -383,9 +372,6 @@ $(document).ready(function () {
     // Keep compact summary hidden - only show in modal
     $("#price-summary").hide();
   }
-
-  // Initialize form enhancements
-  initializeDatePickers();
 
   // Initialize price calculator
   initializePriceCalculator();
@@ -1084,30 +1070,6 @@ async function submitBooking() {
   }
 }
 
-function showModalSuccessMessage(message) {
-  // Create a temporary success message
-  const successDiv = document.createElement("div");
-  successDiv.className = "alert alert-success";
-  successDiv.style.cssText =
-    "position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 300px;";
-  successDiv.innerHTML = `
-        <i class="fa fa-check-circle"></i> ${message}
-        <button type="button" class="btn-close" onclick="this.parentElement.remove()" style="float: right;"></button>
-    `;
-
-  document.body.appendChild(successDiv);
-
-  // Remove the message after 3 seconds
-  setTimeout(() => {
-    if (successDiv.parentElement) {
-      successDiv.remove();
-    }
-  }, 3000);
-}
-
-// Helper functions for modal submission
-// collectFormData is now defined globally above
-
 window.showSuccess = function (bookingData) {
   // Create a clean, modern success modal
   const successModalHTML = `
@@ -1561,8 +1523,4 @@ function showError(message) {
   setTimeout(() => {
     errorMessage.hide().removeClass("show");
   }, 5000);
-}
-
-function sendConfirmationEmail(bookingData) {
-  // This could be handled by the backend or a separate service
 }
