@@ -18,7 +18,7 @@
     
     // Add error handling
     script.onerror = function() {
-        console.error('Failed to load universal spinning wheel script');
+        
     };
     
     // Append to head

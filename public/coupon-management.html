@@ -24,12 +24,7 @@
       window.API_BASE_URL = '';
       
       // Log API configuration
-      console.log('🔌 API Configuration:', {
-        baseUrl: window.API_BASE_URL,
-        isLocalhost: window.location.hostname === 'localhost',
-        hostname: window.location.hostname,
-        protocol: window.location.protocol
-      });
+      
     </script>
     
     <style>
@@ -355,17 +350,11 @@
         
         // Function to close edit coupon panel
         function closeEditCouponPanelFunction() {
-            console.log('🔧 closeEditCouponPanelFunction called');
+            
             const editCouponPanel = document.getElementById('editCouponPanel');
             const editCouponForm = document.getElementById('editCouponForm');
             const couponOverlay = document.getElementById('couponOverlay');
-            
-            console.log('Elements in close function:', {
-                editCouponPanel: !!editCouponPanel,
-                editCouponForm: !!editCouponForm,
-                couponOverlay: !!couponOverlay
-            });
-            
+
             // Reset form
             if (editCouponForm) {
                 editCouponForm.reset();
@@ -374,8 +363,7 @@
             
             if (editCouponPanel) editCouponPanel.classList.remove('active');
             if (couponOverlay) couponOverlay.classList.remove('active');
-            
-            console.log('✅ Edit coupon panel closed');
+
         }
         
         // Function to close all coupon panels
@@ -532,18 +520,11 @@
         
         // Inline handler function for close button
         window.handleCloseEditCoupon = function() {
-            console.log('🎯 Inline close button handler called!');
-            
+
             const editCouponPanel = document.getElementById('editCouponPanel');
             const editCouponForm = document.getElementById('editCouponForm');
             const couponOverlay = document.getElementById('couponOverlay');
-            
-            console.log('Elements found:', {
-                editCouponPanel: !!editCouponPanel,
-                editCouponForm: !!editCouponForm,
-                couponOverlay: !!couponOverlay
-            });
-            
+
             // Reset form
             if (editCouponForm) {
                 editCouponForm.reset();
@@ -553,34 +534,28 @@
             // Close panel
             if (editCouponPanel) editCouponPanel.classList.remove('active');
             if (couponOverlay) couponOverlay.classList.remove('active');
-            
-            console.log('✅ Edit coupon panel closed via inline handler');
+
         };
         
         // Test function - can be called from browser console
         window.testCloseButton = function() {
-            console.log('🧪 Testing close button manually...');
+            
             const closeBtn = document.getElementById('closeEditCouponPanel');
             if (closeBtn) {
-                console.log('✅ Found close button, clicking it...');
+                
                 closeBtn.click();
             } else {
-                console.log('❌ Close button not found!');
+                
             }
         };
         
         // Immediate test - run as soon as script loads
-        console.log('🚀 Script loaded! Testing if elements exist...');
+        
         setTimeout(() => {
             const closeBtn = document.getElementById('closeEditCouponPanel');
-            console.log('🔍 Close button exists:', !!closeBtn);
+            
             if (closeBtn) {
-                console.log('🔍 Close button properties:', {
-                    id: closeBtn.id,
-                    className: closeBtn.className,
-                    onclick: !!closeBtn.onclick,
-                    addEventListener: typeof closeBtn.addEventListener
-                });
+                
             }
         }, 100);
         
@@ -605,7 +580,7 @@
                 }
             })
             .catch(error => {
-                console.error('Auth check failed:', error);
+                
                 localStorage.removeItem('adminToken');
                 window.location.href = '/login';
             });
@@ -613,32 +588,26 @@
         
         // Global error handler
         window.addEventListener('error', function(e) {
-            console.error('❌ JavaScript Error:', e.error);
-            console.error('❌ Error details:', {
-                message: e.message,
-                filename: e.filename,
-                lineno: e.lineno,
-                colno: e.colno
-            });
+
         });
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM Content Loaded - Starting initialization...');
+            
             try {
                 checkAuth();
                 loadCoupons();
                 initializeCouponForms();
-                console.log('✅ All initialization completed successfully');
+                
             } catch (error) {
-                console.error('❌ Error during initialization:', error);
+                
             }
         });
         
         // Coupon Management Functions
         async function loadCoupons() {
             if (!window.API_BASE_URL) {
-                console.error('API_BASE_URL not defined');
+                
                 return;
             }
             
@@ -700,27 +669,19 @@
                 }).join('');
                 
             } catch (error) {
-                console.error('Error loading coupons:', error);
+                
                 document.getElementById('couponCards').innerHTML = '<div class="col-12"><div class="alert alert-danger">Error loading coupons.</div></div>';
             }
         }
         
         function initializeCouponForms() {
-            console.log('🔧 Initializing coupon forms...');
-            
+
             // Add Coupon Button
             const showAddCouponBtn = document.getElementById('showAddCouponBtn');
             const addCouponPanel = document.getElementById('addCouponPanel');
             const closeAddCouponPanel = document.getElementById('closeAddCouponPanel');
             const couponOverlay = document.getElementById('couponOverlay');
-            
-            console.log('Elements found:', {
-                showAddCouponBtn: !!showAddCouponBtn,
-                addCouponPanel: !!addCouponPanel,
-                closeAddCouponPanel: !!closeAddCouponPanel,
-                couponOverlay: !!couponOverlay
-            });
-            
+
             if (showAddCouponBtn) {
                 showAddCouponBtn.addEventListener('click', () => {
                     addCouponPanel.classList.add('active');
@@ -755,50 +716,34 @@
             // Edit Coupon Panel
             const editCouponPanel = document.getElementById('editCouponPanel');
             const closeEditCouponPanel = document.getElementById('closeEditCouponPanel');
-            
-            console.log('Edit panel elements:', {
-                editCouponPanel: !!editCouponPanel,
-                closeEditCouponPanel: !!closeEditCouponPanel
-            });
-            
+
             if (closeEditCouponPanel) {
-                console.log('✅ Adding event listener to closeEditCouponPanel');
-                
+
                 // Test if the button is clickable
-                console.log('🔍 Button properties:', {
-                    offsetWidth: closeEditCouponPanel.offsetWidth,
-                    offsetHeight: closeEditCouponPanel.offsetHeight,
-                    style: {
-                        display: closeEditCouponPanel.style.display,
-                        visibility: closeEditCouponPanel.style.visibility,
-                        pointerEvents: closeEditCouponPanel.style.pointerEvents
-                    }
-                });
-                
+
                 closeEditCouponPanel.addEventListener('click', (e) => {
-                    console.log('🎯 Close button clicked! Event:', e);
+                    
                     e.preventDefault();
                     e.stopPropagation();
                     
                     const hasChanges = hasUnsavedChanges('editCouponForm');
-                    console.log('Has unsaved changes:', hasChanges);
-                    
+
                     if (!hasChanges) {
-                        console.log('Closing without confirmation');
+                        
                         closeEditCouponPanelFunction();
                     } else {
-                        console.log('Showing confirmation modal');
+                        
                         showUnsavedChangesConfirmation('editCouponPanel');
                     }
                 });
                 
                 // Also add a mousedown event to test
                 closeEditCouponPanel.addEventListener('mousedown', () => {
-                    console.log('🖱️ Mouse down on close button');
+                    
                 });
                 
             } else {
-                console.log('❌ closeEditCouponPanel element not found!');
+                
             }
             
             // Close modal when clicking overlay
@@ -846,12 +791,12 @@
             
             // Delete Button
             const deleteCouponBtn = document.getElementById('deleteCouponBtn');
-            console.log('🔧 Setting up delete button:', deleteCouponBtn);
+            
             if (deleteCouponBtn) {
                 deleteCouponBtn.addEventListener('click', handleDeleteCoupon);
-                console.log('✅ Delete button event listener attached');
+                
             } else {
-                console.error('❌ Delete button not found');
+                
             }
         }
         
@@ -911,7 +856,7 @@
                     alert(`Error: ${error.error || 'Failed to add coupon'}`);
                 }
             } catch (error) {
-                console.error('Error adding coupon:', error);
+                
                 alert('Error adding coupon. Please try again.');
             }
         }
@@ -967,7 +912,7 @@
                     alert('Error loading coupon details');
                 }
             } catch (error) {
-                console.error('Error loading coupon:', error);
+                
                 alert('Error loading coupon details');
             }
         }
@@ -1022,7 +967,7 @@
                     alert(`Error: ${error.error || 'Failed to update coupon'}`);
                 }
             } catch (error) {
-                console.error('Error updating coupon:', error);
+                
                 alert('Error updating coupon. Please try again.');
             }
         }
@@ -1034,7 +979,7 @@
             const cancelBtn = document.getElementById('cancelDeleteBtn');
             
             if (!overlay || !confirmBtn || !cancelBtn) {
-                console.error('Delete confirmation elements not found');
+                
                 return;
             }
             
@@ -1089,18 +1034,17 @@
                     showCustomAlert(`Error: ${error.error || 'Failed to delete coupon'}`, 'error');
                 }
             } catch (error) {
-                console.error('Error deleting coupon:', error);
+                
                 showCustomAlert('Error deleting coupon. Please try again.', 'error');
             }
         }
         
         // Main delete function that shows the confirmation overlay
         async function handleDeleteCoupon() {
-            console.log('🔧 handleDeleteCoupon called');
+            
             const form = document.getElementById('editCouponForm');
             const couponId = form.dataset.couponId;
-            console.log('🔧 Coupon ID:', couponId);
-            
+
             if (!couponId) {
                 showCustomAlert('No coupon ID found', 'error');
                 return;

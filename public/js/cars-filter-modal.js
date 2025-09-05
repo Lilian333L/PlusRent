@@ -47,22 +47,18 @@ class CarsFilterModal {
             max: feeSettings.premium_price_max
           }
         };
-        
-        console.log('🔧 Modal loaded price filter settings:', this.priceFilterSettings);
+
       }
     } catch (error) {
-      console.error('Error loading price filter settings for modal:', error);
+      
       // Keep default values if API fails
     }
   }
 
   updateModalDescriptions() {
-    console.log('🔧 updateModalDescriptions called');
-    console.log('🔧 Modal exists:', !!this.modal);
-    console.log('🔧 Price filter settings:', this.priceFilterSettings);
-    
+
     if (!this.modal) {
-      console.log('🔧 Modal not found, skipping update');
+      
       return;
     }
     
@@ -71,36 +67,35 @@ class CarsFilterModal {
     
     // Update economy description
     const economDesc = this.modal.querySelector('.filter-card.econom .filter-card-description');
-    console.log('🔧 Economy desc element found:', !!economDesc);
+    
     if (economDesc) {
       // Update the data-i18n attribute with dynamic values
       economDesc.setAttribute('data-i18n', `cars.filter_econom_desc`);
       economDesc.setAttribute('data-i18n-max', this.priceFilterSettings.economy.max);
-      console.log('🔧 Updated economy data-i18n attributes');
+      
     }
     
     // Update standard description
     const standardDesc = this.modal.querySelector('.filter-card.standard .filter-card-description');
-    console.log('🔧 Standard desc element found:', !!standardDesc);
+    
     if (standardDesc) {
       // Update the data-i18n attribute with dynamic values
       standardDesc.setAttribute('data-i18n', `cars.filter_standard_desc`);
       standardDesc.setAttribute('data-i18n-min', this.priceFilterSettings.standard.min);
       standardDesc.setAttribute('data-i18n-max', this.priceFilterSettings.standard.max);
-      console.log('🔧 Updated standard data-i18n attributes');
+      
     }
     
     // Update premium description
     const premiumDesc = this.modal.querySelector('.filter-card.premium .filter-card-description');
-    console.log('🔧 Premium desc element found:', !!premiumDesc);
+    
     if (premiumDesc) {
       // Update the data-i18n attribute with dynamic values
       premiumDesc.setAttribute('data-i18n', `cars.filter_premium_desc`);
       premiumDesc.setAttribute('data-i18n-min', this.priceFilterSettings.premium.min);
-      console.log('🔧 Updated premium data-i18n attributes');
+      
     }
-    
-    console.log('🔧 Updated modal data-i18n attributes with dynamic values');
+
   }
 
   createModal() {

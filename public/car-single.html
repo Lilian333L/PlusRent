@@ -25,12 +25,7 @@
       window.API_BASE_URL = '';
       
       // Log API configuration
-      console.log('🔌 API Configuration:', {
-        baseUrl: window.API_BASE_URL,
-        isLocalhost: window.location.hostname === 'localhost',
-        hostname: window.location.hostname,
-        protocol: window.location.protocol
-      });
+      
     </script>
     <style>
     /* Custom carousel styles */
@@ -230,9 +225,7 @@
         width: 100% !important;
         position: relative !important;
       }
-      
 
-      
       /* Target only first 3 sections for accordion functionality */
       .booking-section:nth-of-type(-n+3) h5 {
         cursor: pointer !important;
@@ -269,9 +262,7 @@
         opacity: 0 !important;
         transform: translateY(-10px) !important;
       }
-      
 
-      
       /* Keep first section expanded by default */
       .booking-section:first-child {
         margin-bottom: 0 !important;
@@ -622,8 +613,7 @@
                                     <!-- Specs will be populated by JavaScript -->
                                 </div>
                             </div>
-                            
-                            
+
                             <!-- Booking Form Section - Moved from sidebar -->
                             <div class="spacer-single"></div>
                             <div class="booking-form-main" style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 30px; width: 100% !important; max-width: none !important;">
@@ -831,9 +821,7 @@
                                     <div class="clearfix"></div>
                                 </form>
                             </div>
-                            
 
-                            
                             <!-- Description Section -->
                             <div class="spacer-10"></div>
                             <h4 data-i18n="cars.description"></h4>
@@ -845,15 +833,11 @@
                             <ul class="ul-style-2" id="car-features"></ul> -->
                         </div>
 
-
-
-                           
                         </div>
                     </div>
                 </div>
             </section>
-			
-			
+
         </div>
         <!-- content close -->
 
@@ -938,7 +922,6 @@
         
     </div>
 
-
     <!-- Javascript Files
     ================================================== -->
     <script src="js/plugins.js"></script>
@@ -959,9 +942,7 @@ function formatDisplayText(rawKey) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-  console.log('Car single page: DOM loaded');
-  console.log('Car single page: Current URL:', window.location.href);
-  
+
         // Wait for i18n to be initialized and then update content
       function waitForI18n() {
         if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
@@ -973,17 +954,15 @@ document.addEventListener('DOMContentLoaded', async function() {
       waitForI18n();
       
       // Initialize accordion functionality for mobile
-      console.log('About to call initializeAccordion...');
+      
       initializeAccordion();
-      console.log('initializeAccordion called successfully');
-  
+
   // Get car ID from URL, e.g. car-single.html?id=123
   const urlParams = new URLSearchParams(window.location.search);
   const carId = urlParams.get('id');
-  console.log('Car single page: Car ID from URL:', carId);
-  
+
   if (!carId) {
-    console.error('Car single page: No car ID found in URL');
+    
     document.getElementById('car-title').textContent = 'Car not found';
     return;
   }
@@ -1017,19 +996,15 @@ document.addEventListener('DOMContentLoaded', async function() {
       // Booking failed - no alert needed
     },
     onValidationError: function(errorMessage) {
-      console.log('🔍 Custom onValidationError called with:', errorMessage);
-      
+
       // Wait a bit for showError to be available (in case of timing issues)
       setTimeout(() => {
         // Use the showError function if available
         if (window.showError && typeof window.showError === 'function') {
-          console.log('🔍 Using window.showError');
+          
           window.showError(errorMessage);
         } else {
-          console.log('🔍 showError not available, using fallback');
-          console.log('🔍 window.showError:', window.showError);
-          console.log('🔍 typeof window.showError:', typeof window.showError);
-        
+
         // Fallback to the original info message system
         const submitButton = document.getElementById('send_message');
         const successNotification = document.getElementById('booking-success-notification');
@@ -1110,24 +1085,22 @@ document.addEventListener('DOMContentLoaded', async function() {
   let car;
   try {
     const apiUrl = `${window.API_BASE_URL}/api/cars/${carId}`;
-    console.log('Car single page: Fetching car from:', apiUrl);
-    
+
     const res = await fetch(apiUrl);
-    console.log('Car single page: Response status:', res.status);
-    
+
     if (!res.ok) {
-      console.error('Car single page: Car not found, status:', res.status);
+      
       throw new Error('Not found');
     }
     
     car = await res.json();
-    console.log('Car single page: Car data loaded:', car);
+    
   } catch (e) {
-    console.error('Car single page: Error fetching car:', e);
+    
     document.getElementById('car-title').textContent = 'Car not found';
     return;
   }
-console.log(car);
+
   // Images
   const imagesDiv = document.getElementById('car-images');
   const thumbsDiv = document.getElementById('car-thumbs');
@@ -1317,9 +1290,7 @@ console.log(car);
     
     try {
       if (car.description) {
-        console.log('Raw description from API:', car.description);
-        console.log('Type of description:', typeof car.description);
-        
+
         // Check if description is valid JSON
         let descriptionObj;
         if (typeof car.description === 'string') {
@@ -1328,23 +1299,20 @@ console.log(car);
           } catch (parseError) {
             // If it's not valid JSON, treat it as a plain string
             descriptionText = car.description;
-            console.log('Description is plain text, not JSON');
+            
             return;
           }
         } else {
           descriptionObj = car.description;
         }
-        
-        console.log('Parsed description object:', descriptionObj);
-        
+
         const currentLang = i18next.language || 'en';
-        console.log('Current language:', currentLang);
-        
+
         descriptionText = descriptionObj[currentLang] || descriptionObj.en || descriptionObj.ro || descriptionObj.ru || '';
-        console.log('Selected description text:', descriptionText);
+        
       }
     } catch (e) {
-      console.error('Error parsing description:', e);
+      
       // Fallback for old single-language descriptions
       descriptionText = car.description || '';
     }
@@ -1504,13 +1472,12 @@ console.log(car);
         if (outsideHoursFeeElement && fees.outside_hours_fee !== undefined) {
           outsideHoursFeeElement.textContent = `€${fees.outside_hours_fee}`;
         }
-        
-        console.log('✅ Fee displays updated with dynamic values');
+
       } else {
-        console.warn('⚠️ Failed to load dynamic fees, keeping defaults');
+        
       }
     } catch (error) {
-      console.error('❌ Error loading dynamic fees:', error);
+      
     }
   };
 
@@ -1566,7 +1533,7 @@ console.log(car);
       if (window.priceCalculator && window.currentCarData) {
       if (newPickupInput) {
         newPickupInput.addEventListener('change', function() {
-          console.log('Pickup date changed:', this.value);
+          
           if (window.priceCalculator) {
             window.priceCalculator.debouncedRecalculate();
           }
@@ -1577,7 +1544,7 @@ console.log(car);
       
       if (newReturnInput) {
         newReturnInput.addEventListener('change', function() {
-          console.log('Return date changed:', this.value);
+          
           if (window.priceCalculator) {
             window.priceCalculator.debouncedRecalculate();
           }
@@ -1589,14 +1556,14 @@ console.log(car);
         // Add direct event listeners for time changes to update outside hours notice
         if (pickupTimeSelect) {
           pickupTimeSelect.addEventListener('change', function() {
-            console.log('Pickup time changed:', this.value);
+            
             updateOutsideHoursNotice();
           });
         }
         
         if (returnTimeSelect) {
           returnTimeSelect.addEventListener('change', function() {
-            console.log('Return time changed:', this.value);
+            
             updateOutsideHoursNotice();
           });
         }
@@ -1607,7 +1574,7 @@ console.log(car);
             // Set up event listeners now
             if (newPickupInput) {
               newPickupInput.addEventListener('change', function() {
-                console.log('Pickup date changed:', this.value);
+                
                 if (window.priceCalculator) {
                   window.priceCalculator.debouncedRecalculate();
                 }
@@ -1617,7 +1584,7 @@ console.log(car);
             
             if (newReturnInput) {
               newReturnInput.addEventListener('change', function() {
-                console.log('Return date changed:', this.value);
+                
                 if (window.priceCalculator) {
                   window.priceCalculator.debouncedRecalculate();
                 }
@@ -1627,14 +1594,14 @@ console.log(car);
             
             if (pickupTimeSelect) {
               pickupTimeSelect.addEventListener('change', function() {
-                console.log('Pickup time changed:', this.value);
+                
                 updateOutsideHoursNotice();
               });
             }
             
             if (returnTimeSelect) {
               returnTimeSelect.addEventListener('change', function() {
-                console.log('Return time changed:', this.value);
+                
                 updateOutsideHoursNotice();
               });
             }
@@ -1645,52 +1612,46 @@ console.log(car);
     
     // Accordion functionality for mobile devices - only first 3 sections
     function initializeAccordion() {
-      console.log('initializeAccordion called');
-      
+
       const bookingSections = document.querySelectorAll('.booking-section');
-      console.log('Found booking sections:', bookingSections.length);
-      
+
       // Function to check if we're on mobile
       function isMobile() {
         const mobile = window.innerWidth <= 767 || window.matchMedia('(max-width: 767px)').matches;
-        console.log('isMobile check:', mobile, 'window.innerWidth:', window.innerWidth);
+        
         return mobile;
       }
       
       // Function to apply mobile/desktop states
       function applyResponsiveState() {
         const mobile = isMobile();
-        console.log('Responsive state changed:', mobile ? 'mobile' : 'desktop');
-        
+
         bookingSections.forEach((section, index) => {
-          console.log(`Processing section ${index + 1}:`, section);
+          
           // All sections expanded by default on both mobile and desktop
           section.classList.remove('collapsed');
-          console.log(`Section ${index + 1} expanded`);
+          
         });
       }
       
       bookingSections.forEach((section, index) => {
         const title = section.querySelector('h5');
-        console.log(`Section ${index + 1} title:`, title);
-        
+
         if (title && index < 3) { // Only first 3 sections
-          console.log(`Adding click listener to section ${index + 1}`);
+          
           title.addEventListener('click', function(e) {
-            console.log(`Section ${index + 1} clicked!`, e);
-            console.log(`Section ${index + 1} clicked, mobile:`, isMobile());
+            
             // Only toggle on mobile
             if (isMobile()) {
               const isCollapsed = section.classList.contains('collapsed');
-              console.log(`Section ${index + 1} isCollapsed:`, isCollapsed);
-              
+
               // Toggle current section
               if (isCollapsed) {
                 section.classList.remove('collapsed');
-                console.log(`Section ${index + 1} expanded`);
+                
               } else {
                 section.classList.add('collapsed');
-                console.log(`Section ${index + 1} collapsed`);
+                
               }
             }
           });
@@ -1698,23 +1659,23 @@ console.log(car);
       });
       
       // Apply initial state
-      console.log('Applying initial state...');
+      
       applyResponsiveState();
       
       // Handle window resize and orientation change
       window.addEventListener('resize', function() {
-        console.log('Window resized');
+        
         applyResponsiveState();
       });
       window.addEventListener('orientationchange', function() {
-        console.log('Orientation changed');
+        
         applyResponsiveState();
       });
       
       // Also listen for media query changes (for responsive mode)
       const mediaQuery = window.matchMedia('(max-width: 767px)');
       mediaQuery.addEventListener('change', function(e) {
-        console.log('Media query changed:', e.matches);
+        
         applyResponsiveState();
       });
     }
@@ -2109,10 +2070,9 @@ header.smaller {
 <!-- Initialize Price Calculator and Mobile Date Picker Fixes -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔄 Initializing Price Calculator and Mobile Date Picker Fixes...');
-  
+
   // Set default dates for pickup and return FIRST
-  console.log('📅 Setting default dates...');
+  
   const pickupDateInput = document.getElementById('date-picker');
   const returnDateInput = document.getElementById('date-picker-2');
   
@@ -2121,7 +2081,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    console.log('📅 Setting pickup date to:', tomorrowStr);
+    
     pickupDateInput.value = tomorrowStr;
     pickupDateInput.min = tomorrowStr;
     
@@ -2129,17 +2089,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const dayAfterTomorrow = new Date();
     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
     const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-    console.log('📅 Setting return date to:', dayAfterTomorrowStr);
+    
     returnDateInput.value = dayAfterTomorrowStr;
     returnDateInput.min = tomorrowStr; // Can't return before pickup
     
     // Force the inputs to show the values
     pickupDateInput.setAttribute('value', tomorrowStr);
     returnDateInput.setAttribute('value', dayAfterTomorrowStr);
-    
-    console.log('✅ Default dates set successfully');
+
   } else {
-    console.warn('⚠️ Date inputs not found:', { pickupDateInput, returnDateInput });
+    
   }
   
   // Create price calculator instance
@@ -2147,19 +2106,18 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize the price calculator
   window.priceCalculator.init().then(() => {
-    console.log('✅ Price Calculator initialized successfully');
-    
+
     // Trigger initial price calculation if car data is available
     if (window.currentCarData) {
-      console.log('🔄 Triggering initial price calculation...');
+      
       window.priceCalculator.recalculatePrice();
     }
   }).catch(error => {
-    console.error('❌ Error initializing Price Calculator:', error);
+    
   });
   
   // Fix for iOS date picker issues
-  console.log('📱 Setting up mobile date picker fixes...');
+  
   const dateInputs = document.querySelectorAll('.mobile-date-input');
   
   dateInputs.forEach(input => {
@@ -2189,7 +2147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('change', function() {
       // Ensure the value is properly set
       if (this.value) {
-        console.log('Date selected:', this.value);
+        
         // Trigger any necessary validation or updates
         this.dispatchEvent(new Event('input', { bubbles: true }));
       }
@@ -2213,18 +2171,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Run on load and resize
   adjustLayoutForMobile();
   window.addEventListener('resize', adjustLayoutForMobile);
-  
-  console.log('✅ All initializations complete');
-  
+
   // Fallback: Try to set dates again after a short delay to ensure they're set
   setTimeout(() => {
-    console.log('🔄 Fallback: Checking if dates were set correctly...');
+    
     if (pickupDateInput && returnDateInput) {
       const currentPickupValue = pickupDateInput.value;
       const currentReturnValue = returnDateInput.value;
       
       if (!currentPickupValue || !currentReturnValue) {
-        console.log('⚠️ Dates not set, retrying...');
+        
         // Set pickup date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -2238,10 +2194,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
         returnDateInput.value = dayAfterTomorrowStr;
         returnDateInput.setAttribute('value', dayAfterTomorrowStr);
-        
-        console.log('✅ Fallback dates set successfully');
+
       } else {
-        console.log('✅ Dates already set correctly:', { currentPickupValue, currentReturnValue });
+        
       }
     }
   }, 500);
@@ -2251,20 +2206,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const isChrome = /Chrome/.test(userAgent) && /Safari/.test(userAgent) && !/Edg/.test(userAgent);
   const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent) && !/Edg/.test(userAgent);
   const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-  
-  console.log('🌐 Browser detection:', { isChrome, isSafari, isIOS, userAgent: userAgent.substring(0, 100) });
-  
+
   if (isChrome && isIOS) {
-    console.log('🌐 Chrome iOS detected - applying Chrome-specific fixes...');
-    
+
     // Chrome iOS specific approach - work with hardcoded HTML values
     if (pickupDateInput && returnDateInput) {
       // Get the hardcoded values from HTML
       const htmlPickupValue = pickupDateInput.getAttribute('value');
       const htmlReturnValue = returnDateInput.getAttribute('value');
-      
-      console.log('🌐 Chrome iOS: HTML values found:', { htmlPickupValue, htmlReturnValue });
-      
+
       // Force Chrome iOS to recognize these values
       setTimeout(() => {
         // Set both value and attribute to ensure Chrome iOS sees them
@@ -2274,15 +2224,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Force Chrome iOS to update the display
         pickupDateInput.dispatchEvent(new Event('input', { bubbles: true }));
         returnDateInput.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        console.log('✅ Chrome iOS: Forced value recognition');
+
       }, 100);
       
       // Additional attempt after a longer delay
       setTimeout(() => {
         if (!pickupDateInput.value || !returnDateInput.value) {
-          console.log('⚠️ Chrome iOS: Values still not recognized, retrying...');
-          
+
           // Try setting values again
           pickupDateInput.value = htmlPickupValue;
           returnDateInput.value = htmlReturnValue;
@@ -2290,15 +2238,14 @@ document.addEventListener('DOMContentLoaded', function() {
           // Force update
           pickupDateInput.dispatchEvent(new Event('change', { bubbles: true }));
           returnDateInput.dispatchEvent(new Event('change', { bubbles: true }));
-          
-          console.log('✅ Chrome iOS: Second attempt completed');
+
         }
       }, 1000);
     }
     
   } else if (isSafari && isIOS) {
     // Safari iOS - simpler approach, just ensure values are set
-    console.log('🍎 Safari iOS detected - using simple date setting');
+    
     if (pickupDateInput && returnDateInput) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -2311,12 +2258,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // Safari iOS works better with simple value setting
       pickupDateInput.value = tomorrowStr;
       returnDateInput.value = dayAfterTomorrowStr;
-      
-      console.log('✅ Safari iOS dates set simply');
+
     }
   } else {
     // For other browsers, just ensure dates are set
-    console.log('🌐 Other browser detected - ensuring dates are set');
+    
     if (pickupDateInput && returnDateInput) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -2328,8 +2274,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       pickupDateInput.value = tomorrowStr;
       returnDateInput.value = dayAfterTomorrowStr;
-      
-      console.log('✅ Other browser dates set');
+
     }
   }
 });

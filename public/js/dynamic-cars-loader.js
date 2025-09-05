@@ -14,7 +14,7 @@ class DynamicCarsLoader {
   // Load available cars from API
   async loadAvailableCars() {
     try {
-      console.log('Loading available cars from API...');
+      
       const response = await fetch(`${this.apiBaseUrl}/api/cars/booking/available`);
       
       if (!response.ok) {
@@ -22,13 +22,12 @@ class DynamicCarsLoader {
       }
       
       const cars = await response.json();
-      console.log('Loaded cars:', cars);
-      
+
       this.populateSelect(cars);
       this.onLoad(cars);
       
     } catch (error) {
-      console.error('Error loading cars:', error);
+      
       this.onError(error.message);
     }
   }
@@ -36,7 +35,7 @@ class DynamicCarsLoader {
         // Populate the select element with car options
       populateSelect(cars) {
         if (!this.selectElement) {
-          console.error('Select element not found');
+          
           return;
         }
 
@@ -130,7 +129,7 @@ class DynamicCarsLoader {
           vehicleInfo.style.display = 'block';
           
         } catch (error) {
-          console.error('Error updating vehicle info:', error);
+          
           if (vehicleInfo) vehicleInfo.style.display = 'none';
         }
       }
@@ -168,12 +167,12 @@ class DynamicCarsLoader {
 
   // Default success handler
   defaultOnLoad(cars) {
-    console.log(`Successfully loaded ${cars.length} cars`);
+    
   }
 
   // Default error handler
   defaultOnError(errorMessage) {
-    console.error('Failed to load cars:', errorMessage);
+    
     // You can add user-facing error handling here
     // For example, show a toast notification or error message
   }
@@ -181,7 +180,7 @@ class DynamicCarsLoader {
   // Initialize the loader
   init() {
     if (!this.selectElement) {
-      console.error('Select element not found. Please provide a valid select element.');
+      
       return;
     }
 

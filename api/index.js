@@ -17,7 +17,7 @@ const couponRoutes = require('../routes/coupons');
 const bookingRoutes = require('../routes/bookings');
 const spinningWheelRoutes = require('../routes/spinning-wheels');
 const feeSettingsRoutes = require('../routes/fee-settings');
-
+const contactRoutes = require('../routes/contact');
 const app = express();
 
 // Middleware
@@ -31,7 +31,6 @@ app.use(express.json({ limit: '50mb' }));
 
 // Global request logger
 app.use((req, res, next) => {
-  console.log('🌐 REQUEST:', req.method, req.originalUrl);
   next();
 });
 
@@ -45,7 +44,6 @@ app.use((req, res, next) => {
       req.url = '/';
     }
   }
-  console.log('🌐 Original URL:', originalUrl, '-> Express URL:', req.url);
   next();
 });
 
@@ -55,13 +53,9 @@ app.get('/uploads/*', (req, res) => {
   const filePath = req.params[0];
   const fullPath = path.join(__dirname, '..', 'uploads', filePath);
   
-  console.log('📁 Serving file:', filePath);
-  console.log('📁 Full path:', fullPath);
-  
   // Check if file exists
   const fs = require('fs');
   if (!fs.existsSync(fullPath)) {
-    console.log('❌ File not found:', fullPath);
     return res.status(404).json({ error: 'File not found', path: filePath });
   }
   
@@ -99,7 +93,6 @@ app.get('/uploads/*', (req, res) => {
 
 // Simple test route that doesn't use database
 app.get('/simple-test', (req, res) => {
-  console.log('✅ Simple test route called');
   res.json({
     message: 'Simple test route working!',
     timestamp: new Date().toISOString(),
@@ -109,49 +102,42 @@ app.get('/simple-test', (req, res) => {
 
 // Try to mount routes with error handling
 try {
-  console.log('🔧 Mounting auth routes...');
   app.use('/auth', authRoutes);
-  console.log('✅ Auth routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount auth routes:', error);
 }
 
 try {
-  console.log('🔧 Mounting car routes...');
   app.use('/cars', carRoutes);
-  console.log('✅ Car routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount car routes:', error);
 }
 
 try {
-  console.log('🔧 Mounting coupon routes...');
   app.use('/coupons', couponRoutes);
-  console.log('✅ Coupon routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount coupon routes:', error);
 }
 
 try {
-  console.log('🔧 Mounting booking routes...');
   app.use('/bookings', bookingRoutes);
-  console.log('✅ Booking routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount booking routes:', error);
 }
 
 try {
-  console.log('🔧 Mounting spinning wheel routes...');
   app.use('/spinning-wheels', spinningWheelRoutes);
-  console.log('✅ Spinning wheel routes mounted');
 } catch (error) {
   console.error('❌ Failed to mount spinning wheel routes:', error);
 }
 
 try {
-  console.log('🔧 Mounting fee settings routes...');
   app.use('/fee-settings', feeSettingsRoutes);
-  console.log('✅ Fee settings routes mounted');
+try {
+  app.use('/contact', contactRoutes);
+} catch (error) {
+  console.error('❌ Failed to mount contact routes:', error);
+} 
 } catch (error) {
   console.error('❌ Failed to mount fee settings routes:', error);
 }
@@ -171,13 +157,6 @@ app.use((err, req, res, next) => {
 // Test endpoint to check database connection
 app.get('/test', async (req, res) => {
   try {
-    console.log('Testing Supabase connection...');
-    
-    // Debug environment variables
-    console.log('Environment variables in /test:');
-    console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
-    console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set');
-    console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Not set');
     
     const { data, error, count } = await supabase
       .from('cars')
@@ -195,7 +174,6 @@ app.get('/test', async (req, res) => {
       });
     }
     
-    console.log('Database test successful, car count:', count);
     res.json({ success: true, message: 'Database connection working', carCount: count });
   } catch (err) {
     console.error('Test endpoint error:', err);
@@ -206,7 +184,6 @@ app.get('/test', async (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
   try {
-    console.log('Health check requested');
     res.json({ 
       status: 'OK', 
       timestamp: new Date().toISOString(),
@@ -259,7 +236,7 @@ app.get('/api', (req, res) => {
 
 // Catch-all route for debugging
 app.use('*', (req, res) => {
-  console.log('404 - Route not found:', req.originalUrl);
+
   res.status(404).json({
     error: 'Route not found',
     requestedUrl: req.originalUrl,

@@ -286,14 +286,10 @@
             position: relative;
         }
 
-
-
         @keyframes arrowPulse {
             0%, 100% { transform: translateX(-50%) scale(1); }
             50% { transform: translateX(-50%) scale(1.1); }
         }
-
-
 
         .info-section {
             flex: 1;
@@ -393,8 +389,6 @@
         .result-card.show {
             display: block;
         }
-
-
 
         .congratulations {
             font-size: 2rem;
@@ -529,7 +523,6 @@
                     </div>
                 </div>
 
-
             </div>
 
             <!-- Right Side - Instructions/Result -->
@@ -615,7 +608,7 @@
                     updateTexts();
                 }
             } catch (error) {
-                console.error('Error loading translations:', error);
+                
                 // Use default English texts
                 translations = {
                     wheel: {
@@ -652,7 +645,6 @@
             document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
 
-            
             // Update START button
             const centerIcon = document.querySelector('.center-icon');
             if (centerIcon) {
@@ -735,7 +727,7 @@
                 
                 // Ensure API_BASE_URL is set - use relative URLs for Vercel deployment
                 if (!window.API_BASE_URL) {
-                    console.warn('API_BASE_URL not found, setting to empty string for relative URLs');
+                    
                     window.API_BASE_URL = '';
                 }
                 
@@ -755,7 +747,7 @@
                 ]);
                 
                 if (!response.ok) {
-                    console.error('Failed to get secure wheel data, status:', response.status);
+                    
                     availableCoupons = [];
                     cachedWheelSegments = null;
                     hideLoadingState();
@@ -765,7 +757,7 @@
                 const wheelData = await response.json();
                 
                 if (!wheelData.segments || wheelData.segments.length === 0) {
-                    console.log('No active spinning wheel segments found - using default segments');
+                    
                     availableCoupons = [];
                     cachedWheelSegments = null;
                     hideLoadingState();
@@ -783,12 +775,11 @@
 
                 // Always clear cache to ensure fresh data
                 cachedWheelSegments = null;
-                
-                console.log(`✅ Loaded ${availableCoupons.length} secure segments for wheel`);
+
                 hideLoadingState();
                 
             } catch (error) {
-                console.error('Error fetching secure wheel data:', error);
+                
                 availableCoupons = [];
                 cachedWheelSegments = null;
                 hideLoadingState();
@@ -878,8 +869,6 @@
             });
             
             });
-            
-
 
             // Cache the segments
             cachedWheelSegments = segments;
@@ -899,16 +888,13 @@
 
         // Create wheel segments with optimized performance
         function createWheelSegments() {
-            console.log('Creating wheel segments...');
-            
+
             // Use DocumentFragment for better performance
             const fragment = document.createDocumentFragment();
             const wheelSegments = getWheelSegments();
 
             const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
 
-            console.log(`Creating ${wheelSegments.length} segments...`);
-            
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
                 segmentElement.className = 'wheel-segment';
@@ -959,8 +945,7 @@
             
             // Add white border lines between segments
             addSegmentBorders(wheelSegments.length);
-            
-            console.log('Wheel segments created successfully!');
+
         }
 
         // Generate clip-path for a segment
@@ -1024,10 +1009,6 @@
             }
         }
 
-
-
-
-
         // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
@@ -1054,8 +1035,7 @@
         // Redeem a coupon securely via backend
         async function redeemCouponSecurely(couponId, phoneNumber) {
             try {
-                console.log(`Redeeming coupon ${couponId} for phone ${phoneNumber}`);
-                
+
                 const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/secure/redeem-coupon`, {
                     method: 'POST',
                     headers: {
@@ -1068,7 +1048,7 @@
                 });
                 
                 if (!response.ok) {
-                    console.error('Failed to redeem coupon');
+                    
                     discountCode.textContent = 'ERROR';
                     return;
                 }
@@ -1076,14 +1056,14 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    console.log(`Successfully redeemed coupon code: ${result.code}`);
+                    
                     discountCode.textContent = result.code;
                 } else {
-                    console.error('Failed to redeem coupon:', result.error);
+                    
                     discountCode.textContent = 'ERROR';
                 }
             } catch (error) {
-                console.error('Error redeeming coupon:', error);
+                
                 discountCode.textContent = 'ERROR';
             }
         }
@@ -1100,7 +1080,7 @@
             
             if (phoneEntered === 'true' && storedPhone) {
                 userPhoneNumber = storedPhone;
-                console.log('Using phone number from localStorage:', userPhoneNumber);
+                
             } else {
                 alert('Please provide a phone number to spin the wheel');
                 return;
@@ -1128,19 +1108,11 @@
             const targetVisualPosition = winningSegment.visualPosition;
             
             // Debug: Log the mapping to understand the issue
-            console.log('=== WHEEL MAPPING DEBUG ===');
-            console.log('API winning index:', randomWinningIndex);
-            console.log('Target segment index:', targetSegmentIndex);
-            console.log('Winning segment:', winningSegment);
-            console.log('Target visual position:', targetVisualPosition);
-            console.log('All segments:');
-            wheelSegments.forEach((segment, i) => {
-                console.log(`  Index ${i}: ID=${segment.id}, VisualPos=${segment.visualPosition}, Text=${segment.text}, Code=${segment.coupon?.code}`);
-            });
-            console.log('=== END DEBUG ===');
-            
 
-            
+            wheelSegments.forEach((segment, i) => {
+                
+            });
+
             // Calculate the rotation needed to land directly on the target segment
             // The pointer is at the top (0 degrees), so we need to rotate to the target segment
             // For 3 segments: 0=top, 1=right, 2=bottom
@@ -1159,8 +1131,6 @@
             setTimeout(() => {
                 // Use the random winning index directly
                 const winningSegment = wheelSegments[targetSegmentIndex];
-
-
 
                 // Show results
                 currentRotation = totalRotation;
@@ -1214,7 +1184,7 @@
                     // Fallback for segments without real coupons
                     prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     discountCode.textContent = 'ERROR';
-                    console.log('Displaying fallback:', winningSegment.text);
+                    
                 }
 
                 // Show result card
@@ -1222,8 +1192,6 @@
                 resultCard.classList.add('show');
             }, 5000);
         }
-
-
 
         // Event listeners
         centerButton.addEventListener('click', spinWheel);
@@ -1257,12 +1225,10 @@
                 
                 if (phoneEntered === 'true' && storedPhone) {
                     userPhoneNumber = storedPhone;
-                    console.log('Using phone number from localStorage:', userPhoneNumber);
+                    
                 }
             }
-            
-            console.log('Phone number from URL or localStorage:', userPhoneNumber);
-    
+
             // Fetch coupons and create wheel segments
             await fetchCoupons();
             createWheelSegments();
@@ -1291,8 +1257,7 @@
             // Listen for phone number from parent modal
             if (event.data && event.data.type === 'phoneNumberEntered') {
                 userPhoneNumber = event.data.phoneNumber;
-                console.log('Received phone number from parent modal:', userPhoneNumber);
-                
+
                 // Also store in localStorage for consistency
                 localStorage.setItem('spinningWheelPhone', userPhoneNumber);
                 localStorage.setItem('spinningWheelPhoneEntered', 'true');

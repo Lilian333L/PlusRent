@@ -366,7 +366,7 @@
 
 							 <h3 data-i18n="contact_page.question">Do you have any question?</h3>
 							
-        						<form name="contactForm" id="contact_form" class="form-border" method="post" action="contact.php">
+        						<form name="contactForm" id="contact_form" class="form-border" method="post" >
                                         <div class="row">
                                             <div class="col-md-4 mb10">
                                                 <div class="field-set">
@@ -552,7 +552,6 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
-    <script src="js/validation-contact.js"></script>
     <!-- i18next CDN -->
     <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
@@ -668,6 +667,63 @@
             // On desktop, let the default behavior happen (opens in new tab)
         }
     </script>
-</body>
+    <script>
+        // Contact form handling
+        document.addEventListener("DOMContentLoaded", function() {
+            const contactForm = document.getElementById("contact_form");
+            const submitButton = document.getElementById("send_message");
+            const successMessage = document.getElementById("success_message");
+            const errorMessage = document.getElementById("error_message");
+            
+            if (contactForm && submitButton) {
+                contactForm.addEventListener("submit", async function(e) {
+                    e.preventDefault();
+                    
+                    // Show loading state
+                    submitButton.disabled = true;
+                    submitButton.value = "Sending...";
+                    
+                    // Collect form data
+                    const formData = {
+                        name: document.getElementById("name").value,
+                        email: document.getElementById("email").value,
+                        phone: document.getElementById("phone").value,
+                        message: document.getElementById("message").value
+                    };
+                    
+                    try {
+                        // Send to your API endpoint for Telegram notification
+                        const response = await fetch("/api/contact", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (response.ok && result.success) {
+                            // Show success message
+                            successMessage.style.display = "block";
+                            errorMessage.style.display = "none";
+                            contactForm.reset();
+                        } else {
+                            throw new Error(result.message || "Failed to send message");
+                        }
+                    } catch (error) {
+                        // Show error message
+                        errorMessage.style.display = "block";
+                        successMessage.style.display = "none";
+                        console.error("Contact form error:", error);
+                    } finally {
+                        // Reset button state
+                        submitButton.disabled = false;
+                        submitButton.value = "Send Message";
+                    }
+                });
+            }
+        });
+    </script></body>
 
 </html>
