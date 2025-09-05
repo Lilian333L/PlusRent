@@ -43,7 +43,7 @@ class PriceCalculator {
 
   // Load fee settings from API
   async loadFeeSettings() {
-    console.log('🔄 loadFeeSettings called');
+    
     try {
       const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
       if (response.ok) {
@@ -58,23 +58,18 @@ class PriceCalculator {
           'Our Office': 0,
           'Iasi Airport': this.feeSettings.iasi_airport_pickup || 35
         };
-        
-        console.log('✅ Fee settings loaded:', this.feeSettings);
-        console.log('🔍 Chisinau airport dropoff fee:', this.feeSettings.chisinau_airport_dropoff);
-        console.log('🔍 Chisinau airport pickup fee:', this.feeSettings.chisinau_airport_pickup);
-        
+
         // Trigger price recalculation after fee settings are loaded
         if (this.recalculatePrice) {
           this.recalculatePrice().catch(error => {
-            console.error('Error recalculating price after fee settings load:', error);
+            
           });
         }
       } else {
-        console.warn('⚠️ Failed to load fee settings, using defaults');
+        
       }
     } catch (error) {
-      console.error('❌ Error loading fee settings:', error);
-      console.log('Using default fee settings');
+
     }
   }
 
@@ -86,8 +81,7 @@ class PriceCalculator {
       : 60;
     
     // Insurance costs removed - no longer needed
-    
-    console.log('Updated car data, base price:', this.basePrice);
+
   }
 
   // Check if time is outside working hours (8:00-18:00)
@@ -114,8 +108,6 @@ class PriceCalculator {
   calculateLocationFee(location) {
     return this.locationFees[location] || 0;
   }
-
-
 
   // Calculate outside working hours fees
   calculateOutsideHoursFees(pickupTime, returnTime) {
@@ -252,7 +244,7 @@ class PriceCalculator {
       return couponResult;
       
     } catch (error) {
-      console.error('Error validating discount code:', error);
+      
       return { valid: false, message: 'Error validating discount code' };
     }
   }
@@ -266,13 +258,9 @@ class PriceCalculator {
   updatePriceDisplay(priceData) {
     const priceContainer = document.getElementById('price-content');
     const loadingElement = document.getElementById('price-loading');
-    
-    console.log('updatePriceDisplay called with:', priceData);
-    console.log('priceContainer found:', !!priceContainer);
-    console.log('loadingElement found:', !!loadingElement);
-    
+
     if (!priceContainer) {
-      console.error('price-content element not found!');
+      
       return;
     }
 
@@ -462,14 +450,13 @@ class PriceCalculator {
 
       await this.showDefaultCalculation();
     } catch (error) {
-      console.error('Error initializing price calculator:', error);
+      
     }
   }
 
   // Show default calculation on page load
   async showDefaultCalculation() {
-    console.log('🔄 showDefaultCalculation called');
-    
+
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -479,13 +466,6 @@ class PriceCalculator {
     const pickupTimeSelect = document.getElementById('pickup-time');
     const returnTimeSelect = document.getElementById('collection-time');
 
-    console.log('Found form elements:', {
-      pickupDateInput: !!pickupDateInput,
-      returnDateInput: !!returnDateInput,
-      pickupTimeSelect: !!pickupTimeSelect,
-      returnTimeSelect: !!returnTimeSelect
-    });
-
     // Wait for daterangepicker to be initialized
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -493,12 +473,7 @@ class PriceCalculator {
       // Set the values in YYYY-MM-DD format
       const todayFormatted = this.formatDate(today);
       const tomorrowFormatted = this.formatDate(tomorrow);
-      
-      console.log('Setting default dates:', {
-        today: todayFormatted,
-        tomorrow: tomorrowFormatted
-      });
-      
+
       // Try to set dates using jQuery daterangepicker if available
       if (window.jQuery && window.jQuery.fn.daterangepicker) {
         try {
@@ -508,15 +483,15 @@ class PriceCalculator {
           
           if ($pickupPicker.length && $pickupPicker.data('daterangepicker')) {
             $pickupPicker.data('daterangepicker').setStartDate(window.moment(todayFormatted));
-            console.log('Set pickup date via daterangepicker');
+            
           }
           
           if ($returnPicker.length && $returnPicker.data('daterangepicker')) {
             $returnPicker.data('daterangepicker').setStartDate(window.moment(tomorrowFormatted));
-            console.log('Set return date via daterangepicker');
+            
           }
         } catch (error) {
-          console.log('Error setting dates via daterangepicker:', error);
+          
         }
       }
       
@@ -537,20 +512,10 @@ class PriceCalculator {
         pickupDateInput.dispatchEvent(new Event(eventType, { bubbles: true }));
         returnDateInput.dispatchEvent(new Event(eventType, { bubbles: true }));
       });
-      
-      console.log('Date inputs after setting:', {
-        pickupValue: pickupDateInput.value,
-        returnValue: returnDateInput.value,
-        pickupDefaultValue: pickupDateInput.defaultValue,
-        returnDefaultValue: returnDateInput.defaultValue
-      });
-      
+
       // Double-check the values are set
       setTimeout(() => {
-        console.log('Date inputs after timeout:', {
-          pickupValue: pickupDateInput.value,
-          returnValue: returnDateInput.value
-        });
+        
       }, 100);
     }
 
@@ -564,7 +529,7 @@ class PriceCalculator {
         pickupTimeSelect.value = pickupTimeSelect.options[0].value;
       }
       pickupTimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-      console.log('Set default pickup time:', pickupTimeSelect.value);
+      
     }
     
     if (returnTimeSelect && returnTimeSelect.options.length > 0) {
@@ -576,7 +541,7 @@ class PriceCalculator {
         returnTimeSelect.value = returnTimeSelect.options[0].value;
       }
       returnTimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-      console.log('Set default return time:', returnTimeSelect.value);
+      
     }
 
     // Set default radio button selections
@@ -594,7 +559,7 @@ class PriceCalculator {
     const ourOfficeRadio = document.querySelector('input[name="pickup_location"][value="Our Office"]');
     if (ourOfficeRadio) {
       ourOfficeRadio.checked = true;
-      console.log('Set default pickup location: Our Office');
+      
     }
     
     // Set Our Office as default dropoff location - try both possible names
@@ -604,7 +569,7 @@ class PriceCalculator {
     }
     if (ourOfficeDropoffRadio) {
       ourOfficeDropoffRadio.checked = true;
-      console.log('Set default dropoff location: Our Office');
+      
     }
   }
 
@@ -648,15 +613,14 @@ class PriceCalculator {
     
     this.debounceTimer = setTimeout(() => {
       this.recalculatePrice().catch(error => {
-        console.error('Error in debounced recalculation:', error);
+        
       });
     }, 300);
   }
 
   // Recalculate price based on current form values
   async recalculatePrice() {
-    console.log('🔄 recalculatePrice called');
-    console.log('🔄 Fee settings available:', this.feeSettings);
+
     try {
       const pickupDateInput = document.getElementById('date-picker');
       const returnDateInput = document.getElementById('date-picker-2');
@@ -667,7 +631,7 @@ class PriceCalculator {
       const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
 
       if (!pickupDateInput || !returnDateInput || !pickupTimeSelect || !returnTimeSelect) {
-        console.error('Required form elements not found');
+        
         return;
       }
 
@@ -687,20 +651,9 @@ class PriceCalculator {
       }
       const dropoffLocation = Array.from(dropoffLocationInputs).find(input => input.checked)?.value || 'Our Office';
 
-      console.log('Form values:', {
-        pickupDate,
-        returnDate,
-        pickupTime,
-        returnTime,
-        discountCode,
-
-        pickupLocation,
-        dropoffLocation
-      });
-
       // Validate dates
       if (!pickupDate || !returnDate) {
-        console.log('Missing dates, showing default message');
+        
         this.updatePriceDisplay({ 
           totalPrice: 0, 
           breakdown: [],
@@ -713,7 +666,6 @@ class PriceCalculator {
       const returnDateTime = new Date(`${returnDate}T${returnTime}`);
 
       // No validation here - let the booking form handle validation
-      console.log('Proceeding with calculation');
 
       // Calculate rental days - handle edge cases
       let rentalDays = 0;
@@ -727,26 +679,12 @@ class PriceCalculator {
           rentalDays = 1;
         }
       }
-      
-      console.log('Date calculation:', {
-        pickupDate,
-        returnDate,
-        pickupTime,
-        returnTime,
-        pickupDateTime: pickupDateTime.toISOString(),
-        returnDateTime: returnDateTime.toISOString(),
-        timeDiff: pickupDate && returnDate ? returnDateTime.getTime() - pickupDateTime.getTime() : 0,
-        rentalDays
-      });
 
       // Get base price based on rental days
-      console.log('Car data available:', !!this.car);
-      console.log('Car price policy:', this.car?.price_policy);
-      console.log('Rental days:', rentalDays);
-      
+
       // Check if car data is available
       if (!this.car || !this.car.price_policy) {
-        console.log('⚠️ Car data not available yet, skipping price calculation');
+        
         this.updatePriceDisplay({ 
           totalPrice: 0, 
           breakdown: [],
@@ -775,8 +713,6 @@ class PriceCalculator {
       } else {
         basePrice = this.car.price_policy['46+'] || 0;
       }
-      
-      console.log('Selected base price:', basePrice);
 
       // Calculate total base price
       const totalBasePrice = basePrice * rentalDays;
@@ -795,11 +731,7 @@ class PriceCalculator {
       
       if (dropoffLocation === 'Chisinau Airport') {
         dropoffLocationFee = this.feeSettings.chisinau_airport_dropoff ?? 25;
-        console.log('🔍 Chisinau dropoff calculation:', {
-          setting: this.feeSettings.chisinau_airport_dropoff,
-          fallback: 25,
-          final: dropoffLocationFee
-        });
+        
       } else if (dropoffLocation === 'Iasi Airport') {
         dropoffLocationFee = this.feeSettings.iasi_airport_dropoff ?? 35;
       } else {
@@ -847,7 +779,7 @@ class PriceCalculator {
 
       this.updatePriceDisplay(priceData);
     } catch (error) {
-      console.error('Error in recalculatePrice:', error);
+      
       this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
     }
   }

@@ -149,57 +149,57 @@ function initInlineBooking() {
 // Helper functions for the examples
 function showSuccessModal(message) {
   // Implementation for success modal
-  console.log('Success:', message);
+  
 }
 
 function showErrorModal(message) {
   // Implementation for error modal
-  console.log('Error:', message);
+  
 }
 
 function showValidationErrors(message) {
   // Implementation for validation errors
-  console.log('Validation errors:', message);
+  
 }
 
 function updateBookingList() {
   // Implementation for updating admin booking list
-  console.log('Updating booking list...');
+  
 }
 
 function showAdminNotification(message) {
   // Implementation for admin notifications
-  console.log('Admin notification:', message);
+  
 }
 
 function showAdminError(message) {
   // Implementation for admin errors
-  console.log('Admin error:', message);
+  
 }
 
 function showAdminValidationError(message) {
   // Implementation for admin validation errors
-  console.log('Admin validation error:', message);
+  
 }
 
 function showSuccessMessage(message) {
   // Implementation for success messages
-  console.log('Success message:', message);
+  
 }
 
 function showErrorMessage(message) {
   // Implementation for error messages
-  console.log('Error message:', message);
+  
 }
 
 function showValidationMessage(message) {
   // Implementation for validation messages
-  console.log('Validation message:', message);
+  
 }
 
 function populateBookingForm(carData) {
   // Implementation for populating booking form with car data
-  console.log('Populating form with car data:', carData);
+  
 }
 
 function createTemporaryBookingForm(carId, carData) {
@@ -212,17 +212,17 @@ function createTemporaryBookingForm(carId, carData) {
 
 function showInlineSuccess(message) {
   // Implementation for inline success messages
-  console.log('Inline success:', message);
+  
 }
 
 function showInlineError(message) {
   // Implementation for inline error messages
-  console.log('Inline error:', message);
+  
 }
 
 function showInlineValidationError(message) {
   // Implementation for inline validation errors
-  console.log('Inline validation error:', message);
+  
 }
 
 // Export functions for use in other files

@@ -381,8 +381,7 @@
                 .phone-input-container p {
                     font-size: 1.2rem !important;
                 }
-                
-                
+
                 /* Better spacing for phone input on tablets */
                 .phone-input-container {
                     padding: 20px !important;
@@ -550,7 +549,7 @@
             },
             body: JSON.stringify({ phoneNumber })
         }).catch(error => {
-            console.error('Error tracking phone number:', error);
+            
         });
 
         // Switch to wheel step

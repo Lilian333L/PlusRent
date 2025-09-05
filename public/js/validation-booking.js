@@ -131,19 +131,6 @@ $(document).ready(function () {
     const pickupLocationRadios = $('input[name="pickup_location"]');
     const pickupLocation = $('input[name="pickup_location"]:checked').val();
 
-    console.log(
-      "All pickup location values:",
-      pickupLocationRadios
-        .map(function () {
-          return $(this).val();
-        })
-        .get()
-    );
-    console.log(
-      "Checked pickup location:",
-      pickupLocationRadios.filter(":checked").val()
-    );
-
     if (!pickupLocation) {
       $('.radio-group:has(input[name="pickup_location"])').addClass(
         "error_input"
@@ -159,18 +146,7 @@ $(document).ready(function () {
     const dropoffLocationRadios = $('input[name="destination"]');
     const dropoffLocation = $('input[name="destination"]:checked').val();
 
-    console.log(
-      "All dropoff location values:",
-      dropoffLocationRadios
-        .map(function () {
-          return $(this).val();
-        })
-        .get()
-    );
-    console.log(
-      "Checked dropoff location:",
-      dropoffLocationRadios.filter(":checked").val()
-    );
+    
 
     if (!dropoffLocation) {
       $('.radio-group:has(input[name="destination"])').addClass("error_input");
@@ -302,39 +278,6 @@ $(document).ready(function () {
 
     e.preventDefault();
     e.stopPropagation();
-
-    // Debug: Check radio button values
-    console.log(
-      "Pickup location checked:",
-      $('input[name="pickup_location"]:checked').val()
-    );
-    console.log(
-      "Destination checked:",
-      $('input[name="destination"]:checked').val()
-    );
-    console.log(
-      "All pickup_location radios:",
-      $('input[name="pickup_location"]').length
-    );
-    console.log(
-      "All destination radios:",
-      $('input[name="destination"]').length
-    );
-
-    // Additional debugging
-    console.log("Document ready state:", $(document).readyState);
-    console.log(
-      "Radio buttons exist in DOM:",
-      $('input[name="pickup_location"]').length > 0
-    );
-    console.log(
-      "Radio buttons exist in DOM:",
-      $('input[name="destination"]').length > 0
-    );
-
-    // Test direct jQuery selector
-    const testPickup = $('input[name="pickup_location"]');
-    const testDest = $('input[name="destination"]');
 
     // Hide any existing messages
     $("#booking-success-notification").hide();
@@ -923,10 +866,7 @@ async function applyModalCalculation() {
         "€",
         ""
       );
-      console.log(
-        "🔍 Updated total_price field with:",
-        totalEstimate.replace("€", "")
-      );
+
     } else {
     }
 
@@ -969,7 +909,6 @@ async function applyModalCalculation() {
     closePriceCalculator();
 
     // Now submit the booking automatically
-    console.log("🔍 About to call submitBooking()");
     await submitBooking();
   } catch (error) {
     if (window.showError && typeof window.showError === "function") {

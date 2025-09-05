@@ -27,18 +27,11 @@
       window.API_VERSION = Date.now();
       
       // Log API configuration
-      console.log('🔌 API Configuration:', {
-        baseUrl: window.API_BASE_URL,
-        version: window.API_VERSION,
-        isLocalhost: window.location.hostname === 'localhost',
-        hostname: window.location.hostname,
-        protocol: window.location.protocol
-      });
-      
+
       // Global function to ensure API_BASE_URL is always available
       window.ensureApiConfig = function() {
         if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
-          console.warn('⚠️ ensureApiConfig: API_BASE_URL not found, setting to empty string');
+          
           window.API_BASE_URL = '';
         }
         return window.API_BASE_URL;
@@ -1252,7 +1245,6 @@
         .lang-flag { font-size: 15px; width: 15px; }
       }
 
-
       /* --- Fleet Car Grid: Match Cars Page --- */
       .fleet-car-grid.car-list-row {
         display: flex;
@@ -1831,10 +1823,10 @@
     <script>
       // Ensure API_BASE_URL is always available globally
       if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
-        console.warn('⚠️ Global API check: API_BASE_URL not found, setting to empty string');
+        
         window.API_BASE_URL = '';
       }
-      console.log('🔌 Global API check - API_BASE_URL:', window.API_BASE_URL);
+      
     </script>
     
     <div id="wrapper">
@@ -1950,7 +1942,6 @@
                         <div class="col-lg-12">
                             <div class="spacer-single sm-hide"></div>
                             <div class="padding40 rounded-5 shadow-soft" data-bgcolor="#ffffff">
-                                
 
                                 <form name="contactForm" id='booking_form' class="form-s2 row g-4 on-submit-hide" method="post">
 
@@ -2084,7 +2075,6 @@
                                         </div>
                                         
                                     </div>
-
 
                                     <div class="col-lg-3">
                                         <!-- Compact Price Summary - Hidden by default, only shown in modal -->
@@ -2460,8 +2450,6 @@
                 </div>
             </section>
 
-
-            
         </div>
         <!-- content close -->
         <a href="#" id="back-to-top"></a>
@@ -2555,8 +2543,6 @@
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
     <script src="js/i18n-init.js"></script>
 
-
-
     <script>
       // Global formatting function
       function formatDisplayText(rawKey) {
@@ -2568,44 +2554,38 @@
       }
 
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('Fleet section: DOM loaded');
-        
+
         const grid = document.getElementById('fleet-car-grid');
         if (!grid) {
-          console.error('Fleet section: Grid element not found');
+          
           return;
         }
         
         // Ensure API configuration is available
         window.ensureApiConfig();
-        
-        console.log('Fleet section: Grid element found, API_BASE_URL:', window.API_BASE_URL);
-        
+
         grid.className = 'fleet-car-grid car-list-row';
         grid.innerHTML = '<div style="text-align:center;padding:2em;">Loading...</div>';
         
         const apiUrl = window.API_BASE_URL + '/api/cars';
-        console.log('Fleet section: Fetching from:', apiUrl);
-        
+
         fetch(apiUrl)
           .then(res => {
-            console.log('Fleet section: Response status:', res.status);
+            
             if (!res.ok) {
               throw new Error(`HTTP ${res.status}: ${res.statusText}`);
             }
             return res.json();
           })
           .then(cars => {
-            console.log('Fleet section: Cars loaded:', cars.length);
-            
+
             if (!cars.length) {
               grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
               return;
             }
             
             const carsHtml = cars.map(car => {
-              console.log('Fleet section: Processing car:', car.id, car.make_name, car.model_name);
-              
+
               // Check if car is unavailable (booked until a future date)
               const isUnavailable = car.booked_until && (() => {
                 const bookedUntil = new Date(car.booked_until);
@@ -2624,9 +2604,7 @@
               
               const isPremium = car.is_premium === 1 || car.is_premium === true;
               const rentNowUrl = `car-single.html?id=${car.id}`;
-              
-              console.log('Fleet section: Generated URL for car', car.id, ':', rentNowUrl);
-              
+
               return `
                 <div class=\"col-xl-4 col-lg-4 col-md-6\">
                   <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
@@ -2660,17 +2638,16 @@
             }).join('');
             
             grid.innerHTML = carsHtml;
-            console.log('Fleet section: HTML generated successfully');
-            
+
             // Verify links were created
             const links = grid.querySelectorAll('a[href*="car-single.html"]');
-            console.log('Fleet section: Generated', links.length, 'Rent Now links');
+            
             links.forEach((link, index) => {
-              console.log(`Fleet section: Link ${index + 1}:`, link.href);
+              
             });
           })
           .catch((error) => {
-            console.error('Fleet section: Error loading cars:', error);
+            
             grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message}</div>`;
           });
       });
@@ -2954,28 +2931,18 @@
     <script>
       // Ensure API_BASE_URL is always available
       if (typeof window.API_BASE_URL === 'undefined') {
-        console.warn('⚠️ API_BASE_URL not found, setting fallback');
+        
         window.API_BASE_URL = '';
       }
       
       // Log final API configuration
-      console.log('🔌 Final API Configuration:', {
-        baseUrl: window.API_BASE_URL,
-        isDefined: typeof window.API_BASE_URL !== 'undefined',
-        isLocalhost: window.location.hostname === 'localhost'
-      });
-      
+
       // Test API configuration
       setTimeout(() => {
-        console.log('🧪 Testing API configuration...');
-        console.log('🧪 window.API_BASE_URL:', window.API_BASE_URL);
-        console.log('🧪 typeof window.API_BASE_URL:', typeof window.API_BASE_URL);
-        console.log('🧪 window.API_BASE_URL === "":', window.API_BASE_URL === '');
-        
+
         // Test a simple API call
         const testUrl = window.API_BASE_URL + '/api/health';
-        console.log('🧪 Test API URL:', testUrl);
-        console.log('🧪 Full URL would be:', window.location.origin + testUrl);
+
       }, 1000);
     </script>
     
@@ -3012,13 +2979,12 @@ async function updateIndexFeeDisplays() {
       if (iasiFeeElement && fees.iasi_airport_dropoff !== undefined) {
         iasiFeeElement.textContent = `€${fees.iasi_airport_dropoff}`;
       }
-      
-      console.log('✅ Index page fee displays updated with dynamic values');
+
     } else {
-      console.warn('⚠️ Failed to load dynamic fees for index page, keeping defaults');
+      
     }
   } catch (error) {
-    console.error('❌ Error loading dynamic fees for index page:', error);
+    
   }
 }
 
@@ -3030,8 +2996,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Error display function for index page (similar to car-single)
 window.showError = function(message) {
-  console.log('🔍 showError called with message:', message);
-  
+
   // Hide success notification if it's showing
   const successNotification = document.getElementById('booking-success-notification');
   if (successNotification) {
@@ -3042,7 +3007,7 @@ window.showError = function(message) {
   const errorMessage = document.getElementById('error_message');
   
   if (errorMessage) {
-    console.log('🔍 Found error element, displaying message');
+    
     errorMessage.innerHTML = message;
     errorMessage.style.display = 'block';
     
@@ -3054,7 +3019,7 @@ window.showError = function(message) {
       errorMessage.style.display = 'none';
     }, 5000);
   } else {
-    console.log('🔍 Error elements not found, using fallback');
+    
     // Fallback to alert if error elements not found
     alert(message);
   }
@@ -3092,7 +3057,7 @@ document.addEventListener('DOMContentLoaded', function() {
     input.addEventListener('change', function() {
       // Ensure the value is properly set
       if (this.value) {
-        console.log('Date selected:', this.value);
+        
         // Trigger any necessary validation or updates
         this.dispatchEvent(new Event('input', { bubbles: true }));
       }

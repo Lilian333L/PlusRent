@@ -13,7 +13,7 @@ class GlobalBookingSystem {
   init() {
     this.setupBookingButtons();
     this.setupCouponValidation();
-    console.log("Global booking system initialized");
+    
   }
 
   // Setup booking buttons on cars page
@@ -64,7 +64,7 @@ class GlobalBookingSystem {
       // Create and show booking modal
       this.showBookingModal(car);
     } catch (error) {
-      console.error("Error loading car data:", error);
+      
       alert("Error loading car information. Please try again.");
     }
   }
@@ -263,7 +263,7 @@ class GlobalBookingSystem {
       const priceData = await this.priceCalculator.calculatePrice(bookingData);
       this.updatePriceDisplay(priceData);
     } catch (error) {
-      console.error("Error calculating price:", error);
+      
     }
   }
 
@@ -332,7 +332,7 @@ class GlobalBookingSystem {
         );
       }
     } catch (error) {
-      console.error("Error validating coupon:", error);
+      
       inputElement.classList.remove("is-valid");
       inputElement.classList.add("is-invalid");
       this.showCouponMessage("Error validating coupon", "error");
@@ -438,7 +438,7 @@ class GlobalBookingSystem {
         );
         modal.hide();
       } catch (error) {
-        console.error("Booking error:", error);
+        
         this.showCouponMessage("Booking failed. Please try again.", "error");
       } finally {
         // Re-enable submit button

@@ -40,7 +40,7 @@
             
             return lastSeenDate.toDateString() === today.toDateString();
         } catch (error) {
-            console.warn('Could not check localStorage:', error);
+            
             return false;
         }
     }
@@ -50,7 +50,7 @@
         try {
             localStorage.setItem(CONFIG.STORAGE_KEY, new Date().toISOString());
         } catch (error) {
-            console.warn('Could not save to localStorage:', error);
+            
         }
     }
 
@@ -101,7 +101,6 @@
                                     id="spinningWheelIframe">
                             </iframe>
                         </div>
-                        
 
                     </div>
                 </div>
@@ -311,10 +310,6 @@
                 padding: 40px;
                 background: white;
             }
-            
-
-            
-
 
             @keyframes spinning-wheel-fadeIn {
                 from { opacity: 0; }
@@ -696,12 +691,12 @@
                 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('✅ Phone number tracked successfully:', result);
+                    
                 } else {
-                    console.error('❌ Failed to track phone number');
+                    
                 }
             } catch (error) {
-                console.error('❌ Error tracking phone number:', error);
+                
             }
             
             // Store phone number (you can modify this to send to your backend)
@@ -729,7 +724,7 @@
                                 phoneNumber: phoneNumber
                             }, '*');
                         } catch (e) {
-                            console.log('Could not send message to iframe yet');
+                            
                         }
                     }
                 }, 500);

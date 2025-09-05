@@ -88,45 +88,32 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 // Database health check endpoint
+// ... existing code ...
+
+// Database health check endpoint
 router.get('/health', async (req, res) => {
   try {
-    const db = require('../config/database');
+    const { supabase } = require('../lib/supabaseClient');
     
-    // Test basic read operation
-    db.get('SELECT 1 as test', (err, row) => {
-      if (err) {
-        console.error('Database read test failed:', err);
-        return res.status(503).json({ 
-          status: 'unhealthy',
-          error: 'Database read failed',
-          details: err.message
-        });
-      }
-      
-      // Test write operation
-      db.run('CREATE TABLE IF NOT EXISTS health_check (id INTEGER PRIMARY KEY)', (err) => {
-        if (err) {
-          console.error('Database write test failed:', err);
-          return res.status(503).json({ 
-            status: 'unhealthy',
-            error: 'Database write failed',
-            details: err.message
-          });
-        }
-        
-        // Clean up test table
-        db.run('DROP TABLE IF EXISTS health_check', (err) => {
-          if (err) {
-            console.error('Database cleanup failed:', err);
-          }
-          
-          res.json({ 
-            status: 'healthy',
-            message: 'Database is working correctly',
-            timestamp: new Date().toISOString()
-          });
-        });
+    // Test Supabase connection with a simple query
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.error('Supabase health check failed:', error);
+      return res.status(503).json({ 
+        status: 'unhealthy',
+        error: 'Database connection failed',
+        details: error.message
       });
+    }
+    
+    res.json({ 
+      status: 'healthy',
+      message: 'Database is working correctly',
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Health check error:', error);

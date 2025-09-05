@@ -18,7 +18,7 @@ class BookingFormHandler {
   // Handle form submission
   async handleSubmit(formElement, submitButton) {
     if (!formElement || !submitButton) {
-      console.error('Form element or submit button not found');
+      
       return;
     }
 
@@ -30,8 +30,7 @@ class BookingFormHandler {
     try {
       // Collect and validate form data
       const bookingData = this.collectFormData(formElement);
-      console.log('Collected booking data:', bookingData);
-      
+
       const validationResult = await this.validateBookingData(bookingData);
       
       if (!validationResult.isValid) {
@@ -55,18 +54,15 @@ class BookingFormHandler {
       }
 
       // Send booking to server
-      console.log('Submitting booking to server...');
-      const response = await this.submitBooking(bookingData);
-      console.log('Server response:', response);
       
+      const response = await this.submitBooking(bookingData);
+
       // Check if response contains an error
       if (response.error) {
-        console.log('🔍 Server returned error:', response);
-        
+
         // Handle validation errors
         if (response.error === 'Validation error' && response.field) {
-          console.log('🔍 Handling validation error for field:', response.field);
-          
+
           // Get user-friendly error message
           let errorMessage = response.details || 'Please check your form and try again.';
           
@@ -78,8 +74,7 @@ class BookingFormHandler {
               errorMessage = translatedMessage;
             }
           }
-          
-          console.log('🔍 Showing validation error:', errorMessage);
+
           this.onValidationError(errorMessage);
         } else {
           // Handle other errors
@@ -91,12 +86,7 @@ class BookingFormHandler {
       }
       
     } catch (error) {
-      console.error('Booking error details:', {
-        message: error.message,
-        stack: error.stack,
-        error: error
-      });
-      
+
       // Handle unexpected errors
       this.onError(error.message || 'An unexpected error occurred');
     } finally {
@@ -256,7 +246,7 @@ class BookingFormHandler {
           return { isValid: false, error: errorMessage };
         }
       } catch (error) {
-        console.error('Error validating coupon:', error);
+        
         return { isValid: false, error: 'Error validating coupon code. Please try again.' };
       }
     }
@@ -284,15 +274,14 @@ class BookingFormHandler {
 
       return await response.json();
     } catch (error) {
-      console.error('Error checking car availability:', error);
+      
       return { available: false, reason: 'Unable to check availability. Please try again.' };
     }
   }
 
   // Submit booking to server
   async submitBooking(bookingData) {
-    console.log('🔍 submitBooking called with data:', bookingData);
-    
+
     try {
       const response = await fetch(`${this.apiBaseUrl}/api/bookings`, {
         method: 'POST',
@@ -301,29 +290,25 @@ class BookingFormHandler {
         },
         body: JSON.stringify(bookingData)
       });
-      
-      console.log('🔍 Response status:', response.status);
-      console.log('🔍 Response ok:', response.ok);
-      
+
       let responseData;
       try {
         responseData = await response.json();
-        console.log('🔍 Response data:', responseData);
+        
       } catch (jsonError) {
-        console.error('🔍 Error parsing JSON:', jsonError);
+        
         return { error: true, details: 'Invalid server response' };
       }
       
       if (!response.ok) {
-        console.log('🔍 Response not ok, returning error data');
+        
         // Return the error data instead of throwing
         return { error: true, ...responseData };
       }
-      
-      console.log('🔍 Response ok, returning success data');
+
       return responseData;
     } catch (error) {
-      console.error('🔍 Error in submitBooking:', error);
+      
       return { error: true, details: error.message };
     }
   }
@@ -332,8 +317,7 @@ class BookingFormHandler {
   getTotalPrice() {
     if (window.priceCalculator && typeof window.priceCalculator.getTotalPrice === 'function') {
       const totalPrice = window.priceCalculator.getTotalPrice();
-      console.log('Price calculator returned total price:', totalPrice);
-      
+
       // If price calculator returns 0, try to get the displayed price from the UI
       if (totalPrice === 0) {
         // Look for the total price in the price breakdown display
@@ -343,7 +327,7 @@ class BookingFormHandler {
           const totalPriceMatch = totalPriceText.match(/Total price:\s*(\d+)\s*€/);
           if (totalPriceMatch) {
             const displayedPrice = parseInt(totalPriceMatch[1]);
-            console.log('Found displayed price from breakdown:', displayedPrice);
+            
             return displayedPrice;
           }
         }
@@ -352,7 +336,7 @@ class BookingFormHandler {
         const priceDisplay = document.querySelector('.total-price-display, .price-total, #total-price');
         if (priceDisplay) {
           const displayedPrice = parseFloat(priceDisplay.textContent.replace(/[^\d.]/g, ''));
-          console.log('Found displayed price from fallback:', displayedPrice);
+          
           return displayedPrice || 0;
         }
       }
@@ -406,16 +390,13 @@ class BookingFormHandler {
 
   // Default validation error handler
   defaultValidationErrorHandler(errorMessage) {
-    console.log('🔍 Default validation error handler called with:', errorMessage);
-    console.log('🔍 window.showError available:', typeof window.showError);
-    console.log('🔍 window.showError function:', window.showError);
-    
+
     // Try to use the showError function if available
     if (window.showError && typeof window.showError === 'function') {
-      console.log('🔍 Calling window.showError with:', errorMessage);
+      
       window.showError(errorMessage);
     } else {
-      console.log('🔍 showError not available, using alert fallback');
+      
       // Fallback to alert
       alert('Please fix the following issues:\n' + errorMessage);
     }

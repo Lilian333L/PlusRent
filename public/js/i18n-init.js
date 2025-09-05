@@ -34,7 +34,7 @@ function initI18n() {
       }
     }, function(err, t) {
       if (err) {
-        console.error('i18n initialization error:', err);
+        
         // Fallback: try to load with a different approach
         loadFallbackTranslations(initialLang);
       } else {
@@ -159,7 +159,7 @@ function setupI18nEvents() {
           language: i18next.language
         }, '*');
       } catch (e) {
-        console.log('Could not send message to iframe:', e);
+        
       }
     }
   });

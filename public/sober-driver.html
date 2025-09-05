@@ -823,8 +823,7 @@
             submitButton.disabled = true;
             
             try {
-                console.log('📞 Sending callback request for phone:', phoneNumber);
-                
+
                 // Determine API base URL based on environment
                 let apiBaseUrl;
                 if (window.location.hostname === 'localhost') {
@@ -833,9 +832,7 @@
                     // For Vercel deployment, use relative path since frontend and API are on same domain
                     apiBaseUrl = '';
                 }
-                
-                console.log('🌐 Using API base URL:', apiBaseUrl || 'relative path');
-                
+
                 // Send the request to the backend
                 const requestUrl = `${apiBaseUrl}/api/bookings/sober-driver-callback`;
                 const requestBody = {
@@ -844,10 +841,7 @@
                     customer_email: null, // Could be added to form later
                     special_instructions: null // Could be added to form later
                 };
-                
-                console.log('📡 Request URL:', requestUrl);
-                console.log('📡 Request body:', requestBody);
-                
+
                 const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
@@ -855,34 +849,25 @@
                     },
                     body: JSON.stringify(requestBody)
                 });
-                
-                console.log('📡 Response status:', response.status);
-                console.log('📡 Response headers:', response.headers);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const result = await response.json();
-                console.log('📡 Response data:', result);
-                
+
                 if (result.success) {
                     // Show success modal
                     document.getElementById('successModal').style.display = 'block';
                     document.getElementById('callbackPhone').value = '';
-                    console.log('✅ Callback request sent successfully:', result);
+                    
                 } else {
                     // Show error message
                     alert('Error: ' + (result.error || 'Failed to send callback request'));
-                    console.error('❌ Callback request failed:', result);
+                    
                 }
             } catch (error) {
-                console.error('❌ Error sending callback request:', error);
-                console.error('❌ Error details:', {
-                    message: error.message,
-                    stack: error.stack,
-                    name: error.name
-                });
+
                 alert('Error: Failed to send callback request. Please try again. Check console for details.');
             } finally {
                 // Reset button state

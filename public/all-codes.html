@@ -20,12 +20,7 @@
       window.API_BASE_URL = '';
       
       // Log API configuration
-      console.log('🔌 API Configuration:', {
-        baseUrl: window.API_BASE_URL,
-        isLocalhost: window.location.hostname === 'localhost',
-        hostname: window.location.hostname,
-        protocol: window.location.protocol
-      });
+      
     </script>
     
     <style>
@@ -51,7 +46,6 @@
     </style>
 </head>
 <body>
-
 
     <!-- Main Content -->
     <div class="container mt-4">
@@ -137,7 +131,6 @@
           </div>
         </div>
 
-
     </div>
 
     <!-- Bootstrap JS -->
@@ -147,11 +140,7 @@
         // Get coupon ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const couponId = urlParams.get('id');
-        
-        console.log('🔍 URL Parameters:', window.location.search);
-        console.log('🔍 Coupon ID from URL:', couponId);
-        console.log('🔍 Full URL:', window.location.href);
-        
+
         // API base URL - use relative URLs for Vercel deployment
         const API_BASE_URL = window.API_BASE_URL || '';
         
@@ -198,7 +187,7 @@
                     availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
                     usedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
                 } catch (parseError) {
-                    console.error('Error parsing JSON arrays:', parseError);
+                    
                 }
                 
                 // Populate active codes table (available_codes)
@@ -226,7 +215,7 @@
                 }
                 
             } catch (error) {
-                console.error('Error loading coupon data:', error);
+                
                 showError('Failed to load coupon data');
             }
         }
@@ -242,9 +231,7 @@
                 </div>
             `;
         }
-        
 
-        
         // Load data on page load
         document.addEventListener('DOMContentLoaded', loadCouponData);
 
@@ -320,7 +307,7 @@
                         window.location.reload();
 
                     } catch (error) {
-                        console.error('Error generating codes:', error);
+                        
                         alert('Error generating codes: ' + error.message);
                     } finally {
                         // Re-enable button

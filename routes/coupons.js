@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/database');
 const { supabase } = require('../lib/supabaseClient');
 // const TelegramNotifier = require('../config/telegram');
 
@@ -26,10 +25,6 @@ router.use((req, res, next) => {
 
 // Get all coupon codes
 router.get('/', async (req, res) => {
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for coupons fetch');
       
@@ -50,27 +45,6 @@ router.get('/', async (req, res) => {
       console.error('❌ Supabase error fetching coupons:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.all('SELECT * FROM coupon_codes ORDER BY created_at DESC', (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(rows);
-  });
-  }
-});
-
-// Debug endpoint to check table structure
-router.get('/debug-table', (req, res) => {
-  db.all("PRAGMA table_info(coupon_codes)", (err, rows) => {
-    if (err) {
-      console.error('Error checking table structure:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    console.log('Table structure:', rows);
-    res.json({ tableStructure: rows });
-  });
 });
 
 
@@ -86,10 +60,6 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
     return res.status(400).json({ error: 'Wheel ID is required' });
   }
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for toggle wheel operation');
       
@@ -188,75 +158,6 @@ router.patch('/:id/toggle-wheel', authenticateToken, async (req, res) => {
       console.error('Toggle wheel error:', error);
       res.status(500).json({ error: 'Database error' });
     }
-  } else {
-    // Use SQLite
-    console.log('🔍 Using SQLite for toggle wheel operation');
-    
-    try {
-      // Check if coupon exists
-      const coupon = await new Promise((resolve, reject) => {
-        db.get('SELECT id FROM coupon_codes WHERE id = ?', [id], (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        });
-      });
-      
-      if (!coupon) {
-        console.log('Coupon not found for ID:', id);
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
-      
-      // Check if wheel exists
-      const wheel = await new Promise((resolve, reject) => {
-        db.get('SELECT id FROM spinning_wheels WHERE id = ?', [wheelId], (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        });
-      });
-      
-      if (!wheel) {
-        console.log('Wheel not found for ID:', wheelId);
-        return res.status(404).json({ error: 'Wheel not found' });
-      }
-      
-      // Check if coupon is already enabled for this wheel
-      const existing = await new Promise((resolve, reject) => {
-        db.get('SELECT id FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        });
-      });
-      
-      if (existing) {
-        // Remove from wheel
-        console.log(`Attempting to delete coupon ${id} from wheel ${wheelId}`);
-        await new Promise((resolve, reject) => {
-          db.run('DELETE FROM wheel_coupons WHERE wheel_id = ? AND coupon_id = ?', [wheelId, id], function(err) {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
-        
-        console.log(`Successfully removed coupon ${id} from wheel ${wheelId}`);
-        res.json({ success: true, wheel_enabled: false });
-      } else {
-        // Add to wheel
-        console.log(`Attempting to add coupon ${id} to wheel ${wheelId}`);
-        await new Promise((resolve, reject) => {
-          db.run('INSERT INTO wheel_coupons (wheel_id, coupon_id) VALUES (?, ?)', [wheelId, id], function(err) {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
-        
-        console.log(`Successfully added coupon ${id} to wheel ${wheelId}`);
-        res.json({ success: true, wheel_enabled: true });
-      }
-    } catch (error) {
-      console.error('Toggle wheel error:', error);
-      res.status(500).json({ error: 'Database error' });
-    }
-  }
 });
 
 // Update dynamic coupon fields (available_codes and showed_codes)
@@ -297,10 +198,6 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
     }
   }
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for dynamic fields update');
       
@@ -348,58 +245,6 @@ router.patch('/:id/dynamic-fields', authenticateToken, async (req, res) => {
       console.error('❌ Supabase error updating dynamic fields:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  // Check if coupon exists
-  db.get('SELECT id FROM coupon_codes WHERE id = ?', [couponId], (err, coupon) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
-      console.log('Coupon not found for ID:', couponId);
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    
-    // Build dynamic update query
-    let updateQuery = 'UPDATE coupon_codes SET ';
-    let updateValues = [];
-    
-    if (available_codes !== undefined) {
-      updateQuery += 'available_codes = ?';
-      updateValues.push(JSON.stringify(available_codes));
-    }
-    
-    if (showed_codes !== undefined) {
-      if (available_codes !== undefined) {
-        updateQuery += ', ';
-      }
-      updateQuery += 'showed_codes = ?';
-      updateValues.push(JSON.stringify(showed_codes));
-    }
-    
-    updateQuery += ' WHERE id = ?';
-    updateValues.push(couponId);
-    
-    console.log('🔧 Executing query:', updateQuery);
-    console.log('🔧 With values:', updateValues);
-    
-    // Update the dynamic fields
-    db.run(updateQuery, updateValues, function(err) {
-      if (err) {
-        console.error('Update error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      console.log('✅ Dynamic fields updated successfully');
-      res.json({ 
-        success: true, 
-        available_codes: available_codes !== undefined ? available_codes : undefined,
-        showed_codes: showed_codes !== undefined ? showed_codes : undefined
-      });
-    });
-  });
-  }
 });
 
 // Update coupon percentage for a specific wheel
@@ -482,10 +327,6 @@ router.patch('/:id/wheel-percentage', authenticateToken, async (req, res) => {
 router.get('/:id', async (req, res) => {
   const id = req.params.id;
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for single coupon fetch');
       
@@ -511,18 +352,6 @@ router.get('/:id', async (req, res) => {
       console.error('❌ Supabase error fetching coupon:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.get('SELECT * FROM coupon_codes WHERE id = ?', [id], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    if (!coupon) {
-      return res.status(404).json({ error: 'Coupon not found' });
-    }
-    res.json(coupon);
-  });
-  }
 });
 
 // Add new coupon code
@@ -530,10 +359,7 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
   console.log('📥 Received coupon data:', req.body);
   console.log('📥 Request headers:', req.headers);
   console.log('📥 Content-Type:', req.headers['content-type']);
-  
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
+    
   try {
     const { code, type, discount_percentage, free_days, description, expires_at } = req.body;
 
@@ -579,8 +405,6 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
       return res.status(400).json({ error: 'Free days must be a positive number' });
     }
   }
-
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for coupon creation');
       
@@ -643,55 +467,6 @@ router.post('/', authenticateToken, validate(couponCreateSchema), async (req, re
       console.error('❌ Supabase coupon creation error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.run(
-    'INSERT INTO coupon_codes (code, type, discount_percentage, free_days, description, expires_at, wheel_enabled, available_codes, showed_codes) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, expires_at || null, '[]', '[]'],
-    async function (err) {
-      if (err) {
-        console.error('Database error details:', err);
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ error: 'Database error: ' + err.message });
-      }
-      
-
-      try {
-        const telegram = new TelegramNotifier();
-        const couponData = {
-          code: code.toUpperCase(),
-          type: type,
-          discount_percentage: discountValue,
-          free_days: freeDaysValue,
-          description: description || null,
-          expires_at: expires_at || null,
-          is_active: true
-        };
-        await telegram.sendMessage(telegram.formatCouponAddedMessage(couponData));
-      } catch (error) {
-        console.error('Error sending Telegram notification:', error);
-      }
-
-      // try {
-      //   const telegram = new TelegramNotifier();
-      //   const couponData = {
-      //     code: code.toUpperCase(),
-      //     discount_percentage: discountValue,
-      //     description: description || null,
-      //     expires_at: expires_at || null,
-      //     is_active: true
-      //   };
-      //   await telegram.sendMessage(telegram.formatCouponAddedMessage(couponData));
-      // } catch (error) {
-      //   console.error('Error sending Telegram notification:', error);
-      // }
-      
-      res.json({ success: true, id: this.lastID });
-    }
-  );
-  }
   } catch (error) {
     console.error('Unexpected error in POST /coupons:', error);
     return res.status(500).json({ error: 'Internal server error: ' + error.message });
@@ -711,9 +486,7 @@ router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(c
   console.log('📥 Edit coupon request - ID:', req.params.id);
   console.log('📥 Edit coupon request - Body:', req.body);
   const id = req.params.id;
-  
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+
   const { code, type, discount_percentage, free_days, description, is_active, expires_at } = req.body;
 
   if (!code || !type) {
@@ -749,7 +522,6 @@ router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(c
   const isActiveValue = is_active === '1' || is_active === true ? 1 : 0;
   console.log('🔍 Edit coupon - Values:', [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id]);
   
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for coupon update');
       
@@ -796,52 +568,12 @@ router.put('/:id', authenticateToken, validateParams(couponIdSchema), validate(c
       console.error('❌ Supabase coupon update error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.run(
-    'UPDATE coupon_codes SET code=?, type=?, discount_percentage=?, free_days=?, description=?, is_active=?, expires_at=? WHERE id=?',
-    [code.toUpperCase(), type, discountValue, freeDaysValue, description || null, isActiveValue, expires_at || null, id],
-    async function (err) {
-      if (err) {
-        console.log('❌ Edit coupon - Database error:', err);
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(400).json({ error: 'Coupon code already exists' });
-        }
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Send Telegram notification - COMMENTED OUT
-      // try {
-      //   const telegram = new TelegramNotifier();
-      //   const couponData = {
-      //     code: code.toUpperCase(),
-      //     type: type,
-      //     discount_percentage: discountValue,
-      //     free_days: freeDaysValue,
-      //     description: description || null,
-      //     expires_at: expires_at || null,
-      //     is_active: isActiveValue
-      //   };
-      //   await telegram.sendMessage(telegram.formatCouponUpdatedMessage(couponData));
-      // } catch (error) {
-      //   console.error('Error sending Telegram notification:', error);
-      // }
-      
-      console.log('✅ Edit coupon - Update successful');
-      res.json({ success: true });
-    }
-  );
-  }
 });
 
 // Delete coupon code
 router.delete('/:id', authenticateToken, validateParams(couponIdSchema), async (req, res) => {
   const id = req.params.id;
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for coupon deletion');
       
@@ -862,28 +594,6 @@ router.delete('/:id', authenticateToken, validateParams(couponIdSchema), async (
       console.error('❌ Supabase coupon deletion error:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.run('DELETE FROM coupon_codes WHERE id = ?', [id], async function (err) {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    // Send Telegram notification - COMMENTED OUT
-    // try {
-    //   const telegram = new TelegramNotifier();
-    //   const couponData = {
-    //     code: 'DELETED',
-    //     discount_percentage: 0
-    //   };
-    //   await telegram.sendMessage(telegram.formatCouponDeletedMessage(couponData));
-    // } catch (error) {
-    //   console.error('Error sending Telegram notification:', error);
-    // }
-    
-    res.json({ success: true });
-  });
-  }
 });
 
 // Validate redemption code with phone number (individual codes from available_codes array)
@@ -891,10 +601,6 @@ router.get('/validate-redemption/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
   const phoneNumber = req.query.phone; // Get phone number from query parameter
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for redemption code validation with phone:', phoneNumber);
       
@@ -995,64 +701,12 @@ router.get('/validate-redemption/:code', async (req, res) => {
       console.error('❌ Supabase error validating redemption code:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-    db.all('SELECT * FROM coupon_codes WHERE is_active = 1', (err, coupons) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      // Check if coupon has expired
-      const now = new Date();
-      let validCoupon = null;
-      
-      for (const coupon of coupons) {
-        if (coupon.expires_at) {
-          const expiryDate = new Date(coupon.expires_at);
-          if (now > expiryDate) {
-            continue; // Skip expired coupons
-          }
-        }
-        
-        // Parse available_codes array
-        let availableCodes = [];
-        try {
-          availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
-        } catch (parseError) {
-          console.error('Error parsing available_codes:', parseError);
-          continue;
-        }
-        
-        // Check if the code exists in available_codes
-        if (availableCodes.includes(code)) {
-          validCoupon = coupon;
-          break;
-        }
-      }
-      
-      if (!validCoupon) {
-        return res.json({ valid: false, message: 'Invalid redemption code' });
-      }
-      
-             res.json({ 
-         valid: true, 
-         discount_percentage: validCoupon.discount_percentage,
-         description: validCoupon.description,
-         coupon_id: validCoupon.id,
-         redemption_code: code
-       });
-    });
-  }
 });
 
 // Validate coupon code (for price calculator)
 router.get('/validate/:code', async (req, res) => {
   const code = req.params.code.toUpperCase();
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase for coupon validation');
       
@@ -1088,33 +742,6 @@ router.get('/validate/:code', async (req, res) => {
       console.error('❌ Supabase error validating coupon:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-  db.get('SELECT * FROM coupon_codes WHERE code = ? AND is_active = 1', [code], (err, coupon) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    if (!coupon) {
-      return res.json({ valid: false, message: 'Invalid coupon code' });
-    }
-    
-    // Check if coupon has expired
-    if (coupon.expires_at) {
-      const now = new Date();
-      const expiryDate = new Date(coupon.expires_at);
-      if (now > expiryDate) {
-        return res.json({ valid: false, message: 'Coupon has expired' });
-      }
-    }
-    
-    res.json({ 
-      valid: true, 
-      discount_percentage: coupon.discount_percentage,
-      description: coupon.description 
-    });
-  });
-  }
 });
 
 // Mark redemption code as used (move from available_codes to showed_codes)
@@ -1125,10 +752,6 @@ router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) 
     return res.status(400).json({ error: 'Coupon ID and redemption code are required' });
   }
   
-  // Check if we're using Supabase
-  const isSupabase = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  
-  if (isSupabase) {
     try {
       console.log('🔍 Using Supabase to mark redemption code as used');
       
@@ -1184,49 +807,6 @@ router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) 
       console.error('❌ Supabase error using redemption code:', error);
       res.status(500).json({ error: 'Database error: ' + error.message });
     }
-  } else {
-    // Use SQLite
-    db.get('SELECT * FROM coupon_codes WHERE id = ?', [coupon_id], (err, coupon) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database error' });
-      }
-      if (!coupon) {
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
-      
-      // Parse available_codes and showed_codes
-      let availableCodes = [];
-      let showedCodes = [];
-      try {
-        availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
-        showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
-      } catch (parseError) {
-        console.error('Error parsing codes arrays:', parseError);
-        return res.status(500).json({ error: 'Invalid code format' });
-      }
-      
-      // Check if code exists in available_codes
-      if (!availableCodes.includes(redemption_code)) {
-        return res.status(400).json({ error: 'Redemption code not found or already used' });
-      }
-      
-      // Move code from available to showed
-      const newAvailableCodes = availableCodes.filter(code => code !== redemption_code);
-      const newShowedCodes = [...showedCodes, redemption_code];
-      
-      // Update the coupon
-      db.run(
-        'UPDATE coupon_codes SET available_codes = ?, showed_codes = ? WHERE id = ?',
-        [JSON.stringify(newAvailableCodes), JSON.stringify(newShowedCodes), coupon_id],
-        (err) => {
-          if (err) {
-            return res.status(500).json({ error: 'Database error' });
-          }
-          res.json({ success: true, message: 'Redemption code used successfully' });
-        }
-      );
-    });
-  }
 });
 
 module.exports = router; 

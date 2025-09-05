@@ -37,7 +37,5 @@
         i18nInitScript.async = true;
         document.head.appendChild(i18nInitScript);
     }
-    
-    console.log('Master include script loaded successfully');
-    
+
 })();
