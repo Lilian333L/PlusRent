@@ -78,7 +78,7 @@
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     <div class="spinning-wheel-modal-header">
-                        <h2 class="spinning-wheel-modal-title">Try Your Luck!</h2>
+                        <h2 class="spinning-wheel-modal-title">🎯 Try Your Luck!</h2>
                         <p class="spinning-wheel-modal-subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
                     </div>
                     
@@ -140,7 +140,7 @@
                 max-width: 1000px;
                 max-height: 85vh;
                 position: relative;
-                overflow: visible;
+                overflow: hidden;
                 transform: scale(0.9);
                 transition: transform 0.3s ease;
             }
@@ -155,7 +155,7 @@
                 right: 20px;
                 font-size: 28px;
                 cursor: pointer;
-                color: white;
+                color: #666;
                 z-index: 10;
                 width: 30px;
                 height: 30px;
@@ -185,7 +185,6 @@
                 margin: 0;
                 text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
                 font-family: Arial, sans-serif;
-                color: white;
             }
 
             .spinning-wheel-modal-subtitle {
@@ -249,15 +248,6 @@
                 border-radius: 10px;
                 font-size: 1rem;
                 transition: border-color 0.3s ease;
-            }
-
-            @media (max-width: 768px) {
-                .phone-input {
-                    border-radius: 10px !important;
-                }
-                .phone-submit-btn {
-                    border-radius: 10px !important;
-                }
             }
             
             .phone-input:focus {
@@ -413,8 +403,7 @@
                     margin: 10px;
                     max-width: calc(100vw - 20px);
                     max-height: calc(100vh - 20px);
-                    height: auto !important;
-                    overflow-y: auto;
+                    height: calc(100vh - 20px) !important;
                 }
                 
                 .spinning-wheel-modal-header {
@@ -432,14 +421,14 @@
                 .spinning-wheel-wheel-content {
                     flex-direction: column;
                     min-height: auto;
-                    height: auto !important;
+                    height: calc(100% - 120px) !important;
                     flex: 1;
                 }
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
                     padding: 20px;
-                    height: auto !important;
+                    height: 100% !important;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
@@ -455,9 +444,8 @@
                 }
                 
                 #universalSpinningWheelIframe {
-                    height: 500px !important;
-                    min-height: 400px !important;
-                    max-height: 80vh !important;
+                    height: 100% !important;
+                    min-height: 600px !important;
                     border-radius: 10px;
                 }
             }
@@ -465,30 +453,27 @@
             /* Extra small mobile devices (iPhone 14 Pro Max, etc.) */
             @media (max-width: 430px) {
                 .spinning-wheel-modal-content {
-                    height: auto !important;
-                    max-height: 95vh !important;
+                    height: 93vh !important;
+                    max-height: 100vh !important;
                     margin: 0;
                     border-radius: 20px !important;
-                    overflow-y: auto;
                 }
                 
                 .spinning-wheel-wheel-content {
-                    height: auto !important;
+                    height: calc(100vh - 140px) !important;
                 }
                 
                 .spinning-wheel-wheel-step {
-                    height: auto !important;
+                    height: 100% !important;
                     padding: 15px;
                 }
                 
                 #universalSpinningWheelIframe {
-                    height: 450px !important;
-                    min-height: 350px !important;
-                    max-height: 70vh !important;
+                    height: 100% !important;
+                    min-height: 600px !important;
                     border-radius: 10px;
                 }
             }
-
         `;
         return style;
     }
@@ -496,18 +481,6 @@
     // Show modal
     function showModal() {
         if (!state.modal) return;
-        
-        // Check if this is a preview with a specific wheel ID
-        const previewWheelId = window.UniversalSpinningWheel && window.UniversalSpinningWheel._previewWheelId;
-        if (previewWheelId) {
-            // Update iframe src to include the wheel ID
-            const iframe = document.getElementById('universalSpinningWheelIframe');
-            if (iframe) {
-                iframe.src = `${CONFIG.iframeSrc}?wheel=${previewWheelId}`;
-            }
-            // Clear the preview wheel ID after using it
-            window.UniversalSpinningWheel._previewWheelId = null;
-        }
         
         state.modal.style.display = 'flex';
         
@@ -593,13 +566,9 @@
         }
     }
 
-
-    // Handle iframe messages (kept for compatibility)
+    // Handle iframe messages
     function handleWheelMessage(event) {
         if (event.data && event.data.type === 'closeModal') {
-            closeModal();
-            markModalAsSeen();
-        } else if (event.data && event.data.type === 'closeSpinningWheel') {
             closeModal();
             markModalAsSeen();
         }

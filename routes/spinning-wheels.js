@@ -859,6 +859,56 @@ router.patch('/:id/deactivate', authenticateToken, async (req, res) => {
     }
 });
 
+// Set premium wheel
+router.patch('/:id/premium', authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const { is_premium } = req.body;
+
+  if (typeof is_premium !== 'boolean') {
+    return res.status(400).json({ error: 'is_premium must be a boolean value' });
+  }
+
+  try {
+    // If setting as premium, first remove premium from all other wheels
+    if (is_premium) {
+      const { error: removeError } = await supabase
+        .from('spinning_wheels')
+        .update({ is_premium: false })
+        .neq('id', id);
+      
+      if (removeError) {
+        console.error('❌ Supabase error removing premium from other wheels:', removeError);
+        return res.status(500).json({ error: 'Database error: ' + removeError.message });
+      }
+    }
+
+    // Update the current wheel's premium status
+    const { data, error } = await supabase
+      .from('spinning_wheels')
+      .update({ 
+        is_premium: is_premium,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      console.error('❌ Supabase error updating premium status:', error);
+      return res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+    
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Spinning wheel not found' });
+    }
+    
+    res.json({ success: true });
+    
+  } catch (error) {
+    console.error('❌ Supabase error updating premium status:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
+});
+
 // Delete spinning wheel
 router.delete('/:id', authenticateToken, validateParams(spinningWheelIdSchema), async (req, res) => {
   const id = req.params.id;

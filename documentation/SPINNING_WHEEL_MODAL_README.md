@@ -8,7 +8,7 @@ This system automatically displays a spinning wheel modal after 5 minutes of bro
 Add this single line to any HTML page where you want the modal to appear:
 
 ```html
-<script src="js/spinning-wheel-trigger.js"></script>
+<script src="js/universal-spinning-wheel.js"></script>
 ```
 
 ### 2. That's It!
@@ -16,7 +16,7 @@ The modal will automatically appear after 5 minutes of browsing, but only once p
 
 ## 📁 Files Overview
 
-- **`js/spinning-wheel-trigger.js`** - Main script that handles the modal logic
+- **`js/universal-spinning-wheel.js`** - Main script that handles the modal logic
 - **`spinning-wheel-standalone.html`** - Your existing spinning wheel (unchanged)
 - **`spinning-wheel-integration-example.html`** - Demo page showing integration
 - **`spinning-wheel-modal.html`** - Standalone demo modal (for testing)
@@ -138,19 +138,19 @@ Navigate between pages to see how the timer persists across navigation.
     <!-- Your website content -->
     
     <!-- Include the spinning wheel trigger -->
-    <script src="js/spinning-wheel-trigger.js"></script>
+    <script src="js/universal-spinning-wheel.js"></script>
 </body>
 </html>
 ```
 
 ### With Custom Configuration
 ```html
-<script src="js/spinning-wheel-trigger.js"></script>
+<script src="js/universal-spinning-wheel.js"></script>
 <script>
     // Override default configuration
     window.addEventListener('DOMContentLoaded', function() {
         // Custom timing (3 minutes)
-        const script = document.querySelector('script[src*="spinning-wheel-trigger.js"]');
+        const script = document.querySelector('script[src*="universal-spinning-wheel.js"]');
         if (script) {
             script.onload = function() {
                 // Access the CONFIG object and modify if needed
