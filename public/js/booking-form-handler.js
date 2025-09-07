@@ -39,6 +39,16 @@ class BookingFormHandler {
         return; // Exit early without proceeding to server submission
       }
 
+      // Check if customer is returning (has existing bookings with unredeemed return gift)
+      if (bookingData.customer_phone) {
+        const isReturningCustomer = await this.checkReturningCustomer(bookingData.customer_phone);
+        
+        if (isReturningCustomer) {
+          this.showReturningCustomerAlert();
+          return; // Exit early for returning customers with unredeemed gifts
+        }
+      }
+
       // Check car availability for the selected dates
       if (bookingData.car_id) {
         const availabilityResult = await this.checkCarAvailability(
@@ -423,6 +433,52 @@ class BookingFormHandler {
     });
 
     return handler;
+  }
+
+  // Check if customer is returning (has existing bookings with unredeemed return gift)
+  async checkReturningCustomer(phoneNumber) {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/bookings/check-returning-customer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: phoneNumber
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Failed to check returning customer:', response.statusText);
+        // If API fails, allow booking to proceed
+        return false;
+      }
+
+      const data = await response.json();
+      
+      // Customer is returning if they have one or more bookings with unredeemed return gift
+      return data.isReturningCustomer === true;
+
+    } catch (error) {
+      console.error('Error checking returning customer:', error);
+      // If there's an error, allow booking to proceed
+      return false;
+    }
+  }
+
+  // Show alert for returning customers
+  showReturningCustomerAlert() {
+    let message = 'Welcome back! You are a returning customer with an unredeemed return gift. Please redeem your existing gift before making a new booking.';
+    
+    // Try to get translated message if i18next is available
+    if (typeof i18next !== 'undefined' && i18next.t) {
+      const translatedMessage = i18next.t('wheel.returning_customer_alert');
+      if (translatedMessage && translatedMessage !== 'wheel.returning_customer_alert') {
+        message = translatedMessage;
+      }
+    }
+    
+    alert(message);
   }
 }
 

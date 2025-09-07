@@ -78,20 +78,19 @@
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     <div class="spinning-wheel-modal-header">
-                        <h2 class="spinning-wheel-modal-title">Try Your Luck!</h2>
-                        <p class="spinning-wheel-modal-subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
+                        <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Try Your Luck!</h2>
+                        <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
                     </div>
                     
                     <div class="spinning-wheel-wheel-content">
                         <div class="spinning-wheel-phone-step" id="universalPhoneStep">
                             <div class="phone-input-container">
-                                <h3>Enter Your Phone Number</h3>
-                                <p class="phone-info">We need your phone number to track your rewards and send you your coupon codes.</p>
+                                <h3 data-i18n="wheel.enter_phone_title">Enter Your Phone Number</h3>
                                 <form class="phone-form" id="universalPhoneForm">
                                     <div class="input-group">
                                         <input type="tel" class="phone-input" id="universalPhoneInput" 
-                                               placeholder="Enter your phone number" required>
-                                        <button type="submit" class="phone-submit-btn">Continue</button>
+                                               data-i18n-placeholder="wheel.phone_placeholder" placeholder="Enter your phone number" required>
+                                        <button type="submit" class="phone-submit-btn" data-i18n="wheel.continue_button">Continue</button>
                                     </div>
                                 </form>
                             </div>
@@ -140,7 +139,7 @@
                 max-width: 1000px;
                 max-height: 85vh;
                 position: relative;
-                overflow: visible;
+                overflow: hidden;
                 transform: scale(0.9);
                 transition: transform 0.3s ease;
             }
@@ -155,7 +154,7 @@
                 right: 20px;
                 font-size: 28px;
                 cursor: pointer;
-                color: white;
+                color: #FFFFFF;
                 z-index: 10;
                 width: 30px;
                 height: 30px;
@@ -250,7 +249,7 @@
                 font-size: 1rem;
                 transition: border-color 0.3s ease;
             }
-
+            
             @media (max-width: 768px) {
                 .phone-input {
                     border-radius: 10px !important;
@@ -413,8 +412,7 @@
                     margin: 10px;
                     max-width: calc(100vw - 20px);
                     max-height: calc(100vh - 20px);
-                    height: auto !important;
-                    overflow-y: auto;
+                    height: calc(100vh - 20px) !important;
                 }
                 
                 .spinning-wheel-modal-header {
@@ -432,14 +430,14 @@
                 .spinning-wheel-wheel-content {
                     flex-direction: column;
                     min-height: auto;
-                    height: auto !important;
+                    height: calc(100% - 120px) !important;
                     flex: 1;
                 }
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
                     padding: 20px;
-                    height: auto !important;
+                    height: 100% !important;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
@@ -455,9 +453,8 @@
                 }
                 
                 #universalSpinningWheelIframe {
-                    height: 500px !important;
-                    min-height: 400px !important;
-                    max-height: 80vh !important;
+                    height: 100% !important;
+                    min-height: 600px !important;
                     border-radius: 10px;
                 }
             }
@@ -465,49 +462,86 @@
             /* Extra small mobile devices (iPhone 14 Pro Max, etc.) */
             @media (max-width: 430px) {
                 .spinning-wheel-modal-content {
-                    height: auto !important;
-                    max-height: 95vh !important;
+                    height: 93vh !important;
+                    max-height: 100vh !important;
                     margin: 0;
                     border-radius: 20px !important;
-                    overflow-y: auto;
                 }
                 
                 .spinning-wheel-wheel-content {
-                    height: auto !important;
+                    height: calc(100vh - 140px) !important;
                 }
                 
                 .spinning-wheel-wheel-step {
-                    height: auto !important;
+                    height: 100% !important;
                     padding: 15px;
                 }
                 
                 #universalSpinningWheelIframe {
-                    height: 450px !important;
-                    min-height: 350px !important;
-                    max-height: 70vh !important;
+                    height: 100% !important;
+                    min-height: 600px !important;
                     border-radius: 10px;
                 }
             }
-
         `;
         return style;
+    }
+
+    // Update translations in the modal
+    function updateModalTranslations() {
+        if (!state.modal) return;
+        
+        // Check if i18next is available
+        if (typeof i18next !== 'undefined' && i18next.t) {
+            // Update title and subtitle
+            const titleElement = state.modal.querySelector('.spinning-wheel-modal-title');
+            const subtitleElement = state.modal.querySelector('.spinning-wheel-modal-subtitle');
+            
+            if (titleElement) {
+                const translatedTitle = i18next.t('wheel.title');
+                if (translatedTitle && translatedTitle !== 'wheel.title') {
+                    titleElement.textContent = translatedTitle;
+                }
+            }
+            if (subtitleElement) {
+                const translatedSubtitle = i18next.t('wheel.subtitle');
+                if (translatedSubtitle && translatedSubtitle !== 'wheel.subtitle') {
+                    subtitleElement.textContent = translatedSubtitle;
+                }
+            }
+            
+            // Update phone input elements
+            const phoneTitleElement = state.modal.querySelector('[data-i18n="wheel.enter_phone_title"]');
+            const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
+            const continueButtonElement = state.modal.querySelector('[data-i18n="wheel.continue_button"]');
+            
+            if (phoneTitleElement) {
+                const translatedPhoneTitle = i18next.t('wheel.enter_phone_title');
+                if (translatedPhoneTitle && translatedPhoneTitle !== 'wheel.enter_phone_title') {
+                    phoneTitleElement.textContent = translatedPhoneTitle;
+                }
+            }
+            if (phoneInputElement) {
+                const translatedPhonePlaceholder = i18next.t('wheel.phone_placeholder');
+                if (translatedPhonePlaceholder && translatedPhonePlaceholder !== 'wheel.phone_placeholder') {
+                    phoneInputElement.placeholder = translatedPhonePlaceholder;
+                }
+            }
+            if (continueButtonElement) {
+                const translatedContinueButton = i18next.t('wheel.continue_button');
+                if (translatedContinueButton && translatedContinueButton !== 'wheel.continue_button') {
+                    continueButtonElement.textContent = translatedContinueButton;
+                }
+            }
+        }
     }
 
     // Show modal
     function showModal() {
         if (!state.modal) return;
         
-        // Check if this is a preview with a specific wheel ID
-        const previewWheelId = window.UniversalSpinningWheel && window.UniversalSpinningWheel._previewWheelId;
-        if (previewWheelId) {
-            // Update iframe src to include the wheel ID
-            const iframe = document.getElementById('universalSpinningWheelIframe');
-            if (iframe) {
-                iframe.src = `${CONFIG.iframeSrc}?wheel=${previewWheelId}`;
-            }
-            // Clear the preview wheel ID after using it
-            window.UniversalSpinningWheel._previewWheelId = null;
-        }
+        // Update translations before showing
+        updateModalTranslations();
         
         state.modal.style.display = 'flex';
         
@@ -593,13 +627,9 @@
         }
     }
 
-
-    // Handle iframe messages (kept for compatibility)
+    // Handle iframe messages
     function handleWheelMessage(event) {
         if (event.data && event.data.type === 'closeModal') {
-            closeModal();
-            markModalAsSeen();
-        } else if (event.data && event.data.type === 'closeSpinningWheel') {
             closeModal();
             markModalAsSeen();
         }
@@ -730,6 +760,14 @@
         // Track page visibility and unload for better time tracking
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Listen for language changes
+        if (typeof i18next !== 'undefined') {
+            i18next.on('languageChanged', updateModalTranslations);
+        }
+        
+        // Try to update translations after a delay in case i18next loads later
+        setTimeout(updateModalTranslations, 1000);
         
         // Check if user already has a phone number
         const existingPhone = localStorage.getItem('spinningWheelPhone');

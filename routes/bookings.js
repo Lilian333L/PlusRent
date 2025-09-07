@@ -156,6 +156,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       customer_phone: customer_phone || 'Not provided',
       customer_age: customer_age || null,
       status: 'pending',
+      return_gift_redeemed: false, // Default to false for new bookings
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -645,6 +646,52 @@ router.get('/:id', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error fetching booking:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
+});
+
+// Check if customer is returning (has existing bookings)
+router.post('/check-returning-customer', async (req, res) => {
+  const { phone_number } = req.body;
+  
+  if (!phone_number) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+
+  try {
+    // Get phone number record from phone_numbers table
+    const { data: phoneRecord, error: phoneError } = await supabase
+      .from('phone_numbers')
+      .select('id, phone_number, bookings_ids, return_gift_redeemed')
+      .eq('phone_number', phone_number)
+      .single();
+
+    if (phoneError) {
+      console.error('❌ Error checking returning customer:', phoneError);
+      return res.status(500).json({ error: 'Failed to check returning customer: ' + phoneError.message });
+    }
+
+    // Check if phone number exists and has bookings with unredeemed return gift
+    let isReturningCustomer = false;
+    let bookingsCount = 0;
+
+    if (phoneRecord) {
+      // Check if they have bookings_ids and return_gift_redeemed is false
+      const hasBookings = phoneRecord.bookings_ids && phoneRecord.bookings_ids.length > 0;
+      const hasUnredeemedGift = phoneRecord.return_gift_redeemed === false;
+      
+      isReturningCustomer = hasBookings && hasUnredeemedGift;
+      bookingsCount = phoneRecord.bookings_ids ? phoneRecord.bookings_ids.length : 0;
+    }
+
+    res.json({ 
+      success: true, 
+      isReturningCustomer: isReturningCustomer,
+      bookingsCount: bookingsCount
+    });
+
+  } catch (error) {
+    console.error('❌ Error checking returning customer:', error);
     res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });
