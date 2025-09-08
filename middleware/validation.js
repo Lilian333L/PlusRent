@@ -349,7 +349,12 @@ const couponIdSchema = Joi.object({
 
 const couponUseSchema = Joi.object({
   coupon_id: Joi.number().integer().positive().required(),
-  redemption_code: Joi.string().min(1).max(50).required().trim()
+  redemption_code: Joi.string().min(1).max(50).required().trim(),
+  customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\(\)]{8,20}$/).required()
+    .messages({
+      'string.pattern.base': 'Please enter a valid phone number.',
+      'any.required': 'Phone number is required'
+    })
 });
 
 const couponWheelSchema = Joi.object({
