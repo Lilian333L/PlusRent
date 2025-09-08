@@ -64,7 +64,7 @@ style="display: flex; align-items: center; gap: 8px; background: linear-gradient
 - `test-local-filtering.js` (hardcoded)
 - `test-fee-settings.js` (hardcoded)
 - `public/js/validation-booking.js` (fallback logic)
-- `public/js/spinning-wheel-trigger.js` (fallback logic)
+- `public/js/universal-spinning-wheel.js` (fallback logic)
 
 **Recommendation**: Use centralized config everywhere
 

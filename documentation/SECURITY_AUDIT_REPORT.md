@@ -462,7 +462,7 @@ The spinning wheel is currently set to appear after 5 seconds (testing mode) ins
 
 #### **Fix Required:**
 ```javascript
-// In spinning-wheel-trigger.js and universal-spinning-wheel.js
+// In universal-spinning-wheel.js
 TRIGGER_DELAY: 5 * 60 * 1000, // Change from 5 seconds to 5 minutes
 ```
 

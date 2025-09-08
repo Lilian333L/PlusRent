@@ -133,13 +133,14 @@ try {
 
 try {
   app.use('/fee-settings', feeSettingsRoutes);
+} catch (error) {
+  console.error('❌ Failed to mount fee settings routes:', error);
+}
+
 try {
   app.use('/contact', contactRoutes);
 } catch (error) {
   console.error('❌ Failed to mount contact routes:', error);
-} 
-} catch (error) {
-  console.error('❌ Failed to mount fee settings routes:', error);
 }
 
 // Note: Static file serving is handled by Vercel, not by the API
