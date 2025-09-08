@@ -105,7 +105,8 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
             },
             body: JSON.stringify({
               coupon_id: redemptionResult.coupon_id,
-              redemption_code: discount_code
+              redemption_code: discount_code,
+              customer_phone: customer_phone
             })
           });
           

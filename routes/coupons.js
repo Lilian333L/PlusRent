@@ -11,6 +11,7 @@ const {
   couponUpdateSchema, 
   couponIdSchema, 
   couponUseSchema, 
+  customer_phone,
   couponWheelSchema 
 } = require('../middleware/validation');
 
@@ -691,67 +692,58 @@ router.get('/validate/:code', async (req, res) => {
 
 // Mark redemption code as used (move from available_codes to showed_codes)
 router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) => {
-  const { coupon_id, redemption_code } = req.body;
+  const { coupon_id, redemption_code, customer_phone } = req.body;
   
   if (!coupon_id || !redemption_code) {
     return res.status(400).json({ error: 'Coupon ID and redemption code are required' });
   }
   
-    try {
-
-      
-      // Get the coupon
-      const { data: coupon, error: fetchError } = await supabase
-        .from('coupon_codes')
-        .select('*')
-        .eq('id', coupon_id)
-        .single();
-      
-      if (fetchError || !coupon) {
-        return res.status(404).json({ error: 'Coupon not found' });
-      }
-      
-      // Parse available_codes and showed_codes
-      let availableCodes = [];
-      let showedCodes = [];
-      try {
-        availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
-        showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
-      } catch (parseError) {
-        console.error('Error parsing codes arrays:', parseError);
-        return res.status(500).json({ error: 'Invalid code format' });
-      }
-      
-      // Check if code exists in available_codes
-      if (!availableCodes.includes(redemption_code)) {
-        return res.status(400).json({ error: 'Redemption code not found or already used' });
-      }
-      
-      // Move code from available to showed
-      const newAvailableCodes = availableCodes.filter(code => code !== redemption_code);
-      const newShowedCodes = [...showedCodes, redemption_code];
-      
-      // Update the coupon
-      const { error: updateError } = await supabase
-        .from('coupon_codes')
-        .update({
-          available_codes: JSON.stringify(newAvailableCodes),
-          showed_codes: JSON.stringify(newShowedCodes)
-        })
-        .eq('id', coupon_id);
-      
-      if (updateError) {
-        console.error('❌ Supabase error updating redemption code:', updateError);
-        return res.status(500).json({ error: 'Database error: ' + updateError.message });
-      }
-      
-      
-      res.json({ success: true, message: 'Redemption code used successfully' });
-      
-    } catch (error) {
-      console.error('❌ Supabase error using redemption code:', error);
-      res.status(500).json({ error: 'Database error: ' + error.message });
+  try {
+    // Get the coupon
+    const { data: coupon, error: fetchError } = await supabase
+      .from('coupon_codes')
+      .select('*')
+      .eq('id', coupon_id)
+      .single();
+    
+    if (fetchError || !coupon) {
+      return res.status(404).json({ error: 'Coupon not found' });
     }
+    
+    // Parse available_codes and showed_codes
+    let availableCodes = [];
+    let showedCodes = [];
+    try {
+      availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+      showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+    } catch (parseError) {
+      console.error('Error parsing codes arrays:', parseError);
+      return res.status(500).json({ error: 'Invalid code format' });
+    }
+    
+    // Check if code exists in showed_codes (not available_codes)
+    if (!showedCodes.includes(redemption_code)) {
+      return res.status(400).json({ error: 'Redemption code not found or already used' });
+    }
+    
+    // DON'T move codes - they're already in showed_codes
+    // Just add to phone_numbers.redeemed_coupons
+    if (customer_phone) {
+      const { addRedeemedCoupon } = require('../lib/phoneNumberTracker');
+      const result = await addRedeemedCoupon(customer_phone, redemption_code);
+      
+      if (!result.success) {
+        console.error('Failed to add redeemed coupon:', result.error);
+        return res.status(500).json({ error: 'Failed to track redeemed coupon' });
+      }
+    }
+    
+    res.json({ success: true, message: 'Redemption code used successfully' });
+    
+  } catch (error) {
+    console.error('❌ Supabase error using redemption code:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
 });
 
 module.exports = router; 
