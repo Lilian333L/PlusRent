@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returning Customer Modal</title>
+    <style>
+        /* Modal Styles */
+        .returning-customer-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .returning-customer-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            width: 95%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none !important;
+            border: none !important;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            flex-direction: column !important;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-subtitle {
+            font-size: 1.1rem;
+            margin: 15px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .welcome-message {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .wheel-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .wheel-button {
+            padding: 20px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .wheel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .wheel-button.percent-wheel {
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+            color: white;
+        }
+
+        .wheel-button.free-days-wheel {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            color: white;
+        }
+
+        .wheel-icon {
+            font-size: 1.5rem;
+        }
+
+        .wheel-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+                max-height: calc(100vh - 20px);
+            }
+            
+            .modal-header {
+                padding: 20px;
+            }
+            
+            .modal-title {
+                font-size: 1.5rem;
+            }
+            
+            .modal-subtitle {
+                font-size: 1rem;
+            }
+            
+            .modal-body {
+                padding: 30px 20px;
+            }
+            
+            .wheel-options {
+                gap: 15px;
+            }
+            
+            .wheel-button {
+                padding: 15px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Returning Customer Modal -->
+    <div id="returningCustomerModal" class="returning-customer-modal">
+        <div class="modal-content">
+            <!-- Close button -->
+            <button class="modal-close" id="modalClose" onclick="closeReturningCustomerModal()">×</button>
+            
+            <!-- Modal header -->
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome Back!</h2>
+                <p class="modal-subtitle">You have an unredeemed return gift waiting for you!</p>
+            </div>
+            
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="welcome-message">
+                    As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.
+                </div>
+                
+                <div class="wheel-options">
+                    <button class="wheel-button percent-wheel" onclick="openSpinningWheel('percent')">
+                        <div>
+                            <div>Percentage Discount Wheel</div>
+                            <div class="wheel-description">Win discount percentages on your rental</div>
+                        </div>
+                    </button>
+                    
+                    <button class="wheel-button free-days-wheel" onclick="openSpinningWheel('free-days')">
+                        <div>
+                            <div>Free Days Wheel</div>
+                            <div class="wheel-description">Win free rental days for your next booking</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set API base URL for API calls - use relative URLs for Vercel deployment
+        if (!window.API_BASE_URL) {
+            window.API_BASE_URL = '';
+        }
+        
+        // Show the returning customer modal
+        function showReturningCustomerModal() {
+            const modal = document.getElementById('returningCustomerModal');
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+
+        // Close the returning customer modal
+        function closeReturningCustomerModal() {
+            const modal = document.getElementById('returningCustomerModal');
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Open the appropriate spinning wheel
+        function openSpinningWheel(type) {
+            // Close the returning customer modal
+            closeReturningCustomerModal();
+            
+            // Open the spinning wheel modal with the appropriate type
+            if (window.showSpinningWheelModal) {
+                window.showSpinningWheelModal(type);
+            } else {
+                // Fallback: open the spinning wheel page directly
+                const wheelUrl = type === 'free-days' ? 
+                    'spinning-wheel-standalone.html?type=free-days' : 
+                    'spinning-wheel-standalone.html?type=percent';
+                window.open(wheelUrl, '_blank');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('returningCustomerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReturningCustomerModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('returningCustomerModal').classList.contains('show')) {
+                closeReturningCustomerModal();
+            }
+        });
+
+        // Make functions globally available
+        window.showReturningCustomerModal = showReturningCustomerModal;
+        window.closeReturningCustomerModal = closeReturningCustomerModal;
+    </script>
+</body>
+</html>

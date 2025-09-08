@@ -144,7 +144,6 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       return_date,
       return_time,
       discount_code: validatedDiscountCode,
-
       pickup_location,
       dropoff_location,
       special_instructions,
@@ -156,7 +155,6 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       customer_phone: customer_phone || 'Not provided',
       customer_age: customer_age || null,
       status: 'pending',
-      return_gift_redeemed: false, // Default to false for new bookings
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -659,14 +657,18 @@ router.post('/check-returning-customer', async (req, res) => {
   }
 
   try {
+    // Normalize phone number using the same logic as phoneNumberTracker
+    const { normalizePhoneNumber } = require('../lib/phoneNumberTracker');
+    const normalizedPhoneNumber = normalizePhoneNumber(phone_number);
+    
     // Get phone number record from phone_numbers table
     const { data: phoneRecord, error: phoneError } = await supabase
       .from('phone_numbers')
       .select('id, phone_number, bookings_ids, return_gift_redeemed')
-      .eq('phone_number', phone_number)
+      .eq('phone_number', normalizedPhoneNumber)
       .single();
 
-    if (phoneError) {
+    if (phoneError && phoneError.code !== 'PGRST116') {
       console.error('❌ Error checking returning customer:', phoneError);
       return res.status(500).json({ error: 'Failed to check returning customer: ' + phoneError.message });
     }
@@ -692,6 +694,51 @@ router.post('/check-returning-customer', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error checking returning customer:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
+});
+
+// Mark return gift as redeemed for a customer
+router.post('/mark-return-gift-redeemed', async (req, res) => {
+  const { phone_number } = req.body;
+  
+  if (!phone_number) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+
+  try {
+    // Normalize phone number using the same logic as phoneNumberTracker
+    const { normalizePhoneNumber } = require('../lib/phoneNumberTracker');
+    const normalizedPhoneNumber = normalizePhoneNumber(phone_number);
+    
+    // Update the phone_numbers table to mark return gift as redeemed
+    const { data: updatedPhoneRecord, error: updateError } = await supabase
+      .from('phone_numbers')
+      .update({ 
+        return_gift_redeemed: true
+      })
+      .eq('phone_number', normalizedPhoneNumber)
+      .eq('return_gift_redeemed', false)
+      .select('id, bookings_ids');
+
+    if (updateError) {
+      console.error('❌ Error marking return gift as redeemed:', updateError);
+      return res.status(500).json({ error: 'Failed to mark return gift as redeemed: ' + updateError.message });
+    }
+
+    const updatedCount = updatedPhoneRecord ? updatedPhoneRecord.length : 0;
+    const bookingsCount = updatedPhoneRecord && updatedPhoneRecord.length > 0 ? 
+      (updatedPhoneRecord[0].bookings_ids ? updatedPhoneRecord[0].bookings_ids.length : 0) : 0;
+
+    res.json({ 
+      success: true, 
+      message: `Return gift marked as redeemed for ${bookingsCount} booking(s)`,
+      updatedCount: updatedCount,
+      bookingsCount: bookingsCount
+    });
+
+  } catch (error) {
+    console.error('❌ Error marking return gift as redeemed:', error);
     res.status(500).json({ error: 'Database error: ' + error.message });
   }
 });

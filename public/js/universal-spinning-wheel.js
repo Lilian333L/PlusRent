@@ -141,7 +141,25 @@
                 position: relative;
                 overflow: hidden;
                 transform: scale(0.9);
-                transition: transform 0.3s ease;
+                transition: all 0.3s ease;
+            }
+            
+            /* Smaller modal for phone input step */
+            .spinning-wheel-modal-content.phone-step {
+                max-width: 500px !important;
+                max-height: 60vh !important;
+                height: auto !important;
+            }
+            
+            /* Unset min-height for phone step content */
+            .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
+                min-height: unset !important;
+            }
+            
+            /* Full size for spinning wheel step */
+            .spinning-wheel-modal-content.wheel-step {
+                max-width: 1200px !important;
+                max-height: 90vh !important;
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-content {
@@ -219,7 +237,7 @@
             
             .phone-input-container h3 {
                 color: #333;
-                font-size: 1.8rem;
+                font-size: 1.2rem;
                 margin: 0 0 15px 0;
                 font-weight: 600;
             }
@@ -323,6 +341,10 @@
                     padding: 30px 40px;
                 }
                 
+                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
+                    min-height: unset !important;
+                }
+                
                 .spinning-wheel-modal-title {
                     font-size: 2rem;
                 }
@@ -384,7 +406,7 @@
                 }
                 
                 .phone-input-container h3 {
-                    font-size: 2rem !important;
+                    font-size: 1.2rem !important;
                 }
                 
                 .phone-input-container p {
@@ -413,6 +435,21 @@
                     max-width: calc(100vw - 20px);
                     max-height: calc(100vh - 20px);
                     height: calc(100vh - 20px) !important;
+                }
+                
+                .spinning-wheel-modal-content.phone-step {
+                    max-width: calc(100vw - 20px) !important;
+                    max-height: 50vh !important;
+                    height: auto !important;
+                }
+                
+                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
+                    min-height: unset !important;
+                }
+                
+                .spinning-wheel-modal-content.wheel-step {
+                    max-width: calc(100vw - 20px) !important;
+                    max-height: calc(100vh - 20px) !important;
                 }
                 
                 .spinning-wheel-modal-header {
@@ -470,6 +507,10 @@
                 
                 .spinning-wheel-wheel-content {
                     height: calc(100vh - 140px) !important;
+                }
+                
+                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
+                    height: unset !important;
                 }
                 
                 .spinning-wheel-wheel-step {
@@ -537,11 +578,87 @@
     }
 
     // Show modal
-    function showModal() {
+    function showModal(options = {}) {
         if (!state.modal) return;
         
         // Update translations before showing
         updateModalTranslations();
+        
+        // Handle options
+        const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
+        
+        // Debug: Log the options received
+        console.log('UniversalSpinningWheel.show called with options:', options);
+        console.log('skipPhoneStep:', skipPhoneStep, 'phoneNumber:', phoneNumber);
+        
+        // Update iframe source with wheel ID if specified
+        if (options.wheelId) {
+            const iframe = document.getElementById('universalSpinningWheelIframe');
+            if (iframe) {
+                const baseSrc = CONFIG.iframeSrc;
+                const separator = baseSrc.includes('?') ? '&' : '?';
+                iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
+            }
+        }
+        
+        // Get modal content element for sizing
+        const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
+        
+        // If we should skip the phone step, hide it and show the wheel directly
+        if (skipPhoneStep) {
+            const phoneStep = document.getElementById('universalPhoneStep');
+            const wheelStep = document.getElementById('universalWheelStep');
+            
+            if (phoneStep && wheelStep) {
+                phoneStep.style.display = 'none';
+                wheelStep.style.display = 'flex';
+                
+                // Set modal to wheel step size
+                if (modalContent) {
+                    modalContent.classList.remove('phone-step');
+                    modalContent.classList.add('wheel-step');
+                }
+                
+                // If we have a phone number, store it and send to iframe
+                if (phoneNumber) {
+                    console.log('Storing phone number in localStorage:', phoneNumber);
+                    localStorage.setItem('spinningWheelPhone', phoneNumber);
+                    localStorage.setItem('spinningWheelPhoneEntered', 'true');
+                    
+                    // Send phone number to iframe
+                    setTimeout(() => {
+                        const iframe = document.getElementById('universalSpinningWheelIframe');
+                        if (iframe && iframe.contentWindow) {
+                            console.log('Sending phone number to iframe:', phoneNumber);
+                            iframe.contentWindow.postMessage({
+                                type: 'phoneNumberEntered',
+                                phoneNumber: phoneNumber,
+                                wheelType: wheelType
+                            }, '*');
+                        } else {
+                            console.log('Iframe not ready for phone number message');
+                        }
+                    }, 500);
+                } else {
+                    console.log('No phone number provided to skip phone step');
+                }
+            }
+        } else {
+            // Normal flow - show phone step first
+            const phoneStep = document.getElementById('universalPhoneStep');
+            const wheelStep = document.getElementById('universalWheelStep');
+            
+            if (phoneStep && wheelStep) {
+                phoneStep.style.display = 'flex';
+                wheelStep.style.display = 'none';
+                
+                // Set modal to phone step size
+                if (modalContent) {
+                    modalContent.classList.remove('wheel-step');
+                    modalContent.classList.add('phone-step');
+                }
+            }
+        }
         
         state.modal.style.display = 'flex';
         
@@ -616,6 +733,13 @@
         // Switch to wheel step
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'flex';
+        
+        // Update modal size for wheel step
+        const modalContent = document.querySelector('.spinning-wheel-modal-content');
+        if (modalContent) {
+            modalContent.classList.remove('phone-step');
+            modalContent.classList.add('wheel-step');
+        }
 
         // Send phone number to iframe
         const iframe = document.getElementById('universalSpinningWheelIframe');
@@ -789,11 +913,30 @@
         init();
     }
 
+    // Fetch wheel ID by type
+    async function fetchWheelIdByType(wheelType) {
+        try {
+            const API_BASE_URL = window.API_BASE_URL || '';
+            const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/by-type/${wheelType}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const wheelData = await response.json();
+            return wheelData.id;
+        } catch (error) {
+            console.error('Error fetching wheel ID by type:', error);
+            return null;
+        }
+    }
+
     // Export for global access if needed
     window.UniversalSpinningWheel = {
         show: showModal,
         close: closeModal,
-        init: init
+        init: init,
+        fetchWheelIdByType: fetchWheelIdByType
     };
 
 })();

@@ -64,6 +64,162 @@ router.get('/active', async (req, res) => {
     }
 });
 
+// Get wheel IDs by type (for returning customer modal)
+router.get('/by-type/:type', async (req, res) => {
+  const wheelType = req.params.type; // 'percent' or 'free-days'
+  
+  try {
+    // Get all active wheels
+    const { data: activeWheels, error: wheelError } = await supabase
+      .from('spinning_wheels')
+      .select('id, name, type')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+    
+    if (wheelError) {
+      console.error('❌ Supabase error fetching wheels by type:', wheelError);
+      return res.status(500).json({ error: 'Database error: ' + wheelError.message });
+    }
+    
+    if (!activeWheels || activeWheels.length === 0) {
+      return res.status(404).json({ error: 'No active spinning wheels found' });
+    }
+    
+    // Map generic types to actual wheel types
+    let targetType;
+    if (wheelType === 'percent') {
+      targetType = 'percentage';
+    } else if (wheelType === 'free-days') {
+      targetType = 'free_days';
+    } else {
+      return res.status(400).json({ error: 'Invalid wheel type. Use "percent" or "free-days"' });
+    }
+    
+    // Find wheels that have coupons of the target type
+    const matchingWheels = [];
+    
+    for (const wheel of activeWheels) {
+      // Get wheel coupons
+      const { data: wheelCoupons, error: couponsError } = await supabase
+        .from('wheel_coupons')
+        .select('coupon_id')
+        .eq('wheel_id', wheel.id);
+      
+      if (couponsError) continue;
+      
+      if (wheelCoupons.length === 0) continue;
+      
+      // Get coupon types for this wheel
+      const couponIds = wheelCoupons.map(wc => wc.coupon_id);
+      const { data: coupons, error: couponTypesError } = await supabase
+        .from('coupon_codes')
+        .select('type')
+        .in('id', couponIds)
+        .eq('is_active', true);
+      
+      if (couponTypesError) continue;
+      
+      // Check if this wheel has coupons of the target type
+      const hasTargetType = coupons.some(coupon => coupon.type === targetType);
+      
+      if (hasTargetType) {
+        matchingWheels.push({
+          id: wheel.id,
+          name: wheel.name,
+          type: wheelType
+        });
+      }
+    }
+    
+    if (matchingWheels.length === 0) {
+      return res.status(404).json({ error: `No active wheels found for type: ${wheelType}` });
+    }
+    
+    // Return the first matching wheel (most recent)
+    res.json(matchingWheels[0]);
+    
+  } catch (error) {
+    console.error('❌ Error fetching wheel by type:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Get enabled wheel configurations with their types
+router.get('/enabled-configs', async (req, res) => {
+  try {
+    // Get all enabled wheels
+    const { data: enabledWheels, error: wheelError } = await supabase
+      .from('spinning_wheels')
+      .select('id, name, type, is_active')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+    
+    if (wheelError) {
+      console.error('❌ Supabase error fetching enabled wheels:', wheelError);
+      return res.status(500).json({ error: 'Database error: ' + wheelError.message });
+    }
+    
+    if (!enabledWheels || enabledWheels.length === 0) {
+      return res.status(404).json({ error: 'No enabled spinning wheels found' });
+    }
+    
+    // For each wheel, determine its type based on its coupons
+    const wheelConfigs = [];
+    
+    for (const wheel of enabledWheels) {
+      // Get wheel coupons to determine type
+      const { data: wheelCoupons, error: couponsError } = await supabase
+        .from('wheel_coupons')
+        .select('coupon_id')
+        .eq('wheel_id', wheel.id);
+      
+      if (couponsError) continue;
+      
+      if (wheelCoupons.length === 0) continue;
+      
+      // Get coupon types for this wheel
+      const couponIds = wheelCoupons.map(wc => wc.coupon_id);
+      const { data: coupons, error: couponTypesError } = await supabase
+        .from('coupon_codes')
+        .select('type')
+        .in('id', couponIds)
+        .eq('is_active', true);
+      
+      if (couponTypesError) continue;
+      
+      // Determine wheel type based on coupon types
+      const hasPercentage = coupons.some(coupon => coupon.type === 'percentage');
+      const hasFreeDays = coupons.some(coupon => coupon.type === 'free_days');
+      
+      let wheelType;
+      if (hasPercentage && !hasFreeDays) {
+        wheelType = 'percent';
+      } else if (hasFreeDays && !hasPercentage) {
+        wheelType = 'free-days';
+      } else if (hasPercentage && hasFreeDays) {
+        wheelType = 'mixed';
+      } else {
+        wheelType = 'unknown';
+      }
+      
+      wheelConfigs.push({
+        id: wheel.id,
+        name: wheel.name,
+        type: wheelType,
+        displayName: wheelType === 'percent' ? 'Percentage Discount Wheel' : 
+                    wheelType === 'free-days' ? 'Free Days Wheel' : 
+                    wheel.name
+      });
+    }
+    
+    res.json(wheelConfigs);
+    
+  } catch (error) {
+    console.error('❌ Error fetching enabled wheel configs:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 // Secure endpoint for spinning wheel data (minimal data exposure)
 router.get('/secure/active-data', async (req, res) => {
 
