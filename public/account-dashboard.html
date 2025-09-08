@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="ro">
 
 <head>
     <title>Admin Panel - Car Management</title>
     <link rel="icon" href="images/icon.png" type="image/gif" sizes="16x16">
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="PlusRent - Multipurpose Vehicle Car Rental Website Template" name="description">
+    <meta content="PlusRent" name="description">
     <meta content="" name="keywords">
     <meta content="" name="author">
     <!-- CSS Files
@@ -393,7 +393,6 @@
   
   /* Icon spacing */
   .fa {
-    margin-right: 0.25rem;
   }
   .admin-form-grid .five-column-grid {
     grid-column: 1 / -1;
@@ -832,6 +831,10 @@
     }
   }
   
+  .wheel-config-row {
+    flex-direction: row;
+    gap: 20px;
+  }
   /* Mobile Responsive Styles */
   @media (max-width: 768px) {
     .admin-tabs {
@@ -2917,7 +2920,7 @@
                             <div class="de-flex">
                                 <div class="de-flex-col">
                                     <a href="index.html">
-                                        Copyright 2025 - PlusRent by Designesia
+                                        Copyright 2025 - PlusRent
                                     </a>
                                 </div>
                                 <ul class="menu-simple">
@@ -6427,13 +6430,18 @@
 
         // Preview a specific wheel
         function previewWheel(wheelId) {
-          // Show phone number modal first
-          const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
-          
-          // Store the wheel ID to use when opening the preview
-          phoneModal._wheelId = wheelId;
-          
-          phoneModal.show();
+          // Use the universal spinning wheel modal for preview
+          if (window.UniversalSpinningWheel) {
+            // Store the wheel ID for the universal spinning wheel
+            window.UniversalSpinningWheel._previewWheelId = wheelId;
+            // Show the universal spinning wheel modal
+            window.UniversalSpinningWheel.show();
+          } else {
+            // Fallback to old method if universal spinning wheel not available
+            const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
+            phoneModal._wheelId = wheelId;
+            phoneModal.show();
+          }
         }
 
         function showWheelConfiguration(wheelId) {
@@ -6520,6 +6528,14 @@
                       <button class="btn btn-sm btn-outline-info" onclick="previewWheel(${wheel.id})" title="Preview this wheel">
                         <i class="fa fa-eye"></i>
                       </button>
+                      ${wheel.is_active ? `
+                      <button class="btn btn-sm ${wheel.is_premium ? 'btn-warning' : 'btn-outline-warning'}" 
+                              style="${wheel.is_premium ? 'background-color: #ffc107; border-color: #ffc107; color: #fff; padding: 0.35rem 0.86rem;' : 'color: #ffc107; border-color: #ffc107; padding: 0.25rem 0.75rem;'}"
+                              onclick="togglePremiumWheel(${wheel.id})" 
+                              title="${wheel.is_premium ? 'Currently Premium - Click to Remove Premium' : 'Set as Premium Wheel'}">
+                        <i class="fa fa-star"></i>
+                      </button>
+                      ` : ''}
                       <button class="btn btn-sm ${wheel.is_active ? 'btn-success' : 'btn-outline-secondary'}" 
                               style="${!wheel.is_active ? 'color: #6c757d; border-color: #6c757d;' : ''}"
                               onclick="activateWheel(${wheel.id})" title="${wheel.is_active ? 'Currently Active - Click to Deactivate' : 'Activate this wheel'}">
@@ -6684,8 +6700,22 @@
             });
             
             if (response.ok) {
+              // If deactivating a wheel, also remove premium status
+              if (isCurrentlyActive && wheel.is_premium) {
+                const token = localStorage.getItem('adminToken');
+                await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/premium`, {
+                  method: 'PATCH',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ is_premium: false })
+                });
+              }
+              
               const action = isCurrentlyActive ? 'deactivated' : 'activated';
-              showCustomAlert(`Wheel ${action} successfully`, 'success');
+              const premiumMessage = (isCurrentlyActive && wheel.is_premium) ? ' and premium status removed' : '';
+              showCustomAlert(`Wheel ${action} successfully${premiumMessage}`, 'success');
               loadSpinningWheelData();
               
               // Open the wheel configuration after activation/deactivation
@@ -6723,6 +6753,76 @@
           } catch (error) {
             
             showCustomAlert('Error deleting wheel', 'error');
+          }
+        }
+
+        // Toggle premium wheel
+        async function togglePremiumWheel(wheelId) {
+          try {
+            const token = localStorage.getItem('adminToken');
+            
+            // First, get the current wheel to check if it's already premium
+            const wheelResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!wheelResponse.ok) {
+              showCustomAlert('Error getting wheel information', 'error');
+              return;
+            }
+            
+            const wheel = await wheelResponse.json();
+            const isCurrentlyPremium = wheel.is_premium;
+            
+            // Check if wheel is active (only allow premium toggle for active wheels)
+            if (!wheel.is_active && !isCurrentlyPremium) {
+              showCustomAlert('Cannot set as premium: Wheel must be active first', 'error');
+              return;
+            }
+            
+            if (!isCurrentlyPremium) {
+              // If setting as premium, first remove premium from all other wheels
+              const allWheelsResponse = await fetch(`${window.API_BASE_URL}/api/spinning-wheels`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (allWheelsResponse.ok) {
+                const allWheels = await allWheelsResponse.json();
+                // Remove premium from all wheels first
+                for (const otherWheel of allWheels) {
+                  if (otherWheel.is_premium) {
+                    await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${otherWheel.id}/premium`, {
+                      method: 'PATCH',
+                      headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      },
+                      body: JSON.stringify({ is_premium: false })
+                    });
+                  }
+                }
+              }
+            }
+            
+            // Toggle the current wheel's premium status
+            const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/premium`, {
+              method: 'PATCH',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ is_premium: !isCurrentlyPremium })
+            });
+            
+            if (response.ok) {
+              const action = !isCurrentlyPremium ? 'set as premium' : 'removed from premium';
+              showCustomAlert(`Wheel ${action} successfully`, 'success');
+              loadSpinningWheelData();
+            } else {
+              const error = await response.json();
+              showCustomAlert('Error updating premium status: ' + error.error, 'error');
+            }
+          } catch (error) {
+            console.error('Error toggling premium wheel:', error);
+            showCustomAlert('Error updating premium status', 'error');
           }
         }
 
@@ -7481,7 +7581,6 @@
             
             if (response.ok) {
               feeSettingsData = await response.json();
-              console.log('🔄 Reloaded fee settings:', feeSettingsData.map(s => ({key: s.setting_key, amount: s.amount})));
               
               // Debug: Check if price filter settings are loaded
               const priceFilterSettings = feeSettingsData.filter(s => s.setting_key.includes('price'));

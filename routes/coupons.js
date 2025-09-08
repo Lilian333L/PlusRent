@@ -698,7 +698,7 @@ router.post('/use-redemption-code', validate(couponUseSchema), async (req, res) 
   }
   
     try {
-      
+
       
       // Get the coupon
       const { data: coupon, error: fetchError } = await supabase
