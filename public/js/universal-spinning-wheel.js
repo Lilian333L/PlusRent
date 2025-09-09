@@ -143,6 +143,12 @@
                 transform: scale(0.9);
                 transition: all 0.3s ease;
             }
+
+            @media (max-width: 768px) {
+                .wheel-step {
+                    overflow: scroll;
+                }
+            }
             
             /* Smaller modal for phone input step */
             .spinning-wheel-modal-content.phone-step {
@@ -367,9 +373,9 @@
                     height: 100%;
                 }
                 
-                iframe {
-                    height: 100% !important;
-                }
+            iframe {
+                height: 100% !important;
+            }
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
@@ -525,8 +531,14 @@
                 
                 #universalSpinningWheelIframe {
                     height: 100% !important;
-                    min-height: 600px !important;
+                    min-height: 650px !important;
                     border-radius: 10px;
+                }
+            }
+
+            @media (max-width: 380px) {
+                #universalSpinningWheelIframe {
+                    margin-top: 128px !important;
                 }
             }
         `;
