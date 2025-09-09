@@ -2377,33 +2377,6 @@
     });
   </script>
 
-  <!-- Initialize Flatpickr date pickers -->
-  <!--
-  <script>
-  // Initialize pickup date picker
-  flatpickr("#date-picker", {
-      dateFormat: "Y-m-d",
-      minDate: "today",
-      onChange: function(selectedDates, dateStr, instance) {
-          // Update return date minimum when pickup date changes
-          const returnDateInput = document.getElementById('date-picker-2');
-          if (returnDateInput && selectedDates.length > 0) {
-              const returnPicker = returnDateInput._flatpickr;
-              if (returnPicker) {
-                  returnPicker.set('minDate', dateStr);
-              }
-          }
-      }
-  });
-
-  // Initialize return date picker
-  flatpickr("#date-picker-2", {
-      dateFormat: "Y-m-d",
-      minDate: "today"
-  });
-  </script>
-  -->
-
   <!-- Set default dates for date pickers -->
   <script>
   function setDefaultDates() {
@@ -2417,39 +2390,6 @@
       return: returnDateInput
     });
     
-    if (pickupDateInput && returnDateInput) {
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      
-      const dayAfterTomorrow = new Date(today);
-      dayAfterTomorrow.setDate(today.getDate() + 2);
-      
-      // Format dates as YYYY-MM-DD
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
-      const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-      
-      console.log('Calculated dates:', {
-        tomorrow: tomorrowStr,
-        dayAfterTomorrow: dayAfterTomorrowStr
-      });
-      
-      console.log('Current values before setting:', {
-        pickup: pickupDateInput.value,
-        return: returnDateInput.value
-      });
-      
-      // Set default values
-      pickupDateInput.value = tomorrowStr;
-      returnDateInput.value = dayAfterTomorrowStr;
-      
-      console.log('Values after setting:', {
-        pickup: pickupDateInput.value,
-        return: returnDateInput.value
-      });
-      
-      console.log('=== END SETTING DEFAULT DATES ===');
-    }
   }
 
   // Try multiple ways to ensure it runs
