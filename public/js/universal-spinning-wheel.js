@@ -903,6 +903,14 @@
             // Save coupon code to localStorage for use on booking pages
             localStorage.setItem('autoApplyCoupon', couponCode);
             
+            // Trigger auto-apply immediately if the function is available
+            if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
+                console.log('Triggering auto-apply immediately after coupon save');
+                setTimeout(() => {
+                    window.AutoApplyCoupon.autoApply();
+                }, 100);
+            }
+            
             // Show success notification
             showCouponAppliedNotification(couponCode);
             
