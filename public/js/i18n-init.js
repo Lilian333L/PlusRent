@@ -142,17 +142,12 @@ function setupI18nEvents() {
     updateLangPickerUI();
     highlightAboutOffer();
     
-    // Send language change message to spinning wheel iframe
-    const wheelIframe = document.querySelector('.wheel-container iframe');
-    if (wheelIframe && wheelIframe.contentWindow) {
-      try {
-        wheelIframe.contentWindow.postMessage({
-          type: 'languageChange',
-          language: i18next.language
-        }, '*');
-      } catch (e) {
-        
-      }
+    // Re-update price breakdown with new language
+    if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
+      console.log('Language changed, updating price breakdown...');
+      window.priceCalculator.debouncedRecalculate();
+    } else {
+      console.log('Price calculator not available or method not found');
     }
   });
 }

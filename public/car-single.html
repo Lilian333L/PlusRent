@@ -723,9 +723,8 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.pickup_date"></label>
-                          <input type="date" id="date-picker" name="Pick Up Date" value="2025-01-15"
-                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
-                            class="mobile-date-input" min="2025-01-15">
+                            <input type="text" id="date-picker" class="flatpickr"  style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
+                            class="mobile-date-input" data-i18n-placeholder="booking.date_placeholder">
                         </div>
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
@@ -764,9 +763,8 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.return_date"></label>
-                          <input type="date" id="date-picker-2" name="Collection Date" value="2025-01-16"
-                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
-                            class="mobile-date-input" min="2025-01-15">
+                            <input type="text" id="date-picker-2" class="flatpickr"  style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
+                            class="mobile-date-input" data-i18n-placeholder="booking.date_placeholder">
                         </div>
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
@@ -1442,6 +1440,14 @@
           if (window.currentCarData) {
             populatePriceGuide(window.currentCarData);
           }
+          
+          // Re-update price breakdown with new language
+          if (window.priceCalculator && typeof window.priceCalculator.updatePriceDisplay === 'function') {
+            const currentPriceData = window.priceCalculator.getCurrentPriceData();
+            if (currentPriceData) {
+              window.priceCalculator.updatePriceDisplay(currentPriceData);
+            }
+          }
         });
       }
 
@@ -1813,7 +1819,7 @@
           </div>
           <div style="font-size: 11px; color: #999; margin-top: 6px;">
             <i class="fa fa-info-circle"></i> 
-            Loading detailed breakdown...
+            <span data-i18n="cars.loading_breakdown">Loading detailed breakdown...</span>
           </div>
           </div>
         `;
@@ -2233,6 +2239,13 @@
         pickupDateInput.setAttribute('value', tomorrowStr);
         returnDateInput.setAttribute('value', dayAfterTomorrowStr);
 
+        // Add this at the beginning of the date setting function
+        if (!pickupDateInput.value || pickupDateInput.value === "2025-01-15") {
+          pickupDateInput.value = tomorrowStr;
+        }
+        if (!returnDateInput.value || returnDateInput.value === "2025-01-16") {
+          returnDateInput.value = dayAfterTomorrowStr;
+        }
       } else {
 
       }
