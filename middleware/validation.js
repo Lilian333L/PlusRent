@@ -12,17 +12,17 @@ const validate = (schema) => {
       // Provide user-friendly error messages for common fields
       let userFriendlyMessage = errorMessage;
       if (field === 'customer_phone') {
-        userFriendlyMessage = 'Please enter a valid phone number.';
+        userFriendlyMessage = 'errors.validation.phone_invalid';
       } else if (field === 'customer_email') {
-        userFriendlyMessage = 'Please enter a valid email address.';
+        userFriendlyMessage = 'errors.validation.email_invalid';
       } else if (field === 'customer_age') {
-        userFriendlyMessage = 'Please enter a valid age between 18 and 100 years.';
+        userFriendlyMessage = 'errors.validation.age_invalid';
       } else if (field === 'pickup_date' || field === 'return_date') {
-        userFriendlyMessage = 'Please select valid pickup and return dates.';
+        userFriendlyMessage = 'errors.validation.dates_invalid';
       } else if (field === 'pickup_time' || field === 'return_time') {
-        userFriendlyMessage = 'Please select valid pickup and return times.';
+        userFriendlyMessage = 'errors.validation.times_invalid';
       } else if (field === 'pickup_location' || field === 'dropoff_location') {
-        userFriendlyMessage = 'Please select pickup and dropoff locations.';
+        userFriendlyMessage = 'errors.validation.locations_invalid';
       }
       
       return res.status(400).json({ 
