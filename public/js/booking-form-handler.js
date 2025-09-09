@@ -39,14 +39,14 @@ class BookingFormHandler {
         return; // Exit early without proceeding to server submission
       }
 
-      // Check if customer is returning (has existing bookings with unredeemed return gift)
+      // Check if customer is returning (has exactly one booking - second booking)
       if (bookingData.customer_phone) {
         const isReturningCustomer = await this.checkReturningCustomer(bookingData.customer_phone);
         
         if (isReturningCustomer) {
           const shouldShowPopup = this.showReturningCustomerAlert(bookingData.customer_phone);
           if (shouldShowPopup) {
-            return; // Exit early for returning customers with unredeemed gifts (first time)
+            return; // Exit early for returning customers on their second booking
           }
           // If popup was already shown, continue with booking
         }

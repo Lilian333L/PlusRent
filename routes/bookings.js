@@ -685,16 +685,16 @@ router.post('/check-returning-customer', async (req, res) => {
       return res.status(500).json({ error: 'Failed to check returning customer: ' + phoneError.message });
     }
 
-    // Check if phone number exists and has bookings with unredeemed return gift
+    // Check if phone number exists and has exactly one booking (second booking)
     let isReturningCustomer = false;
     let bookingsCount = 0;
 
     if (phoneRecord) {
-      // Check if they have bookings_ids and return_gift_redeemed is false
+      // Check if they have exactly one booking in bookings_ids (second booking)
       const hasBookings = phoneRecord.bookings_ids && phoneRecord.bookings_ids.length > 0;
-      const hasUnredeemedGift = phoneRecord.return_gift_redeemed === false;
+      const isSecondBooking = phoneRecord.bookings_ids && phoneRecord.bookings_ids.length === 1;
       
-      isReturningCustomer = hasBookings && hasUnredeemedGift;
+      isReturningCustomer = hasBookings && isSecondBooking;
       bookingsCount = phoneRecord.bookings_ids ? phoneRecord.bookings_ids.length : 0;
     }
 
