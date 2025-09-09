@@ -185,6 +185,7 @@ $(document).ready(function () {
       dropoff_location: $('input[name="destination"]:checked').val() || "",
 
       special_instructions: safeTrim("#message") || null,
+      discount_code: safeTrim("#modal-discount-code") || null,
       total_price: parseFloat($("#total_price").val()) || 0, // Get from hidden field
       price_breakdown: {},
     };
