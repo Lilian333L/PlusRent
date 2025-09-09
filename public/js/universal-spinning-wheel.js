@@ -857,20 +857,22 @@
         }
     }
 
-    // Handle outside click
+    // Handle outside click - disabled to prevent accidental closing
     function handleOutsideClick(event) {
-        if (event.target === state.modal) {
-            closeModal();
-            markModalAsSeen();
-        }
+        // Disabled: Modal should only close via X button
+        // if (event.target === state.modal) {
+        //     closeModal();
+        //     markModalAsSeen();
+        // }
     }
 
-    // Handle escape key
+    // Handle escape key - disabled to prevent accidental closing
     function handleKeydown(event) {
-        if (event.key === 'Escape' && state.modal && state.modal.style.display !== 'none') {
-            closeModal();
-            markModalAsSeen();
-        }
+        // Disabled: Modal should only close via X button
+        // if (event.key === 'Escape' && state.modal && state.modal.style.display !== 'none') {
+        //     closeModal();
+        //     markModalAsSeen();
+        // }
     }
 
     // Handle window resize
