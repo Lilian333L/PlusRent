@@ -52,42 +52,18 @@ function initI18n() {
 }
 
 function updateContent() {
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n');
-    var date = el.getAttribute('data-i18n-date');
-    
-    // Handle dynamic price filter values
-    var min = el.getAttribute('data-i18n-min');
-    var max = el.getAttribute('data-i18n-max');
-    
-    if (date) {
-      // Handle custom interpolation for unavailable badges
-      var value = i18next.t(key, { date: date });
-    } else if (min || max) {
-      // Handle dynamic price filter interpolation
-      var interpolation = {};
-      if (min) interpolation.min = min;
-      if (max) interpolation.max = max;
-      var value = i18next.t(key, interpolation);
-    } else {
-      var value = i18next.t(key);
+  document.querySelectorAll('[data-i18n]').forEach(function(element) {
+    const key = element.getAttribute('data-i18n');
+    if (i18next.exists(key)) {
+      element.textContent = i18next.t(key);
     }
-    
-    if (el.childElementCount === 0) {
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-        el.setAttribute('placeholder', value);
-        if (el.type === 'submit' || el.type === 'button') {
-          el.value = value;
-        }
-      } else {
-        el.innerHTML = value;
-      }
-    } else {
-      Array.from(el.childNodes).forEach(function(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          node.textContent = value;
-        }
-      });
+  });
+  
+  // Handle placeholder translations
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(element) {
+    const key = element.getAttribute('data-i18n-placeholder');
+    if (i18next.exists(key)) {
+      element.placeholder = i18next.t(key);
     }
   });
   
@@ -119,13 +95,29 @@ function updateLangPickerUI() {
     var lang = i18next.language || 'ro';
   }
   
-  var flag = '🇷🇴', code = 'RO';
-  if (lang === 'en') { flag = '🇬🇧'; code = 'EN'; }
-  if (lang === 'ru') { flag = '🇷🇺'; code = 'RU'; }
+  // Validate lang is not undefined or empty
+  if (!lang || lang === 'undefined') {
+    lang = 'ro';
+    localStorage.setItem('lang', 'ro');
+  }
+  
+  // Flag images mapping - using images/flags/ path
+  var flagImg = 'images/flags/romania.png', code = 'RO';
+  if (lang === 'en') { flagImg = 'images/flags/united-kingdom.png'; code = 'EN'; }
+  if (lang === 'ru') { flagImg = 'images/flags/russia.png'; code = 'RU'; }
+  
   var flagEl = document.getElementById('langFlag');
   var codeEl = document.getElementById('langCode');
-  if (flagEl) flagEl.textContent = flag;
-  if (codeEl) codeEl.textContent = code;
+  
+  if (flagEl) {
+    // Use flag image instead of emoji
+    flagEl.innerHTML = '<img src="' + flagImg + '" alt="' + code + '" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">';
+  }
+  
+  if (codeEl) {
+    codeEl.textContent = code;
+  }
+  
   // Highlight selected in dropdown
   var opts = document.querySelectorAll('.lang-option');
   opts.forEach(function(opt) {
@@ -312,7 +304,8 @@ function loadFallbackTranslations(lang) {
         filter_passengers: "Pasageri",
         filter_price: "Preț",
         filter_price_from: "De la",
-        filter_price_to: "Până la"
+        filter_price_to: "Până la",
+        discount_code_placeholder: "Introduceți codul de reducere"
       },
       menu: {
         home: "Acasă",
@@ -338,7 +331,8 @@ function loadFallbackTranslations(lang) {
         filter_passengers: "Passengers",
         filter_price: "Price",
         filter_price_from: "From",
-        filter_price_to: "To"
+        filter_price_to: "To",
+        discount_code_placeholder: "Enter discount code"
       },
       menu: {
         home: "Home",
@@ -364,7 +358,8 @@ function loadFallbackTranslations(lang) {
         filter_passengers: "Пассажиры",
         filter_price: "Цена",
         filter_price_from: "От",
-        filter_price_to: "До"
+        filter_price_to: "До",
+        discount_code_placeholder: "Введите код скидки"
       },
       menu: {
         home: "Главная",
