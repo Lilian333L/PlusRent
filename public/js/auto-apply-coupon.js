@@ -240,6 +240,19 @@
         
         // Setup price calculator modal listener
         setupPriceCalculatorListener();
+        
+        // Auto-apply on page load (for single car pages)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    autoApplyCoupon();
+                }, 500);
+            });
+        } else {
+            setTimeout(() => {
+                autoApplyCoupon();
+            }, 500);
+        }
     }
 
     // Listen for spinning wheel submit button clicks
