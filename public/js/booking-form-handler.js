@@ -79,10 +79,10 @@ class BookingFormHandler {
           // Get user-friendly error message
           let errorMessage = response.details || 'Please check your form and try again.';
           
-          // Use translation if available
-          if (window.i18n && window.i18n.t) {
-            const translationKey = `booking.validation.${response.field}_invalid`;
-            const translatedMessage = window.i18n.t(translationKey);
+          if (typeof i18next !== 'undefined' && i18next.t) {
+            // Use the translation key that the backend sends
+            const translationKey = response.details;
+            const translatedMessage = i18next.t(translationKey);
             if (translatedMessage && translatedMessage !== translationKey) {
               errorMessage = translatedMessage;
             }
