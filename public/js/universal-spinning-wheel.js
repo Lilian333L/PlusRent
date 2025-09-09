@@ -1025,6 +1025,63 @@
         }
     }
 
+    // Fetch the correct enabled, non-premium wheel
+    async function fetchCorrectWheel() {
+        try {
+            const API_BASE_URL = window.API_BASE_URL || '';
+            const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/enabled-configs`);
+            
+            if (!response.ok) {
+                console.error('Error fetching enabled wheels:', response.status);
+                return null;
+            }
+            
+            const wheelConfigs = await response.json();
+            console.log('Available wheel configs:', wheelConfigs);
+            
+            // Filter for non-premium wheels
+            const nonPremiumWheels = wheelConfigs.filter(wheel => !wheel.is_premium);
+            console.log('Non-premium wheels:', nonPremiumWheels);
+            
+            if (nonPremiumWheels.length === 0) {
+                console.warn('No non-premium enabled wheels found. Available wheels:', wheelConfigs);
+                // Fallback: if no non-premium wheels, use any enabled wheel
+                if (wheelConfigs.length > 0) {
+                    console.log('Using fallback wheel:', wheelConfigs[0]);
+                    return wheelConfigs[0];
+                }
+                return null;
+            }
+            
+            // If there's only one non-premium wheel, use it
+            if (nonPremiumWheels.length === 1) {
+                console.log('Using the only non-premium wheel:', nonPremiumWheels[0]);
+                return nonPremiumWheels[0];
+            }
+            
+            // If there are multiple non-premium wheels, prefer 'percent' type, then 'free-days'
+            const percentWheels = nonPremiumWheels.filter(wheel => wheel.type === 'percent');
+            if (percentWheels.length > 0) {
+                console.log('Using percent wheel:', percentWheels[0]);
+                return percentWheels[0];
+            }
+            
+            const freeDaysWheels = nonPremiumWheels.filter(wheel => wheel.type === 'free-days');
+            if (freeDaysWheels.length > 0) {
+                console.log('Using free-days wheel:', freeDaysWheels[0]);
+                return freeDaysWheels[0];
+            }
+            
+            // Fallback to first non-premium wheel
+            console.log('Using first non-premium wheel:', nonPremiumWheels[0]);
+            return nonPremiumWheels[0];
+            
+        } catch (error) {
+            console.error('Error fetching correct wheel:', error);
+            return null;
+        }
+    }
+
     // Start timer based on cumulative website time
     function startTimer() {
         if (hasSeenModalToday()) return;
@@ -1036,7 +1093,7 @@
         const totalTime = getTotalWebsiteTime();
         if (totalTime >= CONFIG.delay) {
             // User has been on website long enough, show modal immediately
-            showModal();
+            showModalWithCorrectWheel();
             return;
         }
         
@@ -1045,8 +1102,20 @@
         
         // Set timer for remaining time
         state.timer = setTimeout(() => {
-            showModal();
+            showModalWithCorrectWheel();
         }, remainingTime);
+    }
+
+    // Show modal with the correct wheel
+    async function showModalWithCorrectWheel() {
+        const correctWheel = await fetchCorrectWheel();
+        
+        if (correctWheel) {
+            showModal({ wheelId: correctWheel.id, wheelType: correctWheel.type });
+        } else {
+            // Fallback to default behavior if no correct wheel found
+            showModal();
+        }
     }
 
     // Initialize the modal system

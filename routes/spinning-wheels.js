@@ -150,7 +150,7 @@ router.get('/enabled-configs', async (req, res) => {
     // Get all enabled wheels
     const { data: enabledWheels, error: wheelError } = await supabase
       .from('spinning_wheels')
-      .select('id, name, type, is_active')
+      .select('id, name, is_active, is_premium')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
     
@@ -206,6 +206,7 @@ router.get('/enabled-configs', async (req, res) => {
         id: wheel.id,
         name: wheel.name,
         type: wheelType,
+        is_premium: wheel.is_premium,
         displayName: wheelType === 'percent' ? 'Percentage Discount Wheel' : 
                     wheelType === 'free-days' ? 'Free Days Wheel' : 
                     wheel.name
