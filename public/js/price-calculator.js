@@ -310,8 +310,8 @@ class PriceCalculator {
     html += '<h5 style="margin-bottom: 15px; color: #333;">Price Breakdown</h5>';
 
     // Always show base price calculation
-    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Price per day</span><span>${Math.round(priceData.basePrice / priceData.rentalDays)}€</span></div>`;
-    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Total days</span><span>x ${priceData.rentalDays}</span></div>`;
+    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('cars.price_per_day')}</span><span>${Math.round(priceData.basePrice / priceData.rentalDays)}€</span></div>`;
+    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('cars.total_days')}</span><span>x ${priceData.rentalDays}</span></div>`;
     
     // Add pickup location
     const pickupLocation = this.getSelectedRadioValue('pickup_location') || 'Our Office';
@@ -373,7 +373,7 @@ class PriceCalculator {
     
     // Add total
     html += '<div style="border-top: 1px solid #ddd; margin: 12px 0;"></div>';
-    html += `<div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px;"><span>Total price:</span><span>${Math.round(priceData.totalPrice)} €</span></div>`;
+    html += `<div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px;"><span>${i18next.t('cars.total_price')}:</span><span>${Math.round(priceData.totalPrice)} €</span></div>`;
     
     html += '</div>';
     priceContainer.innerHTML = html;
@@ -688,7 +688,7 @@ class PriceCalculator {
         this.updatePriceDisplay({ 
           totalPrice: 0, 
           breakdown: [],
-          message: 'Loading car data...'
+          message: i18next.t('cars.loading_car_data')
         });
         return;
       }
