@@ -283,6 +283,11 @@
                 box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.1);
             }
             
+            .phone-input-error {
+                border-color: #e74c3c !important;
+                box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+            }
+            
             .phone-submit-btn {
                 padding: 15px 25px;
                 background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
@@ -702,6 +707,83 @@
         window.removeEventListener('message', handleWheelMessage);
     }
 
+    // Validate phone number format
+    function validatePhoneNumber(phoneNumber) {
+        // Remove all non-digit characters except + at the beginning
+        const cleaned = phoneNumber.replace(/[^\d+]/g, '');
+        
+        // Check if it starts with + (international format)
+        if (cleaned.startsWith('+')) {
+            // International format: + followed by 7-15 digits
+            const digits = cleaned.substring(1);
+            return digits.length >= 7 && digits.length <= 15 && /^\d+$/.test(digits);
+        } else {
+            // Local format: 7-15 digits
+            return cleaned.length >= 7 && cleaned.length <= 15 && /^\d+$/.test(cleaned);
+        }
+    }
+
+    // Format phone number for display
+    function formatPhoneNumber(phoneNumber) {
+        // Remove all non-digit characters except + at the beginning
+        const cleaned = phoneNumber.replace(/[^\d+]/g, '');
+        
+        if (cleaned.startsWith('+')) {
+            return cleaned; // Keep international format as is
+        } else {
+            // Format local numbers (basic formatting)
+            const digits = cleaned;
+            if (digits.length >= 10) {
+                // Format as XXX-XXX-XXXX or similar
+                return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+            }
+            return digits;
+        }
+    }
+
+    // Handle phone input validation
+    function handlePhoneInput(event) {
+        const input = event.target;
+        let value = input.value;
+        
+        // Allow only numbers, +, -, (, ), and spaces
+        value = value.replace(/[^\d+\-\(\)\s]/g, '');
+        
+        // Limit length to prevent extremely long inputs
+        if (value.length > 20) {
+            value = value.substring(0, 20);
+        }
+        
+        input.value = value;
+        
+        // Remove error styling if present
+        input.classList.remove('phone-input-error');
+        
+        // Remove any existing error message
+        const existingError = input.parentNode.querySelector('.phone-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    // Show phone input error
+    function showPhoneError(input, message) {
+        input.classList.add('phone-input-error');
+        
+        // Remove any existing error message
+        const existingError = input.parentNode.querySelector('.phone-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'phone-error-message';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = 'color: #e74c3c; font-size: 0.9rem; margin-top: 5px; text-align: center;';
+        input.parentNode.appendChild(errorDiv);
+    }
+
     // Handle phone form submission
     function handlePhoneSubmit(event) {
         event.preventDefault();
@@ -709,13 +791,29 @@
         const phoneInput = document.getElementById('universalPhoneInput');
         const phoneNumber = phoneInput.value.trim();
         
+        // Remove any existing error styling
+        phoneInput.classList.remove('phone-input-error');
+        const existingError = phoneInput.parentNode.querySelector('.phone-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Validate phone number
         if (!phoneNumber) {
-            alert('Please enter a valid phone number');
+            showPhoneError(phoneInput, 'Please enter a phone number');
             return;
         }
+        
+        if (!validatePhoneNumber(phoneNumber)) {
+            showPhoneError(phoneInput, 'Please enter a valid phone number (7-15 digits)');
+            return;
+        }
+        
+        // Format the phone number
+        const formattedPhone = formatPhoneNumber(phoneNumber);
 
         // Store phone number in localStorage
-        localStorage.setItem('spinningWheelPhone', phoneNumber);
+        localStorage.setItem('spinningWheelPhone', formattedPhone);
         localStorage.setItem('spinningWheelPhoneEntered', 'true');
 
         // Track phone number in database
@@ -725,9 +823,9 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ phoneNumber })
+            body: JSON.stringify({ phoneNumber: formattedPhone })
         }).catch(error => {
-            
+            console.error('Error tracking phone number:', error);
         });
 
         // Switch to wheel step
@@ -746,7 +844,7 @@
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
                 type: 'phoneNumberEntered',
-                phoneNumber: phoneNumber
+                phoneNumber: formattedPhone
             }, '*');
         }
     }
@@ -873,6 +971,12 @@
         const phoneForm = document.getElementById('universalPhoneForm');
         if (phoneForm) {
             phoneForm.addEventListener('submit', handlePhoneSubmit);
+        }
+        
+        // Add input validation for phone number
+        const phoneInput = document.getElementById('universalPhoneInput');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', handlePhoneInput);
         }
         
         // Global event listeners
