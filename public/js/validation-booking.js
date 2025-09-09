@@ -22,7 +22,6 @@ $(document).ready(function () {
 
     // Required fields validation (removed date/time fields since they're now in modal)
     const requiredFields = {
-      name: "Name",
       phone: "Phone",
       vehicle_type: "Vehicle",
     };
@@ -35,9 +34,9 @@ $(document).ready(function () {
       if (!value || value.trim() === "") {
         field.addClass("error_input");
         field.after(
-          `<div class="field-error text-danger small mt-1">${requiredFields[fieldId]} is required</div>`
+          `<div class="field-error text-danger small mt-1">${requiredFields[fieldId]} ${i18next.t('errors.is_required')}</div>`
         );
-        errors.push(`${requiredFields[fieldId]} is required`);
+        errors.push(`${requiredFields[fieldId]} ${i18next.t('errors.is_required')}`);
         isValid = false;
       }
     });
@@ -48,9 +47,9 @@ $(document).ready(function () {
     if (email && !emailRegex.test(email)) {
       $("#email").addClass("error_input");
       $("#email").after(
-        '<div class="field-error text-danger small mt-1">Please enter a valid email address</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
       );
-      errors.push("Please enter a valid email address");
+      errors.push(i18next.t('errors.please_enter_valid_email'));
       isValid = false;
     }
 
@@ -60,9 +59,9 @@ $(document).ready(function () {
     if (phone && !phoneRegex.test(phone)) {
       $("#phone").addClass("error_input");
       $("#phone").after(
-        '<div class="field-error text-danger small mt-1">Please enter a valid phone number</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
       );
-      errors.push("Please enter a valid phone number");
+      errors.push(i18next.t('errors.please_enter_valid_phone'));
       isValid = false;
     }
 
@@ -79,12 +78,12 @@ $(document).ready(function () {
       today.setHours(0, 0, 0, 0);
 
       if (pickupDate < today) {
-        errors.push("Pickup date must be today or in the future");
+        errors.push(i18next.t('errors.pickup_date_future'));
         isValid = false;
       }
 
       if (returnDate <= pickupDate) {
-        errors.push("Return date must be after pickup date");
+        errors.push(i18next.t('errors.return_date_after_pickup'));
         isValid = false;
       }
     }
@@ -95,7 +94,7 @@ $(document).ready(function () {
       const returnDateTime = new Date(returnDateStr + "T" + returnTime);
 
       if (pickupDateStr === returnDateStr && returnDateTime <= pickupDateTime) {
-        errors.push("Return time must be after pickup time on the same day");
+        errors.push(i18next.t('errors.return_time_after_pickup'));
         isValid = false;
       }
     }
@@ -109,9 +108,9 @@ $(document).ready(function () {
       if (duration < 1) {
         $("#date-picker-2").addClass("error_input");
         $("#date-picker-2").after(
-          '<div class="field-error text-danger small mt-1">Minimum rental duration is 1 day</div>'
+          `<div class="field-error text-danger small mt-1">${i18next.t('errors.minimum_rental_duration')}</div>`
         );
-        errors.push("Minimum rental duration is 1 day");
+        errors.push(i18next.t('errors.minimum_rental_duration'));
         isValid = false;
       }
     }
@@ -121,9 +120,9 @@ $(document).ready(function () {
     if (vehicleSelect.val() === "" || vehicleSelect.val() === null) {
       vehicleSelect.addClass("error_input");
       vehicleSelect.after(
-        '<div class="field-error text-danger small mt-1">Please select a vehicle</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_vehicle')}</div>`
       );
-      errors.push("Please select a vehicle");
+      errors.push(i18next.t('errors.please_select_vehicle'));
       isValid = false;
     }
 
@@ -136,9 +135,9 @@ $(document).ready(function () {
         "error_input"
       );
       $('.radio-group:has(input[name="pickup_location"])').after(
-        '<div class="field-error text-danger small mt-1">Please select a pickup location</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_pickup_location')}</div>`
       );
-      errors.push("Please select a pickup location");
+      errors.push(i18next.t('errors.please_select_pickup_location'));
       isValid = false;
     }
 
@@ -151,9 +150,9 @@ $(document).ready(function () {
     if (!dropoffLocation) {
       $('.radio-group:has(input[name="destination"])').addClass("error_input");
       $('.radio-group:has(input[name="destination"])').after(
-        '<div class="field-error text-danger small mt-1">Please select a dropoff location</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_dropoff_location')}</div>`
       );
-      errors.push("Please select a dropoff location");
+      errors.push(i18next.t('errors.please_select_dropoff_location'));
       isValid = false;
     }
 
@@ -216,8 +215,9 @@ $(document).ready(function () {
     const successMessage = $("#booking-success-notification");
 
     if (errorMessage.length === 0) {
-      alert("Error: " + message); // Fallback to alert
-      return;
+      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
+      $('body').prepend(tempError);
+      window.showError(i18next.t('errors.error_prefix') + message);      return;
     }
 
     if (errorMessageText.length === 0) {
@@ -288,7 +288,7 @@ $(document).ready(function () {
 
     if (!validation.isValid) {
       showError(
-        "Please fix the following issues:<br>" + validation.errors.join("<br>")
+        `${i18next.t('errors.please_fix_issues')}<br>${validation.errors.join("<br>")}`
       );
       return;
     }
@@ -387,7 +387,7 @@ $(document).ready(function () {
       $(this).addClass("error_input");
       if (!$(this).siblings(".field-error").length) {
         $(this).after(
-          '<div class="field-error text-danger small mt-1">Please enter a valid email address</div>'
+          `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
         );
       }
     }
@@ -400,7 +400,7 @@ $(document).ready(function () {
       $(this).addClass("error_input");
       if (!$(this).siblings(".field-error").length) {
         $(this).after(
-          '<div class="field-error text-danger small mt-1">Please enter a valid phone number</div>'
+          `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
         );
       }
     }
@@ -450,7 +450,7 @@ $(document).ready(function () {
     if (email && !emailRegex.test(email)) {
       $(this).addClass("error_input");
       $(this).after(
-        '<div class="field-error text-danger small mt-1">Please enter a valid email address</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
       );
     } else {
       $(this).removeClass("error_input");
@@ -465,7 +465,7 @@ $(document).ready(function () {
     if (phone && !phoneRegex.test(phone)) {
       $(this).addClass("error_input");
       $(this).after(
-        '<div class="field-error text-danger small mt-1">Please enter a valid phone number</div>'
+        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
       );
     } else {
       $(this).removeClass("error_input");
@@ -507,11 +507,27 @@ function openPriceCalculator() {
 
   const selectedVehicle = $("#vehicle_type option:selected");
 
+  console.log("=== DEBUG Vehicle Selection ===");
+  console.log("selectedVehicle:", selectedVehicle);
+  console.log("selectedVehicle.val():", selectedVehicle.val());
+  console.log("selectedVehicle.attr('data-car-details'):", selectedVehicle.attr("data-car-details"));
+  console.log("All vehicle options:", $("#vehicle_type option").length);
+
+  // Add this debugging code to see if vehicles are loaded
+  console.log("Vehicle dropdown options:", $("#vehicle_type option").map(function() {
+    return {
+      value: $(this).val(),
+      text: $(this).text(),
+      hasData: !!$(this).attr("data-car-details")
+    };
+  }).get());
+
   if (!selectedVehicle.val()) {
+    console.log("No vehicle selected!");
     if (window.showError && typeof window.showError === "function") {
-      window.showError("Please select a vehicle first.");
+      window.showError(i18next.t('errors.please_select_vehicle_first'));
     } else {
-      alert("Please select a vehicle first.");
+      alert(i18next.t('errors.please_select_vehicle_first'));
     }
     return;
   }
@@ -520,7 +536,7 @@ function openPriceCalculator() {
   $("#modal-pickup-date").val(pickupDate);
   $("#modal-return-date").val(returnDate);
   $("#modal-pickup-time").val("08:00"); // Default to 8 AM
-  $("#modal-return-time").val("18:00"); // Default to 6 PM
+  $("#modal-return-time").val("17:00"); // Default to 6 PM
 
   // Set minimum dates for modal date fields
   const todayStr = today.toISOString().split("T")[0];
@@ -531,9 +547,39 @@ function openPriceCalculator() {
   const pickupLocation = $('input[name="pickup_location"]:checked').val();
   const dropoffLocation = $('input[name="destination"]:checked').val();
 
-  $("#modal-pickup-location").text(pickupLocation || "Not selected");
-  $("#modal-dropoff-location").text(dropoffLocation || "Not selected");
+// Update pickup location with translation
+const pickupEl = $("#modal-pickup-location");
+const dropoffEl = $("#modal-dropoff-location");
 
+// Map location values to translation keys
+const locationMap = {
+  'Chisinau Airport': 'cars.chisinau_airport',
+  'Our Office': 'cars.our_office',
+  'Iasi Airport': 'cars.iasi_airport'
+};
+
+// Update pickup location
+if (pickupLocation) {
+  pickupEl.attr('data-i18n', locationMap[pickupLocation] || 'cars.chisinau_airport');
+  pickupEl.text(pickupLocation);
+} else {
+  pickupEl.attr('data-i18n', '');
+  pickupEl.text("Not selected");
+}
+
+// Update dropoff location
+if (dropoffLocation) {
+  dropoffEl.attr('data-i18n', locationMap[dropoffLocation] || 'cars.our_office');
+  dropoffEl.text(dropoffLocation);
+} else {
+  dropoffEl.attr('data-i18n', '');
+  dropoffEl.text("Not selected");
+}
+
+// Trigger i18n update
+if (typeof updateContent === 'function') {
+  updateContent();
+}
   // Populate vehicle info
   if (selectedVehicle.attr("data-car-details")) {
     const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
@@ -554,10 +600,16 @@ function openPriceCalculator() {
     $("#modal-vehicle-name").text(
       carDetails.make_name + " " + carDetails.model_name
     );
+    // Update vehicle details with translations
+    const passengersText = i18next.t('price_calculator.vehicle_details.passengers');
+    const doorsText = i18next.t('price_calculator.vehicle_details.doors');
+    const carTypeKey = `price_calculator.vehicle_details.car_types.${carDetails.car_type}`;
+    const carTypeText = i18next.exists(carTypeKey) ? i18next.t(carTypeKey) : carDetails.car_type;
+
     $("#modal-vehicle-details").text(
-      `${carDetails.num_passengers || "-"} passengers • ${
+      `${carDetails.num_passengers || "-"} ${passengersText} • ${
         carDetails.num_doors || "-"
-      } doors • ${carDetails.car_type || "-"}`
+      } ${doorsText} • ${carTypeText}`
     );
 
     // Show dynamic price based on current rental duration
@@ -593,7 +645,9 @@ function openPriceCalculator() {
         : "0";
     }
 
-    $("#modal-vehicle-price").text("€" + displayPrice + " /day");
+    const currencySymbol = i18next.t('price_calculator.vehicle_details.currency_symbol');
+    const perDayText = i18next.t('price_calculator.vehicle_details.per_day');
+    $("#modal-vehicle-price").text(currencySymbol + displayPrice + " " + perDayText);
   }
 
   // Calculate and display prices in modal
@@ -615,9 +669,9 @@ function openPriceCalculator() {
 
         if (return_dt <= pickup) {
           if (window.showError && typeof window.showError === "function") {
-            window.showError("Return date must be after pickup date");
+            window.showError(i18next.t('errors.return_date_after_pickup'));
           } else {
-            alert("Return date must be after pickup date");
+            alert(i18next.t('errors.return_date_after_pickup'));
           }
           return;
         }
@@ -678,7 +732,14 @@ async function calculateModalPrice() {
   const returnDateStr = $("#modal-return-date").val();
   const selectedVehicle = $("#vehicle_type option:selected");
 
+  console.log("=== DEBUG calculateModalPrice ===");
+  console.log("pickupDateStr:", pickupDateStr);
+  console.log("returnDateStr:", returnDateStr);
+  console.log("selectedVehicle:", selectedVehicle.val());
+  console.log("selectedVehicle data:", selectedVehicle.attr("data-car-details"));
+
   if (!selectedVehicle.val() || !pickupDateStr || !returnDateStr) {
+    console.log("Missing required data - returning early");
     return;
   }
 
@@ -687,6 +748,8 @@ async function calculateModalPrice() {
   const returnDate = new Date(returnDateStr + "T00:00:00");
 
   const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
+  console.log("carDetails:", carDetails);
+  console.log("price_policy:", carDetails.price_policy);
 
   // Calculate duration - fix the calculation
   const timeDiff = returnDate.getTime() - pickupDate.getTime();
@@ -759,21 +822,25 @@ async function calculateModalPrice() {
   const totalLocationFee = pickupLocationFee + dropoffLocationFee;
 
   // Calculate outside working hours fees using dynamic fee settings
-  const pickupTime = $("#modal-pickup-time").val();
-  const returnTime = $("#modal-return-time").val();
+  let pickupTime = $("#modal-pickup-time").val() || "08:00";
+  let returnTime = $("#modal-return-time").val() || "18:00";
+
+  // Ensure the time inputs have values
+  $("#modal-pickup-time").val(pickupTime);
+  $("#modal-return-time").val(returnTime);
 
   let outsideHoursFees = 0;
 
   // Check if pickup is outside working hours (8:00-18:00)
   const pickupHour = parseInt(pickupTime.split(":")[0]);
   if (pickupHour < 8 || pickupHour >= 18) {
-    outsideHoursFees += outsideHoursFee; // Dynamic fee for pickup outside working hours
+    outsideHoursFees += outsideHoursFee;
   }
 
   // Check if return is outside working hours (8:00-18:00)
   const returnHour = parseInt(returnTime.split(":")[0]);
   if (returnHour < 8 || returnHour >= 18) {
-    outsideHoursFees += outsideHoursFee; // Dynamic fee for return outside working hours
+    outsideHoursFees += outsideHoursFee;
   }
 
   // Calculate total (removed insurance as requested)
@@ -781,12 +848,17 @@ async function calculateModalPrice() {
 
   // Update modal display
   $("#modal-daily-rate").text("€" + dailyRate);
-  $("#modal-rental-duration").text(
-    daysDiff + " day" + (daysDiff !== 1 ? "s" : "")
+  $("#modal-rental-duration").html(
+    daysDiff + ' <span data-i18n="price_calculator.days">days</span>'
   );
   $("#modal-location-fees").text("€" + totalLocationFee.toFixed(2));
   $("#modal-night-premium").text("€" + outsideHoursFees.toFixed(2));
   $("#modal-total-estimate").text("€" + totalCost.toFixed(2));
+
+  // Trigger i18n update for the duration
+  if (typeof updateContent === 'function') {
+    updateContent();
+  }
 }
 
 // Update vehicle price display in modal based on current rental duration
@@ -832,7 +904,9 @@ function updateVehiclePriceDisplay() {
       : "0";
   }
 
-  $("#modal-vehicle-price").text("€" + displayPrice + " /day");
+  const currencySymbol = i18next.t('price_calculator.vehicle_details.currency_symbol');
+  const perDayText = i18next.t('price_calculator.vehicle_details.per_day');
+  $("#modal-vehicle-price").text(currencySymbol + displayPrice + " " + perDayText);
 }
 
 async function applyModalCalculation() {
@@ -898,9 +972,12 @@ async function applyModalCalculation() {
     await submitBooking();
   } catch (error) {
     if (window.showError && typeof window.showError === "function") {
-      window.showError("Error processing booking. Please try again.");
+      window.showError(i18next.t('errors.error_processing_booking'));
     } else {
-      alert("Error processing booking. Please try again.");
+      // Create temporary error element and use showError
+      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
+      $('body').prepend(tempError);
+      window.showError(i18next.t('errors.error_processing_booking'));
     }
   }
 }
@@ -913,15 +990,15 @@ async function submitBooking() {
     // Validate booking data
     if (
       !bookingData.car_id ||
-      !bookingData.customer_name ||
       !bookingData.customer_phone
     ) {
       if (window.showError && typeof window.showError === "function") {
-        window.showError(
-          "Missing required booking information. Please check your form."
-        );
+        window.showError(i18next.t('errors.missing_booking_info'));
       } else {
-        alert("Missing required booking information. Please check your form.");
+        // Create temporary error element and use showError
+        const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
+        $('body').prepend(tempError);
+        window.showError(i18next.t('errors.missing_booking_info'));
       }
       return;
     }
@@ -964,7 +1041,7 @@ async function submitBooking() {
           const errorMessage =
             result.message ||
             result.error ||
-            "Invalid coupon code. Please enter a valid coupon or remove it.";
+            i18next.t('errors.invalid_coupon_code');
           if (window.showError && typeof window.showError === "function") {
             window.showError(errorMessage);
           } else {
@@ -974,9 +1051,12 @@ async function submitBooking() {
         }
       } catch (error) {
         if (window.showError && typeof window.showError === "function") {
-          window.showError("Error validating coupon code. Please try again.");
+          window.showError(i18next.t('errors.error_validating_coupon'));
         } else {
-          alert("Error validating coupon code. Please try again.");
+          // Create temporary error element and use showError
+          const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
+          $('body').prepend(tempError);
+          window.showError(i18next.t('errors.error_validating_coupon'));
         }
         return;
       }
@@ -1063,9 +1143,12 @@ async function submitBooking() {
   } catch (error) {
     hideLoading();
     if (window.showError && typeof window.showError === "function") {
-      window.showError("Error submitting booking. Please try again.");
+      window.showError(i18next.t('errors.error_submitting_booking'));
     } else {
-      alert("Error submitting booking. Please try again.");
+      // Create temporary error element and use showError
+      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
+      $('body').prepend(tempError);
+      window.showError(i18next.t('errors.error_submitting_booking'));
     }
   }
 }
