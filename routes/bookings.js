@@ -202,22 +202,7 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
       console.error('Error sending Telegram notification:', error);
     }
 
-    // Track phone number for this booking (only track when booking is created, not when confirmed)
-    try {
-      const phoneNumber = customer_phone;
-      if (phoneNumber) {
-        const trackingResult = await trackPhoneNumberForBooking(phoneNumber, newBooking.id.toString());
-        if (trackingResult.success) {
-        } else {
-          console.error('❌ Failed to track phone number:', trackingResult.error);
-        }
-      } else {
-        
-      }
-    } catch (trackingError) {
-      console.error('❌ Error tracking phone number:', trackingError);
-      // Don't fail the booking creation if phone tracking fails
-    }
+    // Phone number tracking is now handled when booking is approved/confirmed by admin
 
 
     res.json({ 
@@ -311,6 +296,18 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
   }
 
   try {
+    // Get booking details first to check if we need to track phone number
+    const { data: existingBooking, error: fetchError } = await supabase
+      .from('bookings')
+      .select('customer_phone')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('❌ Error fetching booking details:', fetchError);
+      return res.status(500).json({ error: 'Failed to fetch booking details' });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('bookings')
       .update({ 
@@ -330,6 +327,20 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
       return res.status(404).json({ error: 'Booking not found' });
     }
 
+    // Track phone number if booking is being confirmed
+    if (status === 'confirmed' && existingBooking && existingBooking.customer_phone) {
+      try {
+        const trackingResult = await trackPhoneNumberForBooking(existingBooking.customer_phone, id.toString());
+        if (trackingResult.success) {
+          console.log('✅ Phone number tracked for confirmed booking:', id);
+        } else {
+          console.error('❌ Failed to track phone number:', trackingResult.error);
+        }
+      } catch (trackingError) {
+        console.error('❌ Error tracking phone number:', trackingError);
+        // Don't fail the status update if phone tracking fails
+      }
+    }
 
     res.json({ success: true, booking: data });
 
