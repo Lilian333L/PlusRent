@@ -112,6 +112,20 @@ class BookingFormHandler {
   collectFormData(formElement) {
     const formData = new FormData(formElement);
     
+    // DEBUG: Log all form data
+    console.log('=== FORM DATA DEBUG ===');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    // DEBUG: Check date inputs directly
+    const pickupDateInput = formElement.querySelector('#date-picker');
+    const returnDateInput = formElement.querySelector('#date-picker-2');
+    console.log('Pickup date input:', pickupDateInput);
+    console.log('Pickup date value:', pickupDateInput ? pickupDateInput.value : 'NOT FOUND');
+    console.log('Return date input:', returnDateInput);
+    console.log('Return date value:', returnDateInput ? returnDateInput.value : 'NOT FOUND');
+    
     // Helper function to get radio button value
     const getRadioValue = (name) => {
       const radio = formElement.querySelector(`input[name="${name}"]:checked`);
@@ -129,14 +143,13 @@ class BookingFormHandler {
       }
     }
     
-    return {
+    const result = {
       car_id: carId,
       pickup_date: formData.get('Pick Up Date'),
       pickup_time: formData.get('Pick Up Time'),
       return_date: formData.get('Collection Date'),
       return_time: formData.get('Collection Time'),
       discount_code: formData.get('discount_code'),
-  
       pickup_location: getRadioValue('pickup_location'),
       dropoff_location: getRadioValue('dropoff_location'),
       special_instructions: formData.get('special_instructions'),
@@ -147,8 +160,13 @@ class BookingFormHandler {
       customer_phone: formData.get('customer_phone'),
       customer_age: formData.get('customer_age')
     };
+    
+    // DEBUG: Log the final result
+    console.log('Final form data result:', result);
+    console.log('=== END FORM DATA DEBUG ===');
+    
+    return result;
   }
-
   // Validate booking data
   async validateBookingData(bookingData) {
     // Check required fields

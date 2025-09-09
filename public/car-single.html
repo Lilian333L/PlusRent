@@ -474,6 +474,12 @@
       }
     }
   </style>
+
+  <!-- Flatpickr CSS -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> -->
+
+  <!-- Flatpickr JS -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> -->
 </head>
 
 <body>
@@ -723,9 +729,8 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.pickup_date"></label>
-                            <input type="text" id="date-picker" class="flatpickr"  style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
-                            class="mobile-date-input" data-i18n-placeholder="booking.date_placeholder">
-                        </div>
+                            <input type="date" id="date-picker" name="Pick Up Date" data-i18n-placeholder="booking.date_placeholder" class="form-control form-control-sm mobile-date-input">
+                          </div>
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.pickup_time"></label>
@@ -763,8 +768,8 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.return_date"></label>
-                            <input type="text" id="date-picker-2" class="flatpickr"  style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;"
-                            class="mobile-date-input" data-i18n-placeholder="booking.date_placeholder">
+                            <input type="date" id="date-picker-2" name="Collection Date" data-i18n-placeholder="booking.date_placeholder" class="form-control form-control-sm mobile-date-input">
+
                         </div>
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
@@ -1442,11 +1447,10 @@
           }
           
           // Re-update price breakdown with new language
-          if (window.priceCalculator && typeof window.priceCalculator.updatePriceDisplay === 'function') {
-            const currentPriceData = window.priceCalculator.getCurrentPriceData();
-            if (currentPriceData) {
-              window.priceCalculator.updatePriceDisplay(currentPriceData);
-            }
+          if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
+            window.priceCalculator.debouncedRecalculate();
+          } else if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            window.priceCalculator.recalculatePrice();
           }
         });
       }
@@ -2428,6 +2432,33 @@
       }
     });
   </script>
+
+  <!-- Initialize Flatpickr date pickers -->
+  <!--
+  <script>
+  // Initialize pickup date picker
+  flatpickr("#date-picker", {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      onChange: function(selectedDates, dateStr, instance) {
+          // Update return date minimum when pickup date changes
+          const returnDateInput = document.getElementById('date-picker-2');
+          if (returnDateInput && selectedDates.length > 0) {
+              const returnPicker = returnDateInput._flatpickr;
+              if (returnPicker) {
+                  returnPicker.set('minDate', dateStr);
+              }
+          }
+      }
+  });
+
+  // Initialize return date picker
+  flatpickr("#date-picker-2", {
+      dateFormat: "Y-m-d",
+      minDate: "today"
+  });
+  </script>
+  -->
 
 </body>
 
