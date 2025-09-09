@@ -1154,6 +1154,12 @@ async function submitBooking() {
 }
 
 window.showSuccess = function (bookingData) {
+  // Trigger booking success event for coupon removal
+  const bookingSuccessEvent = new CustomEvent('bookingSuccess', {
+    detail: { bookingData: bookingData }
+  });
+  document.dispatchEvent(bookingSuccessEvent);
+
   // Create a clean, modern success modal
   const successModalHTML = `
         <div id="booking-success-modal" class="booking-success-modal">
