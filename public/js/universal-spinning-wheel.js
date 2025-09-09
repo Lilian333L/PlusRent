@@ -852,9 +852,119 @@
     // Handle iframe messages
     function handleWheelMessage(event) {
         if (event.data && event.data.type === 'closeModal') {
+            // Check if there's a winning coupon to auto-apply before closing
+            autoApplyWinningCoupon();
+            closeModal();
+            markModalAsSeen();
+        } else if (event.data && event.data.type === 'autoApplyCoupon') {
+            // Handle auto-apply coupon message from spinning wheel
+            handleAutoApplyCoupon(event.data.couponCode);
+        } else if (event.data && event.data.type === 'closeSpinningWheel') {
+            // Handle close message from spinning wheel
             closeModal();
             markModalAsSeen();
         }
+    }
+
+    // Auto-apply winning coupon from localStorage
+    function autoApplyWinningCoupon() {
+        try {
+            const savedCouponCode = localStorage.getItem('spinningWheelWinningCoupon');
+            if (savedCouponCode) {
+                handleAutoApplyCoupon(savedCouponCode);
+            }
+        } catch (error) {
+            console.error('Error auto-applying winning coupon:', error);
+        }
+    }
+
+    // Handle auto-apply coupon functionality
+    function handleAutoApplyCoupon(couponCode) {
+        try {
+            console.log('Auto-applying coupon code:', couponCode);
+            
+            // Save coupon code to localStorage for use on booking pages
+            localStorage.setItem('autoApplyCoupon', couponCode);
+            
+            // Show success notification
+            showCouponAppliedNotification(couponCode);
+            
+        } catch (error) {
+            console.error('Error handling auto-apply coupon:', error);
+        }
+    }
+
+    // Show notification that coupon was applied
+    function showCouponAppliedNotification(couponCode) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.id = 'coupon-applied-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            max-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Get translations
+        const getTranslation = (key) => {
+            if (typeof i18next !== 'undefined' && i18next.t) {
+                const translation = i18next.t(key);
+                return translation && translation !== key ? translation : getDefaultTranslation(key);
+            }
+            return getDefaultTranslation(key);
+        };
+        
+        const getDefaultTranslation = (key) => {
+            const defaults = {
+                'wheel.coupon_applied.title': '🎉 Coupon Applied!',
+                'wheel.coupon_applied.code_label': 'Code:',
+                'wheel.coupon_applied.ready_message': 'Ready to use on your next booking!'
+            };
+            return defaults[key] || key;
+        };
+        
+        // Set notification content with translations
+        notification.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 5px;">${getTranslation('wheel.coupon_applied.title')}</div>
+            <div>${getTranslation('wheel.coupon_applied.code_label')} ${couponCode}</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                ${getTranslation('wheel.coupon_applied.ready_message')}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, 5000);
     }
 
     // Handle outside click - disabled to prevent accidental closing
@@ -965,6 +1075,8 @@
         const closeBtn = state.modal.querySelector('.spinning-wheel-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
+                // Auto-apply winning coupon before closing
+                autoApplyWinningCoupon();
                 closeModal();
                 markModalAsSeen();
             });

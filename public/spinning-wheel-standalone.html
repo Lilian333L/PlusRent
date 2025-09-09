@@ -1069,6 +1069,10 @@
                 if (result.success) {
                     
                     discountCode.textContent = result.code;
+                    
+                    // Save the actual generated coupon code to localStorage for auto-apply functionality
+                    localStorage.setItem('spinningWheelWinningCoupon', result.code);
+                    console.log('Actual generated coupon code saved to localStorage:', result.code);
                 } else {
                     
                     discountCode.textContent = 'ERROR';
@@ -1157,6 +1161,9 @@
 
                 // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
+                
+                // Note: We'll save the actual generated code after redeemCouponSecurely completes
+                // The actual code will be saved when the API returns the generated coupon code
 
                 // Update result card with the exact segment data that was visually selected
                 // Use the segment's text and coupon data to ensure consistency
@@ -1211,6 +1218,19 @@
         const bookNowButton = document.getElementById('bookNowButton');
         if (bookNowButton) {
             bookNowButton.addEventListener('click', function() {
+                // Auto-apply the winning coupon before closing
+                // Get the actual displayed coupon code from the discountCode element
+                const actualCouponCode = document.getElementById('discountCode').textContent;
+                if (actualCouponCode && actualCouponCode !== 'ERROR') {
+                    // Send actual coupon code to parent window for auto-apply
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'autoApplyCoupon',
+                            couponCode: actualCouponCode
+                        }, '*');
+                    }
+                }
+                
                 // Close the popup/modal
                 // Check if we're in an iframe (embedded) or standalone
                 if (window.parent && window.parent !== window) {
