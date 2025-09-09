@@ -21,6 +21,9 @@ class CarsFilterModal {
     this.createModal();
     this.bindEvents();
     
+    // Listen for language changes
+    this.setupLanguageChangeListener();
+    
     // Auto-open modal on page load (every time)
     this.openModal();
     this.hasShownOnLoad = true;
@@ -47,55 +50,150 @@ class CarsFilterModal {
             max: feeSettings.premium_price_max
           }
         };
-
       }
     } catch (error) {
-      
+      console.error('Error loading price filter settings:', error);
       // Keep default values if API fails
     }
   }
 
   updateModalDescriptions() {
-
     if (!this.modal) {
-      
       return;
     }
     
-    // Instead of directly setting text content, update the data-i18n attributes
-    // with the dynamic values, then let the i18n system handle the translation
+    // Get current language
+    const currentLang = localStorage.getItem('lang') || 'ro';
     
     // Update economy description
     const economDesc = this.modal.querySelector('.filter-card.econom .filter-card-description');
-    
     if (economDesc) {
-      // Update the data-i18n attribute with dynamic values
-      economDesc.setAttribute('data-i18n', `cars.filter_econom_desc`);
-      economDesc.setAttribute('data-i18n-max', this.priceFilterSettings.economy.max);
-      
+      const maxPrice = this.priceFilterSettings.economy.max;
+      let text = '';
+      if (currentLang === 'ro') {
+        text = `Mașini până la ${maxPrice} EUR`;
+      } else if (currentLang === 'ru') {
+        text = `Автомобили до ${maxPrice} EUR`;
+      } else {
+        text = `Cars up to ${maxPrice} EUR`;
+      }
+      economDesc.textContent = text;
     }
     
     // Update standard description
     const standardDesc = this.modal.querySelector('.filter-card.standard .filter-card-description');
-    
     if (standardDesc) {
-      // Update the data-i18n attribute with dynamic values
-      standardDesc.setAttribute('data-i18n', `cars.filter_standard_desc`);
-      standardDesc.setAttribute('data-i18n-min', this.priceFilterSettings.standard.min);
-      standardDesc.setAttribute('data-i18n-max', this.priceFilterSettings.standard.max);
-      
+      const minPrice = this.priceFilterSettings.standard.min;
+      const maxPrice = this.priceFilterSettings.standard.max;
+      let text = '';
+      if (currentLang === 'ro') {
+        text = `Mașini între ${minPrice}-${maxPrice} EUR`;
+      } else if (currentLang === 'ru') {
+        text = `Автомобили от ${minPrice} до ${maxPrice} EUR`;
+      } else {
+        text = `Cars between ${minPrice}-${maxPrice} EUR`;
+      }
+      standardDesc.textContent = text;
     }
     
     // Update premium description
     const premiumDesc = this.modal.querySelector('.filter-card.premium .filter-card-description');
-    
     if (premiumDesc) {
-      // Update the data-i18n attribute with dynamic values
-      premiumDesc.setAttribute('data-i18n', `cars.filter_premium_desc`);
-      premiumDesc.setAttribute('data-i18n-min', this.priceFilterSettings.premium.min);
-      
+      const minPrice = this.priceFilterSettings.premium.min;
+      let text = '';
+      if (currentLang === 'ro') {
+        text = `Mașini ${minPrice} EUR și peste`;
+      } else if (currentLang === 'ru') {
+        text = `Автомобили от ${minPrice} EUR и выше`;
+      } else {
+        text = `Cars ${minPrice} EUR and above`;
+      }
+      premiumDesc.textContent = text;
     }
+  }
 
+  setupLanguageChangeListener() {
+    // Listen for custom language change events
+    document.addEventListener('languageChanged', () => {
+      // Update descriptions after language change
+      setTimeout(() => {
+        this.updateModalDescriptions();
+      }, 200);
+    });
+    
+    // Also listen for i18next language changes
+    if (typeof i18next !== 'undefined') {
+      i18next.on('languageChanged', () => {
+        setTimeout(() => {
+          this.updateModalDescriptions();
+        }, 200);
+      });
+    }
+    
+    // Set up a MutationObserver to watch for content changes
+    this.setupContentWatcher();
+    
+    // Set up periodic checks to ensure prices stay updated
+    this.setupPeriodicUpdates();
+  }
+  
+  setupPeriodicUpdates() {
+    // Check every 2 seconds if prices need to be updated
+    this.priceUpdateInterval = setInterval(() => {
+      if (this.modal && this.isOpen) {
+        // Check if any descriptions still contain placeholders
+        const descriptions = this.modal.querySelectorAll('.filter-card-description');
+        let needsUpdate = false;
+        
+        descriptions.forEach(desc => {
+          if (desc.textContent.includes('{{') || desc.textContent.includes('}}')) {
+            needsUpdate = true;
+          }
+        });
+        
+        if (needsUpdate) {
+          this.updateModalDescriptions();
+        }
+      }
+    }, 2000);
+  }
+  
+  setupContentWatcher() {
+    if (!this.modal) return;
+    
+    // Watch for changes to the description elements
+    const observer = new MutationObserver((mutations) => {
+      let shouldUpdate = false;
+      
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+          // Check if any of our target elements were modified
+          const target = mutation.target;
+          if (target.classList && target.classList.contains('filter-card-description')) {
+            // Check if the content contains placeholders
+            if (target.textContent.includes('{{') || target.textContent.includes('}}')) {
+              shouldUpdate = true;
+            }
+          }
+        }
+      });
+      
+      if (shouldUpdate) {
+        setTimeout(() => {
+          this.updateModalDescriptions();
+        }, 100);
+      }
+    });
+    
+    // Start observing
+    observer.observe(this.modal, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+    
+    // Store observer for cleanup if needed
+    this.contentObserver = observer;
   }
 
   createModal() {
@@ -331,13 +429,15 @@ class CarsFilterModal {
       }
     }, 300);
     
-    // Update descriptions with dynamic values first
-    this.updateModalDescriptions();
-    
-    // Then update i18n to apply the translations with dynamic values
+    // First update i18n to apply the translations
     if (typeof updateContent === 'function') {
       updateContent();
     }
+    
+    // Then update descriptions with dynamic values (after i18n)
+    setTimeout(() => {
+      this.updateModalDescriptions();
+    }, 100);
   }
 
   closeModal() {
@@ -348,6 +448,18 @@ class CarsFilterModal {
     
     // Restore body scroll
     document.body.style.overflow = '';
+    
+    // Clean up observer if it exists
+    if (this.contentObserver) {
+      this.contentObserver.disconnect();
+      this.contentObserver = null;
+    }
+    
+    // Clean up interval if it exists
+    if (this.priceUpdateInterval) {
+      clearInterval(this.priceUpdateInterval);
+      this.priceUpdateInterval = null;
+    }
   }
 
   // Public method to manually open modal
