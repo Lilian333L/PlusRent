@@ -1,17 +1,17 @@
+// Global variables for coupon caching
+let cachedCouponData = null;
+let lastValidatedCouponCode = null;
+
 $(document).ready(function () {
   // Initialize booking form handler
   const bookingForm = $("#booking_form");
   const submitButton = $("#send_message");
   const successMessage = $("#success_message");
-  const errorMessage = $("#error_message");
+  // Use universal error popup instead
   const mailFail = $("#mail_fail");
 
   // API base URL from config - use relative URLs for Vercel deployment
   const apiBaseUrl = window.API_BASE_URL || "";
-
-  // Cache for coupon data to avoid repeated API calls
-  let cachedCouponData = null;
-  let lastValidatedCouponCode = null;
 
   // Debug: Check if radio buttons are accessible on page load
 
@@ -213,38 +213,8 @@ $(document).ready(function () {
 
   // Show error message
   window.showError = function (message) {
-    const errorMessage = $("#error_message");
-    const errorMessageText = $("#error_message_text");
-    const successMessage = $("#booking-success-notification");
-
-    if (errorMessage.length === 0) {
-      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
-      $('body').prepend(tempError);
-      window.showError(i18next.t('errors.error_prefix') + message);      return;
-    }
-
-    if (errorMessageText.length === 0) {
-      errorMessage.html(message).show().addClass("show");
-    } else {
-      // Set the error message text
-      errorMessageText.html(message);
-
-      // Show error, hide success
-      errorMessage.show().addClass("show");
-    }
-
-    successMessage.hide();
-
-    // Scroll to error message
-    $("html, body").animate(
-      {
-        scrollTop: errorMessage.offset().top - 100,
-      },
-      500
-    );
-    setTimeout(() => {
-      errorMessage.hide().removeClass("show");
-    }, 5000);
+    // Use universal error popup instead
+    showUniversalError(message);
   };
 
   // Clear error states when user starts typing
@@ -253,7 +223,7 @@ $(document).ready(function () {
     $(this).siblings(".field-error").remove();
 
     // Hide error message when user starts interacting
-    $("#error_message").hide().removeClass("show");
+    hideUniversalError();
   });
 
   // Clear error states for radio buttons
@@ -269,7 +239,7 @@ $(document).ready(function () {
       .remove();
 
     // Hide error message when user starts interacting
-    $("#error_message").hide().removeClass("show");
+    hideUniversalError();
   });
 
   // Debug: Check if submit button exists
@@ -286,7 +256,7 @@ $(document).ready(function () {
 
     // Hide any existing messages
     $("#booking-success-notification").hide();
-    $("#error_message").hide().removeClass("show");
+    hideUniversalError();
     
 
     // Check only the most essential fields before opening modal
@@ -456,7 +426,7 @@ $(document).ready(function () {
   $("input, select").on("change", saveUserPreferences);
 
   // Initialize price calculator modal
-  initializePriceCalculatorModal();
+  initializePriceCalculator();
 
   // Add real-time validation feedback
   $("#email").on("blur", function () {
@@ -526,8 +496,7 @@ function openPriceCalculator() {
   $("#modal-return-time").val("17:00"); // Default to 6 PM
 
   // Set minimum dates for modal date fields
-  const todayStr = today.toISOString().split("T")[0];
-  $("#modal-pickup-date").attr("min", todayStr);
+  $("#modal-pickup-date").attr("min", pickupDate);
   $("#modal-return-date").attr("min", pickupDate);
 
   // Populate location information
@@ -673,7 +642,7 @@ if (typeof updateContent === 'function') {
   $("body").addClass("modal-open");
 
   // Clear any previous error messages when modal opens
-  $("#error_message").hide().removeClass("show");
+  hideUniversalError();
 
   // Add keyboard event listener for Escape key
   // Disabled: Modal should not close with Escape key
@@ -816,157 +785,162 @@ function closePriceCalculator() {
 async function calculateModalPrice() {
   const pickupDateStr = $("#modal-pickup-date").val();
   const returnDateStr = $("#modal-return-date").val();
+  const pickupTime = $("#modal-pickup-time").val();
+  const returnTime = $("#modal-return-time").val();
   const selectedVehicle = $("#vehicle_type option:selected");
-
 
   if (!selectedVehicle.val() || !pickupDateStr || !returnDateStr) {
     return;
   }
 
-  // Parse dates with proper format
-  const pickupDate = new Date(pickupDateStr + "T00:00:00");
-  const returnDate = new Date(returnDateStr + "T00:00:00");
-
+  // Get car details
   const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
-
-  // Calculate duration - fix the calculation
-  const timeDiff = returnDate.getTime() - pickupDate.getTime();
-  const daysDiff = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)));
-
-  // Get base price based on rental days (using backend logic)
-  let dailyRate = 0;
-
-  if (daysDiff >= 1 && daysDiff <= 2) {
-    dailyRate = carDetails.price_policy
-      ? parseFloat(carDetails.price_policy["1-2"])
-      : 0;
-  } else if (daysDiff >= 3 && daysDiff <= 7) {
-    dailyRate = carDetails.price_policy
-      ? parseFloat(carDetails.price_policy["3-7"])
-      : 0;
-  } else if (daysDiff >= 8 && daysDiff <= 20) {
-    dailyRate = carDetails.price_policy
-      ? parseFloat(carDetails.price_policy["8-20"])
-      : 0;
-  } else if (daysDiff >= 21 && daysDiff <= 45) {
-    dailyRate = carDetails.price_policy
-      ? parseFloat(carDetails.price_policy["21-45"])
-      : 0;
-  } else {
-    dailyRate = carDetails.price_policy
-      ? parseFloat(carDetails.price_policy["46+"])
-      : 0;
-  }
-
-  // Calculate base cost
-  const baseCost = dailyRate * daysDiff;
-
-  // Calculate location fees using dynamic fee settings
-  const pickupLocation = $('input[name="pickup_location"]:checked').val();
-  const dropoffLocation = $('input[name="destination"]:checked').val();
-
-  let pickupLocationFee = 0;
-  let dropoffLocationFee = 0;
-
-  // Fetch dynamic fee settings directly from API
-  let outsideHoursFee = 15;
-  let chisinauDropoffFee = 25;
-  let iasiDropoffFee = 35;
-
-  try {
-    const response = await fetch(
-      `${window.API_BASE_URL}/api/fee-settings/public`
-    );
-    if (response.ok) {
-      const fees = await response.json();
-      outsideHoursFee = fees.outside_hours_fee ?? 15;
-      chisinauDropoffFee = fees.chisinau_airport_dropoff ?? 25;
-      iasiDropoffFee = fees.iasi_airport_dropoff ?? 35;
-    }
-  } catch (error) {}
-
-  if (pickupLocation === "Chisinau Airport") {
-    pickupLocationFee = 0; // Chisinau pickup is free
-  } else if (pickupLocation === "Iasi Airport") {
-    pickupLocationFee = iasiDropoffFee;
-  }
-
-  if (dropoffLocation === "Chisinau Airport") {
-    dropoffLocationFee = chisinauDropoffFee;
-  } else if (dropoffLocation === "Iasi Airport") {
-    dropoffLocationFee = iasiDropoffFee;
-  }
-
-  const totalLocationFee = pickupLocationFee + dropoffLocationFee;
-
-  // Calculate outside working hours fees using dynamic fee settings
-  let pickupTime = $("#modal-pickup-time").val() || "08:00";
-  let returnTime = $("#modal-return-time").val() || "18:00";
-
-  // Ensure the time inputs have values
-  $("#modal-pickup-time").val(pickupTime);
-  $("#modal-return-time").val(returnTime);
-
-  let outsideHoursFees = 0;
-
-  // Check if pickup is outside working hours (8:00-18:00)
-  const pickupHour = parseInt(pickupTime.split(":")[0]);
-  if (pickupHour < 8 || pickupHour >= 18) {
-    outsideHoursFees += outsideHoursFee;
-  }
-
-  // Check if return is outside working hours (8:00-18:00)
-  const returnHour = parseInt(returnTime.split(":")[0]);
-  if (returnHour < 8 || returnHour >= 18) {
-    outsideHoursFees += outsideHoursFee;
-  }
-
-  // Calculate total (removed insurance as requested)
-  let totalCost = baseCost + totalLocationFee + outsideHoursFees;
-
-  // Apply coupon discount if valid coupon is entered
-  const couponCode = $("#modal-discount-code").val().trim();
-  let discountAmount = 0;
-  let discountPercentage = 0;
-
-  if (couponCode && $("#modal-discount-code").hasClass("is-valid") && cachedCouponData) {
-    // Use cached coupon data instead of making API call
-    if (cachedCouponData.discount_percentage) {
-      discountPercentage = cachedCouponData.discount_percentage || 0;
-      discountAmount = (totalCost * discountPercentage) / 100;
-    } else if (cachedCouponData.discount_amount) {
-      discountAmount = cachedCouponData.discount_amount || 0;
-    }
-    
-    // Ensure discount doesn't exceed total cost
-    discountAmount = Math.min(discountAmount, totalCost);
-    totalCost = Math.max(0, totalCost - discountAmount);
-  }
-
-  // Update modal display
-  $("#modal-daily-rate").text("€" + dailyRate);
-  $("#modal-rental-duration").html(
-    daysDiff + ' <span data-i18n="price_calculator.days">days</span>'
-  );
-  $("#modal-location-fees").text("€" + totalLocationFee.toFixed(2));
-  $("#modal-night-premium").text("€" + outsideHoursFees.toFixed(2));
   
-  // Show discount if applied
-  if (discountAmount > 0) {
-    $("#modal-total-estimate").html(
-      '<span style="text-decoration: line-through; color: #999;">€' + 
-      (baseCost + totalLocationFee + outsideHoursFees).toFixed(2) + 
-      '</span> €' + totalCost.toFixed(2) + 
-      ' <span style="color: #28a745; font-size: 0.9em;">(-€' + discountAmount.toFixed(2) + ')</span>'
-    );
-  } else {
-    $("#modal-total-estimate").text("€" + totalCost.toFixed(2));
-  }
+  // Get locations
+  const pickupLocation = $('input[name="pickup_location"]:checked').val() || 'Our Office';
+  const dropoffLocation = $('input[name="destination"]:checked').val() || 'Our Office';
+  
+  // Get discount code
+  const discountCode = $("#modal-discount-code").val().trim();
 
-  // Trigger i18n update for the duration
-  if (typeof updateContent === 'function') {
-    updateContent();
+  // Calculate base price using the same logic as before
+  const pickup = new Date(pickupDateStr + "T00:00:00");
+  const return_dt = new Date(returnDateStr + "T00:00:00");
+  const days = Math.max(1, Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24)));
+  
+  // Get base price
+  let dailyRate = 0;
+  if (days >= 1 && days <= 2) {
+    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["1-2"]) : 0;
+  } else if (days >= 3 && days <= 7) {
+    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["3-7"]) : 0;
+  } else if (days >= 8 && days <= 20) {
+    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["8-20"]) : 0;
+  } else if (days >= 21 && days <= 45) {
+    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["21-45"]) : 0;
+  } else {
+    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["46+"]) : 0;
   }
+  
+  const baseCost = dailyRate * days;
+  
+  // Calculate location fees
+  let locationFees = 0;
+  if (pickupLocation === 'Chisinau Airport') locationFees += 25;
+  if (pickupLocation === 'Iasi Airport') locationFees += 35;
+  if (dropoffLocation === 'Chisinau Airport') locationFees += 25;
+  if (dropoffLocation === 'Iasi Airport') locationFees += 35;
+  
+  // Calculate outside hours fees
+  let outsideHoursFees = 0;
+  const pickupHour = parseInt(pickupTime.split(':')[0]);
+  const returnHour = parseInt(returnTime.split(':')[0]);
+  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
+  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
+  
+  // Calculate subtotal before discount
+  const subtotal = baseCost + locationFees + outsideHoursFees;
+  
+  // Apply coupon discount if available
+  let discountAmount = 0;
+  let totalEstimate = subtotal;
+  
+  if (discountCode && cachedCouponData && cachedCouponData.valid && lastValidatedCouponCode === discountCode) {
+    const discountPercentage = parseFloat(cachedCouponData.discount_percentage || 0);
+    if (!isNaN(discountPercentage) && discountPercentage > 0) {
+      discountAmount = subtotal * (discountPercentage / 100);
+      totalEstimate = subtotal - discountAmount;
+    }
+  }
+  
+  // Update modal display
+  updateModalPriceDisplay({
+    dailyRate: dailyRate,
+    days: days,
+    locationFees: locationFees,
+    outsideHoursFees: outsideHoursFees,
+    discountAmount: discountAmount,
+    totalEstimate: totalEstimate
+  });
+}
+
+// Helper function to update modal price display
+function updateModalPriceDisplay(priceData) {
+  const currencySymbol = "€";
+  
+  // Update daily rate
+  $("#modal-daily-rate").text(currencySymbol + priceData.dailyRate.toFixed(2));
+  
+  // Update duration
+  $("#modal-rental-duration").text(priceData.days + " days");
+  
+  // Update location fees
+  $("#modal-location-fees").text(currencySymbol + priceData.locationFees.toFixed(2));
+  
+  // Update outside hours fees
+  $("#modal-night-premium").text(currencySymbol + priceData.outsideHoursFees.toFixed(2));
+  
+  // Update total estimate with discount info
+  let totalText = currencySymbol + priceData.totalEstimate.toFixed(2);
+  
+  if (priceData.discountAmount && priceData.discountAmount > 0) {
+    // Show original price crossed out and discounted price
+    const originalTotal = priceData.totalEstimate + priceData.discountAmount;
+    totalText = `<span style="text-decoration: line-through; color: #999;">${currencySymbol}${originalTotal.toFixed(2)}</span> <span class="text-success">${currencySymbol}${priceData.totalEstimate.toFixed(2)}</span>`;
+  }
+  
+  $("#modal-total-estimate").html(totalText);
+}
+
+// Fallback calculation (simplified version of original)
+async function calculateModalPriceFallback(rentalData) {
+  const { car, pickupDate, returnDate, pickupTime, returnTime, pickupLocation, dropoffLocation } = rentalData;
+  
+  // Calculate days
+  const pickup = new Date(pickupDate + "T00:00:00");
+  const return_dt = new Date(returnDate + "T00:00:00");
+  const days = Math.max(1, Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24)));
+  
+  // Get base price
+  let dailyRate = 0;
+  if (days >= 1 && days <= 2) {
+    dailyRate = car.price_policy ? parseFloat(car.price_policy["1-2"]) : 0;
+  } else if (days >= 3 && days <= 7) {
+    dailyRate = car.price_policy ? parseFloat(car.price_policy["3-7"]) : 0;
+  } else if (days >= 8 && days <= 20) {
+    dailyRate = car.price_policy ? parseFloat(car.price_policy["8-20"]) : 0;
+  } else if (days >= 21 && days <= 45) {
+    dailyRate = car.price_policy ? parseFloat(car.price_policy["21-45"]) : 0;
+  } else {
+    dailyRate = car.price_policy ? parseFloat(car.price_policy["46+"]) : 0;
+  }
+  
+  const baseCost = dailyRate * days;
+  
+  // Simple location fees
+  let locationFees = 0;
+  if (pickupLocation === 'Chisinau Airport') locationFees += 25;
+  if (pickupLocation === 'Iasi Airport') locationFees += 35;
+  if (dropoffLocation === 'Chisinau Airport') locationFees += 25;
+  if (dropoffLocation === 'Iasi Airport') locationFees += 35;
+  
+  // Simple outside hours calculation
+  let outsideHoursFees = 0;
+  const pickupHour = parseInt(pickupTime.split(':')[0]);
+  const returnHour = parseInt(returnTime.split(':')[0]);
+  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
+  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
+  
+  const totalEstimate = baseCost + locationFees + outsideHoursFees;
+  
+  // Update display
+  updateModalPriceDisplay({
+    dailyRate: dailyRate,
+    days: days,
+    locationFees: locationFees,
+    outsideHoursFees: outsideHoursFees,
+    totalEstimate: totalEstimate
+  });
 }
 
 // Update vehicle price display in modal based on current rental duration
@@ -1083,7 +1057,7 @@ async function applyModalCalculation() {
     const bookingResult = await submitBooking();
     if (bookingResult === true) {
       // Clear any error messages before closing modal
-      $("#error_message").hide().removeClass("show");
+      hideUniversalError();
       // Only close modal if booking was successful
       closePriceCalculator();
     } else {
@@ -1094,9 +1068,7 @@ async function applyModalCalculation() {
       window.showError(i18next.t('errors.error_processing_booking'));
     } else {
       // Create temporary error element and use showError
-      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
-      $('body').prepend(tempError);
-      window.showError(i18next.t('errors.error_processing_booking'));
+      showUniversalError(i18next.t('errors.error_processing_booking'));
     }
   }
   
@@ -1117,9 +1089,7 @@ async function submitBooking() {
         window.showError(i18next.t('errors.missing_booking_info'));
       } else {
         // Create temporary error element and use showError
-        const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
-        $('body').prepend(tempError);
-        window.showError(i18next.t('errors.missing_booking_info'));
+        showUniversalError(i18next.t('errors.missing_booking_info'));
       }
       return false; // Return false for errors (don't throw)
     }
@@ -1255,9 +1225,7 @@ async function submitBooking() {
       window.showError(i18next.t('errors.error_processing_booking'));
     } else {
       // Create temporary error element and use showError
-      const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
-      $('body').prepend(tempError);
-      window.showError(i18next.t('errors.error_processing_booking'));
+      showUniversalError(i18next.t('errors.error_processing_booking'));
     }
   }
   
