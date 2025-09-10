@@ -44,7 +44,7 @@ class BookingFormHandler {
         const isReturningCustomer = await this.checkReturningCustomer(bookingData.customer_phone);
         
         if (isReturningCustomer) {
-          const shouldShowPopup = this.showReturningCustomerAlert(bookingData.customer_phone);
+          const shouldShowPopup = await this.showReturningCustomerAlert(bookingData.customer_phone);
           if (shouldShowPopup) {
             return; // Exit early for returning customers on their second booking
           }
@@ -412,6 +412,48 @@ class BookingFormHandler {
     // Booking submitted successfully - no alert needed
     // Optionally redirect to confirmation page
     // window.location.href = 'booking-confirmation.html?id=' + response.booking_id;
+    
+    // Clear returning customer popup session storage for this phone number
+    // This allows the popup to show again for the next booking
+    if (bookingData && bookingData.customer_phone) {
+      this.clearReturningCustomerSessionStorage(bookingData.customer_phone);
+    }
+    
+    // Clear auto-applied coupon from localStorage after successful booking
+    this.clearAutoAppliedCoupon();
+    
+    // Dispatch booking success event for other components (like auto-apply coupon cleanup)
+    document.dispatchEvent(new CustomEvent('bookingSuccess', { 
+      detail: { bookingData: bookingData } 
+    }));
+  }
+
+  // Clear returning customer session storage for a phone number
+  clearReturningCustomerSessionStorage(phoneNumber) {
+    if (!phoneNumber) return;
+    
+    // Clear all session storage keys that start with the phone number pattern
+    const keysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith(`hasShownReturningCustomerPopup_${phoneNumber}_`)) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    // Remove all matching keys
+    keysToRemove.forEach(key => {
+      sessionStorage.removeItem(key);
+    });
+  }
+
+  // Clear auto-applied coupon from localStorage
+  clearAutoAppliedCoupon() {
+    // Remove the auto-applied coupon from localStorage
+    localStorage.removeItem('autoApplyCoupon');
+    
+    // Also clear any spinning wheel related coupon storage
+    localStorage.removeItem('spinningWheelWinningCoupon');
   }
 
   // Default error handler
@@ -488,7 +530,7 @@ class BookingFormHandler {
   }
 
   // Show modal for returning customers
-  showReturningCustomerAlert(phoneNumber = null) {
+  async showReturningCustomerAlert(phoneNumber = null) {
     // Use provided phone number or get from form input
     if (!phoneNumber) {
       const phoneInput = document.querySelector('input[name="customer_phone"]');
@@ -499,16 +541,41 @@ class BookingFormHandler {
       return false;
     }
     
-    // Check if we've already shown the returning customer popup for this specific phone number in this session
-    const sessionKey = `hasShownReturningCustomerPopup_${phoneNumber}`;
+    // Get the current booking number from the API response
+    let currentBookingNumber = null;
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/bookings/check-returning-customer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: phoneNumber
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        currentBookingNumber = data.nextBookingNumber;
+      }
+    } catch (error) {
+      console.error('Error getting booking number:', error);
+    }
+    
+    if (!currentBookingNumber) {
+      return false;
+    }
+    
+    // Check if we've already shown the returning customer popup for this specific phone number and booking number
+    const sessionKey = `hasShownReturningCustomerPopup_${phoneNumber}_${currentBookingNumber}`;
     const hasShownReturningCustomerPopup = sessionStorage.getItem(sessionKey);
     
     if (hasShownReturningCustomerPopup === 'true') {
-      // User has already seen the popup for this phone number, allow booking to proceed
+      // User has already seen the popup for this phone number and booking number, allow booking to proceed
       return false; // Return false to indicate we should proceed with booking
     }
     
-    // Set flag to indicate we've shown the popup for this phone number
+    // Set flag to indicate we've shown the popup for this phone number and booking number
     sessionStorage.setItem(sessionKey, 'true');
     
     // Load and show the returning customer modal

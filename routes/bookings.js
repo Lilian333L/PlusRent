@@ -685,23 +685,42 @@ router.post('/check-returning-customer', async (req, res) => {
       return res.status(500).json({ error: 'Failed to check returning customer: ' + phoneError.message });
     }
 
-    // Check if phone number exists and has exactly one booking (second booking)
+    // Get the configurable booking trigger number from global_settings
+    let bookingTriggerNumber = 2; // Default value
+    try {
+      const { data: settings, error: settingsError } = await supabase
+        .from('global_settings')
+        .select('setting_value')
+        .eq('setting_key', 'returning_customer_booking_trigger')
+        .single();
+
+      if (settings && !settingsError) {
+        bookingTriggerNumber = parseInt(settings.setting_value) || 2;
+      }
+    } catch (error) {
+      console.log('Using default booking trigger number (2)');
+    }
+
+    // Check if phone number exists and meets the configurable booking criteria
     let isReturningCustomer = false;
     let bookingsCount = 0;
+    let nextBookingNumber = 0;
 
     if (phoneRecord) {
-      // Check if they have exactly one booking in bookings_ids (second booking)
-      const hasBookings = phoneRecord.bookings_ids && phoneRecord.bookings_ids.length > 0;
-      const isSecondBooking = phoneRecord.bookings_ids && phoneRecord.bookings_ids.length === 1;
-      
-      isReturningCustomer = hasBookings && isSecondBooking;
       bookingsCount = phoneRecord.bookings_ids ? phoneRecord.bookings_ids.length : 0;
+      nextBookingNumber = bookingsCount + 1; // Next booking will be this number
+      
+      // Check if the next booking number matches the trigger interval
+      // e.g., if trigger is 2, show popup on 2nd, 4th, 6th, etc. bookings
+      isReturningCustomer = nextBookingNumber % bookingTriggerNumber === 0;
     }
 
     res.json({ 
       success: true, 
       isReturningCustomer: isReturningCustomer,
-      bookingsCount: bookingsCount
+      bookingsCount: bookingsCount,
+      nextBookingNumber: nextBookingNumber,
+      bookingTriggerNumber: bookingTriggerNumber
     });
 
   } catch (error) {
