@@ -128,10 +128,32 @@ class PriceCalculator {
 
   // Apply discount
   applyDiscount(totalPrice, discountCode) {
-    // Discount rates are now managed by the backend API
-    // This function will need to be updated to call the API for discount calculation
-    // For now, it will return the total price as is, as no hardcoded rates are available.
+    // If no discount code, return original price
+    if (!discountCode || discountCode.trim() === '') {
+      return totalPrice;
+    }
+
+    // Check if we have cached validation data for this coupon
+    if (window.cachedCouponData && window.lastValidatedCouponCode === discountCode.trim()) {
+      const discountPercentage = parseFloat(window.cachedCouponData.discount_percentage || 0);
+      if (discountPercentage > 0) {
+        const discountAmount = totalPrice * (discountPercentage / 100);
+        return totalPrice - discountAmount;
+      }
+    }
+    
     return totalPrice;
+  }
+
+  // Helper method to get discount percentage
+  getDiscountPercentage(discountCode) {
+    // Check if we have cached validation data
+    if (window.cachedCouponData && window.lastValidatedCouponCode === discountCode) {
+      return parseFloat(window.cachedCouponData.discount_percentage || 0);
+    }
+    
+    // If no cached data, return 0 (no discount)
+    return 0;
   }
 
   // Main calculation function
@@ -199,7 +221,7 @@ class PriceCalculator {
       insuranceCost,
       outsideHoursFees,
       subtotal,
-      discount: discountCode ? 0 : 0, // No hardcoded discount rates
+      discount: this.calculateDiscountAmount(subtotal, discountCode),
       finalPrice,
       breakdown: {
         'Price per day': `${this.basePrice}€`,
@@ -414,41 +436,9 @@ class PriceCalculator {
 
   // Initialize the price calculator
   async init() {
+    
     try {
-      // Set up event listeners for form inputs
-      const pickupDateInput = document.getElementById('date-picker');
-      const returnDateInput = document.getElementById('date-picker-2');
-      const pickupTimeSelect = document.getElementById('pickup-time');
-      const returnTimeSelect = document.getElementById('collection-time');
-      const discountCodeInput = document.querySelector('input[name="discount_code"]');
-
-      const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
-      const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
-
-      // Add event listeners for all form inputs (only one per input)
-      if (pickupDateInput) {
-        pickupDateInput.addEventListener('change', () => this.debouncedRecalculate());
-      }
-      if (returnDateInput) {
-        returnDateInput.addEventListener('change', () => this.debouncedRecalculate());
-      }
-      if (pickupTimeSelect) {
-        pickupTimeSelect.addEventListener('change', () => this.debouncedRecalculate());
-      }
-      if (returnTimeSelect) {
-        returnTimeSelect.addEventListener('change', () => this.debouncedRecalculate());
-      }
-      if (discountCodeInput) {
-        discountCodeInput.addEventListener('input', () => this.debouncedRecalculate());
-      }
-      pickupLocationInputs.forEach(input => {
-        input.addEventListener('change', () => this.debouncedRecalculate());
-      });
-      dropoffLocationInputs.forEach(input => {
-        input.addEventListener('change', () => this.debouncedRecalculate());
-      });
-
-      await this.showDefaultCalculation();
+      await this.loadFeeSettings();
     } catch (error) {
       
     }
@@ -657,7 +647,7 @@ class PriceCalculator {
         this.updatePriceDisplay({ 
           totalPrice: 0, 
           breakdown: [],
-          message: 'Please select both pickup and return dates to see pricing'
+          message: (typeof i18next !== 'undefined' && i18next.t) ? i18next.t('price_calculator.select_dates_message') : 'Please select both pickup and return dates to see pricing'
         });
         return;
       }
@@ -699,7 +689,7 @@ class PriceCalculator {
         this.updatePriceDisplay({ 
           totalPrice: 0, 
           breakdown: [],
-          message: 'Please select both pickup and return dates to see pricing'
+          message: (typeof i18next !== 'undefined' && i18next.t) ? i18next.t('price_calculator.select_dates_message') : 'Please select both pickup and return dates to see pricing'
         });
         return;
       } else if (rentalDays >= 1 && rentalDays <= 2) {
@@ -848,6 +838,7 @@ class PriceCalculator {
 
   // Get total price for booking form
   getTotalPrice() {
+    
     const pickupDate = document.getElementById('date-picker')?.value;
     const returnDate = document.getElementById('date-picker-2')?.value;
     const pickupTime = document.getElementById('pickup-time')?.value;
@@ -855,11 +846,14 @@ class PriceCalculator {
     const pickupLocation = this.getSelectedRadioValue('pickup_location');
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
     const discountCode = document.querySelector('input[name="discount_code"]')?.value;
-
+  
+  
+  
     if (!pickupDate || !returnDate || !pickupTime || !returnTime || !pickupLocation || !dropoffLocation) {
+      
       return 0;
     }
-
+  
     const rentalData = {
       pickupDate,
       returnDate,
@@ -869,8 +863,11 @@ class PriceCalculator {
       dropoffLocation,
       discountCode
     };
-
+  
+    
     const priceData = this.calculatePrice(rentalData);
+    
+    
     return priceData.finalPrice;
   }
 
@@ -907,11 +904,31 @@ class PriceCalculator {
     const radio = document.querySelector(`input[name="${name}"]:checked`);
     return radio ? radio.value : null;
   }
-}
+
+  // Calculate discount amount for display
+  calculateDiscountAmount(totalPrice, discountCode) {
+    if (!discountCode || discountCode.trim() === '') {
+      return 0;
+    }
+
+    if (window.cachedCouponData && window.lastValidatedCouponCode === discountCode.trim()) {
+      const discountPercentage = parseFloat(window.cachedCouponData.discount_percentage || 0);
+      if (discountPercentage > 0) {
+        return totalPrice * (discountPercentage / 100);
+      }
+    }
+    
+    return 0;
+  }
+} 
 
 // Initialize calculator when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+  
+  
   window.priceCalculator = new PriceCalculator();
+  
+  
   // Don't auto-init, will be called manually with car data
 });
 

@@ -43,6 +43,25 @@ class GlobalBookingSystem {
         const code = e.target.value.trim();
         if (code) {
           await this.validateCoupon(code, e.target);
+        } else {
+          // Clear coupon data when input is empty
+          this.clearCouponData();
+          // Recalculate price without discount
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            window.priceCalculator.recalculatePrice();
+          }
+        }
+      });
+      
+      // Also clear data when user types (to handle removal)
+      input.addEventListener("input", (e) => {
+        const code = e.target.value.trim();
+        if (code.length < 3) {
+          // Clear coupon data for short codes
+          this.clearCouponData();
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            window.priceCalculator.recalculatePrice();
+          }
         }
       });
     });
@@ -322,6 +341,11 @@ class GlobalBookingSystem {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
         this.showCouponMessage("Coupon applied successfully!", "success");
+        
+        // Store coupon data globally for price calculator
+        window.cachedCouponData = result;
+        window.lastValidatedCouponCode = code;
+        
         this.updatePrice(); // Recalculate with discount
       } else {
         inputElement.classList.remove("is-valid");
@@ -330,12 +354,20 @@ class GlobalBookingSystem {
           result.message || result.error || "Invalid coupon code",
           "error"
         );
+        
+        // Clear coupon data on invalid coupon
+        window.cachedCouponData = null;
+        window.lastValidatedCouponCode = null;
       }
     } catch (error) {
-      
+      console.error('Coupon validation error:', error);
       inputElement.classList.remove("is-valid");
       inputElement.classList.add("is-invalid");
       this.showCouponMessage("Error validating coupon", "error");
+      
+      // Clear coupon data on error
+      window.cachedCouponData = null;
+      window.lastValidatedCouponCode = null;
     }
   }
 
@@ -466,6 +498,12 @@ class GlobalBookingSystem {
     if (actionArea) {
       actionArea.appendChild(button);
     }
+  }
+
+  // Clear coupon data when input is cleared
+  clearCouponData() {
+    window.cachedCouponData = null;
+    window.lastValidatedCouponCode = null;
   }
 }
 
