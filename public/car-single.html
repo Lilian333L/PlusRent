@@ -906,7 +906,7 @@
                         <div>
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.discount_code"></label>
-                          <input type="text" name="discount_code" placeholder="Enter discount code" data-i18n-placeholder="cars.discount_code_placeholder"
+                          <input type="text" name="discount_code" placeholder="Enter discount code" data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input
                             style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                         </div>
                       </div>
@@ -1055,6 +1055,7 @@
   <script src="js/price-calculator.js"></script>
   <script src="js/booking-form-handler.js?v=1.1"></script>
   <script src="js/validation-booking.js"></script>
+  <script src="js/global-booking.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
   <script>
     // Global formatting function
@@ -1068,9 +1069,32 @@
 
     document.addEventListener('DOMContentLoaded', async function () {
 
+
+      // Set default dates FIRST, before price calculator initialization
+      const pickupDateInput = document.getElementById('date-picker');
+      const returnDateInput = document.getElementById('date-picker-2');
+      
+      if (pickupDateInput && returnDateInput) {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        
+        const dayAfterTomorrow = new Date(today);
+        dayAfterTomorrow.setDate(today.getDate() + 2);
+        
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+        
+        pickupDateInput.value = tomorrowStr;
+        returnDateInput.value = dayAfterTomorrowStr;
+        pickupDateInput.min = tomorrowStr;
+        returnDateInput.min = dayAfterTomorrowStr;
+      }
+
       // Wait for i18n to be initialized and then update content
       function waitForI18n() {
         if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
+          
           updateContent();
         } else {
           setTimeout(waitForI18n, 100);
@@ -1651,6 +1675,46 @@
         // Add single event listeners for date changes
         const newPickupInput = document.getElementById('date-picker');
         const newReturnInput = document.getElementById('date-picker-2');
+
+        // Set default dates after input replacement
+
+
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const dayAfterTomorrow = new Date(today);
+        dayAfterTomorrow.setDate(today.getDate() + 2);
+
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+
+
+
+        const debugPickupInput = document.getElementById('date-picker');
+        const debugReturnInput = document.getElementById('date-picker-2');
+
+
+
+        if (debugPickupInput && debugReturnInput) {
+          debugPickupInput.value = tomorrowStr;
+          debugReturnInput.value = dayAfterTomorrowStr;
+          debugPickupInput.min = tomorrowStr;
+          debugReturnInput.min = dayAfterTomorrowStr;
+          
+          
+          
+          // Trigger price calculation after dates are set
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            
+            window.priceCalculator.recalculatePrice();
+          } else {
+            
+          }
+        } else {
+          
+        }
+
         const pickupTimeSelect = document.getElementById('pickup-time');
         const returnTimeSelect = document.getElementById('collection-time');
 
@@ -1892,6 +1956,26 @@
         priceTiersMainDiv.innerHTML = mainTiersHTML;
       }
     }
+
+    // Add coupon change detection
+    document.addEventListener('DOMContentLoaded', function() {
+      const discountInput = document.querySelector('input[name="discount_code"]');
+      
+      if (discountInput) {
+        discountInput.addEventListener('input', function() {
+          // Clear cached data when user types
+          if (window.cachedCouponData) {
+            window.cachedCouponData = null;
+            window.lastValidatedCouponCode = null;
+          }
+          
+          // Recalculate price
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            window.priceCalculator.recalculatePrice();
+          }
+        });
+      }
+    });
   </script>
   <style>
     /* Custom carousel styles - replacing Slick */
@@ -2227,228 +2311,6 @@
   
   <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.js"></script>
-
-  <!-- Initialize Price Calculator and Mobile Date Picker Fixes -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-      // Set default dates for pickup and return FIRST
-
-      const pickupDateInput = document.getElementById('date-picker');
-      const returnDateInput = document.getElementById('date-picker-2');
-
-     
-
-      // Create price calculator instance
-      window.priceCalculator = new PriceCalculator();
-
-      // Initialize the price calculator
-      window.priceCalculator.init().then(() => {
-
-        // Trigger initial price calculation if car data is available
-        if (window.currentCarData) {
-
-          window.priceCalculator.recalculatePrice();
-        }
-      }).catch(error => {
-
-      });
-
-      // Fix for iOS date picker issues
-
-      const dateInputs = document.querySelectorAll('.mobile-date-input');
-
-      dateInputs.forEach(input => {
-        // Prevent zoom on iOS by setting font-size to 16px or larger
-        input.addEventListener('focus', function () {
-          // Ensure proper positioning for iOS date picker
-          this.style.position = 'relative';
-          this.style.zIndex = '9999';
-
-          // Force viewport to handle iOS date picker properly
-          if (window.innerWidth <= 768) {
-            // Add a small delay to ensure the date picker opens properly
-            setTimeout(() => {
-              this.blur();
-              this.focus();
-            }, 100);
-          }
-        });
-
-        // Reset positioning after date picker closes
-        input.addEventListener('blur', function () {
-          this.style.position = '';
-          this.style.zIndex = '';
-        });
-
-        // Handle iOS date picker change event
-        input.addEventListener('change', function () {
-          // Ensure the value is properly set
-          if (this.value) {
-
-            // Trigger any necessary validation or updates
-            this.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-        });
-      });
-
-      // Fix for very small screens where flexbox might cause issues
-      function adjustLayoutForMobile() {
-        if (window.innerWidth <= 480) {
-          const bookingSections = document.querySelectorAll('.booking-section');
-          bookingSections.forEach(section => {
-            const flexContainers = section.querySelectorAll('div[style*="display: flex"]');
-            flexContainers.forEach(container => {
-              container.style.flexDirection = 'column';
-              container.style.gap = '12px';
-            });
-          });
-        }
-      }
-
-      // Run on load and resize
-      adjustLayoutForMobile();
-      window.addEventListener('resize', adjustLayoutForMobile);
-
-      // Fallback: Try to set dates again after a short delay to ensure they're set
-      
-
-      // Browser-specific fixes - more precise detection
-      // const userAgent = navigator.userAgent;
-      // const isChrome = /Chrome/.test(userAgent) && /Safari/.test(userAgent) && !/Edg/.test(userAgent);
-      // const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent) && !/Edg/.test(userAgent);
-      // const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-
-      // if (isChrome && isIOS) {
-
-      //   // Chrome iOS specific approach - work with hardcoded HTML values
-      //   if (pickupDateInput && returnDateInput) {
-      //     // Get the hardcoded values from HTML
-      //     const htmlPickupValue = pickupDateInput.getAttribute('value');
-      //     const htmlReturnValue = returnDateInput.getAttribute('value');
-
-      //     // Force Chrome iOS to recognize these values
-      //     setTimeout(() => {
-      //       // Set both value and attribute to ensure Chrome iOS sees them
-      //       pickupDateInput.value = htmlPickupValue;
-      //       returnDateInput.value = htmlReturnValue;
-
-      //       // Force Chrome iOS to update the display
-      //       pickupDateInput.dispatchEvent(new Event('input', { bubbles: true }));
-      //       returnDateInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-      //     }, 100);
-
-      //     // Additional attempt after a longer delay
-      //     setTimeout(() => {
-      //       if (!pickupDateInput.value || !returnDateInput.value) {
-
-      //         // Try setting values again
-      //         pickupDateInput.value = htmlPickupValue;
-      //         returnDateInput.value = htmlReturnValue;
-
-      //         // Force update
-      //         pickupDateInput.dispatchEvent(new Event('change', { bubbles: true }));
-      //         returnDateInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-      //       }
-      //     }, 1000);
-      //   }
-
-      // } else if (isSafari && isIOS) {
-      //   // Safari iOS - simpler approach, just ensure values are set
-
-      //   if (pickupDateInput && returnDateInput) {
-      //     const tomorrow = new Date();
-      //     tomorrow.setDate(tomorrow.getDate() + 1);
-      //     const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-      //     const dayAfterTomorrow = new Date();
-      //     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-      //     const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-
-      //     // Safari iOS works better with simple value setting
-      //     pickupDateInput.value = tomorrowStr;
-      //     returnDateInput.value = dayAfterTomorrowStr;
-
-      //   }
-      // } else {
-      //   // For other browsers, just ensure dates are set
-
-      //   if (pickupDateInput && returnDateInput) {
-      //     const tomorrow = new Date();
-      //     tomorrow.setDate(tomorrow.getDate() + 1);
-      //     const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-      //     const dayAfterTomorrow = new Date();
-      //     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-      //     const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-
-      //     pickupDateInput.value = tomorrowStr;
-      //     returnDateInput.value = dayAfterTomorrowStr;
-
-      //   }
-      // }
-    });
-  </script>
-
-  <!-- Set default dates for date pickers -->
-  <script>
-  function setDefaultDates() {
-    console.log('=== SETTING DEFAULT DATES ===');
-    
-    const pickupDateInput = document.getElementById('date-picker');
-    const returnDateInput = document.getElementById('date-picker-2');
-    
-    console.log('Date inputs found:', {
-      pickup: pickupDateInput,
-      return: returnDateInput
-    });
-    
-  }
-
-  // Try multiple ways to ensure it runs
-  document.addEventListener('DOMContentLoaded', setDefaultDates);
-  window.addEventListener('load', setDefaultDates);
-  setTimeout(setDefaultDates, 1000); // Fallback after 1 second
-  </script>
-
-  <!-- Set default dates IMMEDIATELY - before other scripts -->
-  <script>
-  (function() {
-    // Calculate dates immediately
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    
-    const dayAfterTomorrow = new Date(today);
-    dayAfterTomorrow.setDate(today.getDate() + 2);
-    
-    // Format dates as YYYY-MM-DD
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-          const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-
-    // Set default values immediately
-    function setDefaultDates() {
-      const pickupDateInput = document.getElementById('date-picker');
-      const returnDateInput = document.getElementById('date-picker-2');
-      
-      if (pickupDateInput && returnDateInput) {
-          pickupDateInput.value = tomorrowStr;
-          returnDateInput.value = dayAfterTomorrowStr;
-        pickupDateInput.min = tomorrowStr;
-        returnDateInput.min = dayAfterTomorrowStr;
-        }
-      }
-    
-    // Run immediately
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setDefaultDates);
-    } else {
-      setDefaultDates();
-    }
-  })();
-  </script>
 
 </body>
 

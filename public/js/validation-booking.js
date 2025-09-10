@@ -332,6 +332,7 @@ $(document).ready(function () {
 
   // Calculate and display price (for modal only - compact summary is hidden)
   function calculatePrice() {
+    
     const vehicleSelect = $("#vehicle_type");
     const pickupDate = $("#modal-pickup-date").val();
     const returnDate = $("#modal-return-date").val();
