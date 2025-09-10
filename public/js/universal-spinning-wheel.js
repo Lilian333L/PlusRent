@@ -144,7 +144,7 @@
                 transition: all 0.3s ease;
             }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1000px) {
                 .wheel-step {
                     overflow: scroll;
                 }
@@ -507,6 +507,11 @@
                 }
             }
             
+            @media (max-width: 390px) {
+                .spinning-wheel-modal-content.phone-step {
+                    max-height: 60vh !important;
+                }
+            }
             /* Extra small mobile devices (iPhone 14 Pro Max, etc.) */
             @media (max-width: 430px) {
                 .spinning-wheel-modal-content {
@@ -536,7 +541,7 @@
                 }
             }
 
-            @media (max-width: 380px) {
+            @media (max-width: 400px) and (max-height: 700px) {
                 #universalSpinningWheelIframe {
                     margin-top: 128px !important;
                 }
@@ -897,6 +902,14 @@
             
             // Save coupon code to localStorage for use on booking pages
             localStorage.setItem('autoApplyCoupon', couponCode);
+            
+            // Trigger auto-apply immediately if the function is available
+            if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
+                console.log('Triggering auto-apply immediately after coupon save');
+                setTimeout(() => {
+                    window.AutoApplyCoupon.autoApply();
+                }, 100);
+            }
             
             // Show success notification
             showCouponAppliedNotification(couponCode);

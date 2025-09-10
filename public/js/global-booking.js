@@ -432,6 +432,11 @@ class GlobalBookingSystem {
 
         const result = await response.json();
 
+        // Dispatch booking success event for auto-apply coupon cleanup
+        document.dispatchEvent(new CustomEvent('bookingSuccess', { 
+          detail: { bookingData: bookingData } 
+        }));
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(
           document.getElementById("bookingModal")
