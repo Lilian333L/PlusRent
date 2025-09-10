@@ -282,7 +282,7 @@ $(document).ready(function () {
 
     if (!phone || phone.trim() === "") {
         showError(i18next.t('errors.phone_required'));
-        return;
+      return;
     }
 
     if (!vehicleType || vehicleType.trim() === "") {
@@ -491,7 +491,7 @@ function openPriceCalculator() {
   tomorrow.setDate(today.getDate() + 1);
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(today.getDate() + 2);
-  
+
 
   const pickupDate = tomorrow.toISOString().split("T")[0];
   const returnDate = dayAfterTomorrow.toISOString().split("T")[0];
@@ -1115,6 +1115,24 @@ async function submitBooking() {
     // Age validation is now handled by HTML5 required attribute and min/max constraints
     // The browser will show native validation messages for empty or invalid age
 
+    // Check if customer is returning (has existing bookings with unredeemed return gift)
+    if (bookingData.customer_phone) {
+      console.log('Checking returning customer for phone:', bookingData.customer_phone);
+      const isReturningCustomer = await checkReturningCustomer(bookingData.customer_phone);
+      console.log('Is returning customer:', isReturningCustomer);
+      
+      if (isReturningCustomer) {
+        console.log('Customer is returning, showing alert...');
+        const shouldShowPopup = await showReturningCustomerAlert(bookingData.customer_phone);
+        console.log('Should show popup:', shouldShowPopup);
+        if (shouldShowPopup) {
+          console.log('Exiting early due to returning customer popup');
+          return false; // Exit early for returning customers on their second booking
+        }
+        // If popup was already shown, continue with booking
+      }
+    }
+
     // Validate coupon code if provided
     if (bookingData.discount_code && bookingData.discount_code.trim()) {
       try {
@@ -1124,8 +1142,8 @@ async function submitBooking() {
 
         // Step 1: Validate coupon code without phone number
         let response = await fetch(
-          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
-        );
+            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
+          );
         let result = await response.json();
 
         if (!result.valid) {
@@ -1211,7 +1229,7 @@ async function submitBooking() {
               if (translatedMessage && translatedMessage !== translationKey) {
                 finalMessage = translatedMessage;
                 
-              } else {
+          } else {
                 
               }
             } else {
@@ -1257,6 +1275,16 @@ window.showSuccess = function (bookingData) {
     detail: { bookingData: bookingData }
   });
   document.dispatchEvent(bookingSuccessEvent);
+  
+  // Clear returning customer popup session storage for this phone number
+  // This allows the popup to show again for the next booking
+  if (bookingData && bookingData.customer_phone) {
+    clearReturningCustomerSessionStorage(bookingData.customer_phone);
+  }
+  
+  // Clear auto-applied coupon from localStorage after successful booking
+  localStorage.removeItem('autoApplyCoupon');
+  localStorage.removeItem('spinningWheelWinningCoupon');
 
   // Create a clean, modern success modal
   const successModalHTML = `
@@ -1710,7 +1738,7 @@ function showUniversalError(message) {
     popup.fadeIn(300);
     
     // Auto-hide after 8 seconds
-    setTimeout(() => {
+  setTimeout(() => {
         hideUniversalError();
     }, 8000);
 }
@@ -1759,3 +1787,636 @@ $(document).ready(function() {
     originalClosePriceCalculator.call(this);
   };
 });
+
+// Check if customer is returning (has existing bookings with unredeemed return gift)
+async function checkReturningCustomer(phoneNumber) {
+  try {
+    console.log('API call to check returning customer for:', phoneNumber);
+    const apiBaseUrl = window.API_BASE_URL || '';
+    const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phone_number: phoneNumber
+      })
+    });
+
+    if (!response.ok) {
+      console.error('Failed to check returning customer:', response.statusText);
+      // If API fails, allow booking to proceed
+      return false;
+    }
+
+    const data = await response.json();
+    console.log('API response:', data);
+    
+    // Customer is returning if they have one or more bookings with unredeemed return gift
+    const isReturning = data.isReturningCustomer === true;
+    console.log('Is returning customer result:', isReturning);
+    return isReturning;
+
+  } catch (error) {
+    console.error('Error checking returning customer:', error);
+    // If there's an error, allow booking to proceed
+    return false;
+  }
+}
+
+// Show modal for returning customers
+async function showReturningCustomerAlert(phoneNumber = null) {
+  console.log('showReturningCustomerAlert called with phoneNumber:', phoneNumber);
+  
+  // Use provided phone number or get from form input
+  if (!phoneNumber) {
+    // Check both possible phone input selectors
+    let phoneInput = document.querySelector('input[name="customer_phone"]');
+    if (!phoneInput) {
+      phoneInput = document.querySelector('#phone');
+    }
+    phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+    console.log('Phone number from form:', phoneNumber);
+  }
+  
+  if (!phoneNumber) {
+    console.log('No phone number found, returning false');
+    return false;
+  }
+  
+  // Get the current booking number from the API response
+  let currentBookingNumber = null;
+  try {
+    console.log('Getting booking number for phone:', phoneNumber);
+    const apiBaseUrl = window.API_BASE_URL || '';
+    const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phone_number: phoneNumber
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      currentBookingNumber = data.nextBookingNumber;
+      console.log('Current booking number:', currentBookingNumber);
+    }
+  } catch (error) {
+    console.error('Error getting booking number:', error);
+  }
+  
+  if (!currentBookingNumber) {
+    console.log('No booking number found, returning false');
+    return false;
+  }
+  
+  // Check if we've already shown the returning customer popup for this specific phone number and booking number
+  const sessionKey = `hasShownReturningCustomerPopup_${phoneNumber}_${currentBookingNumber}`;
+  const hasShownReturningCustomerPopup = sessionStorage.getItem(sessionKey);
+  console.log('Session key:', sessionKey);
+  console.log('Has shown popup before:', hasShownReturningCustomerPopup);
+  
+  if (hasShownReturningCustomerPopup === 'true') {
+    // User has already seen the popup for this phone number and booking number, allow booking to proceed
+    console.log('Popup already shown, returning false');
+    return false; // Return false to indicate we should proceed with booking
+  }
+  
+  // Set flag to indicate we've shown the popup for this phone number and booking number
+  sessionStorage.setItem(sessionKey, 'true');
+  console.log('Set session storage flag');
+  
+  // Load and show the returning customer modal
+  console.log('Loading returning customer modal...');
+  loadReturningCustomerModal();
+  return true; // Return true to indicate we're showing the popup
+}
+
+// Load the returning customer modal
+async function loadReturningCustomerModal() {
+  console.log('loadReturningCustomerModal called');
+  
+  // Check if modal is already loaded
+  if (document.getElementById('returningCustomerModal')) {
+    console.log('Modal already exists, showing it');
+    showReturningCustomerModal();
+    return;
+  }
+
+  try {
+    // Fetch active wheel configurations
+    console.log('Fetching active wheel configurations...');
+    const response = await fetch('/api/spinning-wheels/enabled-configs');
+    let wheelConfigs = [];
+    
+    if (response.ok) {
+      const activeWheels = await response.json();
+      
+      // Convert to wheel configs format
+      wheelConfigs = activeWheels.map((wheel, index) => ({
+        id: wheel.id,
+        name: wheel.name || `Wheel ${index + 1}`,
+        type: index === 0 ? 'percent' : 'free-days', // Assume first is percent, second is free-days
+        displayName: index === 0 ? 'Percentage Discount Wheel' : 'Free Days Wheel'
+      }));
+    } else {
+      // Fallback: create default configs
+      wheelConfigs = [
+        {
+          id: 'active',
+          name: 'Spinning Wheel',
+          type: 'default',
+          displayName: 'Spinning Wheel'
+        }
+      ];
+    }
+
+    // Create wheel options HTML based on enabled configurations
+    let wheelOptionsHTML = '';
+    
+    if (wheelConfigs.length > 0) {
+      wheelConfigs.forEach((config, index) => {
+        // Get translations
+        const titleKey = config.type === 'percent' ? 'wheel.percentage_discount_wheel' : 
+                        config.type === 'free-days' ? 'wheel.free_days_wheel' : 
+                        'wheel.title';
+        const descKey = config.type === 'percent' ? 'wheel.percentage_discount_description' : 
+                       config.type === 'free-days' ? 'wheel.free_days_description' : 
+                       'wheel.subtitle';
+        
+        const title = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(titleKey) : config.displayName;
+        const description = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(descKey) : 
+                           (config.type === 'percent' ? 'Win discount percentages on your rental' : 
+                            config.type === 'free-days' ? 'Win free rental days for your next booking' : 
+                            'Win amazing rewards');
+        
+        wheelOptionsHTML += `
+          <button class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
+            <div>
+              <div data-i18n="${titleKey}">${title}</div>
+              <div class="wheel-description" data-i18n="${descKey}">${description}</div>
+            </div>
+          </button>
+        `;
+      });
+    } else {
+      // Fallback if no configurations found
+      wheelOptionsHTML = `
+        <button class="wheel-button default-wheel" data-wheel-id="active">
+          <div>
+            <div>Spinning Wheel</div>
+            <div class="wheel-description">Win amazing rewards</div>
+          </div>
+        </button>
+      `;
+    }
+
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = `
+      <div id="returningCustomerModal" class="returning-customer-modal quickbook-returning-modal">
+        <div class="modal-content">
+          <button class="modal-close" onclick="this.closest('.returning-customer-modal').classList.remove('show'); document.body.classList.remove('modal-open');">×</button>
+          <div class="modal-header">
+            <h2 class="modal-title" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
+            <p class="modal-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
+          </div>
+          <div class="modal-body">
+            <div class="welcome-message" data-i18n="wheel.welcome_message">
+              As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.
+            </div>
+            <div class="wheel-options">
+              ${wheelOptionsHTML}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Add modal styles
+    const modalStyles = document.createElement('style');
+    modalStyles.textContent = `
+      .quickbook-returning-modal.returning-customer-modal {
+        display: none !important;
+        position: fixed !important;
+        z-index: 10000 !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(5px) !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+      }
+      .quickbook-returning-modal.returning-customer-modal.show {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        opacity: 1 !important;
+      }
+      .quickbook-returning-modal .modal-content {
+        background: white !important;
+        border-radius: 20px !important;
+        width: 90% !important;
+        max-width: 1000px !important;
+        max-height: 85vh !important;
+        position: relative !important;
+        overflow: hidden !important;
+        transform: scale(0.9) !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+      }
+      .quickbook-returning-modal.returning-customer-modal.show .modal-content {
+        transform: scale(1) !important;
+      }
+      .quickbook-returning-modal .modal-close {
+        position: absolute !important;
+        top: 15px !important;
+        right: 20px !important;
+        font-size: 28px !important;
+        cursor: pointer !important;
+        color: #FFFFFF !important;
+        z-index: 10 !important;
+        width: 30px !important;
+        height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: none !important;
+        border-radius: 50% !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+      }
+      .quickbook-returning-modal .modal-close:hover {
+        background: none !important;
+        transform: scale(1.1) !important;
+      }
+      .quickbook-returning-modal .modal-header {
+        background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%) !important;
+        color: white !important;
+        padding: 20px !important;
+        text-align: center !important;
+        border-radius: 20px 20px 0 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .quickbook-returning-modal .modal-title {
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+        font-family: Arial, sans-serif !important;
+        color: white !important;
+      }
+      .quickbook-returning-modal .modal-subtitle {
+        font-size: 1rem !important;
+        margin: 10px 0 0 0 !important;
+        opacity: 0.9 !important;
+        font-family: Arial, sans-serif !important;
+        color: white !important;
+      }
+      .quickbook-returning-modal .modal-body {
+        padding: 40px 30px !important;
+        text-align: center !important;
+      }
+      .quickbook-returning-modal .welcome-message {
+        font-size: 1.2rem !important;
+        color: #333 !important;
+        margin-bottom: 30px !important;
+        line-height: 1.6 !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-options {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        margin-top: 30px !important;
+        justify-content: center !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-button {
+        padding: 20px 30px !important;
+        border: none !important;
+        border-radius: 15px !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        flex: 1 !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-button.percent-wheel {
+        background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%) !important;
+        color: white !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-button.free-days-wheel {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%) !important;
+        color: white !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-button div:first-child {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+      }
+      #returningCustomerModal.quickbook-returning-modal .wheel-description {
+        font-size: 0.9rem !important;
+        opacity: 0.9 !important;
+        margin-top: 5px !important;
+      }
+      @media (max-width: 768px) {
+        .quickbook-returning-modal.returning-customer-modal {
+          padding: 10px !important;
+        }
+        .quickbook-returning-modal .modal-content {
+          margin: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          max-height: calc(100vh - 20px) !important;
+          border-radius: 15px !important;
+        }
+        .quickbook-returning-modal .modal-header {
+          padding: 15px !important;
+          border-radius: 15px 15px 0 0 !important;
+        }
+        .quickbook-returning-modal .modal-title {
+          font-size: 1.3rem !important;
+          line-height: 1.2 !important;
+        }
+        .quickbook-returning-modal .modal-subtitle {
+          font-size: 0.9rem !important;
+          margin: 8px 0 0 0 !important;
+        }
+        .quickbook-returning-modal .modal-body {
+          padding: 20px 15px !important;
+        }
+        .quickbook-returning-modal .welcome-message {
+          font-size: 1rem !important;
+          margin-bottom: 20px !important;
+          line-height: 1.4 !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-options {
+          flex-direction: column !important;
+          gap: 12px !important;
+          margin-top: 20px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-button {
+          padding: 15px 20px !important;
+          font-size: 0.95rem !important;
+          min-height: 60px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-button div:first-child {
+          font-size: 1rem !important;
+          margin-bottom: 3px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-description {
+          font-size: 0.85rem !important;
+          line-height: 1.3 !important;
+        }
+        .quickbook-returning-modal .modal-close {
+          top: 10px !important;
+          right: 15px !important;
+          width: 25px !important;
+          height: 25px !important;
+          font-size: 20px !important;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .quickbook-returning-modal .modal-content {
+          margin: 5px !important;
+          max-height: calc(100vh - 10px) !important;
+          border-radius: 10px !important;
+        }
+        .quickbook-returning-modal .modal-header {
+          padding: 12px !important;
+          border-radius: 10px 10px 0 0 !important;
+        }
+        .quickbook-returning-modal .modal-title {
+          font-size: 1.2rem !important;
+        }
+        .quickbook-returning-modal .modal-subtitle {
+          font-size: 0.85rem !important;
+        }
+        .quickbook-returning-modal .modal-body {
+          padding: 15px 12px !important;
+        }
+        .quickbook-returning-modal .welcome-message {
+          font-size: 0.95rem !important;
+          margin-bottom: 15px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-options {
+          gap: 10px !important;
+          margin-top: 15px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-button {
+          padding: 12px 15px !important;
+          font-size: 0.9rem !important;
+          min-height: 55px !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-button div:first-child {
+          font-size: 0.95rem !important;
+        }
+        #returningCustomerModal.quickbook-returning-modal .wheel-description {
+          font-size: 0.8rem !important;
+        }
+      }
+    `;
+
+    // Add styles to head
+    document.head.appendChild(modalStyles);
+    
+    // Add modal to page
+    document.body.appendChild(modalContainer.firstElementChild);
+    
+    // Add wheel selection event listeners
+    const wheelButtons = document.querySelectorAll('.wheel-button');
+    wheelButtons.forEach(button => {
+      button.addEventListener('click', async function() {
+        const wheelId = this.getAttribute('data-wheel-id');
+        console.log('Wheel selected:', wheelId);
+        
+        // Mark return gift as redeemed before opening the spinning wheel
+        await markReturnGiftAsRedeemed();
+        
+        // Close the modal
+        const modal = document.getElementById('returningCustomerModal');
+        if (modal) {
+          modal.classList.remove('show');
+          document.body.classList.remove('modal-open');
+        }
+        
+        // Show the spinning wheel using the same method as single car page
+        if (window.UniversalSpinningWheel && window.UniversalSpinningWheel.show) {
+          // Get the phone number from the form
+          let phoneInput = document.querySelector('input[name="customer_phone"]');
+          if (!phoneInput) {
+            phoneInput = document.querySelector('#phone');
+          }
+          const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+          
+          console.log('Opening spinning wheel with phone number:', phoneNumber, 'wheelId:', wheelId);
+          
+          // Show the spinning wheel modal with the specified wheel ID, skipping phone step
+          window.UniversalSpinningWheel.show({
+            skipPhoneStep: true,
+            phoneNumber: phoneNumber,
+            wheelId: wheelId
+          });
+        } else {
+          console.error('UniversalSpinningWheel not available');
+        }
+      });
+    });
+    
+    // Show the modal
+    console.log('Calling showReturningCustomerModal...');
+    showReturningCustomerModal();
+    
+  } catch (error) {
+    console.error('Error loading returning customer modal:', error);
+  }
+}
+
+// Mark return gift as redeemed
+async function markReturnGiftAsRedeemed() {
+  try {
+    // Get the phone number from the form
+    let phoneInput = document.querySelector('input[name="customer_phone"]');
+    if (!phoneInput) {
+      phoneInput = document.querySelector('#phone');
+    }
+    const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+    
+    if (!phoneNumber) {
+      console.log('No phone number found for marking return gift as redeemed');
+      return;
+    }
+
+    console.log('Marking return gift as redeemed for phone:', phoneNumber);
+    
+    // Call the API to mark return gift as redeemed
+    const response = await fetch('/api/spinning-wheels/mark-return-gift-redeemed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ phoneNumber: phoneNumber })
+    });
+
+    if (response.ok) {
+      console.log('Return gift marked as redeemed successfully');
+    } else {
+      console.error('Failed to mark return gift as redeemed:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error marking return gift as redeemed:', error);
+  }
+}
+
+// Update modal translations
+function updateModalTranslations() {
+  const modal = document.getElementById('returningCustomerModal');
+  if (!modal) return;
+
+  // Check if i18next is available
+  if (typeof i18next !== 'undefined' && i18next.t) {
+    // Update title
+    const titleElement = modal.querySelector('.modal-title[data-i18n="wheel.welcome_back_title"]');
+    if (titleElement) {
+      const translatedTitle = i18next.t('wheel.welcome_back_title');
+      if (translatedTitle && translatedTitle !== 'wheel.welcome_back_title') {
+        titleElement.textContent = translatedTitle;
+      }
+    }
+
+    // Update subtitle
+    const subtitleElement = modal.querySelector('.modal-subtitle[data-i18n="wheel.welcome_back_subtitle"]');
+    if (subtitleElement) {
+      const translatedSubtitle = i18next.t('wheel.welcome_back_subtitle');
+      if (translatedSubtitle && translatedSubtitle !== 'wheel.welcome_back_subtitle') {
+        subtitleElement.textContent = translatedSubtitle;
+      }
+    }
+
+    // Update welcome message
+    const welcomeMessageElement = modal.querySelector('.welcome-message[data-i18n="wheel.welcome_message"]');
+    if (welcomeMessageElement) {
+      const translatedMessage = i18next.t('wheel.welcome_message');
+      if (translatedMessage && translatedMessage !== 'wheel.welcome_message') {
+        welcomeMessageElement.textContent = translatedMessage;
+      }
+    }
+
+    // Update wheel button titles and descriptions
+    const wheelButtons = modal.querySelectorAll('.wheel-button');
+    wheelButtons.forEach(button => {
+      const titleElement = button.querySelector('div[data-i18n]');
+      const descElement = button.querySelector('.wheel-description[data-i18n]');
+      
+      if (titleElement && titleElement.getAttribute('data-i18n')) {
+        const titleKey = titleElement.getAttribute('data-i18n');
+        const translatedTitle = i18next.t(titleKey);
+        if (translatedTitle && translatedTitle !== titleKey) {
+          titleElement.textContent = translatedTitle;
+        }
+      }
+      
+      if (descElement && descElement.getAttribute('data-i18n')) {
+        const descKey = descElement.getAttribute('data-i18n');
+        const translatedDesc = i18next.t(descKey);
+        if (translatedDesc && translatedDesc !== descKey) {
+          descElement.textContent = translatedDesc;
+        }
+      }
+    });
+  }
+}
+
+// Show the returning customer modal
+function showReturningCustomerModal() {
+  console.log('showReturningCustomerModal called');
+  const modal = document.getElementById('returningCustomerModal');
+  console.log('Modal element found:', !!modal);
+  if (modal) {
+    console.log('Adding show class and modal-open to body');
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+    
+    // Update translations after modal is shown
+    updateModalTranslations();
+    
+    console.log('Modal should now be visible');
+  } else {
+    console.error('Modal element not found!');
+  }
+}
+
+// Clear returning customer session storage for a phone number
+function clearReturningCustomerSessionStorage(phoneNumber) {
+  if (!phoneNumber) return;
+  
+  // Clear all session storage keys that start with the phone number pattern
+  const keysToRemove = [];
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith(`hasShownReturningCustomerPopup_${phoneNumber}_`)) {
+      keysToRemove.push(key);
+    }
+  }
+  
+  // Remove all matching keys
+  keysToRemove.forEach(key => {
+    sessionStorage.removeItem(key);
+  });
+}
