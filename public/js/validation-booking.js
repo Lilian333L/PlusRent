@@ -173,22 +173,39 @@ $(document).ready(function () {
       return element.length > 0 ? (element.val() || "").trim() : "";
     };
 
+    // Get the original total price
+    const originalTotalPrice = parseFloat($("#total_price").val()) || 0;
+    
+    // Calculate discounted price if coupon is applied
+    let finalTotalPrice = originalTotalPrice;
+    const discountCode = safeTrim("#modal-discount-code");
+    
+
+    if (discountCode && cachedCouponData && cachedCouponData.valid && lastValidatedCouponCode === discountCode) {
+      const discountPercentage = parseFloat(cachedCouponData.discount_percentage || 0);
+
+      if (!isNaN(discountPercentage) && discountPercentage > 0) {
+        const discountAmount = originalTotalPrice * (discountPercentage / 100);
+        finalTotalPrice = originalTotalPrice - discountAmount;
+      }
+    }
+
     return {
       car_id: selectedOption.attr("data-car-id"),
       customer_name: safeTrim("#name"),
       customer_email: safeTrim("#email"),
       customer_phone: safeTrim("#phone"),
-      customer_age:
-        safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
+      customer_age: safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
       pickup_date: $("#modal-pickup-date").val() || "",
       pickup_time: $("#modal-pickup-time").val() || "",
       return_date: $("#modal-return-date").val() || "",
       return_time: $("#modal-return-time").val() || "",
       pickup_location: $('input[name="pickup_location"]:checked').val() || "",
       dropoff_location: $('input[name="destination"]:checked').val() || "",
-
       special_instructions: safeTrim("#message") || null,
-      total_price: parseFloat($("#total_price").val()) || 0, // Get from hidden field
+      total_price: finalTotalPrice, // Use discounted price
+      // original_price: originalTotalPrice, // Keep original for reference
+      discount_code: discountCode,
       price_breakdown: {},
     };
   };
@@ -497,7 +514,7 @@ function openPriceCalculator() {
 
   // Set minimum dates for modal date fields
   $("#modal-pickup-date").attr("min", pickupDate);
-  $("#modal-return-date").attr("min", pickupDate);
+  $("#modal-return-date").attr("min", returnDate);
 
   // Populate location information
   const pickupLocation = $('input[name="pickup_location"]:checked').val();
@@ -1233,6 +1250,7 @@ async function submitBooking() {
 }
 
 window.showSuccess = function (bookingData) {
+
   // Trigger booking success event for coupon removal
   const bookingSuccessEvent = new CustomEvent('bookingSuccess', {
     detail: { bookingData: bookingData }
