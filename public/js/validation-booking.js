@@ -783,7 +783,7 @@ if (typeof updateContent === 'function') {
       calculateModalPrice();
       
     } catch (error) {
-      console.error("Real-time coupon validation error:", error);
+      
       $("#modal-discount-code").removeClass("is-valid is-invalid");
       cachedCouponData = null;
       lastValidatedCouponCode = null;
@@ -1163,10 +1163,9 @@ async function submitBooking() {
         }
 
         // Coupon is valid and available
-        console.log("Coupon validation successful:", result);
         
       } catch (error) {
-        console.error("Coupon validation error:", error);
+        
         showUniversalError(i18next.t('errors.error_validating_coupon'));
         return false;
       }
@@ -1251,7 +1250,7 @@ async function submitBooking() {
       });
   } catch (error) {
     
-    console.error("Error in submitBooking:", error);
+    
     if (window.showError && typeof window.showError === "function") {
       window.showError(i18next.t('errors.error_processing_booking'));
     } else {
@@ -1756,15 +1755,8 @@ window.testModalError = function() {
 document.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('bookingModal');
   if (modal) {
-    modal.addEventListener('hidden.bs.modal', function() {
-      console.log("=== MODAL CLOSED EVENT DETECTED ===");
-      console.trace("Modal close stack trace:");
-    });
-    
-    modal.addEventListener('hide.bs.modal', function() {
-      console.log("=== MODAL HIDE EVENT DETECTED ===");
-      console.trace("Modal hide stack trace:");
-    });
+    modal.addEventListener('hidden.bs.modal', function() {});
+    modal.addEventListener('hide.bs.modal', function() {});
   }
 });
 
@@ -1773,19 +1765,10 @@ $(document).ready(function() {
   // Monitor when error message is shown/hidden
   const originalShowError = window.showError;
   window.showError = function(message) {
-    console.log("=== SHOW ERROR CALLED ===");
-    console.log("Error message:", message);
-    console.log("Error element:", $("#error_message")[0]);
-    console.log("Modal visible:", $("#price-calculator-modal").is(":visible"));
     originalShowError.call(this, message);
   };
-  
-  // Monitor modal open/close
   const originalClosePriceCalculator = window.closePriceCalculator;
   window.closePriceCalculator = function() {
-    console.log("=== CLOSE PRICE CALCULATOR CALLED ===");
-    console.log("Error message visible before close:", $("#error_message").is(":visible"));
     originalClosePriceCalculator.call(this);
-    console.log("Error message visible after close:", $("#error_message").is(":visible"));
   };
 });
