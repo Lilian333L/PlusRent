@@ -340,7 +340,6 @@ class GlobalBookingSystem {
       if (response.ok && result.valid) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
-        this.showCouponMessage("Coupon applied successfully!", "success");
         
         // Store coupon data globally for price calculator
         window.cachedCouponData = result;

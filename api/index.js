@@ -17,6 +17,7 @@ const couponRoutes = require('../routes/coupons');
 const bookingRoutes = require('../routes/bookings');
 const spinningWheelRoutes = require('../routes/spinning-wheels');
 const feeSettingsRoutes = require('../routes/fee-settings');
+const settingsRoutes = require('../routes/settings');
 const contactRoutes = require('../routes/contact');
 const app = express();
 
@@ -135,6 +136,12 @@ try {
   app.use('/fee-settings', feeSettingsRoutes);
 } catch (error) {
   console.error('❌ Failed to mount fee settings routes:', error);
+}
+
+try {
+  app.use('/settings', settingsRoutes);
+} catch (error) {
+  console.error('❌ Failed to mount settings routes:', error);
 }
 
 try {

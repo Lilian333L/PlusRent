@@ -2774,6 +2774,34 @@
                               </div>
                             </div>
                           </div>
+
+                          <!-- Returning Customer Settings -->
+                          <div class="card mt-4">
+                            <div class="card-header bg-light">
+                              <h6 class="mb-0"><i class="fa fa-users"></i> Returning Customer Settings</h6>
+                            </div>
+                            <div class="card-body">
+                              <div class="mb-3">
+                                <label for="returningCustomerBookingNumber" class="form-label">
+                                  <strong>Booking Interval for Popup Trigger</strong>
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="returningCustomerBookingNumber" 
+                                       min="1" 
+                                       value="2" 
+                                       placeholder="Enter booking interval">
+                                <div class="form-text">
+                                  Set the booking interval for the returning customer popup (e.g., 2 = every 2nd booking: 2nd, 4th, 6th, etc.)
+                                </div>
+                              </div>
+                              <button type="button" 
+                                      class="btn btn-primary btn-sm" 
+                                      id="saveReturningCustomerSettings">
+                                <i class="fa fa-save"></i> Save Settings
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -6426,6 +6454,73 @@
           
           // Initialize phone number modal handlers
           initializePhoneNumberModal();
+          
+          // Initialize returning customer settings
+          initializeReturningCustomerSettings();
+        }
+
+        // Initialize returning customer settings
+        function initializeReturningCustomerSettings() {
+          const saveBtn = document.getElementById('saveReturningCustomerSettings');
+          
+          if (saveBtn) {
+            saveBtn.addEventListener('click', saveReturningCustomerSettings);
+          }
+          
+          // Load current settings
+          loadReturningCustomerSettings();
+        }
+
+        // Load returning customer settings
+        async function loadReturningCustomerSettings() {
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/settings/returning-customer`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              const input = document.getElementById('returningCustomerBookingNumber');
+              if (input) {
+                input.value = data.booking_trigger_number || 2;
+              }
+            } else {
+              console.error('Failed to load returning customer settings');
+            }
+          } catch (error) {
+            console.error('Error loading returning customer settings:', error);
+          }
+        }
+
+        // Save returning customer settings
+        async function saveReturningCustomerSettings() {
+          const input = document.getElementById('returningCustomerBookingNumber');
+          const bookingNumber = parseInt(input.value);
+          
+          if (!bookingNumber || bookingNumber < 1) {
+            showCustomAlert('Please enter a valid booking number (minimum 1)', 'error');
+            return;
+          }
+          
+          try {
+            const response = await fetch(`${window.API_BASE_URL}/api/settings/returning-customer`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                booking_trigger_number: bookingNumber
+              })
+            });
+            
+            if (response.ok) {
+              showCustomAlert('Returning customer settings saved successfully', 'success');
+            } else {
+              const error = await response.json();
+              showCustomAlert('Error saving settings: ' + error.error, 'error');
+            }
+          } catch (error) {
+            console.error('Error saving returning customer settings:', error);
+            showCustomAlert('Error saving settings', 'error');
+          }
         }
 
         // Preview a specific wheel

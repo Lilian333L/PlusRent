@@ -1140,6 +1140,15 @@
 
           // Scroll to the notification
           successNotification.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Clear auto-applied coupon from localStorage after successful booking
+          localStorage.removeItem('autoApplyCoupon');
+          localStorage.removeItem('spinningWheelWinningCoupon');
+          
+          // Dispatch booking success event for other components (like auto-apply coupon cleanup)
+          document.dispatchEvent(new CustomEvent('bookingSuccess', { 
+            detail: { bookingData: bookingData } 
+          }));
         },
         onError: function (errorMessage) {
           // Booking failed - no alert needed

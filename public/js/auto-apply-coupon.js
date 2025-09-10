@@ -138,9 +138,6 @@
 
             localStorage.removeItem(CONFIG.storageKey);
 
-            // Show confirmation
-            showCouponUsedFeedback(savedCoupon);
-
         } catch (error) {
             console.error('Error removing coupon:', error);
         }
