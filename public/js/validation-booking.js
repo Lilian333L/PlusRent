@@ -9,6 +9,10 @@ $(document).ready(function () {
   // API base URL from config - use relative URLs for Vercel deployment
   const apiBaseUrl = window.API_BASE_URL || "";
 
+  // Cache for coupon data to avoid repeated API calls
+  let cachedCouponData = null;
+  let lastValidatedCouponCode = null;
+
   // Debug: Check if radio buttons are accessible on page load
 
   // Enhanced form validation
@@ -22,10 +26,9 @@ $(document).ready(function () {
 
     // Required fields validation (removed date/time fields since they're now in modal)
     const requiredFields = {
-      phone: "Phone",
-      vehicle_type: "Vehicle",
+      phone: i18next.t('booking.phone_number'),
+      vehicle_type: i18next.t('booking.vehicle_type'),
     };
-
     // Check required fields
     Object.keys(requiredFields).forEach((fieldId) => {
       const field = $(`#${fieldId}`);
@@ -34,9 +37,9 @@ $(document).ready(function () {
       if (!value || value.trim() === "") {
         field.addClass("error_input");
         field.after(
-          `<div class="field-error text-danger small mt-1">${requiredFields[fieldId]} ${i18next.t('errors.is_required')}</div>`
+          `<div class="field-error text-danger small mt-1">${i18next.t(`errors.${fieldId}_required`)}</div>`
         );
-        errors.push(`${requiredFields[fieldId]} ${i18next.t('errors.is_required')}`);
+        errors.push(i18next.t(`errors.${fieldId}_required`));
         isValid = false;
       }
     });
@@ -185,7 +188,6 @@ $(document).ready(function () {
       dropoff_location: $('input[name="destination"]:checked').val() || "",
 
       special_instructions: safeTrim("#message") || null,
-      discount_code: safeTrim("#modal-discount-code") || null,
       total_price: parseFloat($("#total_price").val()) || 0, // Get from hidden field
       price_breakdown: {},
     };
@@ -270,32 +272,46 @@ $(document).ready(function () {
     $("#error_message").hide().removeClass("show");
   });
 
+  // Debug: Check if submit button exists
+
   // Handle form submission - now opens price calculator modal
   submitButton.click(function (e) {
+    
     // Skip old validation system if we're on car-single page (using new BookingFormHandler)
     if (window.location.pathname.includes("car-single")) {
       return; // Don't prevent default, let the new BookingFormHandler handle it
     }
-
     e.preventDefault();
     e.stopPropagation();
 
     // Hide any existing messages
     $("#booking-success-notification").hide();
-    $("#error_message").hide();
+    $("#error_message").hide().removeClass("show");
+    
 
-    // Validate form
-    const validation = validateForm();
+    // Check only the most essential fields before opening modal
+    const phone = $("#phone").val();
+    const vehicleType = $("#vehicle_type").val();
 
-    if (!validation.isValid) {
-      showError(
-        `${i18next.t('errors.please_fix_issues')}<br>${validation.errors.join("<br>")}`
-      );
-      return;
+    if (!phone || phone.trim() === "") {
+        showError(i18next.t('errors.phone_required'));
+        return;
     }
 
-    // Open price calculator modal instead of submitting directly
+    if (!vehicleType || vehicleType.trim() === "") {
+        showError(i18next.t('errors.vehicle_type_required'));
+        return;
+    }
+
+    // Open the modal
     openPriceCalculator();
+  });
+
+  // Also prevent form submission event (in case the form is submitted by other means)
+  $("#booking_form").on("submit", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
   });
 
   // Send confirmation email (optional enhancement)
@@ -480,51 +496,21 @@ $(document).ready(function () {
   });
 });
 
-// Price Calculator Modal Functions
-function initializePriceCalculatorModal() {
-  // Close modal when clicking outside
-  $("#price-calculator-modal").on("click", function (e) {
-    if (e.target === this) {
-      closePriceCalculator();
-    }
-  });
-
-  // Close modal with Escape key
-  $(document).on("keydown", function (e) {
-    if (e.key === "Escape" && $("#price-calculator-modal").is(":visible")) {
-      closePriceCalculator();
-    }
-  });
-}
-
 function openPriceCalculator() {
   // Since we removed date/time fields from main form, we'll set default values
   const today = new Date();
   const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setDate(today.getDate() + 1);
+  const dayAfterTomorrow = new Date(tomorrow);
+  dayAfterTomorrow.setDate(today.getDate() + 2);
+  
 
-  const pickupDate = today.toISOString().split("T")[0];
-  const returnDate = tomorrow.toISOString().split("T")[0];
+  const pickupDate = tomorrow.toISOString().split("T")[0];
+  const returnDate = dayAfterTomorrow.toISOString().split("T")[0];
 
   const selectedVehicle = $("#vehicle_type option:selected");
 
-  console.log("=== DEBUG Vehicle Selection ===");
-  console.log("selectedVehicle:", selectedVehicle);
-  console.log("selectedVehicle.val():", selectedVehicle.val());
-  console.log("selectedVehicle.attr('data-car-details'):", selectedVehicle.attr("data-car-details"));
-  console.log("All vehicle options:", $("#vehicle_type option").length);
-
-  // Add this debugging code to see if vehicles are loaded
-  console.log("Vehicle dropdown options:", $("#vehicle_type option").map(function() {
-    return {
-      value: $(this).val(),
-      text: $(this).text(),
-      hasData: !!$(this).attr("data-car-details")
-    };
-  }).get());
-
   if (!selectedVehicle.val()) {
-    console.log("No vehicle selected!");
     if (window.showError && typeof window.showError === "function") {
       window.showError(i18next.t('errors.please_select_vehicle_first'));
     } else {
@@ -686,25 +672,124 @@ if (typeof updateContent === 'function') {
   $("#price-calculator-modal").fadeIn(300);
   $("body").addClass("modal-open");
 
+  // Clear any previous error messages when modal opens
+  $("#error_message").hide().removeClass("show");
+
   // Add keyboard event listener for Escape key
-  $(document).on("keydown.modal", function (e) {
-    if (e.key === "Escape" && $("#price-calculator-modal").is(":visible")) {
-      closePriceCalculator();
-    }
-  });
+  // Disabled: Modal should not close with Escape key
+  // $(document).on("keydown.modal", function (e) {
+  //   if (e.key === "Escape" && $("#price-calculator-modal").is(":visible")) {
+  //     closePriceCalculator();
+  //   }
+  // });
 
   // Add click event listener to close modal when clicking outside
   // Use setTimeout to prevent immediate triggering from the opening click
-  setTimeout(function () {
-    $(document).on("click.modal", function (e) {
-      if (
-        $(e.target).closest("#price-calculator-modal").length === 0 &&
-        $("#price-calculator-modal").is(":visible")
-      ) {
-        closePriceCalculator();
+  // Disabled: Modal should not close when clicking outside
+  // setTimeout(function () {
+  //   $(document).on("click.modal", function (e) {
+  //     if (
+  //       $(e.target).closest("#price-calculator-modal").length === 0 &&
+  //       $("#price-calculator-modal").is(":visible")
+  //     ) {
+  //       closePriceCalculator();
+  //     }
+  //   });
+  // }, 100);
+
+  // Add coupon validation on focus out (when user finishes typing)
+  $("#modal-discount-code").on("blur", function() {
+    const couponCode = $(this).val().trim();
+    const customerPhone = $("#phone").val();
+    
+    if (couponCode.length >= 3) { // Only validate if at least 3 characters
+      validateCouponRealTime(couponCode, customerPhone);
+    } else if (couponCode.length > 0) {
+      // Clear validation state for short codes
+      $("#modal-discount-code").removeClass("is-valid is-invalid");
+      cachedCouponData = null;
+      lastValidatedCouponCode = null;
+      calculateModalPrice(); // Recalculate without discount
+    } else {
+      // Coupon field is empty - clear everything
+      $("#modal-discount-code").removeClass("is-valid is-invalid");
+      cachedCouponData = null;
+      lastValidatedCouponCode = null;
+      calculateModalPrice(); // Recalculate without discount
+    }
+  });
+
+  // Also clear validation state when user starts typing again
+  $("#modal-discount-code").on("input", function() {
+    const couponCode = $(this).val().trim();
+    if (couponCode.length < 3) {
+      // Clear validation state while typing
+      $("#modal-discount-code").removeClass("is-valid is-invalid");
+      // If coupon code changed, clear cache
+      if (lastValidatedCouponCode && lastValidatedCouponCode !== couponCode) {
+        cachedCouponData = null;
+        lastValidatedCouponCode = null;
+        calculateModalPrice(); // Recalculate without discount
       }
-    });
-  }, 100);
+    }
+  });
+
+  // Real-time coupon validation function
+  async function validateCouponRealTime(couponCode, customerPhone) {
+    try {
+      // If we already have cached data for this exact coupon code, use it
+      if (cachedCouponData && lastValidatedCouponCode === couponCode) {
+        $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
+        calculateModalPrice();
+        return;
+      }
+
+      const apiBaseUrl = window.API_BASE_URL || "";
+      
+      // Step 1: Validate coupon code without phone
+      let response = await fetch(
+        `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
+      );
+      let result = await response.json();
+
+      if (!result.valid) {
+        $("#modal-discount-code").removeClass("is-valid").addClass("is-invalid");
+        cachedCouponData = null;
+        lastValidatedCouponCode = null;
+        calculateModalPrice();
+        return;
+      }
+
+      // Step 2: Validate with phone if available
+      if (customerPhone) {
+        response = await fetch(
+          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+        );
+        result = await response.json();
+
+        if (!result.valid) {
+          $("#modal-discount-code").removeClass("is-valid").addClass("is-invalid");
+          cachedCouponData = null;
+          lastValidatedCouponCode = null;
+          calculateModalPrice();
+          return;
+        }
+      }
+
+      // Coupon is valid - cache the data
+      cachedCouponData = result;
+      lastValidatedCouponCode = couponCode;
+      $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
+      calculateModalPrice();
+      
+    } catch (error) {
+      
+      $("#modal-discount-code").removeClass("is-valid is-invalid");
+      cachedCouponData = null;
+      lastValidatedCouponCode = null;
+      calculateModalPrice();
+    }
+  }
 }
 
 function closePriceCalculator() {
@@ -733,14 +818,8 @@ async function calculateModalPrice() {
   const returnDateStr = $("#modal-return-date").val();
   const selectedVehicle = $("#vehicle_type option:selected");
 
-  console.log("=== DEBUG calculateModalPrice ===");
-  console.log("pickupDateStr:", pickupDateStr);
-  console.log("returnDateStr:", returnDateStr);
-  console.log("selectedVehicle:", selectedVehicle.val());
-  console.log("selectedVehicle data:", selectedVehicle.attr("data-car-details"));
 
   if (!selectedVehicle.val() || !pickupDateStr || !returnDateStr) {
-    console.log("Missing required data - returning early");
     return;
   }
 
@@ -749,8 +828,6 @@ async function calculateModalPrice() {
   const returnDate = new Date(returnDateStr + "T00:00:00");
 
   const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
-  console.log("carDetails:", carDetails);
-  console.log("price_policy:", carDetails.price_policy);
 
   // Calculate duration - fix the calculation
   const timeDiff = returnDate.getTime() - pickupDate.getTime();
@@ -845,7 +922,26 @@ async function calculateModalPrice() {
   }
 
   // Calculate total (removed insurance as requested)
-  const totalCost = baseCost + totalLocationFee + outsideHoursFees;
+  let totalCost = baseCost + totalLocationFee + outsideHoursFees;
+
+  // Apply coupon discount if valid coupon is entered
+  const couponCode = $("#modal-discount-code").val().trim();
+  let discountAmount = 0;
+  let discountPercentage = 0;
+
+  if (couponCode && $("#modal-discount-code").hasClass("is-valid") && cachedCouponData) {
+    // Use cached coupon data instead of making API call
+    if (cachedCouponData.discount_percentage) {
+      discountPercentage = cachedCouponData.discount_percentage || 0;
+      discountAmount = (totalCost * discountPercentage) / 100;
+    } else if (cachedCouponData.discount_amount) {
+      discountAmount = cachedCouponData.discount_amount || 0;
+    }
+    
+    // Ensure discount doesn't exceed total cost
+    discountAmount = Math.min(discountAmount, totalCost);
+    totalCost = Math.max(0, totalCost - discountAmount);
+  }
 
   // Update modal display
   $("#modal-daily-rate").text("€" + dailyRate);
@@ -854,7 +950,18 @@ async function calculateModalPrice() {
   );
   $("#modal-location-fees").text("€" + totalLocationFee.toFixed(2));
   $("#modal-night-premium").text("€" + outsideHoursFees.toFixed(2));
-  $("#modal-total-estimate").text("€" + totalCost.toFixed(2));
+  
+  // Show discount if applied
+  if (discountAmount > 0) {
+    $("#modal-total-estimate").html(
+      '<span style="text-decoration: line-through; color: #999;">€' + 
+      (baseCost + totalLocationFee + outsideHoursFees).toFixed(2) + 
+      '</span> €' + totalCost.toFixed(2) + 
+      ' <span style="color: #28a745; font-size: 0.9em;">(-€' + discountAmount.toFixed(2) + ')</span>'
+    );
+  } else {
+    $("#modal-total-estimate").text("€" + totalCost.toFixed(2));
+  }
 
   // Trigger i18n update for the duration
   if (typeof updateContent === 'function') {
@@ -966,11 +1073,22 @@ async function applyModalCalculation() {
       $("#customer_age").val(modalCustomerAge);
     }
 
-    // Close the modal properly
-    closePriceCalculator();
+    // Show loading state
+    showLoading();
 
-    // Now submit the booking automatically
-    await submitBooking();
+    // API base URL - use relative URLs for Vercel deployment
+    const apiBaseUrl = window.API_BASE_URL || "";
+
+    // Submit booking to API and return a Promise
+    const bookingResult = await submitBooking();
+    if (bookingResult === true) {
+      // Clear any error messages before closing modal
+      $("#error_message").hide().removeClass("show");
+      // Only close modal if booking was successful
+      closePriceCalculator();
+    } else {
+      // Don't close modal on booking error - let user fix the issues
+    }
   } catch (error) {
     if (window.showError && typeof window.showError === "function") {
       window.showError(i18next.t('errors.error_processing_booking'));
@@ -981,9 +1099,11 @@ async function applyModalCalculation() {
       window.showError(i18next.t('errors.error_processing_booking'));
     }
   }
+  
 }
 
 async function submitBooking() {
+  
   try {
     // Collect form data
     const bookingData = collectFormData();
@@ -1001,7 +1121,7 @@ async function submitBooking() {
         $('body').prepend(tempError);
         window.showError(i18next.t('errors.missing_booking_info'));
       }
-      return;
+      return false; // Return false for errors (don't throw)
     }
 
     // Age validation is now handled by HTML5 required attribute and min/max constraints
@@ -1014,52 +1134,40 @@ async function submitBooking() {
         const customerPhone = bookingData.customer_phone;
         const apiBaseUrl = window.API_BASE_URL || "";
 
-        // Try redemption code validation first (with phone number if available)
-        let response;
-        if (customerPhone) {
-          response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(
-              customerPhone
-            )}`
-          );
-        } else {
-          response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
-          );
-        }
-
+        // Step 1: Validate coupon code without phone number
+        let response = await fetch(
+          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
+        );
         let result = await response.json();
 
-        // If redemption code validation fails, try regular coupon validation
         if (!result.valid) {
-          response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate/${couponCode}`
-          );
-          result = await response.json();
+          // Coupon code is invalid
+          const errorMessage = result.message || i18next.t('errors.invalid_coupon_code');
+          showUniversalError(errorMessage);
+          return false;
         }
 
-        if (!response.ok || !result.valid) {
-          const errorMessage =
-            result.message ||
-            result.error ||
-            i18next.t('errors.invalid_coupon_code');
-          if (window.showError && typeof window.showError === "function") {
-            window.showError(errorMessage);
-          } else {
-            alert(errorMessage);
+        // Step 2: Validate coupon code with phone number (if phone is available)
+        if (customerPhone) {
+          response = await fetch(
+            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+          );
+          result = await response.json();
+
+          if (!result.valid) {
+            // Coupon is not available for this phone number
+            const errorMessage = result.message || i18next.t('errors.coupon_not_available');
+            showUniversalError(errorMessage);
+            return false;
           }
-          return;
         }
+
+        // Coupon is valid and available
+        
       } catch (error) {
-        if (window.showError && typeof window.showError === "function") {
-          window.showError(i18next.t('errors.error_validating_coupon'));
-        } else {
-          // Create temporary error element and use showError
-          const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
-          $('body').prepend(tempError);
-          window.showError(i18next.t('errors.error_validating_coupon'));
-        }
-        return;
+        
+        showUniversalError(i18next.t('errors.error_validating_coupon'));
+        return false;
       }
     }
 
@@ -1069,8 +1177,8 @@ async function submitBooking() {
     // API base URL - use relative URLs for Vercel deployment
     const apiBaseUrl = window.API_BASE_URL || "";
 
-    // Submit booking to API
-    fetch(`${apiBaseUrl}/api/bookings`, {
+    // Submit booking to API and return a Promise
+    return fetch(`${apiBaseUrl}/api/bookings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1081,77 +1189,79 @@ async function submitBooking() {
         return response.json();
       })
       .then((data) => {
+        
+        
         hideLoading();
 
         if (data.success) {
+          
           showSuccess(bookingData);
           // Clear form
           $("#booking_form")[0].reset();
           $("#total_price").val("0");
+          return true; // Return success
         } else {
+          
           // Handle validation errors with translations
           if (data.error === "Validation error" && data.field) {
-            // Get translation key based on field
-            let translationKey = "";
-            switch (data.field) {
-              case "customer_phone":
-                translationKey = "booking.validation.phone_invalid";
-                break;
-              case "customer_email":
-                translationKey = "booking.validation.email_invalid";
-                break;
-              case "customer_age":
-                translationKey = "booking.validation.age_invalid";
-                break;
-              case "pickup_date":
-              case "return_date":
-                translationKey = "booking.validation.select_dates";
-                break;
-              case "pickup_time":
-              case "return_time":
-                translationKey = "booking.validation.select_times";
-                break;
-              case "pickup_location":
-              case "dropoff_location":
-                translationKey = "booking.validation.select_locations";
-                break;
-              default:
-                translationKey = "booking.form_error";
-            }
+            
+            
+            // Use the translation key that the backend sends directly
+            let translationKey = data.details; // This is already 'errors.validation.dates_invalid'
+            
+            
 
             // Get translated message or fallback to server message
-            const translatedMessage =
-              window.i18n && window.i18n.t
-                ? window.i18n.t(translationKey)
-                : data.details;
-            const finalMessage =
-              translatedMessage ||
-              data.details ||
-              "Booking failed. Please try again.";
+            let finalMessage = translationKey; // Default to the key
+            
+            // Try to translate using i18next
+            if (typeof i18next !== 'undefined' && i18next.t) {
+              const translatedMessage = i18next.t(translationKey);
+              
+              
+              // If translation worked (not the same as the key), use it
+              if (translatedMessage && translatedMessage !== translationKey) {
+                finalMessage = translatedMessage;
+                
+              } else {
+                
+              }
+            } else {
+              
+            }
 
-            showError(finalMessage);
+            
+            showUniversalError(finalMessage);
           } else {
-            showError(
+            
+            showUniversalError(
               data.message || data.error || "Booking failed. Please try again."
             );
           }
+          return false; // Return false for errors (don't throw)
         }
+        
       })
       .catch((error) => {
+        
         hideLoading();
         showError("Network error. Please check your connection and try again.");
+        return false; // Return false for network errors
       });
   } catch (error) {
-    hideLoading();
+    
+    
     if (window.showError && typeof window.showError === "function") {
-      window.showError(i18next.t('errors.error_submitting_booking'));
+      window.showError(i18next.t('errors.error_processing_booking'));
     } else {
       // Create temporary error element and use showError
       const tempError = $('<div id="error_message" class="alert alert-danger" style="display: none; margin: 20px 0;"></div>');
       $('body').prepend(tempError);
-      window.showError(i18next.t('errors.error_submitting_booking'));
+      window.showError(i18next.t('errors.error_processing_booking'));
     }
   }
+  
+  
 }
 
 window.showSuccess = function (bookingData) {
@@ -1597,20 +1707,68 @@ window.showSuccess = function (bookingData) {
   }
 };
 
-function showError(message) {
-  const errorMessage = $("#error_message");
-  errorMessage.html(message).show().addClass("show");
-
-  // Scroll to error message
-  $("html, body").animate(
-    {
-      scrollTop: errorMessage.offset().top - 100,
-    },
-    500
-  );
-
-  // Auto-hide error message after 5 seconds
-  setTimeout(() => {
-    errorMessage.hide().removeClass("show");
-  }, 5000);
+// Universal Error Popup System
+function showUniversalError(message) {
+    
+    const popup = $("#universal-error-popup");
+    const messageElement = $("#universal-error-message");
+    
+    if (popup.length === 0) {
+        // Fallback to alert
+        alert(message);
+        return;
+    }
+    
+    messageElement.html(message);
+    popup.fadeIn(300);
+    
+    // Auto-hide after 8 seconds
+    setTimeout(() => {
+        hideUniversalError();
+    }, 8000);
 }
+
+function hideUniversalError() {
+    $("#universal-error-popup").fadeOut(300);
+}
+
+// Make functions globally available
+window.showUniversalError = showUniversalError;
+window.hideUniversalError = hideUniversalError;
+
+// Override the existing showError function to use popup
+window.showError = function(message) {
+    showUniversalError(message);
+};
+
+// Debug: Test modal error display
+window.testModalError = function() {
+
+    if ($("#modal-error-message").length > 0) {
+        $("#modal-error-text").text("Test error message");
+        $("#modal-error-message").fadeIn(300);
+    } else {
+    }
+};
+
+// Debug: Track modal closing events
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('bookingModal');
+  if (modal) {
+    modal.addEventListener('hidden.bs.modal', function() {});
+    modal.addEventListener('hide.bs.modal', function() {});
+  }
+});
+
+// Debug: Track error message behavior
+$(document).ready(function() {
+  // Monitor when error message is shown/hidden
+  const originalShowError = window.showError;
+  window.showError = function(message) {
+    originalShowError.call(this, message);
+  };
+  const originalClosePriceCalculator = window.closePriceCalculator;
+  window.closePriceCalculator = function() {
+    originalClosePriceCalculator.call(this);
+  };
+});

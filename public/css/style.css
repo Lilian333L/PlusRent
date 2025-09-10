@@ -19475,69 +19475,7 @@ header.header-mobile #mainmenu a:hover {
 /* Mobile Date Picker Fixes for iOS */
 /* ================================================== */
 
-/* Global mobile date picker fixes */
-@media (max-width: 768px) {
-    input[type="date"] {
-        /* Ensure proper sizing on mobile */
-        font-size: 16px !important; /* Prevents zoom on iOS */
-        height: 38px !important; /* Reduced height to match time inputs */
-        padding: 6px 10px !important; /* Reduced padding */
-        /* Ensure the date picker doesn't get cut off */
-        position: relative;
-        z-index: 1000;
-        /* Better mobile appearance */
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        background: white;
-        width: 100%;
-        box-sizing: border-box;
-        /* Ensure consistent left alignment like time inputs */
-        text-align: left !important;
-        text-align-last: left !important;
-    }
-    
-    /* Fix for iOS date picker viewport issues */
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        background: transparent;
-        bottom: 0;
-        color: transparent;
-        cursor: pointer;
-        height: auto;
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: auto;
-        z-index: 1001;
-    }
-    
-    /* Ensure date picker containers don't overflow */
-    .booking-section,
-    .form-group,
-    .form-control {
-        overflow: visible !important;
-        position: relative;
-    }
-    
-    /* Fix for flexbox wrapping on very small screens */
-    .booking-section > div[style*="display: flex"],
-    .form-row > div[style*="display: flex"] {
-        flex-direction: column;
-        gap: 12px !important;
-    }
-    
-    .booking-section > div[style*="display: flex"] > div,
-    .form-row > div[style*="display: flex"] > div {
-        min-width: 100% !important;
-        flex: none !important;
-    }
-    
-    /* Ensure proper spacing for date inputs */
-    input[type="date"] + label,
-    label + input[type="date"] {
-        margin-top: 8px;
-    }
-}
+
 
 /* Specific fix for iPhone 14 Pro Max and similar devices */
 @media only screen and (max-width: 430px) {
@@ -19662,6 +19600,80 @@ input[type="date"] {
             color: #333 !important;
             opacity: 1 !important;
             visibility: visible !important;
+        }
+    }
+    div#universal-error-popup {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: auto;
+        max-width: 400px;
+        min-width: 300px;
+        height: auto;
+        background: #dc3545;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        opacity: 1;
+        z-index: 99999;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    div#universal-error-popup .universal-error-content {
+        display: flex;
+        align-items: flex-start;
+        padding: 15px 20px;
+        gap: 12px;
+    }
+    
+    div#universal-error-popup .universal-error-icon {
+        font-size: 20px;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    div#universal-error-popup .universal-error-text {
+        flex: 1;
+        line-height: 1.4;
+    }
+    
+    div#universal-error-popup .universal-error-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: auto;
+        flex-shrink: 0;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+    
+    div#universal-error-popup .universal-error-close:hover {
+        opacity: 1;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        div#universal-error-popup {
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            max-width: none;
+            min-width: auto;
         }
     }
 }
