@@ -1044,55 +1044,39 @@ async function fetchAndRenderCars() {
     renderSidebarOptions(allCarsFullCache); // Always use the full cache to keep all filter options visible
     return;
   }
-  carListDiv.innerHTML = cars.map(car => {
-    // Check if car is unavailable (booked until a future date)
-    const isUnavailable = car.booked_until && (() => {
-      const bookedUntil = new Date(car.booked_until);
-      const now = new Date();
-      now.setHours(0, 0, 0, 0); // Compare dates only
-      bookedUntil.setHours(0, 0, 0, 0); // Compare dates only
-      return bookedUntil >= now; // Only unavailable if booked until today or future
-    })();
-    
-    let badge = '';
-    if (isUnavailable && car.booked_until) {
-      const d = new Date(car.booked_until);
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-      badge = `<div class="unavailable-badge" data-i18n="cars.unavailable_until" data-i18n-date="${formatted}">UNAVAILABLE UNTIL ${formatted}</div>`;
-    }
+  const carsHtml = cars.map(car => {
     const isPremium = car.is_premium === 1 || car.is_premium === true;
+    const rentNowUrl = `car-single.html?id=${car.id}`;
+
     return `
-                                <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-                                    <div class="de-item mb30${isPremium ? ' premium' : ''}${isUnavailable ? ' car-unavailable' : ''}">
-          <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
-            <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image + '?v=' + Date.now() : (car.head_image ? window.API_BASE_URL + car.head_image + '?v=' + Date.now() : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="" onerror="this.onerror=null; this.src=window.API_BASE_URL + '/uploads/placeholder.png';">
-            ${badge}
+      <div class="col-xl-4 col-lg-4 col-md-6">
+        <div class="de-item mb30${isPremium ? ' premium' : ''}">
+          <div class="d-img">
+            <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="">
             ${isPremium ? '<div class="premium-badge">PREMIUM</div>' : ''}
-                                        </div>
-                                        <div class="d-info">
-                                            <div class="d-text">
+          </div>
+          <div class="d-info">
+            <div class="d-text">
               <h4>${formatDisplayText(car.make_name)}</h4>
               <p>${formatDisplayText(car.model_name)}</p>
-                                                <div class="d-item_like">
+              <div class="d-item_like">
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-                                        </div>
-                                        <div class="d-atr-group">
+              </div>
+              <div class="d-atr-group">
                 <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
                 <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
                 <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="car_types.${car.car_type?.toLowerCase() || 'car'}">${car.car_type || '-'}</span></span>
-                                                </div>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
+              </div>
               <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
-              ${isUnavailable
-                  ? '<span class="btn-main btn-unavailable" tabindex="-1" aria-disabled="true" data-i18n="cars.not_available">Not Available</span>'
-                  : `<a class="btn-main" href="car-single?id=${car.id}" data-i18n="cars.rent_now">Rent Now</a>`}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+              <a class="btn-main" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
     `;
   }).join('');
+  carListDiv.innerHTML = carsHtml;
   renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
   
   // Update i18n translations for dynamically added content

@@ -2366,63 +2366,6 @@
                     </div>
                 </div>
             </section>
-
-            <section id="section-faq">
-                <div class="container">
-                    <div class="row">
-                        <div class="col text-center">
-                            <h2 data-i18n="faq.title"></h2>
-                            <div class="spacer-20"></div>
-                        </div>
-                    </div>
-                    <div class="row g-custom-x">
-                        <div class="col-md-6 wow fadeInUp">
-                            <div class="accordion secondary">
-                                <div class="accordion-section">
-                                    <div class="accordion-section-title" data-tab="#accordion-1" data-i18n="faq.question1">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-1">
-                                        <p data-i18n="faq.answer1"></p>
-                                    </div>
-                                    <div class="accordion-section-title" data-tab="#accordion-2" data-i18n="faq.question2">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-2">
-                                        <p data-i18n="faq.answer2"></p>
-                                    </div>
-                                    <div class="accordion-section-title" data-tab="#accordion-3" data-i18n="faq.question3">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-3">
-                                        <p data-i18n="faq.answer3"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 wow fadeInUp">
-                            <div class="accordion secondary">
-                                <div class="accordion-section">
-                                    <div class="accordion-section-title" data-tab="#accordion-b-4" data-i18n="faq.question4">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-b-4">
-                                        <p data-i18n="faq.answer4"></p>
-                                    </div>
-                                    <div class="accordion-section-title" data-tab="#accordion-b-5" data-i18n="faq.question5">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-b-5">
-                                        <p data-i18n="faq.answer5"></p>
-                                    </div>
-                                    <div class="accordion-section-title" data-tab="#accordion-b-6" data-i18n="faq.question6">
-                                    </div>
-                                    <div class="accordion-section-content" id="accordion-b-6">
-                                        <p data-i18n="faq.answer6"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <section id="section-call-to-action" class="bg-color-2 pt60 pb60 text-light">
                 <div class="container">
                     <div class="container">
@@ -2584,32 +2527,14 @@
             }
             
             const carsHtml = cars.map(car => {
-
-              // Check if car is unavailable (booked until a future date)
-              const isUnavailable = car.booked_until && (() => {
-                const bookedUntil = new Date(car.booked_until);
-                const now = new Date();
-                now.setHours(0, 0, 0, 0); // Compare dates only
-                return bookedUntil >= now; // Only unavailable if booked until today or future
-              })();
-              
-              let badge = '';
-              if (isUnavailable && car.booked_until) {
-                const d = new Date(car.booked_until);
-                const options = { day: '2-digit', month: 'short', year: 'numeric' };
-                const formatted = d.toLocaleDateString(undefined, options).toUpperCase();
-                badge = `<div class=\"unavailable-badge\" data-i18n=\"cars.unavailable_until\" data-i18n-date=\"${formatted}\">UNAVAILABLE UNTIL ${formatted}</div>`;
-              }
-              
               const isPremium = car.is_premium === 1 || car.is_premium === true;
               const rentNowUrl = `car-single.html?id=${car.id}`;
 
               return `
                 <div class=\"col-xl-4 col-lg-4 col-md-6\">
-                  <div class=\"de-item mb30${isUnavailable ? ' car-unavailable' : ''}${isPremium ? ' premium' : ''}\">
-                    <div class=\"d-img${isUnavailable ? ' img-unavailable' : ''}\">
+                  <div class=\"de-item mb30${isPremium ? ' premium' : ''}\">
+                    <div class=\"d-img\">
                       <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">
-                      ${badge}
                       ${isPremium ? '<div class=\"premium-badge\">PREMIUM</div>' : ''}
                     </div>
                     <div class=\"d-info\">
@@ -2626,9 +2551,7 @@
                           <span class=\"d-atr\"><img src=\"images/icons/4-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_type\"></span> ${car.car_type || '-'}</span>
                         </div>
                         <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
-                        ${isUnavailable
-                          ? '<span class=\"btn-main btn-unavailable\" tabindex=\"-1\" aria-disabled=\"true\" data-i18n=\"cars.not_available\">Not Available</span>'
-                          : `<a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>`}
+                        <a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>
                       </div>
                     </div>
                   </div>
