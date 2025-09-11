@@ -1300,4 +1300,41 @@ router.get('/:id/availability', async (req, res) => {
   }
 });
 
+// Get all confirmed booking dates for a specific car (for calendar availability)
+router.get('/:id/booking-dates', async (req, res) => {
+  const carId = req.params.id;
+  
+  try {
+    // Get all CONFIRMED bookings for this car
+    const { data: bookings, error } = await supabase
+      .from('bookings')
+      .select('pickup_date, return_date, status')
+      .eq('car_id', carId)
+      .eq('status', 'confirmed')
+      .order('pickup_date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching booking dates:', error);
+      return res.status(500).json({ error: 'Database error: ' + error.message });
+    }
+
+    // Format the dates for frontend consumption
+    const bookingDates = bookings.map(booking => ({
+      pickup_date: booking.pickup_date,
+      return_date: booking.return_date,
+      status: booking.status
+    }));
+
+    res.json({
+      car_id: carId,
+      booking_dates: bookingDates,
+      total_bookings: bookingDates.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching car booking dates:', error);
+    res.status(500).json({ error: 'Database error: ' + error.message });
+  }
+});
+
 module.exports = router; 

@@ -99,6 +99,26 @@ class PriceCalculator {
     return Math.max(1, diffDays); // Minimum 1 day
   }
 
+  // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
+  convertDateFormatToISO(dateStr) {
+
+    if (!dateStr) return '';
+    // Check if it's already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+
+      return dateStr;
+    }
+    // Convert dd-mm-yyyy to YYYY-MM-DD
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const converted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+      return converted;
+    }
+
+    return dateStr;
+  }
+
   // Calculate base price for the rental period
   calculateBasePrice(days) {
     return this.basePrice * days;
@@ -223,14 +243,16 @@ class PriceCalculator {
       subtotal,
       discount: this.calculateDiscountAmount(subtotal, discountCode),
       finalPrice,
+      // Add these properties that updatePriceDisplay expects:
+      totalPrice: finalPrice,  // Add this
+      rentalDays: days,        // Add this
       breakdown: {
-        'Price per day': `${this.basePrice}€`,
+        'Price per day': `${basePrice}€`,
         'Total days': `x ${days}`,
         'Location delivery': totalLocationFee > 0 ? `+ ${totalLocationFee} €` : 'Included',
-
         'Outside hours pickup': this.isOutsideWorkingHours(pickupTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
         'Outside hours return': this.isOutsideWorkingHours(returnTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
-        'Discount': discountCode ? `- ${Math.round(0)} €` : 'None' // No hardcoded discount rates
+        'Discount': discountCode ? `- ${Math.round(0)} €` : 'None'
       }
     };
   }
@@ -292,7 +314,7 @@ class PriceCalculator {
     }
 
     // Check if we have valid data
-    if (!priceData || priceData.totalPrice === 0) {
+    if (!priceData || priceData.finalPrice === 0) {
       let message = typeof i18next !== 'undefined' ? i18next.t('cars.please_fill_dates') : 'Please fill in the dates and times to see the price breakdown';
       let messageStyle = 'color: #666; background: white; border: 1px solid #ddd;';
       
@@ -329,7 +351,7 @@ class PriceCalculator {
     };
 
     let html = '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">';
-    html += '<h5 style="margin-bottom: 15px; color: #333;">Price Breakdown</h5>';
+    html += `<h5 style="margin-bottom: 15px; color: #333;">${i18next.t('price_calculator.price_breakdown')}</h5>`;
 
     // Always show base price calculation
     html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('cars.price_per_day')}</span><span>${Math.round(priceData.basePrice / priceData.rentalDays)}€</span></div>`;
@@ -350,7 +372,7 @@ class PriceCalculator {
       }
       
       if (pickupFee > 0) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Pickup: ${locationName}</span><span>${pickupFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.pickup_location')} ${locationName}</span><span>${pickupFee}€</span></div>`;
       }
     }
     
@@ -365,7 +387,7 @@ class PriceCalculator {
       }
       
       if (dropoffFee > 0) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Dropoff: ${locationName}</span><span>${dropoffFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.dropoff_location')}: ${locationName}</span><span>${dropoffFee}€</span></div>`;
       }
     }
     
@@ -379,18 +401,18 @@ class PriceCalculator {
       
       // Show separate fees for pickup and dropoff if both are outside hours
       if ((pickupHour < 8 || pickupHour >= 18) && (returnHour < 8 || returnHour >= 18)) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.outside_hours')} ${i18next.t('price_calculator.pickup_time')} (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.outside_hours')} ${i18next.t('price_calculator.return_time')} (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
       } else if (pickupHour < 8 || pickupHour >= 18) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours pickup (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.outside_hours')} ${i18next.t('price_calculator.pickup_time')} (${priceData.pickupTime})</span><span>${outsideHoursFee}€</span></div>`;
       } else if (returnHour < 8 || returnHour >= 18) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Outside hours dropoff (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.outside_hours')} ${i18next.t('price_calculator.return_time')} (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
       }
     }
     
     if (priceData.discountAmount > 0) {
       const discountCode = document.querySelector('input[name="discount_code"]')?.value || '';
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Discount (${discountCode})</span><span>-${priceData.discountAmount.toFixed(2)}€</span></div>`;
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.discount_code')} (${discountCode})</span><span>-${priceData.discountAmount.toFixed(2)}€</span></div>`;
     }
     
     // Add total
@@ -609,170 +631,66 @@ class PriceCalculator {
   }
 
   // Recalculate price based on current form values
-  async recalculatePrice() {
+  // Recalculate price based on current form values
+async recalculatePrice() {
+  try {
+    const pickupDateInput = document.getElementById('date-picker');
+    const returnDateInput = document.getElementById('date-picker-2');
+    const pickupTimeSelect = document.getElementById('pickup-time');
+    const returnTimeSelect = document.getElementById('collection-time');
+    const discountCodeInput = document.querySelector('input[name="discount_code"]');
 
-    try {
-      const pickupDateInput = document.getElementById('date-picker');
-      const returnDateInput = document.getElementById('date-picker-2');
-      const pickupTimeSelect = document.getElementById('pickup-time');
-      const returnTimeSelect = document.getElementById('collection-time');
-      const discountCodeInput = document.querySelector('input[name="discount_code"]');
-
-      const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
-
-      if (!pickupDateInput || !returnDateInput || !pickupTimeSelect || !returnTimeSelect) {
-        
-        return;
-      }
-
-      // Get values with proper date formatting
-      const pickupDate = pickupDateInput.value;
-      const returnDate = returnDateInput.value;
-      const pickupTime = pickupTimeSelect.value;
-      const returnTime = returnTimeSelect.value;
-      const discountCode = discountCodeInput ? discountCodeInput.value.trim() : '';
-
-      const pickupLocation = Array.from(pickupLocationInputs).find(input => input.checked)?.value || 'Our Office';
-      
-      // Get dropoff location - try both possible names
-      let dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
-      if (dropoffLocationInputs.length === 0) {
-        dropoffLocationInputs = document.querySelectorAll('input[name="destination"]');
-      }
-      const dropoffLocation = Array.from(dropoffLocationInputs).find(input => input.checked)?.value || 'Our Office';
-
-      // Validate dates
-      if (!pickupDate || !returnDate) {
-        
-        this.updatePriceDisplay({ 
-          totalPrice: 0, 
-          breakdown: [],
-          message: (typeof i18next !== 'undefined' && i18next.t) ? i18next.t('price_calculator.select_dates_message') : 'Please select both pickup and return dates to see pricing'
-        });
-        return;
-      }
-
-      const pickupDateTime = new Date(`${pickupDate}T${pickupTime}`);
-      const returnDateTime = new Date(`${returnDate}T${returnTime}`);
-
-      // No validation here - let the booking form handle validation
-
-      // Calculate rental days - handle edge cases
-      let rentalDays = 0;
-      
-      if (pickupDate && returnDate) {
-      const timeDiff = returnDateTime.getTime() - pickupDateTime.getTime();
-        rentalDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        
-        // Ensure minimum 1 day rental
-        if (rentalDays <= 0) {
-          rentalDays = 1;
-        }
-      }
-
-      // Get base price based on rental days
-
-      // Check if car data is available
-      if (!this.car || !this.car.price_policy) {
-        
-        this.updatePriceDisplay({ 
-          totalPrice: 0, 
-          breakdown: [],
-          message: i18next.t('cars.loading_car_data')
-        });
-        return;
-      }
-      
-      let basePrice = 0;
-      if (rentalDays === 0) {
-        // No dates selected or invalid dates - show default message
-        this.updatePriceDisplay({ 
-          totalPrice: 0, 
-          breakdown: [],
-          message: (typeof i18next !== 'undefined' && i18next.t) ? i18next.t('price_calculator.select_dates_message') : 'Please select both pickup and return dates to see pricing'
-        });
-        return;
-      } else if (rentalDays >= 1 && rentalDays <= 2) {
-        basePrice = this.car.price_policy['1-2'] || 0;
-      } else if (rentalDays >= 3 && rentalDays <= 7) {
-        basePrice = this.car.price_policy['3-7'] || 0;
-      } else if (rentalDays >= 8 && rentalDays <= 20) {
-        basePrice = this.car.price_policy['8-20'] || 0;
-      } else if (rentalDays >= 21 && rentalDays <= 45) {
-        basePrice = this.car.price_policy['21-45'] || 0;
-      } else {
-        basePrice = this.car.price_policy['46+'] || 0;
-      }
-
-      // Calculate total base price
-      const totalBasePrice = basePrice * rentalDays;
-
-      // Calculate location fees for both pickup and dropoff using dynamic fee settings
-      let pickupLocationFee = 0;
-      let dropoffLocationFee = 0;
-      
-      if (pickupLocation === 'Chisinau Airport') {
-        pickupLocationFee = this.feeSettings.chisinau_airport_pickup ?? 0;
-      } else if (pickupLocation === 'Iasi Airport') {
-        pickupLocationFee = this.feeSettings.iasi_airport_pickup ?? 35;
-      } else {
-        pickupLocationFee = this.feeSettings.office_pickup ?? 0;
-      }
-      
-      if (dropoffLocation === 'Chisinau Airport') {
-        dropoffLocationFee = this.feeSettings.chisinau_airport_dropoff ?? 25;
-        
-      } else if (dropoffLocation === 'Iasi Airport') {
-        dropoffLocationFee = this.feeSettings.iasi_airport_dropoff ?? 35;
-      } else {
-        dropoffLocationFee = this.feeSettings.office_dropoff ?? 0;
-      }
-      
-      const totalLocationFee = pickupLocationFee + dropoffLocationFee;
-
-      // Insurance cost removed - no longer needed
-      let insuranceCost = 0;
-
-      // Calculate outside hours fees
-      const outsideHoursFees = this.calculateOutsideHoursFees(pickupTime, returnTime);
-
-      // Calculate discount
-      let discountAmount = 0;
-      if (discountCode) {
-        const discountResult = await this.handleDiscountCode(discountCode);
-        if (discountResult.valid && discountResult.discount_percentage) {
-          const discountPercentage = parseFloat(discountResult.discount_percentage);
-          if (!isNaN(discountPercentage)) {
-            discountAmount = (totalBasePrice + totalLocationFee + insuranceCost + outsideHoursFees) * (discountPercentage / 100);
-          }
-        }
-      }
-
-      // Calculate final price
-      const finalPrice = totalBasePrice + totalLocationFee + insuranceCost + outsideHoursFees - discountAmount;
-
-      // Update outside hours notice
-      this.updateOutsideHoursNotice(pickupTime, returnTime);
-
-      // Return price data with all components
-      const priceData = {
-        totalPrice: finalPrice,
-        basePrice: totalBasePrice,
-        locationFee: totalLocationFee,
-        insuranceCost: insuranceCost,
-        outsideHoursFees: outsideHoursFees,
-        discountAmount: discountAmount,
-        rentalDays: rentalDays,
-        pickupTime: pickupTime,
-        returnTime: returnTime
-      };
-
-      this.updatePriceDisplay(priceData);
-    } catch (error) {
-      
-      this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
+    if (!pickupDateInput || !returnDateInput || !pickupTimeSelect || !returnTimeSelect) {
+      return;
     }
+
+    // Get values and convert date format if needed
+    const pickupDate = this.convertDateFormatToISO(pickupDateInput.value);
+    const returnDate = this.convertDateFormatToISO(returnDateInput.value);
+    const pickupTime = pickupTimeSelect.value;
+    const returnTime = returnTimeSelect.value;
+    const discountCode = discountCodeInput ? discountCodeInput.value.trim() : '';
+
+    // Get location values BEFORE using them in debug
+    const pickupLocation = this.getSelectedRadioValue('pickup_location') || 'Our Office';
+    const dropoffLocation = this.getSelectedRadioValue('dropoff_location') || 'Our Office';
+
+
+
+    // Validate dates
+    if (!pickupDate || !returnDate) {
+      this.updatePriceDisplay({ 
+        totalPrice: 0, 
+        breakdown: [],
+        message: i18next.t('price_calculator.select_dates_message')
+      });
+      return;
+    }
+
+    // Create rental data object
+    const rentalData = {
+      pickupDate,
+      returnDate,
+      pickupTime,
+      returnTime,
+      pickupLocation,
+      dropoffLocation,
+      discountCode
+    };
+
+    // Use the existing calculatePrice method
+    const priceData = this.calculatePrice(rentalData);
+
+
+    
+    // Update the UI
+    this.updatePriceDisplay(priceData);
+    
+  } catch (error) {
+    console.error('Error recalculating price:', error);
+    this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });
   }
+}
 
   // Handle discount code validation and updates
   async handleDiscountCode(code) {

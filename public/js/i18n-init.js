@@ -9,7 +9,7 @@ function initI18n() {
 
   // Always default to Romanian unless user explicitly picks another language
   const savedLang = localStorage.getItem('lang');
-  const defaultLang = 'ro';
+  const defaultLang = 'en';
   let initialLang = savedLang || defaultLang;
 
   if (!savedLang) {
@@ -21,7 +21,7 @@ function initI18n() {
     .use(i18nextHttpBackend)
     .init({
       lng: initialLang,
-      fallbackLng: 'ro',
+      fallbackLng: 'en',
       debug: false,
       backend: {
         loadPath: 'js/locales/{{lng}}.json'
@@ -146,9 +146,11 @@ function setupI18nEvents() {
     if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
       console.log('Language changed, updating price breakdown...');
       window.priceCalculator.debouncedRecalculate();
-    } else {
-      console.log('Price calculator not available or method not found');
+    } else if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+      console.log('Language changed, updating price breakdown (alternative method)...');
+      window.priceCalculator.recalculatePrice();
     }
+    // No else clause - silently ignore when price calculator is not available
   });
 }
 
@@ -230,7 +232,22 @@ document.addEventListener('DOMContentLoaded', function() {
       opt.addEventListener('click', function(e) {
         var lang = opt.getAttribute('data-lang');
         if (typeof i18next !== 'undefined') {
-          i18next.changeLanguage(lang);
+          // Force reload of the language file, especially for English
+          if (lang === 'en') {
+            // Force complete reload of English
+            fetch('js/locales/en.json')
+              .then(response => response.json())
+              .then(data => {
+                i18next.addResourceBundle('en', 'translation', data, true, true);
+                i18next.changeLanguage(lang);
+              })
+              .catch(error => {
+                console.error('Error loading English translations:', error);
+                i18next.changeLanguage(lang);
+              });
+          } else {
+            i18next.changeLanguage(lang);
+          }
         }
         closeDropdown();
       });
