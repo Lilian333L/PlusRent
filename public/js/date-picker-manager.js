@@ -124,8 +124,9 @@ class DatePickerManager {
 
     const pickupInput = document.getElementById(this.pickupInputId);
     const returnInput = document.getElementById(this.returnInputId);
-
+console.log('🔵 Found inputs:', pickupInput, returnInput);
     if (pickupInput && returnInput) {
+      console.log('🔵 Found inputs:', pickupInput, returnInput);
       // Remove any existing daterangepicker instances
       if ($(pickupInput).data('daterangepicker')) {
         $(pickupInput).data('daterangepicker').remove();
@@ -215,6 +216,7 @@ class DatePickerManager {
         // mobile: {
         //   dateFormat: this.dateFormat, // Force compact format on mobile
         // },
+        disableMobile: true,
         onChange: (selectedDates, dateStr, instance) => {
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
@@ -266,6 +268,7 @@ class DatePickerManager {
         // mobile: {
         //   dateFormat: this.dateFormat, // Force compact format on mobile
         // },
+        disableMobile: true,
         onChange: (selectedDates, dateStr, instance) => {
           
           if (this.onDateChange) {
@@ -494,17 +497,34 @@ class DatePickerManager {
 
   // Initialize the date picker
   async initialize() {
-    if (this.carId) {
-      const unavailableDates = await this.loadUnavailableDates(this.carId);
-      await this.initializeFlatpickrWithUnavailableDates(unavailableDates);
-    } else {
-      await this.initializeFlatpickrWithUnavailableDates([]);
+    console.log('�� DatePickerManager initialize() called with carId:', this.carId);
+    
+    try {
+      if (this.carId) {
+        console.log('🔵 Loading unavailable dates for carId:', this.carId);
+        const unavailableDates = await this.loadUnavailableDates(this.carId);
+        console.log('🔵 Loaded unavailable dates:', unavailableDates.length, 'dates');
+        await this.initializeFlatpickrWithUnavailableDates(unavailableDates);
+      } else {
+        console.log('�� No carId, initializing with empty unavailable dates');
+        await this.initializeFlatpickrWithUnavailableDates([]);
+      }
+      
+      console.log('🔵 DatePickerManager initialization complete');
+    } catch (error) {
+      console.error('❌ DatePickerManager initialization failed:', error);
+      // Fallback: try to initialize with empty unavailable dates
+      try {
+        console.log('🔵 Attempting fallback initialization');
+        await this.initializeFlatpickrWithUnavailableDates([]);
+      } catch (fallbackError) {
+        console.error('❌ Fallback initialization also failed:', fallbackError);
+      }
     }
     
     // Fix mobile styling
     this.fixMobileDatePickerStyling();
   }
-
   // Get current date values
   getDateValues() {
     const pickupInput = document.getElementById(this.pickupInputId);
