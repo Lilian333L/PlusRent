@@ -1776,19 +1776,14 @@
       }
 
       // Add coupon change detection
-      console.log("DEBUG: Setting up discount code event listeners");
       const discountInput = document.querySelector('input[name="discount_code"]');
-      console.log("DEBUG: Discount input found:", discountInput);
 
       if (discountInput) {
-        console.log("DEBUG: Adding event listeners to discount input");
         let validationTimeout;
         
         discountInput.addEventListener('input', function () {
-          console.log("DEBUG: Discount input event triggered, value:", this.value);
           // Clear cached data when user types
           if (window.cachedCouponData) {
-            console.log("DEBUG: Clearing cached coupon data");
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
           }
@@ -1800,39 +1795,28 @@
 
           // Recalculate price immediately (without discount)
           if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-            console.log("DEBUG: Recalculating price after input change");
             window.priceCalculator.recalculatePrice();
           } else {
-            console.log("DEBUG: PriceCalculator not available for recalculation");
           }
         });
         
         // Add blur event for coupon validation
         discountInput.addEventListener('blur', async function() {
-          console.log("DEBUG: Discount input blur event triggered, value:", this.value);
           const code = this.value.trim();
-          console.log("DEBUG: Trimmed code:", code, "Length:", code.length);
           
           if (code && code.length >= 3) {
             try {
-              console.log("DEBUG: Validating coupon code:", code);
-              console.log("DEBUG: API_BASE_URL:", window.API_BASE_URL);
               
               // First try redemption code validation (for individual codes)
               let response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code}`);
-              console.log("DEBUG: Redemption API response status:", response.status);
               
               let result = await response.json();
-              console.log("DEBUG: Redemption API response result:", result);
               
               if (!result.valid) {
                 // If redemption validation fails, try regular coupon validation
-                console.log("DEBUG: Redemption validation failed, trying regular coupon validation");
                 response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
-                console.log("DEBUG: Regular API response status:", response.status);
                 
                 result = await response.json();
-                console.log("DEBUG: Regular API response result:", result);
               }
               
               if (result.valid) {
@@ -1842,16 +1826,11 @@
                 // Store coupon data globally
                 window.cachedCouponData = result;
                 window.lastValidatedCouponCode = code;
-                
-                console.log("DEBUG: Valid coupon, recalculating price with discount");
-                console.log("DEBUG: Cached coupon data:", window.cachedCouponData);
-                
+                  
                 // Recalculate price with discount
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-                  console.log("DEBUG: Calling priceCalculator.recalculatePrice()");
                   window.priceCalculator.recalculatePrice();
                 } else {
-                  console.log("DEBUG: PriceCalculator not available for discount application");
                 }
               } else {
                 this.classList.remove("is-valid");
@@ -1861,10 +1840,8 @@
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
                 
-                console.log("DEBUG: Invalid coupon");
               }
             } catch (error) {
-              console.error("DEBUG: Coupon validation error:", error);
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
             }
@@ -1873,25 +1850,19 @@
             this.classList.remove("is-valid", "is-invalid");
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
-            console.log("DEBUG: Discount code cleared");
           } else {
-            console.log("DEBUG: Code too short, not validating");
           }
         });
         
         // Add click event for testing
         discountInput.addEventListener('click', function() {
-          console.log("DEBUG: Discount input clicked, current value:", this.value);
         });
         
         // Add focus event for testing
         discountInput.addEventListener('focus', function() {
-          console.log("DEBUG: Discount input focused, current value:", this.value);
         });
         
-        console.log("DEBUG: Event listeners added successfully");
       } else {
-        console.log("DEBUG: Discount input not found!");
       }
     });
 

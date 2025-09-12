@@ -120,18 +120,11 @@ class DynamicCarsLoader {
             vehicleDetails.textContent = details.join(' • ');
           }
           
-          // Update vehicle price
-          const vehiclePrice = document.getElementById('vehicle-price');
-          if (vehiclePrice) {
-            const price = carDetails.daily_price || carDetails.price_policy?.['1-2'] || 'Contact us';
-            vehiclePrice.textContent = typeof price === 'number' ? `€${price}` : price;
-          }
-          
           // Show vehicle info
           vehicleInfo.style.display = 'block';
           
         } catch (error) {
-          
+          console.error('Error updating vehicle info:', error);
           if (vehicleInfo) vehicleInfo.style.display = 'none';
         }
       }
