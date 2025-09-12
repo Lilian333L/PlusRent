@@ -787,7 +787,6 @@ async recalculatePrice() {
 
   // Get total price for booking form
   getTotalPrice() {
-    
     const pickupDate = document.getElementById('date-picker')?.value;
     const returnDate = document.getElementById('date-picker-2')?.value;
     const pickupTime = document.getElementById('pickup-time')?.value;
@@ -795,29 +794,25 @@ async recalculatePrice() {
     const pickupLocation = this.getSelectedRadioValue('pickup_location');
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
     const discountCode = document.querySelector('input[name="discount_code"]')?.value;
-  
-  
-  
+
     if (!pickupDate || !returnDate || !pickupTime || !returnTime || !pickupLocation || !dropoffLocation) {
-      
       return 0;
     }
-  
+
     const rentalData = {
-      pickupDate,
-      returnDate,
+      pickupDate: this.convertDateFormatToISO(pickupDate), // Convert dd-mm-yyyy to yyyy-mm-dd
+      returnDate: this.convertDateFormatToISO(returnDate), // Convert dd-mm-yyyy to yyyy-mm-dd
       pickupTime,
       returnTime,
       pickupLocation,
       dropoffLocation,
       discountCode
     };
-  
-    
+
     const priceData = this.calculatePrice(rentalData);
     
-    
-    return priceData.finalPrice;
+    // Ensure we return a number
+    return parseFloat(priceData.finalPrice) || 0;
   }
 
   // Get price breakdown for booking form

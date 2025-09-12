@@ -108,6 +108,16 @@ class BookingFormHandler {
     }
   }
 
+  // Add this helper function at the top of the class or as a static method
+  convertDateFormatToISO(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
+    }
+    return dateStr;
+  }
+
   // Collect form data
   collectFormData(formElement) {
     const formData = new FormData(formElement);
@@ -130,9 +140,9 @@ class BookingFormHandler {
     
     const result = {
       car_id: carId,
-      pickup_date: formData.get('Pick Up Date'),
+      pickup_date: this.convertDateFormatToISO(formData.get('Pick Up Date')),
       pickup_time: formData.get('Pick Up Time'),
-      return_date: formData.get('Collection Date'),
+      return_date: this.convertDateFormatToISO(formData.get('Collection Date')),
       return_time: formData.get('Collection Time'),
       discount_code: formData.get('discount_code'),
       pickup_location: getRadioValue('pickup_location'),
@@ -212,15 +222,15 @@ class BookingFormHandler {
     }
 
     // Handle same-day rentals
-    if (bookingData.pickup_date === bookingData.return_date) {
-      // Same day rental: return time must be after pickup time
-      if (bookingData.pickup_time >= bookingData.return_time) {
-        return { isValid: false, error: 'For same-day rentals, return time must be after pickup time' };
-      }
-    } else if (returnDate <= pickupDate) {
-      // Different days: return date must be after pickup date
-      return { isValid: false, error: 'Return date must be after pickup date' };
-    }
+    // if (bookingData.pickup_date === bookingData.return_date) {
+    //   // Same day rental: return time must be after pickup time
+    //   if (bookingData.pickup_time >= bookingData.return_time) {
+    //     return { isValid: false, error: 'For same-day rentals, return time must be after pickup time' };
+    //   }
+    // } else if (returnDate <= pickupDate) {
+    //   // Different days: return date must be after pickup date
+    //   return { isValid: false, error: 'Return date must be after pickup date' };
+    // }
 
     // Check if outside hours fields are required
     const pickupTime = new Date(`2000-01-01T${bookingData.pickup_time}`);

@@ -66,9 +66,9 @@ router.post('/', validate(bookingCreateSchema), async (req, res) => {
     return res.status(400).json({ error: 'Pickup date must be today or in the future' });
   }
 
-  if (returnDateTime <= pickupDateTime) {
-    return res.status(400).json({ error: 'Return date must be after pickup date' });
-  }
+  // if (returnDateTime <= pickupDateTime) {
+  //   return res.status(400).json({ error: 'Return date must be after pickup date' });
+  // }
 
   try {
     

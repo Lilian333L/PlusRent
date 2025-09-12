@@ -1268,7 +1268,13 @@ async function checkCarAvailability(carId, pickupDate, returnDate) {
         const requestedPickup = new Date(pickupDate);
         const requestedReturn = new Date(returnDate);
         
-        return (bookingPickup <= requestedReturn && bookingReturn >= requestedPickup);
+        // For same-day rentals, allow them (no conflict)
+        if (requestedPickup.toDateString() === requestedReturn.toDateString()) {
+          return false; // Same-day rentals are allowed
+        }
+        
+        // For multi-day rentals, check for overlap
+        return (bookingPickup < requestedReturn && bookingReturn > requestedPickup);
       });
       
       return {

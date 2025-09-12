@@ -252,7 +252,7 @@ const bookingCreateSchema = Joi.object({
     return value;
   }),
   pickup_time: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
-  return_date: Joi.date().iso().greater(Joi.ref('pickup_date')).required(),
+  return_date: Joi.date().iso().min(Joi.ref('pickup_date')).required(),
   return_time: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
   discount_code: Joi.string().max(50).trim().allow(null, ''),
   pickup_location: Joi.string().min(1).max(200).required().trim(),
