@@ -1495,7 +1495,7 @@
       #section-cars .d-price {
         font-weight: 600;
         margin-bottom: 0.7rem;
-        color: #1976d2;
+        color: #031B4E;
       }
       #section-cars .btn-main {
         margin-top: 0.5rem;
@@ -2525,6 +2525,9 @@
             return res.json();
           })
           .then(cars => {
+            console.log("DEBUG: Cars loaded:", cars.length);
+            console.log("DEBUG: First car price_policy:", cars[0]?.price_policy);
+            console.log("DEBUG: First car 1-2 price:", cars[0]?.price_policy?.['1-2']);
 
             if (!cars.length) {
               grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
@@ -2534,6 +2537,18 @@
             const carsHtml = cars.map(car => {
               const isPremium = car.is_premium === 1 || car.is_premium === true;
               const rentNowUrl = `car-single.html?id=${car.id}`;
+              
+              // Calculate the lowest price from price policy
+              let lowestPrice = '';
+              if (car.price_policy) {
+                const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
+                const prices = Object.values(pricePolicy).map(price => parseInt(price));
+                lowestPrice = Math.min(...prices).toString();
+              }
+              
+              // Debug each car's price_policy
+              console.log(`DEBUG: Car ${car.id} (${car.make_name} ${car.model_name}) price_policy:`, car.price_policy);
+              console.log(`DEBUG: Car ${car.id} lowest price:`, lowestPrice);
 
               return `
                 <div class=\"col-xl-4 col-lg-4 col-md-6\">
@@ -2555,7 +2570,7 @@
                           <span class=\"d-atr\"><img src=\"images/icons/3-green.svg\" alt=\"\">${car.luggage || '-'}</span>
                           <span class=\"d-atr\"><img src=\"images/icons/4-green.svg\" alt=\"\"><span data-i18n=\"cars.filter_type\"></span> ${car.car_type || '-'}</span>
                         </div>
-                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span></div>
                         <a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>
                       </div>
                     </div>
@@ -2564,6 +2579,7 @@
               `;
             }).join('');
             
+            console.log("DEBUG: Generated HTML for first car:", carsHtml.split('</div>')[0] + '</div>');
             grid.innerHTML = carsHtml;
 
             // Verify links were created
