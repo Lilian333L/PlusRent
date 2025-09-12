@@ -15,7 +15,7 @@ class DynamicCarsLoader {
   async loadAvailableCars() {
     try {
       
-      const response = await fetch(`${this.apiBaseUrl}/api/cars/booking/available`);
+      const response = await fetch(`${this.apiBaseUrl}/api/cars/`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -45,11 +45,13 @@ class DynamicCarsLoader {
         // Add car options
         cars.forEach(car => {
           const option = document.createElement('option');
-          option.value = car.value;
-          option.textContent = car.display_name;
-          option.setAttribute('data-src', car.data_src);
+          
+          // Handle regular cars data structure
+          option.value = car.id;
+          option.textContent = `${car.make_name} ${car.model_name} (${car.production_year})`;
+          option.setAttribute('data-src', car.head_image || this.defaultImagePath);
           option.setAttribute('data-car-id', car.id);
-          option.setAttribute('data-daily-price', car.daily_price);
+          option.setAttribute('data-daily-price', car.price_policy?.['1-2'] || '0');
           option.setAttribute('data-car-details', JSON.stringify(car));
 
           this.selectElement.appendChild(option);

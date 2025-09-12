@@ -480,6 +480,8 @@
 
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="js/date-picker-manager.js"></script>
+
 </head>
 
 <body>
@@ -745,7 +747,7 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.pickup_date"></label>
-                          <input type="date" id="date-picker" name="Pick Up Date"
+                          <input type="text" id="date-picker" name="Pick Up Date"
                             data-i18n-placeholder="booking.date_placeholder"
                             class="form-control form-control-sm mobile-date-input">
                         </div>
@@ -786,7 +788,7 @@
                         <div style="flex: 1; min-width: 120px;">
                           <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
                             data-i18n="cars.return_date"></label>
-                          <input type="date" id="date-picker-2" name="Collection Date"
+                          <input type="text" id="date-picker-2" name="Collection Date"
                             data-i18n-placeholder="booking.date_placeholder"
                             class="form-control form-control-sm mobile-date-input">
 
@@ -1063,7 +1065,9 @@
   <script src="js/validation-booking.js"></script>
   <script src="js/global-booking.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+  
   <script>
+    
     // Global formatting function
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
@@ -1123,14 +1127,14 @@
 
           // Scroll to the notification
           successNotification.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
+
           // Clear auto-applied coupon from localStorage after successful booking
           localStorage.removeItem('autoApplyCoupon');
           localStorage.removeItem('spinningWheelWinningCoupon');
-          
+
           // Dispatch booking success event for other components (like auto-apply coupon cleanup)
-          document.dispatchEvent(new CustomEvent('bookingSuccess', { 
-            detail: { bookingData: bookingData } 
+          document.dispatchEvent(new CustomEvent('bookingSuccess', {
+            detail: { bookingData: bookingData }
           }));
         },
         onError: function (errorMessage) {
@@ -1221,6 +1225,23 @@
 
       // Initialize the booking form
       bookingHandler.initForm('contact_form', 'send_message');
+
+      // Initialize DatePickerManager - MOVED FROM HEAD SECTION TO FIX TIMING ISSUES
+      const datePickerManager = new DatePickerManager({
+        pickupInputId: "date-picker",
+        returnInputId: "date-picker-2",
+        carId: carId,
+        dateFormat: "d-m-Y",
+        onDateChange: function() {
+          // Trigger price calculator when dates change
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === "function") {
+            window.priceCalculator.recalculatePrice();
+          }
+        }
+      });
+      
+      // Initialize the date picker
+      datePickerManager.initialize();
 
       // Fetch car data
       let car;
@@ -1516,19 +1537,19 @@
       // Get localized car type and fuel type - use functions instead of static objects
       const getCarTypeTranslation = (carType) => {
         const translations = {
-        'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
-        'SUV': i18next.t('cars.types.suv', 'SUV'),
-        'Hatchback': i18next.t('cars.types.hatchback', 'Hatchback'),
-        'Coupe': i18next.t('cars.types.coupe', 'Coupe'),
-        'Wagon': i18next.t('cars.types.wagon', 'Wagon'),
-        'Convertible': i18next.t('cars.types.convertible', 'Convertible'),
-        'Van': i18next.t('cars.types.van', 'Van'),
-        'Pickup': i18next.t('cars.types.pickup', 'Pickup'),
-        'Crossover': i18next.t('cars.types.crossover', 'Crossover'),
-        'Sports Car': i18next.t('cars.types.sports_car', 'Sports Car'),
-        'Luxury': i18next.t('cars.types.luxury', 'Luxury'),
-        'Electric': i18next.t('cars.types.electric', 'Electric'),
-        'Hybrid': i18next.t('cars.types.hybrid', 'Hybrid')
+          'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
+          'SUV': i18next.t('cars.types.suv', 'SUV'),
+          'Hatchback': i18next.t('cars.types.hatchback', 'Hatchback'),
+          'Coupe': i18next.t('cars.types.coupe', 'Coupe'),
+          'Wagon': i18next.t('cars.types.wagon', 'Wagon'),
+          'Convertible': i18next.t('cars.types.convertible', 'Convertible'),
+          'Van': i18next.t('cars.types.van', 'Van'),
+          'Pickup': i18next.t('cars.types.pickup', 'Pickup'),
+          'Crossover': i18next.t('cars.types.crossover', 'Crossover'),
+          'Sports Car': i18next.t('cars.types.sports_car', 'Sports Car'),
+          'Luxury': i18next.t('cars.types.luxury', 'Luxury'),
+          'Electric': i18next.t('cars.types.electric', 'Electric'),
+          'Hybrid': i18next.t('cars.types.hybrid', 'Hybrid')
         };
         return translations[carType] || carType || '-';
       };
@@ -1760,24 +1781,123 @@
       }
 
       // Add coupon change detection
-      document.addEventListener('DOMContentLoaded', function () {
-        const discountInput = document.querySelector('input[name="discount_code"]');
+      console.log("DEBUG: Setting up discount code event listeners");
+      const discountInput = document.querySelector('input[name="discount_code"]');
+      console.log("DEBUG: Discount input found:", discountInput);
 
-        if (discountInput) {
-          discountInput.addEventListener('input', function () {
-            // Clear cached data when user types
-            if (window.cachedCouponData) {
-              window.cachedCouponData = null;
-              window.lastValidatedCouponCode = null;
-            }
+      if (discountInput) {
+        console.log("DEBUG: Adding event listeners to discount input");
+        let validationTimeout;
+        
+        discountInput.addEventListener('input', function () {
+          console.log("DEBUG: Discount input event triggered, value:", this.value);
+          // Clear cached data when user types
+          if (window.cachedCouponData) {
+            console.log("DEBUG: Clearing cached coupon data");
+            window.cachedCouponData = null;
+            window.lastValidatedCouponCode = null;
+          }
 
-            // Recalculate price
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
+          // Clear any existing timeout
+          if (validationTimeout) {
+            clearTimeout(validationTimeout);
+          }
+
+          // Recalculate price immediately (without discount)
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+            console.log("DEBUG: Recalculating price after input change");
+            window.priceCalculator.recalculatePrice();
+          } else {
+            console.log("DEBUG: PriceCalculator not available for recalculation");
+          }
+        });
+        
+        // Add blur event for coupon validation
+        discountInput.addEventListener('blur', async function() {
+          console.log("DEBUG: Discount input blur event triggered, value:", this.value);
+          const code = this.value.trim();
+          console.log("DEBUG: Trimmed code:", code, "Length:", code.length);
+          
+          if (code && code.length >= 3) {
+            try {
+              console.log("DEBUG: Validating coupon code:", code);
+              console.log("DEBUG: API_BASE_URL:", window.API_BASE_URL);
+              
+              // First try redemption code validation (for individual codes)
+              let response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code}`);
+              console.log("DEBUG: Redemption API response status:", response.status);
+              
+              let result = await response.json();
+              console.log("DEBUG: Redemption API response result:", result);
+              
+              if (!result.valid) {
+                // If redemption validation fails, try regular coupon validation
+                console.log("DEBUG: Redemption validation failed, trying regular coupon validation");
+                response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
+                console.log("DEBUG: Regular API response status:", response.status);
+                
+                result = await response.json();
+                console.log("DEBUG: Regular API response result:", result);
+              }
+              
+              if (result.valid) {
+                this.classList.remove("is-invalid");
+                this.classList.add("is-valid");
+                
+                // Store coupon data globally
+                window.cachedCouponData = result;
+                window.lastValidatedCouponCode = code;
+                
+                console.log("DEBUG: Valid coupon, recalculating price with discount");
+                console.log("DEBUG: Cached coupon data:", window.cachedCouponData);
+                
+                // Recalculate price with discount
+                if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+                  console.log("DEBUG: Calling priceCalculator.recalculatePrice()");
+                  window.priceCalculator.recalculatePrice();
+                } else {
+                  console.log("DEBUG: PriceCalculator not available for discount application");
+                }
+              } else {
+                this.classList.remove("is-valid");
+                this.classList.add("is-invalid");
+                
+                // Clear coupon data
+                window.cachedCouponData = null;
+                window.lastValidatedCouponCode = null;
+                
+                console.log("DEBUG: Invalid coupon");
+              }
+            } catch (error) {
+              console.error("DEBUG: Coupon validation error:", error);
+              this.classList.remove("is-valid");
+              this.classList.add("is-invalid");
             }
-          });
-        }
-      });
+          } else if (code.length === 0) {
+            // Clear validation state when input is empty
+            this.classList.remove("is-valid", "is-invalid");
+            window.cachedCouponData = null;
+            window.lastValidatedCouponCode = null;
+            console.log("DEBUG: Discount code cleared");
+          } else {
+            console.log("DEBUG: Code too short, not validating");
+          }
+        });
+        
+        // Add click event for testing
+        discountInput.addEventListener('click', function() {
+          console.log("DEBUG: Discount input clicked, current value:", this.value);
+        });
+        
+        // Add focus event for testing
+        discountInput.addEventListener('focus', function() {
+          console.log("DEBUG: Discount input focused, current value:", this.value);
+        });
+        
+        console.log("DEBUG: Event listeners added successfully");
+      } else {
+        console.log("DEBUG: Discount input not found!");
+      }
     });
 
     // Function to show immediate price information
@@ -2323,260 +2443,261 @@
   <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.js"></script>
 
-  <!-- Function to fetch and display unavailable dates -->
+  <!-- COMMENTED OUT - OLD IMPLEMENTATION
+  Function to fetch and display unavailable dates -->
   <script>
     // Function to fetch and display unavailable dates
-    async function loadUnavailableDates(carId) {
-      try {
-        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
-        if (response.ok) {
-          const data = await response.json();
+    // async function loadUnavailableDates(carId) {
+    //   try {
+    //     const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
+    //     if (response.ok) {
+    //       const data = await response.json();
 
-          const unavailableDates = [];
+    //       const unavailableDates = [];
 
-          // Convert booking periods to individual dates
-          data.booking_dates.forEach(booking => {
-            const pickupDate = new Date(booking.pickup_date);
-            const returnDate = new Date(booking.return_date);
+    //       // Convert booking periods to individual dates
+    //       data.booking_dates.forEach(booking => {
+    //         const pickupDate = new Date(booking.pickup_date);
+    //         const returnDate = new Date(booking.return_date);
 
-            // Add all dates between pickup and return (inclusive)
-            const currentDate = new Date(pickupDate);
-            while (currentDate <= returnDate) {
-              unavailableDates.push(currentDate.toISOString().split('T')[0]);
-              currentDate.setDate(currentDate.getDate() + 1);
-            }
-          });
+    //         // Add all dates between pickup and return (inclusive)
+    //         const currentDate = new Date(pickupDate);
+    //         while (currentDate <= returnDate) {
+    //           unavailableDates.push(currentDate.toISOString().split('T')[0]);
+    //           currentDate.setDate(currentDate.getDate() + 1);
+    //         }
+    //       });
 
-          // Initialize Flatpickr with unavailable dates
-          initializeFlatpickrWithUnavailableDates(unavailableDates);
+    //       // Initialize Flatpickr with unavailable dates
+    //       initializeFlatpickrWithUnavailableDates(unavailableDates);
 
-        } else {
-          console.error('Failed to fetch booking dates:', response.status);
-          // Initialize Flatpickr with empty unavailable dates array
-          initializeFlatpickrWithUnavailableDates([]);
-        }
-      } catch (error) {
-        console.error('Error loading unavailable dates:', error);
-        // Initialize Flatpickr with empty unavailable dates array
-        initializeFlatpickrWithUnavailableDates([]);
-      }
-    }
+    //     } else {
+    //       console.error('Failed to fetch booking dates:', response.status);
+    //       // Initialize Flatpickr with empty unavailable dates array
+    //       initializeFlatpickrWithUnavailableDates([]);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error loading unavailable dates:', error);
+    //     // Initialize Flatpickr with empty unavailable dates array
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // }
 
 
     // Load unavailable dates when page loads
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const carId = urlParams.get('id');
-      if (carId) {
-        loadUnavailableDates(carId);   
-      } else {
-        // If no car ID, initialize with empty unavailable dates
-        initializeFlatpickrWithUnavailableDates([]);
-      }
-    });
+    // document.addEventListener('DOMContentLoaded', function () {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const carId = urlParams.get('id');
+    //   if (carId) {
+    //     loadUnavailableDates(carId);
+    //   } else {
+    //     // If no car ID, initialize with empty unavailable dates
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // });
   </script>
   <script>
     // Function to fetch and display unavailable dates
-    async function loadUnavailableDates(carId) {
-      try {
-        const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
-        if (response.ok) {
-          const data = await response.json();
-          const unavailableDates = [];
+    // async function loadUnavailableDates(carId) {
+    //   try {
+    //     const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       const unavailableDates = [];
 
-          // Convert booking periods to individual dates
-          data.booking_dates.forEach(booking => {
-            const pickupDate = new Date(booking.pickup_date);
-            const returnDate = new Date(booking.return_date);
+    //       // Convert booking periods to individual dates
+    //       data.booking_dates.forEach(booking => {
+    //         const pickupDate = new Date(booking.pickup_date);
+    //         const returnDate = new Date(booking.return_date);
 
-            // Add all dates between pickup and return (inclusive)
-            const currentDate = new Date(pickupDate);
-            while (currentDate <= returnDate) {
-              unavailableDates.push(currentDate.toISOString().split('T')[0]);
-              currentDate.setDate(currentDate.getDate() + 1);
-            }
-          });
+    //         // Add all dates between pickup and return (inclusive)
+    //         const currentDate = new Date(pickupDate);
+    //         while (currentDate <= returnDate) {
+    //           unavailableDates.push(currentDate.toISOString().split('T')[0]);
+    //           currentDate.setDate(currentDate.getDate() + 1);
+    //         }
+    //       });
 
-          // Initialize Flatpickr with unavailable dates
-          initializeFlatpickrWithUnavailableDates(unavailableDates);
+    //       // Initialize Flatpickr with unavailable dates
+    //       initializeFlatpickrWithUnavailableDates(unavailableDates);
 
-        } else {
-          console.error('Failed to fetch booking dates:', response.status);
-          // Initialize Flatpickr with empty unavailable dates array
-          initializeFlatpickrWithUnavailableDates([]);
-        }
-      } catch (error) {
-        console.error('Error loading unavailable dates:', error);
-        // Initialize Flatpickr with empty unavailable dates array
-        initializeFlatpickrWithUnavailableDates([]);
-      }
-    }
+    //     } else {
+    //       console.error('Failed to fetch booking dates:', response.status);
+    //       // Initialize Flatpickr with empty unavailable dates array
+    //       initializeFlatpickrWithUnavailableDates([]);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error loading unavailable dates:', error);
+    //     // Initialize Flatpickr with empty unavailable dates array
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // }
 
-    // Function to find the first available date after a given date
-    function findFirstAvailableDate(startDate, unavailableDates) {
-  const currentDate = new Date(startDate);
-  let attempts = 0;
-  const maxAttempts = 30; // Prevent infinite loop
+    // // Function to find the first available date after a given date
+    // function findFirstAvailableDate(startDate, unavailableDates) {
+    //   const currentDate = new Date(startDate);
+    //   let attempts = 0;
+    //   const maxAttempts = 30; // Prevent infinite loop
 
-  while (attempts < maxAttempts) {
-    const dateStr = currentDate.toISOString().split('T')[0];
-    if (!unavailableDates.includes(dateStr)) {
-      // Convert YYYY-MM-DD to dd-mm-yyyy format
-      const parts = dateStr.split('-');
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    currentDate.setDate(currentDate.getDate() + 1);
-    attempts++;
-  }
+    //   while (attempts < maxAttempts) {
+    //     const dateStr = currentDate.toISOString().split('T')[0];
+    //     if (!unavailableDates.includes(dateStr)) {
+    //       // Convert YYYY-MM-DD to dd-mm-yyyy format
+    //       const parts = dateStr.split('-');
+    //       return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    //     }
+    //     currentDate.setDate(currentDate.getDate() + 1);
+    //     attempts++;
+    //   }
 
-  // Fallback: return the start date if no available date found
-  const fallbackDate = startDate.toISOString().split('T')[0];
-  const parts = fallbackDate.split('-');
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
+    //   // Fallback: return the start date if no available date found
+    //   const fallbackDate = startDate.toISOString().split('T')[0];
+    //   const parts = fallbackDate.split('-');
+    //   return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    // }
 
-    function initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
-      // Prevent multiple initializations
-      if (window.pickupFlatpickr || window.returnFlatpickr) {
-        
-        // But still trigger price calculator if dates are set
-      setTimeout(() => {
-          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-                
-            window.priceCalculator.recalculatePrice();
-          }
-        }, 100);
-        
-        return;
-      }
-      
+    // function initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
+    //   // Prevent multiple initializations
+    //   if (window.pickupFlatpickr || window.returnFlatpickr) {
 
-      const pickupInput = document.getElementById('date-picker');
-      const returnInput = document.getElementById('date-picker-2');
+    //     // But still trigger price calculator if dates are set
+    //     setTimeout(() => {
+    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+
+    //         window.priceCalculator.recalculatePrice();
+    //       }
+    //     }, 100);
+
+    //     return;
+    //   }
 
 
-      if (pickupInput && returnInput) {
-        // First, completely remove any existing daterangepicker
-        if ($(pickupInput).data('daterangepicker')) {
-          $(pickupInput).data('daterangepicker').remove();
-        }
-        if ($(returnInput).data('daterangepicker')) {
-          $(returnInput).data('daterangepicker').remove();
-        }
-
-        // Set minimum date to tomorrow
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-            const tomorrowStr = convertDateFormatToISO(tomorrow.toISOString().split('T')[0]);
-
-        const dayAfterTomorrow = new Date(tomorrow);
-        dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
-            const dayAfterTomorrowStr = convertDateFormatToISO(dayAfterTomorrow.toISOString().split('T')[0]);
-
-        // Filter out dates that are before tomorrow (since they're already disabled by minDate)
-        const futureUnavailableDates = unavailableDates.filter(date => date >= tomorrowStr);
-
-        // Find the first available date for pickup (after tomorrow)
-        const firstAvailablePickupDate = findFirstAvailableDate(tomorrow, futureUnavailableDates);
-
-// Find the first available date for return (after pickup date)
-const pickupDate = new Date(convertDateFormatToISO(firstAvailablePickupDate));
-const minReturnDate = new Date(pickupDate);
-minReturnDate.setDate(pickupDate.getDate() + 1);
-const firstAvailableReturnDate = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
-
-        // Check if Flatpickr is available
-        if (typeof flatpickr === 'undefined') {
-          console.error('Flatpickr is not loaded!');
-          return;
-        }
+    //   const pickupInput = document.getElementById('date-picker');
+    //   const returnInput = document.getElementById('date-picker-2');
 
 
-        // Initialize pickup date picker
-        const pickupFlatpickr = flatpickr(pickupInput, {
-          dateFormat: "d-m-Y",
-          minDate: tomorrowStr,
-          defaultDate: firstAvailablePickupDate,
-          disable: futureUnavailableDates.map(date => convertDateFormatToISO(date)),
-          onChange: function (selectedDates, dateStr, instance) {
+    //   if (pickupInput && returnInput) {
+    //     // First, completely remove any existing daterangepicker
+    //     if ($(pickupInput).data('daterangepicker')) {
+    //       $(pickupInput).data('daterangepicker').remove();
+    //     }
+    //     if ($(returnInput).data('daterangepicker')) {
+    //       $(returnInput).data('daterangepicker').remove();
+    //     }
 
-            // Update return date minimum to be day after pickup
-            if (selectedDates.length > 0) {
-              const pickupDate = new Date(selectedDates[0]);
-              const minReturnDate = new Date(pickupDate);
-              minReturnDate.setDate(pickupDate.getDate() + 1);
+    //     // Set minimum date to tomorrow
+    //     const today = new Date();
+    //     const tomorrow = new Date(today);
+    //     tomorrow.setDate(today.getDate() + 1);
+    //     const tomorrowStr = convertDateFormatToISO(tomorrow.toISOString().split('T')[0]);
 
-              // Find first available return date after pickup
-              const firstAvailableReturn = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
+    //     const dayAfterTomorrow = new Date(tomorrow);
+    //     dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
+    //     const dayAfterTomorrowStr = convertDateFormatToISO(dayAfterTomorrow.toISOString().split('T')[0]);
 
-              // Update return date picker minimum and default
-              // If return date is before new minimum, clear it
-              // If return date is before new minimum, set it to day after pickup
-              if (window.returnFlatpickr.selectedDates.length > 0) {
-                const returnDate = window.returnFlatpickr.selectedDates[0];
-                if (returnDate <= pickupDate) {
-                  // Set return date to day after pickup instead of clearing it
-                  window.returnFlatpickr.setDate(firstAvailableReturn);
-                }
-              } else {
-                // If no return date is selected, set it to day after pickup
-                window.returnFlatpickr.setDate(firstAvailableReturn);
-              }
-            }
+    //     // Filter out dates that are before tomorrow (since they're already disabled by minDate)
+    //     const futureUnavailableDates = unavailableDates.filter(date => date >= tomorrowStr);
 
-            // Trigger price recalculation
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          }
-        });
+    //     // Find the first available date for pickup (after tomorrow)
+    //     const firstAvailablePickupDate = findFirstAvailableDate(tomorrow, futureUnavailableDates);
 
-        // Initialize return date picker
-        const returnFlatpickr = flatpickr(returnInput, {
-          dateFormat: "d-m-Y",
-          minDate: dayAfterTomorrowStr,
-          defaultDate: firstAvailableReturnDate,
-          disable: futureUnavailableDates,
-          onChange: function (selectedDates, dateStr, instance) {
+    //     // Find the first available date for return (after pickup date)
+    //     const pickupDate = new Date(convertDateFormatToISO(firstAvailablePickupDate));
+    //     const minReturnDate = new Date(pickupDate);
+    //     minReturnDate.setDate(pickupDate.getDate() + 1);
+    //     const firstAvailableReturnDate = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
 
-            // Trigger price recalculation
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          }
-        });
-
-        // Store references globally
-        window.pickupFlatpickr = pickupFlatpickr;
-        window.returnFlatpickr = returnFlatpickr;
+    //     // Check if Flatpickr is available
+    //     if (typeof flatpickr === 'undefined') {
+    //       console.error('Flatpickr is not loaded!');
+    //       return;
+    //     }
 
 
-        // Trigger price calculator after dates are initialized
-        setTimeout(() => {
-          
-          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-            window.priceCalculator.recalculatePrice();
-          } else {
-          }
-        }, 100); // Small delay to ensure Flatpickr is fully ready
+    //     // Initialize pickup date picker
+    //     const pickupFlatpickr = flatpickr(pickupInput, {
+    //       dateFormat: "d-m-Y",
+    //       minDate: tomorrowStr,
+    //       defaultDate: firstAvailablePickupDate,
+    //       disable: futureUnavailableDates.map(date => convertDateFormatToISO(date)),
+    //       onChange: function (selectedDates, dateStr, instance) {
 
-      } else {
-        console.error('Date inputs not found!');
-      }
-    }
+    //         // Update return date minimum to be day after pickup
+    //         if (selectedDates.length > 0) {
+    //           const pickupDate = new Date(selectedDates[0]);
+    //           const minReturnDate = new Date(pickupDate);
+    //           minReturnDate.setDate(pickupDate.getDate() + 1);
+
+    //           // Find first available return date after pickup
+    //           const firstAvailableReturn = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
+
+    //           // Update return date picker minimum and default
+    //           // If return date is before new minimum, clear it
+    //           // If return date is before new minimum, set it to day after pickup
+    //           if (window.returnFlatpickr.selectedDates.length > 0) {
+    //             const returnDate = window.returnFlatpickr.selectedDates[0];
+    //             if (returnDate <= pickupDate) {
+    //               // Set return date to day after pickup instead of clearing it
+    //               window.returnFlatpickr.setDate(firstAvailableReturn);
+    //             }
+    //           } else {
+    //             // If no return date is selected, set it to day after pickup
+    //             window.returnFlatpickr.setDate(firstAvailableReturn);
+    //           }
+    //         }
+
+    //         // Trigger price recalculation
+    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //           window.priceCalculator.recalculatePrice();
+    //         }
+    //       }
+    //     });
+
+    //     // Initialize return date picker
+    //     const returnFlatpickr = flatpickr(returnInput, {
+    //       dateFormat: "d-m-Y",
+    //       minDate: dayAfterTomorrowStr,
+    //       defaultDate: firstAvailableReturnDate,
+    //       disable: futureUnavailableDates,
+    //       onChange: function (selectedDates, dateStr, instance) {
+
+    //         // Trigger price recalculation
+    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //           window.priceCalculator.recalculatePrice();
+    //         }
+    //       }
+    //     });
+
+    //     // Store references globally
+    //     window.pickupFlatpickr = pickupFlatpickr;
+    //     window.returnFlatpickr = returnFlatpickr;
+
+
+    //     // Trigger price calculator after dates are initialized
+    //     setTimeout(() => {
+
+    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //         window.priceCalculator.recalculatePrice();
+    //       } else {
+    //       }
+    //     }, 100); // Small delay to ensure Flatpickr is fully ready
+
+    //   } else {
+    //     console.error('Date inputs not found!');
+    //   }
+    // }
 
     // Load unavailable dates when page loads
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const carId = urlParams.get('id');
-      if (carId) {
-        loadUnavailableDates(carId);
-      } else {
-        // If no car ID, initialize with empty unavailable dates
-        initializeFlatpickrWithUnavailableDates([]);
-      }
-    });
+    // document.addEventListener('DOMContentLoaded', function () {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const carId = urlParams.get('id');
+    //   if (carId) {
+    //     loadUnavailableDates(carId);
+    //   } else {
+    //     // If no car ID, initialize with empty unavailable dates
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // });
   </script>
 
   <script>

@@ -133,13 +133,16 @@ class PriceCalculator {
   calculateOutsideHoursFees(pickupTime, returnTime) {
     let fees = 0;
     
+
     // Check if pickup is outside working hours (8:00-18:00)
-    if (this.isOutsideWorkingHours(pickupTime)) {
+    const pickupOutside = this.isOutsideWorkingHours(pickupTime);
+    if (pickupOutside) {
       fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for pickup outside working hours
     }
     
     // Check if return is outside working hours (8:00-18:00)
-    if (this.isOutsideWorkingHours(returnTime)) {
+    const returnOutside = this.isOutsideWorkingHours(returnTime);
+    if (returnOutside) {
       fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for return outside working hours
     }
     
@@ -148,6 +151,8 @@ class PriceCalculator {
 
   // Apply discount
   applyDiscount(totalPrice, discountCode) {
+    
+    
     // If no discount code, return original price
     if (!discountCode || discountCode.trim() === '') {
       return totalPrice;
@@ -156,8 +161,11 @@ class PriceCalculator {
     // Check if we have cached validation data for this coupon
     if (window.cachedCouponData && window.lastValidatedCouponCode === discountCode.trim()) {
       const discountPercentage = parseFloat(window.cachedCouponData.discount_percentage || 0);
+      
+      
       if (discountPercentage > 0) {
         const discountAmount = totalPrice * (discountPercentage / 100);
+        
         return totalPrice - discountAmount;
       }
     }
@@ -227,11 +235,16 @@ class PriceCalculator {
     // Calculate outside hours fees
     const outsideHoursFees = this.calculateOutsideHoursFees(pickupTime, returnTime);
     
+    
+    
     // Calculate subtotal
     const subtotal = basePrice + totalLocationFee + insuranceCost + outsideHoursFees;
     
     // Apply discount
+    
     const finalPrice = this.applyDiscount(subtotal, discountCode);
+    
+    
     
     // Return detailed breakdown
     return {
@@ -242,6 +255,7 @@ class PriceCalculator {
       outsideHoursFees,
       subtotal,
       discount: this.calculateDiscountAmount(subtotal, discountCode),
+      discountAmount: this.calculateDiscountAmount(subtotal, discountCode), // Add this
       finalPrice,
       // Add these properties that updatePriceDisplay expects:
       totalPrice: finalPrice,  // Add this
@@ -250,9 +264,9 @@ class PriceCalculator {
         'Price per day': `${basePrice}€`,
         'Total days': `x ${days}`,
         'Location delivery': totalLocationFee > 0 ? `+ ${totalLocationFee} €` : 'Included',
-        'Outside hours pickup': this.isOutsideWorkingHours(pickupTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
-        'Outside hours return': this.isOutsideWorkingHours(returnTime) ? `+ ${this.outsideHoursFee} €` : 'Included',
-        'Discount': discountCode ? `- ${Math.round(0)} €` : 'None'
+        'Outside hours pickup': this.isOutsideWorkingHours(pickupTime) ? `+ ${this.feeSettings.outside_hours_fee} €` : 'Included',
+        'Outside hours return': this.isOutsideWorkingHours(returnTime) ? `+ ${this.feeSettings.outside_hours_fee} €` : 'Included',
+        'Discount': discountCode ? `- ${Math.round(this.calculateDiscountAmount(subtotal, discountCode))} €` : 'None'
       }
     };
   }
@@ -300,11 +314,11 @@ class PriceCalculator {
 
   // Update the price display
   updatePriceDisplay(priceData) {
+    
     const priceContainer = document.getElementById('price-content');
     const loadingElement = document.getElementById('price-loading');
 
     if (!priceContainer) {
-      
       return;
     }
 
@@ -408,6 +422,8 @@ class PriceCalculator {
       } else if (returnHour < 8 || returnHour >= 18) {
         html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t('price_calculator.outside_hours')} ${i18next.t('price_calculator.return_time')} (${priceData.returnTime})</span><span>${outsideHoursFee}€</span></div>`;
       }
+    } else {
+      
     }
     
     if (priceData.discountAmount > 0) {
@@ -640,7 +656,10 @@ async recalculatePrice() {
     const returnTimeSelect = document.getElementById('collection-time');
     const discountCodeInput = document.querySelector('input[name="discount_code"]');
 
+
+
     if (!pickupDateInput || !returnDateInput || !pickupTimeSelect || !returnTimeSelect) {
+      
       return;
     }
 
@@ -650,6 +669,8 @@ async recalculatePrice() {
     const pickupTime = pickupTimeSelect.value;
     const returnTime = returnTimeSelect.value;
     const discountCode = discountCodeInput ? discountCodeInput.value.trim() : '';
+
+
 
     // Get location values BEFORE using them in debug
     const pickupLocation = this.getSelectedRadioValue('pickup_location') || 'Our Office';
@@ -678,12 +699,22 @@ async recalculatePrice() {
       discountCode
     };
 
-    // Use the existing calculatePrice method
-    const priceData = this.calculatePrice(rentalData);
+    // Calculate price with all the data
+    const priceData = this.calculatePrice({
+      pickupDate,
+      returnDate,
+      pickupTime,
+      returnTime,
+      pickupLocation,
+      dropoffLocation: dropoffLocation,
+      discountCode
+    });
 
+    // Add time values to priceData for display
+    priceData.pickupTime = pickupTime;
+    priceData.returnTime = returnTime;
 
-    
-    // Update the UI
+    // Update the display
     this.updatePriceDisplay(priceData);
     
   } catch (error) {

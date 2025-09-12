@@ -13,7 +13,7 @@ $(document).ready(function () {
   // API base URL from config - use relative URLs for Vercel deployment
   const apiBaseUrl = window.API_BASE_URL || "";
 
-  // Debug: Check if radio buttons are accessible on page load
+
 
   // Enhanced form validation
   function validateForm() {
@@ -196,15 +196,14 @@ $(document).ready(function () {
       customer_email: safeTrim("#email"),
       customer_phone: safeTrim("#phone"),
       customer_age: safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
-      pickup_date: $("#modal-pickup-date").val() || "",
+      pickup_date: convertDateFormatToISO($("#modal-pickup-date").val() || ""),
       pickup_time: $("#modal-pickup-time").val() || "",
-      return_date: $("#modal-return-date").val() || "",
+      return_date: convertDateFormatToISO($("#modal-return-date").val() || ""),
       return_time: $("#modal-return-time").val() || "",
       pickup_location: $('input[name="pickup_location"]:checked').val() || "",
       dropoff_location: $('input[name="destination"]:checked').val() || "",
       special_instructions: safeTrim("#message") || null,
-      total_price: finalTotalPrice, // Use discounted price
-      // original_price: originalTotalPrice, // Keep original for reference
+      total_price: finalTotalPrice,
       discount_code: discountCode,
       price_breakdown: {},
     };
@@ -484,14 +483,13 @@ $(document).ready(function () {
   });
 });
 
-function openPriceCalculator() {
+async function openPriceCalculator() {
   // Since we removed date/time fields from main form, we'll set default values
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(today.getDate() + 2);
-
 
   const pickupDate = tomorrow.toISOString().split("T")[0];
   const returnDate = dayAfterTomorrow.toISOString().split("T")[0];
@@ -659,6 +657,61 @@ if (typeof updateContent === 'function') {
   $("#price-calculator-modal").fadeIn(300);
   $("body").addClass("modal-open");
 
+  // Initialize DatePickerManager for modal
+  console.log("DEBUG: Initializing DatePickerManager for modal");
+  console.log("DEBUG: Selected vehicle:", selectedVehicle);
+  console.log("DEBUG: Modal pickup input:", document.getElementById('modal-pickup-date'));
+  console.log("DEBUG: Modal return input:", document.getElementById('modal-return-date'));
+  
+  // Get car ID from selected vehicle
+  const carId = selectedVehicle.attr("data-car-id") || "7"; // Default to car ID 7 for testing
+  console.log("DEBUG: Using car ID:", carId);
+  
+  // Initialize DatePickerManager for modal
+  if (typeof DatePickerManager !== 'undefined') {
+    console.log("DEBUG: DatePickerManager is available, creating instance");
+    try {
+      const modalDatePicker = new DatePickerManager({
+        pickupInputId: 'modal-pickup-date',
+        returnInputId: 'modal-return-date',
+        carId: carId,
+        dateFormat: 'd-m-Y',
+        onDateChange: function() {
+          console.log("DEBUG: Modal date changed, recalculating price");
+          calculateModalPrice();
+          updateVehiclePriceDisplay();
+        }
+      });
+      
+      // Initialize the DatePickerManager
+      console.log("DEBUG: Calling modalDatePicker.initialize()");
+      await modalDatePicker.initialize();
+      console.log("DEBUG: modalDatePicker.initialize() completed");
+      
+      // Store reference globally for cleanup
+      window.modalDatePicker = modalDatePicker;
+      
+      console.log("DEBUG: Modal DatePickerManager initialized successfully with car ID:", carId);
+      console.log("DEBUG: Modal DatePickerManager instance:", modalDatePicker);
+      
+      // Test if the inputs have been converted to date pickers
+      setTimeout(() => {
+        console.log("DEBUG: After 1 second - checking if inputs are date pickers");
+        console.log("DEBUG: Pickup input value:", document.getElementById('modal-pickup-date').value);
+        console.log("DEBUG: Return input value:", document.getElementById('modal-return-date').value);
+        console.log("DEBUG: Pickup input has flatpickr:", document.getElementById('modal-pickup-date')._flatpickr);
+        console.log("DEBUG: Return input has flatpickr:", document.getElementById('modal-return-date')._flatpickr);
+        
+        // Remove the manual click handlers - Flatpickr should handle clicks automatically
+        // The manual click handlers were causing both calendars to open
+      }, 1000);
+    } catch (error) {
+      console.error("DEBUG: Error initializing DatePickerManager:", error);
+    }
+  } else {
+    console.log("DEBUG: DatePickerManager not available");
+  }
+
   // Clear any previous error messages when modal opens
   hideUniversalError();
 
@@ -792,6 +845,12 @@ function closePriceCalculator() {
   // Remove any remaining modal backdrop if present
   $(".modal-backdrop").remove();
 
+  // Clean up DatePickerManager
+  if (window.modalDatePicker) {
+    console.log("DEBUG: Cleaning up modal DatePickerManager");
+    window.modalDatePicker = null;
+  }
+
   // Re-enable any disabled elements
   $("button, input, select, textarea").prop("disabled", false);
 
@@ -821,9 +880,13 @@ async function calculateModalPrice() {
   // Get discount code
   const discountCode = $("#modal-discount-code").val().trim();
 
-  // Calculate base price using the same logic as before
-  const pickup = new Date(pickupDateStr + "T00:00:00");
-  const return_dt = new Date(returnDateStr + "T00:00:00");
+  // Convert dates from d-m-Y to YYYY-MM-DD format
+  const pickupDateISO = convertDateFormatToISO(pickupDateStr);
+  const returnDateISO = convertDateFormatToISO(returnDateStr);
+
+  // Calculate base pr
+  const pickup = new Date(pickupDateISO + "T00:00:00");
+  const return_dt = new Date(returnDateISO + "T00:00:00");
   const days = Math.max(1, Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24)));
   
   // Get base price
@@ -2419,4 +2482,14 @@ function clearReturningCustomerSessionStorage(phoneNumber) {
   keysToRemove.forEach(key => {
     sessionStorage.removeItem(key);
   });
+}
+
+// Helper function to convert dd-mm-yyyy to YYYY-MM-DD
+function convertDateFormatToISO(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
+  }
+  return dateStr;
 }
