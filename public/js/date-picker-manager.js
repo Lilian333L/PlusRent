@@ -212,9 +212,9 @@ class DatePickerManager {
         static: false,
         position: "auto",
         // Add mobile-specific options
-        mobile: {
-          dateFormat: this.dateFormat, // Force compact format on mobile
-        },
+        // mobile: {
+        //   dateFormat: this.dateFormat, // Force compact format on mobile
+        // },
         onChange: (selectedDates, dateStr, instance) => {
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
@@ -263,9 +263,9 @@ class DatePickerManager {
         static: false,
         position: "auto",
         // Add mobile-specific options
-        mobile: {
-          dateFormat: this.dateFormat, // Force compact format on mobile
-        },
+        // mobile: {
+        //   dateFormat: this.dateFormat, // Force compact format on mobile
+        // },
         onChange: (selectedDates, dateStr, instance) => {
           
           if (this.onDateChange) {
