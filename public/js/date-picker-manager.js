@@ -459,34 +459,28 @@ class DatePickerManager {
   fixMobileDatePickerStyling() {
     // Add mobile-specific CSS for date picker inputs
     const mobileCSS = `
-      @media (max-width: 768px) {
-        .flatpickr-input {
-          font-size: 14px !important;
-          padding: 8px 6px !important;
-          text-align: left !important;
-        }
-        
-        .flatpickr-calendar {
-          font-size: 14px !important;
-          width: 280px !important;
-          max-width: 90vw !important;
-        }
-        
-        .flatpickr-calendar .flatpickr-day {
-          font-size: 12px !important;
-          width: 32px !important;
-          height: 32px !important;
-          line-height: 32px !important;
-        }
-        
-        .flatpickr-calendar .flatpickr-month {
-          font-size: 14px !important;
-        }
-        
-        .flatpickr-calendar .flatpickr-weekday {
-          font-size: 11px !important;
-        }
-      }
+      // .flatpickr-input {
+      //   font-size: 14px !important;
+      //   padding: 8px 12px !important;
+      //   text-align: left !important;
+      //   width: auto !important;
+      //   min-width: 140px !important;
+      //   max-width: none !important;
+      // }
+      
+      // .flatpickr-calendar {
+      //   font-size: 14px !important;
+      //   width: 280px !important;
+      //   max-width: 90vw !important;
+      // }
+      
+      // @media (max-width: 768px) {
+      //   .flatpickr-input {
+      //     font-size: 12px !important;
+      //     padding: 6px 8px !important;
+      //     min-width: 120px !important;
+      //   }
+      // }
     `;
     
     // Inject the CSS if not already present

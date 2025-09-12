@@ -3029,6 +3029,36 @@ document.addEventListener('DOMContentLoaded', function() {
           </button>
       </div>
   </div>
+
+  <script>
+// Initialize DatePickerManager for main page inputs
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait a bit for other scripts to load
+  setTimeout(function() {
+    if (typeof DatePickerManager !== 'undefined') {
+      console.log('🔵 Initializing DatePickerManager for main page inputs');
+      
+      const mainDatePicker = new DatePickerManager({
+        pickupInputId: 'date-picker',
+        returnInputId: 'date-picker-2',
+        carId: null, // No specific car for main page
+        dateFormat: 'd-m-Y',
+        onDateChange: function() {
+          // Trigger price calculator when dates change
+          if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === "function") {
+            window.priceCalculator.recalculatePrice();
+          }
+        }
+      });
+      
+      // Initialize the date picker
+      mainDatePicker.initialize();
+      
+      console.log(' Main page DatePickerManager initialized');
+    }
+  }, 1000); // Wait 1 second for other scripts to load
+});
+</script>
 </body>
 
 </html>
