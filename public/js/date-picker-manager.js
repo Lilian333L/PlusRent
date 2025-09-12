@@ -135,13 +135,12 @@ class DatePickerManager {
       }
 
       // Calculate dates
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-      const dayAfterTomorrow = new Date();
-      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-      const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
 
       
 
@@ -156,9 +155,9 @@ class DatePickerManager {
 
       
 
-      // Find first available dates
-      const firstAvailablePickupDate = this.findFirstAvailableDate(tomorrow, futureUnavailableDates);
-      const firstAvailableReturnDate = this.findFirstAvailableDate(dayAfterTomorrow, futureUnavailableDates);
+      // Find first available dates - allow today for pickup
+      const firstAvailablePickupDate = this.findFirstAvailableDate(today, futureUnavailableDates);
+      const firstAvailableReturnDate = this.findFirstAvailableDate(tomorrow, futureUnavailableDates);
 
       // FIX FLICKERING: Set correct initial values immediately before Flatpickr initialization
       pickupInput.value = firstAvailablePickupDate;
@@ -200,14 +199,22 @@ class DatePickerManager {
         allowInput: true,
         static: false, // Changed from true to false
         position: "auto", // Changed from "below" to "auto"
+        // ... existing code ...
         onChange: (selectedDates, dateStr, instance) => {
-          
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
-            const nextDay = new Date(selectedDate);
-            nextDay.setDate(selectedDate.getDate() + 1);
-            const firstAvailableReturn = this.findFirstAvailableDate(nextDay, unavailableDates);
-            this.returnFlatpickr.setDate(firstAvailableReturn);
+            // Set return date to exactly the same date as pickup date
+            const sameDay = new Date(selectedDate);
+            
+            // Convert to the correct format (dd-mm-yyyy)
+            const year = sameDay.getFullYear();
+            const month = String(sameDay.getMonth() + 1).padStart(2, '0');
+            const day = String(sameDay.getDate()).padStart(2, '0');
+            const formattedDate = `${day}-${month}-${year}`;
+            
+            // Update return date picker's minimum date to allow same day
+            this.returnFlatpickr.set('minDate', sameDay);
+            this.returnFlatpickr.setDate(formattedDate);
           }
           if (this.onDateChange) {
             this.onDateChange();
@@ -223,7 +230,7 @@ class DatePickerManager {
       this.returnFlatpickr = flatpickr(returnInput, {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
-        minDate: firstAvailableReturnDate,
+        minDate: firstAvailablePickupDate, // Changed from firstAvailableReturnDate to firstAvailablePickupDate
         defaultDate: firstAvailableReturnDate,
         disable: convertedUnavailableDates,
         allowInput: true,
@@ -418,6 +425,51 @@ class DatePickerManager {
     }
   }
 
+  // Add this method to the DatePickerManager class
+  fixMobileDatePickerStyling() {
+    // Add mobile-specific CSS for date picker inputs
+    const mobileCSS = `
+      @media (max-width: 768px) {
+        .flatpickr-input {
+          font-size: 14px !important;
+          padding: 8px 6px !important;
+          min-width: 100px !important;
+          max-width: 120px !important;
+          text-align: center !important;
+        }
+        
+        .flatpickr-calendar {
+          font-size: 14px !important;
+          width: 280px !important;
+          max-width: 90vw !important;
+        }
+        
+        .flatpickr-calendar .flatpickr-day {
+          font-size: 12px !important;
+          width: 32px !important;
+          height: 32px !important;
+          line-height: 32px !important;
+        }
+        
+        .flatpickr-calendar .flatpickr-month {
+          font-size: 14px !important;
+        }
+        
+        .flatpickr-calendar .flatpickr-weekday {
+          font-size: 11px !important;
+        }
+      }
+    `;
+    
+    // Inject the CSS if not already present
+    if (!document.getElementById('mobile-date-picker-styles')) {
+      const style = document.createElement('style');
+      style.id = 'mobile-date-picker-styles';
+      style.textContent = mobileCSS;
+      document.head.appendChild(style);
+    }
+  }
+
   // Initialize the date picker
   async initialize() {
     if (this.carId) {
@@ -426,6 +478,9 @@ class DatePickerManager {
     } else {
       await this.initializeFlatpickrWithUnavailableDates([]);
     }
+    
+    // Fix mobile styling
+    this.fixMobileDatePickerStyling();
   }
 
   // Get current date values

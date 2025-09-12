@@ -85,38 +85,38 @@ $(document).ready(function () {
         isValid = false;
       }
 
-      if (returnDate <= pickupDate) {
+      if (returnDate < pickupDate) {
         errors.push(i18next.t('errors.return_date_after_pickup'));
         isValid = false;
       }
     }
 
     // Time validation for same-day rentals
-    if (pickupTime && returnTime && pickupDateStr && returnDateStr) {
-      const pickupDateTime = new Date(pickupDateStr + "T" + pickupTime);
-      const returnDateTime = new Date(returnDateStr + "T" + returnTime);
+    // if (pickupTime && returnTime && pickupDateStr && returnDateStr) {
+    //   const pickupDateTime = new Date(pickupDateStr + "T" + pickupTime);
+    //   const returnDateTime = new Date(returnDateStr + "T" + returnTime);
 
-      if (pickupDateStr === returnDateStr && returnDateTime <= pickupDateTime) {
-        errors.push(i18next.t('errors.return_time_after_pickup'));
-        isValid = false;
-      }
-    }
+      // if (pickupDateStr === returnDateStr && returnDateTime <= pickupDateTime) {
+      //   errors.push(i18next.t('errors.return_time_after_pickup'));
+      //   isValid = false;
+      // }
+    // }
 
     // Additional validation for minimum rental duration
-    if (pickupDateStr && returnDateStr) {
-      const pickup = new Date(pickupDateStr);
-      const return_dt = new Date(returnDateStr);
-      const duration = Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24));
+    // if (pickupDateStr && returnDateStr) {
+    //   const pickup = new Date(pickupDateStr);
+    //   const return_dt = new Date(returnDateStr);
+    //   const duration = Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24));
 
-      if (duration < 1) {
-        $("#date-picker-2").addClass("error_input");
-        $("#date-picker-2").after(
-          `<div class="field-error text-danger small mt-1">${i18next.t('errors.minimum_rental_duration')}</div>`
-        );
-        errors.push(i18next.t('errors.minimum_rental_duration'));
-        isValid = false;
-      }
-    }
+    //   if (duration < 1) {
+    //     $("#date-picker-2").addClass("error_input");
+    //     $("#date-picker-2").after(
+    //       `<div class="field-error text-danger small mt-1">${i18next.t('errors.minimum_rental_duration')}</div>`
+    //     );
+    //     errors.push(i18next.t('errors.minimum_rental_duration'));
+    //     isValid = false;
+    //   }
+    // }
 
     // Vehicle selection validation
     const vehicleSelect = $("#vehicle_type");
@@ -196,9 +196,21 @@ $(document).ready(function () {
       customer_email: safeTrim("#email"),
       customer_phone: safeTrim("#phone"),
       customer_age: safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
-      pickup_date: convertDateFormatToISO($("#modal-pickup-date").val() || ""),
+      pickup_date: (() => {
+        const dateStr = $("#modal-pickup-date").val() || "";
+        console.log('Pickup date before conversion:', dateStr);
+        const converted = convertDateFormatToISO(dateStr);
+        console.log('Pickup date after conversion:', converted);
+        return converted;
+      })(),
       pickup_time: $("#modal-pickup-time").val() || "",
-      return_date: convertDateFormatToISO($("#modal-return-date").val() || ""),
+      return_date: (() => {
+        const dateStr = $("#modal-return-date").val() || "";
+        console.log('Return date before conversion:', dateStr);
+        const converted = convertDateFormatToISO(dateStr);
+        console.log('Return date after conversion:', converted);
+        return converted;
+      })(),
       return_time: $("#modal-return-time").val() || "",
       pickup_location: $('input[name="pickup_location"]:checked').val() || "",
       dropoff_location: $('input[name="destination"]:checked').val() || "",
@@ -602,14 +614,14 @@ if (typeof updateContent === 'function') {
         const pickup = new Date(pickupDate);
         const return_dt = new Date(returnDate);
 
-        if (return_dt <= pickup) {
-          if (window.showError && typeof window.showError === "function") {
-            window.showError(i18next.t('errors.return_date_after_pickup'));
-          } else {
-            alert(i18next.t('errors.return_date_after_pickup'));
-          }
-          return;
-        }
+        // if (return_dt <= pickup) {
+        //   if (window.showError && typeof window.showError === "function") {
+        //     window.showError(i18next.t('errors.return_date_after_pickup'));
+        //   } else {
+        //     alert(i18next.t('errors.return_date_after_pickup'));
+        //   }
+        //   return;
+        // }
       }
 
       calculateModalPrice();
