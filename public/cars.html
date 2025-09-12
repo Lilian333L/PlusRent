@@ -1048,7 +1048,25 @@ async function fetchAndRenderCars() {
     const isPremium = car.is_premium === 1 || car.is_premium === true;
     const rentNowUrl = `car-single.html?id=${car.id}`;
 
-    return `
+    // Calculate the lowest price from price policy
+    let lowestPrice = '';
+    if (car.price_policy) {
+      const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
+      console.log(`DEBUG: Car ${car.id} price_policy:`, pricePolicy);
+      console.log(`DEBUG: Car ${car.id} price_policy values:`, Object.values(pricePolicy));
+      
+      const prices = Object.values(pricePolicy).map(price => {
+        const parsedPrice = parseInt(price);
+        console.log(`DEBUG: Parsing price "${price}" -> ${parsedPrice}`);
+        return parsedPrice;
+      });
+      
+      console.log(`DEBUG: Car ${car.id} parsed prices:`, prices);
+      lowestPrice = Math.min(...prices).toString();
+      console.log(`DEBUG: Car ${car.id} lowest price:`, lowestPrice);
+    }
+
+    const carHtml = `
       <div class="col-xl-4 col-lg-4 col-md-6">
         <div class="de-item mb30${isPremium ? ' premium' : ''}">
           <div class="d-img">
@@ -1063,25 +1081,56 @@ async function fetchAndRenderCars() {
                 <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
               </div>
               <div class="d-atr-group">
-                <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span data-i18n="cars.filter_passengers"></span> ${car.num_passengers || '-'}</span>
-                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span data-i18n="cars.filter_doors"></span> ${car.num_doors || '-'}</span>
+                <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span ></span> ${car.num_passengers || '-'}</span>
+                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span ></span> ${car.num_doors || '-'}</span>
                 <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span data-i18n="cars.filter_type"></span> ${car.car_type || '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span ></span> ${car.car_type || '-'}</span>
               </div>
-              <div class="d-price" data-i18n="cars.daily_rate">Daily rate from <span>${car.price_policy ? car.price_policy['1-2'] + '€' : ''}</span></div>
+              <div class="d-price">
+                <span data-i18n="cars.daily_rate">Daily rate from</span> <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span>
+              </div>
               <a class="btn-main" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
             </div>
           </div>
         </div>
       </div>
     `;
+    
+    // Debug the generated HTML for the first car
+    if (car.id === 5) {
+      console.log(`DEBUG: Generated HTML for car ${car.id}:`, carHtml);
+    }
+    
+    return carHtml;
   }).join('');
   carListDiv.innerHTML = carsHtml;
   renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
   
+  // Debug: Check if d-price elements exist and their content after HTML insertion
+  setTimeout(() => {
+    const dPriceElements = document.querySelectorAll('.d-price');
+    console.log(`DEBUG: Found ${dPriceElements.length} .d-price elements`);
+    
+    dPriceElements.forEach((element, index) => {
+      console.log(`DEBUG: .d-price element ${index}:`, element.innerHTML);
+      console.log(`DEBUG: .d-price element ${index} textContent:`, element.textContent);
+    });
+  }, 100);
+
   // Update i18n translations for dynamically added content
   if (typeof updateContent === 'function') {
     updateContent();
+    
+    // Debug: Check d-price elements after i18n processing
+    setTimeout(() => {
+      const dPriceElements = document.querySelectorAll('.d-price');
+      console.log(`DEBUG: After i18n - Found ${dPriceElements.length} .d-price elements`);
+      
+      dPriceElements.forEach((element, index) => {
+        console.log(`DEBUG: After i18n - .d-price element ${index}:`, element.innerHTML);
+        console.log(`DEBUG: After i18n - .d-price element ${index} textContent:`, element.textContent);
+      });
+    }, 100);
   }
 }
 
