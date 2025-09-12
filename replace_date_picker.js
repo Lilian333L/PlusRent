@@ -27,5 +27,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 `;
 
-console.log('Replacement code ready. This will replace the current date picker implementation.');
-console.log('The new implementation uses DatePickerManager class for better reusability.');

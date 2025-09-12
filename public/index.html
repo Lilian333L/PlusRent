@@ -2525,10 +2525,7 @@
             return res.json();
           })
           .then(cars => {
-            console.log("DEBUG: Cars loaded:", cars.length);
-            console.log("DEBUG: First car price_policy:", cars[0]?.price_policy);
-            console.log("DEBUG: First car 1-2 price:", cars[0]?.price_policy?.['1-2']);
-
+           
             if (!cars.length) {
               grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
               return;
@@ -2545,10 +2542,6 @@
                 const prices = Object.values(pricePolicy).map(price => parseInt(price));
                 lowestPrice = Math.min(...prices).toString();
               }
-              
-              // Debug each car's price_policy
-              console.log(`DEBUG: Car ${car.id} (${car.make_name} ${car.model_name}) price_policy:`, car.price_policy);
-              console.log(`DEBUG: Car ${car.id} lowest price:`, lowestPrice);
 
               return `
                 <div class=\"col-xl-4 col-lg-4 col-md-6\">

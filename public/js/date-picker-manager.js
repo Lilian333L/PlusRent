@@ -50,38 +50,33 @@ class DatePickerManager {
   // Load unavailable dates from API
   async loadUnavailableDates(carId) {
     try {
-      console.log("DEBUG: Loading unavailable dates for car ID:", carId);
+      
       const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
       if (response.ok) {
         const data = await response.json();
-        console.log("DEBUG: API response:", data);
+        
         const unavailableDates = [];
         
         if (data.booking_dates && Array.isArray(data.booking_dates)) {
           data.booking_dates.forEach(booking => {
-            console.log("DEBUG: Processing booking:", booking);
+            
             if (booking.pickup_date && booking.return_date) {
               // Add date range to unavailable dates
               const startDate = new Date(booking.pickup_date);
               const endDate = new Date(booking.return_date);
               
-              console.log("DEBUG: Booking date range:", {
-                pickup_date: booking.pickup_date,
-                return_date: booking.return_date,
-                startDate: startDate.toISOString().split('T')[0],
-                endDate: endDate.toISOString().split('T')[0]
-              });
+              
               
               for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
                 const dateStr = d.toISOString().split('T')[0];
                 unavailableDates.push(dateStr);
-                console.log("DEBUG: Added unavailable date:", dateStr);
+                
               }
             }
           });
         }
         
-        console.log("DEBUG: Final unavailable dates array:", unavailableDates);
+        
         return unavailableDates;
       }
     } catch (error) {
@@ -95,8 +90,7 @@ class DatePickerManager {
   async initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
     // Prevent multiple initializations
     if (this.pickupFlatpickr || this.returnFlatpickr) {
-      console.log("DEBUG: Flatpickr instances already exist, applying unavailable dates");
-      console.log("DEBUG: Unavailable dates received:", unavailableDates);
+      
       
       // Apply unavailable dates to existing instances
       if (unavailableDates.length > 0) {
@@ -106,16 +100,16 @@ class DatePickerManager {
           return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert YYYY-MM-DD to dd-mm-yyyy
         });
         
-        console.log("DEBUG: Converted unavailable dates:", convertedUnavailableDates);
+        
         
         // Apply to existing instances
         if (this.pickupFlatpickr) {
           this.pickupFlatpickr.set('disable', convertedUnavailableDates);
-          console.log("DEBUG: Applied unavailable dates to pickup Flatpickr");
+          
         }
         if (this.returnFlatpickr) {
           this.returnFlatpickr.set('disable', convertedUnavailableDates);
-          console.log("DEBUG: Applied unavailable dates to return Flatpickr");
+          
         }
       }
       
@@ -149,9 +143,7 @@ class DatePickerManager {
       dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
       const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
 
-      console.log("DEBUG: Today's date:", new Date().toISOString().split('T')[0]);
-      console.log("DEBUG: Tomorrow's date:", tomorrowStr);
-      console.log("DEBUG: Day after tomorrow:", dayAfterTomorrowStr);
+      
 
       // Filter unavailable dates to only include future dates
       const futureUnavailableDates = unavailableDates.filter(date => date >= tomorrowStr);
@@ -162,12 +154,7 @@ class DatePickerManager {
         return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert YYYY-MM-DD to dd-mm-yyyy
       });
 
-      console.log("DEBUG: Original unavailable dates:", unavailableDates);
-      console.log("DEBUG: Future unavailable dates:", futureUnavailableDates);
-      console.log("DEBUG: Converted unavailable dates:", convertedUnavailableDates);
-      console.log("DEBUG: Today's date:", new Date().toISOString().split('T')[0]);
-      console.log("DEBUG: Tomorrow's date:", tomorrowStr);
-      console.log("DEBUG: Day after tomorrow:", dayAfterTomorrowStr);
+      
 
       // Find first available dates
       const firstAvailablePickupDate = this.findFirstAvailableDate(tomorrow, futureUnavailableDates);
@@ -203,7 +190,7 @@ class DatePickerManager {
       }, 5000);
 
       // Initialize pickup date picker
-      console.log("DEBUG: Initializing pickup Flatpickr for input:", pickupInput);
+      
       this.pickupFlatpickr = flatpickr(pickupInput, {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
@@ -214,7 +201,7 @@ class DatePickerManager {
         static: false, // Changed from true to false
         position: "auto", // Changed from "below" to "auto"
         onChange: (selectedDates, dateStr, instance) => {
-          console.log("DEBUG: Pickup date changed:", { selectedDates, dateStr });
+          
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
             const nextDay = new Date(selectedDate);
@@ -230,7 +217,7 @@ class DatePickerManager {
           // Fix styling immediately when calendar is ready
         }
       });
-      console.log("DEBUG: Pickup Flatpickr instance:", this.pickupFlatpickr);
+      
 
       // Initialize return date picker
       this.returnFlatpickr = flatpickr(returnInput, {
@@ -243,7 +230,7 @@ class DatePickerManager {
         static: false, // Changed from true to false
         position: "auto", // Changed from "below" to "auto"
         onChange: (selectedDates, dateStr, instance) => {
-          console.log("DEBUG: Return date changed:", { selectedDates, dateStr });
+          
           if (this.onDateChange) {
             this.onDateChange();
           }
@@ -261,7 +248,7 @@ class DatePickerManager {
               calendar.style.left = (inputRect.left + (inputRect.width / 2)) + 'px';
               calendar.style.margin = '0';
               
-              console.log("DEBUG: Positioned return calendar on open");
+              
             }
           }, 10); // Small delay to ensure calendar is rendered
         },
@@ -425,7 +412,7 @@ class DatePickerManager {
           calendar.style.fontFamily = 'system-ui, -apple-system, sans-serif';
           calendar.style.fontSize = '14px';
           
-          console.log("DEBUG: Fixed calendar styling for modal");
+          
         });
       }, 100);
     }
@@ -458,14 +445,14 @@ class DatePickerManager {
   setupOutsideHoursNotice() {
     // Only set up if price calculator is ready
     if (!window.priceCalculator || !window.currentCarData) {
-      console.log("DEBUG: PriceCalculator not available, skipping outside hours notice setup");
+      
       return; // Don't retry, just skip this setup
     }
     const pickupTimeSelect = document.getElementById("pickup-time");
     const returnTimeSelect = document.getElementById("collection-time");
     
     if (!pickupTimeSelect || !returnTimeSelect) {
-      console.log("DEBUG: Time select elements not found, skipping outside hours notice setup");
+      
       return; // Don't retry, just skip this setup
     }
     

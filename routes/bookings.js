@@ -332,7 +332,6 @@ router.put('/:id/status', authenticateToken, validateParams(bookingIdSchema), va
       try {
         const trackingResult = await trackPhoneNumberForBooking(existingBooking.customer_phone, id.toString());
         if (trackingResult.success) {
-          console.log('✅ Phone number tracked for confirmed booking:', id);
         } else {
           console.error('❌ Failed to track phone number:', trackingResult.error);
         }
@@ -698,7 +697,7 @@ router.post('/check-returning-customer', async (req, res) => {
         bookingTriggerNumber = parseInt(settings.setting_value) || 2;
       }
     } catch (error) {
-      console.log('Using default booking trigger number (2)');
+      console.error('❌ Error fetching booking trigger number:', error);
     }
 
     // Check if phone number exists and meets the configurable booking criteria

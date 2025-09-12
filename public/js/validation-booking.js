@@ -583,43 +583,6 @@ if (typeof updateContent === 'function') {
         carDetails.num_doors || "-"
       } ${doorsText} • ${carTypeText}`
     );
-
-    // Show dynamic price based on current rental duration
-    const currentPickup = new Date(pickupDate + "T00:00:00");
-    const currentReturn = new Date(returnDate + "T00:00:00");
-    const currentDays = Math.max(
-      1,
-      Math.ceil(
-        (currentReturn.getTime() - currentPickup.getTime()) / (1000 * 3600 * 24)
-      )
-    );
-
-    let displayPrice = "0";
-    if (currentDays >= 1 && currentDays <= 2) {
-      displayPrice = carDetails.price_policy
-        ? carDetails.price_policy["1-2"]
-        : "0";
-    } else if (currentDays >= 3 && currentDays <= 7) {
-      displayPrice = carDetails.price_policy
-        ? carDetails.price_policy["3-7"]
-        : "0";
-    } else if (currentDays >= 8 && currentDays <= 20) {
-      displayPrice = carDetails.price_policy
-        ? carDetails.price_policy["8-20"]
-        : "0";
-    } else if (currentDays >= 21 && currentDays <= 45) {
-      displayPrice = carDetails.price_policy
-        ? carDetails.price_policy["21-45"]
-        : "0";
-    } else {
-      displayPrice = carDetails.price_policy
-        ? carDetails.price_policy["46+"]
-        : "0";
-    }
-
-    const currencySymbol = i18next.t('price_calculator.vehicle_details.currency_symbol');
-    const perDayText = i18next.t('price_calculator.vehicle_details.per_day');
-    $("#modal-vehicle-price").text(currencySymbol + displayPrice + " " + perDayText);
   }
 
   // Calculate and display prices in modal
@@ -658,18 +621,14 @@ if (typeof updateContent === 'function') {
   $("body").addClass("modal-open");
 
   // Initialize DatePickerManager for modal
-  console.log("DEBUG: Initializing DatePickerManager for modal");
-  console.log("DEBUG: Selected vehicle:", selectedVehicle);
-  console.log("DEBUG: Modal pickup input:", document.getElementById('modal-pickup-date'));
-  console.log("DEBUG: Modal return input:", document.getElementById('modal-return-date'));
+  
   
   // Get car ID from selected vehicle
   const carId = selectedVehicle.attr("data-car-id") || "7"; // Default to car ID 7 for testing
-  console.log("DEBUG: Using car ID:", carId);
   
   // Initialize DatePickerManager for modal
   if (typeof DatePickerManager !== 'undefined') {
-    console.log("DEBUG: DatePickerManager is available, creating instance");
+    
     try {
       const modalDatePicker = new DatePickerManager({
         pickupInputId: 'modal-pickup-date',
@@ -677,30 +636,25 @@ if (typeof updateContent === 'function') {
         carId: carId,
         dateFormat: 'd-m-Y',
         onDateChange: function() {
-          console.log("DEBUG: Modal date changed, recalculating price");
+          
           calculateModalPrice();
           updateVehiclePriceDisplay();
         }
       });
       
       // Initialize the DatePickerManager
-      console.log("DEBUG: Calling modalDatePicker.initialize()");
+      
       await modalDatePicker.initialize();
-      console.log("DEBUG: modalDatePicker.initialize() completed");
+      
       
       // Store reference globally for cleanup
       window.modalDatePicker = modalDatePicker;
       
-      console.log("DEBUG: Modal DatePickerManager initialized successfully with car ID:", carId);
-      console.log("DEBUG: Modal DatePickerManager instance:", modalDatePicker);
+      
       
       // Test if the inputs have been converted to date pickers
       setTimeout(() => {
-        console.log("DEBUG: After 1 second - checking if inputs are date pickers");
-        console.log("DEBUG: Pickup input value:", document.getElementById('modal-pickup-date').value);
-        console.log("DEBUG: Return input value:", document.getElementById('modal-return-date').value);
-        console.log("DEBUG: Pickup input has flatpickr:", document.getElementById('modal-pickup-date')._flatpickr);
-        console.log("DEBUG: Return input has flatpickr:", document.getElementById('modal-return-date')._flatpickr);
+        
         
         // Remove the manual click handlers - Flatpickr should handle clicks automatically
         // The manual click handlers were causing both calendars to open
@@ -709,7 +663,6 @@ if (typeof updateContent === 'function') {
       console.error("DEBUG: Error initializing DatePickerManager:", error);
     }
   } else {
-    console.log("DEBUG: DatePickerManager not available");
   }
 
   // Clear any previous error messages when modal opens
@@ -846,8 +799,8 @@ function closePriceCalculator() {
   $(".modal-backdrop").remove();
 
   // Clean up DatePickerManager
-  if (window.modalDatePicker) {
-    console.log("DEBUG: Cleaning up modal DatePickerManager");
+  if (window.modalDatePicker) { 
+    
     window.modalDatePicker = null;
   }
 
@@ -1180,16 +1133,16 @@ async function submitBooking() {
 
     // Check if customer is returning (has existing bookings with unredeemed return gift)
     if (bookingData.customer_phone) {
-      console.log('Checking returning customer for phone:', bookingData.customer_phone);
+      
       const isReturningCustomer = await checkReturningCustomer(bookingData.customer_phone);
-      console.log('Is returning customer:', isReturningCustomer);
+      
       
       if (isReturningCustomer) {
-        console.log('Customer is returning, showing alert...');
+        
         const shouldShowPopup = await showReturningCustomerAlert(bookingData.customer_phone);
-        console.log('Should show popup:', shouldShowPopup);
+        
         if (shouldShowPopup) {
-          console.log('Exiting early due to returning customer popup');
+          
           return false; // Exit early for returning customers on their second booking
         }
         // If popup was already shown, continue with booking
@@ -1854,7 +1807,7 @@ $(document).ready(function() {
 // Check if customer is returning (has existing bookings with unredeemed return gift)
 async function checkReturningCustomer(phoneNumber) {
   try {
-    console.log('API call to check returning customer for:', phoneNumber);
+    
     const apiBaseUrl = window.API_BASE_URL || '';
     const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
       method: 'POST',
@@ -1873,11 +1826,11 @@ async function checkReturningCustomer(phoneNumber) {
     }
 
     const data = await response.json();
-    console.log('API response:', data);
+    
     
     // Customer is returning if they have one or more bookings with unredeemed return gift
     const isReturning = data.isReturningCustomer === true;
-    console.log('Is returning customer result:', isReturning);
+    
     return isReturning;
 
   } catch (error) {
@@ -1889,7 +1842,7 @@ async function checkReturningCustomer(phoneNumber) {
 
 // Show modal for returning customers
 async function showReturningCustomerAlert(phoneNumber = null) {
-  console.log('showReturningCustomerAlert called with phoneNumber:', phoneNumber);
+  
   
   // Use provided phone number or get from form input
   if (!phoneNumber) {
@@ -1899,18 +1852,18 @@ async function showReturningCustomerAlert(phoneNumber = null) {
       phoneInput = document.querySelector('#phone');
     }
     phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-    console.log('Phone number from form:', phoneNumber);
+    
   }
   
   if (!phoneNumber) {
-    console.log('No phone number found, returning false');
+    
     return false;
   }
   
   // Get the current booking number from the API response
   let currentBookingNumber = null;
   try {
-    console.log('Getting booking number for phone:', phoneNumber);
+    
     const apiBaseUrl = window.API_BASE_URL || '';
     const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
       method: 'POST',
@@ -1925,53 +1878,52 @@ async function showReturningCustomerAlert(phoneNumber = null) {
     if (response.ok) {
       const data = await response.json();
       currentBookingNumber = data.nextBookingNumber;
-      console.log('Current booking number:', currentBookingNumber);
+      
     }
   } catch (error) {
     console.error('Error getting booking number:', error);
   }
   
   if (!currentBookingNumber) {
-    console.log('No booking number found, returning false');
+    
     return false;
   }
   
   // Check if we've already shown the returning customer popup for this specific phone number and booking number
   const sessionKey = `hasShownReturningCustomerPopup_${phoneNumber}_${currentBookingNumber}`;
   const hasShownReturningCustomerPopup = sessionStorage.getItem(sessionKey);
-  console.log('Session key:', sessionKey);
-  console.log('Has shown popup before:', hasShownReturningCustomerPopup);
+  
   
   if (hasShownReturningCustomerPopup === 'true') {
     // User has already seen the popup for this phone number and booking number, allow booking to proceed
-    console.log('Popup already shown, returning false');
+    
     return false; // Return false to indicate we should proceed with booking
   }
   
   // Set flag to indicate we've shown the popup for this phone number and booking number
   sessionStorage.setItem(sessionKey, 'true');
-  console.log('Set session storage flag');
+
   
   // Load and show the returning customer modal
-  console.log('Loading returning customer modal...');
+  
   loadReturningCustomerModal();
   return true; // Return true to indicate we're showing the popup
 }
 
 // Load the returning customer modal
 async function loadReturningCustomerModal() {
-  console.log('loadReturningCustomerModal called');
+  
   
   // Check if modal is already loaded
   if (document.getElementById('returningCustomerModal')) {
-    console.log('Modal already exists, showing it');
+    
     showReturningCustomerModal();
     return;
   }
 
   try {
     // Fetch active wheel configurations
-    console.log('Fetching active wheel configurations...');
+    
     const response = await fetch('/api/spinning-wheels/enabled-configs');
     let wheelConfigs = [];
     
@@ -2307,7 +2259,7 @@ async function loadReturningCustomerModal() {
     wheelButtons.forEach(button => {
       button.addEventListener('click', async function() {
         const wheelId = this.getAttribute('data-wheel-id');
-        console.log('Wheel selected:', wheelId);
+        
         
         // Mark return gift as redeemed before opening the spinning wheel
         await markReturnGiftAsRedeemed();
@@ -2328,7 +2280,7 @@ async function loadReturningCustomerModal() {
           }
           const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
           
-          console.log('Opening spinning wheel with phone number:', phoneNumber, 'wheelId:', wheelId);
+          
           
           // Show the spinning wheel modal with the specified wheel ID, skipping phone step
           window.UniversalSpinningWheel.show({
@@ -2343,7 +2295,7 @@ async function loadReturningCustomerModal() {
     });
     
     // Show the modal
-    console.log('Calling showReturningCustomerModal...');
+    
     showReturningCustomerModal();
     
   } catch (error) {
@@ -2362,11 +2314,11 @@ async function markReturnGiftAsRedeemed() {
     const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
     
     if (!phoneNumber) {
-      console.log('No phone number found for marking return gift as redeemed');
+      
       return;
     }
 
-    console.log('Marking return gift as redeemed for phone:', phoneNumber);
+    
     
     // Call the API to mark return gift as redeemed
     const response = await fetch('/api/spinning-wheels/mark-return-gift-redeemed', {
@@ -2378,7 +2330,7 @@ async function markReturnGiftAsRedeemed() {
     });
 
     if (response.ok) {
-      console.log('Return gift marked as redeemed successfully');
+      
     } else {
       console.error('Failed to mark return gift as redeemed:', response.statusText);
     }
@@ -2448,18 +2400,18 @@ function updateModalTranslations() {
 
 // Show the returning customer modal
 function showReturningCustomerModal() {
-  console.log('showReturningCustomerModal called');
+  
   const modal = document.getElementById('returningCustomerModal');
-  console.log('Modal element found:', !!modal);
+  
   if (modal) {
-    console.log('Adding show class and modal-open to body');
+    
     modal.classList.add('show');
     document.body.classList.add('modal-open');
     
     // Update translations after modal is shown
     updateModalTranslations();
-    
-    console.log('Modal should now be visible');
+  
+
   } else {
     console.error('Modal element not found!');
   }
