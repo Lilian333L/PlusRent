@@ -190,16 +190,31 @@ class DatePickerManager {
 
       // Initialize pickup date picker
       
+      // Add Safari detection and configuration
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      const isMobile = window.innerWidth <= 768;
+
       this.pickupFlatpickr = flatpickr(pickupInput, {
-        dateFormat: this.dateFormat,
-        altFormat: this.dateFormat,
+        dateFormat: this.dateFormat, // "d-m-Y"
+        altFormat: this.dateFormat,  // Force same format on mobile
+        altInput: false,             // Disable alt input to prevent format switching
+        // Safari-specific options
+        disableMobile: false, // Allow mobile but with custom formatting
         minDate: firstAvailablePickupDate,
         defaultDate: firstAvailablePickupDate,
         disable: convertedUnavailableDates,
         allowInput: true,
-        static: false, // Changed from true to false
-        position: "auto", // Changed from "below" to "auto"
-        // ... existing code ...
+        static: false,
+        position: "auto",
+        // Force compact format on Safari mobile
+        ...(isSafari && isMobile ? {
+          dateFormat: "d-m-y", // Use 2-digit year for more compact display
+          altFormat: "d-m-y",
+        } : {}),
+        // Add mobile-specific options
+        mobile: {
+          dateFormat: this.dateFormat, // Force compact format on mobile
+        },
         onChange: (selectedDates, dateStr, instance) => {
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
@@ -230,12 +245,17 @@ class DatePickerManager {
       this.returnFlatpickr = flatpickr(returnInput, {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
-        minDate: firstAvailablePickupDate, // Changed from firstAvailableReturnDate to firstAvailablePickupDate
+        altInput: false,             // Disable alt input
+        minDate: firstAvailableReturnDate,
         defaultDate: firstAvailableReturnDate,
         disable: convertedUnavailableDates,
         allowInput: true,
-        static: false, // Changed from true to false
-        position: "auto", // Changed from "below" to "auto"
+        static: false,
+        position: "auto",
+        // Add mobile-specific options
+        mobile: {
+          dateFormat: this.dateFormat, // Force compact format on mobile
+        },
         onChange: (selectedDates, dateStr, instance) => {
           
           if (this.onDateChange) {
@@ -470,6 +490,46 @@ class DatePickerManager {
     }
   }
 
+  // Add this method to force compact format on Safari
+  forceCompactFormatOnSafari() {
+    if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) && window.innerWidth <= 768) {
+      const inputs = [this.pickupInput, this.returnInput];
+      
+      inputs.forEach(input => {
+        if (input) {
+          // Force the input to show compact format
+          const observer = new MutationObserver(() => {
+            if (input.value && input.value.includes(' ')) {
+              // If Safari shows "12 Sep 2025", convert to "12-09-2025"
+              const date = new Date(input.value);
+              if (!isNaN(date.getTime())) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                input.value = `${day}-${month}-${year}`;
+              }
+            }
+          });
+          
+          observer.observe(input, { attributes: true, attributeFilter: ['value'] });
+          
+          // Also listen for input events
+          input.addEventListener('input', () => {
+            if (input.value && input.value.includes(' ')) {
+              const date = new Date(input.value);
+              if (!isNaN(date.getTime())) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                input.value = `${day}-${month}-${year}`;
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+
   // Initialize the date picker
   async initialize() {
     if (this.carId) {
@@ -481,6 +541,9 @@ class DatePickerManager {
     
     // Fix mobile styling
     this.fixMobileDatePickerStyling();
+    
+    // Force compact format on Safari
+    this.forceCompactFormatOnSafari();
   }
 
   // Get current date values
@@ -564,3 +627,65 @@ class DatePickerManager {
 
 // Make DatePickerManager available globally
 window.DatePickerManager = DatePickerManager;
+
+/* Force compact date format on mobile */
+@media (max-width: 768px) {
+  .flatpickr-input {
+    font-size: 12px !important;
+    padding: 6px 4px !important;
+    min-width: 80px !important;
+    max-width: 100px !important;
+    text-align: center !important;
+  }
+  
+  /* Hide the alt input if it's being used */
+  .flatpickr-alt-input {
+    display: none !important;
+  }
+  
+  /* Ensure the main input shows the compact format */
+  .flatpickr-input[readonly] {
+    font-size: 12px !important;
+  }
+}
+
+/* Safari-specific date input fixes */
+@media (max-width: 768px) {
+  .flatpickr-input {
+    font-size: 12px !important;
+    padding: 6px 4px !important;
+    min-width: 80px !important;
+    max-width: 100px !important;
+    width: 100px !important;
+    text-align: center !important;
+    /* Safari-specific overrides */
+    -webkit-appearance: none !important;
+    -webkit-border-radius: 3.2px !important;
+    border-radius: 3.2px !important;
+    /* Force text to be smaller and centered */
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    /* Prevent Safari from expanding the input */
+    flex-shrink: 1 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Target Safari specifically */
+  @supports (-webkit-touch-callout: none) {
+    .flatpickr-input {
+      font-size: 10px !important;
+      max-width: 90px !important;
+      width: 90px !important;
+      padding: 4px 2px !important;
+    }
+  }
+  
+  /* Force the input to show compact format */
+  .flatpickr-input[type="text"] {
+    font-size: 11px !important;
+    max-width: 95px !important;
+    width: 95px !important;
+  }
+}
