@@ -96,9 +96,55 @@ class DatePickerManager {
         // Convert unavailable dates from YYYY-MM-DD to d-m-Y format for Flatpickr
         const convertedUnavailableDates = unavailableDates.map((date) => {
           const parts = date.split("-");
-          return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert YYYY-MM-DD to dd-mm-yyyy
+          return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert YYYY-MM-DD to dd-mm-yyyy    
+
         });
 
+        const pastDates = [];
+
+        for (let year = 2020; year < today.getFullYear(); year++) {
+          for (let month = 0; month < 12; month++) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+              pastDates.push(
+                `${day
+                  .toString()
+                  .padStart(2, "0")}-${(month + 1)
+                  .toString()
+                  .padStart(2, "0")}-${year}`
+              );
+            }
+          }
+        }
+        for (let month = 0; month < today.getMonth(); month++) {
+          const daysInMonth = new Date(
+            today.getFullYear(),
+            month + 1,
+            0
+          ).getDate();
+        }
+
+for (let month = 0; month < today.getMonth(); month++) {
+  const daysInMonth = new Date(today.getFullYear(), month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    pastDates.push(
+      `${day
+        .toString()
+        .padStart(2, "0")}-${(month + 1)
+        .toString()
+        .padStart(2, "0")}-${today.getFullYear()}`
+    );
+  }
+}
+for (let day = 1; day < today.getDate(); day++) {
+  pastDates.push(
+    `${day
+      .toString()
+      .padStart(2, "0")}-${(today.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${today.getFullYear()}`
+  );
+}
         // Apply to existing instances
         if (this.pickupFlatpickr) {
           this.pickupFlatpickr.set("disable", convertedUnavailableDates);
@@ -148,6 +194,45 @@ class DatePickerManager {
         const parts = date.split("-");
         return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert YYYY-MM-DD to dd-mm-yyyy
       });
+
+      const pastDates = [];
+
+      for (let year = 2020; year < today.getFullYear(); year++) {
+        for (let month = 0; month < 12; month++) {
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          for (let day = 1; day <= daysInMonth; day++) {
+            pastDates.push(
+              `${day.toString().padStart(2, "0")}-${(month + 1)
+                .toString()
+                .padStart(2, "0")}-${year}`
+            );
+          }
+        }
+      }
+
+      for (let month = 0; month < today.getMonth(); month++) {
+        const daysInMonth = new Date(
+          today.getFullYear(),
+          month + 1,
+          0
+        ).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+          pastDates.push(
+            `${day.toString().padStart(2, "0")}-${(month + 1)
+              .toString()
+              .padStart(2, "0")}-${today.getFullYear()}`
+          );
+        }
+      }
+      for (let day = 1; day < today.getDate(); day++) {
+        pastDates.push(
+          `${day.toString().padStart(2, "0")}-${(today.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}-${today.getFullYear()}`
+        );
+      }
+
+      const allDisabledDates = [...convertedUnavailableDates, ...pastDates];
 
       // Find first available dates - allow today for pickup
       const firstAvailablePickupDate = this.findFirstAvailableDate(
@@ -200,9 +285,9 @@ class DatePickerManager {
         dateFormat: this.dateFormat, // "d-m-Y"
         altFormat: this.dateFormat, // Force same format on mobile
         altInput: false, // Disable alt input to prevent format switching
-        minDate: firstAvailablePickupDate,
+        // minDate: "today",
         defaultDate: firstAvailablePickupDate,
-        disable: convertedUnavailableDates,
+        disable: allDisabledDates,
         allowInput: false,
         static: this.isModal ? true : false,
         appendTo: document.body,
@@ -256,6 +341,30 @@ class DatePickerManager {
         onChange: (selectedDates, dateStr, instance) => {
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Create a new date object for comparison (avoid timezone issues)
+            const selectedDateOnly = new Date(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth(),
+              selectedDate.getDate()
+            );
+            const todayOnly = new Date(
+              today.getFullYear(),
+              today.getMonth(),
+              today.getDate()
+            );
+
+            if (selectedDateOnly < todayOnly) {
+              // Reset to default date if past date selected
+              instance.setDate(firstAvailablePickupDate);
+              alert("Please select a future date");
+              return;
+            }
+          }
+          if (selectedDates.length > 0) {
+            const selectedDate = selectedDates[0];
             // Set return date to exactly the same date as pickup date
             const sameDay = new Date(selectedDate);
 
@@ -280,9 +389,9 @@ class DatePickerManager {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
         altInput: false,
-        minDate: firstAvailablePickupDate,
+        // minDate: "today",
         defaultDate: firstAvailablePickupDate,
-        disable: convertedUnavailableDates,
+        disable: allDisabledDates,
         allowInput: false,
         static: this.isModal ? true : false,
         appendTo: document.body,
@@ -334,10 +443,6 @@ class DatePickerManager {
           },
         },
         onChange: (selectedDates, dateStr, instance) => {
-          setTimeout(() => {
-            instance.close();
-          }, 50);
-
           if (this.onDateChange) {
             this.onDateChange();
           }
@@ -629,27 +734,14 @@ class DatePickerManager {
 
   // Initialize the date picker
   async initialize() {
-    console.log(
-      "�� DatePickerManager initialize() called with carId:",
-      this.carId
-    );
-
     try {
       if (this.carId) {
-        console.log("🔵 Loading unavailable dates for carId:", this.carId);
         const unavailableDates = await this.loadUnavailableDates(this.carId);
-        console.log(
-          "🔵 Loaded unavailable dates:",
-          unavailableDates.length,
-          "dates"
-        );
+
         await this.initializeFlatpickrWithUnavailableDates(unavailableDates);
       } else {
-        console.log("�� No carId, initializing with empty unavailable dates");
         await this.initializeFlatpickrWithUnavailableDates([]);
       }
-
-      console.log("🔵 DatePickerManager initialization complete");
     } catch (error) {
       console.error("❌ DatePickerManager initialization failed:", error);
       // Fallback: try to initialize with empty unavailable dates
@@ -750,8 +842,6 @@ class DatePickerManager {
     }
   }
 }
-
-
 
 // Make DatePickerManager available globally
 window.DatePickerManager = DatePickerManager;
