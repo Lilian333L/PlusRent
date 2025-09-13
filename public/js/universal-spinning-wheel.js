@@ -609,9 +609,7 @@
         // Handle options
         const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
         
-        // Debug: Log the options received
-        console.log('UniversalSpinningWheel.show called with options:', options);
-        console.log('skipPhoneStep:', skipPhoneStep, 'phoneNumber:', phoneNumber);
+        
         
         // Update iframe source with wheel ID if specified
         if (options.wheelId) {
@@ -643,7 +641,7 @@
                 
                 // If we have a phone number, store it and send to iframe
                 if (phoneNumber) {
-                    console.log('Storing phone number in localStorage:', phoneNumber);
+                    
                     localStorage.setItem('spinningWheelPhone', phoneNumber);
                     localStorage.setItem('spinningWheelPhoneEntered', 'true');
                     
@@ -651,18 +649,18 @@
                     setTimeout(() => {
                         const iframe = document.getElementById('universalSpinningWheelIframe');
                         if (iframe && iframe.contentWindow) {
-                            console.log('Sending phone number to iframe:', phoneNumber);
+                            
                             iframe.contentWindow.postMessage({
                                 type: 'phoneNumberEntered',
                                 phoneNumber: phoneNumber,
                                 wheelType: wheelType
                             }, '*');
                         } else {
-                            console.log('Iframe not ready for phone number message');
+                            
                         }
                     }, 500);
                 } else {
-                    console.log('No phone number provided to skip phone step');
+                    
                 }
             }
         } else {
@@ -898,14 +896,14 @@
     // Handle auto-apply coupon functionality
     function handleAutoApplyCoupon(couponCode) {
         try {
-            console.log('Auto-applying coupon code:', couponCode);
+            
             
             // Save coupon code to localStorage for use on booking pages
             localStorage.setItem('autoApplyCoupon', couponCode);
             
             // Trigger auto-apply immediately if the function is available
             if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
-                console.log('Triggering auto-apply immediately after coupon save');
+                
                 setTimeout(() => {
                     window.AutoApplyCoupon.autoApply();
                 }, 100);
@@ -1062,17 +1060,17 @@
             }
             
             const wheelConfigs = await response.json();
-            console.log('Available wheel configs:', wheelConfigs);
+            
             
             // Filter for non-premium wheels
             const nonPremiumWheels = wheelConfigs.filter(wheel => !wheel.is_premium);
-            console.log('Non-premium wheels:', nonPremiumWheels);
+            
             
             if (nonPremiumWheels.length === 0) {
                 console.warn('No non-premium enabled wheels found. Available wheels:', wheelConfigs);
                 // Fallback: if no non-premium wheels, use any enabled wheel
                 if (wheelConfigs.length > 0) {
-                    console.log('Using fallback wheel:', wheelConfigs[0]);
+                    
                     return wheelConfigs[0];
                 }
                 return null;
@@ -1080,25 +1078,25 @@
             
             // If there's only one non-premium wheel, use it
             if (nonPremiumWheels.length === 1) {
-                console.log('Using the only non-premium wheel:', nonPremiumWheels[0]);
+                
                 return nonPremiumWheels[0];
             }
             
             // If there are multiple non-premium wheels, prefer 'percent' type, then 'free-days'
             const percentWheels = nonPremiumWheels.filter(wheel => wheel.type === 'percent');
             if (percentWheels.length > 0) {
-                console.log('Using percent wheel:', percentWheels[0]);
+                
                 return percentWheels[0];
             }
             
             const freeDaysWheels = nonPremiumWheels.filter(wheel => wheel.type === 'free-days');
             if (freeDaysWheels.length > 0) {
-                console.log('Using free-days wheel:', freeDaysWheels[0]);
+                
                 return freeDaysWheels[0];
             }
             
             // Fallback to first non-premium wheel
-            console.log('Using first non-premium wheel:', nonPremiumWheels[0]);
+            
             return nonPremiumWheels[0];
             
         } catch (error) {

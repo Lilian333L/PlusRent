@@ -144,10 +144,9 @@ function setupI18nEvents() {
     
     // Re-update price breakdown with new language
     if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
-      console.log('Language changed, updating price breakdown...');
       window.priceCalculator.debouncedRecalculate();
     } else if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-      console.log('Language changed, updating price breakdown (alternative method)...');
+      
       window.priceCalculator.recalculatePrice();
     }
     // No else clause - silently ignore when price calculator is not available
@@ -271,6 +270,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // Close on outside click
     document.addEventListener('click', function(e) {
+      if (e.target.closest('.flatpickr-calendar') || e.target.closest('.flatpickr-input')) {
+        return;
+      }
       if (!langDropdown.contains(e.target) && e.target !== langBtn) {
         closeDropdown();
       }

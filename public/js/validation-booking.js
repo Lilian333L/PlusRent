@@ -646,6 +646,8 @@ if (typeof updateContent === 'function') {
         pickupInputId: 'modal-pickup-date',
         returnInputId: 'modal-return-date',
         carId: carId,
+        isModal: true,
+        customClass: 'modal-return-date-picker',
         dateFormat: 'd-m-Y',
         onDateChange: function() {
           
@@ -2422,7 +2424,7 @@ function showReturningCustomerModal() {
     
     // Update translations after modal is shown
     updateModalTranslations();
-  
+    
 
   } else {
     console.error('Modal element not found!');

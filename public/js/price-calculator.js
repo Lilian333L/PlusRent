@@ -794,11 +794,11 @@ async recalculatePrice() {
     const pickupLocation = this.getSelectedRadioValue('pickup_location');
     const dropoffLocation = this.getSelectedRadioValue('dropoff_location');
     const discountCode = document.querySelector('input[name="discount_code"]')?.value;
-
+  
     if (!pickupDate || !returnDate || !pickupTime || !returnTime || !pickupLocation || !dropoffLocation) {
       return 0;
     }
-
+  
     const rentalData = {
       pickupDate: this.convertDateFormatToISO(pickupDate), // Convert dd-mm-yyyy to yyyy-mm-dd
       returnDate: this.convertDateFormatToISO(returnDate), // Convert dd-mm-yyyy to yyyy-mm-dd
@@ -808,7 +808,7 @@ async recalculatePrice() {
       dropoffLocation,
       discountCode
     };
-
+    
     const priceData = this.calculatePrice(rentalData);
     
     // Ensure we return a number
