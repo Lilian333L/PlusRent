@@ -391,7 +391,9 @@ function loadFallbackTranslations(lang) {
   // Add fallback translations to i18next
   if (fallbackTranslations[lang]) {
     if (typeof i18next !== 'undefined') {
+        if(typeof i18next.addResourceBundle === 'function') {
       i18next.addResourceBundle(lang, 'translation', fallbackTranslations[lang], true, true);
+        }
       i18next.changeLanguage(lang, function() {
         updateContent();
         updateLangPickerUI();
