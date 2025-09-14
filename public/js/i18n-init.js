@@ -55,9 +55,20 @@ function updateContent() {
   document.querySelectorAll('[data-i18n]').forEach(function(element) {
     const key = element.getAttribute('data-i18n');
     if (i18next.exists(key)) {
-      element.textContent = i18next.t(key);
+      const translation = i18next.t(key);
+      if (element.childNodes.length === 0) {
+        element.textContent = translation;
+      } else {
+        // Only update text nodes, preserve other elements
+        Array.from(element.childNodes).forEach(function(node) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            node.textContent = translation;
+          }
+        });
+      }
     }
   });
+}
   
   // Handle placeholder translations
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function(element) {
