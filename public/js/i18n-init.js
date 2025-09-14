@@ -55,7 +55,17 @@ function updateContent() {
   document.querySelectorAll('[data-i18n]').forEach(function(element) {
     const key = element.getAttribute('data-i18n');
     if (i18next.exists(key)) {
-      element.textContent = i18next.t(key);
+      const translation = i18next.t(key);
+      if (element.childNodes.length === 0) {
+        element.textContent = translation;
+      } else {
+        // Only update text nodes, preserve other elements
+        Array.from(element.childNodes).forEach(function(node) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            node.textContent = translation;
+          }
+        });
+      }
     }
   });
   
@@ -381,7 +391,9 @@ function loadFallbackTranslations(lang) {
   // Add fallback translations to i18next
   if (fallbackTranslations[lang]) {
     if (typeof i18next !== 'undefined') {
+        if(typeof i18next.addResourceBundle === 'function') {
       i18next.addResourceBundle(lang, 'translation', fallbackTranslations[lang], true, true);
+        }
       i18next.changeLanguage(lang, function() {
         updateContent();
         updateLangPickerUI();
