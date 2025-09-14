@@ -307,14 +307,15 @@
                 // Handle language change
                 languageSelector.addEventListener('change', function() {
                     const selectedLang = this.value;
-                    if (window.i18next && window.i18next.changeLanguage) {
-                        window.i18next.changeLanguage(selectedLang, function() {
-                            localStorage.setItem('lang', selectedLang);
-                            
-                        });
-                    } else {
+                    const currentLang = localStorage.getItem('lang') || 'en';
+                    
+                    // Only proceed if language is actually changing
+                    if (selectedLang !== currentLang) {
+                        // Store the new language preference
                         localStorage.setItem('lang', selectedLang);
                         
+                        // Reload the page to prevent copy from getting messed up
+                        window.location.reload();
                     }
                 });
             }
