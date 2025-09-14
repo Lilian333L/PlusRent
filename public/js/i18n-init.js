@@ -68,7 +68,6 @@ function updateContent() {
       }
     }
   });
-}
   
   // Handle placeholder translations
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function(element) {
