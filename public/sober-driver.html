@@ -914,24 +914,20 @@
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
-                    const flag = this.querySelector('.lang-flag').textContent;
-                    const code = this.querySelector('.lang-code').textContent;
+                    const currentLang = localStorage.getItem('lang') || 'en';
                     
-                    // Update button
-                    langFlag.textContent = flag;
-                    langCode.textContent = code;
-                    
-                    // Close dropdown
-                    langDropdown.classList.remove('open');
-                    langPickerBtn.setAttribute('aria-expanded', 'false');
-                    
-                    // Change language
-                    if (window.i18next && window.i18next.changeLanguage) {
-                        window.i18next.changeLanguage(lang);
+                    // Only proceed if language is actually changing
+                    if (lang !== currentLang) {
+                        // Store the new language preference
+                        localStorage.setItem('lang', lang);
+                        
+                        // Reload the page to prevent copy from getting messed up
+                        window.location.reload();
+                    } else {
+                        // Just close dropdown if same language selected
+                        langDropdown.classList.remove('open');
+                        langPickerBtn.setAttribute('aria-expanded', 'false');
                     }
-                    
-                    // Store preference
-                    localStorage.setItem('lang', lang);
                 });
             });
             

@@ -230,25 +230,19 @@ document.addEventListener('DOMContentLoaded', function() {
     langOptions.forEach(function(opt) {
       opt.addEventListener('click', function(e) {
         var lang = opt.getAttribute('data-lang');
-        if (typeof i18next !== 'undefined') {
-          // Force reload of the language file, especially for English
-          if (lang === 'en') {
-            // Force complete reload of English
-            fetch('js/locales/en.json')
-              .then(response => response.json())
-              .then(data => {
-                i18next.addResourceBundle('en', 'translation', data, true, true);
-                i18next.changeLanguage(lang);
-              })
-              .catch(error => {
-                console.error('Error loading English translations:', error);
-                i18next.changeLanguage(lang);
-              });
-          } else {
-            i18next.changeLanguage(lang);
-          }
+        var currentLang = localStorage.getItem('lang') || 'en';
+        
+        // Only proceed if language is actually changing
+        if (lang !== currentLang) {
+          // Store the new language preference
+          localStorage.setItem('lang', lang);
+          
+          // Reload the page to prevent copy from getting messed up
+          window.location.reload();
+        } else {
+          // Just close dropdown if same language selected
+          closeDropdown();
         }
-        closeDropdown();
       });
       opt.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
