@@ -212,14 +212,31 @@ $(document).ready(function () {
         return converted;
       })(),
       return_time: $("#modal-return-time").val() || "",
-      pickup_location: $('input[name="pickup_location"]:checked').val() || "",
-      dropoff_location: $('input[name="destination"]:checked').val() || "",
+      pickup_location: translateLocation($('input[name="pickup_location"]:checked').val()) || "",
+      dropoff_location: translateLocation($('input[name="destination"]:checked').val()  ) || "",
       special_instructions: safeTrim("#message") || null,
       total_price: finalTotalPrice,
       discount_code: discountCode,
       price_breakdown: {},
     };
   };
+
+  function translateLocation(locationValue) {
+    if (!locationValue) return "";
+    
+    if (typeof i18next === 'undefined' || !i18next.t) {
+      return locationValue; // Return original value if i18next not ready
+    }
+
+    console.log('Location value:', locationValue);
+    const locationMap = {
+      'Chisinau Airport': i18next.t('cars.chisinau_airport'),
+      'Our Office': i18next.t('cars.our_office'),
+      'Iasi Airport': i18next.t('cars.iasi_airport')
+    };
+    
+    return locationMap[locationValue] || locationValue;
+  }
 
   // Show loading state
   window.showLoading = function () {
@@ -561,9 +578,9 @@ if (dropoffLocation) {
 }
 
 // Trigger i18n update
-// if (typeof updateContent === 'function') {
-//   updateContent();
-// }
+if (typeof updateContent === 'function') {
+  updateContent();
+}
   // Populate vehicle info
   if (selectedVehicle.attr("data-car-details")) {
     const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
@@ -1352,7 +1369,7 @@ window.showSuccess = function (bookingData) {
                                     } - ${bookingData.return_time}</span>
                                 </div>
                                 <div class="location-info">
-                                    <span class="location-text" data-i18n="booking.location_info">${
+                                    <span class="location-text">${
                                       bookingData.pickup_location
                                     } → ${bookingData.dropoff_location}</span>
                                 </div>
