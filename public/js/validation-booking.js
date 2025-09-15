@@ -561,9 +561,9 @@ if (dropoffLocation) {
 }
 
 // Trigger i18n update
-if (typeof updateContent === 'function') {
-  updateContent();
-}
+// if (typeof updateContent === 'function') {
+//   updateContent();
+// }
   // Populate vehicle info
   if (selectedVehicle.attr("data-car-details")) {
     const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
@@ -1327,8 +1327,8 @@ window.showSuccess = function (bookingData) {
                             <path d="M20 32L14 26L15.4 24.6L20 29.2L32.6 16.6L34 18L20 32Z" fill="white"/>
                         </svg>
                     </div>
-                    <h2 class="success-title">Booking Confirmed!</h2>
-                    <p class="success-subtitle">Your booking has been submitted successfully</p>
+                    <h2 class="success-title" data-i18n="booking.success_title"></h2>
+                    <p class="success-subtitle" data-i18n="booking.success_subtitle"></p>
                 </div>
                 
                 <div class="success-modal-body">
@@ -1352,13 +1352,13 @@ window.showSuccess = function (bookingData) {
                                     } - ${bookingData.return_time}</span>
                                 </div>
                                 <div class="location-info">
-                                    <span class="location-text">${
+                                    <span class="location-text" data-i18n="booking.location_info">${
                                       bookingData.pickup_location
                                     } → ${bookingData.dropoff_location}</span>
                                 </div>
                             </div>
                             <div class="price-highlight">
-                                <span class="price-label">Total Price</span>
+                                <span class="price-label" data-i18n="booking.total_price"></span>
                                 <span class="price-value">€${
                                   bookingData.total_price
                                 }</span>
@@ -1368,19 +1368,17 @@ window.showSuccess = function (bookingData) {
                     
                     <div class="next-steps-compact">
                         <div class="steps-icon">📞</div>
-                        <div class="steps-content">
-                            <h5>Next Steps</h5>
-                            <p>We'll contact you within 24 hours to confirm your booking</p>
+                        <div class="steps-content" >
+                            <h5 data-i18n="booking.next_steps"></h5>
+                            <p data-i18n="booking.confirmation_timeline"></p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="success-modal-footer">
-                    <button class="btn-success-primary" onclick="closeSuccessModal()">
-                        <i class="fa fa-check"></i> Got it!
+                    <button class="btn-success-primary" data-i18n="booking.got_it" data-i18n-processed="true" onclick="closeSuccessModal()">
                     </button>
-                    <button class="btn-success-secondary" onclick="location.reload()">
-                        <i class="fa fa-plus"></i> Book Another
+                    <button class="btn-success-secondary" data-i18n="booking.book_another" data-i18n-processed="true" onclick="location.reload()">
                     </button>
                 </div>
             </div>
@@ -1748,7 +1746,10 @@ window.showSuccess = function (bookingData) {
 
   // Update i18n content if available
   if (typeof updateContent === "function") {
+    document.querySelectorAll('[data-i18n]:not([data-i18n-processed])').forEach(function(element) {
     updateContent();
+    element.setAttribute('data-i18n-processed', 'true');
+    });
   }
 };
 
