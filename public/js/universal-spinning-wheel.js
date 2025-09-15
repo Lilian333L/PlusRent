@@ -24,8 +24,14 @@
         isInitialized: false
     };
 
-    // Check if user has seen the modal today
+    // Check if user has seen the modal today or has already received their reward
     function hasSeenModalToday() {
+        // First check if user has already received their reward
+        const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
+        if (rewardReceived === 'true') {
+            return true; // Don't show modal if user already got their reward
+        }
+        
         const lastSeen = localStorage.getItem(CONFIG.storageKey);
         if (!lastSeen) return false;
         

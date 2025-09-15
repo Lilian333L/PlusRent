@@ -18,8 +18,13 @@
     // Auto-apply coupon when page loads
     function autoApplyCoupon() {
         try {
-            // Check if there's a saved coupon
-            const savedCoupon = localStorage.getItem(CONFIG.storageKey);
+            // Check if there's a saved coupon (check both keys)
+            let savedCoupon = localStorage.getItem(CONFIG.storageKey);
+            
+            // If no coupon in autoApplyCoupon, check spinningWheelWinningCoupon
+            if (!savedCoupon) {
+                savedCoupon = localStorage.getItem('spinningWheelWinningCoupon');
+            }
             
             if (!savedCoupon) {
                 return;
@@ -131,12 +136,16 @@
         try {
             // Check if there's a saved coupon
             const savedCoupon = localStorage.getItem(CONFIG.storageKey);
+            const spinningWheelCoupon = localStorage.getItem('spinningWheelWinningCoupon');
             
-            if (!savedCoupon) {
+            if (!savedCoupon && !spinningWheelCoupon) {
                 return;
             }
 
+            // Remove the coupon and reward received flag
             localStorage.removeItem(CONFIG.storageKey);
+            localStorage.removeItem('spinningWheelWinningCoupon');
+            localStorage.removeItem('spinningWheelRewardReceived');
 
         } catch (error) {
             console.error('Error removing coupon:', error);
