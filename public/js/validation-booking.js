@@ -1874,7 +1874,7 @@ async function checkReturningCustomer(phoneNumber) {
 
 // Show modal for returning customers
 async function showReturningCustomerAlert(phoneNumber = null) {
-  
+  console.log('🚨 showReturningCustomerAlert called with phoneNumber:', phoneNumber);
   
   // Use provided phone number or get from form input
   if (!phoneNumber) {
@@ -1884,11 +1884,11 @@ async function showReturningCustomerAlert(phoneNumber = null) {
       phoneInput = document.querySelector('#phone');
     }
     phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-    
+    console.log('📞 Phone number from form:', phoneNumber);
   }
   
   if (!phoneNumber) {
-    
+    console.log('❌ No phone number provided, returning false');
     return false;
   }
   
@@ -1937,21 +1937,24 @@ async function showReturningCustomerAlert(phoneNumber = null) {
 
   
   // Load and show the returning customer modal
-  
+  console.log('🎯 About to call loadReturningCustomerModal');
   loadReturningCustomerModal();
   return true; // Return true to indicate we're showing the popup
 }
 
 // Load the returning customer modal
 async function loadReturningCustomerModal() {
-  
+  console.log('🏗️ loadReturningCustomerModal called');
   
   // Check if modal is already loaded
-  if (document.getElementById('returningCustomerModal')) {
-    
+  const existingModal = document.getElementById('returningCustomerModal');
+  if (existingModal) {
+    console.log('⚠️ Modal already exists in DOM, showing existing modal');
     showReturningCustomerModal();
     return;
   }
+  
+  console.log('🔨 Modal not found, creating new modal');
 
   try {
     // Fetch active wheel configurations
@@ -1994,9 +1997,9 @@ async function loadReturningCustomerModal() {
                        config.type === 'free-days' ? 'wheel.free_days_description' : 
                        'wheel.subtitle';
         
-        const title = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(titleKey) : config.displayName;
-        const description = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(descKey) : 
-                           (config.type === 'percent' ? 'Win discount percentages on your rental' : 
+        // Use fallback text initially, translations will be applied later
+        const title = config.displayName;
+        const description = (config.type === 'percent' ? 'Win discount percentages on your rental' : 
                             config.type === 'free-days' ? 'Win free rental days for your next booking' : 
                             'Win amazing rewards');
         
@@ -2008,6 +2011,8 @@ async function loadReturningCustomerModal() {
             </div>
           </button>
         `;
+        
+        console.log(`🔧 Created wheel option: type="${config.type}", titleKey="${titleKey}", descKey="${descKey}"`);
       });
     } else {
       // Fallback if no configurations found
@@ -2023,7 +2028,7 @@ async function loadReturningCustomerModal() {
 
     // Create modal container
     const modalContainer = document.createElement('div');
-    modalContainer.innerHTML = `
+    const modalHTML = `
       <div id="returningCustomerModal" class="returning-customer-modal quickbook-returning-modal">
         <div class="modal-content">
           <button class="modal-close" onclick="this.closest('.returning-customer-modal').classList.remove('show'); document.body.classList.remove('modal-open');">×</button>
@@ -2042,6 +2047,11 @@ async function loadReturningCustomerModal() {
         </div>
       </div>
     `;
+    
+    console.log('🏗️ Generated modal HTML:', modalHTML);
+    console.log('🔧 Wheel options HTML:', wheelOptionsHTML);
+    
+    modalContainer.innerHTML = modalHTML;
 
     // Add modal styles
     const modalStyles = document.createElement('style');
@@ -2326,9 +2336,138 @@ async function loadReturningCustomerModal() {
       });
     });
     
-    // Show the modal
+    // Update translations for the modal
+    const updateTranslations = () => {
+      console.log('🔄 updateTranslations called');
+      console.log('🌐 Current language:', localStorage.getItem('lang') || 'en');
+      console.log('📚 i18next available:', typeof i18next !== 'undefined');
+      console.log('📚 window.i18next available:', typeof window.i18next !== 'undefined');
+      
+      if (typeof i18next !== 'undefined') {
+        console.log('📚 i18next.isInitialized:', i18next.isInitialized);
+        console.log('📚 i18next.language:', i18next.language);
+        console.log('📚 i18next.t available:', typeof i18next.t);
+      }
+      
+      // Try multiple approaches to get translations
+      let translationFunction = null;
+      
+      if (typeof i18next !== 'undefined' && i18next.t) {
+        translationFunction = i18next.t;
+        console.log('✅ Using i18next.t');
+      } else if (typeof window.i18next !== 'undefined' && window.i18next.t) {
+        translationFunction = window.i18next.t;
+        console.log('✅ Using window.i18next.t');
+      } else {
+        console.log('❌ No translation function available, using fallback');
+      }
+      
+      if (translationFunction) {
+        // Update all elements with data-i18n attributes
+        const elements = document.querySelectorAll('[data-i18n]');
+        console.log('🔍 Found', elements.length, 'elements with data-i18n attributes');
+        
+        elements.forEach((element, index) => {
+          const key = element.getAttribute('data-i18n');
+          if (key) {
+            const translation = translationFunction(key);
+            console.log(`📝 Element ${index}: key="${key}", translation="${translation}"`);
+            if (translation && translation !== key) {
+              element.textContent = translation;
+              console.log(`✅ Applied translation for "${key}": "${translation}"`);
+            } else {
+              console.log(`❌ No valid translation for "${key}"`);
+            }
+          }
+        });
+      } else {
+        // Fallback: try to get translations from the fallback system
+        const currentLang = localStorage.getItem('lang') || 'en';
+        console.log('🔄 Using fallback translations for language:', currentLang);
+        
+        const fallbackTranslations = {
+          en: {
+            wheel: {
+              welcome_back_title: "Welcome Back!",
+              welcome_back_subtitle: "You have an unredeemed return gift waiting for you!",
+              welcome_message: "As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.",
+              percentage_discount_wheel: "Percentage Discount Wheel",
+              percentage_discount_description: "Win discount percentages on your rental",
+              free_days_wheel: "Free Days Wheel",
+              free_days_description: "Win free rental days for your next booking"
+            }
+          }
+        };
+        
+        const translations = fallbackTranslations[currentLang] || fallbackTranslations.en;
+        console.log('📚 Fallback translations available:', translations);
+        
+        const elements = document.querySelectorAll('[data-i18n]');
+        console.log('🔍 Found', elements.length, 'elements with data-i18n attributes (fallback)');
+        
+        elements.forEach((element, index) => {
+          const key = element.getAttribute('data-i18n');
+          if (key) {
+            const keys = key.split('.');
+            let value = translations;
+            for (const k of keys) {
+              if (value && value[k]) {
+                value = value[k];
+              } else {
+                value = key;
+                break;
+              }
+            }
+            console.log(`📝 Fallback Element ${index}: key="${key}", value="${value}"`);
+            if (value && value !== key) {
+              element.textContent = value;
+              console.log(`✅ Applied fallback translation for "${key}": "${value}"`);
+            } else {
+              console.log(`❌ No fallback translation for "${key}"`);
+            }
+          }
+        });
+      }
+    };
     
+    // Show the modal first
+    console.log('🚀 Showing returning customer modal');
     showReturningCustomerModal();
+    
+    // Apply translations multiple times with different delays to ensure they work
+    console.log('🔄 Applying translations immediately');
+    updateTranslations();
+    
+    console.log('🔄 Scheduling translation updates at 100ms, 500ms, 1000ms');
+    setTimeout(() => {
+      console.log('🔄 Translation update at 100ms');
+      updateTranslations();
+    }, 100);
+    
+    setTimeout(() => {
+      console.log('🔄 Translation update at 500ms');
+      updateTranslations();
+    }, 500);
+    
+    setTimeout(() => {
+      console.log('🔄 Translation update at 1000ms');
+      updateTranslations();
+    }, 1000);
+    
+    // Also apply translations when i18next is ready (in case it's still loading)
+    if (typeof i18next !== 'undefined') {
+      console.log('📚 Setting up i18next event listeners');
+      i18next.on('initialized', () => {
+        console.log('📚 i18next initialized event triggered');
+        updateTranslations();
+      });
+      i18next.on('languageChanged', () => {
+        console.log('📚 i18next languageChanged event triggered');
+        updateTranslations();
+      });
+    } else {
+      console.log('❌ i18next not available for event listeners');
+    }
     
   } catch (error) {
     console.error('Error loading returning customer modal:', error);
@@ -2432,11 +2571,12 @@ function updateModalTranslations() {
 
 // Show the returning customer modal
 function showReturningCustomerModal() {
+  console.log('👁️ showReturningCustomerModal called');
   
   const modal = document.getElementById('returningCustomerModal');
   
   if (modal) {
-    
+    console.log('✅ Modal element found, showing modal');
     modal.classList.add('show');
     document.body.classList.add('modal-open');
     
@@ -2445,7 +2585,7 @@ function showReturningCustomerModal() {
     
 
   } else {
-    console.error('Modal element not found!');
+    console.error('❌ Modal element not found!');
   }
 }
 
@@ -2466,6 +2606,26 @@ function clearReturningCustomerSessionStorage(phoneNumber) {
   keysToRemove.forEach(key => {
     sessionStorage.removeItem(key);
   });
+}
+
+// Debug function to check modal state
+function debugModalState() {
+  console.log('🔍 DEBUG: Checking modal state');
+  console.log('📄 Document ready state:', document.readyState);
+  console.log('🔍 Modal in DOM:', !!document.getElementById('returningCustomerModal'));
+  console.log('🌐 Current language:', localStorage.getItem('lang'));
+  console.log('📚 i18next available:', typeof i18next !== 'undefined');
+  if (typeof i18next !== 'undefined') {
+    console.log('📚 i18next initialized:', i18next.isInitialized);
+    console.log('📚 i18next language:', i18next.language);
+  }
+}
+
+// Run debug check when page loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', debugModalState);
+} else {
+  debugModalState();
 }
 
 // Helper function to convert dd-mm-yyyy to YYYY-MM-DD

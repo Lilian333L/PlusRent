@@ -624,11 +624,30 @@ class BookingFormHandler {
                        config.type === 'free-days' ? 'wheel.free_days_description' : 
                        'wheel.subtitle';
         
-        const title = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(titleKey) : config.displayName;
-        const description = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(descKey) : 
-                           (config.type === 'percent' ? 'Win discount percentages on your rental' : 
-                            config.type === 'free-days' ? 'Win free rental days for your next booking' : 
-                            'Win amazing rewards');
+        // Get translations with fallback
+        let title = config.displayName;
+        let description = 'Win amazing rewards';
+        
+        // Set correct fallback descriptions based on wheel type
+        if (config.type === 'percent') {
+          title = 'Percentage Discount Wheel';
+          description = 'Win discount percentages on your rental';
+        } else if (config.type === 'free-days') {
+          title = 'Free Days Wheel';
+          description = 'Win free rental days for your next booking';
+        }
+        
+        if (typeof i18next !== 'undefined' && i18next.t) {
+          const translatedTitle = i18next.t(titleKey);
+          const translatedDesc = i18next.t(descKey);
+          
+          if (translatedTitle && translatedTitle !== titleKey) {
+            title = translatedTitle;
+          }
+          if (translatedDesc && translatedDesc !== descKey) {
+            description = translatedDesc;
+          }
+        }
         
         wheelOptionsHTML += `
           <button class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
@@ -861,6 +880,23 @@ class BookingFormHandler {
     // Add event listeners
     this.setupReturningCustomerModalEvents();
 
+    // Update wheel button translations
+    this.updateWheelButtonTranslations();
+
+    // Set up translation event listeners
+    if (typeof i18next !== 'undefined') {
+      i18next.on('initialized', () => {
+        console.log('📚 i18next initialized event triggered (booking-form-handler)');
+        this.updateModalHeaderTranslations();
+        this.updateWheelButtonTranslations();
+      });
+      i18next.on('languageChanged', () => {
+        console.log('📚 i18next languageChanged event triggered (booking-form-handler)');
+        this.updateModalHeaderTranslations();
+        this.updateWheelButtonTranslations();
+      });
+    }
+
     // Show the modal
     this.showReturningCustomerModal();
   }
@@ -906,6 +942,74 @@ class BookingFormHandler {
           welcomeMessageElement.textContent = translatedMessage;
         }
       }
+    }
+  }
+
+  updateWheelButtonTranslations() {
+    const modal = document.getElementById('returningCustomerModal');
+    if (!modal) return;
+
+    console.log('🔄 Updating wheel button translations in booking-form-handler');
+
+    // Check if i18next is available
+    if (typeof i18next !== 'undefined' && i18next.t) {
+      const wheelButtons = modal.querySelectorAll('.wheel-button');
+      console.log('🔍 Found', wheelButtons.length, 'wheel buttons to translate');
+
+      wheelButtons.forEach((button, index) => {
+        const titleElement = button.querySelector('div > div:first-child');
+        const descElement = button.querySelector('.wheel-description');
+        
+        if (titleElement && descElement) {
+          // Determine the type based on button class
+          const isPercentWheel = button.classList.contains('percent-wheel');
+          const isFreeDaysWheel = button.classList.contains('free-days-wheel');
+          
+          let titleKey, descKey, fallbackTitle, fallbackDesc;
+          if (isPercentWheel) {
+            titleKey = 'wheel.percentage_discount_wheel';
+            descKey = 'wheel.percentage_discount_description';
+            fallbackTitle = 'Percentage Discount Wheel';
+            fallbackDesc = 'Win discount percentages on your rental';
+          } else if (isFreeDaysWheel) {
+            titleKey = 'wheel.free_days_wheel';
+            descKey = 'wheel.free_days_description';
+            fallbackTitle = 'Free Days Wheel';
+            fallbackDesc = 'Win free rental days for your next booking';
+          } else {
+            titleKey = 'wheel.title';
+            descKey = 'wheel.subtitle';
+            fallbackTitle = 'Spinning Wheel';
+            fallbackDesc = 'Win amazing rewards';
+          }
+
+          const translatedTitle = i18next.t(titleKey);
+          const translatedDesc = i18next.t(descKey);
+
+          console.log(`📝 Button ${index}: titleKey="${titleKey}", descKey="${descKey}"`);
+          console.log(`📝 Button ${index}: translatedTitle="${translatedTitle}", translatedDesc="${translatedDesc}"`);
+
+          // Apply title
+          if (translatedTitle && translatedTitle !== titleKey) {
+            titleElement.textContent = translatedTitle;
+            console.log(`✅ Applied title translation: "${translatedTitle}"`);
+          } else {
+            titleElement.textContent = fallbackTitle;
+            console.log(`✅ Applied fallback title: "${fallbackTitle}"`);
+          }
+          
+          // Apply description
+          if (translatedDesc && translatedDesc !== descKey) {
+            descElement.textContent = translatedDesc;
+            console.log(`✅ Applied description translation: "${translatedDesc}"`);
+          } else {
+            descElement.textContent = fallbackDesc;
+            console.log(`✅ Applied fallback description: "${fallbackDesc}"`);
+          }
+        }
+      });
+    } else {
+      console.log('❌ i18next not available for wheel button translations');
     }
   }
 

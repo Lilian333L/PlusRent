@@ -193,6 +193,7 @@
                 justify-content: center;
                 border-radius: 50%;
                 transition: all 0.3s ease;
+                padding-bottom: 4px;
             }
 
             .spinning-wheel-modal-close:hover {

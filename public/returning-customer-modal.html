@@ -237,28 +237,28 @@
             
             <!-- Modal header -->
             <div class="modal-header">
-                <h2 class="modal-title">Welcome Back!</h2>
-                <p class="modal-subtitle">You have an unredeemed return gift waiting for you!</p>
+                <h2 class="modal-title" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
+                <p class="modal-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
             </div>
             
             <!-- Modal body -->
             <div class="modal-body">
-                <div class="welcome-message">
+                <div class="welcome-message" data-i18n="wheel.welcome_message">
                     As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.
                 </div>
                 
                 <div class="wheel-options">
                     <button class="wheel-button percent-wheel" onclick="openSpinningWheel('percent')">
                         <div>
-                            <div>Percentage Discount Wheel</div>
-                            <div class="wheel-description">Win discount percentages on your rental</div>
+                            <div data-i18n="wheel.percentage_discount_wheel">Percentage Discount Wheel</div>
+                            <div class="wheel-description" data-i18n="wheel.percentage_discount_description">Win discount percentages on your rental</div>
                         </div>
                     </button>
                     
                     <button class="wheel-button free-days-wheel" onclick="openSpinningWheel('free-days')">
                         <div>
-                            <div>Free Days Wheel</div>
-                            <div class="wheel-description">Win free rental days for your next booking</div>
+                            <div data-i18n="wheel.free_days_wheel">Free Days Wheel</div>
+                            <div class="wheel-description" data-i18n="wheel.free_days_description">Win free rental days for your next booking</div>
                         </div>
                     </button>
                 </div>
@@ -272,11 +272,73 @@
             window.API_BASE_URL = '';
         }
         
+        // Translation function
+        function updateTranslations() {
+            console.log('🔄 Updating translations in static modal');
+            
+            // Try multiple approaches to get translations
+            let translationFunction = null;
+            
+            if (typeof i18next !== 'undefined' && i18next.t) {
+                translationFunction = i18next.t;
+                console.log('✅ Using i18next.t');
+            } else if (typeof window.i18next !== 'undefined' && window.i18next.t) {
+                translationFunction = window.i18next.t;
+                console.log('✅ Using window.i18next.t');
+            } else {
+                console.log('❌ No translation function available, using fallback');
+            }
+            
+            if (translationFunction) {
+                // Update all elements with data-i18n attributes
+                const elements = document.querySelectorAll('[data-i18n]');
+                console.log('🔍 Found', elements.length, 'elements with data-i18n attributes');
+                
+                elements.forEach((element, index) => {
+                    const key = element.getAttribute('data-i18n');
+                    if (key) {
+                        const translation = translationFunction(key);
+                        console.log(`📝 Element ${index}: key="${key}", translation="${translation}"`);
+                        if (translation && translation !== key) {
+                            element.textContent = translation;
+                            console.log(`✅ Applied translation for "${key}": "${translation}"`);
+                        } else {
+                            console.log(`❌ No valid translation for "${key}"`);
+                        }
+                    }
+                });
+            } else {
+                // Fallback: use hardcoded translations
+                console.log('🔄 Using fallback translations');
+                const fallbackTranslations = {
+                    'wheel.welcome_back_title': 'Welcome Back!',
+                    'wheel.welcome_back_subtitle': 'You have an unredeemed return gift waiting for you!',
+                    'wheel.welcome_message': 'As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.',
+                    'wheel.percentage_discount_wheel': 'Percentage Discount Wheel',
+                    'wheel.percentage_discount_description': 'Win discount percentages on your rental',
+                    'wheel.free_days_wheel': 'Free Days Wheel',
+                    'wheel.free_days_description': 'Win free rental days for your next booking'
+                };
+                
+                const elements = document.querySelectorAll('[data-i18n]');
+                elements.forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (key && fallbackTranslations[key]) {
+                        element.textContent = fallbackTranslations[key];
+                    }
+                });
+            }
+        }
+        
         // Show the returning customer modal
         function showReturningCustomerModal() {
+            console.log('👁️ showReturningCustomerModal called (static modal)');
             const modal = document.getElementById('returningCustomerModal');
             modal.classList.add('show');
             document.body.classList.add('modal-open');
+            
+            // Update translations after modal is shown
+            updateTranslations();
         }
 
         // Close the returning customer modal
@@ -316,6 +378,29 @@
                 closeReturningCustomerModal();
             }
         });
+
+        // Set up translation event listeners
+        if (typeof i18next !== 'undefined') {
+            i18next.on('initialized', function() {
+                console.log('📚 i18next initialized event triggered (static modal)');
+                updateTranslations();
+            });
+            i18next.on('languageChanged', function() {
+                console.log('📚 i18next languageChanged event triggered (static modal)');
+                updateTranslations();
+            });
+        }
+        
+        // Apply translations when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('📄 DOM loaded, applying translations (static modal)');
+                updateTranslations();
+            });
+        } else {
+            console.log('📄 DOM already loaded, applying translations (static modal)');
+            updateTranslations();
+        }
 
         // Make functions globally available
         window.showReturningCustomerModal = showReturningCustomerModal;

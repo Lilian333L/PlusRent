@@ -330,6 +330,15 @@ function loadFallbackTranslations(lang) {
         cars: "Mașini",
         about: "Despre noi",
         contact: "Contact"
+      },
+      wheel: {
+        welcome_back_title: "Bine ai venit înapoi!",
+        welcome_back_subtitle: "Ai un cadou neredemat în așteptare!",
+        welcome_message: "Ca client care se întoarce, ai un cadou special în așteptare! Alege una dintre roțile de noroc de mai jos pentru a-ți răscumpăra cadoul și pentru a câștiga recompense uimitoare.",
+        percentage_discount_wheel: "Roata de Reduceri Procentuale",
+        percentage_discount_description: "Câștigă reduceri procentuale la închiriere",
+        free_days_wheel: "Roata Zilelor Gratuite",
+        free_days_description: "Câștigă zile gratuite de închiriere pentru următoarea rezervare"
       }
     },
     en: {
@@ -357,6 +366,15 @@ function loadFallbackTranslations(lang) {
         cars: "Cars",
         about: "About Us",
         contact: "Contact"
+      },
+      wheel: {
+        welcome_back_title: "Welcome Back!",
+        welcome_back_subtitle: "You have an unredeemed return gift waiting for you!",
+        welcome_message: "As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.",
+        percentage_discount_wheel: "Percentage Discount Wheel",
+        percentage_discount_description: "Win discount percentages on your rental",
+        free_days_wheel: "Free Days Wheel",
+        free_days_description: "Win free rental days for your next booking"
       }
     },
     ru: {
@@ -384,6 +402,15 @@ function loadFallbackTranslations(lang) {
         cars: "Автомобили",
         about: "О нас",
         contact: "Контакты"
+      },
+      wheel: {
+        welcome_back_title: "Добро Пожаловать!",
+        welcome_back_subtitle: "У вас есть неиспользованный подарок для возвращающихся клиентов!",
+        welcome_message: "Как возвращающийся клиент, у вас есть особый подарок! Выберите одно из колес фортуны ниже, чтобы получить свой подарок и выиграть удивительные награды.",
+        percentage_discount_wheel: "Колесо Процентных Скидок",
+        percentage_discount_description: "Выигрывайте процентные скидки на аренду",
+        free_days_wheel: "Колесо Бесплатных Дней",
+        free_days_description: "Выигрывайте бесплатные дни аренды для следующего бронирования"
       }
     }
   };
