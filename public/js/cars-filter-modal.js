@@ -155,7 +155,7 @@ class CarsFilterModal {
           this.updateModalDescriptions();
         }
       }
-    }, 2000);
+    }, 500);
   }
   
   setupContentWatcher() {
@@ -179,9 +179,7 @@ class CarsFilterModal {
       });
       
       if (shouldUpdate) {
-        setTimeout(() => {
           this.updateModalDescriptions();
-        }, 100);
       }
     });
     
