@@ -462,6 +462,42 @@ router.get('/:id/secure/random-winning-index', async (req, res) => {
     }
 });
 
+// Check if phone number has available coupons
+router.post('/check-available-coupons', validate(phoneNumberSchema), async (req, res) => {
+  const { phoneNumber } = req.body;
+  
+  if (!phoneNumber) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
+  
+  try {
+    const { getPhoneNumberData } = require('../lib/phoneNumberTracker');
+    const phoneData = await getPhoneNumberData(phoneNumber);
+    
+    if (phoneData && 
+        ((phoneData.available_coupons && phoneData.available_coupons.length > 0) || 
+         (phoneData.redeemed_coupons && phoneData.redeemed_coupons.length > 0))) {
+      res.json({
+        hasCoupons: true,
+        availableCoupons: phoneData.available_coupons || [],
+        redeemedCoupons: phoneData.redeemed_coupons || [],
+        message: 'Phone number already has coupons'
+      });
+    } else {
+      res.json({
+        hasCoupons: false,
+        availableCoupons: [],
+        redeemedCoupons: [],
+        message: 'No coupons for this phone number'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error checking available coupons:', error);
+    res.status(500).json({ error: 'Failed to check available coupons' });
+  }
+});
+
 // Track phone number for spinning wheel
 router.post('/track-phone', validate(phoneNumberSchema), async (req, res) => {
   const { phoneNumber } = req.body;

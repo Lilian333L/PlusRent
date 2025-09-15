@@ -806,7 +806,7 @@
     }
 
     // Handle phone form submission
-    function handlePhoneSubmit(event) {
+    async function handlePhoneSubmit(event) {
         event.preventDefault();
         
         const phoneInput = document.getElementById('universalPhoneInput');
@@ -832,6 +832,42 @@
         
         // Format the phone number
         const formattedPhone = formatPhoneNumber(phoneNumber);
+
+        // Check if phone number already has available coupons
+        try {
+            const API_BASE_URL = window.location.origin;
+            const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/check-available-coupons`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phoneNumber: formattedPhone })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                
+                if (result.hasCoupons) {
+                    // User already has coupons (available or redeemed), show error
+                    let errorMessage = 'You have already received a reward for this phone number.';
+                    
+                    // Get current language and provide appropriate message
+                    const currentLang = localStorage.getItem('lang') || 'en';
+                    
+                    if (currentLang === 'ro') {
+                        errorMessage = 'Ai primit deja o recompensă pentru acest număr de telefon.';
+                    } else if (currentLang === 'ru') {
+                        errorMessage = 'Вы уже получили награду за этот номер телефона.';
+                    }
+                    
+                    showPhoneError(phoneInput, errorMessage);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking available coupons:', error);
+            // Continue with normal flow if check fails
+        }
 
         // Store phone number in localStorage
         localStorage.setItem('spinningWheelPhone', formattedPhone);
