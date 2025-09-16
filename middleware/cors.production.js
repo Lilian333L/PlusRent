@@ -30,7 +30,7 @@ const corsOptions = {
 const productionOrigins = [
   'https://yourdomain.com',
   'https://www.yourdomain.com',
-  'https://rentaly.vercel.app',
+  'https://plusrent.vercel.app',
   // Add your other production domains here
 ];
 
