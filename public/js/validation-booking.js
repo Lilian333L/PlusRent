@@ -980,10 +980,18 @@ async function calculateModalPrice() {
   if (pickupLocation === "Chisinau Airport") {
     locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
   } else if (pickupLocation === "Iasi Airport") {
-    console.log("Iasi Airport", modalFeeSettings.iasi_airport_pickup);
+
     locationFees += modalFeeSettings.iasi_airport_pickup || 35;
   } else {
     locationFees += modalFeeSettings.office_pickup || 0;
+  }
+
+  if (dropoffLocation === "Chisinau Airport") {
+    locationFees += modalFeeSettings.chisinau_airport_dropoff || 25;
+  } else if (dropoffLocation === "Iasi Airport") {
+    locationFees += modalFeeSettings.iasi_airport_dropoff || 35;
+  } else {
+    locationFees += modalFeeSettings.office_dropoff || 0;
   }
 
   // Calculate outside hours fees
