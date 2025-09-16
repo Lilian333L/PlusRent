@@ -848,7 +848,7 @@
             if (response.ok) {
                 const result = await response.json();
                 
-                if (result.hasCoupons) { 
+                if (result.hasCoupons) {
                     // User already has coupons (available or redeemed), show error
                     let errorMessage = 'You have already received a reward for this phone number.';
                     

@@ -538,7 +538,7 @@
                 <div class="de-flex-col">
                   <!-- logo begin -->
                   <div id="logo">
-                    <a href="index.html">
+                    <a href="index">
                       <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
                       <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                     </a>
@@ -1002,11 +1002,11 @@
           <h5 data-i18n="footer.quick_links"></h5>
           <div class="widget">
             <ul>
-              <li><a href="index.html" data-i18n="menu.home"></a></li>
-              <li><a href="cars.html" data-i18n="menu.cars"></a></li>
-              <li><a href="about.html" data-i18n="menu.about"></a></li>
-              <li><a href="contact.html" data-i18n="menu.contact"></a></li>
-              <li><a href="sober-driver.html" data-i18n="menu.sober_driver"></a></li>
+              <li><a href="index" data-i18n="menu.home"></a></li>
+              <li><a href="cars" data-i18n="menu.cars"></a></li>
+              <li><a href="about" data-i18n="menu.about"></a></li>
+              <li><a href="contact" data-i18n="menu.contact"></a></li>
+              <li><a href="sober-driver" data-i18n="menu.sober_driver"></a></li>
             </ul>
           </div>
         </div>
@@ -1374,6 +1374,7 @@
       if (car.price_policy) {
         const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
         const prices = Object.values(pricePolicy).map(price => parseInt(price));
+        console.log("pricePolicy---",pricePolicy)
         lowestPrice = Math.min(...prices).toString();
       }
 
@@ -2660,6 +2661,21 @@
 
       const pickupTimeSelect = document.getElementById('pickup-time');
       const returnTimeSelect = document.getElementById('collection-time');
+
+      const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
+      const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+
+      pickupLocationInputs.forEach(input => {
+        input.addEventListener('change', function () {
+          window.priceCalculator.recalculatePrice();
+        });
+      });
+
+      dropoffLocationInputs.forEach(input => {
+        input.addEventListener('change', function () {
+          window.priceCalculator.recalculatePrice();
+        });
+      });
 
       // Function to update outside hours notice
       function updateOutsideHoursNotice() {
