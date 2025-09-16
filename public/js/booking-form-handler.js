@@ -265,12 +265,12 @@ class BookingFormHandler {
         }
         
         if (!response.ok || !result.valid) {
-          const errorMessage = result.message || result.error || 'Invalid coupon code. Please enter a valid coupon or remove it.';
+          const errorMessage = i18next.t(result.message) || result.error || i18next.t('coupons.invalid_code')
           return { isValid: false, error: errorMessage };
         }
       } catch (error) {
         
-        return { isValid: false, error: 'Error validating coupon code. Please try again.' };
+        return { isValid: false, error: i18next.t('coupons.error_validating_code') };
       }
     }
 

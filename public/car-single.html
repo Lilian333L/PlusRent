@@ -831,14 +831,13 @@
                         style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 6px; margin-top: 8px; font-size: 10px;">
                         <div style="display: flex; align-items: center; gap: 3px; margin-bottom: 2px;">
                           <i class="fa fa-clock-o" style="color: #856404; font-size: 10px;"></i>
-                          <strong style="color: #856404; font-size: 10px;">Outside Working Hours</strong>
+                          <strong style="color: #856404; font-size: 10px;" data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
                         </div>
                         <div id="outside-hours-details" style="font-size: 11px; color: #856404; margin-bottom: 2px;">
-                          <!-- Details will be populated by JavaScript -->
                         </div>
                         <div style="font-size: 10px; color: #856404;">
-                          <strong>Working Hours:</strong> 08:00 - 18:00 | <strong>Fee:</strong> <span
-                            id="outside-hours-fee">€15</span> per pickup/return
+                          <strong data-i18n="price_calculator.working_hours">Working Hours:</strong> 08:00 - 18:00 | <strong data-i18n="price_calculator.fee">Fee:</strong> <span
+                            id="outside-hours-fee" >€15</span> <span data-i18n="price_calculator.per_pickup_return"></span>  
                         </div>
                       </div>
                     </div>
@@ -2650,60 +2649,79 @@
   </script>
 
   <script>
+            const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
+        const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+        pickupLocationInputs.forEach(input => {
+          input.addEventListener('change', function () {
+            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+              window.priceCalculator.recalculatePrice();
+            }
+          });
+        });
+        
+        dropoffLocationInputs.forEach(input => {
+          input.addEventListener('change', function () {
+            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+              window.priceCalculator.recalculatePrice();
+            }
+          });
+        });
+
     // Ensure date inputs display properly and set up event listeners after price calculator is ready
-    setTimeout(() => {
-      const pickupDateInput = document.getElementById('date-picker');
-      const returnDateInput = document.getElementById('date-picker-2');
+    // setTimeout(() => {
+    //   const pickupDateInput = document.getElementById('date-picker');
+    //   const returnDateInput = document.getElementById('date-picker-2');
 
-      // DON'T clone/replace inputs - this conflicts with Flatpickr
-      // Just get references to the existing inputs
+    //   // DON'T clone/replace inputs - this conflicts with Flatpickr
+    //   // Just get references to the existing inputs
 
-      const pickupTimeSelect = document.getElementById('pickup-time');
-      const returnTimeSelect = document.getElementById('collection-time');
+    //   const pickupTimeSelect = document.getElementById('pickup-time');
+    //   const returnTimeSelect = document.getElementById('collection-time');
 
       // Function to update outside hours notice
-      function updateOutsideHoursNotice() {
-        if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
-          const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
-          const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
-          window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
-        }
-      }
+      // function updateOutsideHoursNotice() {
+      //   console.log("updateOutsideHoursNotice");
+      //   if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
+      //     const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
+      //     const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
+      //     window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
+      //   }
+      // }
 
       // Only set up event listeners if price calculator is ready
-      if (window.priceCalculator && window.currentCarData) {
-        // Set up time change listeners (these don't conflict with Flatpickr)
-        if (pickupTimeSelect) {
-          pickupTimeSelect.addEventListener('change', function () {
-            updateOutsideHoursNotice();
-          });
-        }
+      // if (window.priceCalculator && window.currentCarData) {
+      //   // Set up time change listeners (these don't conflict with Flatpickr)
+      //   if (pickupTimeSelect) {
+      //     pickupTimeSelect.addEventListener('change', function () {
+      //       updateOutsideHoursNotice();
+      //     });
+      //   }
 
-        if (returnTimeSelect) {
-          returnTimeSelect.addEventListener('change', function () {
-            updateOutsideHoursNotice();
-          });
-        }
-      } else {
-        // If price calculator isn't ready yet, wait a bit more
-        setTimeout(() => {
-          if (window.priceCalculator && window.currentCarData) {
-            // Set up time change listeners
-            if (pickupTimeSelect) {
-              pickupTimeSelect.addEventListener('change', function () {
-                updateOutsideHoursNotice();
-              });
-            }
+    //     if (returnTimeSelect) {
+    //       returnTimeSelect.addEventListener('change', function () {
+    //         updateOutsideHoursNotice();
+    //       });
+    //     }
+    //   } else {
+    //     // If price calculator isn't ready yet, wait a bit more
+    //     setTimeout(() => {
+    //       if (window.priceCalculator && window.currentCarData) {
+    //         // Set up time change listeners
+    //         if (pickupTimeSelect) {
+    //           pickupTimeSelect.addEventListener('change', function () {
+    //             updateOutsideHoursNotice();
+    //           });
+    //         }
 
-            if (returnTimeSelect) {
-              returnTimeSelect.addEventListener('change', function () {
-                updateOutsideHoursNotice();
-              });
-            }
-          }
-        }, 500);
-      }
-    }, 200);
+    //         if (returnTimeSelect) {
+    //           returnTimeSelect.addEventListener('change', function () {
+    //             updateOutsideHoursNotice();
+    //           });
+    //         }
+    //       }
+    //     }, 500);
+    //   }
+    // }, 200);
   </script>
 
 </body>

@@ -600,7 +600,7 @@ router.get('/validate-redemption/:code', async (req, res) => {
       }
       
       if (!validCoupon) {
-        return res.json({ valid: false, message: 'Invalid redemption code' });
+        return res.json({ valid: false, message: 'coupons.invalid_code' });
       }
       
       // If phone number is provided, validate it against the phone_numbers table
@@ -611,27 +611,27 @@ router.get('/validate-redemption/:code', async (req, res) => {
           
           if (!phoneData) {
             
-            return res.json({ valid: false, message: 'Phone number not authorized for this coupon' });
+            return res.json({ valid: false, message: 'coupons.phone_not_authorized' });
           }
           
           // Check if the redemption code is available for this phone number
           const availableCoupons = phoneData.available_coupons || [];
           if (!availableCoupons.includes(code)) {
             
-            return res.json({ valid: false, message: 'This coupon is not available for your phone number' });
+            return res.json({ valid: false, message: 'coupons.not_available_for_phone' });
           }
           
           // Check if the code has already been redeemed by this phone number
           const redeemedCoupons = phoneData.redeemed_coupons || [];
           if (redeemedCoupons.includes(code)) {
             
-            return res.json({ valid: false, message: 'This coupon has already been used with your phone number' });
+            return res.json({ valid: false, message: 'coupons.already_used_with_phone' });
           }
           
           
         } catch (phoneError) {
           console.error('❌ Error validating phone number:', phoneError);
-          return res.json({ valid: false, message: 'Error validating phone number authorization' });
+          return res.json({ valid: false, message: 'coupons.phone_not_authorized' });
         }
       }
       
@@ -665,7 +665,7 @@ router.get('/validate/:code', async (req, res) => {
       
       if (error || !data) {
         
-        return res.json({ valid: false, message: 'Invalid coupon code' });
+        return res.json({ valid: false, message: 'coupons.invalid_code' });
       }
       
       // Check if coupon has expired
@@ -673,7 +673,7 @@ router.get('/validate/:code', async (req, res) => {
         const now = new Date();
         const expiryDate = new Date(data.expires_at);
         if (now > expiryDate) {
-          return res.json({ valid: false, message: 'Coupon has expired' });
+          return res.json({ valid: false, message: 'coupons.expired' });
         }
       } 
       

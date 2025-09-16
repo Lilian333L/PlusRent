@@ -559,13 +559,13 @@ class PriceCalculator {
     // Check pickup time
     if (pickupHour < 8 || pickupHour >= 18) {
       isOutsideHours = true;
-      detailsText += `• Pickup at ${pickupTime} (outside working hours)<br>`;
+      detailsText += `• ${i18next.t('price_calculator.pickup_at')} ${pickupTime} (${i18next.t('price_calculator.outside_working_hours')})<br>`;
     }
 
     // Check return time
     if (returnHour < 8 || returnHour >= 18) {
       isOutsideHours = true;
-      detailsText += `• Return at ${returnTime} (outside working hours)<br>`;
+      detailsText += `• ${i18next.t('price_calculator.return_at')} ${returnTime} (${i18next.t('price_calculator.outside_working_hours')})<br>`;
     }
 
     if (isOutsideHours) {
@@ -822,6 +822,7 @@ class PriceCalculator {
 
       // Update the display
       this.updatePriceDisplay(priceData);
+      this.updateOutsideHoursNotice(pickupTime, returnTime);
     } catch (error) {
       console.error("Error recalculating price:", error);
       this.updatePriceDisplay({ totalPrice: 0, breakdown: [] });

@@ -1310,8 +1310,8 @@ async function submitBooking() {
         if (!result.valid) {
           // Coupon code is invalid
           const errorMessage =
-            result.message || i18next.t("errors.invalid_coupon_code");
-          showUniversalError(errorMessage);
+            i18next.t(result.message) || i18next.t("errors.invalid_coupon_code");
+          // showUniversalError(errorMessage);
           return false;
         }
 
@@ -1327,8 +1327,8 @@ async function submitBooking() {
           if (!result.valid) {
             // Coupon is not available for this phone number
             const errorMessage =
-              result.message || i18next.t("errors.coupon_not_available");
-            showUniversalError(errorMessage);
+              i18next.t(result.message) || i18next.t("errors.coupon_not_available");
+            // showUniversalError(errorMessage);
             return false;
           }
         }
