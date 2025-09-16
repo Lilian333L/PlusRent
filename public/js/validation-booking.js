@@ -1,6 +1,15 @@
 // Global variables for coupon caching
 let cachedCouponData = null;
 let lastValidatedCouponCode = null;
+let modalFeeSettings = {
+  outside_hours_fee: 15,
+  chisinau_airport_pickup: 0,
+  chisinau_airport_dropoff: 25,
+  iasi_airport_pickup: 35,
+  iasi_airport_dropoff: 35,
+  office_pickup: 0,
+  office_dropoff: 0,
+};
 
 $(document).ready(function () {
   // Initialize booking form handler
@@ -13,8 +22,25 @@ $(document).ready(function () {
   // API base URL from config - use relative URLs for Vercel deployment
   const apiBaseUrl = window.API_BASE_URL || "";
 
+  async function loadModalFeeSettings() {
+    try {
+      const response = await fetch(
+        `${window.API_BASE_URL}/api/fee-settings/public`
+      );
+      if (response.ok) {
+        const feeData = await response.json();
+        Object.assign(modalFeeSettings, feeData);
+        console.log("Response", feeData);
+      }
+    } catch (error) {
+      console.error("Error loading fee settings:", error);
+    }
+  }
 
-
+  // Call this when the page loads
+  $(document).ready(function () {
+    loadModalFeeSettings();
+  });
   // Enhanced form validation
   function validateForm() {
     let isValid = true;
@@ -26,8 +52,8 @@ $(document).ready(function () {
 
     // Required fields validation (removed date/time fields since they're now in modal)
     const requiredFields = {
-      phone: i18next.t('booking.phone_number'),
-      vehicle_type: i18next.t('booking.vehicle_type'),
+      phone: i18next.t("booking.phone_number"),
+      vehicle_type: i18next.t("booking.vehicle_type"),
     };
     // Check required fields
     Object.keys(requiredFields).forEach((fieldId) => {
@@ -37,7 +63,9 @@ $(document).ready(function () {
       if (!value || value.trim() === "") {
         field.addClass("error_input");
         field.after(
-          `<div class="field-error text-danger small mt-1">${i18next.t(`errors.${fieldId}_required`)}</div>`
+          `<div class="field-error text-danger small mt-1">${i18next.t(
+            `errors.${fieldId}_required`
+          )}</div>`
         );
         errors.push(i18next.t(`errors.${fieldId}_required`));
         isValid = false;
@@ -50,9 +78,11 @@ $(document).ready(function () {
     if (email && !emailRegex.test(email)) {
       $("#email").addClass("error_input");
       $("#email").after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_enter_valid_email"
+        )}</div>`
       );
-      errors.push(i18next.t('errors.please_enter_valid_email'));
+      errors.push(i18next.t("errors.please_enter_valid_email"));
       isValid = false;
     }
 
@@ -62,9 +92,11 @@ $(document).ready(function () {
     if (phone && !phoneRegex.test(phone)) {
       $("#phone").addClass("error_input");
       $("#phone").after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_enter_valid_phone"
+        )}</div>`
       );
-      errors.push(i18next.t('errors.please_enter_valid_phone'));
+      errors.push(i18next.t("errors.please_enter_valid_phone"));
       isValid = false;
     }
 
@@ -81,12 +113,12 @@ $(document).ready(function () {
       today.setHours(0, 0, 0, 0);
 
       if (pickupDate < today) {
-        errors.push(i18next.t('errors.pickup_date_future'));
+        errors.push(i18next.t("errors.pickup_date_future"));
         isValid = false;
       }
 
       if (returnDate < pickupDate) {
-        errors.push(i18next.t('errors.return_date_after_pickup'));
+        errors.push(i18next.t("errors.return_date_after_pickup"));
         isValid = false;
       }
     }
@@ -96,10 +128,10 @@ $(document).ready(function () {
     //   const pickupDateTime = new Date(pickupDateStr + "T" + pickupTime);
     //   const returnDateTime = new Date(returnDateStr + "T" + returnTime);
 
-      // if (pickupDateStr === returnDateStr && returnDateTime <= pickupDateTime) {
-      //   errors.push(i18next.t('errors.return_time_after_pickup'));
-      //   isValid = false;
-      // }
+    // if (pickupDateStr === returnDateStr && returnDateTime <= pickupDateTime) {
+    //   errors.push(i18next.t('errors.return_time_after_pickup'));
+    //   isValid = false;
+    // }
     // }
 
     // Additional validation for minimum rental duration
@@ -123,9 +155,11 @@ $(document).ready(function () {
     if (vehicleSelect.val() === "" || vehicleSelect.val() === null) {
       vehicleSelect.addClass("error_input");
       vehicleSelect.after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_vehicle')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_select_vehicle"
+        )}</div>`
       );
-      errors.push(i18next.t('errors.please_select_vehicle'));
+      errors.push(i18next.t("errors.please_select_vehicle"));
       isValid = false;
     }
 
@@ -138,9 +172,11 @@ $(document).ready(function () {
         "error_input"
       );
       $('.radio-group:has(input[name="pickup_location"])').after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_pickup_location')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_select_pickup_location"
+        )}</div>`
       );
-      errors.push(i18next.t('errors.please_select_pickup_location'));
+      errors.push(i18next.t("errors.please_select_pickup_location"));
       isValid = false;
     }
 
@@ -148,14 +184,14 @@ $(document).ready(function () {
     const dropoffLocationRadios = $('input[name="destination"]');
     const dropoffLocation = $('input[name="destination"]:checked').val();
 
-    
-
     if (!dropoffLocation) {
       $('.radio-group:has(input[name="destination"])').addClass("error_input");
       $('.radio-group:has(input[name="destination"])').after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_select_dropoff_location')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_select_dropoff_location"
+        )}</div>`
       );
-      errors.push(i18next.t('errors.please_select_dropoff_location'));
+      errors.push(i18next.t("errors.please_select_dropoff_location"));
       isValid = false;
     }
 
@@ -175,14 +211,20 @@ $(document).ready(function () {
 
     // Get the original total price
     const originalTotalPrice = parseFloat($("#total_price").val()) || 0;
-    
+
     // Calculate discounted price if coupon is applied
     let finalTotalPrice = originalTotalPrice;
     const discountCode = safeTrim("#modal-discount-code");
-    
 
-    if (discountCode && cachedCouponData && cachedCouponData.valid && lastValidatedCouponCode === discountCode) {
-      const discountPercentage = parseFloat(cachedCouponData.discount_percentage || 0);
+    if (
+      discountCode &&
+      cachedCouponData &&
+      cachedCouponData.valid &&
+      lastValidatedCouponCode === discountCode
+    ) {
+      const discountPercentage = parseFloat(
+        cachedCouponData.discount_percentage || 0
+      );
 
       if (!isNaN(discountPercentage) && discountPercentage > 0) {
         const discountAmount = originalTotalPrice * (discountPercentage / 100);
@@ -195,25 +237,29 @@ $(document).ready(function () {
       customer_name: safeTrim("#name"),
       customer_email: safeTrim("#email"),
       customer_phone: safeTrim("#phone"),
-      customer_age: safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
+      customer_age:
+        safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
       pickup_date: (() => {
         const dateStr = $("#modal-pickup-date").val() || "";
-        console.log('Pickup date before conversion:', dateStr);
+        console.log("Pickup date before conversion:", dateStr);
         const converted = convertDateFormatToISO(dateStr);
-        console.log('Pickup date after conversion:', converted);
+        console.log("Pickup date after conversion:", converted);
         return converted;
       })(),
       pickup_time: $("#modal-pickup-time").val() || "",
       return_date: (() => {
         const dateStr = $("#modal-return-date").val() || "";
-        console.log('Return date before conversion:', dateStr);
+        console.log("Return date before conversion:", dateStr);
         const converted = convertDateFormatToISO(dateStr);
-        console.log('Return date after conversion:', converted);
+        console.log("Return date after conversion:", converted);
         return converted;
       })(),
       return_time: $("#modal-return-time").val() || "",
-      pickup_location: translateLocation($('input[name="pickup_location"]:checked').val()) || "",
-      dropoff_location: translateLocation($('input[name="destination"]:checked').val()  ) || "",
+      pickup_location:
+        translateLocation($('input[name="pickup_location"]:checked').val()) ||
+        "",
+      dropoff_location:
+        translateLocation($('input[name="destination"]:checked').val()) || "",
       special_instructions: safeTrim("#message") || null,
       total_price: finalTotalPrice,
       discount_code: discountCode,
@@ -223,18 +269,18 @@ $(document).ready(function () {
 
   function translateLocation(locationValue) {
     if (!locationValue) return "";
-    
-    if (typeof i18next === 'undefined' || !i18next.t) {
+
+    if (typeof i18next === "undefined" || !i18next.t) {
       return locationValue; // Return original value if i18next not ready
     }
 
-    console.log('Location value:', locationValue);
+    console.log("Location value:", locationValue);
     const locationMap = {
-      'Chisinau Airport': i18next.t('cars.chisinau_airport'),
-      'Our Office': i18next.t('cars.our_office'),
-      'Iasi Airport': i18next.t('cars.iasi_airport')
+      "Chisinau Airport": i18next.t("cars.chisinau_airport"),
+      "Our Office": i18next.t("cars.our_office"),
+      "Iasi Airport": i18next.t("cars.iasi_airport"),
     };
-    
+
     return locationMap[locationValue] || locationValue;
   }
 
@@ -291,7 +337,6 @@ $(document).ready(function () {
 
   // Handle form submission - now opens price calculator modal
   submitButton.click(function (e) {
-    
     // Skip old validation system if we're on car-single page (using new BookingFormHandler)
     if (window.location.pathname.includes("car-single")) {
       return; // Don't prevent default, let the new BookingFormHandler handle it
@@ -302,20 +347,19 @@ $(document).ready(function () {
     // Hide any existing messages
     $("#booking-success-notification").hide();
     hideUniversalError();
-    
 
     // Check only the most essential fields before opening modal
     const phone = $("#phone").val();
     const vehicleType = $("#vehicle_type").val();
 
     if (!phone || phone.trim() === "") {
-        showError(i18next.t('errors.phone_required'));
+      showError(i18next.t("errors.phone_required"));
       return;
     }
 
     if (!vehicleType || vehicleType.trim() === "") {
-        showError(i18next.t('errors.vehicle_type_required'));
-        return;
+      showError(i18next.t("errors.vehicle_type_required"));
+      return;
     }
 
     // Open the modal
@@ -323,7 +367,7 @@ $(document).ready(function () {
   });
 
   // Also prevent form submission event (in case the form is submitted by other means)
-  $("#booking_form").on("submit", function(e) {
+  $("#booking_form").on("submit", function (e) {
     e.preventDefault();
     e.stopPropagation();
     return false;
@@ -360,7 +404,6 @@ $(document).ready(function () {
 
   // Calculate and display price (for modal only - compact summary is hidden)
   function calculatePrice() {
-    
     const vehicleSelect = $("#vehicle_type");
     const pickupDate = $("#modal-pickup-date").val();
     const returnDate = $("#modal-return-date").val();
@@ -420,7 +463,9 @@ $(document).ready(function () {
       $(this).addClass("error_input");
       if (!$(this).siblings(".field-error").length) {
         $(this).after(
-          `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
+          `<div class="field-error text-danger small mt-1">${i18next.t(
+            "errors.please_enter_valid_email"
+          )}</div>`
         );
       }
     }
@@ -433,7 +478,9 @@ $(document).ready(function () {
       $(this).addClass("error_input");
       if (!$(this).siblings(".field-error").length) {
         $(this).after(
-          `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
+          `<div class="field-error text-danger small mt-1">${i18next.t(
+            "errors.please_enter_valid_phone"
+          )}</div>`
         );
       }
     }
@@ -483,7 +530,9 @@ $(document).ready(function () {
     if (email && !emailRegex.test(email)) {
       $(this).addClass("error_input");
       $(this).after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_email')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_enter_valid_email"
+        )}</div>`
       );
     } else {
       $(this).removeClass("error_input");
@@ -498,7 +547,9 @@ $(document).ready(function () {
     if (phone && !phoneRegex.test(phone)) {
       $(this).addClass("error_input");
       $(this).after(
-        `<div class="field-error text-danger small mt-1">${i18next.t('errors.please_enter_valid_phone')}</div>`
+        `<div class="field-error text-danger small mt-1">${i18next.t(
+          "errors.please_enter_valid_phone"
+        )}</div>`
       );
     } else {
       $(this).removeClass("error_input");
@@ -527,9 +578,9 @@ async function openPriceCalculator() {
 
   if (!selectedVehicle.val()) {
     if (window.showError && typeof window.showError === "function") {
-      window.showError(i18next.t('errors.please_select_vehicle_first'));
+      window.showError(i18next.t("errors.please_select_vehicle_first"));
     } else {
-      alert(i18next.t('errors.please_select_vehicle_first'));
+      alert(i18next.t("errors.please_select_vehicle_first"));
     }
     return;
   }
@@ -548,39 +599,45 @@ async function openPriceCalculator() {
   const pickupLocation = $('input[name="pickup_location"]:checked').val();
   const dropoffLocation = $('input[name="destination"]:checked').val();
 
-// Update pickup location with translation
-const pickupEl = $("#modal-pickup-location");
-const dropoffEl = $("#modal-dropoff-location");
+  // Update pickup location with translation
+  const pickupEl = $("#modal-pickup-location");
+  const dropoffEl = $("#modal-dropoff-location");
 
-// Map location values to translation keys
-const locationMap = {
-  'Chisinau Airport': 'cars.chisinau_airport',
-  'Our Office': 'cars.our_office',
-  'Iasi Airport': 'cars.iasi_airport'
-};
+  // Map location values to translation keys
+  const locationMap = {
+    "Chisinau Airport": "cars.chisinau_airport",
+    "Our Office": "cars.our_office",
+    "Iasi Airport": "cars.iasi_airport",
+  };
 
-// Update pickup location
-if (pickupLocation) {
-  pickupEl.attr('data-i18n', locationMap[pickupLocation] || 'cars.chisinau_airport');
-  pickupEl.text(pickupLocation);
-} else {
-  pickupEl.attr('data-i18n', '');
-  pickupEl.text("Not selected");
-}
+  // Update pickup location
+  if (pickupLocation) {
+    pickupEl.attr(
+      "data-i18n",
+      locationMap[pickupLocation] || "cars.chisinau_airport"
+    );
+    pickupEl.text(pickupLocation);
+  } else {
+    pickupEl.attr("data-i18n", "");
+    pickupEl.text("Not selected");
+  }
 
-// Update dropoff location
-if (dropoffLocation) {
-  dropoffEl.attr('data-i18n', locationMap[dropoffLocation] || 'cars.our_office');
-  dropoffEl.text(dropoffLocation);
-} else {
-  dropoffEl.attr('data-i18n', '');
-  dropoffEl.text("Not selected");
-}
+  // Update dropoff location
+  if (dropoffLocation) {
+    dropoffEl.attr(
+      "data-i18n",
+      locationMap[dropoffLocation] || "cars.our_office"
+    );
+    dropoffEl.text(dropoffLocation);
+  } else {
+    dropoffEl.attr("data-i18n", "");
+    dropoffEl.text("Not selected");
+  }
 
-// Trigger i18n update
-if (typeof updateContent === 'function') {
-  updateContent();
-}
+  // Trigger i18n update
+  if (typeof updateContent === "function") {
+    updateContent();
+  }
   // Populate vehicle info
   if (selectedVehicle.attr("data-car-details")) {
     const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
@@ -602,10 +659,14 @@ if (typeof updateContent === 'function') {
       carDetails.make_name + " " + carDetails.model_name
     );
     // Update vehicle details with translations
-    const passengersText = i18next.t('price_calculator.vehicle_details.passengers');
-    const doorsText = i18next.t('price_calculator.vehicle_details.doors');
+    const passengersText = i18next.t(
+      "price_calculator.vehicle_details.passengers"
+    );
+    const doorsText = i18next.t("price_calculator.vehicle_details.doors");
     const carTypeKey = `price_calculator.vehicle_details.car_types.${carDetails.car_type}`;
-    const carTypeText = i18next.exists(carTypeKey) ? i18next.t(carTypeKey) : carDetails.car_type;
+    const carTypeText = i18next.exists(carTypeKey)
+      ? i18next.t(carTypeKey)
+      : carDetails.car_type;
 
     $("#modal-vehicle-details").text(
       `${carDetails.num_passengers || "-"} ${passengersText} • ${
@@ -650,43 +711,35 @@ if (typeof updateContent === 'function') {
   $("body").addClass("modal-open");
 
   // Initialize DatePickerManager for modal
-  
-  
+
   // Get car ID from selected vehicle
   const carId = selectedVehicle.attr("data-car-id") || "7"; // Default to car ID 7 for testing
-  
+
   // Initialize DatePickerManager for modal
-  if (typeof DatePickerManager !== 'undefined') {
-    
+  if (typeof DatePickerManager !== "undefined") {
     try {
       const modalDatePicker = new DatePickerManager({
-        pickupInputId: 'modal-pickup-date',
-        returnInputId: 'modal-return-date',
+        pickupInputId: "modal-pickup-date",
+        returnInputId: "modal-return-date",
         carId: carId,
         isModal: true,
-        customClass: 'modal-return-date-picker',
-        dateFormat: 'd-m-Y',
-        onDateChange: function() {
-          
+        customClass: "modal-return-date-picker",
+        dateFormat: "d-m-Y",
+        onDateChange: function () {
           calculateModalPrice();
           updateVehiclePriceDisplay();
-        }
+        },
       });
-      
+
       // Initialize the DatePickerManager
-      
+
       await modalDatePicker.initialize();
-      
-      
+
       // Store reference globally for cleanup
       window.modalDatePicker = modalDatePicker;
-      
-      
-      
+
       // Test if the inputs have been converted to date pickers
       setTimeout(() => {
-        
-        
         // Remove the manual click handlers - Flatpickr should handle clicks automatically
         // The manual click handlers were causing both calendars to open
       }, 1000);
@@ -722,11 +775,12 @@ if (typeof updateContent === 'function') {
   // }, 100);
 
   // Add coupon validation on focus out (when user finishes typing)
-  $("#modal-discount-code").on("blur", function() {
+  $("#modal-discount-code").on("blur", function () {
     const couponCode = $(this).val().trim();
     const customerPhone = $("#phone").val();
-    
-    if (couponCode.length >= 3) { // Only validate if at least 3 characters
+
+    if (couponCode.length >= 3) {
+      // Only validate if at least 3 characters
       validateCouponRealTime(couponCode, customerPhone);
     } else if (couponCode.length > 0) {
       // Clear validation state for short codes
@@ -744,7 +798,7 @@ if (typeof updateContent === 'function') {
   });
 
   // Also clear validation state when user starts typing again
-  $("#modal-discount-code").on("input", function() {
+  $("#modal-discount-code").on("input", function () {
     const couponCode = $(this).val().trim();
     if (couponCode.length < 3) {
       // Clear validation state while typing
@@ -763,13 +817,15 @@ if (typeof updateContent === 'function') {
     try {
       // If we already have cached data for this exact coupon code, use it
       if (cachedCouponData && lastValidatedCouponCode === couponCode) {
-        $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
+        $("#modal-discount-code")
+          .removeClass("is-invalid")
+          .addClass("is-valid");
         calculateModalPrice();
         return;
       }
 
       const apiBaseUrl = window.API_BASE_URL || "";
-      
+
       // Step 1: Validate coupon code without phone
       let response = await fetch(
         `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
@@ -777,7 +833,9 @@ if (typeof updateContent === 'function') {
       let result = await response.json();
 
       if (!result.valid) {
-        $("#modal-discount-code").removeClass("is-valid").addClass("is-invalid");
+        $("#modal-discount-code")
+          .removeClass("is-valid")
+          .addClass("is-invalid");
         cachedCouponData = null;
         lastValidatedCouponCode = null;
         calculateModalPrice();
@@ -787,12 +845,16 @@ if (typeof updateContent === 'function') {
       // Step 2: Validate with phone if available
       if (customerPhone) {
         response = await fetch(
-          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(
+            customerPhone
+          )}`
         );
         result = await response.json();
 
         if (!result.valid) {
-          $("#modal-discount-code").removeClass("is-valid").addClass("is-invalid");
+          $("#modal-discount-code")
+            .removeClass("is-valid")
+            .addClass("is-invalid");
           cachedCouponData = null;
           lastValidatedCouponCode = null;
           calculateModalPrice();
@@ -805,9 +867,7 @@ if (typeof updateContent === 'function') {
       lastValidatedCouponCode = couponCode;
       $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
       calculateModalPrice();
-      
     } catch (error) {
-      
       $("#modal-discount-code").removeClass("is-valid is-invalid");
       cachedCouponData = null;
       lastValidatedCouponCode = null;
@@ -830,8 +890,7 @@ function closePriceCalculator() {
   $(".modal-backdrop").remove();
 
   // Clean up DatePickerManager
-  if (window.modalDatePicker) { 
-    
+  if (window.modalDatePicker) {
     window.modalDatePicker = null;
   }
 
@@ -856,11 +915,13 @@ async function calculateModalPrice() {
 
   // Get car details
   const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
-  
+  console.log("Car details", carDetails.price_policy);
   // Get locations
-  const pickupLocation = $('input[name="pickup_location"]:checked').val() || 'Our Office';
-  const dropoffLocation = $('input[name="destination"]:checked').val() || 'Our Office';
-  
+  const pickupLocation =
+    $('input[name="pickup_location"]:checked').val() || "Our Office";
+  const dropoffLocation =
+    $('input[name="destination"]:checked').val() || "Our Office";
+
   // Get discount code
   const discountCode = $("#modal-discount-code").val().trim();
 
@@ -871,53 +932,89 @@ async function calculateModalPrice() {
   // Calculate base pr
   const pickup = new Date(pickupDateISO + "T00:00:00");
   const return_dt = new Date(returnDateISO + "T00:00:00");
-  const days = Math.max(1, Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24)));
-  
+  const days = Math.max(
+    1,
+    Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24))
+  );
+
   // Get base price
   let dailyRate = 0;
   if (days >= 1 && days <= 2) {
-    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["1-2"]) : 0;
+    pricePerDay = parseInt(carDetails.price_policy["1-2"]) || this.basePrice;
   } else if (days >= 3 && days <= 7) {
-    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["3-7"]) : 0;
+    pricePerDay =
+      parseInt(carDetails.price_policy["3-7"]) ||
+      parseInt(carDetails.price_policy["1-2"]) ||
+      this.basePrice;
   } else if (days >= 8 && days <= 20) {
-    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["8-20"]) : 0;
+    pricePerDay =
+      parseInt(carDetails.price_policy["8-20"]) ||
+      parseInt(carDetails.price_policy["3-7"]) ||
+      parseInt(carDetails.price_policy["1-2"]) ||
+      this.basePrice;
   } else if (days >= 21 && days <= 45) {
-    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["21-45"]) : 0;
+    pricePerDay =
+      parseInt(carDetails.price_policy["21-45"]) ||
+      parseInt(carDetails.price_policy["8-20"]) ||
+      parseInt(carDetails.price_policy["3-7"]) ||
+      parseInt(carDetails.price_policy["1-2"]) ||
+      this.basePrice;
+  } else if (days >= 46) {
+    pricePerDay =
+      parseInt(carDetails.price_policy["46+"]) ||
+      parseInt(carDetails.price_policy["21-45"]) ||
+      parseInt(carDetails.price_policy["8-20"]) ||
+      parseInt(carDetails.price_policy["3-7"]) ||
+      parseInt(carDetails.price_policy["1-2"]) ||
+      this.basePrice;
   } else {
-    dailyRate = carDetails.price_policy ? parseFloat(carDetails.price_policy["46+"]) : 0;
+    dailyRate = carDetails.price_policy
+      ? parseFloat(carDetails.price_policy["46+"])
+      : 0;
   }
-  
+
   const baseCost = dailyRate * days;
-  
+
   // Calculate location fees
   let locationFees = 0;
-  if (pickupLocation === 'Chisinau Airport') locationFees += 25;
-  if (pickupLocation === 'Iasi Airport') locationFees += 35;
-  if (dropoffLocation === 'Chisinau Airport') locationFees += 25;
-  if (dropoffLocation === 'Iasi Airport') locationFees += 35;
-  
+  if (pickupLocation === "Chisinau Airport") {
+    locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
+  } else if (pickupLocation === "Iasi Airport") {
+    console.log("Iasi Airport", modalFeeSettings.iasi_airport_pickup);
+    locationFees += modalFeeSettings.iasi_airport_pickup || 35;
+  } else {
+    locationFees += modalFeeSettings.office_pickup || 0;
+  }
+
   // Calculate outside hours fees
   let outsideHoursFees = 0;
-  const pickupHour = parseInt(pickupTime.split(':')[0]);
-  const returnHour = parseInt(returnTime.split(':')[0]);
+  const pickupHour = parseInt(pickupTime.split(":")[0]);
+  const returnHour = parseInt(returnTime.split(":")[0]);
   if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
   if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
-  
+
   // Calculate subtotal before discount
   const subtotal = baseCost + locationFees + outsideHoursFees;
-  
+
   // Apply coupon discount if available
   let discountAmount = 0;
   let totalEstimate = subtotal;
-  
-  if (discountCode && cachedCouponData && cachedCouponData.valid && lastValidatedCouponCode === discountCode) {
-    const discountPercentage = parseFloat(cachedCouponData.discount_percentage || 0);
+
+  if (
+    discountCode &&
+    cachedCouponData &&
+    cachedCouponData.valid &&
+    lastValidatedCouponCode === discountCode
+  ) {
+    const discountPercentage = parseFloat(
+      cachedCouponData.discount_percentage || 0
+    );
     if (!isNaN(discountPercentage) && discountPercentage > 0) {
       discountAmount = subtotal * (discountPercentage / 100);
       totalEstimate = subtotal - discountAmount;
     }
   }
-  
+
   // Update modal display
   updateModalPriceDisplay({
     dailyRate: dailyRate,
@@ -925,47 +1022,66 @@ async function calculateModalPrice() {
     locationFees: locationFees,
     outsideHoursFees: outsideHoursFees,
     discountAmount: discountAmount,
-    totalEstimate: totalEstimate
+    totalEstimate: totalEstimate,
   });
 }
 
 // Helper function to update modal price display
 function updateModalPriceDisplay(priceData) {
   const currencySymbol = "€";
-  
+
   // Update daily rate
   $("#modal-daily-rate").text(currencySymbol + priceData.dailyRate.toFixed(2));
-  
+
   // Update duration
   $("#modal-rental-duration").text(priceData.days + " days");
-  
+
   // Update location fees
-  $("#modal-location-fees").text(currencySymbol + priceData.locationFees.toFixed(2));
-  
+  $("#modal-location-fees").text(
+    currencySymbol + priceData.locationFees.toFixed(2)
+  );
+
   // Update outside hours fees
-  $("#modal-night-premium").text(currencySymbol + priceData.outsideHoursFees.toFixed(2));
-  
+  $("#modal-night-premium").text(
+    currencySymbol + priceData.outsideHoursFees.toFixed(2)
+  );
+
   // Update total estimate with discount info
   let totalText = currencySymbol + priceData.totalEstimate.toFixed(2);
-  
+
   if (priceData.discountAmount && priceData.discountAmount > 0) {
     // Show original price crossed out and discounted price
     const originalTotal = priceData.totalEstimate + priceData.discountAmount;
-    totalText = `<span style="text-decoration: line-through; color: #999;">${currencySymbol}${originalTotal.toFixed(2)}</span> <span class="text-success">${currencySymbol}${priceData.totalEstimate.toFixed(2)}</span>`;
+    totalText = `<span style="text-decoration: line-through; color: #999;">${currencySymbol}${originalTotal.toFixed(
+      2
+    )}</span> <span class="text-success">${currencySymbol}${priceData.totalEstimate.toFixed(
+      2
+    )}</span>`;
   }
-  
+
   $("#modal-total-estimate").html(totalText);
 }
 
 // Fallback calculation (simplified version of original)
 async function calculateModalPriceFallback(rentalData) {
-  const { car, pickupDate, returnDate, pickupTime, returnTime, pickupLocation, dropoffLocation } = rentalData;
-  
+  const {
+    car,
+    pickupDate,
+    returnDate,
+    pickupTime,
+    returnTime,
+    pickupLocation,
+    dropoffLocation,
+  } = rentalData;
+
   // Calculate days
   const pickup = new Date(pickupDate + "T00:00:00");
   const return_dt = new Date(returnDate + "T00:00:00");
-  const days = Math.max(1, Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24)));
-  
+  const days = Math.max(
+    1,
+    Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24))
+  );
+
   // Get base price
   let dailyRate = 0;
   if (days >= 1 && days <= 2) {
@@ -979,32 +1095,32 @@ async function calculateModalPriceFallback(rentalData) {
   } else {
     dailyRate = car.price_policy ? parseFloat(car.price_policy["46+"]) : 0;
   }
-  
+
   const baseCost = dailyRate * days;
-  
+
   // Simple location fees
   let locationFees = 0;
-  if (pickupLocation === 'Chisinau Airport') locationFees += 25;
-  if (pickupLocation === 'Iasi Airport') locationFees += 35;
-  if (dropoffLocation === 'Chisinau Airport') locationFees += 25;
-  if (dropoffLocation === 'Iasi Airport') locationFees += 35;
-  
+  if (pickupLocation === "Chisinau Airport") locationFees += 25;
+  if (pickupLocation === "Iasi Airport") locationFees += 35;
+  if (dropoffLocation === "Chisinau Airport") locationFees += 25;
+  if (dropoffLocation === "Iasi Airport") locationFees += 35;
+
   // Simple outside hours calculation
   let outsideHoursFees = 0;
-  const pickupHour = parseInt(pickupTime.split(':')[0]);
-  const returnHour = parseInt(returnTime.split(':')[0]);
+  const pickupHour = parseInt(pickupTime.split(":")[0]);
+  const returnHour = parseInt(returnTime.split(":")[0]);
   if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
   if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
-  
+
   const totalEstimate = baseCost + locationFees + outsideHoursFees;
-  
+
   // Update display
   updateModalPriceDisplay({
     dailyRate: dailyRate,
     days: days,
     locationFees: locationFees,
     outsideHoursFees: outsideHoursFees,
-    totalEstimate: totalEstimate
+    totalEstimate: totalEstimate,
   });
 }
 
@@ -1051,9 +1167,13 @@ function updateVehiclePriceDisplay() {
       : "0";
   }
 
-  const currencySymbol = i18next.t('price_calculator.vehicle_details.currency_symbol');
-  const perDayText = i18next.t('price_calculator.vehicle_details.per_day');
-  $("#modal-vehicle-price").text(currencySymbol + displayPrice + " " + perDayText);
+  const currencySymbol = i18next.t(
+    "price_calculator.vehicle_details.currency_symbol"
+  );
+  const perDayText = i18next.t("price_calculator.vehicle_details.per_day");
+  $("#modal-vehicle-price").text(
+    currencySymbol + displayPrice + " " + perDayText
+  );
 }
 
 async function applyModalCalculation() {
@@ -1073,7 +1193,6 @@ async function applyModalCalculation() {
         "€",
         ""
       );
-
     } else {
     }
 
@@ -1130,31 +1249,26 @@ async function applyModalCalculation() {
     }
   } catch (error) {
     if (window.showError && typeof window.showError === "function") {
-      window.showError(i18next.t('errors.error_processing_booking'));
+      window.showError(i18next.t("errors.error_processing_booking"));
     } else {
       // Create temporary error element and use showError
-      showUniversalError(i18next.t('errors.error_processing_booking'));
+      showUniversalError(i18next.t("errors.error_processing_booking"));
     }
   }
-  
 }
 
 async function submitBooking() {
-  
   try {
     // Collect form data
     const bookingData = collectFormData();
 
     // Validate booking data
-    if (
-      !bookingData.car_id ||
-      !bookingData.customer_phone
-    ) {
+    if (!bookingData.car_id || !bookingData.customer_phone) {
       if (window.showError && typeof window.showError === "function") {
-        window.showError(i18next.t('errors.missing_booking_info'));
+        window.showError(i18next.t("errors.missing_booking_info"));
       } else {
         // Create temporary error element and use showError
-        showUniversalError(i18next.t('errors.missing_booking_info'));
+        showUniversalError(i18next.t("errors.missing_booking_info"));
       }
       return false; // Return false for errors (don't throw)
     }
@@ -1164,16 +1278,16 @@ async function submitBooking() {
 
     // Check if customer is returning (has existing bookings with unredeemed return gift)
     if (bookingData.customer_phone) {
-      
-      const isReturningCustomer = await checkReturningCustomer(bookingData.customer_phone);
-      
-      
+      const isReturningCustomer = await checkReturningCustomer(
+        bookingData.customer_phone
+      );
+
       if (isReturningCustomer) {
-        
-        const shouldShowPopup = await showReturningCustomerAlert(bookingData.customer_phone);
-        
+        const shouldShowPopup = await showReturningCustomerAlert(
+          bookingData.customer_phone
+        );
+
         if (shouldShowPopup) {
-          
           return false; // Exit early for returning customers on their second booking
         }
         // If popup was already shown, continue with booking
@@ -1189,13 +1303,14 @@ async function submitBooking() {
 
         // Step 1: Validate coupon code without phone number
         let response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
-          );
+          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
+        );
         let result = await response.json();
 
         if (!result.valid) {
           // Coupon code is invalid
-          const errorMessage = result.message || i18next.t('errors.invalid_coupon_code');
+          const errorMessage =
+            result.message || i18next.t("errors.invalid_coupon_code");
           showUniversalError(errorMessage);
           return false;
         }
@@ -1203,23 +1318,24 @@ async function submitBooking() {
         // Step 2: Validate coupon code with phone number (if phone is available)
         if (customerPhone) {
           response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(
+              customerPhone
+            )}`
           );
           result = await response.json();
 
           if (!result.valid) {
             // Coupon is not available for this phone number
-            const errorMessage = result.message || i18next.t('errors.coupon_not_available');
+            const errorMessage =
+              result.message || i18next.t("errors.coupon_not_available");
             showUniversalError(errorMessage);
             return false;
           }
         }
 
         // Coupon is valid and available
-        
       } catch (error) {
-        
-        showUniversalError(i18next.t('errors.error_validating_coupon'));
+        showUniversalError(i18next.t("errors.error_validating_coupon"));
         return false;
       }
     }
@@ -1242,96 +1358,75 @@ async function submitBooking() {
         return response.json();
       })
       .then((data) => {
-        
-        
         hideLoading();
 
         if (data.success) {
-          
           showSuccess(bookingData);
           // Clear form
           $("#booking_form")[0].reset();
           $("#total_price").val("0");
           return true; // Return success
         } else {
-          
           // Handle validation errors with translations
           if (data.error === "Validation error" && data.field) {
-            
-            
             // Use the translation key that the backend sends directly
             let translationKey = data.details; // This is already 'errors.validation.dates_invalid'
-            
-            
 
             // Get translated message or fallback to server message
             let finalMessage = translationKey; // Default to the key
-            
+
             // Try to translate using i18next
-            if (typeof i18next !== 'undefined' && i18next.t) {
+            if (typeof i18next !== "undefined" && i18next.t) {
               const translatedMessage = i18next.t(translationKey);
-              
-              
+
               // If translation worked (not the same as the key), use it
               if (translatedMessage && translatedMessage !== translationKey) {
                 finalMessage = translatedMessage;
-                
-          } else {
-                
+              } else {
               }
             } else {
-              
             }
 
-            
             showUniversalError(finalMessage);
           } else {
-            
             showUniversalError(
               data.message || data.error || "Booking failed. Please try again."
             );
           }
           return false; // Return false for errors (don't throw)
         }
-        
       })
       .catch((error) => {
-        
         hideLoading();
         showError("Network error. Please check your connection and try again.");
         return false; // Return false for network errors
       });
   } catch (error) {
-    
-    
     if (window.showError && typeof window.showError === "function") {
-      window.showError(i18next.t('errors.error_processing_booking'));
+      window.showError(i18next.t("errors.error_processing_booking"));
     } else {
       // Create temporary error element and use showError
-      showUniversalError(i18next.t('errors.error_processing_booking'));
+      showUniversalError(i18next.t("errors.error_processing_booking"));
     }
   }
-  
-  
 }
 
 window.showSuccess = function (bookingData) {
-
   // Trigger booking success event for coupon removal
-  const bookingSuccessEvent = new CustomEvent('bookingSuccess', {
-    detail: { bookingData: bookingData }
+  const bookingSuccessEvent = new CustomEvent("bookingSuccess", {
+    detail: { bookingData: bookingData },
   });
   document.dispatchEvent(bookingSuccessEvent);
-  
+
   // Clear returning customer popup session storage for this phone number
   // This allows the popup to show again for the next booking
   if (bookingData && bookingData.customer_phone) {
     clearReturningCustomerSessionStorage(bookingData.customer_phone);
   }
-  
+
   // Clear auto-applied coupon from localStorage after successful booking
-  localStorage.removeItem('autoApplyCoupon');
-  localStorage.removeItem('spinningWheelWinningCoupon');
+  localStorage.removeItem("autoApplyCoupon");
+  localStorage.removeItem("spinningWheelWinningCoupon");
 
   // Create a clean, modern success modal
   const successModalHTML = `
@@ -1763,36 +1858,37 @@ window.showSuccess = function (bookingData) {
 
   // Update i18n content if available
   if (typeof updateContent === "function") {
-    document.querySelectorAll('[data-i18n]:not([data-i18n-processed])').forEach(function(element) {
-    updateContent();
-    element.setAttribute('data-i18n-processed', 'true');
-    });
+    document
+      .querySelectorAll("[data-i18n]:not([data-i18n-processed])")
+      .forEach(function (element) {
+        updateContent();
+        element.setAttribute("data-i18n-processed", "true");
+      });
   }
 };
 
 // Universal Error Popup System
 function showUniversalError(message) {
-    
-    const popup = $("#universal-error-popup");
-    const messageElement = $("#universal-error-message");
-    
-    if (popup.length === 0) {
-        // Fallback to alert
-        alert(message);
-        return;
-    }
-    
-    messageElement.html(message);
-    popup.fadeIn(300);
-    
-    // Auto-hide after 8 seconds
+  const popup = $("#universal-error-popup");
+  const messageElement = $("#universal-error-message");
+
+  if (popup.length === 0) {
+    // Fallback to alert
+    alert(message);
+    return;
+  }
+
+  messageElement.html(message);
+  popup.fadeIn(300);
+
+  // Auto-hide after 8 seconds
   setTimeout(() => {
-        hideUniversalError();
-    }, 8000);
+    hideUniversalError();
+  }, 8000);
 }
 
 function hideUniversalError() {
-    $("#universal-error-popup").fadeOut(300);
+  $("#universal-error-popup").fadeOut(300);
 }
 
 // Make functions globally available
@@ -1800,38 +1896,37 @@ window.showUniversalError = showUniversalError;
 window.hideUniversalError = hideUniversalError;
 
 // Override the existing showError function to use popup
-window.showError = function(message) {
-    showUniversalError(message);
+window.showError = function (message) {
+  showUniversalError(message);
 };
 
 // Debug: Test modal error display
-window.testModalError = function() {
-
-    if ($("#modal-error-message").length > 0) {
-        $("#modal-error-text").text("Test error message");
-        $("#modal-error-message").fadeIn(300);
-    } else {
-    }
+window.testModalError = function () {
+  if ($("#modal-error-message").length > 0) {
+    $("#modal-error-text").text("Test error message");
+    $("#modal-error-message").fadeIn(300);
+  } else {
+  }
 };
 
 // Debug: Track modal closing events
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('bookingModal');
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("bookingModal");
   if (modal) {
-    modal.addEventListener('hidden.bs.modal', function() {});
-    modal.addEventListener('hide.bs.modal', function() {});
+    modal.addEventListener("hidden.bs.modal", function () {});
+    modal.addEventListener("hide.bs.modal", function () {});
   }
 });
 
 // Debug: Track error message behavior
-$(document).ready(function() {
+$(document).ready(function () {
   // Monitor when error message is shown/hidden
   const originalShowError = window.showError;
-  window.showError = function(message) {
+  window.showError = function (message) {
     originalShowError.call(this, message);
   };
   const originalClosePriceCalculator = window.closePriceCalculator;
-  window.closePriceCalculator = function() {
+  window.closePriceCalculator = function () {
     originalClosePriceCalculator.call(this);
   };
 });
@@ -1839,34 +1934,34 @@ $(document).ready(function() {
 // Check if customer is returning (has existing bookings with unredeemed return gift)
 async function checkReturningCustomer(phoneNumber) {
   try {
-    
-    const apiBaseUrl = window.API_BASE_URL || '';
-    const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        phone_number: phoneNumber
-      })
-    });
+    const apiBaseUrl = window.API_BASE_URL || "";
+    const response = await fetch(
+      `${apiBaseUrl}/api/bookings/check-returning-customer`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone_number: phoneNumber,
+        }),
+      }
+    );
 
     if (!response.ok) {
-      console.error('Failed to check returning customer:', response.statusText);
+      console.error("Failed to check returning customer:", response.statusText);
       // If API fails, allow booking to proceed
       return false;
     }
 
     const data = await response.json();
-    
-    
+
     // Customer is returning if they have one or more bookings with unredeemed return gift
     const isReturning = data.isReturningCustomer === true;
-    
-    return isReturning;
 
+    return isReturning;
   } catch (error) {
-    console.error('Error checking returning customer:', error);
+    console.error("Error checking returning customer:", error);
     // If there's an error, allow booking to proceed
     return false;
   }
@@ -1874,135 +1969,146 @@ async function checkReturningCustomer(phoneNumber) {
 
 // Show modal for returning customers
 async function showReturningCustomerAlert(phoneNumber = null) {
-  console.log('🚨 showReturningCustomerAlert called with phoneNumber:', phoneNumber);
-  
+  console.log(
+    "🚨 showReturningCustomerAlert called with phoneNumber:",
+    phoneNumber
+  );
+
   // Use provided phone number or get from form input
   if (!phoneNumber) {
     // Check both possible phone input selectors
     let phoneInput = document.querySelector('input[name="customer_phone"]');
     if (!phoneInput) {
-      phoneInput = document.querySelector('#phone');
+      phoneInput = document.querySelector("#phone");
     }
     phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-    console.log('📞 Phone number from form:', phoneNumber);
+    console.log("📞 Phone number from form:", phoneNumber);
   }
-  
+
   if (!phoneNumber) {
-    console.log('❌ No phone number provided, returning false');
+    console.log("❌ No phone number provided, returning false");
     return false;
   }
-  
+
   // Get the current booking number from the API response
   let currentBookingNumber = null;
   try {
-    
-    const apiBaseUrl = window.API_BASE_URL || '';
-    const response = await fetch(`${apiBaseUrl}/api/bookings/check-returning-customer`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        phone_number: phoneNumber
-      })
-    });
+    const apiBaseUrl = window.API_BASE_URL || "";
+    const response = await fetch(
+      `${apiBaseUrl}/api/bookings/check-returning-customer`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone_number: phoneNumber,
+        }),
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();
       currentBookingNumber = data.nextBookingNumber;
-      
     }
   } catch (error) {
-    console.error('Error getting booking number:', error);
+    console.error("Error getting booking number:", error);
   }
-  
+
   if (!currentBookingNumber) {
-    
     return false;
   }
-  
+
   // Check if we've already shown the returning customer popup for this specific phone number and booking number
   const sessionKey = `hasShownReturningCustomerPopup_${phoneNumber}_${currentBookingNumber}`;
   const hasShownReturningCustomerPopup = sessionStorage.getItem(sessionKey);
-  
-  
-  if (hasShownReturningCustomerPopup === 'true') {
+
+  if (hasShownReturningCustomerPopup === "true") {
     // User has already seen the popup for this phone number and booking number, allow booking to proceed
-    
+
     return false; // Return false to indicate we should proceed with booking
   }
-  
-  // Set flag to indicate we've shown the popup for this phone number and booking number
-  sessionStorage.setItem(sessionKey, 'true');
 
-  
+  // Set flag to indicate we've shown the popup for this phone number and booking number
+  sessionStorage.setItem(sessionKey, "true");
+
   // Load and show the returning customer modal
-  console.log('🎯 About to call loadReturningCustomerModal');
+  console.log("🎯 About to call loadReturningCustomerModal");
   loadReturningCustomerModal();
   return true; // Return true to indicate we're showing the popup
 }
 
 // Load the returning customer modal
 async function loadReturningCustomerModal() {
-  console.log('🏗️ loadReturningCustomerModal called');
-  
+  console.log("🏗️ loadReturningCustomerModal called");
+
   // Check if modal is already loaded
-  const existingModal = document.getElementById('returningCustomerModal');
+  const existingModal = document.getElementById("returningCustomerModal");
   if (existingModal) {
-    console.log('⚠️ Modal already exists in DOM, showing existing modal');
+    console.log("⚠️ Modal already exists in DOM, showing existing modal");
     showReturningCustomerModal();
     return;
   }
-  
-  console.log('🔨 Modal not found, creating new modal');
+
+  console.log("🔨 Modal not found, creating new modal");
 
   try {
     // Fetch active wheel configurations
-    
-    const response = await fetch('/api/spinning-wheels/enabled-configs');
+
+    const response = await fetch("/api/spinning-wheels/enabled-configs");
     let wheelConfigs = [];
-    
+
     if (response.ok) {
       const activeWheels = await response.json();
-      
+
       // Convert to wheel configs format
       wheelConfigs = activeWheels.map((wheel, index) => ({
         id: wheel.id,
         name: wheel.name || `Wheel ${index + 1}`,
-        type: index === 0 ? 'percent' : 'free-days', // Assume first is percent, second is free-days
-        displayName: index === 0 ? 'Percentage Discount Wheel' : 'Free Days Wheel'
+        type: index === 0 ? "percent" : "free-days", // Assume first is percent, second is free-days
+        displayName:
+          index === 0 ? "Percentage Discount Wheel" : "Free Days Wheel",
       }));
     } else {
       // Fallback: create default configs
       wheelConfigs = [
         {
-          id: 'active',
-          name: 'Spinning Wheel',
-          type: 'default',
-          displayName: 'Spinning Wheel'
-        }
+          id: "active",
+          name: "Spinning Wheel",
+          type: "default",
+          displayName: "Spinning Wheel",
+        },
       ];
     }
 
     // Create wheel options HTML based on enabled configurations
-    let wheelOptionsHTML = '';
-    
+    let wheelOptionsHTML = "";
+
     if (wheelConfigs.length > 0) {
       wheelConfigs.forEach((config, index) => {
         // Get translations
-        const titleKey = config.type === 'percent' ? 'wheel.percentage_discount_wheel' : 
-                        config.type === 'free-days' ? 'wheel.free_days_wheel' : 
-                        'wheel.title';
-        const descKey = config.type === 'percent' ? 'wheel.percentage_discount_description' : 
-                       config.type === 'free-days' ? 'wheel.free_days_description' : 
-                       'wheel.subtitle';
-        
+        const titleKey =
+          config.type === "percent"
+            ? "wheel.percentage_discount_wheel"
+            : config.type === "free-days"
+            ? "wheel.free_days_wheel"
+            : "wheel.title";
+        const descKey =
+          config.type === "percent"
+            ? "wheel.percentage_discount_description"
+            : config.type === "free-days"
+            ? "wheel.free_days_description"
+            : "wheel.subtitle";
+
         // Use fallback text initially, translations will be applied later
         const title = config.displayName;
-        const description = (config.type === 'percent' ? 'Win discount percentages on your rental' : 
-                            config.type === 'free-days' ? 'Win free rental days for your next booking' : 
-                            'Win amazing rewards');
-        
+        const description =
+          config.type === "percent"
+            ? "Win discount percentages on your rental"
+            : config.type === "free-days"
+            ? "Win free rental days for your next booking"
+            : "Win amazing rewards";
+
         wheelOptionsHTML += `
           <button class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
             <div>
@@ -2011,8 +2117,10 @@ async function loadReturningCustomerModal() {
             </div>
           </button>
         `;
-        
-        console.log(`🔧 Created wheel option: type="${config.type}", titleKey="${titleKey}", descKey="${descKey}"`);
+
+        console.log(
+          `🔧 Created wheel option: type="${config.type}", titleKey="${titleKey}", descKey="${descKey}"`
+        );
       });
     } else {
       // Fallback if no configurations found
@@ -2027,7 +2135,7 @@ async function loadReturningCustomerModal() {
     }
 
     // Create modal container
-    const modalContainer = document.createElement('div');
+    const modalContainer = document.createElement("div");
     const modalHTML = `
       <div id="returningCustomerModal" class="returning-customer-modal quickbook-returning-modal">
         <div class="modal-content">
@@ -2047,14 +2155,14 @@ async function loadReturningCustomerModal() {
         </div>
       </div>
     `;
-    
-    console.log('🏗️ Generated modal HTML:', modalHTML);
-    console.log('🔧 Wheel options HTML:', wheelOptionsHTML);
-    
+
+    console.log("🏗️ Generated modal HTML:", modalHTML);
+    console.log("🔧 Wheel options HTML:", wheelOptionsHTML);
+
     modalContainer.innerHTML = modalHTML;
 
     // Add modal styles
-    const modalStyles = document.createElement('style');
+    const modalStyles = document.createElement("style");
     modalStyles.textContent = `
       .quickbook-returning-modal.returning-customer-modal {
         display: none !important;
@@ -2292,89 +2400,102 @@ async function loadReturningCustomerModal() {
 
     // Add styles to head
     document.head.appendChild(modalStyles);
-    
+
     // Add modal to page
     document.body.appendChild(modalContainer.firstElementChild);
-    
+
     // Add wheel selection event listeners
-    const wheelButtons = document.querySelectorAll('.wheel-button');
-    wheelButtons.forEach(button => {
-      button.addEventListener('click', async function() {
-        const wheelId = this.getAttribute('data-wheel-id');
-        
-        
+    const wheelButtons = document.querySelectorAll(".wheel-button");
+    wheelButtons.forEach((button) => {
+      button.addEventListener("click", async function () {
+        const wheelId = this.getAttribute("data-wheel-id");
+
         // Mark return gift as redeemed before opening the spinning wheel
         await markReturnGiftAsRedeemed();
-        
+
         // Close the modal
-        const modal = document.getElementById('returningCustomerModal');
+        const modal = document.getElementById("returningCustomerModal");
         if (modal) {
-          modal.classList.remove('show');
-          document.body.classList.remove('modal-open');
+          modal.classList.remove("show");
+          document.body.classList.remove("modal-open");
         }
-        
+
         // Show the spinning wheel using the same method as single car page
-        if (window.UniversalSpinningWheel && window.UniversalSpinningWheel.show) {
+        if (
+          window.UniversalSpinningWheel &&
+          window.UniversalSpinningWheel.show
+        ) {
           // Get the phone number from the form
-          let phoneInput = document.querySelector('input[name="customer_phone"]');
+          let phoneInput = document.querySelector(
+            'input[name="customer_phone"]'
+          );
           if (!phoneInput) {
-            phoneInput = document.querySelector('#phone');
+            phoneInput = document.querySelector("#phone");
           }
           const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-          
-          
-          
+
           // Show the spinning wheel modal with the specified wheel ID, skipping phone step
           window.UniversalSpinningWheel.show({
             skipPhoneStep: true,
             phoneNumber: phoneNumber,
-            wheelId: wheelId
+            wheelId: wheelId,
           });
         } else {
-          console.error('UniversalSpinningWheel not available');
+          console.error("UniversalSpinningWheel not available");
         }
       });
     });
-    
+
     // Update translations for the modal
     const updateTranslations = () => {
-      console.log('🔄 updateTranslations called');
-      console.log('🌐 Current language:', localStorage.getItem('lang') || 'en');
-      console.log('📚 i18next available:', typeof i18next !== 'undefined');
-      console.log('📚 window.i18next available:', typeof window.i18next !== 'undefined');
-      
-      if (typeof i18next !== 'undefined') {
-        console.log('📚 i18next.isInitialized:', i18next.isInitialized);
-        console.log('📚 i18next.language:', i18next.language);
-        console.log('📚 i18next.t available:', typeof i18next.t);
+      console.log("🔄 updateTranslations called");
+      console.log("🌐 Current language:", localStorage.getItem("lang") || "en");
+      console.log("📚 i18next available:", typeof i18next !== "undefined");
+      console.log(
+        "📚 window.i18next available:",
+        typeof window.i18next !== "undefined"
+      );
+
+      if (typeof i18next !== "undefined") {
+        console.log("📚 i18next.isInitialized:", i18next.isInitialized);
+        console.log("📚 i18next.language:", i18next.language);
+        console.log("📚 i18next.t available:", typeof i18next.t);
       }
-      
+
       // Try multiple approaches to get translations
       let translationFunction = null;
-      
-      if (typeof i18next !== 'undefined' && i18next.t) {
+
+      if (typeof i18next !== "undefined" && i18next.t) {
         translationFunction = i18next.t;
-        console.log('✅ Using i18next.t');
-      } else if (typeof window.i18next !== 'undefined' && window.i18next.t) {
+        console.log("✅ Using i18next.t");
+      } else if (typeof window.i18next !== "undefined" && window.i18next.t) {
         translationFunction = window.i18next.t;
-        console.log('✅ Using window.i18next.t');
+        console.log("✅ Using window.i18next.t");
       } else {
-        console.log('❌ No translation function available, using fallback');
+        console.log("❌ No translation function available, using fallback");
       }
-      
+
       if (translationFunction) {
         // Update all elements with data-i18n attributes
-        const elements = document.querySelectorAll('[data-i18n]');
-        console.log('🔍 Found', elements.length, 'elements with data-i18n attributes');
-        
+        const elements = document.querySelectorAll("[data-i18n]");
+        console.log(
+          "🔍 Found",
+          elements.length,
+          "elements with data-i18n attributes"
+        );
+
         elements.forEach((element, index) => {
-          const key = element.getAttribute('data-i18n');
+          const key = element.getAttribute("data-i18n");
           if (key) {
             const translation = translationFunction(key);
-            console.log(`📝 Element ${index}: key="${key}", translation="${translation}"`);
+            console.log(
+              `📝 Element ${index}: key="${key}", translation="${translation}"`
+            );
             if (translation && translation !== key) {
               element.textContent = translation;
-              console.log(`✅ Applied translation for "${key}": "${translation}"`);
+              console.log(
+                `✅ Applied translation for "${key}": "${translation}"`
+              );
             } else {
               console.log(`❌ No valid translation for "${key}"`);
             }
@@ -2382,33 +2503,45 @@ async function loadReturningCustomerModal() {
         });
       } else {
         // Fallback: try to get translations from the fallback system
-        const currentLang = localStorage.getItem('lang') || 'en';
-        console.log('🔄 Using fallback translations for language:', currentLang);
-        
+        const currentLang = localStorage.getItem("lang") || "en";
+        console.log(
+          "🔄 Using fallback translations for language:",
+          currentLang
+        );
+
         const fallbackTranslations = {
           en: {
             wheel: {
               welcome_back_title: "Welcome Back!",
-              welcome_back_subtitle: "You have an unredeemed return gift waiting for you!",
-              welcome_message: "As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.",
+              welcome_back_subtitle:
+                "You have an unredeemed return gift waiting for you!",
+              welcome_message:
+                "As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.",
               percentage_discount_wheel: "Percentage Discount Wheel",
-              percentage_discount_description: "Win discount percentages on your rental",
+              percentage_discount_description:
+                "Win discount percentages on your rental",
               free_days_wheel: "Free Days Wheel",
-              free_days_description: "Win free rental days for your next booking"
-            }
-          }
+              free_days_description:
+                "Win free rental days for your next booking",
+            },
+          },
         };
-        
-        const translations = fallbackTranslations[currentLang] || fallbackTranslations.en;
-        console.log('📚 Fallback translations available:', translations);
-        
-        const elements = document.querySelectorAll('[data-i18n]');
-        console.log('🔍 Found', elements.length, 'elements with data-i18n attributes (fallback)');
-        
+
+        const translations =
+          fallbackTranslations[currentLang] || fallbackTranslations.en;
+        console.log("📚 Fallback translations available:", translations);
+
+        const elements = document.querySelectorAll("[data-i18n]");
+        console.log(
+          "🔍 Found",
+          elements.length,
+          "elements with data-i18n attributes (fallback)"
+        );
+
         elements.forEach((element, index) => {
-          const key = element.getAttribute('data-i18n');
+          const key = element.getAttribute("data-i18n");
           if (key) {
-            const keys = key.split('.');
+            const keys = key.split(".");
             let value = translations;
             for (const k of keys) {
               if (value && value[k]) {
@@ -2418,10 +2551,14 @@ async function loadReturningCustomerModal() {
                 break;
               }
             }
-            console.log(`📝 Fallback Element ${index}: key="${key}", value="${value}"`);
+            console.log(
+              `📝 Fallback Element ${index}: key="${key}", value="${value}"`
+            );
             if (value && value !== key) {
               element.textContent = value;
-              console.log(`✅ Applied fallback translation for "${key}": "${value}"`);
+              console.log(
+                `✅ Applied fallback translation for "${key}": "${value}"`
+              );
             } else {
               console.log(`❌ No fallback translation for "${key}"`);
             }
@@ -2429,48 +2566,47 @@ async function loadReturningCustomerModal() {
         });
       }
     };
-    
+
     // Show the modal first
-    console.log('🚀 Showing returning customer modal');
+    console.log("🚀 Showing returning customer modal");
     showReturningCustomerModal();
-    
+
     // Apply translations multiple times with different delays to ensure they work
-    console.log('🔄 Applying translations immediately');
+    console.log("🔄 Applying translations immediately");
     updateTranslations();
-    
-    console.log('🔄 Scheduling translation updates at 100ms, 500ms, 1000ms');
+
+    console.log("🔄 Scheduling translation updates at 100ms, 500ms, 1000ms");
     setTimeout(() => {
-      console.log('🔄 Translation update at 100ms');
+      console.log("🔄 Translation update at 100ms");
       updateTranslations();
     }, 100);
-    
+
     setTimeout(() => {
-      console.log('🔄 Translation update at 500ms');
+      console.log("🔄 Translation update at 500ms");
       updateTranslations();
     }, 500);
-    
+
     setTimeout(() => {
-      console.log('🔄 Translation update at 1000ms');
+      console.log("🔄 Translation update at 1000ms");
       updateTranslations();
     }, 1000);
-    
+
     // Also apply translations when i18next is ready (in case it's still loading)
-    if (typeof i18next !== 'undefined') {
-      console.log('📚 Setting up i18next event listeners');
-      i18next.on('initialized', () => {
-        console.log('📚 i18next initialized event triggered');
+    if (typeof i18next !== "undefined") {
+      console.log("📚 Setting up i18next event listeners");
+      i18next.on("initialized", () => {
+        console.log("📚 i18next initialized event triggered");
         updateTranslations();
       });
-      i18next.on('languageChanged', () => {
-        console.log('📚 i18next languageChanged event triggered');
+      i18next.on("languageChanged", () => {
+        console.log("📚 i18next languageChanged event triggered");
         updateTranslations();
       });
     } else {
-      console.log('❌ i18next not available for event listeners');
+      console.log("❌ i18next not available for event listeners");
     }
-    
   } catch (error) {
-    console.error('Error loading returning customer modal:', error);
+    console.error("Error loading returning customer modal:", error);
   }
 }
 
@@ -2480,86 +2616,97 @@ async function markReturnGiftAsRedeemed() {
     // Get the phone number from the form
     let phoneInput = document.querySelector('input[name="customer_phone"]');
     if (!phoneInput) {
-      phoneInput = document.querySelector('#phone');
+      phoneInput = document.querySelector("#phone");
     }
     const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-    
+
     if (!phoneNumber) {
-      
       return;
     }
 
-    
-    
     // Call the API to mark return gift as redeemed
-    const response = await fetch('/api/spinning-wheels/mark-return-gift-redeemed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ phoneNumber: phoneNumber })
-    });
+    const response = await fetch(
+      "/api/spinning-wheels/mark-return-gift-redeemed",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phoneNumber: phoneNumber }),
+      }
+    );
 
     if (response.ok) {
-      
     } else {
-      console.error('Failed to mark return gift as redeemed:', response.statusText);
+      console.error(
+        "Failed to mark return gift as redeemed:",
+        response.statusText
+      );
     }
   } catch (error) {
-    console.error('Error marking return gift as redeemed:', error);
+    console.error("Error marking return gift as redeemed:", error);
   }
 }
 
 // Update modal translations
 function updateModalTranslations() {
-  const modal = document.getElementById('returningCustomerModal');
+  const modal = document.getElementById("returningCustomerModal");
   if (!modal) return;
 
   // Check if i18next is available
-  if (typeof i18next !== 'undefined' && i18next.t) {
+  if (typeof i18next !== "undefined" && i18next.t) {
     // Update title
-    const titleElement = modal.querySelector('.modal-title[data-i18n="wheel.welcome_back_title"]');
+    const titleElement = modal.querySelector(
+      '.modal-title[data-i18n="wheel.welcome_back_title"]'
+    );
     if (titleElement) {
-      const translatedTitle = i18next.t('wheel.welcome_back_title');
-      if (translatedTitle && translatedTitle !== 'wheel.welcome_back_title') {
+      const translatedTitle = i18next.t("wheel.welcome_back_title");
+      if (translatedTitle && translatedTitle !== "wheel.welcome_back_title") {
         titleElement.textContent = translatedTitle;
       }
     }
 
     // Update subtitle
-    const subtitleElement = modal.querySelector('.modal-subtitle[data-i18n="wheel.welcome_back_subtitle"]');
+    const subtitleElement = modal.querySelector(
+      '.modal-subtitle[data-i18n="wheel.welcome_back_subtitle"]'
+    );
     if (subtitleElement) {
-      const translatedSubtitle = i18next.t('wheel.welcome_back_subtitle');
-      if (translatedSubtitle && translatedSubtitle !== 'wheel.welcome_back_subtitle') {
+      const translatedSubtitle = i18next.t("wheel.welcome_back_subtitle");
+      if (
+        translatedSubtitle &&
+        translatedSubtitle !== "wheel.welcome_back_subtitle"
+      ) {
         subtitleElement.textContent = translatedSubtitle;
       }
     }
 
     // Update welcome message
-    const welcomeMessageElement = modal.querySelector('.welcome-message[data-i18n="wheel.welcome_message"]');
+    const welcomeMessageElement = modal.querySelector(
+      '.welcome-message[data-i18n="wheel.welcome_message"]'
+    );
     if (welcomeMessageElement) {
-      const translatedMessage = i18next.t('wheel.welcome_message');
-      if (translatedMessage && translatedMessage !== 'wheel.welcome_message') {
+      const translatedMessage = i18next.t("wheel.welcome_message");
+      if (translatedMessage && translatedMessage !== "wheel.welcome_message") {
         welcomeMessageElement.textContent = translatedMessage;
       }
     }
 
     // Update wheel button titles and descriptions
-    const wheelButtons = modal.querySelectorAll('.wheel-button');
-    wheelButtons.forEach(button => {
-      const titleElement = button.querySelector('div[data-i18n]');
-      const descElement = button.querySelector('.wheel-description[data-i18n]');
-      
-      if (titleElement && titleElement.getAttribute('data-i18n')) {
-        const titleKey = titleElement.getAttribute('data-i18n');
+    const wheelButtons = modal.querySelectorAll(".wheel-button");
+    wheelButtons.forEach((button) => {
+      const titleElement = button.querySelector("div[data-i18n]");
+      const descElement = button.querySelector(".wheel-description[data-i18n]");
+
+      if (titleElement && titleElement.getAttribute("data-i18n")) {
+        const titleKey = titleElement.getAttribute("data-i18n");
         const translatedTitle = i18next.t(titleKey);
         if (translatedTitle && translatedTitle !== titleKey) {
           titleElement.textContent = translatedTitle;
         }
       }
-      
-      if (descElement && descElement.getAttribute('data-i18n')) {
-        const descKey = descElement.getAttribute('data-i18n');
+
+      if (descElement && descElement.getAttribute("data-i18n")) {
+        const descKey = descElement.getAttribute("data-i18n");
         const translatedDesc = i18next.t(descKey);
         if (translatedDesc && translatedDesc !== descKey) {
           descElement.textContent = translatedDesc;
@@ -2571,67 +2718,71 @@ function updateModalTranslations() {
 
 // Show the returning customer modal
 function showReturningCustomerModal() {
-  console.log('👁️ showReturningCustomerModal called');
-  
-  const modal = document.getElementById('returningCustomerModal');
-  
+  console.log("👁️ showReturningCustomerModal called");
+
+  const modal = document.getElementById("returningCustomerModal");
+
   if (modal) {
-    console.log('✅ Modal element found, showing modal');
-    modal.classList.add('show');
-    document.body.classList.add('modal-open');
-    
+    console.log("✅ Modal element found, showing modal");
+    modal.classList.add("show");
+    document.body.classList.add("modal-open");
+
     // Update translations after modal is shown
     updateModalTranslations();
-    
-
   } else {
-    console.error('❌ Modal element not found!');
+    console.error("❌ Modal element not found!");
   }
 }
 
 // Clear returning customer session storage for a phone number
 function clearReturningCustomerSessionStorage(phoneNumber) {
   if (!phoneNumber) return;
-  
+
   // Clear all session storage keys that start with the phone number pattern
   const keysToRemove = [];
   for (let i = 0; i < sessionStorage.length; i++) {
     const key = sessionStorage.key(i);
-    if (key && key.startsWith(`hasShownReturningCustomerPopup_${phoneNumber}_`)) {
+    if (
+      key &&
+      key.startsWith(`hasShownReturningCustomerPopup_${phoneNumber}_`)
+    ) {
       keysToRemove.push(key);
     }
   }
-  
+
   // Remove all matching keys
-  keysToRemove.forEach(key => {
+  keysToRemove.forEach((key) => {
     sessionStorage.removeItem(key);
   });
 }
 
 // Debug function to check modal state
 function debugModalState() {
-  console.log('🔍 DEBUG: Checking modal state');
-  console.log('📄 Document ready state:', document.readyState);
-  console.log('🔍 Modal in DOM:', !!document.getElementById('returningCustomerModal'));
-  console.log('🌐 Current language:', localStorage.getItem('lang'));
-  console.log('📚 i18next available:', typeof i18next !== 'undefined');
-  if (typeof i18next !== 'undefined') {
-    console.log('📚 i18next initialized:', i18next.isInitialized);
-    console.log('📚 i18next language:', i18next.language);
+  console.log("🔍 DEBUG: Checking modal state");
+  console.log("📄 Document ready state:", document.readyState);
+  console.log(
+    "🔍 Modal in DOM:",
+    !!document.getElementById("returningCustomerModal")
+  );
+  console.log("🌐 Current language:", localStorage.getItem("lang"));
+  console.log("📚 i18next available:", typeof i18next !== "undefined");
+  if (typeof i18next !== "undefined") {
+    console.log("📚 i18next initialized:", i18next.isInitialized);
+    console.log("📚 i18next language:", i18next.language);
   }
 }
 
 // Run debug check when page loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', debugModalState);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", debugModalState);
 } else {
   debugModalState();
 }
 
 // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
 function convertDateFormatToISO(dateStr) {
-  if (!dateStr) return '';
-  const parts = dateStr.split('-');
+  if (!dateStr) return "";
+  const parts = dateStr.split("-");
   if (parts.length === 3) {
     return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
   }
