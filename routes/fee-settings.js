@@ -124,27 +124,22 @@ router.patch('/', authenticateToken, async (req, res) => {
     const results = [];
     const errors = [];
     
-    // First, let's check what exists in the database
-    const { data: existingSettings, error: fetchError } = await supabaseAdmin
-      .from('fee_settings')
-      .select('setting_key, amount')
-      .order('setting_key');
-    
-    if (fetchError) {
-      console.error('Error fetching existing settings:', fetchError);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    
-    
-    // Test if we can find a specific record
-    const testKey = 'outside_hours_fee';
-    const { data: testRecord, error: testError } = await supabaseAdmin
-      .from('fee_settings')
-      .select('*')
-      .eq('setting_key', testKey)
-      .single();
-    
-    
+    // Define default settings for missing ones
+    const defaultSettings = {
+      'chisinau_airport_dropoff': { setting_name: 'Chișinău Airport Drop-off Fee', amount: 15.00, description: 'Fee for dropping off car at Chișinău Airport' },
+      'chisinau_airport_pickup': { setting_name: 'Chișinău Airport Pickup Fee', amount: 15.00, description: 'Fee for picking up car from Chișinău Airport' },
+      'iasi_airport_dropoff': { setting_name: 'Iași Airport Drop-off Fee', amount: 20.00, description: 'Fee for dropping off car at Iași Airport' },
+      'iasi_airport_pickup': { setting_name: 'Iași Airport Pickup Fee', amount: 20.00, description: 'Fee for picking up car from Iași Airport' },
+      'office_dropoff': { setting_name: 'Office Drop-off Fee', amount: 0.00, description: 'Fee for dropping off car at office (usually free)' },
+      'office_pickup': { setting_name: 'Office Pickup Fee', amount: 0.00, description: 'Fee for picking up car from office (usually free)' },
+      'outside_hours_fee': { setting_name: 'Outside Working Hours Fee', amount: 25.00, description: 'Additional fee for pickup/dropoff outside working hours' },
+      'economy_price_min': { setting_name: 'Economy Price Minimum', amount: 30.00, description: 'Minimum price for economy cars' },
+      'economy_price_max': { setting_name: 'Economy Price Maximum', amount: 80.00, description: 'Maximum price for economy cars' },
+      'standard_price_min': { setting_name: 'Standard Price Minimum', amount: 80.00, description: 'Minimum price for standard cars' },
+      'standard_price_max': { setting_name: 'Standard Price Maximum', amount: 150.00, description: 'Maximum price for standard cars' },
+      'premium_price_min': { setting_name: 'Premium Price Minimum', amount: 150.00, description: 'Minimum price for premium cars' },
+      'premium_price_max': { setting_name: 'Premium Price Maximum', amount: 500.00, description: 'Maximum price for premium cars' }
+    };
     
     for (const setting of settings) {
       const { setting_key, amount, is_active, description } = setting;
@@ -156,34 +151,72 @@ router.patch('/', authenticateToken, async (req, res) => {
         continue;
       }
       
-      // Update the setting - force updated_at to ensure some change
-      const updateData = { 
-        amount: Number(amount), // Ensure it's a number
-        updated_at: new Date().toISOString() 
-      };
-      if (is_active !== undefined) updateData.is_active = is_active;
-      if (description !== undefined) updateData.description = description;
-      
-      
-      const { data, error: updateError } = await supabaseAdmin
-        .from('fee_settings')
-        .update(updateData)
-        .eq('setting_key', setting_key)
-        .select();
-      
-      
-      if (updateError) {
-        console.error(`Update error for ${setting_key}:`, updateError);
-        errors.push({ setting_key, error: updateError.message });
-      } else {
-        // Check if the record was actually found and updated
-        if (data && data.length > 0) {
-          
+      try {
+        // First, try to update the existing setting
+        const updateData = { 
+          amount: Number(amount),
+          updated_at: new Date().toISOString() 
+        };
+        if (is_active !== undefined) updateData.is_active = is_active;
+        if (description !== undefined) updateData.description = description;
+        
+        const { data, error: updateError } = await supabaseAdmin
+          .from('fee_settings')
+          .update(updateData)
+          .eq('setting_key', setting_key)
+          .select();
+        
+        if (updateError) {
+          console.error(`Update error for ${setting_key}:`, updateError);
+          errors.push({ setting_key, error: updateError.message });
+        } else if (data && data.length > 0) {
+          // Update successful
           results.push(data[0]);
         } else {
-          // No data returned - this means the record wasn't found
-          errors.push({ setting_key, error: 'Setting not found' });
+          // Setting doesn't exist, create it
+          const defaultSetting = defaultSettings[setting_key];
+          if (defaultSetting) {
+            const { data: newData, error: insertError } = await supabaseAdmin
+              .from('fee_settings')
+              .insert([{
+                setting_key,
+                setting_name: defaultSetting.setting_name,
+                amount: Number(amount),
+                is_active: is_active !== undefined ? is_active : true,
+                description: description || defaultSetting.description
+              }])
+              .select();
+            
+            if (insertError) {
+              console.error(`Insert error for ${setting_key}:`, insertError);
+              errors.push({ setting_key, error: insertError.message });
+            } else if (newData && newData.length > 0) {
+              results.push(newData[0]);
+            }
+          } else {
+            // No default setting defined, create a basic one
+            const { data: newData, error: insertError } = await supabaseAdmin
+              .from('fee_settings')
+              .insert([{
+                setting_key,
+                setting_name: setting_key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                amount: Number(amount),
+                is_active: is_active !== undefined ? is_active : true,
+                description: description || `Fee setting for ${setting_key}`
+              }])
+              .select();
+            
+            if (insertError) {
+              console.error(`Insert error for ${setting_key}:`, insertError);
+              errors.push({ setting_key, error: insertError.message });
+            } else if (newData && newData.length > 0) {
+              results.push(newData[0]);
+            }
+          }
         }
+      } catch (settingError) {
+        console.error(`Error processing setting ${setting_key}:`, settingError);
+        errors.push({ setting_key, error: settingError.message });
       }
     }
     
@@ -204,6 +237,85 @@ router.patch('/', authenticateToken, async (req, res) => {
     
   } catch (error) {
     console.error('Error in PATCH /fee-settings (bulk):', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Initialize missing fee settings (Admin only)
+router.post('/initialize', authenticateToken, async (req, res) => {
+  try {
+    // Define all the fee settings that should exist
+    const allFeeSettings = [
+      // Airport fees
+      { setting_key: 'chisinau_airport_dropoff', setting_name: 'Chișinău Airport Drop-off Fee', amount: 15.00, description: 'Fee for dropping off car at Chișinău Airport' },
+      { setting_key: 'chisinau_airport_pickup', setting_name: 'Chișinău Airport Pickup Fee', amount: 15.00, description: 'Fee for picking up car from Chișinău Airport' },
+      { setting_key: 'iasi_airport_dropoff', setting_name: 'Iași Airport Drop-off Fee', amount: 20.00, description: 'Fee for dropping off car at Iași Airport' },
+      { setting_key: 'iasi_airport_pickup', setting_name: 'Iași Airport Pickup Fee', amount: 20.00, description: 'Fee for picking up car from Iași Airport' },
+      
+      // Office fees
+      { setting_key: 'office_dropoff', setting_name: 'Office Drop-off Fee', amount: 0.00, description: 'Fee for dropping off car at office (usually free)' },
+      { setting_key: 'office_pickup', setting_name: 'Office Pickup Fee', amount: 0.00, description: 'Fee for picking up car from office (usually free)' },
+      
+      // Time-based fees
+      { setting_key: 'outside_hours_fee', setting_name: 'Outside Working Hours Fee', amount: 25.00, description: 'Additional fee for pickup/dropoff outside working hours' },
+      
+      // Price filter settings
+      { setting_key: 'economy_price_min', setting_name: 'Economy Price Minimum', amount: 30.00, description: 'Minimum price for economy cars' },
+      { setting_key: 'economy_price_max', setting_name: 'Economy Price Maximum', amount: 80.00, description: 'Maximum price for economy cars' },
+      { setting_key: 'standard_price_min', setting_name: 'Standard Price Minimum', amount: 80.00, description: 'Minimum price for standard cars' },
+      { setting_key: 'standard_price_max', setting_name: 'Standard Price Maximum', amount: 150.00, description: 'Maximum price for standard cars' },
+      { setting_key: 'premium_price_min', setting_name: 'Premium Price Minimum', amount: 150.00, description: 'Minimum price for premium cars' },
+      { setting_key: 'premium_price_max', setting_name: 'Premium Price Maximum', amount: 500.00, description: 'Maximum price for premium cars' },
+      
+      // Existing settings (keep these as they are)
+      { setting_key: 'delivery_fee', setting_name: 'Delivery Fee', amount: 25.00, description: 'Fee for car delivery to customer location' },
+      { setting_key: 'late_return_fee', setting_name: 'Late Return Fee', amount: 50.00, description: 'Fee for returning car after scheduled time' },
+      { setting_key: 'cleaning_fee', setting_name: 'Cleaning Fee', amount: 30.00, description: 'Fee for excessive cleaning required' },
+      { setting_key: 'fuel_fee', setting_name: 'Fuel Fee', amount: 15.00, description: 'Fee for refueling service' },
+      { setting_key: 'insurance_deposit', setting_name: 'Insurance Deposit', amount: 200.00, description: 'Refundable insurance deposit' }
+    ];
+
+    // Check what settings already exist
+    const { data: existingSettings, error: fetchError } = await supabaseAdmin
+      .from('fee_settings')
+      .select('setting_key');
+    
+    if (fetchError) {
+      console.error('Error fetching existing settings:', fetchError);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    const existingKeys = existingSettings.map(s => s.setting_key);
+    
+    // Filter out settings that already exist
+    const newSettings = allFeeSettings.filter(setting => !existingKeys.includes(setting.setting_key));
+    
+    if (newSettings.length === 0) {
+      return res.json({ 
+        success: true, 
+        message: 'All fee settings already exist in database',
+        data: existingSettings
+      });
+    }
+    
+    // Insert new settings
+    const { data, error } = await supabaseAdmin
+      .from('fee_settings')
+      .insert(newSettings);
+    
+    if (error) {
+      console.error('Error inserting fee settings:', error);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Successfully initialized ${newSettings.length} fee settings`,
+      data: newSettings
+    });
+    
+  } catch (error) {
+    console.error('Error in POST /fee-settings/initialize:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
