@@ -1,5 +1,5 @@
 -- =====================================================
--- RENTALY DATABASE SCHEMA - COMPLETE RECREATION
+-- PLUSRENT DATABASE SCHEMA - COMPLETE RECREATION
 -- =====================================================
 -- This file recreates the entire Supabase database structure
 -- Generated from current production database schema
@@ -274,7 +274,7 @@ INSERT INTO fee_settings (setting_key, setting_name, amount, currency, descripti
 
 -- Sample Admin User
 INSERT INTO admin_users (username, password_hash, email) VALUES
-('admin', '$2b$10$rQZ8K9mN2pL3sT4uV5wX6yZ7aB8cD9eF0gH1iJ2kL3mN4oP5qR6sT7uV8wX9yZ', 'admin@rentaly.com');
+('admin', '$2b$10$rQZ8K9mN2pL3sT4uV5wX6yZ7aB8cD9eF0gH1iJ2kL3mN4oP5qR6sT7uV8wX9yZ', 'admin@plusrent.com');
 
 -- Sample Phone Numbers (with coupon data)
 INSERT INTO phone_numbers (phone_number, bookings_ids, available_coupons, redeemed_coupons, return_gift_redeemed) VALUES
@@ -342,7 +342,7 @@ CREATE POLICY "Allow all operations on sober_driver_callbacks" ON sober_driver_c
 DO $$
 BEGIN
     RAISE NOTICE '=====================================================';
-    RAISE NOTICE 'RENTALY DATABASE SCHEMA CREATED SUCCESSFULLY!';
+    RAISE NOTICE 'PLUSRENT DATABASE SCHEMA CREATED SUCCESSFULLY!';
     RAISE NOTICE '=====================================================';
     RAISE NOTICE 'Tables created: 11';
     RAISE NOTICE 'Indexes created: 20+';

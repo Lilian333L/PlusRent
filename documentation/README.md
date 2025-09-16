@@ -1,11 +1,11 @@
-# Rentaly - Car Rental Website
+# PlusRent - Car Rental Website
 
 A modern car rental website with admin panel and authentication system.
 
 ## 🏗️ **Project Structure**
 
 ```
-Rentaly/
+PlusRent/
 ├── server.js                 # Main server file
 ├── config/
 │   └── database.js          # Database configuration
@@ -20,7 +20,7 @@ Rentaly/
 ├── scripts/
 │   └── create-admin.js      # Admin user creation script
 ├── uploads/                 # Car images storage
-└── Rentaly HTML/            # Frontend files
+└── PlusRent HTML/            # Frontend files
     ├── index.html           # Homepage
     ├── cars.html            # Car listing
     ├── car-single.html      # Single car details
@@ -269,7 +269,7 @@ This application is configured for deployment on Vercel with the following setup
 
 - **Framework**: Node.js
 - **Build Command**: `npm install`
-- **Output Directory**: Static files served from `Rentaly HTML/`
+- **Output Directory**: Static files served from `PlusRent HTML/`
 - **Environment Variables**: Configured for Supabase integration
 - **Database**: Supabase PostgreSQL with REST API
 

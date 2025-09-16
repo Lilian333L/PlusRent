@@ -94,7 +94,7 @@ If you encounter issues:
 
 1. **Test the local server** (already working)
 2. **Deploy to Vercel** using one of the methods above
-3. **Update the API base URL** in `Rentaly HTML/js/config.js` if needed
+3. **Update the API base URL** in `PlusRent HTML/js/config.js` if needed
 4. **Test the production deployment**
 
 The local server is fully functional and ready for deployment! 
