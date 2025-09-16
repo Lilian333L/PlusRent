@@ -55,9 +55,25 @@ function updateContent() {
   document.querySelectorAll('[data-i18n]').forEach(function(element) {
     const key = element.getAttribute('data-i18n');
     if (i18next.exists(key)) {
-      const translation = i18next.t(key);
+      // Check for interpolation options
+      let options = {};
+      const optionsAttr = element.getAttribute('data-i18n-options');
+      if (optionsAttr) {
+        try {
+          options = JSON.parse(optionsAttr);
+        } catch (e) {
+          console.warn('Invalid data-i18n-options JSON:', optionsAttr);
+        }
+      }
+      
+      const translation = i18next.t(key, options);
       if (element.childNodes.length === 0) {
-        element.textContent = translation;
+        // Check if translation contains HTML tags
+        if (translation.includes('<') && translation.includes('>')) {
+          element.innerHTML = translation;
+        } else {
+          element.textContent = translation;
+        }
       } else {
         // Only update text nodes, preserve other elements
         Array.from(element.childNodes).forEach(function(node) {
@@ -93,7 +109,21 @@ function updateContent() {
   });
   
   updateLangPickerUI();
-  highlightAboutOffer();
+  updateAboutHeading();
+}
+
+// Function to handle the about heading specifically
+function updateAboutHeading() {
+  const heading = document.getElementById('about-offer-heading');
+  if (heading && typeof i18next !== 'undefined') {
+    const start = i18next.t('about.offer_complete');
+    const commercial = i18next.t('about.offer_commercial');
+    const luxury = i18next.t('about.offer_luxury');
+    const end = i18next.t('about.offer_end');
+    const and = i18next.t('about.and');
+    
+    heading.innerHTML = `${start} <span class="id-color">${commercial}</span> ${and} <span class="id-color">${luxury}</span> ${end}`;
+  }
 }
 
 function updateLangPickerUI() {
@@ -150,7 +180,7 @@ function setupI18nEvents() {
     updateContent();
     localStorage.setItem('lang', i18next.language);
     updateLangPickerUI();
-    highlightAboutOffer();
+    updateAboutHeading();
     
     // Re-update price breakdown with new language
     if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
@@ -448,7 +478,12 @@ function loadFallbackTranslations(lang) {
               el.value = value;
             }
           } else {
-            el.innerHTML = value;
+            // Check if value contains HTML tags
+            if (value.includes('<') && value.includes('>')) {
+              el.innerHTML = value;
+            } else {
+              el.textContent = value;
+            }
           }
         } else {
           Array.from(el.childNodes).forEach(function(node) {
@@ -462,36 +497,6 @@ function loadFallbackTranslations(lang) {
   }
 }
 
-// Function to handle About Us page offer text translation and highlighting
-function highlightAboutOffer() {
-  const aboutOfferH2 = document.querySelector('h2:not([data-i18n])');
-  if (aboutOfferH2 && aboutOfferH2.textContent.includes('We offer customers')) {
-    const currentLang = i18next.language || 'ro';
-    
-    let offerText, commercialCars, luxuryCars;
-    
-    if (currentLang === 'ro') {
-      offerText = 'Oferim clienților o gamă largă de mașini comerciale și mașini de lux pentru orice ocazie.';
-      commercialCars = 'mașini comerciale';
-      luxuryCars = 'mașini de lux';
-    } else if (currentLang === 'ru') {
-      offerText = 'Мы предлагаем клиентам широкий выбор коммерческих автомобилей и автомобилей класса люкс для любого случая.';
-      commercialCars = 'коммерческих автомобилей';
-      luxuryCars = 'автомобилей класса люкс';
-    } else {
-      offerText = 'We offer customers a wide range of commercial cars and luxury cars for any occasion.';
-      commercialCars = 'commercial cars';
-      luxuryCars = 'luxury cars';
-    }
-    
-    // Replace the text with highlighted versions
-    let highlightedText = offerText
-      .replace(commercialCars, `<span class="id-color">${commercialCars}</span>`)
-      .replace(luxuryCars, `<span class="id-color">${luxuryCars}</span>`);
-    
-    aboutOfferH2.innerHTML = highlightedText;
-  }
-}
 
 // Start the initialization with enhanced fallback strategies
 initializeI18nWithFallbacks(); 
