@@ -675,7 +675,7 @@ router.get('/validate/:code', async (req, res) => {
         if (now > expiryDate) {
           return res.json({ valid: false, message: 'Coupon has expired' });
         }
-      }
+      } 
       
       
       res.json({ 
