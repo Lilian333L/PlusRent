@@ -350,7 +350,7 @@ class GlobalBookingSystem {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
         this.showCouponMessage(
-          result.message || result.error || "Invalid coupon code",
+          i18next.t(result.message) || result.error || i18next.t('coupons.invalid_code'),
           "error"
         );
         
