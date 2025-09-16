@@ -992,7 +992,7 @@ async function calculateModalPrice() {
     locationFees += modalFeeSettings.iasi_airport_dropoff || 35;
   } else {
     locationFees += modalFeeSettings.office_dropoff || 0;
-  }
+  } 
 
   // Calculate outside hours fees
   let outsideHoursFees = 0;
