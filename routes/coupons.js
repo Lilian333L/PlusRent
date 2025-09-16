@@ -638,10 +638,12 @@ router.get('/validate-redemption/:code', async (req, res) => {
       
       res.json({ 
         valid: true, 
+        type: validCoupon.type,
         discount_percentage: validCoupon.discount_percentage,
+        free_days: validCoupon.free_days,
         description: validCoupon.description,
         coupon_id: validCoupon.id,
-        redemption_code: code
+        redemption_code: code      
       });
       
     } catch (error) {

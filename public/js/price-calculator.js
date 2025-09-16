@@ -188,22 +188,27 @@ class PriceCalculator {
       return totalPrice;
     }
 
-    // Check if we have cached validation data for this coupon
     if (
       window.cachedCouponData &&
       window.lastValidatedCouponCode === discountCode.trim()
     ) {
-      const discountPercentage = parseFloat(
-        window.cachedCouponData.discount_percentage || 0
-      );
-
-      if (discountPercentage > 0) {
-        const discountAmount = totalPrice * (discountPercentage / 100);
-
-        return totalPrice - discountAmount;
+      // Handle percentage discount
+      if (window.cachedCouponData.type === "percentage") {
+        const discountPercentage = parseFloat(
+          window.cachedCouponData.discount_percentage || 0
+        );
+        if (discountPercentage > 0) {
+          const discountAmount = totalPrice * (discountPercentage / 100);
+          return totalPrice - discountAmount;
+        }
+      } else if (window.cachedCouponData.type === "free_days") {
+        const freeDays = parseInt(window.cachedCouponData.free_days || 0);
+        if (freeDays > 0) {
+          // Don't show message here - it will be shown in price breakdown
+          return totalPrice; // Return original price without discount
+        }
       }
     }
-
     return totalPrice;
   }
 
@@ -532,7 +537,32 @@ class PriceCalculator {
         2
       )}€</span></div>`;
     }
+    if (priceData.discountAmount > 0) {
+      const discountCode =
+        document.querySelector('input[name="discount_code"]')?.value || "";
+      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(
+        "price_calculator.discount_code"
+      )} (${discountCode})</span><span>-${priceData.discountAmount.toFixed(
+        2
+      )}€</span></div>`;
+    }
 
+    if (
+      window.cachedCouponData &&
+      window.cachedCouponData.type === "free_days"
+    ) {
+      const freeDays = parseInt(window.cachedCouponData.free_days || 0);
+      if (freeDays > 0) {
+        const message =
+          freeDays === 1
+            ? i18next.t("coupons.free_days_handled_in_office_singular")
+            : i18next.t("coupons.free_days_handled_in_office_plural", {
+                days: freeDays,
+              });
+
+        this.showFloatingFreeDaysNotification(freeDays, message);
+      }
+    }
     // Add total
     html += '<div style="border-top: 1px solid #ddd; margin: 12px 0;"></div>';
     html += `<div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px;"><span>${i18next.t(
@@ -541,6 +571,112 @@ class PriceCalculator {
 
     html += "</div>";
     priceContainer.innerHTML = html;
+  }
+  // Add this method to the PriceCalculator class:
+  showFloatingFreeDaysNotification(freeDays, message) {
+    // Remove any existing notification
+    const existingNotification = document.getElementById(
+      "free-days-notification"
+    );
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+
+    // Create the floating notification
+    const notification = document.createElement("div");
+    notification.id = "free-days-notification";
+    notification.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      border: 2px solid #1e7e34;
+      border-radius: 12px;
+      padding: 16px;
+      color: white;
+      box-shadow: 0 8px 16px rgba(40, 167, 69, 0.4);
+      z-index: 9999;
+      min-width: 200px;
+      animation: slideInFromRight 0.5s ease-out;
+      cursor: pointer;
+    ">
+      <div style="
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 6px;
+      ">
+        <span>${freeDays} Free Day${freeDays > 1 ? "s" : ""} Included</span>
+      </div>
+      <div style="
+        font-size: 13px;
+        opacity: 0.9;
+        font-style: italic;
+        text-align: center;
+      ">
+        Processed in our office
+      </div>
+      <div style="
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        cursor: pointer;
+      " onclick="this.parentElement.parentElement.remove()">
+        ×
+      </div>
+    </div>
+  `;
+
+    // Add CSS animation
+    const style = document.createElement("style");
+    style.textContent = `
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+    document.head.appendChild(style);
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (notification && notification.parentElement) {
+        notification.style.animation = "slideInFromRight 0.5s ease-out reverse";
+        // setTimeout(() => {
+        //   if (notification && notification.parentElement) {
+        //     notification.remove();
+        //   }
+        // }, 500);
+      }
+    }, 10000);
+  }
+
+  hideFloatingFreeDaysNotification() {
+    const existingNotification = document.getElementById(
+      "free-days-notification"
+    );
+    if (existingNotification) {
+      existingNotification.remove();
+    }
   }
 
   // Update outside hours notice
@@ -559,13 +695,21 @@ class PriceCalculator {
     // Check pickup time
     if (pickupHour < 8 || pickupHour >= 18) {
       isOutsideHours = true;
-      detailsText += `• ${i18next.t('price_calculator.pickup_at')} ${pickupTime} (${i18next.t('price_calculator.outside_working_hours')})<br>`;
+      detailsText += `• ${i18next.t(
+        "price_calculator.pickup_at"
+      )} ${pickupTime} (${i18next.t(
+        "price_calculator.outside_working_hours"
+      )})<br>`;
     }
 
     // Check return time
     if (returnHour < 8 || returnHour >= 18) {
       isOutsideHours = true;
-      detailsText += `• ${i18next.t('price_calculator.return_at')} ${returnTime} (${i18next.t('price_calculator.outside_working_hours')})<br>`;
+      detailsText += `• ${i18next.t(
+        "price_calculator.return_at"
+      )} ${returnTime} (${i18next.t(
+        "price_calculator.outside_working_hours"
+      )})<br>`;
     }
 
     if (isOutsideHours) {
@@ -979,7 +1123,6 @@ class PriceCalculator {
     return radio ? radio.value : null;
   }
 
-  // Calculate discount amount for display
   calculateDiscountAmount(totalPrice, discountCode) {
     if (!discountCode || discountCode.trim() === "") {
       return 0;
@@ -989,11 +1132,27 @@ class PriceCalculator {
       window.cachedCouponData &&
       window.lastValidatedCouponCode === discountCode.trim()
     ) {
-      const discountPercentage = parseFloat(
-        window.cachedCouponData.discount_percentage || 0
-      );
-      if (discountPercentage > 0) {
-        return totalPrice * (discountPercentage / 100);
+      // Handle percentage discount
+      if (window.cachedCouponData.type === "percentage") {
+        const discountPercentage = parseFloat(
+          window.cachedCouponData.discount_percentage || 0
+        );
+        if (discountPercentage > 0) {
+          return totalPrice * (discountPercentage / 100);
+        }
+      }
+
+      // Handle free days discount - return 0 (no discount applied)
+      else if (window.cachedCouponData.type === "free_days") {
+        console.log("Free days discount");
+        const freeDays = parseInt(window.cachedCouponData.free_days || 0);
+        if (freeDays > 0) {
+          // Show message that free days will be handled in office
+          // const message = i18next.t('coupons.free_days_handled_in_office', { days: freeDays }) ||
+          //                `${freeDays} free day${freeDays > 1 ? 's' : ''} will be handled in our office`;
+          // this.showDiscountMessage(message, "info");
+          return 0; // Return 0 discount amount
+        }
       }
     }
 

@@ -831,13 +831,15 @@
                         style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 6px; margin-top: 8px; font-size: 10px;">
                         <div style="display: flex; align-items: center; gap: 3px; margin-bottom: 2px;">
                           <i class="fa fa-clock-o" style="color: #856404; font-size: 10px;"></i>
-                          <strong style="color: #856404; font-size: 10px;" data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
+                          <strong style="color: #856404; font-size: 10px;"
+                            data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
                         </div>
                         <div id="outside-hours-details" style="font-size: 11px; color: #856404; margin-bottom: 2px;">
                         </div>
                         <div style="font-size: 10px; color: #856404;">
-                          <strong data-i18n="price_calculator.working_hours">Working Hours:</strong> 08:00 - 18:00 | <strong data-i18n="price_calculator.fee">Fee:</strong> <span
-                            id="outside-hours-fee" >€15</span> <span data-i18n="price_calculator.per_pickup_return"></span>  
+                          <strong data-i18n="price_calculator.working_hours">Working Hours:</strong> 08:00 - 18:00 |
+                          <strong data-i18n="price_calculator.fee">Fee:</strong> <span id="outside-hours-fee">€15</span>
+                          <span data-i18n="price_calculator.per_pickup_return"></span>
                         </div>
                       </div>
                     </div>
@@ -1041,9 +1043,9 @@
   <script src="js/validation-booking.js"></script>
   <script src="js/global-booking.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-  
+
   <script>
-    
+
     // Global formatting function
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
@@ -1208,14 +1210,14 @@
         returnInputId: "date-picker-2",
         carId: carId || null,  // Ensure it's always a value
         dateFormat: "d-m-Y",
-        onDateChange: function() {
+        onDateChange: function () {
           // Trigger price calculator when dates change
           if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === "function") {
             window.priceCalculator.recalculatePrice();
           }
         }
       });
-      
+
       // Initialize the date picker
       datePickerManager.initialize();
 
@@ -1688,7 +1690,16 @@
       }
 
 
-
+      if (window.priceCalculator) {
+        console.log("window.priceCalculator", window.priceCalculator);
+        const discountInput = document.querySelector('input[name="discount_code"]');
+        if (discountInput && discountInput.value.trim().length >= 3) {
+          setTimeout(() => {
+            // Trigger blur event to validate the coupon
+            discountInput.dispatchEvent(new Event('blur'));
+          }, 500);
+        }
+      }
       // Accordion functionality for mobile devices - only first 3 sections
       function initializeAccordion() {
 
@@ -1700,18 +1711,6 @@
 
           return mobile;
         }
-
-        // Function to apply mobile/desktop states
-        // function applyResponsiveState() {
-        //   const mobile = isMobile();
-
-        //   bookingSections.forEach((section, index) => {
-
-        //     // All sections expanded by default on both mobile and desktop
-        //     section.classList.remove('collapsed');
-
-        //   });
-        // }
 
         bookingSections.forEach((section, index) => {
           const title = section.querySelector('h5');
@@ -1736,27 +1735,6 @@
             });
           }
         });
-
-        // Apply initial state
-
-        // applyResponsiveState();
-
-        // Handle window resize and orientation change
-        // window.addEventListener('resize', function () {
-
-        //   applyResponsiveState();
-        // });
-        // window.addEventListener('orientationchange', function () {
-
-        //   applyResponsiveState();
-        // });
-
-        // Also listen for media query changes (for responsive mode)
-        // const mediaQuery = window.matchMedia('(max-width: 767px)');
-        // mediaQuery.addEventListener('change', function (e) {
-
-        //   applyResponsiveState();
-        // });
       }
 
       // Add coupon change detection
@@ -1764,7 +1742,7 @@
 
       if (discountInput) {
         let validationTimeout;
-        
+
         discountInput.addEventListener('input', function () {
           // Clear cached data when user types
           if (window.cachedCouponData) {
@@ -1776,60 +1754,72 @@
           if (validationTimeout) {
             clearTimeout(validationTimeout);
           }
-
+          if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
+            window.priceCalculator.hideFloatingFreeDaysNotification();
+          }
           // Recalculate price immediately (without discount)
           if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
             window.priceCalculator.recalculatePrice();
           } else {
           }
         });
-        
+
         // Add blur event for coupon validation
-        discountInput.addEventListener('blur', async function() {
+        discountInput.addEventListener('blur', async function () {
           const code = this.value.trim();
-          
+
           if (code && code.length >= 3) {
             try {
-              
+
               // First try redemption code validation (for individual codes)
               let response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code}`);
-              
+
               let result = await response.json();
-              
+
               if (!result.valid) {
                 // If redemption validation fails, try regular coupon validation
                 response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
-                
+
                 result = await response.json();
               }
-              
+
               if (result.valid) {
                 this.classList.remove("is-invalid");
                 this.classList.add("is-valid");
-                
+                console.log("Coupon valid", result);
                 // Store coupon data globally
                 window.cachedCouponData = result;
                 window.lastValidatedCouponCode = code;
-                  
+
+                const existingMessage = document.querySelector(".coupon-message");
+                if (existingMessage) {
+                  existingMessage.remove();
+                }
                 // Recalculate price with discount
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
                   window.priceCalculator.recalculatePrice();
                 } else {
+                  console.log("Price calculator not found");
                 }
               } else {
                 this.classList.remove("is-valid");
                 this.classList.add("is-invalid");
-                
+                if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
+                  window.priceCalculator.hideFloatingFreeDaysNotification();
+                }
                 // Clear coupon data
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
-                
+
               }
             } catch (error) {
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
             }
           } else if (code.length === 0) {
+            if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
+              window.priceCalculator.hideFloatingFreeDaysNotification();
+            }
             // Clear validation state when input is empty
             this.classList.remove("is-valid", "is-invalid");
             window.cachedCouponData = null;
@@ -1837,15 +1827,15 @@
           } else {
           }
         });
-        
+
         // Add click event for testing
-        discountInput.addEventListener('click', function() {
+        discountInput.addEventListener('click', function () {
         });
-        
+
         // Add focus event for testing
-        discountInput.addEventListener('focus', function() {
+        discountInput.addEventListener('focus', function () {
         });
-        
+
       } else {
       }
     });
@@ -2651,23 +2641,23 @@
   </script>
 
   <script>
-            const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
-        const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
-        pickupLocationInputs.forEach(input => {
-          input.addEventListener('change', function () {
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        });
-        
-        dropoffLocationInputs.forEach(input => {
-          input.addEventListener('change', function () {
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        });
+    const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
+    const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+    pickupLocationInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+          window.priceCalculator.recalculatePrice();
+        }
+      });
+    });
+
+    dropoffLocationInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+          window.priceCalculator.recalculatePrice();
+        }
+      });
+    });
 
     // Ensure date inputs display properly and set up event listeners after price calculator is ready
     // setTimeout(() => {
@@ -2680,24 +2670,24 @@
     //   const pickupTimeSelect = document.getElementById('pickup-time');
     //   const returnTimeSelect = document.getElementById('collection-time');
 
-      // Function to update outside hours notice
-      // function updateOutsideHoursNotice() {
-      //   console.log("updateOutsideHoursNotice");
-      //   if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
-      //     const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
-      //     const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
-      //     window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
-      //   }
-      // }
+    // Function to update outside hours notice
+    // function updateOutsideHoursNotice() {
+    //   console.log("updateOutsideHoursNotice");
+    //   if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
+    //     const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
+    //     const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
+    //     window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
+    //   }
+    // }
 
-      // Only set up event listeners if price calculator is ready
-      // if (window.priceCalculator && window.currentCarData) {
-      //   // Set up time change listeners (these don't conflict with Flatpickr)
-      //   if (pickupTimeSelect) {
-      //     pickupTimeSelect.addEventListener('change', function () {
-      //       updateOutsideHoursNotice();
-      //     });
-      //   }
+    // Only set up event listeners if price calculator is ready
+    // if (window.priceCalculator && window.currentCarData) {
+    //   // Set up time change listeners (these don't conflict with Flatpickr)
+    //   if (pickupTimeSelect) {
+    //     pickupTimeSelect.addEventListener('change', function () {
+    //       updateOutsideHoursNotice();
+    //     });
+    //   }
 
     //     if (returnTimeSelect) {
     //       returnTimeSelect.addEventListener('change', function () {
