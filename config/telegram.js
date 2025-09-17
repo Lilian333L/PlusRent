@@ -115,31 +115,49 @@ class TelegramNotifier {
 
   formatBookingMessage(bookingData) {
     return `
-📋 <b>New Booking Request</b>
-
-<b>Customer Details:</b>
-• Name: ${bookingData.contact_person || 'Not provided'}
-• Phone: ${bookingData.contact_phone || 'Not provided'}
-• Email: ${bookingData.email || 'Not provided'}
-• Age: ${bookingData.age || 'Not provided'}
-
-<b>Car Details:</b>
-• Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
-
-<b>Booking Details:</b>
-• Pickup: ${this.formatDate(bookingData.pickup_date)} at ${bookingData.pickup_time}
-• Return: ${this.formatDate(bookingData.return_date)} at ${bookingData.return_time}
-• Pickup Location: ${bookingData.pickup_location}
-• Dropoff Location: ${bookingData.dropoff_location}
-
-• Total Price: €${bookingData.total_price}
-${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
-
-<b>Special Instructions:</b>
-${bookingData.special_instructions || 'None provided'}
-
-⏰ Booked at: ${new Date().toLocaleString()}
-    `;
+  �� <b>New Booking Request</b>
+  
+  <b>Customer Details:</b>
+  • Name: ${bookingData.contact_person || 'Not provided'}
+  • Phone: ${bookingData.contact_phone || 'Not provided'}
+  • Email: ${bookingData.email || 'Not provided'}
+  • Age: ${bookingData.age || 'Not provided'}
+  
+  <b>Car Details:</b>
+  • Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
+  
+  <b>Booking Details:</b>
+  • Pickup: ${this.formatDate(bookingData.pickup_date)} at ${bookingData.pickup_time}
+  • Return: ${this.formatDate(bookingData.return_date)} at ${bookingData.return_time}
+  • Pickup Location: ${bookingData.pickup_location}
+  • Dropoff Location: ${bookingData.dropoff_location}
+  
+  • Total Price: €${bookingData.total_price}
+  ${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
+  ${bookingData.coupon_details ? this.formatCouponDetails(bookingData.coupon_details) : ''}
+  
+  <b>Special Instructions:</b>
+  ${bookingData.special_instructions || 'None provided'}
+  
+  ⏰ Booked at: ${new Date().toLocaleString()}
+      `;
+  }
+  
+  // Add this new method to format coupon details:
+  formatCouponDetails(couponDetails) {
+    if (!couponDetails) return '';
+    
+    let details = '\n<b>Coupon Details:</b>';
+    
+    if (couponDetails.type === 'percentage' && couponDetails.discount_percentage) {
+      details += `\n• Discount: ${couponDetails.discount_percentage}%`;
+    }
+    
+    if (couponDetails.type === 'free_days' && couponDetails.free_days) {
+      details += `\n• Free Days: ${couponDetails.free_days} day${couponDetails.free_days > 1 ? 's' : ''}`;
+    }
+    
+    return details;
   }
 
   formatCouponAddedMessage(couponData) {

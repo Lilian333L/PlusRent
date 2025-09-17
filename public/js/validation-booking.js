@@ -826,54 +826,81 @@ async function openPriceCalculator() {
 
       const apiBaseUrl = window.API_BASE_URL || "";
 
-      // Step 1: Validate coupon code without phone
-      let response = await fetch(
-        `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
-      );
-      let result = await response.json();
+      // Use the new lookup endpoint
+      const lookupUrl = customerPhone
+        ? `${apiBaseUrl}/api/coupons/lookup/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+        : `${apiBaseUrl}/api/coupons/lookup/${couponCode}`;
 
-      if (!result.valid) {
+      const response = await fetch(lookupUrl);
+      const result = await response.json();
+      console.log('Coupon lookup response:', response);
+      if (result.valid) {
+        // Coupon is valid - cache the data
+        cachedCouponData = result;
+        lastValidatedCouponCode = couponCode;
+        $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
+        console.log('Coupon is valid:', result);
+        // Show free days notification if applicable
+        if (result.free_days != null && result.free_days > 0) {
+          const freeDays = parseInt(result.free_days || 0);
+          const message =
+            freeDays === 1
+              ? i18next.t("coupons.free_days_handled_in_office_singular")
+              : i18next.t("coupons.free_days_handled_in_office_plural", {
+                  days: freeDays,
+                });
+          showFloatingFreeDaysNotification(freeDays, message);
+        }
+        
+        calculateModalPrice();
+      } else {
         $("#modal-discount-code")
           .removeClass("is-valid")
           .addClass("is-invalid");
         cachedCouponData = null;
         lastValidatedCouponCode = null;
+        
+        // Hide any existing free days notification
+        hideFloatingFreeDaysNotification();
+        
         calculateModalPrice();
-        return;
       }
-
-      // Step 2: Validate with phone if available
-      if (customerPhone) {
-        response = await fetch(
-          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(
-            customerPhone
-          )}`
-        );
-        result = await response.json();
-
-        if (!result.valid) {
-          $("#modal-discount-code")
-            .removeClass("is-valid")
-            .addClass("is-invalid");
-          cachedCouponData = null;
-          lastValidatedCouponCode = null;
-          calculateModalPrice();
-          return;
-        }
-      }
-
-      // Coupon is valid - cache the data
-      cachedCouponData = result;
-      lastValidatedCouponCode = couponCode;
-      $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
-      calculateModalPrice();
     } catch (error) {
       $("#modal-discount-code").removeClass("is-valid is-invalid");
       cachedCouponData = null;
       lastValidatedCouponCode = null;
+      
+      // Hide any existing free days notification
+      hideFloatingFreeDaysNotification();
+      
       calculateModalPrice();
     }
   }
+    // Check if there's already a coupon code in the input field and validate it
+    const existingCouponCode = $("#modal-discount-code").val().trim();
+    if (existingCouponCode && existingCouponCode.length >= 3) {
+      console.log('Found existing coupon code in modal:', existingCouponCode);
+      // Get customer phone if available
+      const customerPhone = $("#modal-customer-phone").val() || $("#modal-customer-phone").val() || null;
+      // Validate the existing coupon
+      validateCouponRealTime(existingCouponCode, customerPhone);
+    } else {
+      // Show free days notification if there's already a valid coupon cached
+      console.log('Checking for cached coupon data:', cachedCouponData);
+      if (cachedCouponData && cachedCouponData.free_days != null && cachedCouponData.free_days > 0) {
+        console.log('Showing free days notification for cached coupon');
+        const freeDays = parseInt(cachedCouponData.free_days || 0);
+        const message =
+          freeDays === 1
+            ? i18next.t("coupons.free_days_handled_in_office_singular")
+            : i18next.t("coupons.free_days_handled_in_office_plural", {
+                days: freeDays,
+              });
+        // showFloatingFreeDaysNotification(freeDays, message);
+      } else {
+        console.log('No cached coupon data or no free days');
+      }
+    }
 }
 
 function closePriceCalculator() {
@@ -1877,6 +1904,7 @@ window.showSuccess = function (bookingData) {
 
 // Universal Error Popup System
 function showUniversalError(message) {
+
   const popup = $("#universal-error-popup");
   const messageElement = $("#universal-error-message");
 
@@ -1886,7 +1914,7 @@ function showUniversalError(message) {
     return;
   }
 
-  messageElement.html(message);
+  messageElement.html(i18next.t(message));
   popup.fadeIn(300);
 
   // Auto-hide after 8 seconds
@@ -2795,4 +2823,137 @@ function convertDateFormatToISO(dateStr) {
     return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
   }
   return dateStr;
+}
+
+
+// Show floating free days notification for modal
+function showFloatingFreeDaysNotification(freeDays, message) {
+  // Remove existing notification
+  const existingNotification = document.getElementById("free-days-notification");
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+
+  // Create notification element
+  const notification = document.createElement("div");
+  notification.id = "free-days-notification";
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    z-index: 9999;
+    max-width: 300px;
+    animation: slideInFromRight 0.5s ease-out;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+
+  notification.innerHTML = `
+    <div style="
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    ">
+      <div style="
+        width: 24px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      ">
+        ��
+      </div>
+      <span style="font-weight: 600; font-size: 14px;">${message}</span>
+    </div>
+    <div style="
+      font-size: 13px;
+      opacity: 0.9;
+      font-style: italic;
+      text-align: center;
+    ">
+ ${i18next.t("coupons.processed_in_office")}
+     </div>
+  `;
+
+  // Add CSS animation if not already added
+  if (!document.getElementById("free-days-notification-styles")) {
+    const style = document.createElement("style");
+    style.id = "free-days-notification-styles";
+    style.textContent = `
+      @keyframes slideInFromRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Add to page
+  document.body.appendChild(notification);
+
+  // Auto-remove after 10 seconds
+    // Add close button functionality
+    const closeButton = document.createElement("button");
+    closeButton.innerHTML = "&times;";
+    closeButton.style.cssText = `
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    `;
+    
+    closeButton.addEventListener('mouseenter', () => {
+      closeButton.style.opacity = '1';
+    });
+    
+    closeButton.addEventListener('mouseleave', () => {
+      closeButton.style.opacity = '0.7';
+    });
+    
+    closeButton.addEventListener('click', () => {
+      if (notification && notification.parentElement) {
+        notification.style.animation = "slideInFromRight 0.5s ease-out reverse";
+        setTimeout(() => {
+          if (notification && notification.parentElement) {
+            notification.remove();
+          }
+        }, 500);
+      }
+    });
+    
+    notification.appendChild(closeButton);
+}
+
+// Hide free days notification
+function hideFloatingFreeDaysNotification() {
+  const existingNotification = document.getElementById("free-days-notification");
+  if (existingNotification) {
+    existingNotification.remove();
+  }
 }

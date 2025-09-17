@@ -287,7 +287,8 @@ class GlobalBookingSystem {
   }
 
   // Update price display
-  updatePriceDisplay(priceData) {
+   // Update price display
+   updatePriceDisplay(priceData) {
     const breakdown = document.getElementById("priceBreakdown");
     if (!breakdown) return;
 
@@ -301,77 +302,183 @@ class GlobalBookingSystem {
         ${priceData.discount ? `Discount: -€${priceData.discount}<br>` : ""}
       </small>
     `;
+
+    // Show free days notification if applicable
+    this.showFreeDaysNotificationIfNeeded();
+  }
+
+  // Show free days notification for quick book modal
+  showFreeDaysNotificationIfNeeded() {
+    if (
+      window.cachedCouponData &&
+      window.cachedCouponData.free_days != null &&
+      window.cachedCouponData.free_days > 0
+    ) {
+      const freeDays = parseInt(window.cachedCouponData.free_days || 0);
+      if (freeDays > 0) {
+        const message =
+          freeDays === 1
+            ? i18next.t("coupons.free_days_handled_in_office_singular")
+            : i18next.t("coupons.free_days_handled_in_office_plural", {
+                days: freeDays,
+              });
+
+        // this.showFloatingFreeDaysNotification(freeDays, message);
+      }
+    }
+  }
+
+  // Show floating free days notification (similar to price-calculator.js)
+  showFloatingFreeDaysNotification(freeDays, message) {
+    // Remove existing notification
+    const existingNotification = document.getElementById("free-days-notification");
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.id = "free-days-notification";
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      z-index: 9999;
+      max-width: 300px;
+      animation: slideInFromRight 0.5s ease-out;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    notification.innerHTML = `
+      <div style="
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      ">
+        <div style="
+          width: 24px;
+          height: 24px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+        ">
+          🎉
+        </div>
+        <span style="font-weight: 600; font-size: 14px;">${message}</span>
+      </div>
+      <div style="
+        font-size: 13px;
+        opacity: 0.9;
+        font-style: italic;
+        text-align: center;
+      ">
+        This will be applied when you visit our office
+      </div>
+    `;
+
+    // Add CSS animation if not already added
+    if (!document.getElementById("free-days-notification-styles")) {
+      const style = document.createElement("style");
+      style.id = "free-days-notification-styles";
+      style.textContent = `
+        @keyframes slideInFromRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (notification && notification.parentElement) {
+        notification.style.animation = "slideInFromRight 0.5s ease-out reverse";
+        setTimeout(() => {
+          if (notification && notification.parentElement) {
+            notification.remove();
+          }
+        }, 500);
+      }
+    }, 10000);
   }
 
   // Validate coupon code
   async validateCoupon(code, inputElement) {
     try {
-      // Get customer phone number for validation
-      const customerPhone = document
-        .querySelector('[name="customer_phone"]')
-        ?.value?.trim();
-
-      // Try redemption code validation first (with phone number if available)
-      let response;
-      if (customerPhone) {
-        response = await fetch(
-          `${
-            this.apiBaseUrl
-          }/api/coupons/validate-redemption/${code}?phone=${encodeURIComponent(
-            customerPhone
-          )}`
-        );
-      } else {
-        response = await fetch(
-          `${this.apiBaseUrl}/api/coupons/validate-redemption/${code}`
-        );
-      }
-
-      let result = await response.json();
-
-      // If redemption code validation fails, try regular coupon validation
-      if (!result.valid) {
-        response = await fetch(
-          `${this.apiBaseUrl}/api/coupons/validate/${code}`
-        );
-        result = await response.json();
-      }
-
-      if (response.ok && result.valid) {
+      // Get customer phone if available
+      const customerPhone = document.querySelector('[name="customer_phone"]')?.value?.trim();
+      
+      // Use the new lookup endpoint
+      const lookupUrl = customerPhone
+        ? `${this.apiBaseUrl}/api/coupons/lookup/${code}?phone=${encodeURIComponent(customerPhone)}`
+        : `${this.apiBaseUrl}/api/coupons/lookup/${code}`;
+      
+      const response = await fetch(lookupUrl);
+      const result = await response.json();
+  
+      if (result.valid) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
         
-        // Store coupon data globally for price calculator
+        // Cache coupon data for later use
         window.cachedCouponData = result;
         window.lastValidatedCouponCode = code;
         
-        this.updatePrice(); // Recalculate with discount
+        // this.showCouponMessage("Coupon applied successfully!", "success");
+        
+        // Show free days notification if applicable
+        this.showFreeDaysNotificationIfNeeded();
       } else {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
-        this.showCouponMessage(
-          i18next.t(result.message) || result.error || i18next.t('coupons.invalid_code'),
-          "error"
-        );
+        const translatedMessage = i18next.t(result.message || "coupons.invalid_code");
+        this.showCouponMessage(result.translatedMessage || "Invalid coupon code", "error");
         
-        // Clear coupon data on invalid coupon
+        // Clear coupon data on invalid
         window.cachedCouponData = null;
         window.lastValidatedCouponCode = null;
+        
+        // Hide any existing free days notification
+        // this.hideFreeDaysNotification();
       }
-    } catch (error) {
-      console.error('Coupon validation error:', error);
-      inputElement.classList.remove("is-valid");
-      inputElement.classList.add("is-invalid");
+    }  catch (error) {
+      console.error("Error validating coupon:", error);
+      inputElement.classList.remove("is-valid", "is-invalid");
+      
       this.showCouponMessage("Error validating coupon", "error");
       
       // Clear coupon data on error
       window.cachedCouponData = null;
       window.lastValidatedCouponCode = null;
+      
+      // Hide any existing free days notification
+      // this.hideFreeDaysNotification();
     }
   }
 
   // Show coupon message
   showCouponMessage(message, type) {
+    // Translate the message if it's a translation key
+    const translatedMessage = message.startsWith("coupons.") ? i18next.t(message) : message;
+    
     // Remove existing message
     const existingMessage = document.querySelector(".coupon-message");
     if (existingMessage) {
@@ -379,17 +486,17 @@ class GlobalBookingSystem {
     }
 
     // Create new message
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `alert alert-${
-      type === "success" ? "success" : "danger"
-    } coupon-message`;
-    messageDiv.textContent = message;
+    // const messageDiv = document.createElement("div");
+    // messageDiv.className = `alert alert-${
+    //   type === "success" ? "success" : "danger"
+    // } coupon-message`;
+    // messageDiv.textContent = translatedMessage; // Use translatedMessage instead of message
 
     // Insert after coupon input
-    const couponInput = document.querySelector('[name="discount_code"]');
-    if (couponInput) {
-      couponInput.parentNode.insertBefore(messageDiv, couponInput.nextSibling);
-    }
+    // const couponInput = document.querySelector('[name="discount_code"]');
+    // if (couponInput) {
+      // couponInput.parentNode.insertBefore(messageDiv, couponInput.nextSibling);
+    // }
   }
 
   // Setup form submission

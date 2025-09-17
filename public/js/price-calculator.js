@@ -15,6 +15,7 @@ class PriceCalculator {
       end: 18, // 6:00 PM
     };
 
+    this.isShowingFreeDaysNotification = false;  
     // Dynamic fee settings - will be loaded from API
     this.feeSettings = {
       outside_hours_fee: 15,
@@ -225,6 +226,47 @@ class PriceCalculator {
     // If no cached data, return 0 (no discount)
     return 0;
   }
+
+  // Add this method to the PriceCalculator class:
+async validateAndShowCoupon(couponCode) {
+  if (!couponCode || couponCode.trim().length < 3) {
+    return;
+  }
+
+  try {
+    // Validate the coupon
+    const response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${couponCode}`);
+    let result = await response.json();
+    
+    if (!result.valid) {
+      // Try regular coupon validation
+      const response2 = await fetch(`${window.API_BASE_URL}/api/coupons/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode })
+      });
+      result = await response2.json();
+    }
+    
+    if (result.valid) {
+      // Store coupon data
+      window.cachedCouponData = result;
+      window.lastValidatedCouponCode = couponCode;
+      
+      // Update input styling
+      const discountInput = document.querySelector('input[name="discount_code"]');
+      if (discountInput) {
+        discountInput.classList.remove("is-invalid");
+        discountInput.classList.add("is-valid");
+      }
+      
+      // Recalculate price to show messages
+      this.recalculatePrice();
+    }
+  } catch (error) {
+    console.error('Error validating coupon:', error);
+  }
+}
 
   // Main calculation function
   calculatePrice(rentalData) {
@@ -537,19 +579,11 @@ class PriceCalculator {
         2
       )}€</span></div>`;
     }
-    if (priceData.discountAmount > 0) {
-      const discountCode =
-        document.querySelector('input[name="discount_code"]')?.value || "";
-      html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(
-        "price_calculator.discount_code"
-      )} (${discountCode})</span><span>-${priceData.discountAmount.toFixed(
-        2
-      )}€</span></div>`;
-    }
 
     if (
       window.cachedCouponData &&
-      window.cachedCouponData.type === "free_days"
+      window.cachedCouponData.free_days != null &&
+      window.cachedCouponData.free_days > 0
     ) {
       const freeDays = parseInt(window.cachedCouponData.free_days || 0);
       if (freeDays > 0) {
@@ -572,9 +606,17 @@ class PriceCalculator {
     html += "</div>";
     priceContainer.innerHTML = html;
   }
+  
   // Add this method to the PriceCalculator class:
   showFloatingFreeDaysNotification(freeDays, message) {
-    // Remove any existing notification
+    
+    if (this.isShowingFreeDaysNotification) {
+      console.log("Free days notification already showing, skipping...");
+      return;
+    }    // Remove any existing notification
+    console.log("Showing free days notification for", freeDays, "days");
+    this.isShowingFreeDaysNotification = true;
+  
     const existingNotification = document.getElementById(
       "free-days-notification"
     );
@@ -608,8 +650,9 @@ class PriceCalculator {
         font-weight: bold;
         font-size: 16px;
         margin-bottom: 6px;
+        justify-content:center;
       ">
-        <span>${freeDays} Free Day${freeDays > 1 ? "s" : ""} Included</span>
+        <span>${message}</span>
       </div>
       <div style="
         font-size: 13px;
@@ -617,7 +660,7 @@ class PriceCalculator {
         font-style: italic;
         text-align: center;
       ">
-        Processed in our office
+        ${i18next.t("coupons.processed_in_office")}
       </div>
       <div style="
         position: absolute;
@@ -677,6 +720,7 @@ class PriceCalculator {
     if (existingNotification) {
       existingNotification.remove();
     }
+    this.isShowingFreeDaysNotification = false
   }
 
   // Update outside hours notice
@@ -1143,7 +1187,7 @@ class PriceCalculator {
       }
 
       // Handle free days discount - return 0 (no discount applied)
-      else if (window.cachedCouponData.type === "free_days") {
+      else if (window.cachedCouponData.free_days != null && window.cachedCouponData.free_days > 0) {
         console.log("Free days discount");
         const freeDays = parseInt(window.cachedCouponData.free_days || 0);
         if (freeDays > 0) {

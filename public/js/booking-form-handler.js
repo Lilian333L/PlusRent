@@ -243,36 +243,28 @@ class BookingFormHandler {
         }
 
     // Validate coupon code if provided
-    if (bookingData.discount_code && bookingData.discount_code.trim()) {
-      try {
-        const couponCode = bookingData.discount_code.trim();
-        const customerPhone = bookingData.customer_phone;
-        
-        // Try redemption code validation first (with phone number if available)
-        let response;
-        if (customerPhone) {
-          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(customerPhone)}`);
-        } else {
-          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`);
+       // Validate coupon code if provided
+       if (bookingData.discount_code && bookingData.discount_code.trim()) {
+        try {
+          const couponCode = bookingData.discount_code.trim();
+          const customerPhone = bookingData.customer_phone;
+          
+          // Use the new lookup endpoint
+          const lookupUrl = customerPhone
+            ? `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+            : `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}`;
+          
+          const response = await fetch(lookupUrl);
+          const result = await response.json();
+          
+          if (!response.ok || !result.valid) {
+            return { isValid: false, error: result.message || 'Invalid coupon code' };
+          }
+        } catch (error) {
+          console.error('Error validating coupon:', error);
+          return { isValid: false, error: 'Error validating coupon code' };
         }
-        
-        let result = await response.json();
-        
-        // If redemption code validation fails, try regular coupon validation
-        if (!result.valid) {
-          response = await fetch(`${this.apiBaseUrl}/api/coupons/validate/${couponCode}`);
-          result = await response.json();
-        }
-        
-        if (!response.ok || !result.valid) {
-          const errorMessage = i18next.t(result.message) || result.error || i18next.t('coupons.invalid_code')
-          return { isValid: false, error: errorMessage };
-        }
-      } catch (error) {
-        
-        return { isValid: false, error: i18next.t('coupons.error_validating_code') };
       }
-    }
 
     return { isValid: true };
   }

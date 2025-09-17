@@ -1828,6 +1828,20 @@
           }
         });
 
+        discountInput.addEventListener('focus', function () {
+          const code = this.value.trim();
+          console.log("code",code);
+          // If there's a value and it's not already validated, trigger validation
+          if (code && code.length >= 3 &&
+            (!window.cachedCouponData || window.lastValidatedCouponCode !== code)) {
+
+            // Trigger blur event to validate the coupon
+            setTimeout(() => {
+              this.dispatchEvent(new Event('blur'));
+            }, 100); // Small delay to ensure focus is complete
+          }
+        });
+
         // Add click event for testing
         discountInput.addEventListener('click', function () {
         });

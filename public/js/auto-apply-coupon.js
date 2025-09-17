@@ -48,6 +48,15 @@
             // Apply the coupon code
             discountInput.value = savedCoupon;
             
+            if (window.priceCalculator && typeof window.priceCalculator.validateAndShowCoupon === 'function') {
+                window.priceCalculator.validateAndShowCoupon(savedCoupon);
+              } else {
+                // Fallback: trigger blur event for validation
+                setTimeout(() => {
+                  discountInput.dispatchEvent(new Event('blur'));
+                }, 100);
+              }
+
             // Trigger change event to notify other scripts
             const changeEvent = new Event('change', { bubbles: true });
             discountInput.dispatchEvent(changeEvent);
