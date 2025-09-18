@@ -812,46 +812,43 @@ async function openPriceCalculator() {
     }
   });
 
+  // Clear auto-apply coupons when user starts typing
+$("#modal-discount-code").on("input", function () {
+  // Clear auto-apply coupons to prevent overwriting user input
+  localStorage.removeItem("autoApplyCoupon");
+  localStorage.removeItem("spinningWheelWinningCoupon");
+  window.__autoCouponAppliedOnce = true; // Prevent future auto-apply
+});
+  let currentValidationAbort;
+
   // Real-time coupon validation function
   async function validateCouponRealTime(couponCode, customerPhone) {
+    if (!couponCode || couponCode.length < 3) return;
+
+    if (currentValidationAbort) currentValidationAbort.abort();
+    currentValidationAbort = new AbortController();
+
+    const apiBaseUrl = window.API_BASE_URL || "";
+    // If the phone field exists in the modal, always include it (when non-empty)
+    const phonePart = customerPhone
+      ? `?phone=${encodeURIComponent(customerPhone)}`
+      : "";
+    const lookupUrl = `${apiBaseUrl}/api/coupons/lookup/${couponCode}${phonePart}`;
+
     try {
-      // If we already have cached data for this exact coupon code, use it
-      if (cachedCouponData && lastValidatedCouponCode === couponCode) {
+      const response = await fetch(lookupUrl, {
+        signal: currentValidationAbort.signal,
+      });
+      const result = await response.json();
+
+      if (result.valid) {
         $("#modal-discount-code")
           .removeClass("is-invalid")
           .addClass("is-valid");
-        calculateModalPrice();
-        return;
-      }
-
-      const apiBaseUrl = window.API_BASE_URL || "";
-
-      // Use the new lookup endpoint
-      const lookupUrl = customerPhone
-        ? `${apiBaseUrl}/api/coupons/lookup/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
-        : `${apiBaseUrl}/api/coupons/lookup/${couponCode}`;
-
-      const response = await fetch(lookupUrl);
-      const result = await response.json();
-      console.log('Coupon lookup response:', response);
-      if (result.valid) {
-        // Coupon is valid - cache the data
         cachedCouponData = result;
         lastValidatedCouponCode = couponCode;
-        $("#modal-discount-code").removeClass("is-invalid").addClass("is-valid");
-        console.log('Coupon is valid:', result);
-        // Show free days notification if applicable
-        if (result.free_days != null && result.free_days > 0) {
-          const freeDays = parseInt(result.free_days || 0);
-          const message =
-            freeDays === 1
-              ? i18next.t("coupons.free_days_handled_in_office_singular")
-              : i18next.t("coupons.free_days_handled_in_office_plural", {
-                  days: freeDays,
-                });
-          showFloatingFreeDaysNotification(freeDays, message);
-        }
-        
+        hideFloatingFreeDaysNotification();
+        // show free days if any... (existing logic)
         calculateModalPrice();
       } else {
         $("#modal-discount-code")
@@ -859,48 +856,57 @@ async function openPriceCalculator() {
           .addClass("is-invalid");
         cachedCouponData = null;
         lastValidatedCouponCode = null;
-        
-        // Hide any existing free days notification
         hideFloatingFreeDaysNotification();
-        
+
+        // Priority: if coupon invalid, show only invalid coupon; else show phone error
+        const msgKey =
+          result.message === "coupons.invalid_code"
+            ? "coupons.invalid_code"
+            : result.message || "coupons.invalid_code";
+        showUniversalError(i18next.t(msgKey));
+
         calculateModalPrice();
       }
-    } catch (error) {
+    } catch (err) {
+      if (err.name === "AbortError") return; // ignore canceled fetches
       $("#modal-discount-code").removeClass("is-valid is-invalid");
       cachedCouponData = null;
       lastValidatedCouponCode = null;
-      
-      // Hide any existing free days notification
       hideFloatingFreeDaysNotification();
-      
-      calculateModalPrice();
+      showUniversalError(i18next.t("errors.error_validating_coupon"));
+    } finally {
+      currentValidationAbort = null;
     }
   }
-    // Check if there's already a coupon code in the input field and validate it
-    const existingCouponCode = $("#modal-discount-code").val().trim();
-    if (existingCouponCode && existingCouponCode.length >= 3) {
-      console.log('Found existing coupon code in modal:', existingCouponCode);
-      // Get customer phone if available
-      const customerPhone = $("#modal-customer-phone").val() || $("#modal-customer-phone").val() || null;
-      // Validate the existing coupon
-      validateCouponRealTime(existingCouponCode, customerPhone);
+  // Check if there's already a coupon code in the input field and validate it
+  const existingCouponCode = $("#modal-discount-code").val().trim();
+  if (existingCouponCode && existingCouponCode.length >= 3) {
+    console.log("Found existing coupon code in modal:", existingCouponCode);
+    // Get customer phone if available
+    // const customerPhone = $("#modal-customer-phone").val() || $("#modal-customer-phone").val() || null;
+    // Validate the existing coupon
+    // validateCouponRealTime(existingCouponCode, customerPhone);
+  } else {
+    // Show free days notification if there's already a valid coupon cached
+    console.log("Checking for cached coupon data:", cachedCouponData);
+    if (
+      cachedCouponData &&
+      cachedCouponData.free_days != null &&
+      cachedCouponData.free_days > 0
+    ) {
+      console.log("Showing free days notification for cached coupon");
+      const freeDays = parseInt(cachedCouponData.free_days || 0);
+      const message =
+        freeDays === 1
+          ? i18next.t("coupons.free_days_handled_in_office_singular")
+          : i18next.t("coupons.free_days_handled_in_office_plural", {
+              days: freeDays,
+            });
+      // showFloatingFreeDaysNotification(freeDays, message);
     } else {
-      // Show free days notification if there's already a valid coupon cached
-      console.log('Checking for cached coupon data:', cachedCouponData);
-      if (cachedCouponData && cachedCouponData.free_days != null && cachedCouponData.free_days > 0) {
-        console.log('Showing free days notification for cached coupon');
-        const freeDays = parseInt(cachedCouponData.free_days || 0);
-        const message =
-          freeDays === 1
-            ? i18next.t("coupons.free_days_handled_in_office_singular")
-            : i18next.t("coupons.free_days_handled_in_office_plural", {
-                days: freeDays,
-              });
-        // showFloatingFreeDaysNotification(freeDays, message);
-      } else {
-        console.log('No cached coupon data or no free days');
-      }
+      console.log("No cached coupon data or no free days");
     }
+  }
 }
 
 function closePriceCalculator() {
@@ -1007,7 +1013,6 @@ async function calculateModalPrice() {
   if (pickupLocation === "Chisinau Airport") {
     locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
   } else if (pickupLocation === "Iasi Airport") {
-
     locationFees += modalFeeSettings.iasi_airport_pickup || 35;
   } else {
     locationFees += modalFeeSettings.office_pickup || 0;
@@ -1019,7 +1024,7 @@ async function calculateModalPrice() {
     locationFees += modalFeeSettings.iasi_airport_dropoff || 35;
   } else {
     locationFees += modalFeeSettings.office_dropoff || 0;
-  } 
+  }
 
   // Calculate outside hours fees
   let outsideHoursFees = 0;
@@ -1331,47 +1336,33 @@ async function submitBooking() {
 
     // Validate coupon code if provided
     if (bookingData.discount_code && bookingData.discount_code.trim()) {
-      try {
-        const couponCode = bookingData.discount_code.trim();
-        const customerPhone = bookingData.customer_phone;
-        const apiBaseUrl = window.API_BASE_URL || "";
+      // Validate coupon code if provided
+      if (bookingData.discount_code && bookingData.discount_code.trim()) {
+        try {
+          const couponCode = bookingData.discount_code.trim();
+          const customerPhone = bookingData.customer_phone;
+          const apiBaseUrl = window.API_BASE_URL || "";
 
-        // Step 1: Validate coupon code without phone number
-        let response = await fetch(
-          `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}`
-        );
-        let result = await response.json();
-
-        if (!result.valid) {
-          // Coupon code is invalid
-          const errorMessage =
-            i18next.t(result.message) || i18next.t("errors.invalid_coupon_code");
-          // showUniversalError(errorMessage);
-          return false;
-        }
-
-        // Step 2: Validate coupon code with phone number (if phone is available)
-        if (customerPhone) {
-          response = await fetch(
-            `${apiBaseUrl}/api/coupons/validate-redemption/${couponCode}?phone=${encodeURIComponent(
-              customerPhone
-            )}`
+          const phonePart = customerPhone
+            ? `?phone=${encodeURIComponent(customerPhone)}`
+            : "";
+          const response = await fetch(
+            `${apiBaseUrl}/api/coupons/lookup/${couponCode}${phonePart}`
           );
-          result = await response.json();
+          const result = await response.json();
 
           if (!result.valid) {
-            // Coupon is not available for this phone number
-            const errorMessage =
-              i18next.t(result.message) || i18next.t("errors.coupon_not_available");
-            // showUniversalError(errorMessage);
+            const errorKey = result.message || "coupons.invalid_code";
+            showUniversalError(i18next.t(errorKey)); // ensure user sees invalid coupon on submit
             return false;
           }
+          // Optionally cache:
+          // cachedCouponData = result;
+          // lastValidatedCouponCode = couponCode;
+        } catch (error) {
+          showUniversalError(i18next.t("errors.error_validating_coupon"));
+          return false;
         }
-
-        // Coupon is valid and available
-      } catch (error) {
-        showUniversalError(i18next.t("errors.error_validating_coupon"));
-        return false;
       }
     }
 
@@ -1904,7 +1895,6 @@ window.showSuccess = function (bookingData) {
 
 // Universal Error Popup System
 function showUniversalError(message) {
-
   const popup = $("#universal-error-popup");
   const messageElement = $("#universal-error-message");
 
@@ -2825,11 +2815,12 @@ function convertDateFormatToISO(dateStr) {
   return dateStr;
 }
 
-
 // Show floating free days notification for modal
 function showFloatingFreeDaysNotification(freeDays, message) {
   // Remove existing notification
-  const existingNotification = document.getElementById("free-days-notification");
+  const existingNotification = document.getElementById(
+    "free-days-notification"
+  );
   if (existingNotification) {
     existingNotification.remove();
   }
@@ -2906,10 +2897,10 @@ function showFloatingFreeDaysNotification(freeDays, message) {
   document.body.appendChild(notification);
 
   // Auto-remove after 10 seconds
-    // Add close button functionality
-    const closeButton = document.createElement("button");
-    closeButton.innerHTML = "&times;";
-    closeButton.style.cssText = `
+  // Add close button functionality
+  const closeButton = document.createElement("button");
+  closeButton.innerHTML = "&times;";
+  closeButton.style.cssText = `
       position: absolute;
       top: 5px;
       right: 8px;
@@ -2927,32 +2918,34 @@ function showFloatingFreeDaysNotification(freeDays, message) {
       opacity: 0.7;
       transition: opacity 0.2s;
     `;
-    
-    closeButton.addEventListener('mouseenter', () => {
-      closeButton.style.opacity = '1';
-    });
-    
-    closeButton.addEventListener('mouseleave', () => {
-      closeButton.style.opacity = '0.7';
-    });
-    
-    closeButton.addEventListener('click', () => {
-      if (notification && notification.parentElement) {
-        notification.style.animation = "slideInFromRight 0.5s ease-out reverse";
-        setTimeout(() => {
-          if (notification && notification.parentElement) {
-            notification.remove();
-          }
-        }, 500);
-      }
-    });
-    
-    notification.appendChild(closeButton);
+
+  closeButton.addEventListener("mouseenter", () => {
+    closeButton.style.opacity = "1";
+  });
+
+  closeButton.addEventListener("mouseleave", () => {
+    closeButton.style.opacity = "0.7";
+  });
+
+  closeButton.addEventListener("click", () => {
+    if (notification && notification.parentElement) {
+      notification.style.animation = "slideInFromRight 0.5s ease-out reverse";
+      setTimeout(() => {
+        if (notification && notification.parentElement) {
+          notification.remove();
+        }
+      }, 500);
+    }
+  });
+
+  notification.appendChild(closeButton);
 }
 
 // Hide free days notification
 function hideFloatingFreeDaysNotification() {
-  const existingNotification = document.getElementById("free-days-notification");
+  const existingNotification = document.getElementById(
+    "free-days-notification"
+  );
   if (existingNotification) {
     existingNotification.remove();
   }
