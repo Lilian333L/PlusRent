@@ -418,7 +418,6 @@ async validateAndShowCoupon(couponCode) {
 
   // Update the price display
   updatePriceDisplay(priceData) {
-    console.log("updatePriceDisplay priceData---", priceData);
     const priceContainer = document.getElementById("price-content");
     const loadingElement = document.getElementById("price-loading");
 
@@ -611,10 +610,8 @@ async validateAndShowCoupon(couponCode) {
   showFloatingFreeDaysNotification(freeDays, message) {
     
     if (this.isShowingFreeDaysNotification) {
-      console.log("Free days notification already showing, skipping...");
       return;
     }    // Remove any existing notification
-    console.log("Showing free days notification for", freeDays, "days");
     this.isShowingFreeDaysNotification = true;
   
     const existingNotification = document.getElementById(
@@ -1188,7 +1185,6 @@ async validateAndShowCoupon(couponCode) {
 
       // Handle free days discount - return 0 (no discount applied)
       else if (window.cachedCouponData.free_days != null && window.cachedCouponData.free_days > 0) {
-        console.log("Free days discount");
         const freeDays = parseInt(window.cachedCouponData.free_days || 0);
         if (freeDays > 0) {
           // Show message that free days will be handled in office

@@ -165,9 +165,7 @@ for (let day = 1; day < today.getDate(); day++) {
 
     const pickupInput = document.getElementById(this.pickupInputId);
     const returnInput = document.getElementById(this.returnInputId);
-    console.log("🔵 Found inputs:", pickupInput, returnInput);
     if (pickupInput && returnInput) {
-      console.log("🔵 Found inputs:", pickupInput, returnInput);
       // Remove any existing daterangepicker instances
       if ($(pickupInput).data("daterangepicker")) {
         $(pickupInput).data("daterangepicker").remove();
@@ -746,7 +744,6 @@ for (let day = 1; day < today.getDate(); day++) {
       console.error("❌ DatePickerManager initialization failed:", error);
       // Fallback: try to initialize with empty unavailable dates
       try {
-        console.log("🔵 Attempting fallback initialization");
         await this.initializeFlatpickrWithUnavailableDates([]);
       } catch (fallbackError) {
         console.error("❌ Fallback initialization also failed:", fallbackError);

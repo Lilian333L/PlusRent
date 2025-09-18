@@ -878,12 +878,10 @@ class BookingFormHandler {
     // Set up translation event listeners
     if (typeof i18next !== 'undefined') {
       i18next.on('initialized', () => {
-        console.log('📚 i18next initialized event triggered (booking-form-handler)');
         this.updateModalHeaderTranslations();
         this.updateWheelButtonTranslations();
       });
       i18next.on('languageChanged', () => {
-        console.log('📚 i18next languageChanged event triggered (booking-form-handler)');
         this.updateModalHeaderTranslations();
         this.updateWheelButtonTranslations();
       });
@@ -941,12 +939,10 @@ class BookingFormHandler {
     const modal = document.getElementById('returningCustomerModal');
     if (!modal) return;
 
-    console.log('🔄 Updating wheel button translations in booking-form-handler');
 
     // Check if i18next is available
     if (typeof i18next !== 'undefined' && i18next.t) {
       const wheelButtons = modal.querySelectorAll('.wheel-button');
-      console.log('🔍 Found', wheelButtons.length, 'wheel buttons to translate');
 
       wheelButtons.forEach((button, index) => {
         const titleElement = button.querySelector('div > div:first-child');
@@ -978,30 +974,21 @@ class BookingFormHandler {
           const translatedTitle = i18next.t(titleKey);
           const translatedDesc = i18next.t(descKey);
 
-          console.log(`📝 Button ${index}: titleKey="${titleKey}", descKey="${descKey}"`);
-          console.log(`📝 Button ${index}: translatedTitle="${translatedTitle}", translatedDesc="${translatedDesc}"`);
-
           // Apply title
           if (translatedTitle && translatedTitle !== titleKey) {
             titleElement.textContent = translatedTitle;
-            console.log(`✅ Applied title translation: "${translatedTitle}"`);
           } else {
             titleElement.textContent = fallbackTitle;
-            console.log(`✅ Applied fallback title: "${fallbackTitle}"`);
           }
           
           // Apply description
           if (translatedDesc && translatedDesc !== descKey) {
             descElement.textContent = translatedDesc;
-            console.log(`✅ Applied description translation: "${translatedDesc}"`);
-          } else {
+            } else {
             descElement.textContent = fallbackDesc;
-            console.log(`✅ Applied fallback description: "${fallbackDesc}"`);
           }
         }
       });
-    } else {
-      console.log('❌ i18next not available for wheel button translations');
     }
   }
 

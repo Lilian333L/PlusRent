@@ -274,42 +274,34 @@
         
         // Translation function
         function updateTranslations() {
-            console.log('🔄 Updating translations in static modal');
+
             
             // Try multiple approaches to get translations
             let translationFunction = null;
             
             if (typeof i18next !== 'undefined' && i18next.t) {
                 translationFunction = i18next.t;
-                console.log('✅ Using i18next.t');
             } else if (typeof window.i18next !== 'undefined' && window.i18next.t) {
                 translationFunction = window.i18next.t;
-                console.log('✅ Using window.i18next.t');
             } else {
-                console.log('❌ No translation function available, using fallback');
             }
             
             if (translationFunction) {
                 // Update all elements with data-i18n attributes
                 const elements = document.querySelectorAll('[data-i18n]');
-                console.log('🔍 Found', elements.length, 'elements with data-i18n attributes');
                 
                 elements.forEach((element, index) => {
                     const key = element.getAttribute('data-i18n');
                     if (key) {
                         const translation = translationFunction(key);
-                        console.log(`📝 Element ${index}: key="${key}", translation="${translation}"`);
                         if (translation && translation !== key) {
                             element.textContent = translation;
-                            console.log(`✅ Applied translation for "${key}": "${translation}"`);
                         } else {
-                            console.log(`❌ No valid translation for "${key}"`);
                         }
                     }
                 });
             } else {
                 // Fallback: use hardcoded translations
-                console.log('🔄 Using fallback translations');
                 const fallbackTranslations = {
                     'wheel.welcome_back_title': 'Welcome Back!',
                     'wheel.welcome_back_subtitle': 'You have an unredeemed return gift waiting for you!',
@@ -332,7 +324,6 @@
         
         // Show the returning customer modal
         function showReturningCustomerModal() {
-            console.log('👁️ showReturningCustomerModal called (static modal)');
             const modal = document.getElementById('returningCustomerModal');
             modal.classList.add('show');
             document.body.classList.add('modal-open');
@@ -382,11 +373,9 @@
         // Set up translation event listeners
         if (typeof i18next !== 'undefined') {
             i18next.on('initialized', function() {
-                console.log('📚 i18next initialized event triggered (static modal)');
                 updateTranslations();
             });
             i18next.on('languageChanged', function() {
-                console.log('📚 i18next languageChanged event triggered (static modal)');
                 updateTranslations();
             });
         }
@@ -394,11 +383,9 @@
         // Apply translations when page loads
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                console.log('📄 DOM loaded, applying translations (static modal)');
                 updateTranslations();
             });
         } else {
-            console.log('📄 DOM already loaded, applying translations (static modal)');
             updateTranslations();
         }
 

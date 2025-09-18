@@ -30,7 +30,6 @@ $(document).ready(function () {
       if (response.ok) {
         const feeData = await response.json();
         Object.assign(modalFeeSettings, feeData);
-        console.log("Response", feeData);
       }
     } catch (error) {
       console.error("Error loading fee settings:", error);
@@ -241,17 +240,13 @@ $(document).ready(function () {
         safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
       pickup_date: (() => {
         const dateStr = $("#modal-pickup-date").val() || "";
-        console.log("Pickup date before conversion:", dateStr);
         const converted = convertDateFormatToISO(dateStr);
-        console.log("Pickup date after conversion:", converted);
         return converted;
       })(),
       pickup_time: $("#modal-pickup-time").val() || "",
       return_date: (() => {
         const dateStr = $("#modal-return-date").val() || "";
-        console.log("Return date before conversion:", dateStr);
         const converted = convertDateFormatToISO(dateStr);
-        console.log("Return date after conversion:", converted);
         return converted;
       })(),
       return_time: $("#modal-return-time").val() || "",
@@ -274,7 +269,6 @@ $(document).ready(function () {
       return locationValue; // Return original value if i18next not ready
     }
 
-    console.log("Location value:", locationValue);
     const locationMap = {
       "Chisinau Airport": i18next.t("cars.chisinau_airport"),
       "Our Office": i18next.t("cars.our_office"),
@@ -881,20 +875,17 @@ $("#modal-discount-code").on("input", function () {
   // Check if there's already a coupon code in the input field and validate it
   const existingCouponCode = $("#modal-discount-code").val().trim();
   if (existingCouponCode && existingCouponCode.length >= 3) {
-    console.log("Found existing coupon code in modal:", existingCouponCode);
     // Get customer phone if available
     // const customerPhone = $("#modal-customer-phone").val() || $("#modal-customer-phone").val() || null;
     // Validate the existing coupon
     // validateCouponRealTime(existingCouponCode, customerPhone);
   } else {
     // Show free days notification if there's already a valid coupon cached
-    console.log("Checking for cached coupon data:", cachedCouponData);
     if (
       cachedCouponData &&
       cachedCouponData.free_days != null &&
       cachedCouponData.free_days > 0
     ) {
-      console.log("Showing free days notification for cached coupon");
       const freeDays = parseInt(cachedCouponData.free_days || 0);
       const message =
         freeDays === 1
@@ -904,12 +895,12 @@ $("#modal-discount-code").on("input", function () {
             });
       // showFloatingFreeDaysNotification(freeDays, message);
     } else {
-      console.log("No cached coupon data or no free days");
     }
   }
 }
 
 function closePriceCalculator() {
+  hideLoading();
   // Hide the modal
   $("#price-calculator-modal").fadeOut(300);
 
@@ -948,7 +939,7 @@ async function calculateModalPrice() {
 
   // Get car details
   const carDetails = JSON.parse(selectedVehicle.attr("data-car-details"));
-  console.log("Car details", carDetails.price_policy);
+
   // Get locations
   const pickupLocation =
     $('input[name="pickup_location"]:checked').val() || "Our Office";
@@ -1272,6 +1263,7 @@ async function applyModalCalculation() {
     }
 
     // Show loading state
+    hideLoading()
     showLoading();
 
     // API base URL - use relative URLs for Vercel deployment
@@ -1367,6 +1359,7 @@ async function submitBooking() {
     }
 
     // Show loading state
+    hideLoading()
     showLoading();
 
     // API base URL - use relative URLs for Vercel deployment
@@ -1939,8 +1932,12 @@ window.testModalError = function () {
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("bookingModal");
   if (modal) {
-    modal.addEventListener("hidden.bs.modal", function () {});
-    modal.addEventListener("hide.bs.modal", function () {});
+    modal.addEventListener("hidden.bs.modal", function () {
+      hideLoading();
+    });
+    modal.addEventListener("hide.bs.modal", function () {
+      hideLoading();
+    });
   }
 });
 
@@ -1995,11 +1992,6 @@ async function checkReturningCustomer(phoneNumber) {
 
 // Show modal for returning customers
 async function showReturningCustomerAlert(phoneNumber = null) {
-  console.log(
-    "🚨 showReturningCustomerAlert called with phoneNumber:",
-    phoneNumber
-  );
-
   // Use provided phone number or get from form input
   if (!phoneNumber) {
     // Check both possible phone input selectors
@@ -2008,11 +2000,9 @@ async function showReturningCustomerAlert(phoneNumber = null) {
       phoneInput = document.querySelector("#phone");
     }
     phoneNumber = phoneInput ? phoneInput.value.trim() : null;
-    console.log("📞 Phone number from form:", phoneNumber);
   }
 
   if (!phoneNumber) {
-    console.log("❌ No phone number provided, returning false");
     return false;
   }
 
@@ -2059,24 +2049,20 @@ async function showReturningCustomerAlert(phoneNumber = null) {
   sessionStorage.setItem(sessionKey, "true");
 
   // Load and show the returning customer modal
-  console.log("🎯 About to call loadReturningCustomerModal");
   loadReturningCustomerModal();
   return true; // Return true to indicate we're showing the popup
 }
 
 // Load the returning customer modal
 async function loadReturningCustomerModal() {
-  console.log("🏗️ loadReturningCustomerModal called");
 
   // Check if modal is already loaded
   const existingModal = document.getElementById("returningCustomerModal");
   if (existingModal) {
-    console.log("⚠️ Modal already exists in DOM, showing existing modal");
     showReturningCustomerModal();
     return;
   }
 
-  console.log("🔨 Modal not found, creating new modal");
 
   try {
     // Fetch active wheel configurations
@@ -2144,9 +2130,6 @@ async function loadReturningCustomerModal() {
           </button>
         `;
 
-        console.log(
-          `🔧 Created wheel option: type="${config.type}", titleKey="${titleKey}", descKey="${descKey}"`
-        );
       });
     } else {
       // Fallback if no configurations found
@@ -2181,9 +2164,6 @@ async function loadReturningCustomerModal() {
         </div>
       </div>
     `;
-
-    console.log("🏗️ Generated modal HTML:", modalHTML);
-    console.log("🔧 Wheel options HTML:", wheelOptionsHTML);
 
     modalContainer.innerHTML = modalHTML;
 
@@ -2474,18 +2454,10 @@ async function loadReturningCustomerModal() {
 
     // Update translations for the modal
     const updateTranslations = () => {
-      console.log("🔄 updateTranslations called");
-      console.log("🌐 Current language:", localStorage.getItem("lang") || "en");
-      console.log("📚 i18next available:", typeof i18next !== "undefined");
-      console.log(
-        "📚 window.i18next available:",
-        typeof window.i18next !== "undefined"
-      );
+
 
       if (typeof i18next !== "undefined") {
-        console.log("📚 i18next.isInitialized:", i18next.isInitialized);
-        console.log("📚 i18next.language:", i18next.language);
-        console.log("📚 i18next.t available:", typeof i18next.t);
+
       }
 
       // Try multiple approaches to get translations
@@ -2493,47 +2465,28 @@ async function loadReturningCustomerModal() {
 
       if (typeof i18next !== "undefined" && i18next.t) {
         translationFunction = i18next.t;
-        console.log("✅ Using i18next.t");
       } else if (typeof window.i18next !== "undefined" && window.i18next.t) {
         translationFunction = window.i18next.t;
-        console.log("✅ Using window.i18next.t");
       } else {
-        console.log("❌ No translation function available, using fallback");
       }
 
       if (translationFunction) {
         // Update all elements with data-i18n attributes
         const elements = document.querySelectorAll("[data-i18n]");
-        console.log(
-          "🔍 Found",
-          elements.length,
-          "elements with data-i18n attributes"
-        );
 
         elements.forEach((element, index) => {
           const key = element.getAttribute("data-i18n");
           if (key) {
             const translation = translationFunction(key);
-            console.log(
-              `📝 Element ${index}: key="${key}", translation="${translation}"`
-            );
             if (translation && translation !== key) {
               element.textContent = translation;
-              console.log(
-                `✅ Applied translation for "${key}": "${translation}"`
-              );
             } else {
-              console.log(`❌ No valid translation for "${key}"`);
             }
           }
         });
       } else {
         // Fallback: try to get translations from the fallback system
         const currentLang = localStorage.getItem("lang") || "en";
-        console.log(
-          "🔄 Using fallback translations for language:",
-          currentLang
-        );
 
         const fallbackTranslations = {
           en: {
@@ -2555,14 +2508,8 @@ async function loadReturningCustomerModal() {
 
         const translations =
           fallbackTranslations[currentLang] || fallbackTranslations.en;
-        console.log("📚 Fallback translations available:", translations);
 
         const elements = document.querySelectorAll("[data-i18n]");
-        console.log(
-          "🔍 Found",
-          elements.length,
-          "elements with data-i18n attributes (fallback)"
-        );
 
         elements.forEach((element, index) => {
           const key = element.getAttribute("data-i18n");
@@ -2576,17 +2523,10 @@ async function loadReturningCustomerModal() {
                 value = key;
                 break;
               }
-            }
-            console.log(
-              `📝 Fallback Element ${index}: key="${key}", value="${value}"`
-            );
+            } 
             if (value && value !== key) {
               element.textContent = value;
-              console.log(
-                `✅ Applied fallback translation for "${key}": "${value}"`
-              );
             } else {
-              console.log(`❌ No fallback translation for "${key}"`);
             }
           }
         });
@@ -2594,42 +2534,32 @@ async function loadReturningCustomerModal() {
     };
 
     // Show the modal first
-    console.log("🚀 Showing returning customer modal");
     showReturningCustomerModal();
 
     // Apply translations multiple times with different delays to ensure they work
-    console.log("🔄 Applying translations immediately");
     updateTranslations();
 
-    console.log("🔄 Scheduling translation updates at 100ms, 500ms, 1000ms");
     setTimeout(() => {
-      console.log("🔄 Translation update at 100ms");
       updateTranslations();
     }, 100);
 
     setTimeout(() => {
-      console.log("🔄 Translation update at 500ms");
       updateTranslations();
     }, 500);
 
     setTimeout(() => {
-      console.log("🔄 Translation update at 1000ms");
       updateTranslations();
     }, 1000);
 
     // Also apply translations when i18next is ready (in case it's still loading)
     if (typeof i18next !== "undefined") {
-      console.log("📚 Setting up i18next event listeners");
       i18next.on("initialized", () => {
-        console.log("📚 i18next initialized event triggered");
         updateTranslations();
       });
       i18next.on("languageChanged", () => {
-        console.log("📚 i18next languageChanged event triggered");
         updateTranslations();
       });
     } else {
-      console.log("❌ i18next not available for event listeners");
     }
   } catch (error) {
     console.error("Error loading returning customer modal:", error);
@@ -2744,12 +2674,10 @@ function updateModalTranslations() {
 
 // Show the returning customer modal
 function showReturningCustomerModal() {
-  console.log("👁️ showReturningCustomerModal called");
 
   const modal = document.getElementById("returningCustomerModal");
 
   if (modal) {
-    console.log("✅ Modal element found, showing modal");
     modal.classList.add("show");
     document.body.classList.add("modal-open");
 
@@ -2784,17 +2712,7 @@ function clearReturningCustomerSessionStorage(phoneNumber) {
 
 // Debug function to check modal state
 function debugModalState() {
-  console.log("🔍 DEBUG: Checking modal state");
-  console.log("📄 Document ready state:", document.readyState);
-  console.log(
-    "🔍 Modal in DOM:",
-    !!document.getElementById("returningCustomerModal")
-  );
-  console.log("🌐 Current language:", localStorage.getItem("lang"));
-  console.log("📚 i18next available:", typeof i18next !== "undefined");
   if (typeof i18next !== "undefined") {
-    console.log("📚 i18next initialized:", i18next.isInitialized);
-    console.log("📚 i18next language:", i18next.language);
   }
 }
 

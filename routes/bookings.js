@@ -144,22 +144,13 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
               );
               // Don't fail the booking, just log the error
             } else {
-              console.log(
-                `✅ Redemption code ${discount_code} marked as redeemed`
-              );
             }
           } else if (lookupResult.type === "main_coupon") {
             // Main coupon codes (like "WELCOME10") are NOT tracked in coupon_redemptions
-            console.log(
-              `✅ Main coupon code ${discount_code} used (not tracked in redemptions)`
-            );
           }
         } else {
           // Coupon is not valid
           validatedDiscountCode = null;
-          console.log(
-            `❌ Invalid coupon code: ${discount_code} - ${lookupResult.message}`
-          );
         }
       } catch (error) {
         console.error("❌ Error validating discount code:", error);
@@ -225,7 +216,6 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
         discount_code: validatedDiscountCode,
         coupon_details: couponDetails,
       };
-      console.log("telegramData", telegramData);
       await telegram.sendMessage(telegram.formatBookingMessage(telegramData));
     } catch (error) {
       console.error("Error sending Telegram notification:", error);
