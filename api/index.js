@@ -100,7 +100,7 @@ app.get('/simple-test', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
-
+  
 // Try to mount routes with error handling
 try {
   app.use('/auth', authRoutes);

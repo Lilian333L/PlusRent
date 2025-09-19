@@ -56,7 +56,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
-});
+}); 
 
 // Admin logout
 router.post('/logout', authenticateToken, (req, res) => {
