@@ -5320,7 +5320,6 @@ ${booking.coupon_details ? `
                 showCustomAlert(errorMessage, 'error');
               }
             } catch (error) {
-
               showCustomAlert('Error adding car', 'error');
             } finally {
               isSubmitting = false; // Reset submission flag
@@ -5352,9 +5351,11 @@ ${booking.coupon_details ? `
                 loadCars();
               } else {
                 const error = await response.json();
-                let errorMessage = 'Error adding car: ' + error.error;
+                const field = error.field
+                const fieldCapitalized = field.charAt(0).toUpperCase() + field.split('_')[0].slice(1) + " " + field.split('_')[1].charAt(0).toUpperCase() + field.split('_')[1].slice(1); 
+                let errorMessage = 'Error adding car: ' + fieldCapitalized + ' is required';
                 if (error.missingFields && error.missingFields.length > 0) {
-                  errorMessage += '\n\nMissing fields:\n• ' + error.missingFields.join('\n• ');
+                  errorMessage += '\n\nMissing fields:\n• ' + errorMessage;
                 }
                 showCustomAlert(errorMessage, 'error');
               }
