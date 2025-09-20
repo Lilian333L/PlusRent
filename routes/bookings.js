@@ -528,6 +528,7 @@ router.put(
         })
         .eq("id", bookingId);
 
+        
       if (updateError) {
         console.error("❌ Error updating booking status:", updateError);
         return res
@@ -637,6 +638,14 @@ router.put("/:id/cancel", authenticateToken, async (req, res) => {
       return res.status(500).json({ error: "Failed to cancel booking" });
     }
 
+    if (booking.discount_code) {
+      const restoreResult = await restoreCouponToAvailable(booking.discount_code, booking.customer_phone);
+      if (!restoreResult.success) {
+        console.error("Failed to restore coupon:", restoreResult.error);
+        // Don't fail the booking cancellation, just log the error
+      }
+    }
+
     // If booking was confirmed, remove from booked_cars table
     // Note: We no longer update the car's booked_until field since availability is calculated dynamically
     if (booking.status === "confirmed") {
@@ -679,19 +688,11 @@ router.put(
         .select("*")
         .eq("id", bookingId)
         .single();
-
+  
       if (bookingError || !booking) {
-        console.error("❌ Booking not found:", bookingError);
         return res.status(404).json({ error: "Booking not found" });
       }
-
-      if (booking.status !== "pending") {
-        console.error("❌ Booking is not pending, status:", booking.status);
-        return res
-          .status(400)
-          .json({ error: "Only pending bookings can be rejected" });
-      }
-
+  
       // Update booking status to rejected
       const { error: updateError } = await supabaseAdmin
         .from("bookings")
@@ -700,12 +701,25 @@ router.put(
           updated_at: new Date().toISOString(),
         })
         .eq("id", bookingId);
-
+  
       if (updateError) {
-        console.error("❌ Error updating booking status:", updateError);
         return res.status(500).json({ error: "Failed to reject booking" });
       }
-
+      
+  
+      // ✅ CORRECT: Restore coupon immediately
+      if (booking.discount_code) {
+        const restoreResult = await restoreCouponToAvailable(
+          booking.discount_code, 
+          booking.customer_phone
+        );
+        
+        if (!restoreResult.success) {
+          console.error("Failed to restore coupon:", restoreResult.error);
+          // Don't fail the booking rejection, just log the error
+        }
+      }
+  
       res.json({
         success: true,
         message: "Booking rejected successfully",
@@ -717,6 +731,68 @@ router.put(
     }
   }
 );
+
+// Helper function to restore coupon to available
+async function restoreCouponToAvailable(discountCode, customerPhone) {
+  try {
+    console.log(`�� Attempting to restore coupon: ${discountCode}`);
+    
+    // Find the redemption record
+    const { data: redemption, error: findError } = await supabase
+      .from("coupon_redemptions")
+      .select("*")
+      .eq("redemption_code", discountCode.toUpperCase())
+      .single();
+
+    if (findError) {
+      if (findError.code === 'PGRST116') {
+        // No redemption record found - this might be a main coupon code
+        console.log(`ℹ️ No redemption record found for code: ${discountCode} (might be main coupon)`);
+        return { success: true, message: "No redemption record to restore" };
+      }
+      console.error("❌ Error finding redemption record:", findError);
+      return { success: false, error: findError.message };
+    }
+
+    if (!redemption) {
+      console.log(`ℹ️ No redemption record found for code: ${discountCode}`);
+      return { success: true, message: "No redemption record to restore" };
+    }
+
+    // Check if coupon is actually redeemed
+    if (redemption.status !== "redeemed") {
+      console.log(`ℹ️ Coupon ${discountCode} is not redeemed (status: ${redemption.status}), no need to restore`);
+      return { success: true, message: "Coupon not redeemed, no restoration needed" };
+    }
+
+    // Restore to available status
+    const { error: updateError } = await supabase
+      .from("coupon_redemptions")
+      .update({
+        status: "available", // Restore to available
+        redeemed_at: null,
+        redeemed_by_phone: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", redemption.id);
+
+    if (updateError) {
+      console.error("❌ Error restoring coupon:", updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    console.log(`✅ Coupon ${discountCode} successfully restored to available`);
+    return { 
+      success: true, 
+      message: `Coupon ${discountCode} restored to available`,
+      couponId: redemption.id 
+    };
+
+  } catch (error) {
+    console.error("❌ Error in restoreCouponToAvailable:", error);
+    return { success: false, error: error.message };
+  }
+}
 
 // Sober driver callback request
 router.post("/sober-driver-callback", async (req, res) => {
