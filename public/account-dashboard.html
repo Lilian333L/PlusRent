@@ -3008,29 +3008,6 @@
       </div>
     </div>
 
-    <!-- Spinning Wheel Preview Modal -->
-    <div class="modal fade" id="spinningWheelModal" tabindex="-1" aria-labelledby="spinningWheelModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="spinningWheelModalLabel">
-              <i class="fa fa-eye"></i> Spinning Wheel Preview
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body p-0">
-            <iframe id="spinningWheelIframe" src="spinning-wheel-standalone"
-              style="width: 100%; height: 600px; border: none;"></iframe>
-          </div>
-          <div class="modal-footer">
-            <a href="spinning-wheel-standalone" target="_blank" class="btn btn-primary">
-              <i class="fa fa-external-link"></i> Open in New Tab
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <a href="#" id="back-to-top"></a>
 
@@ -6672,21 +6649,6 @@ ${booking.coupon_details ? `
       }
     }
 
-    // Preview a specific wheel
-    function previewWheel(wheelId) {
-      // Use the universal spinning wheel modal for preview
-      if (window.UniversalSpinningWheel) {
-        // Store the wheel ID for the universal spinning wheel
-        window.UniversalSpinningWheel._previewWheelId = wheelId;
-        // Show the universal spinning wheel modal
-        window.UniversalSpinningWheel.show();
-      } else {
-        // Fallback to old method if universal spinning wheel not available
-        const phoneModal = new bootstrap.Modal(document.getElementById('phoneNumberModal'));
-        phoneModal._wheelId = wheelId;
-        phoneModal.show();
-      }
-    }
 
     function showWheelConfiguration(wheelId) {
       loadWheelForEdit(wheelId);
@@ -6769,9 +6731,6 @@ ${booking.coupon_details ? `
                       <small class="text-muted d-block">${wheel.description || 'No description'}</small>
                     </div>
                     <div class="d-flex align-items-center gap-1" onclick="event.stopPropagation();">
-                      <button class="btn btn-sm btn-outline-info" onclick="previewWheel(${wheel.id})" title="Preview this wheel">
-                        <i class="fa fa-eye"></i>
-                      </button>
                       ${wheel.is_active ? `
                       <button class="btn btn-sm ${wheel.is_premium ? 'btn-warning' : 'btn-outline-warning'}" 
                               style="${wheel.is_premium ? 'background-color: #ffc107; border-color: #ffc107; color: #fff; padding: 0.35rem 0.86rem;' : 'color: #ffc107; border-color: #ffc107; padding: 0.25rem 0.75rem;'}"
@@ -6852,21 +6811,21 @@ ${booking.coupon_details ? `
           // Clear the input
           phoneNumberInput.value = '';
 
-          // Open spinning wheel modal with phone number and wheel ID
-          const wheelModal = new bootstrap.Modal(document.getElementById('spinningWheelModal'));
-          const iframe = document.getElementById('spinningWheelIframe');
-
-          // Get the wheel ID from the modal instance
-          const phoneModalInstance = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));
-          const wheelId = phoneModalInstance._wheelId || 'active';
-
-          // Pass phone number and wheel ID to iframe via URL parameter
-          if (iframe) {
-            const currentSrc = iframe.src.split('?')[0];
-            iframe.src = `${currentSrc}?phone=${encodeURIComponent(phoneNumber)}&wheel=${wheelId}`;
+          // Use universal spinning wheel instead of modal
+          if (window.UniversalSpinningWheel) {
+            // Get the wheel ID from the modal instance
+            const phoneModalInstance = bootstrap.Modal.getInstance(document.getElementById('phoneNumberModal'));
+            const wheelId = phoneModalInstance._wheelId || 'active';
+            
+            // Show the universal spinning wheel modal
+            window.UniversalSpinningWheel.show({
+              skipPhoneStep: true,
+              phoneNumber: phoneNumber,
+              wheelId: wheelId
+            });
+          } else {
+            console.error('UniversalSpinningWheel not available');
           }
-
-          wheelModal.show();
         });
       }
 
