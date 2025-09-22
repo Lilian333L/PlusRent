@@ -117,10 +117,7 @@ const carCreateSchema = Joi.object({
     Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
   ).allow(null, ''),
   luggage: Joi.string().valid(
-    '1_small', '2_small', '1_large', '2_large', '3_large',
-    '1_small_1_large', '2_small_1_large', '1_small_2_large', 
-    '2_small_2_large', '3_small_1_large', '4_small', '5_small',
-    '4_large', '5_large',
+    '1 Suitcase', "2 Suitcases", "3 Suitcases", "4 Suitcases", "5 Suitcases",
     // Legacy values for backward compatibility
     'Small', 'Medium', 'Large'
   ).allow(null, ''),
