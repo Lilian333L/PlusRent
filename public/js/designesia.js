@@ -213,7 +213,7 @@
                 jQuery("#menu-btn").show();
             }
         });
-         enquire.register("screen and (max-width: 993px)", {
+         enquire.register("screen and (max-width: 1050px)", {
              match: function() {
                  $('header').addClass("header-mobile");
                  var body = jQuery('body');
@@ -238,7 +238,7 @@
          header.removeClass('logo-smaller');
          header.removeClass('clone');
 
-         var mx = window.matchMedia("(max-width: 992px)");
+         var mx = window.matchMedia("(max-width: 1050px)");
          var osw = jQuery('.owl-slide-wrapper');
          if (mx.matches) {           
              osw.find("img").css("height", $(window).innerHeight());
