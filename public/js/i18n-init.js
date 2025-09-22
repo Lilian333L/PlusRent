@@ -93,6 +93,14 @@ function updateContent() {
     }
   });
   
+  // Handle value translations for input elements
+  document.querySelectorAll('[data-i18n-value]').forEach(function(element) {
+    const key = element.getAttribute('data-i18n-value');
+    if (i18next.exists(key)) {
+      element.value = i18next.t(key);
+    }
+  });
+  
   // Handle dynamic car type translations
   document.querySelectorAll('[data-i18n^="car_types."]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
@@ -492,6 +500,22 @@ function loadFallbackTranslations(lang) {
             }
           });
         }
+      });
+      
+      // Handle data-i18n-value attributes in fallback
+      document.querySelectorAll('[data-i18n-value]').forEach(function(el) {
+        const key = el.getAttribute('data-i18n-value');
+        const keys = key.split('.');
+        let value = translations;
+        for (const k of keys) {
+          if (value && value[k]) {
+            value = value[k];
+          } else {
+            value = key; // fallback to key if translation not found
+            break;
+          }
+        }
+        el.value = value;
       });
     }
   }
