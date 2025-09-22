@@ -25,8 +25,11 @@ class CarsFilterModal {
     this.setupLanguageChangeListener();
     
     // Auto-open modal on page load (every time)
-    this.openModal();
-    this.hasShownOnLoad = true;
+    // Add a small delay to ensure everything is ready
+    setTimeout(() => {
+      this.openModal();
+      this.hasShownOnLoad = true;
+    }, 200);
   }
 
   async loadPriceFilterSettings() {
@@ -78,6 +81,8 @@ class CarsFilterModal {
         text = `Cars up to ${maxPrice} EUR`;
       }
       economDesc.textContent = text;
+      // Also update the data-i18n attribute to prevent i18n from overriding
+      economDesc.setAttribute('data-i18n', '');
     }
     
     // Update standard description
@@ -94,6 +99,8 @@ class CarsFilterModal {
         text = `Cars between ${minPrice}-${maxPrice} EUR`;
       }
       standardDesc.textContent = text;
+      // Also update the data-i18n attribute to prevent i18n from overriding
+      standardDesc.setAttribute('data-i18n', '');
     }
     
     // Update premium description
@@ -109,6 +116,8 @@ class CarsFilterModal {
         text = `Cars ${minPrice} EUR and above`;
       }
       premiumDesc.textContent = text;
+      // Also update the data-i18n attribute to prevent i18n from overriding
+      premiumDesc.setAttribute('data-i18n', '');
     }
   }
 
@@ -416,26 +425,27 @@ class CarsFilterModal {
   openModal() {
     if (!this.modal || this.isOpen) return;
     
-    this.isOpen = true;
-    this.modal.classList.add('active');
-    
-    // Focus management
-    setTimeout(() => {
-      const firstCard = this.modal.querySelector('.filter-card');
-      if (firstCard) {
-        firstCard.focus();
-      }
-    }, 300);
-    
     // First update i18n to apply the translations
     if (typeof updateContent === 'function') {
       updateContent();
     }
     
-    // Then update descriptions with dynamic values (after i18n)
+    // Update descriptions with dynamic values BEFORE showing modal
+    this.updateModalDescriptions();
+    
+    // Small delay to ensure DOM is updated
     setTimeout(() => {
-      this.updateModalDescriptions();
-    }, 100);
+      this.isOpen = true;
+      this.modal.classList.add('active');
+      
+      // Focus management
+      setTimeout(() => {
+        const firstCard = this.modal.querySelector('.filter-card');
+        if (firstCard) {
+          firstCard.focus();
+        }
+      }, 300);
+    }, 50);
   }
 
   closeModal() {
