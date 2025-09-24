@@ -95,7 +95,7 @@ const corsMiddleware = cors({
 const devCorsMiddleware = cors({
   ...corsOptions,
   origin: true // Allow all origins in development
-});
+}); 
 
 // Get appropriate CORS middleware based on environment
 function getCorsMiddleware() {
