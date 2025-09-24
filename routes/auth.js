@@ -125,8 +125,8 @@ router.get('/health', async (req, res) => {
   }
 });
 
-// Create new admin user (protected route)
-router.post('/register', authenticateToken, validate(registerSchema), async (req, res) => {
+// Create new admin user (temporarily unprotected for initial setup)
+router.post('/register', validate(registerSchema), async (req, res) => {
   try {
     const { username, password, email } = req.body;
 

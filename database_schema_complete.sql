@@ -134,6 +134,18 @@ CREATE TABLE coupon_codes (
     showed_codes JSONB DEFAULT '[]'::jsonb
 );
 
+-- Coupon Redemptions Table (MISSING - CRITICAL FOR COUPON SYSTEM)
+CREATE TABLE coupon_redemptions (
+    id SERIAL PRIMARY KEY,
+    coupon_id INTEGER NOT NULL REFERENCES coupon_codes(id),
+    redemption_code VARCHAR NOT NULL UNIQUE,
+    status VARCHAR DEFAULT 'available', -- 'available', 'redeemed', 'expired'
+    redeemed_at TIMESTAMP,
+    redeemed_by_phone VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Phone Numbers Table
 CREATE TABLE phone_numbers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -217,6 +229,12 @@ CREATE INDEX idx_coupon_codes_code ON coupon_codes(code);
 CREATE INDEX idx_coupon_codes_is_active ON coupon_codes(is_active);
 CREATE INDEX idx_coupon_codes_wheel_enabled ON coupon_codes(wheel_enabled);
 
+-- Coupon Redemptions indexes
+CREATE INDEX idx_coupon_redemptions_coupon_id ON coupon_redemptions(coupon_id);
+CREATE INDEX idx_coupon_redemptions_redemption_code ON coupon_redemptions(redemption_code);
+CREATE INDEX idx_coupon_redemptions_status ON coupon_redemptions(status);
+CREATE INDEX idx_coupon_redemptions_redeemed_by_phone ON coupon_redemptions(redeemed_by_phone);
+
 -- Phone Numbers indexes
 CREATE INDEX idx_phone_numbers_phone ON phone_numbers(phone_number);
 CREATE INDEX idx_phone_numbers_available_coupons ON phone_numbers USING GIN(available_coupons);
@@ -252,9 +270,9 @@ INSERT INTO cars (make_name, model_name, production_year, gear_type, fuel_type, 
 
 -- Sample Coupon Codes
 INSERT INTO coupon_codes (code, type, discount_percentage, description, expires_at, is_active, wheel_enabled, free_days, available_codes, showed_codes) VALUES
-('WELCOME10', 'percentage', 10, 'Welcome discount for new customers', '2024-12-31 23:59:59', true, true, null, '["WTCFE5FW2Q", "M1IL4EJ3LJ", "NIG80RETDK", "M3PV1D0G44"]', '[]'),
-('SUMMER20', 'percentage', 20, 'Summer special discount', '2024-08-31 23:59:59', true, true, null, '["SUMMER2024A", "SUMMER2024B", "SUMMER2024C"]', '[]'),
-('FREEDAYS', 'free_days', null, 'Free rental days promotion', '2024-12-31 23:59:59', true, true, 2, '["FREEDAYS001", "FREEDAYS002"]', '[]');
+('WELCOME10', 'percentage', 10, 'Welcome discount for new customers', '2024-12-31 23:59:59', true, true, null, '["WTCFE5FW2Q", "M1IL4EJ3LJ", "NIG80RETDK", "M3PV1D0G44"]'::jsonb, '[]'::jsonb),
+('SUMMER20', 'percentage', 20, 'Summer special discount', '2024-08-31 23:59:59', true, true, null, '["SUMMER2024A", "SUMMER2024B", "SUMMER2024C"]'::jsonb, '[]'::jsonb),
+('FREEDAYS', 'free_days', null, 'Free rental days promotion', '2024-12-31 23:59:59', true, true, 2, '["FREEDAYS001", "FREEDAYS002"]'::jsonb, '[]'::jsonb);
 
 -- Sample Spinning Wheels
 INSERT INTO spinning_wheels (name, description, is_active, is_premium) VALUES
@@ -284,9 +302,9 @@ INSERT INTO admin_users (username, password_hash, email) VALUES
 
 -- Sample Phone Numbers (with coupon data)
 INSERT INTO phone_numbers (phone_number, bookings_ids, available_coupons, redeemed_coupons, return_gift_redeemed) VALUES
-('68230603', '{}', '["M1IL4EJ3LJ", "NIG80RETDK"]', '[]', false),
-('324532452345', '{}', '["WTCFE5FW2Q"]', '[]', false),
-('+40712345678', '{}', '["SUMMER2024A"]', '[]', false);
+('68230603', '{}', '{"M1IL4EJ3LJ", "NIG80RETDK"}', '{}', false),
+('324532452345', '{}', '{"WTCFE5FW2Q"}', '{}', false),
+('+40712345678', '{}', '{"SUMMER2024A"}', '{}', false);
 
 -- =====================================================
 -- TRIGGERS AND FUNCTIONS
@@ -306,6 +324,7 @@ CREATE TRIGGER update_cars_updated_at BEFORE UPDATE ON cars FOR EACH ROW EXECUTE
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_bookings_updated_at BEFORE UPDATE ON bookings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_booked_cars_updated_at BEFORE UPDATE ON booked_cars FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_coupon_redemptions_updated_at BEFORE UPDATE ON coupon_redemptions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_spinning_wheels_updated_at BEFORE UPDATE ON spinning_wheels FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_fee_settings_updated_at BEFORE UPDATE ON fee_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_sober_driver_callbacks_updated_at BEFORE UPDATE ON sober_driver_callbacks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -321,6 +340,7 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE booked_cars ENABLE ROW LEVEL SECURITY;
 ALTER TABLE coupon_codes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE coupon_redemptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE phone_numbers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE spinning_wheels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wheel_coupons ENABLE ROW LEVEL SECURITY;
@@ -334,6 +354,7 @@ CREATE POLICY "Allow all operations on users" ON users FOR ALL USING (true);
 CREATE POLICY "Allow all operations on bookings" ON bookings FOR ALL USING (true);
 CREATE POLICY "Allow all operations on booked_cars" ON booked_cars FOR ALL USING (true);
 CREATE POLICY "Allow all operations on coupon_codes" ON coupon_codes FOR ALL USING (true);
+CREATE POLICY "Allow all operations on coupon_redemptions" ON coupon_redemptions FOR ALL USING (true);
 CREATE POLICY "Allow all operations on phone_numbers" ON phone_numbers FOR ALL USING (true);
 CREATE POLICY "Allow all operations on spinning_wheels" ON spinning_wheels FOR ALL USING (true);
 CREATE POLICY "Allow all operations on wheel_coupons" ON wheel_coupons FOR ALL USING (true);
@@ -350,8 +371,8 @@ BEGIN
     RAISE NOTICE '=====================================================';
     RAISE NOTICE 'PLUSRENT DATABASE SCHEMA CREATED SUCCESSFULLY!';
     RAISE NOTICE '=====================================================';
-    RAISE NOTICE 'Tables created: 11';
-    RAISE NOTICE 'Indexes created: 20+';
+    RAISE NOTICE 'Tables created: 12 (including coupon_redemptions)';
+    RAISE NOTICE 'Indexes created: 25+';
     RAISE NOTICE 'Sample data inserted';
     RAISE NOTICE 'Triggers and functions configured';
     RAISE NOTICE 'Row Level Security enabled';
