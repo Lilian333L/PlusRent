@@ -201,6 +201,16 @@ CREATE TABLE sober_driver_callbacks (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
+-- Global Settings Table (MISSING - CRITICAL FOR APPLICATION)
+CREATE TABLE global_settings (
+    id SERIAL PRIMARY KEY,
+    setting_key VARCHAR NOT NULL UNIQUE,
+    setting_value TEXT,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
 -- =====================================================
 -- INDEXES
 -- =====================================================
@@ -256,6 +266,9 @@ CREATE INDEX idx_fee_settings_is_active ON fee_settings(is_active);
 CREATE INDEX idx_sober_driver_phone ON sober_driver_callbacks(phone_number);
 CREATE INDEX idx_sober_driver_status ON sober_driver_callbacks(status);
 
+-- Global Settings indexes
+CREATE INDEX idx_global_settings_setting_key ON global_settings(setting_key);
+
 -- =====================================================
 -- SAMPLE DATA
 -- =====================================================
@@ -306,6 +319,10 @@ INSERT INTO phone_numbers (phone_number, bookings_ids, available_coupons, redeem
 ('324532452345', '{}', '{"WTCFE5FW2Q"}', '{}', false),
 ('+40712345678', '{}', '{"SUMMER2024A"}', '{}', false);
 
+-- Sample Global Settings
+INSERT INTO global_settings (setting_key, setting_value, description) VALUES
+('returning_customer_booking_trigger', '2', 'Booking interval that triggers returning customer popup (e.g., 2 = every 2nd booking)');
+
 -- =====================================================
 -- TRIGGERS AND FUNCTIONS
 -- =====================================================
@@ -328,6 +345,7 @@ CREATE TRIGGER update_coupon_redemptions_updated_at BEFORE UPDATE ON coupon_rede
 CREATE TRIGGER update_spinning_wheels_updated_at BEFORE UPDATE ON spinning_wheels FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_fee_settings_updated_at BEFORE UPDATE ON fee_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_sober_driver_callbacks_updated_at BEFORE UPDATE ON sober_driver_callbacks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_global_settings_updated_at BEFORE UPDATE ON global_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES

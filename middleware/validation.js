@@ -303,7 +303,8 @@ const couponCreateSchema = Joi.object({
       return date.toISOString();
     }),
     Joi.string().allow('').custom(() => null)
-  ).allow(null)
+  ).allow(null),
+  is_active: Joi.boolean().default(true)
 });
 
 const couponUpdateSchema = Joi.object({
