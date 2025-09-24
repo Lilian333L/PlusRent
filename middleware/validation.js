@@ -304,7 +304,13 @@ const couponCreateSchema = Joi.object({
     }),
     Joi.string().allow('').custom(() => null)
   ).allow(null),
-  is_active: Joi.boolean().default(true)
+  is_active: Joi.any().custom((value, helpers) => {
+    // Convert any value to boolean
+    if (value === '1' || value === 'true' || value === true) return true;
+    if (value === '0' || value === 'false' || value === false) return false;
+    if (value === undefined || value === null) return true; // default to true
+    return helpers.error('any.invalid');
+  }).default(true)
 });
 
 const couponUpdateSchema = Joi.object({

@@ -3913,7 +3913,9 @@ ${booking.coupon_details ? `
 
         couponCards.innerHTML = coupons.map(coupon => {
           // Check if coupon has active codes
-          const availableCodes = JSON.parse(coupon.available_codes || '[]');
+          const availableCodes = Array.isArray(coupon.available_codes) 
+            ? coupon.available_codes 
+            : JSON.parse(coupon.available_codes || '[]');
           const hasActiveCodes = availableCodes.length > 0;
 
           return `
