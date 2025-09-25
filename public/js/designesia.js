@@ -1918,7 +1918,7 @@
          
         setTimeout(function () {
         $("#cookieConsent").fadeIn(400);
-         }, 2000);
+         }, 300000);
         $("#closeCookieConsent, .cookieConsentOK").click(function() {
             $("#cookieConsent").fadeOut(400);
         });
