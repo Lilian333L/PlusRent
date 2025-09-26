@@ -1801,7 +1801,7 @@
         <div class="container">
           <div class="topbar-left xs-hide">
             <div class="topbar-widget">
-              <div class="topbar-widget"><a href="tel:060000500"><i class="fa fa-phone"></i>060000500</a></div>
+              <div class="topbar-widget"><a href="tel:+2083339296"><i class="fa fa-phone"></i>+208 333 9296</a></div>
               <div class="topbar-widget"><a href="mailto:contact@plusrent.com"><i
                     class="fa fa-envelope"></i>contact@plusrent.com</a></div>
               <div class="topbar-widget"><i class="fa fa-clock-o"></i>Mon - Fri 08.00 - 18.00</div>
@@ -1853,7 +1853,7 @@
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <!-- Call Now Button -->
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                    <a href="tel:060000500" class="call-now-btn"
+                    <a href="tel:+2083339296" class="call-now-btn"
                       style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
                       <i class="fa fa-phone" style="font-size: 12px;"></i>
                       <span data-i18n="call_now">Call Now</span>
@@ -3041,11 +3041,11 @@
             <div class="widget">
               <h5>Contact Info</h5>
               <address class="s1">
-                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica
+                <span><i class="id-color fa fa-map-marker fa-lg"></i>Ștefan Cel Mare 1, Chișinău, Republica
                   Moldova</span>
-                <span><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
+                <span><i class="id-color fa fa-phone fa-lg"></i>+373 22 123 456</span>
                 <span><i class="id-color fa fa-envelope-o fa-lg"></i><a
-                    href="mailto:contact@plusrent.com">contact@plusrent.com</a></span>
+                    href="mailto:contact@example.com">contact@example.com</a></span>
               </address>
             </div>
           </div>
@@ -3749,6 +3749,11 @@ ${booking.coupon_details ? `
             badge = `<div class="unavailable-badge">UNAVAILABLE UNTIL ${formatted}</div>`;
           }
           const isPremium = car.is_premium === 1 || car.is_premium === true;
+          const timestamp = Date.now();
+const carImageUrl = car.head_image && car.head_image.startsWith('http') 
+  ? car.head_image + '?t=' + timestamp
+  : (car.head_image ? window.API_BASE_URL + car.head_image + '?t=' + timestamp : window.API_BASE_URL + '/uploads/placeholder.png');
+
           return `
                                 <div class="col-xl-4 col-lg-4 col-md-6">
                                     <div class="de-item mb30 car-card${isPremium ? ' premium' : ''}" draggable="true" data-car-id="${car.id}" data-car-index="${index}">
@@ -3768,7 +3773,7 @@ ${booking.coupon_details ? `
                 </button>
               </div>
           <div class="d-img${isUnavailable ? ' img-unavailable' : ''}">
-            <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="">
+            <img src="${carImageUrl}" class="img-fluid" alt="">
             ${badge}
             ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
                                         </div>
@@ -5941,9 +5946,14 @@ ${booking.coupon_details ? `
         // Show current images if they exist
         const editHeadImagePreview = document.getElementById('editHeadImagePreview');
         if (car.head_image && editHeadImagePreview) {
+          const timestamp = Date.now();
+          const cacheBustedUrl = car.head_image.startsWith('http') 
+    ? `${car.head_image}?t=${timestamp}` 
+    : `${window.API_BASE_URL}${car.head_image}?t=${timestamp}`;
+  
           editHeadImagePreview.innerHTML = `
             <div style="position: relative; display: inline-block;">
-              <img src="${car.head_image.startsWith('http') ? car.head_image : window.API_BASE_URL + car.head_image}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
+                <img src="${cacheBustedUrl}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
               <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeHeadImage()">×</button>
             </div>
           `;

@@ -422,46 +422,46 @@ router.post(
     // Process head image if provided
     if (req.body.head_image && req.body.head_image.data) {
       try {
+        // Delete old head image if it exists
+        if (car.head_image) {
+          try {
+            // Extract filename from the URL to delete the old file
+            const oldImagePath = car.head_image.split('/').pop();
+            if (oldImagePath) {
+              await deleteCarImage(carId, oldImagePath);
+            }
+          } catch (deleteError) {
+            console.error("❌ Error deleting old head image:", deleteError);
+            // Continue with upload even if deletion fails
+          }
+        }
+    
         const headImageData = req.body.head_image;
-
-        // Convert base64 to buffer
         const imageBuffer = Buffer.from(headImageData.data, "base64");
-
-        // Create a file object for Supabase upload
         const headFile = {
           buffer: imageBuffer,
           mimetype: `image/${headImageData.extension || "jpeg"}`,
           originalname: `head.${headImageData.extension || "jpg"}`,
         };
-
-        // We'll upload this after creating the car record
-        headImageUrl = headFile; // Store the file object for upload after car creation
+    
+        // Upload new head image
+        headImagePath = await uploadCarImage(headFile, carId, "head");
       } catch (error) {
-        console.error("❌ Error preparing head image:", error);
+        console.error("❌ Error uploading head image to Supabase:", error);
       }
-    }
-
-    // Process gallery images if provided
-    if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
-      req.body.gallery_images.forEach((imageData, index) => {
-        if (imageData && imageData.data) {
-          try {
-            // Convert base64 to buffer
-            const imageBuffer = Buffer.from(imageData.data, "base64");
-
-            // Create a file object for Supabase upload
-            const galleryFile = {
-              buffer: imageBuffer,
-              mimetype: `image/${imageData.extension || "jpeg"}`,
-              originalname: `gallery_${index}.${imageData.extension || "jpg"}`,
-            };
-
-            galleryImageUrls.push(galleryFile);
-          } catch (error) {
-            console.error(`❌ Error preparing gallery image ${index}:`, error);
+    } else if (req.body.head_image === null || req.body.head_image === '') {
+      // Handle explicit image removal
+      if (car.head_image) {
+        try {
+          const oldImagePath = car.head_image.split('/').pop();
+          if (oldImagePath) {
+            await deleteCarImage(carId, oldImagePath);
           }
+        } catch (deleteError) {
+          console.error("❌ Error deleting head image:", deleteError);
         }
-      });
+      }
+      headImagePath = null;
     }
 
     const {
@@ -1118,6 +1118,7 @@ router.post(
       }
 
       car = carData;
+      
       headImagePath = car.head_image || null;
       galleryImagePaths = car.gallery_images
         ? JSON.parse(car.gallery_images)

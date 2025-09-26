@@ -1002,28 +1002,27 @@ async function calculateModalPrice() {
   // Calculate location fees
   let locationFees = 0;
   if (pickupLocation === "Chisinau Airport") {
-    locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
-  } else if (pickupLocation === "Iasi Airport") {
-    locationFees += modalFeeSettings.iasi_airport_pickup || 35;
-  } else {
-    locationFees += modalFeeSettings.office_pickup || 0;
-  }
+  locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
+} else if (pickupLocation === "Iasi Airport") {
+  locationFees += modalFeeSettings.iasi_airport_pickup || 0;
+} else {
+  locationFees += modalFeeSettings.office_pickup || 0;
+}
 
-  if (dropoffLocation === "Chisinau Airport") {
-    locationFees += modalFeeSettings.chisinau_airport_dropoff || 25;
-  } else if (dropoffLocation === "Iasi Airport") {
-    locationFees += modalFeeSettings.iasi_airport_dropoff || 35;
-  } else {
-    locationFees += modalFeeSettings.office_dropoff || 0;
-  }
+if (dropoffLocation === "Chisinau Airport") {
+  locationFees += modalFeeSettings.chisinau_airport_dropoff || 0;
+} else if (dropoffLocation === "Iasi Airport") {
+  locationFees += modalFeeSettings.iasi_airport_dropoff || 0;
+} else {
+  locationFees += modalFeeSettings.office_dropoff || 0;
+}
 
   // Calculate outside hours fees
   let outsideHoursFees = 0;
   const pickupHour = parseInt(pickupTime.split(":")[0]);
   const returnHour = parseInt(returnTime.split(":")[0]);
-  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
-  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
-
+  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += modalFeeSettings.outside_hours_fee || 0;
+  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += modalFeeSettings.outside_hours_fee || 0;
   // Calculate subtotal before discount
   const subtotal = baseCost + locationFees + outsideHoursFees;
 
