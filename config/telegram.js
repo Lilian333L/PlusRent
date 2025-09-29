@@ -115,7 +115,7 @@ class TelegramNotifier {
 
   formatBookingMessage(bookingData) {
     return `
-  �� <b>New Booking Request</b>
+  📆 <b>Cerere De Rezervare</b>
   
   <b>Customer Details:</b>
   • Name: ${bookingData.contact_person || 'Not provided'}
@@ -177,7 +177,7 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 
   formatCouponUpdatedMessage(couponData) {
     return `
-✏️ <b>Coupon Updated</b>
+✏️ <b>Cupon Actualizat</b>
 
 <b>Coupon Details:</b>
 • Code: <code>${couponData.code}</code>
@@ -192,7 +192,7 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 
   formatCouponDeletedMessage(couponData) {
     return `
-🗑️ <b>Coupon Deleted</b>
+🗑️ <b>Cupon șters</b>
 
 <b>Coupon Details:</b>
 • Code: <code>${couponData.code}</code>
@@ -204,7 +204,7 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 
   formatSoberDriverCallbackMessage(callbackData) {
     return `
-🚗 <b>New Sober Driver Callback Request</b>
+🚗 <b>Cerere de Șofer Treaz</b>
 
 <b>Customer Details:</b>
 • Phone: ${callbackData.phone_number}
@@ -216,7 +216,7 @@ ${callbackData.special_instructions || 'None provided'}
 
 ⏰ Requested at: ${new Date().toLocaleString()}
 
-📞 <b>Please call back within minutes!</b>
+📞 <b>Vă rugăm să sunați înapoi în câteva minute!</b>
     `;
   }
 }
