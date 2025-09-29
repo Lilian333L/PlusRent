@@ -9,7 +9,7 @@
 
     // Configuration
     const CONFIG = {
-        delay: 10 * 1000, // 10 seconds
+        delay: 300 * 1000, // 10 seconds
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: 'spinning-wheel-standalone.html',
