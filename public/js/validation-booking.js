@@ -964,27 +964,27 @@ async function calculateModalPrice() {
   // Get base price
   let dailyRate = 0;
   if (days >= 1 && days <= 2) {
-    pricePerDay = parseInt(carDetails.price_policy["1-2"]) || this.basePrice;
+    dailyRate = parseInt(carDetails.price_policy["1-2"]) || this.basePrice;
   } else if (days >= 3 && days <= 7) {
-    pricePerDay =
+    dailyRate =
       parseInt(carDetails.price_policy["3-7"]) ||
       parseInt(carDetails.price_policy["1-2"]) ||
       this.basePrice;
   } else if (days >= 8 && days <= 20) {
-    pricePerDay =
+    dailyRate =
       parseInt(carDetails.price_policy["8-20"]) ||
       parseInt(carDetails.price_policy["3-7"]) ||
       parseInt(carDetails.price_policy["1-2"]) ||
       this.basePrice;
   } else if (days >= 21 && days <= 45) {
-    pricePerDay =
+    dailyRate =
       parseInt(carDetails.price_policy["21-45"]) ||
       parseInt(carDetails.price_policy["8-20"]) ||
       parseInt(carDetails.price_policy["3-7"]) ||
       parseInt(carDetails.price_policy["1-2"]) ||
       this.basePrice;
   } else if (days >= 46) {
-    pricePerDay =
+    dailyRate =
       parseInt(carDetails.price_policy["46+"]) ||
       parseInt(carDetails.price_policy["21-45"]) ||
       parseInt(carDetails.price_policy["8-20"]) ||
