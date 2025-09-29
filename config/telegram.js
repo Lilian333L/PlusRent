@@ -43,17 +43,17 @@ class TelegramNotifier {
 
   formatCarAddedMessage(carData) {
     return `
-🚗 <b>New Car Added</b>
+🚗 <b>Mașină nouă adăugată</b>
 
-<b>Car Details:</b>
-• Make: ${carData.make_name}
+<b>Detalii Mașină:</b>
+• Marca: ${carData.make_name}
 • Model: ${carData.model_name}
-• Year: ${carData.production_year}
-• Type: ${carData.car_type}
-• Fuel: ${carData.fuel_type}
-• Gear: ${carData.gear_type}
-• Doors: ${carData.num_doors}
-• Passengers: ${carData.num_passengers}
+• Anul: ${carData.production_year}
+• Tipul: ${carData.car_type}
+• Combustibil: ${carData.fuel_type}
+• Cutia de viteză: ${carData.gear_type}
+• Uși: ${carData.num_doors}
+• Pasageri: ${carData.num_passengers}
 
 <b>Pricing:</b>
 • 1-2 days: €${carData.price_policy['1-2']}
@@ -62,19 +62,19 @@ class TelegramNotifier {
 • 21-45 days: €${carData.price_policy['21-45']}
 • 46+ days: €${carData.price_policy['46+']}
 
-<b>Insurance:</b>
+<b>Asigurare:</b>
 • RCA: €${carData.rca_insurance_price}/day
 • Casco: €${carData.casco_insurance_price}/day
 
-⏰ Added at: ${new Date().toLocaleString()}
+⏰ Adăugat la: ${new Date().toLocaleString()}
     `;
   }
 
   formatCarUpdatedMessage(carData) {
     return `
-✏️ <b>Car Updated</b>
+✏️ <b>Mașină actualizată</b>
 
-<b>Car Details:</b>
+<b>Detalii Mașină:</b>
 • Make: ${carData.make_name}
 • Model: ${carData.model_name}
 • Year: ${carData.production_year}
@@ -91,25 +91,25 @@ class TelegramNotifier {
 • 21-45 days: €${carData.price_policy['21-45']}
 • 46+ days: €${carData.price_policy['46+']}
 
-<b>Insurance:</b>
+<b>Asigurare:</b>
 • RCA: €${carData.rca_insurance_price}/day
 • Casco: €${carData.casco_insurance_price}/day
 
-⏰ Updated at: ${new Date().toLocaleString()}
+⏰ Actualizat la: ${new Date().toLocaleString()}
     `;
   }
 
   formatCarDeletedMessage(carData) {
     return `
-🗑️ <b>Car Deleted</b>
+🗑️ <b>Mașină Ștearsa</b>
 
-<b>Car Details:</b>
-• Make: ${carData.make_name}
+<b>Detalii Mașină:</b>
+• Marca: ${carData.make_name}
 • Model: ${carData.model_name}
-• Year: ${carData.production_year}
-• Type: ${carData.car_type}
+• Anul: ${carData.production_year}
+• Tipul: ${carData.car_type}
 
-⏰ Deleted at: ${new Date().toLocaleString()}
+⏰ Ștearsă la: ${new Date().toLocaleString()}
     `;
   }
 
@@ -117,29 +117,29 @@ class TelegramNotifier {
     return `
   📆 <b>Cerere De Rezervare</b>
   
-  <b>Customer Details:</b>
-  • Name: ${bookingData.contact_person || 'Not provided'}
-  • Phone: ${bookingData.contact_phone || 'Not provided'}
-  • Email: ${bookingData.email || 'Not provided'}
-  • Age: ${bookingData.age || 'Not provided'}
+  <b>Detalii client:</b>
+  • Nume: ${bookingData.contact_person || 'Nu este informație adăugată.'}
+  • Telefon: ${bookingData.contact_phone || 'Nu este informație adăugată.'}
+  • Email: ${bookingData.email || 'Nu este informație adăugată.'}
+  • Vârsta: ${bookingData.age || 'Nu este informație adăugată.'}
   
-  <b>Car Details:</b>
-  • Car: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
+  <b>Detalii despre mașină:</b>
+  • Mașina: ${bookingData.make_name} ${bookingData.model_name} (${bookingData.production_year})
   
-  <b>Booking Details:</b>
-  • Pickup: ${this.formatDate(bookingData.pickup_date)} at ${bookingData.pickup_time}
-  • Return: ${this.formatDate(bookingData.return_date)} at ${bookingData.return_time}
-  • Pickup Location: ${bookingData.pickup_location}
-  • Dropoff Location: ${bookingData.dropoff_location}
+  <b>Detalii rezervare:</b>
+  • Ridicare: ${this.formatDate(bookingData.pickup_date)} at ${bookingData.pickup_time}
+  • Returnare: ${this.formatDate(bookingData.return_date)} at ${bookingData.return_time}
+  • Locul de preluare: ${bookingData.pickup_location}
+  • Locație de predare: ${bookingData.dropoff_location}
   
-  • Total Price: €${bookingData.total_price}
-  ${bookingData.discount_code ? `• Coupon Code: <code>${bookingData.discount_code}</code>` : ''}
+  • Preț total: €${bookingData.total_price}
+  ${bookingData.discount_code ? `• Codul Cuponului: <code>${bookingData.discount_code}</code>` : ''}
   ${bookingData.coupon_details ? this.formatCouponDetails(bookingData.coupon_details) : ''}
   
-  <b>Special Instructions:</b>
-  ${bookingData.special_instructions || 'None provided'}
+  <b>Instrucțiuni speciale:</b>
+  ${bookingData.special_instructions || 'Nu este informație adăugată.'}
   
-  ⏰ Booked at: ${new Date().toLocaleString()}
+  ⏰ Rezervat la: ${new Date().toLocaleString()}
       `;
   }
   
@@ -162,16 +162,16 @@ class TelegramNotifier {
 
   formatCouponAddedMessage(couponData) {
     return `
-🎫 <b>New Coupon Added</b>
+🎫 <b>Cupon Nou Adăugat</b>
 
-<b>Coupon Details:</b>
-• Code: <code>${couponData.code}</code>
-• Discount: ${couponData.discount_percentage}%
-• Description: ${couponData.description || 'No description'}
+<b>Detalii Cupon:</b>
+• Codul: <code>${couponData.code}</code>
+• Reducerea: ${couponData.discount_percentage}%
+• Descriere: ${couponData.description || 'No description'}
 • Status: ${couponData.is_active ? 'Active' : 'Inactive'}
 ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLocaleString()}` : ''}
 
-⏰ Added at: ${new Date().toLocaleString()}
+⏰ Adăugat la: ${new Date().toLocaleString()}
     `;
   }
 
@@ -179,14 +179,14 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
     return `
 ✏️ <b>Cupon Actualizat</b>
 
-<b>Coupon Details:</b>
-• Code: <code>${couponData.code}</code>
-• Discount: ${couponData.discount_percentage}%
-• Description: ${couponData.description || 'No description'}
+<b>Detalii Cupon:</b>
+• Codul: <code>${couponData.code}</code>
+• Reducerea: ${couponData.discount_percentage}%
+• Descriere: ${couponData.description || 'No description'}
 • Status: ${couponData.is_active ? 'Active' : 'Inactive'}
 ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLocaleString()}` : ''}
 
-⏰ Updated at: ${new Date().toLocaleString()}
+⏰ Actualizat la: ${new Date().toLocaleString()}
     `;
   }
 
@@ -207,14 +207,14 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 🚗 <b>Cerere de Șofer Treaz</b>
 
 <b>Customer Details:</b>
-• Phone: ${callbackData.phone_number}
-• Name: ${callbackData.customer_name || 'Not provided'}
-• Email: ${callbackData.customer_email || 'Not provided'}
+• Număr de contact: ${callbackData.phone_number}
+• Numele: ${callbackData.customer_name || 'Nu este informație adăugată.'}
+• Email: ${callbackData.customer_email || 'Nu este informație adăugată.'}
 
-<b>Special Instructions:</b>
-${callbackData.special_instructions || 'None provided'}
+<b>Instrucțiuni:</b>
+${callbackData.special_instructions || 'Nu este informație adăugată.'}
 
-⏰ Requested at: ${new Date().toLocaleString()}
+⏰ Cerere la ora: ${new Date().toLocaleString()}
 
 📞 <b>Vă rugăm să sunați înapoi în câteva minute!</b>
     `;
