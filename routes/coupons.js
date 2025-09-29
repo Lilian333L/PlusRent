@@ -602,6 +602,33 @@ router.delete(
     const id = req.params.id;
 
     try {
+      // 1) Delete wheel relationships first
+      const { error: wcErr } = await supabase
+        .from('wheel_coupons')
+        .delete()
+        .eq('coupon_id', id);
+      
+      if (wcErr) {
+        console.error("❌ Error deleting wheel_coupons:", wcErr);
+        return res.status(500).json({ 
+          error: "Database error: " + wcErr.message 
+        });
+      }
+
+      // 2) Delete redemptions
+      const { error: redErr } = await supabase
+        .from('coupon_redemptions')
+        .delete()
+        .eq('coupon_id', id);
+      
+      if (redErr) {
+        console.error("❌ Error deleting coupon_redemptions:", redErr);
+        return res.status(500).json({ 
+          error: "Database error: " + redErr.message 
+        });
+      }
+
+      // 3) Delete the coupon
       const { error } = await supabase
         .from("coupon_codes")
         .delete()
