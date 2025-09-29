@@ -206,7 +206,7 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
     return `
 🚗 <b>Cerere de Șofer Treaz</b>
 
-<b>Customer Details:</b>
+<b>Detalii client:</b>
 • Număr de contact: ${callbackData.phone_number}
 • Numele: ${callbackData.customer_name || 'Nu este informație adăugată.'}
 • Email: ${callbackData.customer_email || 'Nu este informație adăugată.'}
