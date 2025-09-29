@@ -2854,7 +2854,7 @@
                     <div class="mt-4">
                       <button type="button" id="saveFeeSettings" class="btn btn-main btn-lg">Save Changes</button>
                       <!-- <button type="button" id="resetFeeSettings" class="btn btn-outline-secondary btn-lg ms-2">Reset to -->
-                        <!-- Defaults</button> -->
+                      <!-- Defaults</button> -->
                     </div>
                   </div>
                 </div>
@@ -3750,9 +3750,9 @@ ${booking.coupon_details ? `
           }
           const isPremium = car.is_premium === 1 || car.is_premium === true;
           const timestamp = Date.now();
-const carImageUrl = car.head_image && car.head_image.startsWith('http') 
-  ? car.head_image + '?t=' + timestamp
-  : (car.head_image ? window.API_BASE_URL + car.head_image + '?t=' + timestamp : window.API_BASE_URL + '/uploads/placeholder.png');
+          const carImageUrl = car.head_image && car.head_image.startsWith('http')
+            ? car.head_image + '?t=' + timestamp
+            : (car.head_image ? window.API_BASE_URL + car.head_image + '?t=' + timestamp : window.API_BASE_URL + '/uploads/placeholder.png');
 
           return `
                                 <div class="col-xl-4 col-lg-4 col-md-6">
@@ -5290,9 +5290,9 @@ const carImageUrl = car.head_image && car.head_image.startsWith('http')
               }
             }
             console.log("🖼️ Frontend - Sending car data with images:");
-console.log("🖼️ Frontend - Head image present:", !!carDataWithImages.head_image);
-console.log("🖼️ Frontend - Gallery images count:", carDataWithImages.gallery_images ? carDataWithImages.gallery_images.length : 0);
-console.log("🖼️ Frontend - Full car data keys:", Object.keys(carDataWithImages));
+            console.log("🖼️ Frontend - Head image present:", !!carDataWithImages.head_image);
+            console.log("🖼️ Frontend - Gallery images count:", carDataWithImages.gallery_images ? carDataWithImages.gallery_images.length : 0);
+            console.log("🖼️ Frontend - Full car data keys:", Object.keys(carDataWithImages));
 
             try {
               const token = localStorage.getItem('adminToken');
@@ -5951,10 +5951,10 @@ console.log("🖼️ Frontend - Full car data keys:", Object.keys(carDataWithIma
         const editHeadImagePreview = document.getElementById('editHeadImagePreview');
         if (car.head_image && editHeadImagePreview) {
           const timestamp = Date.now();
-          const cacheBustedUrl = car.head_image.startsWith('http') 
-    ? `${car.head_image}?t=${timestamp}` 
-    : `${window.API_BASE_URL}${car.head_image}?t=${timestamp}`;
-  
+          const cacheBustedUrl = car.head_image.startsWith('http')
+            ? `${car.head_image}?t=${timestamp}`
+            : `${window.API_BASE_URL}${car.head_image}?t=${timestamp}`;
+
           editHeadImagePreview.innerHTML = `
             <div style="position: relative; display: inline-block;">
                 <img src="${cacheBustedUrl}" alt="Current head image" style="max-width: 200px; max-height: 150px; border-radius: 4px;">
@@ -7249,7 +7249,9 @@ console.log("🖼️ Frontend - Full car data keys:", Object.keys(carDataWithIma
               const currentPercentage = wheelCoupon ? wheelCoupon.percentage || 0 : 0;
 
               // Check if coupon has active codes
-              const availableCodes = JSON.parse(coupon.available_codes || '[]');
+              const availableCodes = Array.isArray(coupon.available_codes)
+                ? coupon.available_codes
+                : JSON.parse(coupon.available_codes || '[]');
               const hasActiveCodes = availableCodes.length > 0;
 
               return `
