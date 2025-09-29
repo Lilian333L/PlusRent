@@ -795,7 +795,7 @@ async function restoreCouponToAvailable(discountCode, customerPhone) {
 }
 
 // Sober driver callback request
-router.post("/sober-driver-callback", async (req, res) => {
+router.post("/sofer-treaz-callback", async (req, res) => {
   const { phone_number, customer_name, customer_email, special_instructions } =
     req.body;
 
