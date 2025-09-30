@@ -29,6 +29,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <!-- i18n Support -->
     <script src="js/master-include.js"></script>
+    <script>
+        // Global error handler for i18next errors
+        window.addEventListener('error', function(event) {
+            if (event.error && event.error.message && event.error.message.includes('i18next')) {
+                console.warn('Caught i18next error:', event.error.message);
+                event.preventDefault(); // Prevent the error from breaking the page
+                return true;
+            }
+        });
+        
+        // Ensure i18next is properly initialized before any other scripts run
+        window.addEventListener('DOMContentLoaded', function() {
+            // Wait for i18next to be available and initialized
+            function waitForI18next() {
+                if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+                    // i18next is ready, continue with page initialization
+                    initializePage();
+                } else {
+                    // Wait a bit more and try again
+                    setTimeout(waitForI18next, 100);
+                }
+            }
+            
+            function initializePage() {
+                // Page is ready, i18next is initialized
+                console.log('Page initialized with i18next ready');
+            }
+            
+            // Start waiting for i18next
+            waitForI18next();
+        });
+    </script>
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }

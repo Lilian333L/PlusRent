@@ -6,6 +6,12 @@ function initI18n() {
     setTimeout(initI18n, 100);
     return;
   }
+  
+  // Ensure i18nextHttpBackend is also available
+  if (typeof i18nextHttpBackend === 'undefined') {
+    setTimeout(initI18n, 100);
+    return;
+  }
 
   // Always default to Romanian unless user explicitly picks another language
   const savedLang = localStorage.getItem('lang');
@@ -17,38 +23,44 @@ function initI18n() {
     initialLang = defaultLang;
   }
 
-  i18next
-    .use(i18nextHttpBackend)
-    .init({
-      lng: initialLang,
-      fallbackLng: 'en',
-      debug: false,
-      backend: {
-        loadPath: 'js/locales/{{lng}}.json'
-      },
-      interpolation: {
-        escapeValue: false // allow HTML in translations
-      },
-      parseMissingKeyHandler: function(key) { 
-        return key; 
-      }
-    }, function(err, t) {
-      if (err) {
-        
-        // Fallback: try to load with a different approach
-        loadFallbackTranslations(initialLang);
-      } else {
-        if (!savedLang) {
-          i18next.changeLanguage(defaultLang, function() {
+  try {
+    i18next
+      .use(i18nextHttpBackend)
+      .init({
+        lng: initialLang,
+        fallbackLng: 'en',
+        debug: false,
+        backend: {
+          loadPath: 'js/locales/{{lng}}.json'
+        },
+        interpolation: {
+          escapeValue: false // allow HTML in translations
+        },
+        parseMissingKeyHandler: function(key) { 
+          return key; 
+        }
+      }, function(err, t) {
+        if (err) {
+          console.warn('i18next initialization error:', err);
+          // Fallback: try to load with a different approach
+          loadFallbackTranslations(initialLang);
+        } else {
+          if (!savedLang) {
+            i18next.changeLanguage(defaultLang, function() {
+              updateContent();
+              updateLangPickerUI();
+            });
+          } else {
             updateContent();
             updateLangPickerUI();
-          });
-        } else {
-          updateContent();
-          updateLangPickerUI();
+          }
         }
-      }
-    });
+      });
+  } catch (error) {
+    console.warn('i18next setup error:', error);
+    // Ultimate fallback
+    loadFallbackTranslations(initialLang);
+  }
 }
 
 function updateContent() {
