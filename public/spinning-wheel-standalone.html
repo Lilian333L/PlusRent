@@ -14,8 +14,12 @@
 
         // Translation function
         function getTranslation(key) {
-            if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-                return i18next.t(key);
+            try {
+                if (typeof i18next !== 'undefined' && i18next && i18next.isInitialized) {
+                    return i18next.t(key);
+                }
+            } catch (e) {
+                console.warn('i18next translation error:', e);
             }
             return null;
         }
@@ -589,7 +593,7 @@
             try {
                 if (window.parent && window.parent !== window) {
                     // Try to access parent's i18next language
-                    if (window.parent.i18next && window.parent.i18next.language) {
+                    if (window.parent.i18next && window.parent.i18next.language && typeof window.parent.i18next.language === 'string') {
                         parentLang = window.parent.i18next.language;
                     }
                     // Try to access parent's localStorage
@@ -601,8 +605,20 @@
                 // Cross-origin restriction, ignore
             }
 
-            // Determine language priority
-            const lang = langParam || parentLang || storedLang || 'en';
+            // Determine language priority with better fallback
+            let lang = langParam || parentLang || storedLang || 'en';
+            
+            // Ensure lang is always a valid string
+            if (!lang || typeof lang !== 'string') {
+                lang = 'en';
+            }
+            
+            // Validate lang is one of our supported languages
+            const supportedLangs = ['en', 'ro', 'ru'];
+            if (!supportedLangs.includes(lang)) {
+                lang = 'en';
+            }
+            
             currentLanguage = lang;
 
             // Load translation file
@@ -614,8 +630,21 @@
                 } else {
                     // Fallback to English
                     const enResponse = await fetch('js/locales/en.json');
-                    translations = await enResponse.json();
-                    updateTexts();
+                    if (enResponse.ok) {
+                        translations = await enResponse.json();
+                        updateTexts();
+                    } else {
+                        // Ultimate fallback - use hardcoded translations
+                        translations = {
+                            'wheel.title': 'Spin the Wheel',
+                            'wheel.spin': 'SPIN',
+                            'wheel.congratulations': 'Congratulations!',
+                            'wheel.you_won': 'You won:',
+                            'wheel.try_again': 'Try Again',
+                            'wheel.close': 'Close'
+                        };
+                        updateTexts();
+                    }
                 }
             } catch (error) {
                 
@@ -1313,7 +1342,7 @@
                 try {
                     if (window.parent && window.parent !== window) {
                         // Try to get language from parent's i18next
-                        if (window.parent.i18next && window.parent.i18next.language) {
+                        if (window.parent.i18next && window.parent.i18next.language && typeof window.parent.i18next.language === 'string') {
                             currentLanguage = window.parent.i18next.language;
                             loadLanguage();
                         }
