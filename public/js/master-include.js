@@ -16,14 +16,14 @@
     }
     
     // Load other common scripts if they don't exist
-    if (!window.i18next) {
+    if (!window.i18next && !window.PREVENT_DUPLICATE_I18NEXT) {
         const i18nScript = document.createElement('script');
         i18nScript.src = 'https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js';
         i18nScript.async = true;
         document.head.appendChild(i18nScript);
     }
     
-    if (!window.i18nextHttpBackend) {
+    if (!window.i18nextHttpBackend && !window.PREVENT_DUPLICATE_I18NEXT) {
         const i18nBackendScript = document.createElement('script');
         i18nBackendScript.src = 'https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js';
         i18nBackendScript.async = true;
@@ -31,7 +31,7 @@
     }
     
     // Load i18n init if not already loaded
-    if (!document.querySelector('script[src*="i18n-init.js"]')) {
+    if (!document.querySelector('script[src*="i18n-init.js"]') && !window.PREVENT_DUPLICATE_I18NEXT) {
         const i18nInitScript = document.createElement('script');
         i18nInitScript.src = 'js/i18n-init.js';
         i18nInitScript.async = true;

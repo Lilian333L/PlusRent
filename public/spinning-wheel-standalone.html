@@ -581,6 +581,15 @@
 
         // Language detection and loading
         async function loadLanguage() {
+            // Check if parent page already has i18next initialized
+            if (window.parent && window.parent.PREVENT_DUPLICATE_I18NEXT && window.parent.i18next && window.parent.i18next.isInitialized) {
+                // Use parent's i18next instead of loading our own
+                currentLanguage = window.parent.i18next.language || 'en';
+                translations = window.parent.i18next.getResourceBundle(currentLanguage, 'translation') || {};
+                updateTexts();
+                return;
+            }
+            
             // Try to get language from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
             const langParam = urlParams.get('lang');
