@@ -2,7 +2,7 @@
 <html lang="ro">
 
 <head>
-    <title>PlusRent - Sofer Treaz - v2 fix</title>
+    <title>PlusRent - Sofer Treaz - v3 fix</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="16x16" href="images/icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/icon.png">
@@ -27,43 +27,7 @@
     <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
     <!-- FontAwesome 6 for latest icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <!-- i18n Support -->
-    <script src="js/master-include.js"></script>
-    <script>
-        // Prevent duplicate i18next initialization
-        window.PREVENT_DUPLICATE_I18NEXT = true;
-        
-        // Global error handler for i18next errors
-        window.addEventListener('error', function(event) {
-            if (event.error && event.error.message && event.error.message.includes('i18next')) {
-                console.warn('Caught i18next error:', event.error.message);
-                event.preventDefault(); // Prevent the error from breaking the page
-                return true;
-            }
-        });
-        
-        // Ensure i18next is properly initialized before any other scripts run
-        window.addEventListener('DOMContentLoaded', function() {
-            // Wait for i18next to be available and initialized
-            function waitForI18next() {
-                if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-                    // i18next is ready, continue with page initialization
-                    initializePage();
-                } else {
-                    // Wait a bit more and try again
-                    setTimeout(waitForI18next, 100);
-                }
-            }
-            
-            function initializePage() {
-                // Page is ready, i18next is initialized
-                console.log('Page initialized with i18next ready');
-            }
-            
-            // Start waiting for i18next
-            waitForI18next();
-        });
-    </script>
+    <script src="js/config.js"></script>
     <!-- Custom Language Picker Styles -->
     <style>
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
@@ -832,12 +796,27 @@
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
-    <script src="js/config.js"></script>
-    <!-- Google Maps API removed to prevent errors -->
     <!-- i18next CDN -->
-    <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
     <script src="js/i18n-init.js"></script>
+
+    <!-- Universal Spinning Wheel -->
+    <script src="js/universal-include.js"></script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait for i18n to be initialized and then update content
+  function waitForI18n() {
+    if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
+      updateContent();
+    } else {
+      setTimeout(waitForI18n, 100);
+    }
+  }
+  waitForI18n();
+});
+    </script>
     
     <script>
         // Callback form handling
