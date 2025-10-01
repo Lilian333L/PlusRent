@@ -651,10 +651,50 @@ router.delete(
 
 router.get("/lookup/:code", async (req, res) => {
   const code = req.params.code.toUpperCase();
-  const phoneNumber = req.query.phone; // Get phone number from query parameter
+  const phoneNumber = req.query.phone;
 
   try {
-    // First, check if it's a main coupon code (for price calculator)
+    // If phone number is provided, check if code is available for this phone
+    if (phoneNumber) {
+      try {
+        const { getPhoneNumberData } = require("../lib/phoneNumberTracker");
+        const phoneData = await getPhoneNumberData(phoneNumber);
+
+        if (!phoneData) {
+          return res.json({
+            valid: false,
+            message: "coupons.phone_not_authorized",
+          });
+        }
+
+        // Check if the code is in available_coupons for this phone
+        const availableCoupons = phoneData.available_coupons || [];
+        if (!availableCoupons.includes(code)) {
+          return res.json({
+            valid: false,
+            message: "coupons.not_available_for_phone",
+          });
+        }
+
+        // Check if the code has already been redeemed by this phone
+        const redeemedCoupons = phoneData.redeemed_coupons || [];
+        if (redeemedCoupons.includes(code)) {
+          return res.json({
+            valid: false,
+            message: "coupons.already_used_with_phone",
+          });
+        }
+      } catch (phoneError) {
+        console.error("❌ Error validating phone number:", phoneError);
+        return res.json({
+          valid: false,
+          message: "coupons.phone_not_authorized",
+        });
+      }
+    }
+
+    // Now look up the coupon details
+    // First, check if it's a main coupon code
     const { data: mainCoupon, error: mainError } = await supabase
       .from("coupon_codes")
       .select("*")
@@ -682,7 +722,7 @@ router.get("/lookup/:code", async (req, res) => {
       });
     }
 
-    // If not a main coupon, check if it's a redemption code
+    // Check if it's a redemption code
     const { data: redemption, error: redemptionError } = await supabase
       .from("coupon_redemptions")
       .select(
@@ -702,88 +742,81 @@ router.get("/lookup/:code", async (req, res) => {
       .eq("redemption_code", code)
       .single();
 
-    if (redemptionError || !redemption) {
-      return res.json({ valid: false, message: "coupons.invalid_code" });
-    }
+    if (!redemptionError && redemption) {
+      const coupon = redemption.coupon_codes;
 
-    const coupon = redemption.coupon_codes;
-
-    // Check if the parent coupon is active and not expired
-    if (!coupon.is_active) {
-      return res.json({ valid: false, message: "coupons.invalid_code" });
-    }
-
-    if (coupon.expires_at) {
-      const now = new Date();
-      const expiryDate = new Date(coupon.expires_at);
-      if (now > expiryDate) {
-        return res.json({ valid: false, message: "coupons.expired" });
+      // Check if the parent coupon is active and not expired
+      if (!coupon.is_active) {
+        return res.json({ valid: false, message: "coupons.invalid_code" });
       }
+
+      if (coupon.expires_at) {
+        const now = new Date();
+        const expiryDate = new Date(coupon.expires_at);
+        if (now > expiryDate) {
+          return res.json({ valid: false, message: "coupons.expired" });
+        }
+      }
+
+      // Check redemption status
+      if (redemption.status === "redeemed") {
+        return res.json({ valid: false, message: "coupons.already_used" });
+      }
+
+      if (redemption.status !== "available" && redemption.status !== "showed") {
+        return res.json({ valid: false, message: "coupons.invalid_code" });
+      }
+
+      return res.json({
+        valid: true,
+        type: coupon.type,
+        discount_percentage: coupon.discount_percentage,
+        free_days: coupon.free_days,
+        description: coupon.description,
+        coupon_id: coupon.id,
+      });
     }
 
-    // Check redemption code status
-    // Check redemption code status
-    if (redemption.status === "redeemed") {
-      return res.json({ valid: false, message: "coupons.already_used" });
-    }
+    // If not found in main coupons or redemptions, check available_codes arrays
+    const { data: allCoupons } = await supabase
+      .from("coupon_codes")
+      .select("*")
+      .eq("is_active", true);
 
-    // Accept both 'available' and 'showed' statuses as valid
-    if (redemption.status !== "available" && redemption.status !== "showed") {
-      return res.json({ valid: false, message: "coupons.invalid_code" });
-    }
+    for (const coupon of allCoupons || []) {
+      // Check expiry
+      if (coupon.expires_at) {
+        const now = new Date();
+        const expiryDate = new Date(coupon.expires_at);
+        if (now > expiryDate) continue;
+      }
 
-    // If phone number is provided, validate it
-    if (phoneNumber) {
+      let availableCodes = [];
+      let showedCodes = [];
       try {
-        const { getPhoneNumberData } = require("../lib/phoneNumberTracker");
-        const phoneData = await getPhoneNumberData(phoneNumber);
+        availableCodes = coupon.available_codes ? JSON.parse(coupon.available_codes) : [];
+        showedCodes = coupon.showed_codes ? JSON.parse(coupon.showed_codes) : [];
+      } catch (e) {
+        continue;
+      }
 
-        if (!phoneData) {
-          return res.json({
-            valid: false,
-            message: "coupons.phone_not_authorized",
-          });
-        }
-
-        // Check if the redemption code is available for this phone number
-        const availableCoupons = phoneData.available_coupons || [];
-        if (!availableCoupons.includes(code)) {
-          return res.json({
-            valid: false,
-            message: "coupons.not_available_for_phone",
-          });
-        }
-
-        // Check if the code has already been redeemed by this phone number
-        const redeemedCoupons = phoneData.redeemed_coupons || [];
-        if (redeemedCoupons.includes(code)) {
-          return res.json({
-            valid: false,
-            message: "coupons.already_used_with_phone",
-          });
-        }
-      } catch (phoneError) {
-        console.error("❌ Error validating phone number:", phoneError);
+      if (availableCodes.includes(code) || showedCodes.includes(code)) {
         return res.json({
-          valid: false,
-          message: "coupons.phone_not_authorized",
+          valid: true,
+          type: coupon.type,
+          discount_percentage: coupon.discount_percentage,
+          free_days: coupon.free_days,
+          description: coupon.description,
+          coupon_id: coupon.id,
         });
       }
     }
 
-    // Code is valid and showed
-    res.json({
-      valid: true,
-      type: "redemption_code",
-      discount_percentage: coupon.discount_percentage,
-      free_days: coupon.free_days,
-      description: coupon.description,
-      coupon_id: coupon.id,
-      redemption_code: code,
-      redemption_id: redemption.id,
-    });
+    // Code not found anywhere
+    return res.json({ valid: false, message: "coupons.invalid_code" });
+
   } catch (error) {
-    console.error("❌ Supabase error in lookup:", error);
+    console.error("❌ Supabase coupon lookup error:", error);
     res.status(500).json({ error: "Database error: " + error.message });
   }
 });

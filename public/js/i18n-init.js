@@ -12,10 +12,29 @@ function initI18n() {
     setTimeout(initI18n, 100);
     return;
   }
+  function detectSystemLanguage() {
+    // Get browser language
+    const browserLang = navigator.language || navigator.userLanguage;
+    
+    // Extract the language code (e.g., 'en-US' -> 'en', 'ro-RO' -> 'ro')
+    const langCode = browserLang.split('-')[0].toLowerCase();
+    
+    // List of supported languages in your application
+    const supportedLanguages = ['en', 'ro', 'ru'];
+    
+    // Check if detected language is supported
+    if (supportedLanguages.includes(langCode)) {
+      return langCode;
+    }
+    
+    // Default fallback if language not supported
+    return 'en';
+  }
+  
 
   // Always default to Romanian unless user explicitly picks another language
   const savedLang = localStorage.getItem('lang');
-  const defaultLang = 'en';
+  const defaultLang = detectSystemLanguage();
   let initialLang = savedLang || defaultLang;
 
   if (!savedLang) {

@@ -522,15 +522,18 @@
           <div class="topbar-left xs-hide">
             <div class="topbar-widget">
               <div class="topbar-widget"><a href="tel:060000500"><i class="fa fa-phone"></i>060000500</a></div>
-              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
+              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i
+                    class="fa fa-envelope"></i>contact@plusrent.md</a></div>
               <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
             </div>
           </div>
 
           <div class="topbar-right">
             <div class="social-icons">
-              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-tiktok fa-lg"></i></a>
             </div>
           </div>
           <div class="clearfix"></div>
@@ -999,7 +1002,8 @@
           <div class="widget">
             <h5>Contact Info</h5>
             <address class="s1">
-              <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
+              <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica
+                Moldova</span>
               <span><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
               <span><i class="id-color fa fa-envelope-o fa-lg"></i><a
                   href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
@@ -1024,30 +1028,32 @@
           <div class="widget">
             <h5>Social Network</h5>
             <div class="social-icons">
-              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-tiktok fa-lg"></i></a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="subfooter">
       <div class="container">
-          <div class="row">
-              <div class="col-md-12">
-                  <div class="de-flex">
-                      <div class="de-flex-col">
-                        <a href="/">
-                            Copyright 2025 - PlusRent
-                        </a>
-                      </div>
-                    <ul class="menu-simple">
-                        <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
-                    </ul>
-                  </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="de-flex">
+              <div class="de-flex-col">
+                <a href="/">
+                  Copyright 2025 - PlusRent
+                </a>
               </div>
+              <ul class="menu-simple">
+                <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
+              </ul>
+            </div>
           </div>
+        </div>
       </div>
     </div>
   </footer>
@@ -1794,15 +1800,20 @@
             try {
 
               // First try redemption code validation (for individual codes)
-              let response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${code}`);
+              const phoneInput = document.querySelector('input[name="customer_phone"]');
+              const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
 
+              // Build URL with phone number if available
+              const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
+
+              // Use lookup endpoint (same as modal) for proper phone validation
+              let response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
               let result = await response.json();
-
               if (!result.valid) {
                 // If redemption validation fails, try regular coupon validation
                 response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
-
                 result = await response.json();
+                console.log(result);
               }
 
               if (result.valid) {

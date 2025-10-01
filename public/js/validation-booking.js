@@ -331,6 +331,7 @@ $(document).ready(function () {
 
   // Handle form submission - now opens price calculator modal
   submitButton.click(function (e) {
+    console.log("submitButton clicked");
     // Skip old validation system if we're on car-single page (using new BookingFormHandler)
     if (window.location.pathname.includes("car-single")) {
       return; // Don't prevent default, let the new BookingFormHandler handle it
@@ -348,6 +349,18 @@ $(document).ready(function () {
 
     if (!phone || phone.trim() === "") {
       showError(i18next.t("errors.phone_required"));
+      return;
+    }
+    const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,9}$/;
+    if (!phoneRegex.test(phone.trim())) {
+      showError(i18next.t("errors.please_enter_valid_phone") || "Please enter a valid phone number");
+      return;
+    }
+    
+    // Additional check: ensure phone has at least 8 digits
+    const digitsOnly = phone.replace(/\D/g, '');
+    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+      showError(i18next.t("errors.phone_invalid_length") || "Phone number must be between 8 and 15 digits");
       return;
     }
 
