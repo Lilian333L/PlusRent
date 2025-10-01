@@ -491,6 +491,70 @@ router.put(
   }
 );
 
+async function checkDateOverlap(carId, pickupDate, returnDate, excludeBookingId = null) {
+  try {
+    // Get all confirmed bookings for this car
+    let query = supabase
+      .from("bookings")
+      .select("id, pickup_date, return_date")
+      .eq("car_id", carId)
+      .eq("status", "confirmed");
+
+    // Exclude the current booking if we're updating
+    if (excludeBookingId) {
+      query = query.neq("id", excludeBookingId);
+    }
+
+    const { data: existingBookings, error } = await query;
+
+    if (error) {
+      console.error("❌ Error checking date overlap:", error);
+      return { hasOverlap: false, error: "Failed to check availability" };
+    }
+
+    if (!existingBookings || existingBookings.length === 0) {
+      return { hasOverlap: false, conflictingBookings: [] };
+    }
+
+    // Convert dates to Date objects for comparison
+    const newPickupDate = new Date(pickupDate);
+    const newReturnDate = new Date(returnDate);
+    newPickupDate.setHours(0, 0, 0, 0);
+    newReturnDate.setHours(0, 0, 0, 0);
+
+    const conflictingBookings = [];
+
+    // Check for overlaps with existing bookings
+    for (const existingBooking of existingBookings) {
+      const existingPickupDate = new Date(existingBooking.pickup_date);
+      const existingReturnDate = new Date(existingBooking.return_date);
+      existingPickupDate.setHours(0, 0, 0, 0);
+      existingReturnDate.setHours(0, 0, 0, 0);
+
+      // Check for date overlap
+      // Two date ranges overlap if: start1 <= end2 AND start2 <= end1
+      const hasOverlap = newPickupDate <= existingReturnDate && existingPickupDate <= newReturnDate;
+
+      if (hasOverlap) {
+        conflictingBookings.push({
+          id: existingBooking.id,
+          pickup_date: existingBooking.pickup_date,
+          return_date: existingBooking.return_date
+        });
+      }
+    }
+
+    return {
+      hasOverlap: conflictingBookings.length > 0,
+      conflictingBookings: conflictingBookings
+    };
+
+  } catch (error) {
+    console.error("❌ Error in checkDateOverlap:", error);
+    return { hasOverlap: false, error: "Failed to check availability" };
+  }
+}
+
 // Admin: Confirm booking and mark car as unavailable
 router.put(
   "/:id/confirm",
@@ -518,6 +582,30 @@ router.put(
           .status(400)
           .json({ error: "Booking is not pending confirmation" });
       }
+
+      const overlapCheck = await checkDateOverlap(
+        booking.car_id,
+        booking.pickup_date,
+        booking.return_date,
+        bookingId // Exclude current booking from overlap check
+      );
+
+      if (overlapCheck.error) {
+        console.error("❌ Error checking date overlap:", overlapCheck.error);
+        return res.status(500).json({ 
+          error: "Failed to check car availability: " + overlapCheck.error 
+        });
+      }
+
+      if (overlapCheck.hasOverlap) {
+        console.log("❌ Date overlap detected:", overlapCheck.conflictingBookings);
+        return res.status(409).json({
+          error: "Car is already booked during the requested dates",
+          conflictingBookings: overlapCheck.conflictingBookings,
+          message: `This car is already booked from ${overlapCheck.conflictingBookings[0].pickup_date} to ${overlapCheck.conflictingBookings[0].return_date}. Please choose different dates or a different car.`
+        });
+      }
+      console.log("✅ No date overlap detected, proceeding with confirmation");
 
       // Update booking status to confirmed
       const { error: updateError } = await supabaseAdmin

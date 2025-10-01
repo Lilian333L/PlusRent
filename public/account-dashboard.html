@@ -3184,6 +3184,87 @@
 
   <!-- Global Booking Management Functions -->
   <script>
+
+    function formatDate(dateString) {
+
+      if (!dateString) return '';
+      // Convert yyyy-mm-dd to dd-mm-yyyy
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return dateString;
+    }
+    // Replace the existing showUniversalError function (around line 3187)
+
+    function showUniversalError(message, bookingId = null) {
+      // If bookingId is provided, show popup over specific booking card
+      if (bookingId) {
+        const bookingCard = document.querySelector(`[data-booking-id="${bookingId}"]`);
+        if (bookingCard) {
+          // Remove any existing popup
+          const existingPopup = bookingCard.querySelector('.booking-popup');
+          if (existingPopup) existingPopup.remove();
+
+          // Create simple popup
+          const popup = document.createElement('div');
+          popup.className = 'booking-popup';
+          popup.innerHTML = `
+        <div style="
+          position: absolute;
+          top: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #dc3545;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          z-index: 1000;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          white-space: nowrap;
+          max-width: 300px;
+        ">
+          ${message}
+          <button onclick="this.parentElement.remove()" style="
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 14px;
+          ">×</button>
+        </div>
+      `;
+
+          bookingCard.style.position = 'relative';
+          bookingCard.appendChild(popup);
+
+          // Auto-remove after 5 seconds
+          setTimeout(() => popup.remove(), 5000);
+          return;
+        }
+      }
+
+      // Fallback to alert
+      alert(message);
+    }
+
+    // Make functions globally available
+    window.showUniversalError = showUniversalError;
+    window.showError = function (message) {
+      showUniversalError(message);
+    };
+
+    function hideUniversalError() {
+      $("#universal-error-popup").fadeOut(300);
+    }
+
+    window.showUniversalError = showUniversalError;
+    window.hideUniversalError = hideUniversalError;
+    window.showError = function (message) {
+      showUniversalError(message);
+    };
     // Global booking management functions
     async function approveBooking(bookingId, button) {
       // API_BASE_URL is now read-only and always available
@@ -3230,6 +3311,15 @@
           bookingCard.classList.remove('approving');
           button.classList.remove('btn-loading');
           button.disabled = false;
+          if (response.status === 409 && error.error === "Car is already booked during the requested dates") {
+            const conflictingBooking = error.conflictingBookings[0];
+            const message = `Car booked ${formatDate(conflictingBooking.pickup_date)} to ${formatDate(conflictingBooking.return_date)}`;
+            showUniversalError(message, bookingId);
+          } else {
+            // Handle other errors
+            const errorMessage = error.error || 'Failed to approve booking';
+            showUniversalError(errorMessage, bookingId);
+          }
         }
       } catch (error) {
 
@@ -3555,7 +3645,6 @@
             </div>
           `;
         }
-
         return `
           <div class="col-12">
             <div class="card booking-card" data-booking-id="${booking.id}">
@@ -3575,7 +3664,7 @@
                       <span class="badge bg-${statusColor} ms-2">${booking.status.toUpperCase()}</span>
                     </h5>
                     <p class="card-text">
-                      <strong>Dates:</strong> ${booking.pickup_date} ${booking.pickup_time} - ${booking.return_date} ${booking.return_time}<br>
+                      <strong>Dates:</strong> ${formatDate(booking.pickup_date)} ${booking.pickup_time} - ${formatDate(booking.return_date)} ${booking.return_time}<br>
                       
                       <strong>Pickup:</strong> ${booking.pickup_location} | <strong>Dropoff:</strong> ${booking.dropoff_location}<br>
                       <strong>Total Price:</strong> €${booking.total_price}<br>
@@ -5289,10 +5378,6 @@ ${booking.coupon_details ? `
                 }
               }
             }
-            console.log("🖼️ Frontend - Sending car data with images:");
-            console.log("🖼️ Frontend - Head image present:", !!carDataWithImages.head_image);
-            console.log("🖼️ Frontend - Gallery images count:", carDataWithImages.gallery_images ? carDataWithImages.gallery_images.length : 0);
-            console.log("🖼️ Frontend - Full car data keys:", Object.keys(carDataWithImages));
 
             try {
               const token = localStorage.getItem('adminToken');
