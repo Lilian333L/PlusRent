@@ -61,7 +61,7 @@ const cspConfig = {
     mediaSrc: ["'self'"],
     
     // Frame sources - restrict iframes
-    frameSrc: ["'none'"],
+            frameSrc: ["'self'"],
     
     // Base URI - restrict base tag
     baseUri: ["'self'"],
