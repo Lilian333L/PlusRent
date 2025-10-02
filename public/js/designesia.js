@@ -1449,7 +1449,7 @@
             jQuery('.grid-item').each(function () {
                 var this_col = Number(jQuery(this).parent().attr('data-col'));
                 var this_gridspace = Number(jQuery(this).parent().attr('data-gridspace'));
-                var this_ratio = eval($(this).parent().attr('data-ratio'));
+                var this_ratio = parseFloat($(this).parent().attr('data-ratio'));
                 jQuery(this).parent().css('padding-left', this_gridspace);
                 var w = (($(document).width() - (this_gridspace * this_col + 1)) / this_col) - (this_gridspace / this_col);
                 var gi = $(this);

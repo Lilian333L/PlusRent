@@ -7,6 +7,9 @@ const path = require('path');
 // Import custom CORS middleware
 const { corsMiddleware } = require('../middleware/cors');
 
+// Import CSP middleware
+const { cspMiddleware, securityHeaders } = require('../middleware/csp');
+
 // Import Supabase client
 const { supabase } = require('../lib/supabaseClient');
 
@@ -23,6 +26,10 @@ const app = express();
 
 // Middleware
 app.use(corsMiddleware);
+
+// Security headers and CSP
+app.use(securityHeaders);
+app.use(cspMiddleware);
 
 // Use urlencoded parser for form data
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
