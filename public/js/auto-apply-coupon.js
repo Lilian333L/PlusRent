@@ -2,6 +2,9 @@
  * Auto-Apply Coupon Script
  * Automatically applies saved coupon codes from localStorage to car single pages
  * and removes them after successful booking
+ * 
+ * NOTE: This script works together with universal-spinning-wheel-modal.js
+ * It uses the notification system from that file to avoid duplicate notifications
  */
 
 (function () {
@@ -16,7 +19,6 @@
     successModalSelector: "#booking-success-modal",
   };
 
-  // Auto-apply coupon when page loads
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
     try {
@@ -92,75 +94,6 @@
     }
   }
 
-  // Show visual feedback that coupon was auto-applied
-  function showCouponAppliedFeedback(couponCode) {
-    try {
-      // Create notification element
-      const notification = document.createElement("div");
-      notification.id = "auto-coupon-notification";
-      notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #28a745, #20c997);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 10000;
-                font-size: 14px;
-                font-weight: 500;
-                max-width: 300px;
-                animation: slideInRight 0.3s ease-out;
-            `;
-
-      // Add animation keyframes
-      if (!document.getElementById("auto-coupon-styles")) {
-        const style = document.createElement("style");
-        style.id = "auto-coupon-styles";
-        style.textContent = `
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                    @keyframes slideOutRight {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                `;
-        document.head.appendChild(style);
-      }
-
-      // Set notification content
-      notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">🎉</span>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Applied!</div>
-                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode}</div>
-                    </div>
-                </div>
-            `;
-
-      // Add to page
-      document.body.appendChild(notification);
-
-      // Auto-remove after 4 seconds
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.3s ease-in";
-          setTimeout(() => {
-            if (notification.parentNode) {
-              notification.parentNode.removeChild(notification);
-            }
-          }, 300);
-        }
-      }, 4000);
-    } catch (error) {
-      console.error("Error showing coupon feedback:", error);
-    }
-  }
-
   // Remove coupon from localStorage after successful booking
   function removeCouponAfterBooking() {
     try {
@@ -178,43 +111,120 @@
       localStorage.removeItem(CONFIG.storageKey);
       localStorage.removeItem("spinningWheelWinningCoupon");
       localStorage.removeItem("spinningWheelRewardReceived");
+      
+      // Show "coupon used" notification
+      showCouponUsedNotification(savedCoupon || spinningWheelCoupon);
     } catch (error) {
       console.error("Error removing coupon:", error);
     }
   }
 
-  // Show feedback that coupon was used
-  function showCouponUsedFeedback(couponCode) {
+  // Get current language from multiple sources
+  function getCurrentLanguage() {
+    // 1. Check localStorage
+    const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+    if (storedLang) {
+      const lang = storedLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) {
+        return lang;
+      }
+    }
+    
+    // 2. Check i18next if available
+    if (typeof i18next !== 'undefined' && i18next.language) {
+      const i18nextLang = i18next.language.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(i18nextLang)) {
+        return i18nextLang;
+      }
+    }
+    
+    // 3. Check HTML lang attribute
+    const htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+      const lang = htmlLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) {
+        return lang;
+      }
+    }
+    
+    // 4. Default to English
+    return 'en';
+  }
+
+  // Show feedback that coupon was used (after booking completion)
+  function showCouponUsedNotification(couponCode) {
     try {
+      // Check if notification already exists to prevent duplicates
+      if (document.getElementById('coupon-used-notification')) {
+        return;
+      }
+
+      const currentLang = getCurrentLanguage();
+      
+      const translations = {
+        en: {
+          title: 'Coupon Used!',
+          message: 'Thank you for your booking!'
+        },
+        ru: {
+          title: 'Купон Использован!',
+          message: 'Спасибо за бронирование!'
+        },
+        ro: {
+          title: 'Cupon Utilizat!',
+          message: 'Mulțumim pentru rezervare!'
+        }
+      };
+      
+      const t = translations[currentLang] || translations.en;
+
       // Create notification element
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
-      notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #17a2b8, #138496);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 10000;
-                font-size: 14px;
-                font-weight: 500;
-                max-width: 300px;
-                animation: slideInRight 0.3s ease-out;
-            `;
+      notification.className = 'coupon-notification-container';
+      
+      // Create confetti elements (less confetti for "used" notification)
+      const confettiColors = ['#FFD700', '#00CED1', '#32CD32'];
+      let confettiHTML = '';
+      for (let i = 0; i < 4; i++) {
+        const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.3;
+        const duration = 1 + Math.random() * 0.5;
+        confettiHTML += `<div class="confetti" style="
+          left: ${left}%;
+          background: ${color};
+          animation-delay: ${delay}s;
+          animation-duration: ${duration}s;
+        "></div>`;
+      }
 
-      // Set notification content
       notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">✅</span>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Used!</div>
-                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode} - Thank you!</div>
-                    </div>
-                </div>
-            `;
+        <div class="confetti-container">${confettiHTML}</div>
+        <div class="coupon-notification-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+          <div class="coupon-gift-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="coupon-notification-content">
+            <div class="coupon-title">
+              <span class="sparkle">✨</span>
+              ${t.title}
+              <span class="sparkle">✨</span>
+            </div>
+            <div class="coupon-code-container">
+              <span class="coupon-label">Code:</span>
+              <span class="coupon-code">${couponCode}</span>
+            </div>
+            <div class="coupon-message">
+              <span class="check-icon">✓</span>
+              ${t.message}
+            </div>
+          </div>
+          <div class="coupon-shine"></div>
+        </div>
+      `;
 
       // Add to page
       document.body.appendChild(notification);
@@ -222,16 +232,17 @@
       // Auto-remove after 5 seconds
       setTimeout(() => {
         if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.3s ease-in";
+          notification.style.animation = 'slideInBounce 0.4s ease-out reverse';
+          notification.style.opacity = '0';
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
             }
-          }, 300);
+          }, 400);
         }
       }, 5000);
     } catch (error) {
-      console.error("Error showing coupon used feedback:", error);
+      console.error("Error showing coupon used notification:", error);
     }
   }
 
