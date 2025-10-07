@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://stackpath.bootstrapcdn.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://*.supabase.co https://*.vercel.app; object-src 'none'; media-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self';">
-    <title>Spinning Wheel</title>
+    <title>Premium Spinning Wheel</title>
     <script src="js/config.js"></script>
     <script src="js/i18n-init.js"></script>
     <script>
-        // Fallback if config.js doesn't load - use relative URLs for Vercel deployment
         if (!window.API_BASE_URL) {
             window.API_BASE_URL = '';
         }
 
-        // Translation function
         function getTranslation(key) {
             try {
                 if (typeof i18next !== 'undefined' && i18next && i18next.isInitialized) {
@@ -24,7 +22,6 @@
             }
             return null;
         }
-
     </script>
     <style>
         * {
@@ -35,10 +32,17 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: transparent;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 10s ease infinite;
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         @keyframes spin {
@@ -53,6 +57,27 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            position: relative;
+        }
+
+        /* Floating particles background */
+        .spinning-wheel-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 40px 40px;
+            animation: particlesFloat 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes particlesFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
         }
 
         @media (max-width: 1024px) {
@@ -66,9 +91,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 2.5rem;
             max-width: 1200px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         @media (min-width: 1024px) {
@@ -78,54 +105,32 @@
                 align-items: center;
             }
         }
-        
-        /* Spinning wheel SVG and text styling */
-        .wheel-container svg {
-            width: 30px;
-            height: 30px ;
-        }
-        
-        .wheel-container .segment-text {
-            font-size: 18px;
-        }
-        @media only screen and (max-width: 430px) {
-            .wheel-container svg {
-                width: 22px !important;
-                height: 22px !important;
-            }
-            
-            .wheel-container .segment-text {
-                font-size: 15px !important;
-            }
-        }
-        
-        /* Mobile-specific adjustments */
-        @media (max-width: 430px) {
-            .wheel-container svg {
-                width: 22px !important;
-                height: 22px !important;
-            }
-            
-            .wheel-container .segment-text {
-                font-size: 15px !important;
-            }
-        }
 
         .wheel-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2rem;
+            position: relative;
         }
 
+        /* Premium Wheel Container with 3D effect */
         .wheel-container {
             position: relative;
-            width: 400px;
-            height: 400px;
+            width: 420px;
+            height: 420px;
             will-change: transform;
             transform: translateZ(0);
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.3));
+            animation: wheelFloat 3s ease-in-out infinite;
         }
 
+        @keyframes wheelFloat {
+            0%, 100% { transform: translateY(0px) translateZ(0); }
+            50% { transform: translateY(-10px) translateZ(0); }
+        }
+
+        /* Glowing effect with pulsing animation */
         .wheel-glow {
             position: absolute;
             top: 0;
@@ -133,10 +138,21 @@
             right: 0;
             bottom: 0;
             border-radius: 50%;
-            padding: 8px;
-            background: linear-gradient(45deg, #20b2aa, #1e90ff, #20b2aa);
-            background-size: 200% 200%;
-            animation: gradientShift 3s ease infinite;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: glowPulse 4s ease infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                background-position: 0% 50%;
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+            }
+            50% { 
+                background-position: 100% 50%;
+                box-shadow: 0 0 60px rgba(118, 75, 162, 0.8);
+            }
         }
 
         .wheel-border {
@@ -144,9 +160,12 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             padding: 0;
-            box-shadow: 0 0 30px rgba(32, 178, 170, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 0 40px rgba(102, 126, 234, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.9),
+                inset 0 5px 15px rgba(102, 126, 234, 0.2);
         }
 
         .wheel {
@@ -156,7 +175,7 @@
             border-radius: 50%;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
             will-change: transform;
             transform: translateZ(0);
         }
@@ -197,136 +216,201 @@
             color: white;
             text-align: center;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .segment-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+            font-size: 40px;
+            margin-bottom: 10px;
+            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
             display: block;
+            animation: iconBounce 2s ease-in-out infinite;
         }
 
-        .segment-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .segment-icon {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        @keyframes iconBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .segment-text {
-            font-size: 18px;
-            line-height: 1;
-            font-weight: 700;
+            font-size: 20px;
+            line-height: 1.2;
+            font-weight: 800;
             text-align: center;
-            padding: 4px 8px;
+            padding: 6px 10px;
             white-space: nowrap;
-            min-width: 35px;
+            min-width: 40px;
             color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
             z-index: 10;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
+        /* Premium center button with glow */
         .center-button {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #20b2aa, #1e90ff);
-            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 4px solid white;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(32, 178, 170, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 
+                0 10px 30px rgba(102, 126, 234, 0.5),
+                inset 0 2px 8px rgba(255, 255, 255, 0.4),
+                0 0 0 0 rgba(102, 126, 234, 0.7);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 20;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 10px 30px rgba(102, 126, 234, 0.5),
+                    inset 0 2px 8px rgba(255, 255, 255, 0.4),
+                    0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            50% {
+                box-shadow: 
+                    0 15px 40px rgba(102, 126, 234, 0.7),
+                    inset 0 2px 8px rgba(255, 255, 255, 0.4),
+                    0 0 0 15px rgba(102, 126, 234, 0);
+            }
         }
 
         .center-button:hover {
-            box-shadow: 0 12px 35px rgba(32, 178, 170, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 
+                0 15px 40px rgba(102, 126, 234, 0.7),
+                inset 0 2px 8px rgba(255, 255, 255, 0.4);
+        }
+
+        .center-button:active {
+            transform: translate(-50%, -50%) scale(0.95);
         }
 
         .center-button:disabled {
             cursor: not-allowed;
-            opacity: 0.8;
+            opacity: 0.7;
+            animation: spinningButton 1s linear infinite;
+        }
+
+        @keyframes spinningButton {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .center-icon {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: white;
             display: block;
-            font-weight: bold;
+            font-weight: 800;
             text-align: center;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
         }
 
+        /* Enhanced arrow pointer */
         .arrow-pointer {
             position: absolute;
-            top: -20px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
-            animation: arrowPulse 2s ease-in-out infinite;
+            animation: arrowBounce 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
         }
 
-        @media only screen and (max-width: 430px) {
-            .arrow-pointer {
-                top: -14px !important;
+        @keyframes arrowBounce {
+            0%, 100% { 
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+            50% { 
+                transform: translateX(-50%) translateY(-8px) scale(1.15);
             }
         }
 
         .arrow {
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 30px solid white;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-top: 35px solid white;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
             position: relative;
         }
 
-        @keyframes arrowPulse {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.1); }
+        @media only screen and (max-width: 430px) {
+            .arrow-pointer {
+                top: -18px !important;
+            }
+            .arrow {
+                border-left: 18px solid transparent;
+                border-right: 18px solid transparent;
+                border-top: 28px solid white;
+            }
         }
 
         .info-section {
             flex: 1;
-            max-width: 500px;
-            min-height: 400px;
+            max-width: 520px;
+            min-height: 420px;
+            position: relative;
         }
 
+        /* Premium gradient card with glassmorphism */
         .instructions-card {
-            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instructions-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            animation: cardShimmer 3s infinite;
+        }
+
+        @keyframes cardShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .instructions-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
-            margin-bottom: 1.5rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            position: relative;
         }
 
         @media only screen and (max-width: 430px) {
             .instructions-title {
-                font-size: 1.2rem;
+                font-size: 1.4rem;
             }
             .instruction-step {
-                padding: 0.2rem !important;
+                padding: 0.3rem !important;
             }
         }
 
@@ -339,125 +423,195 @@
         .instruction-step {
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+            gap: 1.2rem;
+            margin-bottom: 1.3rem;
+            padding: 0.8rem;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: rgba(102, 126, 234, 0.05);
         }
 
         @media only screen and (max-width: 430px) {
             .instruction-step {
-                margin-bottom: 0.3rem;
+                margin-bottom: 0.5rem;
             }
         }
 
         .instruction-step:hover {
-            background: rgba(32, 178, 170, 0.1);
-            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
 
         .step-number {
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: 800;
+            font-size: 1rem;
             flex-shrink: 0;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .step-text {
-            color: white;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            padding-top: 0.25rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            color: #2d3748;
+            font-size: 1rem;
+            line-height: 1.5;
+            padding-top: 0.3rem;
+            font-weight: 500;
         }
 
+        /* Premium result card */
         .result-card {
-            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 50%, #0066cc 100%);
-            border-radius: 20px;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2.5rem;
             text-align: center;
-            color: white;
-            box-shadow: 0 20px 40px rgba(32, 178, 170, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '🎉';
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            top: -20px;
+            right: -20px;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .result-card.show {
             display: block;
+            animation: resultPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes resultPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .congratulations {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
 
         .you-won {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            opacity: 0.9;
+            font-size: 1.3rem;
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
         }
 
         .prize-display {
-            background: rgba(255, 255, 255, 0.9);
-            color: #176be6;
-            font-size: 1.5rem;
-            font-weight: 800;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 900;
+            padding: 1.2rem 2.5rem;
+            border-radius: 60px;
+            margin-bottom: 1.5rem;
             display: inline-block;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            animation: prizeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes prizeGlow {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            }
         }
 
         .code-text {
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: #4a5568;
+            font-weight: 500;
         }
 
         .discount-code {
             font-family: 'Courier New', monospace;
-            font-weight: 800;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 900;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            color: #667eea;
+            padding: 0.7rem 1.5rem;
+            border-radius: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            font-size: 1.3rem;
+            letter-spacing: 2px;
         }
 
         .book-now-button {
-            background: white;
-            color: #176be6;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 700;
+            padding: 1.2rem 2.5rem;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-now-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .book-now-button:hover::before {
+            left: 100%;
         }
 
         .book-now-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
         }
 
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        .book-now-button:active {
+            transform: translateY(-1px) scale(1.02);
         }
 
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .spinning-wheel-container {
                 min-height: auto;
@@ -465,36 +619,31 @@
             }
 
             .wheel-container {
-                width: 300px;
-                height: 300px;
+                width: 320px;
+                height: 320px;
             }
 
             .center-button {
-                width: 60px;
-                height: 60px;
+                width: 70px;
+                height: 70px;
             }
 
             .center-icon {
-                font-size: 0.8rem;
-            }
-
-            .arrow {
-                border-left: 15px solid transparent;
-                border-right: 15px solid transparent;
+                font-size: 0.9rem;
             }
 
             .instructions-card,
             .result-card {
-                padding: 1.5rem;
+                padding: 2rem;
             }
 
             .congratulations {
-                font-size: 1.5rem;
+                font-size: 2rem;
             }
 
             .prize-display {
-                font-size: 1.2rem;
-                padding: 0.75rem 1.5rem;
+                font-size: 1.5rem;
+                padding: 1rem 2rem;
             }
         }
 
@@ -505,8 +654,33 @@
             }
 
             .wheel-container {
-                width: 250px;
-                height: 250px;
+                width: 280px;
+                height: 280px;
+            }
+            
+            .segment-icon {
+                font-size: 28px;
+            }
+            
+            .segment-text {
+                font-size: 16px;
+            }
+        }
+
+        /* SVG Icon sizing */
+        .wheel-container svg {
+            width: 35px;
+            height: 35px;
+        }
+
+        @media only screen and (max-width: 430px) {
+            .wheel-container svg {
+                width: 26px !important;
+                height: 26px !important;
+            }
+            
+            .wheel-container .segment-text {
+                font-size: 16px !important;
             }
         }
     </style>
@@ -514,33 +688,22 @@
 <body>
     <div class="spinning-wheel-container">
         <div class="wheel-content">
-            <!-- Left Side - Wheel -->
             <div class="wheel-section">
                 <div class="wheel-container">
-                    <!-- Outer glow ring -->
                     <div class="wheel-glow">
                         <div class="wheel-border">
-                            <!-- Main wheel -->
-                            <div class="wheel" id="wheel">
-                                <!-- Wheel segments will be generated by JavaScript -->
-                            </div>
-
-                            <!-- Center button -->
+                            <div class="wheel" id="wheel"></div>
                             <button class="center-button" id="centerButton">
                                 <span class="center-icon">START</span>
                             </button>
                         </div>
                     </div>
-
-                    <!-- Arrow pointer -->
                     <div class="arrow-pointer">
                         <div class="arrow"></div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Right Side - Instructions/Result -->
             <div class="info-section">
                 <div class="instructions-card" id="instructionsCard">
                     <h3 class="instructions-title" id="howToPlayTitle">How to Play</h3>
@@ -576,54 +739,40 @@
     </div>
 
     <script>
-        // Language configuration
+        // ===== ВСЯ ОРИГИНАЛЬНАЯ ЛОГИКА СОХРАНЕНА =====
         let currentLanguage = 'en';
         let translations = {};
 
-        // Language detection and loading
         async function loadLanguage() {
-            // Check if parent page already has i18next initialized
             if (window.parent && window.parent.PREVENT_DUPLICATE_I18NEXT && window.parent.i18next && window.parent.i18next.isInitialized) {
-                // Use parent's i18next instead of loading our own
                 currentLanguage = window.parent.i18next.language || 'en';
                 translations = window.parent.i18next.getResourceBundle(currentLanguage, 'translation') || {};
                 updateTexts();
                 return;
             }
             
-            // Try to get language from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
             const langParam = urlParams.get('lang');
-            
-            // Try to get language from localStorage
             const storedLang = localStorage.getItem('lang');
             
-            // Try to get language from parent window if embedded
             let parentLang = null;
             try {
                 if (window.parent && window.parent !== window) {
-                    // Try to access parent's i18next language
                     if (window.parent.i18next && window.parent.i18next.language && typeof window.parent.i18next.language === 'string') {
                         parentLang = window.parent.i18next.language;
                     }
-                    // Try to access parent's localStorage
                     if (!parentLang) {
                         parentLang = window.parent.localStorage.getItem('lang');
                     }
                 }
-            } catch (e) {
-                // Cross-origin restriction, ignore
-            }
+            } catch (e) {}
 
-            // Determine language priority with better fallback
             let lang = langParam || parentLang || storedLang || 'en';
             
-            // Ensure lang is always a valid string
             if (!lang || typeof lang !== 'string') {
                 lang = 'en';
             }
             
-            // Validate lang is one of our supported languages
             const supportedLangs = ['en', 'ro', 'ru'];
             if (!supportedLangs.includes(lang)) {
                 lang = 'en';
@@ -631,20 +780,17 @@
             
             currentLanguage = lang;
 
-            // Load translation file
             try {
                 const response = await fetch(`js/locales/${lang}.json`);
                 if (response.ok) {
                     translations = await response.json();
                     updateTexts();
                 } else {
-                    // Fallback to English
                     const enResponse = await fetch('js/locales/en.json');
                     if (enResponse.ok) {
                         translations = await enResponse.json();
                         updateTexts();
                     } else {
-                        // Ultimate fallback - use hardcoded translations
                         translations = {
                             'wheel.title': 'Spin the Wheel',
                             'wheel.spin': 'SPIN',
@@ -657,8 +803,6 @@
                     }
                 }
             } catch (error) {
-                
-                // Use default English texts
                 translations = {
                     wheel: {
                         how_to_play: "How to Play",
@@ -677,69 +821,59 @@
             }
         }
 
-        // Update all text elements with translations
         function updateTexts() {
             const wheel = translations.wheel || {};
             
-            // Update instruction texts
             document.getElementById('howToPlayTitle').textContent = wheel.how_to_play || "How to Play";
             document.getElementById('step1Text').textContent = wheel.step1 || "Press the button in the center of the wheel";
             document.getElementById('step2Text').textContent = wheel.step2 || "Watch the wheel spin and stop on your prize";
             document.getElementById('step3Text').textContent = wheel.step3 || "Copy your discount code";
             document.getElementById('step4Text').textContent = wheel.step4 || "Use it when you make your next reservation";
             
-            // Update result texts
             document.getElementById('congratulationsText').textContent = wheel.congratulations || "CONGRATULATIONS! 🎉";
             document.getElementById('youWonText').textContent = wheel.you_won || "You won";
             document.getElementById('useCodeText').textContent = wheel.use_code || "Use code:";
             document.getElementById('bookNowButton').textContent = wheel.book_now || "Book Now & Apply Bonus";
 
-            // Update START button
             const centerIcon = document.querySelector('.center-icon');
             if (centerIcon) {
                 centerIcon.textContent = wheel.start || "START";
             }
             
-            // Update wheel segments if coupons are loaded
             if (availableCoupons.length > 0) {
                 createWheelSegments();
             }
         }
 
-        // Global variable to store coupons
         let availableCoupons = [];
         let currentWinningCoupon = null;
         let cachedWheelSegments = null;
         let randomWinningIndex = null;
         let userPhoneNumber = null;
 
-        // Get phone number from URL parameters
         function getPhoneNumberFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('phone');
         }
 
-        // Get wheel ID from URL parameters
         function getWheelIdFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('wheel');
         }
 
-
-        // Show loading state
         function showLoadingState() {
             const wheel = document.getElementById('wheel');
             const centerButton = document.getElementById('centerButton');
             
             if (wheel) {
                 wheel.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: white; font-size: 16px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #667eea; font-size: 16px;">
                         <div style="margin-bottom: 10px;">
                             <svg width="40" height="40" viewBox="0 0 40 40" style="animation: spin 1s linear infinite;">
                                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="30 100" stroke-dashoffset="0"/>
                             </svg>
                         </div>
-                        <div>Loading wheel...</div>
+                        <div style="font-weight: 600;">Loading wheel...</div>
                     </div>
                 `;
             }
@@ -750,43 +884,33 @@
             }
         }
 
-        // Hide loading state
         function hideLoadingState() {
             const centerButton = document.getElementById('centerButton');
             if (centerButton) {
                 centerButton.disabled = false;
                 const centerIcon = centerButton.querySelector('.center-icon');
                 if (centerIcon) {
-                    // Use the translations object if available, otherwise fallback to 'START'
                     const wheelTranslations = translations.wheel || {};
                     centerIcon.textContent = wheelTranslations.start || 'START';
                 }
             }
         }
 
-        // Fetch coupons from the API
         async function fetchCoupons() {
             try {
-                // Show loading state
                 showLoadingState();
                 
-                // Add timeout to prevent infinite loading
                 const timeoutPromise = new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Request timeout')), 10000)
                 );
                 
-                // Ensure API_BASE_URL is set - use relative URLs for Vercel deployment
                 if (!window.API_BASE_URL) {
-                    
                     window.API_BASE_URL = '';
                 }
                 
                 const apiUrl = window.API_BASE_URL;
-    
-                // Get wheel ID from URL parameters
                 const wheelId = getWheelIdFromURL();
                 
-                // Use secure endpoint that doesn't expose sensitive data
                 const endpoint = wheelId && wheelId !== 'active' 
                     ? `${apiUrl}/api/spinning-wheels/${wheelId}/secure-data`
                     : `${apiUrl}/api/spinning-wheels/secure/active-data`;
@@ -797,7 +921,6 @@
                 ]);
                 
                 if (!response.ok) {
-                    
                     availableCoupons = [];
                     cachedWheelSegments = null;
                     hideLoadingState();
@@ -807,14 +930,12 @@
                 const wheelData = await response.json();
                 
                 if (!wheelData.segments || wheelData.segments.length === 0) {
-                    
                     availableCoupons = [];
                     cachedWheelSegments = null;
                     hideLoadingState();
                     return;
                 }
                 
-                // Convert secure segments to the format expected by the wheel
                 availableCoupons = wheelData.segments.map(segment => ({
                     id: segment.coupon_id,
                     type: segment.type,
@@ -823,28 +944,18 @@
                     code: segment.code
                 }));
 
-                // Always clear cache to ensure fresh data
                 cachedWheelSegments = null;
-
                 hideLoadingState();
                 
             } catch (error) {
-                
                 availableCoupons = [];
                 cachedWheelSegments = null;
                 hideLoadingState();
             }
         }
 
-        // Dynamic wheel segments configuration based on active coupons
         function getWheelSegments() {
-            // Always fetch fresh data, don't use cache
-            // if (cachedWheelSegments) {
-            //     return cachedWheelSegments;
-            // }
-
             if (availableCoupons.length === 0) {
-                // Fallback to 4 default segments if no coupons available
                 cachedWheelSegments = [
                     { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', coupon: null },
                     { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #8bc4ff 0%, #6db3ff 100%)', coupon: null },
@@ -854,42 +965,30 @@
                 return cachedWheelSegments;
             }
 
-            // Create segments based on available active coupons only
             const segments = [];
-
-            // Use only the available active coupons
-            // Create segments in the exact same order as the API expects them
             const numCoupons = availableCoupons.length;
             
-            // Create segments in the same order as availableCoupons (which is sorted by coupon_id)
             availableCoupons.forEach((coupon, arrayIndex) => {
-                // For 3 segments: 0=top, 1=bottom-left, 2=bottom-right
-                // For 2 segments: 0=top, 1=bottom
-                // For 4+ segments: clockwise from top
-                const visualPosition = arrayIndex; // Direct mapping: array index = visual position
-                
-                // Create alternating blue colors for adjacent segments (3 colors)
+                const visualPosition = arrayIndex;
                 const colorIndex = arrayIndex % 3;
                 let gradient;
                 
                 switch(colorIndex) {
                     case 0:
-                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)'; // Lightest blue
+                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)';
                         break;
                     case 1:
-                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)'; // Medium blue
+                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)';
                         break;
                     case 2:
-                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)'; // Darkest blue
+                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)';
                         break;
                 }
                 
-                // Determine text based on coupon type with translations
                 let segmentText;
                 if (coupon.type === 'percentage') {
                     segmentText = `${coupon.discount_percentage}%`;
                 } else if (coupon.type === 'free_days') {
-                    // Use translations for free days
                     const wheelTranslations = translations.wheel?.wheel_segments || {};
                     if (coupon.free_days === 1 && wheelTranslations['1_day']) {
                         segmentText = wheelTranslations['1_day'];
@@ -902,25 +1001,21 @@
                     } else if (coupon.free_days === 6 && wheelTranslations['6_days']) {
                         segmentText = wheelTranslations['6_days'];
                     } else {
-                        // Fallback to English if translation not found
                         segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
                     }
                 } else {
-                    // Fallback for old coupons without type
                     segmentText = `${coupon.discount_percentage}%`;
                 }
                 
                 segments.push({
-                    id: arrayIndex + 1, // Counter ID (1, 2, 3, 4, 5...)
-                    visualPosition: visualPosition, // Visual position (0, 1, 2, 3, 4...)
+                    id: arrayIndex + 1,
+                    visualPosition: visualPosition,
                     text: segmentText,
-                    gradient: gradient, // Alternating blue gradients
+                    gradient: gradient,
                     coupon: coupon
-            });
-            
+                });
             });
 
-            // Cache the segments
             cachedWheelSegments = segments;
             return cachedWheelSegments;
         }
@@ -936,42 +1031,31 @@
         const prizeDisplay = document.getElementById('prizeDisplay');
         const discountCode = document.getElementById('discountCode');
 
-        // Create wheel segments with optimized performance
         function createWheelSegments() {
-
-            // Use DocumentFragment for better performance
             const fragment = document.createDocumentFragment();
             const wheelSegments = getWheelSegments();
-
-            const segmentAngle = 360 / wheelSegments.length; // Dynamic angle calculation
+            const segmentAngle = 360 / wheelSegments.length;
 
             wheelSegments.forEach((segment, index) => {
                 const segmentElement = document.createElement('div');
                 segmentElement.className = 'wheel-segment';
-                segmentElement.id = `segment-${segment.id}`; // HTML id with counter
-                // Use visual position for rotation, not array index
+                segmentElement.id = `segment-${segment.id}`;
                 segmentElement.style.background = segment.gradient;
                 
-                // Generate clip-path for this segment using visual position
                 const startAngle = segment.visualPosition * segmentAngle;
                 const endAngle = (segment.visualPosition + 1) * segmentAngle;
                 const clipPath = generateClipPath(startAngle, endAngle);
                 segmentElement.style.clipPath = clipPath;
 
-                // Calculate the middle angle of this segment for text positioning
-                // Use visual position for angle calculation, not array index
                 const visualStartAngle = segment.visualPosition * segmentAngle;
                 const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
                 const middleAngle = (visualStartAngle + visualEndAngle) / 2;
                 const middleRad = (middleAngle - 90) * Math.PI / 180;
-                const textRadius = 35; // Distance from center for text
+                const textRadius = 35;
                 const textX = 50 + textRadius * Math.cos(middleRad);
                 const textY = 50 + textRadius * Math.sin(middleRad);
-                
-                // Rotate text to stay upright relative to the wheel center
                 const textRotation = middleAngle;
                 
-                // Create a container for the content with rotation applied to the parent
                 segmentElement.innerHTML = `
                     <div class="segment-content" style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textRotation}deg);">
                         <div class="segment-icon" style="margin-bottom: 8px;">
@@ -989,39 +1073,28 @@
                 fragment.appendChild(segmentElement);
             });
             
-            // Clear and append all at once
             wheel.innerHTML = '';
             wheel.appendChild(fragment);
-            
-            // Add white border lines between segments
             addSegmentBorders(wheelSegments.length);
-
         }
 
-        // Generate clip-path for a segment
         function generateClipPath(startAngle, endAngle) {
             const centerX = 50;
             const centerY = 50;
             const radius = 50;
             
-            // Convert angles to radians
             const startRad = (startAngle - 90) * Math.PI / 180;
             const endRad = (endAngle - 90) * Math.PI / 180;
             
-            // Calculate points on the circle
             const startX = centerX + radius * Math.cos(startRad);
             const startY = centerY + radius * Math.sin(startRad);
             const endX = centerX + radius * Math.cos(endRad);
             const endY = centerY + radius * Math.sin(endRad);
             
-            // Create a proper circular segment using multiple points
             const points = [];
-            points.push(`${centerX}% ${centerY}%`); // Center point
-            
-            // Add start point
+            points.push(`${centerX}% ${centerY}%`);
             points.push(`${startX}% ${startY}%`);
             
-            // Add intermediate points for smooth curve
             const numPoints = 10;
             for (let i = 1; i <= numPoints; i++) {
                 const angle = startAngle + (endAngle - startAngle) * (i / numPoints);
@@ -1031,13 +1104,10 @@
                 points.push(`${x}% ${y}%`);
             }
             
-            // Add end point
             points.push(`${endX}% ${endY}%`);
-            
             return `polygon(${points.join(', ')})`;
         }
 
-        // Add black border lines between segments
         function addSegmentBorders(numSegments) {
             const segmentAngle = 360 / numSegments;
             
@@ -1059,13 +1129,9 @@
             }
         }
 
-        // Get random winning index from database
         async function getRandomWinningIndex() {
             try {
-                // Get wheel ID from URL parameters
                 const wheelId = getWheelIdFromURL();
-                
-                // Use specific wheel endpoint if wheel ID is provided
                 const endpoint = wheelId && wheelId !== 'active' 
                     ? `${window.API_BASE_URL}/api/spinning-wheels/${wheelId}/secure/random-winning-index`
                     : `${window.API_BASE_URL}/api/spinning-wheels/secure/random-winning-index`;
@@ -1082,10 +1148,8 @@
             }
         }
 
-        // Redeem a coupon securely via backend
         async function redeemCouponSecurely(couponId, phoneNumber) {
             try {
-
                 const response = await fetch(`${window.API_BASE_URL}/api/spinning-wheels/secure/redeem-coupon`, {
                     method: 'POST',
                     headers: {
@@ -1098,7 +1162,6 @@
                 });
                 
                 if (!response.ok) {
-                    
                     discountCode.textContent = 'ERROR';
                     return;
                 }
@@ -1106,114 +1169,71 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    
                     discountCode.textContent = result.code;
-                    
-                    // Save the actual generated coupon code to localStorage for auto-apply functionality
                     localStorage.setItem('spinningWheelWinningCoupon', result.code);
-                    
-                    // Mark that user has received their reward to prevent gaming the system
                     localStorage.setItem('spinningWheelRewardReceived', 'true');
                 } else {
-                    
                     discountCode.textContent = 'ERROR';
                 }
             } catch (error) {
-                
                 discountCode.textContent = 'ERROR';
             }
         }
 
-        // Spin the wheel with optimized performance
         async function spinWheel() {
             if (isSpinning || hasSpun) return;
 
-                    // Check if phone number is provided (either from URL or from localStorage)
-        if (!userPhoneNumber) {
-            // Check if phone number was entered in the parent modal
-            const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
-            const storedPhone = localStorage.getItem('spinningWheelPhone');
-            
-            if (phoneEntered === 'true' && storedPhone) {
-                userPhoneNumber = storedPhone;
+            if (!userPhoneNumber) {
+                const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
+                const storedPhone = localStorage.getItem('spinningWheelPhone');
                 
-            } else {
-                alert('Please provide a phone number to spin the wheel');
-                return;
+                if (phoneEntered === 'true' && storedPhone) {
+                    userPhoneNumber = storedPhone;
+                } else {
+                    alert('Please provide a phone number to spin the wheel');
+                    return;
+                }
             }
-        }
 
             isSpinning = true;
             centerButton.disabled = true;
             centerButton.querySelector('.center-icon').textContent = '🔄';
 
-            // Get random winning index from database
             randomWinningIndex = await getRandomWinningIndex();
-
-            // Ensure transition is applied before spinning
             wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
 
-            // Calculate rotation to land directly on the winning segment
             const wheelSegments = getWheelSegments();
             const segmentAngle = 360 / wheelSegments.length;
-            
-            // The winning index from API corresponds to the array index in availableCoupons
-            // We need to map this to the visual position on the wheel
             const targetSegmentIndex = randomWinningIndex % wheelSegments.length;
             const winningSegment = wheelSegments[targetSegmentIndex];
             const targetVisualPosition = winningSegment.visualPosition;
             
-            // Debug: Log the mapping to understand the issue
-
-            wheelSegments.forEach((segment, i) => {
-                
-            });
-
-            // Calculate the rotation needed to land directly on the target segment
-            // The pointer is at the top (0 degrees), so we need to rotate to the target segment
-            // For 3 segments: 0=top, 1=right, 2=bottom
-            // The wheel rotates clockwise, so we need to rotate counter-clockwise to land on the target
-            // The visual positions are inverted, so we need to adjust the calculation
             const numSegments = wheelSegments.length;
             const adjustedVisualPosition = (numSegments - 1 - targetVisualPosition) % numSegments;
-            const targetAngle = (adjustedVisualPosition * segmentAngle + segmentAngle / 2) % 360; // Center of the segment
-            const extraRotations = 5 * 360; // 5 full rotations
-            const totalRotation = extraRotations + targetAngle; // 5 extra rotations + target angle
+            const targetAngle = (adjustedVisualPosition * segmentAngle + segmentAngle / 2) % 360;
+            const extraRotations = 5 * 360;
+            const totalRotation = extraRotations + targetAngle;
 
-            // Animate wheel spinning with CSS transition
             wheel.style.transform = `rotate(${totalRotation}deg)`;
 
-            // Show results after animation
             setTimeout(() => {
-                // Use the random winning index directly
                 const winningSegment = wheelSegments[targetSegmentIndex];
-
-                // Show results
                 currentRotation = totalRotation;
                 isSpinning = false;
                 hasSpun = true;
                 centerButton.disabled = false;
                 const centerIcon = centerButton.querySelector('.center-icon');
                 if (centerIcon) {
-                    // Use the translations object if available, otherwise fallback to 'START'
                     const wheelTranslations = translations.wheel || {};
                     centerIcon.textContent = wheelTranslations.start || 'START';
                 }
 
-                // Store the winning coupon
                 currentWinningCoupon = winningSegment.coupon;
                 
-                // Note: We'll save the actual generated code after redeemCouponSecurely completes
-                // The actual code will be saved when the API returns the generated coupon code
-
-                // Update result card with the exact segment data that was visually selected
-                // Use the segment's text and coupon data to ensure consistency
                 if (winningSegment.coupon) {
-                    // Show the exact coupon that matches the segment
                     if (winningSegment.coupon.type === 'percentage') {
                         prizeDisplay.textContent = `${winningSegment.coupon.discount_percentage}% OFF`;
                     } else if (winningSegment.coupon.type === 'free_days') {
-                        // Use translations for the result display
                         const wheelTranslations = translations.wheel?.wheel_segments || {};
                         const freeDaysText = translations.wheel?.free_days || 'FREE DAYS';
                         
@@ -1228,42 +1248,30 @@
                         } else if (winningSegment.coupon.free_days === 6 && wheelTranslations['6_days']) {
                             prizeDisplay.textContent = `${wheelTranslations['6_days']}`;
                         } else {
-                            // Fallback to English if translation not found
                             prizeDisplay.textContent = `${winningSegment.coupon.free_days} ${winningSegment.coupon.free_days === 1 ? 'FREE DAY' : 'FREE DAYS'}`;
                         }
                     } else {
-                        // Fallback for old coupons without type
                         prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     }
                     
-                    // Redeem the coupon securely via backend
                     redeemCouponSecurely(winningSegment.coupon.id, userPhoneNumber);
-    
                 } else {
-                    // Fallback for segments without real coupons
                     prizeDisplay.textContent = `${winningSegment.text} OFF`;
                     discountCode.textContent = 'ERROR';
-                    
                 }
 
-                // Show result card
                 instructionsCard.style.display = 'none';
                 resultCard.classList.add('show');
             }, 5000);
         }
 
-        // Event listeners
         centerButton.addEventListener('click', spinWheel);
         
-        // Add click handler for the book now button
         const bookNowButton = document.getElementById('bookNowButton');
         if (bookNowButton) {
             bookNowButton.addEventListener('click', function() {
-                // Auto-apply the winning coupon before closing
-                // Get the actual displayed coupon code from the discountCode element
                 const actualCouponCode = document.getElementById('discountCode').textContent;
                 if (actualCouponCode && actualCouponCode !== 'ERROR') {
-                    // Send actual coupon code to parent window for auto-apply
                     if (window.parent && window.parent !== window) {
                         window.parent.postMessage({
                             type: 'autoApplyCoupon',
@@ -1272,46 +1280,33 @@
                     }
                 }
                 
-                // Close the popup/modal
-                // Check if we're in an iframe (embedded) or standalone
                 if (window.parent && window.parent !== window) {
-                    // If embedded in an iframe, close the parent modal
                     window.parent.postMessage({
                         type: 'closeSpinningWheel'
                     }, '*');
                 } else {
-                    // If standalone, just close this window
                     window.close();
                 }
             });
         }
 
-        // Initialize wheel and load language
         loadLanguage().then(async () => {
-    
-            // Get phone number from URL parameters or localStorage
             userPhoneNumber = getPhoneNumberFromURL();
             
-            // If no phone number in URL, check localStorage
             if (!userPhoneNumber) {
                 const phoneEntered = localStorage.getItem('spinningWheelPhoneEntered');
                 const storedPhone = localStorage.getItem('spinningWheelPhone');
                 
                 if (phoneEntered === 'true' && storedPhone) {
                     userPhoneNumber = storedPhone;
-                    
                 }
             }
 
-            // Fetch coupons and create wheel segments
             await fetchCoupons();
             createWheelSegments();
-            // Ensure wheel starts at 0 degrees and has proper transition
             wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
             wheel.style.transform = 'rotate(0deg)';
-            // Force a reflow to ensure the initial state is applied
             wheel.offsetHeight;
-            // Small delay to ensure the initial state is properly set
             setTimeout(() => {
                 wheel.style.transition = 'none';
                 wheel.style.transform = 'rotate(0deg)';
@@ -1321,24 +1316,19 @@
             }, 100);
         });
 
-        // Listen for messages from parent window
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'languageChange') {
                 currentLanguage = event.data.language;
                 loadLanguage();
             }
             
-            // Listen for phone number from parent modal
             if (event.data && event.data.type === 'phoneNumberEntered') {
                 userPhoneNumber = event.data.phoneNumber;
-
-                // Also store in localStorage for consistency
                 localStorage.setItem('spinningWheelPhone', userPhoneNumber);
                 localStorage.setItem('spinningWheelPhoneEntered', 'true');
             }
         });
 
-        // Also listen for storage changes (when parent changes localStorage)
         window.addEventListener('storage', function(event) {
             if (event.key === 'lang') {
                 currentLanguage = event.newValue;
@@ -1346,25 +1336,20 @@
             }
         });
 
-        // Try to get language from parent on load
         window.addEventListener('load', function() {
             setTimeout(() => {
                 try {
                     if (window.parent && window.parent !== window) {
-                        // Try to get language from parent's i18next
                         if (window.parent.i18next && window.parent.i18next.language && typeof window.parent.i18next.language === 'string') {
                             currentLanguage = window.parent.i18next.language;
                             loadLanguage();
                         }
-                        // Try to get from parent's localStorage
                         else if (window.parent.localStorage.getItem('lang')) {
                             currentLanguage = window.parent.localStorage.getItem('lang');
                             loadLanguage();
                         }
                     }
-                } catch (e) {
-                    // Cross-origin restriction, ignore
-                }
+                } catch (e) {}
             }, 500);
         });
     </script>
