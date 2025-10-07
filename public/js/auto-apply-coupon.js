@@ -56,12 +56,12 @@
 
     // Check for Romanian-specific text in the page
     const bodyText = document.body.innerText.toLowerCase();
-    if (bodyText.includes("rezervare") || bodyText.includes("închiriere") || bodyText.includes("trimite")) {
+    if (bodyText.includes("rezervare") || bodyText.includes("închiriere") || bodyText.includes("trimite") || bodyText.includes("aplică")) {
       return "ro";
     }
 
     // Check for Russian-specific text
-    if (bodyText.includes("бронирование") || bodyText.includes("аренда") || bodyText.includes("отправить")) {
+    if (bodyText.includes("бронирование") || bodyText.includes("аренда") || bodyText.includes("отправить") || bodyText.includes("применить") || bodyText.includes("купон")) {
       return "ru";
     }
 
@@ -75,7 +75,6 @@
     return TRANSLATIONS[lang][key] || TRANSLATIONS.en[key];
   }
 
-  // Auto-apply coupon when page loads
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
     try {
@@ -127,6 +126,9 @@
       discountInput.value = savedCoupon;
       window.__autoCouponAppliedOnce = true; // Mark as applied
 
+      // Show visual feedback
+      showCouponAppliedFeedback(savedCoupon);
+
       if (
         window.priceCalculator &&
         typeof window.priceCalculator.validateAndShowCoupon === "function"
@@ -154,6 +156,12 @@
   // Show visual feedback that coupon was auto-applied
   function showCouponAppliedFeedback(couponCode) {
     try {
+      // Remove any existing notifications first
+      const existing = document.getElementById("auto-coupon-notification");
+      if (existing) {
+        existing.remove();
+      }
+
       // Create notification element
       const notification = document.createElement("div");
       notification.id = "auto-coupon-notification";
@@ -298,8 +306,15 @@
         "spinningWheelWinningCoupon"
       );
 
+      const couponToShow = savedCoupon || spinningWheelCoupon;
+
       if (!savedCoupon && !spinningWheelCoupon) {
         return;
+      }
+
+      // Show feedback before removing
+      if (couponToShow) {
+        showCouponUsedFeedback(couponToShow);
       }
 
       // Remove the coupon and reward received flag
@@ -314,6 +329,12 @@
   // Show feedback that coupon was used
   function showCouponUsedFeedback(couponCode) {
     try {
+      // Remove any existing notifications first
+      const existing = document.getElementById("coupon-used-notification");
+      if (existing) {
+        existing.remove();
+      }
+
       // Create notification element
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
