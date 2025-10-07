@@ -16,6 +16,65 @@
     successModalSelector: "#booking-success-modal",
   };
 
+  // Language detection and translations
+  const TRANSLATIONS = {
+    en: {
+      appliedTitle: "Coupon Applied!",
+      appliedCode: "Code",
+      usedTitle: "Coupon Used!",
+      usedMessage: "Thank you!",
+    },
+    ro: {
+      appliedTitle: "Cupon Aplicat!",
+      appliedCode: "Cod",
+      usedTitle: "Cupon Utilizat!",
+      usedMessage: "Mulțumim!",
+    },
+    ru: {
+      appliedTitle: "Купон Применён!",
+      appliedCode: "Код",
+      usedTitle: "Купон Использован!",
+      usedMessage: "Спасибо!",
+    },
+  };
+
+  // Detect page language
+  function detectLanguage() {
+    // Check html lang attribute
+    const htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+      const lang = htmlLang.toLowerCase().split("-")[0];
+      if (TRANSLATIONS[lang]) return lang;
+    }
+
+    // Check meta tags
+    const metaLang = document.querySelector('meta[http-equiv="content-language"]');
+    if (metaLang) {
+      const lang = metaLang.content.toLowerCase().split("-")[0];
+      if (TRANSLATIONS[lang]) return lang;
+    }
+
+    // Check for Romanian-specific text in the page
+    const bodyText = document.body.innerText.toLowerCase();
+    if (bodyText.includes("rezervare") || bodyText.includes("închiriere") || bodyText.includes("trimite")) {
+      return "ro";
+    }
+
+    // Check for Russian-specific text
+    if (bodyText.includes("бронирование") || bodyText.includes("аренда") || bodyText.includes("отправить")) {
+      return "ru";
+    }
+
+    // Default to English
+    return "en";
+  }
+
+  // Get translation
+  function getTranslation(key) {
+    const lang = detectLanguage();
+    return TRANSLATIONS[lang][key] || TRANSLATIONS.en[key];
+  }
+
   // Auto-apply coupon when page loads
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
@@ -131,13 +190,13 @@
         document.head.appendChild(style);
       }
 
-      // Set notification content
+      // Set notification content with translations
       notification.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 16px;">🎉</span>
                     <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Applied!</div>
-                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode}</div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">${getTranslation('appliedTitle')}</div>
+                        <div style="font-size: 12px; opacity: 0.9;">${getTranslation('appliedCode')}: ${couponCode}</div>
                     </div>
                 </div>
             `;
@@ -205,13 +264,13 @@
                 animation: slideInRight 0.3s ease-out;
             `;
 
-      // Set notification content
+      // Set notification content with translations
       notification.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 16px;">✅</span>
                     <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Used!</div>
-                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode} - Thank you!</div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">${getTranslation('usedTitle')}</div>
+                        <div style="font-size: 12px; opacity: 0.9;">${getTranslation('appliedCode')}: ${couponCode} - ${getTranslation('usedMessage')}</div>
                     </div>
                 </div>
             `;
