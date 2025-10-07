@@ -16,65 +16,7 @@
     successModalSelector: "#booking-success-modal",
   };
 
-  // Language detection and translations
-  const TRANSLATIONS = {
-    en: {
-      appliedTitle: "Coupon Applied!",
-      appliedCode: "Code",
-      usedTitle: "Coupon Used!",
-      usedMessage: "Thank you!",
-    },
-    ro: {
-      appliedTitle: "Cupon Aplicat!",
-      appliedCode: "Cod",
-      usedTitle: "Cupon Utilizat!",
-      usedMessage: "Mulțumim!",
-    },
-    ru: {
-      appliedTitle: "Купон Применён!",
-      appliedCode: "Код",
-      usedTitle: "Купон Использован!",
-      usedMessage: "Спасибо!",
-    },
-  };
-
-  // Detect page language
-  function detectLanguage() {
-    // Check html lang attribute
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang) {
-      const lang = htmlLang.toLowerCase().split("-")[0];
-      if (TRANSLATIONS[lang]) return lang;
-    }
-
-    // Check meta tags
-    const metaLang = document.querySelector('meta[http-equiv="content-language"]');
-    if (metaLang) {
-      const lang = metaLang.content.toLowerCase().split("-")[0];
-      if (TRANSLATIONS[lang]) return lang;
-    }
-
-    // Check for Romanian-specific text in the page
-    const bodyText = document.body.innerText.toLowerCase();
-    if (bodyText.includes("rezervare") || bodyText.includes("închiriere") || bodyText.includes("trimite") || bodyText.includes("aplică")) {
-      return "ro";
-    }
-
-    // Check for Russian-specific text
-    if (bodyText.includes("бронирование") || bodyText.includes("аренда") || bodyText.includes("отправить") || bodyText.includes("применить") || bodyText.includes("купон")) {
-      return "ru";
-    }
-
-    // Default to English
-    return "en";
-  }
-
-  // Get translation
-  function getTranslation(key) {
-    const lang = detectLanguage();
-    return TRANSLATIONS[lang][key] || TRANSLATIONS.en[key];
-  }
-
+  // Auto-apply coupon when page loads
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
     try {
@@ -126,9 +68,6 @@
       discountInput.value = savedCoupon;
       window.__autoCouponAppliedOnce = true; // Mark as applied
 
-      // Show visual feedback
-      showCouponAppliedFeedback(savedCoupon);
-
       if (
         window.priceCalculator &&
         typeof window.priceCalculator.validateAndShowCoupon === "function"
@@ -156,33 +95,23 @@
   // Show visual feedback that coupon was auto-applied
   function showCouponAppliedFeedback(couponCode) {
     try {
-      // Remove any existing notifications first
-      const existing = document.getElementById("auto-coupon-notification");
-      if (existing) {
-        existing.remove();
-      }
-
       // Create notification element
       const notification = document.createElement("div");
       notification.id = "auto-coupon-notification";
       notification.style.cssText = `
                 position: fixed;
-                top: 24px;
-                right: 24px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745, #20c997);
                 color: white;
-                padding: 18px 24px;
-                border-radius: 16px;
-                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4), 0 6px 20px rgba(0, 0, 0, 0.15);
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 z-index: 10000;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 500;
-                max-width: 360px;
-                min-width: 300px;
-                animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                backdrop-filter: blur(10px);
-                border: 2px solid rgba(255, 255, 255, 0.2);
+                max-width: 300px;
+                animation: slideInRight 0.3s ease-out;
             `;
 
       // Add animation keyframes
@@ -191,107 +120,42 @@
         style.id = "auto-coupon-styles";
         style.textContent = `
                     @keyframes slideInRight {
-                        from { 
-                            transform: translateX(120%) scale(0.8); 
-                            opacity: 0; 
-                        }
-                        to { 
-                            transform: translateX(0) scale(1); 
-                            opacity: 1; 
-                        }
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
                     }
                     @keyframes slideOutRight {
-                        from { 
-                            transform: translateX(0) scale(1); 
-                            opacity: 1; 
-                        }
-                        to { 
-                            transform: translateX(120%) scale(0.8); 
-                            opacity: 0; 
-                        }
-                    }
-                    @keyframes sparkle {
-                        0%, 100% { transform: scale(1) rotate(0deg); }
-                        25% { transform: scale(1.2) rotate(-10deg); }
-                        75% { transform: scale(1.2) rotate(10deg); }
-                    }
-                    @keyframes pulse {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.05); }
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
                     }
                 `;
         document.head.appendChild(style);
       }
 
-      // Set notification content with translations and improved design
+      // Set notification content
       notification.innerHTML = `
-                <div style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div style="
-                        background: rgba(255, 255, 255, 0.25);
-                        border-radius: 12px;
-                        padding: 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 48px;
-                        height: 48px;
-                        animation: sparkle 2s ease-in-out infinite;
-                    ">
-                        <span style="font-size: 26px; line-height: 1;">🎁</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🎉</span>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Applied!</div>
+                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode}</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div style="
-                            font-weight: 700; 
-                            margin-bottom: 6px; 
-                            font-size: 17px;
-                            letter-spacing: 0.3px;
-                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                        ">${getTranslation('appliedTitle')}</div>
-                        <div style="
-                            font-size: 13px; 
-                            opacity: 0.95;
-                            background: rgba(255, 255, 255, 0.15);
-                            padding: 6px 12px;
-                            border-radius: 8px;
-                            display: inline-block;
-                            font-weight: 600;
-                            letter-spacing: 0.5px;
-                            margin-top: 2px;
-                        ">${getTranslation('appliedCode')}: <span style="font-family: 'Courier New', monospace;">${couponCode}</span></div>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" style="
-                        background: rgba(255, 255, 255, 0.2);
-                        border: none;
-                        color: white;
-                        width: 28px;
-                        height: 28px;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-size: 18px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: all 0.2s ease;
-                        padding: 0;
-                        line-height: 1;
-                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">×</button>
                 </div>
             `;
 
       // Add to page
       document.body.appendChild(notification);
 
-      // Auto-remove after 5 seconds
+      // Auto-remove after 4 seconds
       setTimeout(() => {
         if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+          notification.style.animation = "slideOutRight 0.3s ease-in";
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
             }
-          }, 400);
+          }, 300);
         }
-      }, 5000);
+      }, 4000);
     } catch (error) {
       console.error("Error showing coupon feedback:", error);
     }
@@ -306,15 +170,8 @@
         "spinningWheelWinningCoupon"
       );
 
-      const couponToShow = savedCoupon || spinningWheelCoupon;
-
       if (!savedCoupon && !spinningWheelCoupon) {
         return;
-      }
-
-      // Show feedback before removing
-      if (couponToShow) {
-        showCouponUsedFeedback(couponToShow);
       }
 
       // Remove the coupon and reward received flag
@@ -329,109 +186,50 @@
   // Show feedback that coupon was used
   function showCouponUsedFeedback(couponCode) {
     try {
-      // Remove any existing notifications first
-      const existing = document.getElementById("coupon-used-notification");
-      if (existing) {
-        existing.remove();
-      }
-
       // Create notification element
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
       notification.style.cssText = `
                 position: fixed;
-                top: 24px;
-                right: 24px;
-                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #17a2b8, #138496);
                 color: white;
-                padding: 18px 24px;
-                border-radius: 16px;
-                box-shadow: 0 10px 40px rgba(17, 153, 142, 0.4), 0 6px 20px rgba(0, 0, 0, 0.15);
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 z-index: 10000;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 15px;
+                font-size: 14px;
                 font-weight: 500;
-                max-width: 360px;
-                min-width: 300px;
-                animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                backdrop-filter: blur(10px);
-                border: 2px solid rgba(255, 255, 255, 0.2);
+                max-width: 300px;
+                animation: slideInRight 0.3s ease-out;
             `;
 
-      // Set notification content with translations and improved design
+      // Set notification content
       notification.innerHTML = `
-                <div style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div style="
-                        background: rgba(255, 255, 255, 0.25);
-                        border-radius: 12px;
-                        padding: 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 48px;
-                        height: 48px;
-                        animation: pulse 2s ease-in-out infinite;
-                    ">
-                        <span style="font-size: 26px; line-height: 1;">🎊</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">✅</span>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">Coupon Used!</div>
+                        <div style="font-size: 12px; opacity: 0.9;">Code: ${couponCode} - Thank you!</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div style="
-                            font-weight: 700; 
-                            margin-bottom: 6px; 
-                            font-size: 17px;
-                            letter-spacing: 0.3px;
-                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                        ">${getTranslation('usedTitle')}</div>
-                        <div style="
-                            font-size: 13px; 
-                            opacity: 0.95;
-                            line-height: 1.5;
-                        ">
-                            <span style="
-                                background: rgba(255, 255, 255, 0.15);
-                                padding: 6px 12px;
-                                border-radius: 8px;
-                                display: inline-block;
-                                font-weight: 600;
-                                letter-spacing: 0.5px;
-                                font-family: 'Courier New', monospace;
-                            ">${couponCode}</span>
-                            <div style="margin-top: 6px; font-weight: 600;">${getTranslation('usedMessage')}</div>
-                        </div>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" style="
-                        background: rgba(255, 255, 255, 0.2);
-                        border: none;
-                        color: white;
-                        width: 28px;
-                        height: 28px;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-size: 18px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: all 0.2s ease;
-                        padding: 0;
-                        line-height: 1;
-                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">×</button>
                 </div>
             `;
 
       // Add to page
       document.body.appendChild(notification);
 
-      // Auto-remove after 6 seconds
+      // Auto-remove after 5 seconds
       setTimeout(() => {
         if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+          notification.style.animation = "slideOutRight 0.3s ease-in";
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
             }
-          }, 400);
+          }, 300);
         }
-      }, 6000);
+      }, 5000);
     } catch (error) {
       console.error("Error showing coupon used feedback:", error);
     }
