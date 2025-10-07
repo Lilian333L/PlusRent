@@ -1035,7 +1035,7 @@
         // Create confetti elements
         const confettiColors = ['#FFD700', '#FF69B4', '#00CED1', '#FF6347', '#9370DB', '#32CD32'];
         let confettiHTML = '';
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 10; i++) {
             const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
             const left = Math.random() * 100;
             const delay = Math.random() * 0.5;
@@ -1095,12 +1095,12 @@
                 .coupon-notification-card {
                     position: relative;
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 15px;
-                    padding: 18px;
+                    border-radius: 12px;
+                    padding: 15px;
                     box-shadow: 
-                        0 15px 40px rgba(102, 126, 234, 0.4),
+                        0 12px 35px rgba(102, 126, 234, 0.4),
                         0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-                    max-width: 320px;
+                    max-width: 280px;
                     overflow: hidden;
                     backdrop-filter: blur(10px);
                 }
@@ -1122,9 +1122,9 @@
                 }
                 
                 .coupon-gift-icon {
-                    width: 45px;
-                    height: 45px;
-                    margin: 0 auto 12px;
+                    width: 38px;
+                    height: 38px;
+                    margin: 0 auto 8px;
                     background: rgba(255, 255, 255, 0.2);
                     border-radius: 50%;
                     display: flex;
@@ -1134,8 +1134,8 @@
                 }
                 
                 .coupon-gift-icon svg {
-                    width: 26px;
-                    height: 26px;
+                    width: 22px;
+                    height: 22px;
                     color: white;
                 }
                 
@@ -1147,68 +1147,68 @@
                 }
                 
                 .coupon-title {
-                    font-size: 1.15rem;
+                    font-size: 1rem;
                     font-weight: 700;
-                    margin-bottom: 10px;
+                    margin-bottom: 8px;
                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 6px;
+                    gap: 5px;
                 }
                 
                 .sparkle {
                     display: inline-block;
                     animation: sparkle 1.5s infinite;
-                    font-size: 1rem;
+                    font-size: 0.85rem;
                 }
                 
                 .coupon-code-container {
                     background: rgba(255, 255, 255, 0.2);
                     border: 2px dashed rgba(255, 255, 255, 0.5);
-                    border-radius: 10px;
-                    padding: 10px;
-                    margin: 10px 0;
+                    border-radius: 8px;
+                    padding: 8px;
+                    margin: 8px 0;
                     backdrop-filter: blur(5px);
                 }
                 
                 .coupon-label {
                     display: block;
-                    font-size: 0.75rem;
+                    font-size: 0.7rem;
                     opacity: 0.9;
-                    margin-bottom: 3px;
+                    margin-bottom: 2px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 0.5px;
                 }
                 
                 .coupon-code {
                     display: block;
-                    font-size: 1.2rem;
+                    font-size: 1.05rem;
                     font-weight: 800;
-                    letter-spacing: 2px;
+                    letter-spacing: 1.5px;
                     font-family: 'Courier New', monospace;
                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
                 }
                 
                 .coupon-message {
-                    font-size: 0.8rem;
+                    font-size: 0.75rem;
                     opacity: 0.95;
                     line-height: 1.3;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 6px;
+                    gap: 5px;
                 }
                 
                 .check-icon {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    width: 16px;
-                    height: 16px;
+                    width: 14px;
+                    height: 14px;
                     background: rgba(255, 255, 255, 0.3);
                     border-radius: 50%;
-                    font-size: 11px;
+                    font-size: 10px;
                     font-weight: bold;
                 }
                 
@@ -1225,8 +1225,8 @@
                 .confetti {
                     position: absolute;
                     top: -10px;
-                    width: 8px;
-                    height: 8px;
+                    width: 6px;
+                    height: 6px;
                     opacity: 0;
                     animation: confettiFall 2s ease-in-out forwards;
                 }
@@ -1263,7 +1263,7 @@
                         transform: translateY(0) scale(1);
                     }
                     50% {
-                        transform: translateY(-10px) scale(1.1);
+                        transform: translateY(-6px) scale(1.05);
                     }
                 }
                 
@@ -1273,7 +1273,7 @@
                         opacity: 1;
                     }
                     50% {
-                        transform: scale(1.3) rotate(180deg);
+                        transform: scale(1.2) rotate(180deg);
                         opacity: 0.8;
                     }
                 }
@@ -1284,7 +1284,7 @@
                         opacity: 1;
                     }
                     100% {
-                        transform: translateY(400px) rotate(720deg);
+                        transform: translateY(300px) rotate(720deg);
                         opacity: 0;
                     }
                 }
@@ -1298,34 +1298,34 @@
                     
                     .coupon-notification-card {
                         max-width: 100%;
-                        padding: 15px;
+                        padding: 12px;
                     }
                     
                     .coupon-gift-icon {
-                        width: 40px;
-                        height: 40px;
-                        margin-bottom: 10px;
+                        width: 35px;
+                        height: 35px;
+                        margin-bottom: 6px;
                     }
                     
                     .coupon-gift-icon svg {
-                        width: 22px;
-                        height: 22px;
+                        width: 20px;
+                        height: 20px;
                     }
                     
                     .coupon-title {
-                        font-size: 1rem;
+                        font-size: 0.95rem;
                     }
                     
                     .sparkle {
-                        font-size: 0.9rem;
+                        font-size: 0.8rem;
                     }
                     
                     .coupon-code {
-                        font-size: 1.1rem;
+                        font-size: 1rem;
                     }
                     
                     .coupon-message {
-                        font-size: 0.75rem;
+                        font-size: 0.7rem;
                     }
                 }
             `;
