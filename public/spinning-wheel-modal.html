@@ -6,7 +6,18 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://stackpath.bootstrapcdn.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://*.supabase.co https://*.vercel.app; object-src 'none'; media-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self';">
     <title>Spinning Wheel Modal</title>
     <style>
-        /* Modal Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
         .spinning-wheel-modal {
             display: none;
             position: fixed;
@@ -15,264 +26,454 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease-in-out;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .spinning-wheel-modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
+        /* Floating particles effect */
+        .spinning-wheel-modal::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 40px 40px;
+            animation: particlesFloat 20s linear infinite;
+        }
+
+        @keyframes particlesFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        /* Premium Modal Container */
         .modal-content {
-            background: white;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
             padding: 0;
             width: 95%;
             max-width: 1200px;
             max-height: 90vh;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease-out;
+            box-shadow: 
+                0 30px 90px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset,
+                0 0 100px rgba(102, 126, 234, 0.5);
+            animation: modalSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-style: preserve-3d;
         }
 
+        @keyframes modalSlideIn {
+            0% { 
+                transform: translateY(-100px) scale(0.8) rotateX(20deg);
+                opacity: 0;
+            }
+            100% { 
+                transform: translateY(0) scale(1) rotateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Glowing Close Button */
         .modal-close {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            top: 20px;
+            right: 25px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            width: 45px;
+            height: 45px;
+            font-size: 24px;
+            color: white;
             cursor: pointer;
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 8px 25px rgba(255, 107, 107, 0.4),
+                0 0 0 0 rgba(255, 107, 107, 0.7);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 
+                    0 8px 25px rgba(255, 107, 107, 0.4),
+                    0 0 0 0 rgba(255, 107, 107, 0.7);
+            }
+            50% {
+                box-shadow: 
+                    0 8px 35px rgba(255, 107, 107, 0.6),
+                    0 0 0 10px rgba(255, 107, 107, 0);
+            }
         }
 
         .modal-close:hover {
-            background: white;
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 
+                0 12px 40px rgba(255, 107, 107, 0.6),
+                0 0 30px rgba(255, 107, 107, 0.8);
         }
 
+        /* Stunning Header */
         .modal-header {
-            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 40px;
             text-align: center;
-            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin: 0;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: titleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s backwards;
         }
 
-        .modal-subtitle {
-            font-size: 1rem;
-            margin: 10px 0 0 0;
-            opacity: 0.9;
-        }
-
-        /* Animation keyframes */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { 
-                transform: translateY(-50px) scale(0.9);
+        @keyframes titleBounce {
+            0% {
+                transform: translateY(-30px) scale(0.8);
                 opacity: 0;
             }
-            to { 
+            100% {
                 transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
 
-        /* Responsive adjustments */
-        @media (min-width: 1024px) {
-            .modal-content {
-                width: 95%;
-                max-width: 1200px;
-                max-height: 90vh;
+        .modal-subtitle {
+            font-size: 1.2rem;
+            margin: 15px 0 0 0;
+            opacity: 0.95;
+            position: relative;
+            animation: subtitleFade 0.8s ease 0.4s backwards;
+        }
+
+        @keyframes subtitleFade {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
             }
-            
-            .modal-header {
-                padding: 30px 40px;
-            }
-            
-            .modal-title {
-                font-size: 2rem;
-            }
-            
-            .modal-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .wheel-content {
-                min-height: 600px !important;
-            }
-            
-            .left-column {
-                padding: 40px !important;
-            }
-            
-            .right-column {
-                padding: 50px !important;
-            }
-            
-            .phone-input,
-            .input-group .phone-input,
-            .input-group .form-control.phone-input,
-            .input-group:not(.has-validation) > .phone-input:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-right-radius: 10px !important;
-                border-bottom-right-radius: 10px !important;
-            }
-            .phone-submit-btn,
-            .input-group .phone-submit-btn,
-            .input-group .btn.phone-submit-btn,
-            .input-group:not(.has-validation) > .phone-submit-btn:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-left-radius: 10px !important;
-                border-bottom-left-radius: 10px !important;
+            100% {
+                transform: translateY(0);
+                opacity: 0.95;
             }
         }
-        
-        /* Tablet and medium devices (768px - 1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .modal-content {
-                width: 95% !important;
-                max-width: 1000px !important;
-                max-height: 95vh !important;
-            }
-            
-            .modal-header {
-                padding: 25px 30px !important;
-            }
-            
-            .modal-title {
-                font-size: 1.8rem !important;
-            }
-            
-            .modal-subtitle {
-                font-size: 1.1rem !important;
-            }
-            
-            .wheel-content {
-                min-height: 700px !important;
-            }
-            
-            .left-column {
-                padding: 40px !important;
-            }
-            
-            .phone-input,
-            .input-group .phone-input,
-            .input-group .form-control.phone-input,
-            .input-group:not(.has-validation) > .phone-input:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-right-radius: 10px !important;
-                border-bottom-right-radius: 10px !important;
-            }
-            .phone-submit-btn,
-            .input-group .phone-submit-btn,
-            .input-group .btn.phone-submit-btn,
-            .input-group:not(.has-validation) > .phone-submit-btn:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-left-radius: 10px !important;
-                border-bottom-left-radius: 10px !important;
-            }
-            
-            /* Increase iframe height for tablets */
+
+        /* Content Area */
+        .wheel-content {
+            display: flex;
+            min-height: 550px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            position: relative;
         }
-        
+
+        .left-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            position: relative;
+        }
+
+        /* Decorative elements */
+        .left-column::before {
+            content: '🎁';
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .left-column::after {
+            content: '✨';
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 3s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Phone Input Container */
+        .phone-input-container {
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            animation: contentSlideUp 0.8s ease 0.3s backwards;
+        }
+
+        @keyframes contentSlideUp {
+            0% {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .phone-input-container h3 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .phone-input-container p {
+            color: #718096;
+            font-size: 1.1rem;
+            margin: 0 0 35px 0;
+            line-height: 1.6;
+        }
+
+        /* Premium Input Group */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .phone-input {
+            flex: 1;
+            padding: 18px 24px;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .phone-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.1),
+                0 8px 25px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Stunning Submit Button */
+        .phone-submit-btn {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 
+                0 10px 30px rgba(102, 126, 234, 0.4),
+                0 0 0 0 rgba(102, 126, 234, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .phone-submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .phone-submit-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(102, 126, 234, 0.5),
+                0 0 0 8px rgba(102, 126, 234, 0);
+        }
+
+        .phone-submit-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        /* Info Text */
+        .phone-info {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .phone-info::before {
+            content: '🔒';
+            font-size: 1.2rem;
+        }
+
+        /* Confetti animation */
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .modal-content {
                 margin: 10px;
                 max-width: calc(100vw - 20px);
-                max-height: calc(100vh - 20px);
+                border-radius: 20px;
             }
             
             .modal-header {
-                padding: 15px;
+                padding: 25px 20px;
             }
             
             .modal-title {
-                font-size: 1.3rem;
+                font-size: 1.8rem;
             }
             
             .modal-subtitle {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
             
             .wheel-content {
-                flex-direction: column !important;
-                min-height: auto !important;
+                flex-direction: column;
+                min-height: auto;
             }
             
             .left-column {
-                padding: 20px !important;
+                padding: 30px 20px;
             }
             
             .input-group {
-                flex-direction: column !important;
-                gap: 15px !important;
+                flex-direction: column;
+                gap: 15px;
             }
             
             .phone-submit-btn {
-                width: 100% !important;
-            }
-            .phone-input,
-            .input-group .phone-input,
-            .input-group .form-control.phone-input,
-            .input-group:not(.has-validation) > .phone-input:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-input:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-right-radius: 10px !important;
-                border-bottom-right-radius: 10px !important;
-            }
-            .phone-submit-btn,
-            .input-group .phone-submit-btn,
-            .input-group .btn.phone-submit-btn,
-            .input-group:not(.has-validation) > .phone-submit-btn:not(:last-child):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group:not(.has-validation) > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+3):not(.dropdown-toggle):not(.dropdown-menu),
-            .input-group.has-validation > .phone-submit-btn:nth-last-child(n+4) {
-                border-radius: 10px !important;
-                border-top-left-radius: 10px !important;
-                border-bottom-left-radius: 10px !important;
+                width: 100%;
             }
         }
 
-        /* Prevent body scroll when modal is open */
+        /* Demo page styles */
+        .demo-container {
+            padding: 40px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-container h1 {
+            font-size: 3rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .demo-container p {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin: 10px 0;
+        }
+
+        #timeCounter {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .demo-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
         body.modal-open {
             overflow: hidden;
         }
@@ -282,255 +483,172 @@
     <!-- Spinning Wheel Modal -->
     <div id="spinningWheelModal" class="spinning-wheel-modal">
         <div class="modal-content">
-            <!-- Close button -->
             <button class="modal-close" id="modalClose" onclick="closeModal()">×</button>
             
-            <!-- Modal header -->
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Special Offer!</h2>
+                <h2 class="modal-title" id="modalTitle">🎉 Special Offer! 🎉</h2>
                 <p class="modal-subtitle" id="modalSubtitle">Spin the wheel and win amazing discounts!</p>
             </div>
             
-            <!-- Spinning wheel content will be loaded here -->
             <div id="wheelContent"></div>
         </div>
     </div>
 
-    <!-- Demo content to simulate website browsing -->
-    <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
-        <h1>Website Demo</h1>
-        <p>Browse around for 5 minutes to see the spinning wheel modal appear!</p>
+    <!-- Demo Content -->
+    <div class="demo-container">
+        <h1>🎰 Premium Spinning Wheel Demo</h1>
+        <p>Browse around for 5 minutes to see the modal appear!</p>
         <p>Time on page: <span id="timeCounter">0:00</span></p>
-        <button onclick="showModalNow()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Show Modal Now (for testing)
+        <button onclick="showModalNow()" class="demo-btn">
+            ✨ Show Modal Now (for testing)
         </button>
     </div>
 
     <script>
-        // Set API base URL for API calls - use relative URLs for Vercel deployment
-        if (!window.API_BASE_URL) {
-            window.API_BASE_URL = '';
-        }
-        
-        // Modal functionality
         let modalShown = false;
-        let startTime = Date.now();
         let timeCounter = 0;
 
-        // Check if user has already seen the modal today
         function hasSeenModalToday() {
             const lastSeen = localStorage.getItem('spinningWheelLastSeen');
             if (!lastSeen) return false;
-            
             const lastSeenDate = new Date(lastSeen);
             const today = new Date();
-            
             return lastSeenDate.toDateString() === today.toDateString();
         }
 
-        // Mark modal as seen today
         function markModalAsSeen() {
             localStorage.setItem('spinningWheelLastSeen', new Date().toISOString());
         }
 
-        // Show the modal
         function showModal() {
             if (modalShown) return;
             
             const modal = document.getElementById('spinningWheelModal');
             const wheelContent = document.getElementById('wheelContent');
             
-            // Load the spinning wheel content
             wheelContent.innerHTML = `
-                <div class="wheel-content" style="display: flex; min-height: 500px;">
-                    <!-- Phone number input step -->
-                    <div class="left-column" id="phoneStep" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: white;">
-                        <div class="phone-input-container" style="text-align: center; max-width: 400px; width: 100%;">
-                            <h3 style="color: #333; font-size: 1.8rem; margin: 0 0 15px 0; font-weight: 600;">📱 Enter Your Phone Number</h3>
-                            <p style="color: #666; font-size: 1.1rem; margin: 0 0 30px 0; line-height: 1.5;">Please provide your phone number to spin the wheel and win amazing discounts!</p>
+                <div class="wheel-content">
+                    <div class="left-column" id="phoneStep">
+                        <div class="phone-input-container">
+                            <h3>📱 Enter Your Phone Number</h3>
+                            <p>Unlock exclusive discounts and amazing prizes!</p>
                             
-                            <form id="phoneForm" class="phone-form" style="margin-bottom: 20px;">
-                                <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <form id="phoneForm" onsubmit="handlePhoneSubmit(event)">
+                                <div class="input-group">
                                     <input type="tel" 
+                                           class="phone-input"
                                            id="phoneInput" 
                                            placeholder="Enter your phone number" 
                                            required 
-                                           pattern="[0-9+\-\s\(\)]+"
-                                           style="flex: 1; padding: 15px; border: 2px solid #e1e5e9; border-radius: 10px; font-size: 1rem;">
-                                    <button type="submit" style="padding: 15px 25px; background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Continue</button>
+                                           pattern="[0-9+\\-\\s\\(\\)]+">
+                                    <button type="submit" class="phone-submit-btn">Continue →</button>
                                 </div>
                             </form>
                             
-                            <div class="phone-info" style="color: #888; font-size: 0.9rem;">
-                                <small>We'll use this to send you your discount code</small>
+                            <div class="phone-info">
+                                <small>Your information is safe with us</small>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Spinning wheel step (hidden initially) -->
-                    <div class="left-column" id="wheelStep" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: white; display: none;">
-                        <iframe src="spinning-wheel-standalone" 
+                    <div class="left-column" id="wheelStep" style="display: none;">
+                        <iframe src="about:blank" 
                                 style="width: 100%; height: 500px; border: none; border-radius: 15px;"
                                 id="wheelIframe">
                         </iframe>
                     </div>
-
                 </div>
             `;
             
-            // Show modal
             modal.classList.add('show');
             document.body.classList.add('modal-open');
             modalShown = true;
-            
-            // Mark as seen
             markModalAsSeen();
-            
-            // Listen for messages from the wheel iframe
-            window.addEventListener('message', handleWheelMessage);
         }
 
-        // Close the modal
         function closeModal() {
             const modal = document.getElementById('spinningWheelModal');
             modal.classList.remove('show');
             document.body.classList.remove('modal-open');
-            
-            // Clean up iframe
-            const wheelContent = document.getElementById('wheelContent');
-            wheelContent.innerHTML = '';
-            
-            // Remove event listener
-            window.removeEventListener('message', handleWheelMessage);
+            document.getElementById('wheelContent').innerHTML = '';
         }
 
-        // Handle messages from the spinning wheel iframe
-        function handleWheelMessage(event) {
-            // Handle any communication from the wheel if needed
-            if (event.data && event.data.type === 'wheelClosed') {
-                closeModal();
-            }
-        }
-
-        // Show modal immediately (for testing)
         function showModalNow() {
             showModal();
         }
 
-        // Close modal when clicking outside
-        document.getElementById('spinningWheelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modalShown) {
-                closeModal();
-            }
-        });
-
-        // Timer to show modal after 5 minutes
-        function startTimer() {
-            const timer = setInterval(() => {
-                timeCounter++;
-                const minutes = Math.floor(timeCounter / 60);
-                const seconds = timeCounter % 60;
-                
-                // Update time counter display
-                document.getElementById('timeCounter').textContent = 
-                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Check if 5 minutes have passed
-                if (timeCounter >= 300 && !modalShown && !hasSeenModalToday()) { // 300 seconds = 5 minutes
-                    showModal();
-                    clearInterval(timer);
-                }
-            }, 1000);
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user has already seen the modal today
-            if (hasSeenModalToday()) {
-                document.getElementById('modalSubtitle').textContent = 
-                    'You\'ve already seen today\'s offer. Come back tomorrow!';
-            }
-            
-            // Start the timer
-            startTimer();
-        });
-        
-        // Handle phone number submission
-        async function handlePhoneSubmit(e) {
+        function handlePhoneSubmit(e) {
             e.preventDefault();
             
             const phoneInput = document.getElementById('phoneInput');
             const phoneNumber = phoneInput.value.trim();
             
-            if (!phoneNumber) {
-                alert('Please enter a phone number');
-                return;
-            }
-            
-            // Basic phone validation
-            if (phoneNumber.length < 8) {
+            if (!phoneNumber || phoneNumber.length < 8) {
                 alert('Please enter a valid phone number');
                 return;
             }
             
-            try {
-                // Track phone number in database (same as account dashboard)
-                const response = await fetch('/api/spinning-wheels/track-phone', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ phoneNumber: phoneNumber })
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    
-                } else {
-                    
-                }
-            } catch (error) {
-                
-            }
-            
-            // Store phone number (you can modify this to send to your backend)
             localStorage.setItem('spinningWheelPhone', phoneNumber);
             
-            // Also set a flag that the spinning wheel can check
-            localStorage.setItem('spinningWheelPhoneEntered', 'true');
+            // Create confetti effect
+            createConfetti();
             
-            // Hide phone step and show wheel step
-            const phoneStep = document.getElementById('phoneStep');
-            const wheelStep = document.getElementById('wheelStep');
-            
-            if (phoneStep && wheelStep) {
-                phoneStep.style.display = 'none';
-                wheelStep.style.display = 'flex';
+            // Switch to wheel
+            setTimeout(() => {
+                const phoneStep = document.getElementById('phoneStep');
+                const wheelStep = document.getElementById('wheelStep');
                 
-                // Wait for iframe to load, then send phone number
+                if (phoneStep && wheelStep) {
+                    phoneStep.style.display = 'none';
+                    wheelStep.style.display = 'flex';
+                }
+            }, 1000);
+        }
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
+            for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
-                    const iframe = document.getElementById('wheelIframe');
-                    if (iframe && iframe.contentWindow) {
-                        try {
-                            // Send phone number to iframe
-                            iframe.contentWindow.postMessage({
-                                type: 'phoneNumberEntered',
-                                phoneNumber: phoneNumber
-                            }, '*');
-                        } catch (e) {
-                            
-                        }
-                    }
-                }, 500);
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '10000';
+                    confetti.style.animation = 'confetti 3s ease-out forwards';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
             }
         }
+
+        document.getElementById('spinningWheelModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalShown) closeModal();
+        });
+
+        function startTimer() {
+            setInterval(() => {
+                timeCounter++;
+                const minutes = Math.floor(timeCounter / 60);
+                const seconds = timeCounter % 60;
+                document.getElementById('timeCounter').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeCounter >= 300 && !modalShown && !hasSeenModalToday()) {
+                    showModal();
+                }
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', startTimer);
     </script>
 </body>
 </html>
