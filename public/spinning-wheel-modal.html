@@ -12,12 +12,7 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background */
+        /* Premium Modal Styles */
         .spinning-wheel-modal {
             display: none;
             position: fixed;
@@ -79,7 +74,6 @@
                 0 0 0 1px rgba(255, 255, 255, 0.5) inset,
                 0 0 100px rgba(102, 126, 234, 0.5);
             animation: modalSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            transform-style: preserve-3d;
         }
 
         @keyframes modalSlideIn {
@@ -205,6 +199,12 @@
                 transform: translateY(0);
                 opacity: 0.95;
             }
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Content Area */
@@ -388,10 +388,87 @@
         }
 
         /* Responsive Design */
+        @media (min-width: 1024px) {
+            .modal-content {
+                width: 95%;
+                max-width: 1200px;
+                max-height: 90vh;
+            }
+            
+            .modal-header {
+                padding: 40px;
+            }
+            
+            .modal-title {
+                font-size: 2.5rem;
+            }
+            
+            .modal-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .wheel-content {
+                min-height: 600px !important;
+            }
+            
+            .left-column {
+                padding: 50px !important;
+            }
+            
+            .phone-input,
+            .input-group .phone-input {
+                border-radius: 15px !important;
+            }
+
+            .phone-submit-btn,
+            .input-group .phone-submit-btn {
+                border-radius: 15px !important;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .modal-content {
+                width: 95% !important;
+                max-width: 1000px !important;
+                max-height: 95vh !important;
+            }
+            
+            .modal-header {
+                padding: 30px !important;
+            }
+            
+            .modal-title {
+                font-size: 2rem !important;
+            }
+            
+            .modal-subtitle {
+                font-size: 1.1rem !important;
+            }
+            
+            .wheel-content {
+                min-height: 700px !important;
+            }
+            
+            .left-column {
+                padding: 40px !important;
+            }
+            
+            .phone-input,
+            .input-group .phone-input {
+                border-radius: 15px !important;
+            }
+
+            .phone-submit-btn,
+            .input-group .phone-submit-btn {
+                border-radius: 15px !important;
+            }
+        }
+        
         @media (max-width: 768px) {
             .modal-content {
                 margin: 10px;
                 max-width: calc(100vw - 20px);
+                max-height: calc(100vh - 20px);
                 border-radius: 20px;
             }
             
@@ -408,22 +485,37 @@
             }
             
             .wheel-content {
-                flex-direction: column;
-                min-height: auto;
+                flex-direction: column !important;
+                min-height: auto !important;
             }
             
             .left-column {
-                padding: 30px 20px;
+                padding: 30px 20px !important;
             }
             
             .input-group {
-                flex-direction: column;
-                gap: 15px;
+                flex-direction: column !important;
+                gap: 15px !important;
             }
             
             .phone-submit-btn {
-                width: 100%;
+                width: 100% !important;
             }
+
+            .phone-input,
+            .input-group .phone-input {
+                border-radius: 15px !important;
+            }
+
+            .phone-submit-btn,
+            .input-group .phone-submit-btn {
+                border-radius: 15px !important;
+            }
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
         }
 
         /* Demo page styles */
@@ -473,10 +565,6 @@
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
         }
-
-        body.modal-open {
-            overflow: hidden;
-        }
     </style>
 </head>
 <body>
@@ -505,27 +593,40 @@
     </div>
 
     <script>
+        // Set API base URL for API calls - use relative URLs for Vercel deployment
+        if (!window.API_BASE_URL) {
+            window.API_BASE_URL = '';
+        }
+        
+        // Modal functionality
         let modalShown = false;
+        let startTime = Date.now();
         let timeCounter = 0;
 
+        // Check if user has already seen the modal today
         function hasSeenModalToday() {
             const lastSeen = localStorage.getItem('spinningWheelLastSeen');
             if (!lastSeen) return false;
+            
             const lastSeenDate = new Date(lastSeen);
             const today = new Date();
+            
             return lastSeenDate.toDateString() === today.toDateString();
         }
 
+        // Mark modal as seen today
         function markModalAsSeen() {
             localStorage.setItem('spinningWheelLastSeen', new Date().toISOString());
         }
 
+        // Show the modal
         function showModal() {
             if (modalShown) return;
             
             const modal = document.getElementById('spinningWheelModal');
             const wheelContent = document.getElementById('wheelContent');
             
+            // Load the spinning wheel content
             wheelContent.innerHTML = `
                 <div class="wheel-content">
                     <div class="left-column" id="phoneStep">
@@ -533,7 +634,7 @@
                             <h3>📱 Enter Your Phone Number</h3>
                             <p>Unlock exclusive discounts and amazing prizes!</p>
                             
-                            <form id="phoneForm" onsubmit="handlePhoneSubmit(event)">
+                            <form id="phoneForm" class="phone-form">
                                 <div class="input-group">
                                     <input type="tel" 
                                            class="phone-input"
@@ -552,7 +653,7 @@
                     </div>
                     
                     <div class="left-column" id="wheelStep" style="display: none;">
-                        <iframe src="about:blank" 
+                        <iframe src="spinning-wheel-standalone" 
                                 style="width: 100%; height: 500px; border: none; border-radius: 15px;"
                                 id="wheelIframe">
                         </iframe>
@@ -560,51 +661,123 @@
                 </div>
             `;
             
+            // Show modal
             modal.classList.add('show');
             document.body.classList.add('modal-open');
             modalShown = true;
+            
+            // Mark as seen
             markModalAsSeen();
+            
+            // CRITICAL: Attach form submit handler after HTML is inserted
+            const phoneForm = document.getElementById('phoneForm');
+            if (phoneForm) {
+                phoneForm.addEventListener('submit', handlePhoneSubmit);
+            }
+            
+            // Listen for messages from the wheel iframe
+            window.addEventListener('message', handleWheelMessage);
         }
 
+        // Close the modal
         function closeModal() {
             const modal = document.getElementById('spinningWheelModal');
             modal.classList.remove('show');
             document.body.classList.remove('modal-open');
-            document.getElementById('wheelContent').innerHTML = '';
+            
+            // Clean up iframe
+            const wheelContent = document.getElementById('wheelContent');
+            wheelContent.innerHTML = '';
+            
+            // Remove event listener
+            window.removeEventListener('message', handleWheelMessage);
         }
 
+        // Handle messages from the spinning wheel iframe
+        function handleWheelMessage(event) {
+            if (event.data && event.data.type === 'wheelClosed') {
+                closeModal();
+            }
+            if (event.data && event.data.type === 'closeSpinningWheel') {
+                closeModal();
+            }
+        }
+
+        // Show modal immediately (for testing)
         function showModalNow() {
             showModal();
         }
 
-        function handlePhoneSubmit(e) {
+        // Handle phone number submission
+        async function handlePhoneSubmit(e) {
             e.preventDefault();
             
             const phoneInput = document.getElementById('phoneInput');
             const phoneNumber = phoneInput.value.trim();
             
-            if (!phoneNumber || phoneNumber.length < 8) {
+            if (!phoneNumber) {
+                alert('Please enter a phone number');
+                return;
+            }
+            
+            // Basic phone validation
+            if (phoneNumber.length < 8) {
                 alert('Please enter a valid phone number');
                 return;
             }
             
+            try {
+                // Track phone number in database
+                const response = await fetch('/api/spinning-wheels/track-phone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phoneNumber })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                }
+            } catch (error) {
+                // Silent fail, continue anyway
+            }
+            
+            // Store phone number
             localStorage.setItem('spinningWheelPhone', phoneNumber);
+            localStorage.setItem('spinningWheelPhoneEntered', 'true');
             
             // Create confetti effect
             createConfetti();
             
-            // Switch to wheel
-            setTimeout(() => {
-                const phoneStep = document.getElementById('phoneStep');
-                const wheelStep = document.getElementById('wheelStep');
-                
-                if (phoneStep && wheelStep) {
+            // Hide phone step and show wheel step
+            const phoneStep = document.getElementById('phoneStep');
+            const wheelStep = document.getElementById('wheelStep');
+            
+            if (phoneStep && wheelStep) {
+                setTimeout(() => {
                     phoneStep.style.display = 'none';
                     wheelStep.style.display = 'flex';
-                }
-            }, 1000);
+                    
+                    // Wait for iframe to load, then send phone number
+                    setTimeout(() => {
+                        const iframe = document.getElementById('wheelIframe');
+                        if (iframe && iframe.contentWindow) {
+                            try {
+                                iframe.contentWindow.postMessage({
+                                    type: 'phoneNumberEntered',
+                                    phoneNumber: phoneNumber
+                                }, '*');
+                            } catch (e) {
+                                // Silent fail
+                            }
+                        }
+                    }, 500);
+                }, 1000);
+            }
         }
 
+        // Create confetti effect
         function createConfetti() {
             const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
             for (let i = 0; i < 50; i++) {
@@ -626,29 +799,46 @@
             }
         }
 
+        // Close modal when clicking outside
         document.getElementById('spinningWheelModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+            if (e.target === this) {
+                closeModal();
+            }
         });
 
+        // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modalShown) closeModal();
+            if (e.key === 'Escape' && modalShown) {
+                closeModal();
+            }
         });
 
+        // Timer to show modal after 5 minutes
         function startTimer() {
-            setInterval(() => {
+            const timer = setInterval(() => {
                 timeCounter++;
                 const minutes = Math.floor(timeCounter / 60);
                 const seconds = timeCounter % 60;
+                
                 document.getElementById('timeCounter').textContent = 
                     `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 
                 if (timeCounter >= 300 && !modalShown && !hasSeenModalToday()) {
                     showModal();
+                    clearInterval(timer);
                 }
             }, 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', startTimer);
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (hasSeenModalToday()) {
+                document.getElementById('modalSubtitle').textContent = 
+                    'You\'ve already seen today\'s offer. Come back tomorrow!';
+            }
+            
+            startTimer();
+        });
     </script>
 </body>
 </html>
