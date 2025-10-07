@@ -159,18 +159,22 @@
       notification.id = "auto-coupon-notification";
       notification.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #28a745, #20c997);
+                top: 24px;
+                right: 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                padding: 18px 24px;
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4), 0 6px 20px rgba(0, 0, 0, 0.15);
                 z-index: 10000;
-                font-size: 14px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 15px;
                 font-weight: 500;
-                max-width: 300px;
-                animation: slideInRight 0.3s ease-out;
+                max-width: 360px;
+                min-width: 300px;
+                animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.2);
             `;
 
       // Add animation keyframes
@@ -179,42 +183,107 @@
         style.id = "auto-coupon-styles";
         style.textContent = `
                     @keyframes slideInRight {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
+                        from { 
+                            transform: translateX(120%) scale(0.8); 
+                            opacity: 0; 
+                        }
+                        to { 
+                            transform: translateX(0) scale(1); 
+                            opacity: 1; 
+                        }
                     }
                     @keyframes slideOutRight {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
+                        from { 
+                            transform: translateX(0) scale(1); 
+                            opacity: 1; 
+                        }
+                        to { 
+                            transform: translateX(120%) scale(0.8); 
+                            opacity: 0; 
+                        }
+                    }
+                    @keyframes sparkle {
+                        0%, 100% { transform: scale(1) rotate(0deg); }
+                        25% { transform: scale(1.2) rotate(-10deg); }
+                        75% { transform: scale(1.2) rotate(10deg); }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.05); }
                     }
                 `;
         document.head.appendChild(style);
       }
 
-      // Set notification content with translations
+      // Set notification content with translations and improved design
       notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">🎉</span>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">${getTranslation('appliedTitle')}</div>
-                        <div style="font-size: 12px; opacity: 0.9;">${getTranslation('appliedCode')}: ${couponCode}</div>
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.25);
+                        border-radius: 12px;
+                        padding: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 48px;
+                        height: 48px;
+                        animation: sparkle 2s ease-in-out infinite;
+                    ">
+                        <span style="font-size: 26px; line-height: 1;">🎁</span>
                     </div>
+                    <div style="flex: 1;">
+                        <div style="
+                            font-weight: 700; 
+                            margin-bottom: 6px; 
+                            font-size: 17px;
+                            letter-spacing: 0.3px;
+                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        ">${getTranslation('appliedTitle')}</div>
+                        <div style="
+                            font-size: 13px; 
+                            opacity: 0.95;
+                            background: rgba(255, 255, 255, 0.15);
+                            padding: 6px 12px;
+                            border-radius: 8px;
+                            display: inline-block;
+                            font-weight: 600;
+                            letter-spacing: 0.5px;
+                            margin-top: 2px;
+                        ">${getTranslation('appliedCode')}: <span style="font-family: 'Courier New', monospace;">${couponCode}</span></div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: rgba(255, 255, 255, 0.2);
+                        border: none;
+                        color: white;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s ease;
+                        padding: 0;
+                        line-height: 1;
+                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">×</button>
                 </div>
             `;
 
       // Add to page
       document.body.appendChild(notification);
 
-      // Auto-remove after 4 seconds
+      // Auto-remove after 5 seconds
       setTimeout(() => {
         if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.3s ease-in";
+          notification.style.animation = "slideOutRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
             }
-          }, 300);
+          }, 400);
         }
-      }, 4000);
+      }, 5000);
     } catch (error) {
       console.error("Error showing coupon feedback:", error);
     }
@@ -250,45 +319,98 @@
       notification.id = "coupon-used-notification";
       notification.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #17a2b8, #138496);
+                top: 24px;
+                right: 24px;
+                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
                 color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                padding: 18px 24px;
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(17, 153, 142, 0.4), 0 6px 20px rgba(0, 0, 0, 0.15);
                 z-index: 10000;
-                font-size: 14px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-size: 15px;
                 font-weight: 500;
-                max-width: 300px;
-                animation: slideInRight 0.3s ease-out;
+                max-width: 360px;
+                min-width: 300px;
+                animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.2);
             `;
 
-      // Set notification content with translations
+      // Set notification content with translations and improved design
       notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">✅</span>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">${getTranslation('usedTitle')}</div>
-                        <div style="font-size: 12px; opacity: 0.9;">${getTranslation('appliedCode')}: ${couponCode} - ${getTranslation('usedMessage')}</div>
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div style="
+                        background: rgba(255, 255, 255, 0.25);
+                        border-radius: 12px;
+                        padding: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 48px;
+                        height: 48px;
+                        animation: pulse 2s ease-in-out infinite;
+                    ">
+                        <span style="font-size: 26px; line-height: 1;">🎊</span>
                     </div>
+                    <div style="flex: 1;">
+                        <div style="
+                            font-weight: 700; 
+                            margin-bottom: 6px; 
+                            font-size: 17px;
+                            letter-spacing: 0.3px;
+                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        ">${getTranslation('usedTitle')}</div>
+                        <div style="
+                            font-size: 13px; 
+                            opacity: 0.95;
+                            line-height: 1.5;
+                        ">
+                            <span style="
+                                background: rgba(255, 255, 255, 0.15);
+                                padding: 6px 12px;
+                                border-radius: 8px;
+                                display: inline-block;
+                                font-weight: 600;
+                                letter-spacing: 0.5px;
+                                font-family: 'Courier New', monospace;
+                            ">${couponCode}</span>
+                            <div style="margin-top: 6px; font-weight: 600;">${getTranslation('usedMessage')}</div>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: rgba(255, 255, 255, 0.2);
+                        border: none;
+                        color: white;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s ease;
+                        padding: 0;
+                        line-height: 1;
+                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">×</button>
                 </div>
             `;
 
       // Add to page
       document.body.appendChild(notification);
 
-      // Auto-remove after 5 seconds
+      // Auto-remove after 6 seconds
       setTimeout(() => {
         if (notification.parentNode) {
-          notification.style.animation = "slideOutRight 0.3s ease-in";
+          notification.style.animation = "slideOutRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
             }
-          }, 300);
+          }, 400);
         }
-      }, 5000);
+      }, 6000);
     } catch (error) {
       console.error("Error showing coupon used feedback:", error);
     }
