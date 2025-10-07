@@ -778,10 +778,13 @@
                     body: JSON.stringify({ phoneNumber: phoneNumber })
                 });
                 
+                // Don't block if API fails - continue anyway
                 if (response.ok) {
                     const result = await response.json();
+                    console.log('Phone tracked successfully:', result);
                 }
             } catch (error) {
+                console.log('Phone tracking failed, continuing anyway:', error);
                 // Silent fail, continue anyway
             }
             
@@ -811,7 +814,7 @@
                                     phoneNumber: phoneNumber
                                 }, '*');
                             } catch (e) {
-                                // Silent fail
+                                console.log('Failed to send message to iframe:', e);
                             }
                         }
                     }, 500);
