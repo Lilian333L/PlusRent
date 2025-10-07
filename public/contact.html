@@ -1,603 +1,351 @@
 <!DOCTYPE html>
 <html lang="ro">
-
 <head>
     <title>Contact PlusRent – Închirieri Auto în Chișinău și Moldova | Asistență 24/7</title>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="images/icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/icon.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="images/icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-    <link rel="shortcut icon" type="image/png" href="images/icon.png">
-    <meta name="msapplication-TileImage" content="images/icon.png">
-    <meta name="msapplication-TileColor" content="#ffffff">
-
-    <!-- Meta base -->
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://stackpath.bootstrapcdn.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://*.supabase.co https://*.vercel.app; object-src 'none'; media-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self';">
+    <!-- FIXED CSP - Added unpkg.com for Leaflet -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://stackpath.bootstrapcdn.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://*.supabase.co https://*.vercel.app https://unpkg.com https://*.tile.openstreetmap.org; object-src 'none'; media-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self';">
 
-    <!-- SEO -->
-    <meta name="description" content="Contactează echipa PlusRent pentru închirieri auto rapide și sigure în Chișinău și toată Moldova. Oferim suport 24/7, livrare la aeroport și rezervări ușoare online.">
-    <meta name="keywords" content="contact inchirieri auto, PlusRent Moldova, masina inchiriat Chisinau, suport clienti PlusRent, rezervare auto Moldova">
-    <meta name="author" content="PlusRent">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Contact PlusRent – Închirieri Auto în Chișinău și Moldova">
-    <meta property="og:description" content="Ai nevoie de ajutor? Contactează PlusRent pentru rezervări, informații sau suport 24/7. Închirieri auto rapide și sigure în Moldova.">
-    <meta property="og:image" content="https://plusrent.md/images/LOGO-5-demo.png">
-    <meta property="og:url" content="https://plusrent.md/contact">
-    <meta property="og:site_name" content="PlusRent">
-
-    <!-- Twitter / Telegram -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Contact PlusRent – Închirieri Auto Moldova">
-    <meta name="twitter:description" content="Contactează echipa PlusRent pentru suport 24/7 și rezervări rapide.">
-    <meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
-
-    <!-- Canonical -->
+    <!-- Meta tags -->
+    <meta name="description" content="Contactează echipa PlusRent pentru închirieri auto rapide și sigure în Chișinău și toată Moldova.">
     <link rel="canonical" href="https://plusrent.md/contact">
 
     <!-- CSS Files -->
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
-    <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
-    <link href="css/plugins.css" rel="stylesheet" type="text/css">
-    <link href="css/style.css" rel="stylesheet" type="text/css">
-    <link href="css/coloring.css" rel="stylesheet" type="text/css">
-    <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
-
-    <!-- FontAwesome -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-    <!-- JS Config -->
-    <script src="js/config.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin="anonymous"/>
 
-    <!-- Leaflet (OpenStreetMap) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "PlusRent",
-      "image": "https://plusrent.md/images/LOGO-5-demo.png",
-      "url": "https://plusrent.md",
-      "telephone": "+37360000000",
-      "email": "info@plusrent.md",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "str. București 123",
-        "addressLocality": "Chișinău",
-        "addressCountry": "MD"
-      },
-      "openingHours": "Mo-Su 00:00-23:59",
-      "sameAs": [
-        "https://www.facebook.com/plusrent.md",
-        "https://www.instagram.com/plusrent.md",
-        "https://t.me/plusrent"
-      ]
-    }
-    </script>
-
-    <!-- Custom Language Picker Styles -->
     <style>
-      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
-      .lang-picker-btn {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 4px 12px;
-        border-radius: 4px;
-        border: 1px solid #e0e0e0;
-        background: #f6f6f6;
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 14px;
-        min-width: 80px;
-        height: 36px;
-        line-height: 1.2;
-        transition: border 0.2s, box-shadow 0.2s;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-        margin-left: 0;
-      }
-      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
-        outline: none;
-        border-color: #f0c040;
-        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
-      }
-      .lang-picker-dropdown {
-        display: none;
-        position: absolute;
-        top: 110%;
-        left: 0;
-        z-index: 1000;
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        padding: 0;
-        margin: 0;
-        min-width: 120px;
-        list-style: none;
-      }
-      .lang-picker-dropdown.open { display: block; }
-      .lang-option {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 14px;
-        cursor: pointer;
-        font-size: 14px;
-        background: none;
-        border: none;
-        transition: background 0.15s, color 0.15s;
-        height: 32px;
-        line-height: 1.2;
-      }
-      .lang-option:focus, .lang-option:hover {
-        background: #f0c04022;
-        color: #031B4E;
-        outline: none;
-      }
-      .lang-option.selected {
-        background: #f0c04044;
-        color: #031B4E;
-        font-weight: 600;
-      }
-      .lang-flag {
-        font-size: 18px;
-        width: 20px;
-        display: inline-block;
-        text-align: center;
-      }
-      .lang-globe {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
-        margin-right: 3px;
-      }
-      .lang-code {
-        font-weight: 600;
-        margin: 0 2px 0 2px;
-      }
-      @media (max-width: 600px) {
-        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
-        .lang-picker-dropdown { min-width: 80px; }
-        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
-        .lang-flag { font-size: 15px; width: 15px; }
-      }
+        /* Premium Map Styles */
+        .map-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
 
-             /* Map Styles */
-       .map-container {
-         position: relative;
-         width: 100%;
-         height: 400px;
-         border-radius: 10px;
-         overflow: hidden;
-         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-         margin: 30px 0;
-       }
-
-       #map {
-         width: 100%;
-         height: 100%;
-         border-radius: 10px;
-         z-index: 1;
-       }
-
-       /* Custom Leaflet Styles */
-       .leaflet-container {
-         border-radius: 10px;
-       }
-
-       .leaflet-popup-content-wrapper {
-         border-radius: 8px;
-         box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-       }
-
-       .leaflet-popup-content {
-         margin: 15px;
-         font-family: inherit;
-       }
-
-       .leaflet-popup-content h4 {
-         margin: 0 0 8px 0;
-         color: #031B4E;
-         font-size: 16px;
-         font-weight: 600;
-       }
-
-       .leaflet-popup-content p {
-         margin: 0 0 5px 0;
-         color: #666;
-         font-size: 14px;
-       }
-
-       .leaflet-popup-content a {
-         color: #f0c040;
-         text-decoration: none;
-         font-weight: 600;
-         font-size: 14px;
-       }
-
-       .leaflet-popup-content a:hover {
-         color: #e0b030;
-       }
-
-      .map-overlay {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        z-index: 1000;
-        max-width: 250px;
-      }
-
-      .map-overlay h4 {
-        margin: 0 0 10px 0;
-        color: #031B4E;
-        font-size: 16px;
-        font-weight: 600;
-      }
-
-      .map-overlay p {
-        margin: 0 0 8px 0;
-        color: #666;
-        font-size: 14px;
-        line-height: 1.4;
-      }
-
-      .map-overlay .btn-open-maps {
-        background: #f0c040;
-        color: #031B4E;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 10px;
-      }
-
-      .map-overlay .btn-open-maps:hover {
-        background: #e0b030;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(240,192,64,0.3);
-      }
-
-      .map-overlay .btn-open-maps i {
-        margin-right: 5px;
-      }
-
-      @media (max-width: 768px) {
         .map-container {
-          height: 300px;
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.15),
+                0 0 0 1px rgba(255,255,255,0.5) inset;
+            margin: 30px 0;
         }
-        
-        .map-overlay {
-          position: relative;
-          top: auto;
-          right: auto;
-          margin: 20px 0;
-          max-width: 100%;
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            z-index: 1;
         }
-      }
-      
-      /* Call Now Button styles are now in global CSS */
+
+        /* Premium Leaflet Customization */
+        .leaflet-container {
+            border-radius: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Custom Marker Pulse Animation */
+        @keyframes markerPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(240, 192, 64, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 20px rgba(240, 192, 64, 0);
+            }
+        }
+
+        .custom-marker {
+            animation: markerPulse 2s ease-in-out infinite;
+        }
+
+        /* Premium Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 5px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .leaflet-popup-content {
+            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-width: 250px;
+        }
+
+        .leaflet-popup-content h4 {
+            margin: 0 0 12px 0;
+            color: #031B4E;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leaflet-popup-content h4::before {
+            content: '📍';
+            font-size: 20px;
+        }
+
+        .leaflet-popup-content p {
+            margin: 0 0 8px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leaflet-popup-content p i {
+            color: #f0c040;
+            width: 16px;
+        }
+
+        .leaflet-popup-content .popup-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #f0c040, #e0b030);
+            color: #031B4E;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(240, 192, 64, 0.3);
+        }
+
+        .leaflet-popup-content .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 192, 64, 0.4);
+        }
+
+        .leaflet-popup-tip {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        /* Zoom Controls Styling */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        }
+
+        .leaflet-control-zoom a {
+            background: white !important;
+            color: #031B4E !important;
+            border: none !important;
+            width: 35px !important;
+            height: 35px !important;
+            line-height: 35px !important;
+            font-size: 20px !important;
+            font-weight: bold !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background: #f0c040 !important;
+            color: white !important;
+        }
+
+        /* Premium Info Card Overlay */
+        .map-info-card {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 300px;
+            border: 1px solid rgba(240, 192, 64, 0.2);
+        }
+
+        .map-info-card h4 {
+            margin: 0 0 15px 0;
+            color: #031B4E;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .map-info-card h4::before {
+            content: '🏢';
+            font-size: 22px;
+        }
+
+        .map-info-card p {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .map-info-card p i {
+            color: #f0c040;
+            margin-top: 3px;
+            width: 16px;
+        }
+
+        .btn-open-maps {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #f0c040, #e0b030);
+            color: #031B4E;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 15px;
+            width: 100%;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(240, 192, 64, 0.3);
+        }
+
+        .btn-open-maps:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 192, 64, 0.4);
+            color: #031B4E;
+        }
+
+        .btn-open-maps i {
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .map-container {
+                height: 400px;
+                border-radius: 15px;
+            }
+            
+            .map-info-card {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+                max-width: 100%;
+            }
+
+            .leaflet-popup-content {
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .map-container {
+                height: 350px;
+            }
+
+            .map-info-card {
+                padding: 20px;
+            }
+
+            .map-info-card h4 {
+                font-size: 16px;
+            }
+
+            .map-info-card p {
+                font-size: 13px;
+            }
+        }
+
+        /* Section Title Styling */
+        .map-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #031B4E;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .map-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #f0c040, #e0b030);
+            border-radius: 2px;
+        }
     </style>
 </head>
-
 <body>
-    <div id="wrapper">
-        
-        <!-- page preloader begin -->
-        <div id="de-preloader"></div>
-        <!-- page preloader close -->
+    <!-- Your existing header and content here -->
 
-                        <!-- header begin -->
-        <header class="transparent scroll-light has-topbar">
-            <div id="topbar" class="topbar-dark text-light">
-                <div class="container">
-                    <div class="topbar-left xs-hide">
-                        <div class="topbar-widget">
-                            <div class="topbar-widget"><a href="tel:060000500"><i class="fa fa-phone"></i>060000500</a></div>
-                            <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
-                            <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
-                        </div>
-                    </div>
-                
-                    <div class="topbar-right">
-                        <div class="social-icons">
-                            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
-                        </div>
-                    </div>  
-                    <div class="clearfix"></div>
+    <!-- Premium Map Section -->
+    <section aria-label="location-section" class="map-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2>📍 Găsește-ne pe Hartă</h2>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 40px;">
+                        Vizitează biroul nostru din inima Chișinăului
+                    </p>
                 </div>
             </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="de-flex sm-pt10">
-                            <div class="de-flex-col">
-                                <div class="de-flex-col">
-                                    <!-- logo begin -->
-                                    <div id="logo">
-                                        <a href="/">
-                                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
-                <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
-                                        </a>
-                                    </div>
-                                    <!-- logo close -->
-                                </div>
-                            </div>
-                            
-                            <div class="de-flex-col">
-                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
-                                <ul id="mainmenu">
-                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                                  <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
-                                </ul>
-                            </div>
-                            
-                            <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
-                                    <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                                        <a href="tel:060000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
-                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
-                                            <span data-i18n="call_now">Call Now</span>
-                                        </a>
-                                    </div>
-                                    <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
-                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
-                                        </span>
-                                        <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
-                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                                      </button>
-                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
-                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
-                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
-                                      </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="menu-btn">
-                              <span></span>
-                              <span></span>
-                              <span></span>
-                          </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-info-card">
+                            <h4>Biroul PlusRent</h4>
+                            <p>
+                                <i class="fa fa-map-marker-alt"></i>
+                                <span>Meșterul Manole 20,<br>Chișinău, Moldova</span>
+                            </p>
+                            <p>
+                                <i class="fa fa-phone"></i>
+                                <span>060 000 500</span>
+                            </p>
+                            <p>
+                                <i class="fa fa-clock"></i>
+                                <span>Deschis 24/7</span>
+                            </p>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=47.013737,28.886408" 
+                               class="btn-open-maps" 
+                               target="_blank"
+                               onclick="openMapsOnMobile(event)">
+                                <i class="fa fa-directions"></i>
+                                Deschide în Maps
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </header><!-- header close -->
-        <!-- content begin -->
-        <div class="no-bottom no-top" id="content">
-            <div id="top"></div>
-            
-            <!-- section begin -->
-            <section id="subheader" class="jarallax text-light">
-                <img src="images/background/subheader.jpg" class="jarallax-img" alt="">
-                    <div class="center-y relative text-center">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-12 text-center">
-									<h1 data-i18n="contact_page.title">Contact Us</h1>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                    </div>
-            </section>
-            <!-- section close -->
-            
-
-            <section aria-label="section">
-                <div class="container">
-						<div class="row g-custom-x">
-							
-							<div class="col-lg-8 mb-sm-30">
-
-							 <h3 data-i18n="contact_page.question">Do you have any question?</h3>
-							
-        						<form name="contactForm" id="contact_form" class="form-border" method="post" >
-                                        <div class="row">
-                                            <div class="col-md-4 mb10">
-                                                <div class="field-set">
-                                                    <input type="text" name="name" id="name" class="form-control" data-i18n-placeholder="contact_page.name_placeholder" placeholder="Your Name" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 mb10">
-                                                <div class="field-set">
-                                                    <input type="text" name="email" id="email" class="form-control" data-i18n-placeholder="contact_page.email_placeholder" placeholder="Your Email" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 mb10">
-                                                <div class="field-set">
-                                                    <input type="text" name="phone" id="phone" class="form-control" data-i18n-placeholder="contact_page.phone_placeholder" placeholder="Your Phone" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                            
-                                        <div class="field-set mb20">
-                                            <textarea name="message" id="message" class="form-control" data-i18n-placeholder="contact_page.message_placeholder" placeholder="Your Message" required></textarea>
-                                        </div>
-
-                                        <div id='submit' class="mt20">
-                                            <input type='submit' id='send_message' value='Send Message' class="btn-main" data-i18n-value="contact_page.send_message">
-                                        </div>
-
-                                        <div id="success_message" class='success' data-i18n="contact_page.success_message">
-                                            Your message has been sent successfully. Refresh this page if you want to send more messages.
-                                        </div>
-                                        <div id="error_message" class='error' data-i18n="contact_page.error_message">
-                                            Sorry there was an error sending your form.
-                                        </div>
-                                    </form>
-						</div>
-						
-						<div class="col-lg-4">
-
-							<div class="de-box mb30">
-								<h4 data-i18n="contact_page.chisinau_office">Biroul din Chișinău</h4>
-								<address class="s1">
-									<span data-i18n="contact_page.chisinau_address"><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-									<span data-i18n="contact_page.chisinau_phone"><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
-									<span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
-								</address>
-							</div>
-
-
-						</div>
-							
-						</div>
-					</div>
-
-            </section>
-
-            <!-- Google Maps Section -->
-            <section aria-label="section" class="no-top">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12 text-center">
-                            <h2 data-i18n="contact_page.find_us">Find Us on the Map</h2>
-                            <div class="spacer-20"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="map-container">
-                                <div id="map"></div>
-                                <div class="map-overlay">
-                                    <h4 data-i18n="contact_page.office_location">Our Office</h4>
-                                    <p data-i18n="contact_page.moldova_address">Chișinău, Moldova</p>
-                                    <p data-i18n="contact_page.moldova_phone">060000500</p>
-                                    <a href="https://maps.google.com/?q=Meșterul Manole 20, Chișinău, Republica Moldova" 
-                                       class="btn-open-maps" 
-                                       target="_blank"
-                                       onclick="openMapsOnMobile(event, 'Meșterul Manole 20, Chișinău, Republica Moldova')">
-                                        <i class="fa fa-map-marker"></i>
-                                        <span data-i18n="contact_page.open_maps">Open in Maps</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
         </div>
-        <!-- content close -->
+    </section>
 
-        <a href="#" id="back-to-top"></a>
-        
-        <!-- footer begin -->
-        <footer class="text-light">
-            <div class="container">
-                <div class="row g-custom-x">
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.about">About PlusRent</h5>
-                            <p data-i18n="footer.about_desc">Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs. That's why we have meticulously crafted our offerings to provide you with top-notch vehicles at minimum expense.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.contact_info">Contact Info</h5>
-                            <address class="s1">
-                                <span data-i18n="footer.address"><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-                                <span data-i18n="footer.phone"><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
-                                <span data-i18n="footer.email"><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
-                            </address>
-                        </div>
-                    </div>
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin="anonymous"></script>
 
-                    <div class="col-lg-3">
-                        <h5 data-i18n="footer.quick_links"></h5>
-                        <div class="widget">
-                            <ul>
-                                <li><a href="/" data-i18n="menu.home"></a></li>
-                                <li><a href="/cars" data-i18n="menu.cars"></a></li>
-                                <li><a href="/about" data-i18n="menu.about"></a></li>
-                                <li><a href="/contact" data-i18n="menu.contact"></a></li>
-                                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.social_network">Social Network</h5>
-                            <div class="social-icons">
-                                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
-                            </div>
-                        </div>    
-                    </div>
-                </div>
-            </div>
-            
-            <div class="subfooter">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="de-flex">
-                                <div class="de-flex-col">
-                                    <a href="/">
-                                        Copyright 2025 - PlusRent
-                                    </a>
-                                </div>
-                                <ul class="menu-simple">
-                                    <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </footer>
-        <!-- footer close -->
-        
-    </div>
-
-
-    <!-- Javascript Files
-    ================================================== -->
-    <script src="js/plugins.js"></script>
-    <script src="js/designesia.js"></script>
-    <!-- i18next CDN -->
-    <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
-    <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
-    <script src="js/i18n-init.js"></script>
-
-    <!-- Map JavaScript -->
     <script>
         let map;
         let marker;
@@ -608,170 +356,146 @@
         });
 
         function initMap() {
-            // Meșterul Manole 20, Chișinău coordinates
-            const moldova = [47.0147, 28.8616];
+            // CORRECT coordinates for Meșterul Manole 20, Chișinău
+            const officeLocation = [47.013737, 28.886408];
             
-            // Create map using Leaflet
-            map = L.map('map').setView(moldova, 15);
+            // Create map with custom styling
+            map = L.map('map', {
+                center: officeLocation,
+                zoom: 16,
+                zoomControl: true,
+                scrollWheelZoom: true,
+                dragging: true,
+                touchZoom: true
+            });
 
-            // Add OpenStreetMap tiles
+            // Add OpenStreetMap tiles with custom styling
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 18
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19,
+                minZoom: 10
             }).addTo(map);
 
-            // Create custom icon for PlusRent
+            // Create PREMIUM custom marker with animation
             const customIcon = L.divIcon({
                 html: `
                     <div style="
-                        width: 40px; 
-                        height: 40px; 
-                        background: #f0c040; 
-                        border: 2px solid #031B4E; 
-                        border-radius: 50%; 
+                        width: 50px; 
+                        height: 50px; 
+                        background: linear-gradient(135deg, #f0c040, #e0b030); 
+                        border: 3px solid #031B4E; 
+                        border-radius: 50% 50% 50% 0; 
+                        transform: rotate(-45deg);
                         display: flex; 
                         align-items: center; 
                         justify-content: center; 
-                        color: #031B4E; 
-                        font-weight: bold; 
-                        font-size: 12px;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        position: relative;
                     ">
-                        PR
+                        <div style="
+                            transform: rotate(45deg);
+                            color: #031B4E; 
+                            font-weight: 900; 
+                            font-size: 18px;
+                            font-family: Arial, sans-serif;
+                        ">
+                            PR
+                        </div>
                     </div>
                 `,
                 className: 'custom-marker',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+                iconSize: [50, 50],
+                iconAnchor: [25, 50],
+                popupAnchor: [0, -50]
             });
 
-            // Add marker for Chișinău
-            marker = L.marker(moldova, { icon: customIcon }).addTo(map);
+            // Add marker with premium icon
+            marker = L.marker(officeLocation, { 
+                icon: customIcon,
+                title: 'PlusRent Office'
+            }).addTo(map);
 
-            // Add popup to marker
-            marker.bindPopup(`
+            // Create premium popup content
+            const popupContent = `
                 <div style="padding: 5px;">
-                    <h4 style="margin: 0 0 8px 0; color: #031B4E; font-size: 16px; font-weight: 600;">PlusRent Office</h4>
-                    <p style="margin: 0 0 5px 0; color: #666; font-size: 14px;">Meșterul Manole 20, Chișinău, Republica Moldova</p>
-                    <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">060000500</p>
-                    <a href="https://maps.google.com/?q=Meșterul Manole 20, Chișinău, Republica Moldova" 
-                       target="_blank" 
-                       style="color: #f0c040; text-decoration: none; font-weight: 600; font-size: 14px;">
-                        Open in Maps
+                    <h4>PlusRent Office</h4>
+                    <p><i class="fa fa-map-marker-alt"></i> Meșterul Manole 20, Chișinău</p>
+                    <p><i class="fa fa-phone"></i> 060 000 500</p>
+                    <p><i class="fa fa-clock"></i> Deschis 24/7</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=47.013737,28.886408" 
+                       class="popup-btn" 
+                       target="_blank">
+                        <i class="fa fa-directions"></i> Cum ajung aici?
                     </a>
                 </div>
-            `);
+            `;
 
-            // Add click event to marker
+            // Bind popup to marker
+            marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: 'premium-popup'
+            });
+
+            // Auto-open popup after 1 second
+            setTimeout(() => {
+                marker.openPopup();
+            }, 1000);
+
+            // Add circle to show service area (optional)
+            L.circle(officeLocation, {
+                color: '#f0c040',
+                fillColor: '#f0c040',
+                fillOpacity: 0.1,
+                radius: 500,
+                weight: 2
+            }).addTo(map);
+
+            // Add click event to marker for animation
             marker.on('click', function() {
                 this.openPopup();
             });
 
-            // Add click event to map to close popup
-            map.on('click', function() {
-                marker.closePopup();
-            });
+            // Ensure proper map rendering
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 250);
         }
 
         // Function to open maps on mobile devices
-        function openMapsOnMobile(event, address) {
+        function openMapsOnMobile(event) {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
                 event.preventDefault();
                 
-                // Try to open in native maps app first
-                const encodedAddress = encodeURIComponent(address);
+                const lat = 47.013737;
+                const lng = 28.886408;
                 
-                // For iOS
-                const iosUrl = `maps://maps.apple.com/?q=${encodedAddress}`;
-                
-                // For Android
-                const androidUrl = `geo:0,0?q=${encodedAddress}`;
-                
-                // For other mobile devices
-                const googleUrl = `https://maps.google.com/?q=${encodedAddress}`;
-                
-                // Try to open native app, fallback to Google Maps
-                window.location.href = iosUrl;
-                
-                // Fallback after a short delay
-                setTimeout(() => {
-                    window.location.href = androidUrl;
-                }, 1000);
-                
-                setTimeout(() => {
-                    window.location.href = googleUrl;
-                }, 2000);
+                // iOS Maps
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    window.location.href = `maps://maps.apple.com/?daddr=${lat},${lng}`;
+                    setTimeout(() => {
+                        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    }, 1000);
+                } 
+                // Android
+                else if (/Android/.test(navigator.userAgent)) {
+                    window.location.href = `geo:${lat},${lng}?q=${lat},${lng}(PlusRent Office)`;
+                    setTimeout(() => {
+                        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    }, 1000);
+                }
             }
-            // On desktop, let the default behavior happen (opens in new tab)
         }
-    </script>
-    <script>
-        // Contact form handling
-        document.addEventListener("DOMContentLoaded", function() {
-            const contactForm = document.getElementById("contact_form");
-            const submitButton = document.getElementById("send_message");
-            const successMessage = document.getElementById("success_message");
-            const errorMessage = document.getElementById("error_message");
-            
-            if (contactForm && submitButton) {
-                contactForm.addEventListener("submit", async function(e) {
-                    e.preventDefault();
-                    
-                    // Show loading state
-                    submitButton.disabled = true;
-                    submitButton.value = "Sending...";
-                    
-                    // Collect form data
-                    const formData = {
-                        name: document.getElementById("name").value,
-                        email: document.getElementById("email").value,
-                        phone: document.getElementById("phone").value,
-                        message: document.getElementById("message").value
-                    };
-                    
-                    try {
-                        // Send to your API endpoint for Telegram notification
-                        const response = await fetch("/api/contact", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(formData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (response.ok && result.success) {
-                            // Show success message
-                            successMessage.style.display = "block";
-                            errorMessage.style.display = "none";
-                            contactForm.reset();
-                        } else {
-                            throw new Error(result.message || "Failed to send message");
-                        }
-                    } catch (error) {
-                        // Show error message
-                        errorMessage.style.display = "block";
-                        successMessage.style.display = "none";
-                        console.error("Contact form error:", error);
-                    } finally {
-                        // Reset button state
-                        submitButton.disabled = false;
-                        submitButton.value = "Send Message";
-                    }
-                });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
             }
         });
     </script>
-    
-    <!-- Universal Spinning Wheel -->
-    <script src="js/universal-include.js"></script>
 </body>
-
-
 </html>
-
-
-
