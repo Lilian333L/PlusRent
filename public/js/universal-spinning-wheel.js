@@ -9,7 +9,7 @@
 
     // Configuration
     const CONFIG = {
-        delay: 30 * 1000, // 10 seconds
+        delay: 30 * 1000, // 30 seconds
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: 'spinning-wheel-standalone.html',
@@ -960,77 +960,377 @@
         }
     }
 
-    // Show notification that coupon was applied
+    // Get current language from multiple sources
+    function getCurrentLanguage() {
+        // Try multiple sources to determine the current language
+        
+        // 1. Check localStorage
+        const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+        if (storedLang) {
+            const lang = storedLang.split('-')[0]; // Get 'en' from 'en-US'
+            if (['en', 'ru', 'ro'].includes(lang)) {
+                return lang;
+            }
+        }
+        
+        // 2. Check i18next if available
+        if (typeof i18next !== 'undefined' && i18next.language) {
+            const i18nextLang = i18next.language.split('-')[0]; // Get 'en' from 'en-US'
+            if (['en', 'ru', 'ro'].includes(i18nextLang)) {
+                return i18nextLang;
+            }
+        }
+        
+        // 3. Check HTML lang attribute
+        const htmlLang = document.documentElement.lang;
+        if (htmlLang) {
+            const lang = htmlLang.split('-')[0]; // Get 'en' from 'en-US'
+            if (['en', 'ru', 'ro'].includes(lang)) {
+                return lang;
+            }
+        }
+        
+        // 4. Check URL for language parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        if (urlLang && ['en', 'ru', 'ro'].includes(urlLang)) {
+            return urlLang;
+        }
+        
+        // 5. Default to English
+        return 'en';
+    }
+
+    // Show notification that coupon was applied with beautiful design
     function showCouponAppliedNotification(couponCode) {
+        // Get current language
+        const currentLang = getCurrentLanguage();
+        
+        // Translations for all languages
+        const translations = {
+            en: {
+                title: 'Coupon Applied!',
+                codeLabel: 'Code:',
+                readyMessage: 'Ready to use on your next booking!'
+            },
+            ru: {
+                title: 'Купон Применён!',
+                codeLabel: 'Код:',
+                readyMessage: 'Готов к использованию при следующем бронировании!'
+            },
+            ro: {
+                title: 'Cupon Aplicat!',
+                codeLabel: 'Cod:',
+                readyMessage: 'Gata de utilizare la următoarea rezervare!'
+            }
+        };
+        
+        const t = translations[currentLang] || translations.en;
+        
         // Create notification element
         const notification = document.createElement('div');
         notification.id = 'coupon-applied-notification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            z-index: 10000;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            max-width: 300px;
-            animation: slideInRight 0.3s ease-out;
-        `;
+        notification.className = 'coupon-notification-container';
         
-        // Add animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Create confetti elements
+        const confettiColors = ['#FFD700', '#FF69B4', '#00CED1', '#FF6347', '#9370DB', '#32CD32'];
+        let confettiHTML = '';
+        for (let i = 0; i < 30; i++) {
+            const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+            const left = Math.random() * 100;
+            const delay = Math.random() * 0.5;
+            const duration = 1 + Math.random() * 1;
+            confettiHTML += `<div class="confetti" style="
+                left: ${left}%;
+                background: ${color};
+                animation-delay: ${delay}s;
+                animation-duration: ${duration}s;
+            "></div>`;
+        }
         
-        // Get translations
-        const getTranslation = (key) => {
-            if (typeof i18next !== 'undefined' && i18next.t) {
-                const translation = i18next.t(key);
-                return translation && translation !== key ? translation : getDefaultTranslation(key);
-            }
-            return getDefaultTranslation(key);
-        };
-        
-        const getDefaultTranslation = (key) => {
-            const defaults = {
-                'wheel.coupon_applied.title': '🎉 Coupon Applied!',
-                'wheel.coupon_applied.code_label': 'Code:',
-                'wheel.coupon_applied.ready_message': 'Ready to use on your next booking!'
-            };
-            return defaults[key] || key;
-        };
-        
-        // Set notification content with translations
         notification.innerHTML = `
-            <div style="font-weight: bold; margin-bottom: 5px;">${getTranslation('wheel.coupon_applied.title')}</div>
-            <div>${getTranslation('wheel.coupon_applied.code_label')} ${couponCode}</div>
-            <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                ${getTranslation('wheel.coupon_applied.ready_message')}
+            <div class="confetti-container">${confettiHTML}</div>
+            <div class="coupon-notification-card">
+                <div class="coupon-gift-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 12v10H4V12"></path>
+                        <path d="M22 7H2v5h20V7z"></path>
+                        <path d="M12 22V7"></path>
+                        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                    </svg>
+                </div>
+                <div class="coupon-notification-content">
+                    <div class="coupon-title">
+                        <span class="sparkle">✨</span>
+                        ${t.title}
+                        <span class="sparkle">✨</span>
+                    </div>
+                    <div class="coupon-code-container">
+                        <span class="coupon-label">${t.codeLabel}</span>
+                        <span class="coupon-code">${couponCode}</span>
+                    </div>
+                    <div class="coupon-message">
+                        <span class="check-icon">✓</span>
+                        ${t.readyMessage}
+                    </div>
+                </div>
+                <div class="coupon-shine"></div>
             </div>
         `;
         
+        // Add styles if not already added
+        if (!document.getElementById('coupon-notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'coupon-notification-styles';
+            style.textContent = `
+                .coupon-notification-container {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    animation: slideInBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                }
+                
+                .coupon-notification-card {
+                    position: relative;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 20px;
+                    padding: 25px;
+                    box-shadow: 
+                        0 20px 60px rgba(102, 126, 234, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+                    max-width: 350px;
+                    overflow: hidden;
+                    backdrop-filter: blur(10px);
+                }
+                
+                .coupon-shine {
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: linear-gradient(
+                        45deg,
+                        transparent 30%,
+                        rgba(255, 255, 255, 0.3) 50%,
+                        transparent 70%
+                    );
+                    transform: rotate(45deg);
+                    animation: shine 3s infinite;
+                }
+                
+                .coupon-gift-icon {
+                    width: 60px;
+                    height: 60px;
+                    margin: 0 auto 15px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    animation: bounce 1s infinite;
+                }
+                
+                .coupon-gift-icon svg {
+                    width: 35px;
+                    height: 35px;
+                    color: white;
+                }
+                
+                .coupon-notification-content {
+                    position: relative;
+                    z-index: 1;
+                    text-align: center;
+                    color: white;
+                }
+                
+                .coupon-title {
+                    font-size: 1.4rem;
+                    font-weight: 700;
+                    margin-bottom: 15px;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
+                
+                .sparkle {
+                    display: inline-block;
+                    animation: sparkle 1.5s infinite;
+                    font-size: 1.2rem;
+                }
+                
+                .coupon-code-container {
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 2px dashed rgba(255, 255, 255, 0.5);
+                    border-radius: 12px;
+                    padding: 15px;
+                    margin: 15px 0;
+                    backdrop-filter: blur(5px);
+                }
+                
+                .coupon-label {
+                    display: block;
+                    font-size: 0.85rem;
+                    opacity: 0.9;
+                    margin-bottom: 5px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                
+                .coupon-code {
+                    display: block;
+                    font-size: 1.5rem;
+                    font-weight: 800;
+                    letter-spacing: 2px;
+                    font-family: 'Courier New', monospace;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                }
+                
+                .coupon-message {
+                    font-size: 0.95rem;
+                    opacity: 0.95;
+                    line-height: 1.4;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
+                
+                .check-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+                
+                .confetti-container {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    overflow: hidden;
+                }
+                
+                .confetti {
+                    position: absolute;
+                    top: -10px;
+                    width: 10px;
+                    height: 10px;
+                    opacity: 0;
+                    animation: confettiFall 2s ease-in-out forwards;
+                }
+                
+                @keyframes slideInBounce {
+                    0% {
+                        transform: translateX(100%) scale(0.5);
+                        opacity: 0;
+                    }
+                    60% {
+                        transform: translateX(-10px) scale(1.05);
+                        opacity: 1;
+                    }
+                    80% {
+                        transform: translateX(5px) scale(0.98);
+                    }
+                    100% {
+                        transform: translateX(0) scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes shine {
+                    0%, 100% {
+                        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                    }
+                    50% {
+                        transform: translateX(100%) translateY(100%) rotate(45deg);
+                    }
+                }
+                
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0) scale(1);
+                    }
+                    50% {
+                        transform: translateY(-10px) scale(1.1);
+                    }
+                }
+                
+                @keyframes sparkle {
+                    0%, 100% {
+                        transform: scale(1) rotate(0deg);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: scale(1.3) rotate(180deg);
+                        opacity: 0.8;
+                    }
+                }
+                
+                @keyframes confettiFall {
+                    0% {
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(400px) rotate(720deg);
+                        opacity: 0;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .coupon-notification-container {
+                        top: 10px;
+                        right: 10px;
+                        left: 10px;
+                    }
+                    
+                    .coupon-notification-card {
+                        max-width: 100%;
+                        padding: 20px;
+                    }
+                    
+                    .coupon-title {
+                        font-size: 1.2rem;
+                    }
+                    
+                    .coupon-code {
+                        font-size: 1.3rem;
+                    }
+                    
+                    .coupon-message {
+                        font-size: 0.85rem;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
         document.body.appendChild(notification);
         
-        // Auto-remove after 5 seconds
+        // Auto-remove after 6 seconds with fade out animation
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                notification.style.animation = 'slideInBounce 0.4s ease-out reverse';
+                notification.style.opacity = '0';
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
                     }
-                }, 300);
+                }, 400);
             }
-        }, 5000);
+        }, 6000);
     }
 
     // Handle outside click - disabled to prevent accidental closing
