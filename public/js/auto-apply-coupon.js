@@ -176,8 +176,11 @@
       const inputEvent = new Event("input", { bubbles: true });
       discountInput.dispatchEvent(inputEvent);
 
-      // Show feedback notification
-      showCouponAppliedFeedback(savedCoupon);
+      // Show feedback notification ONLY if not shown before
+      if (!window.__couponNotificationShown) {
+        window.__couponNotificationShown = true;
+        showCouponAppliedFeedback(savedCoupon);
+      }
     } catch (error) {
       console.error("Error auto-applying coupon:", error);
     }
@@ -186,6 +189,11 @@
   // Show visual feedback that coupon was auto-applied - UPDATED MODERN DESIGN
   function showCouponAppliedFeedback(couponCode) {
     try {
+      // Check if notification already exists
+      if (document.getElementById("auto-coupon-notification")) {
+        return; // Don't create duplicate notifications
+      }
+
       // Create notification element with modern glassmorphism design
       const notification = document.createElement("div");
       notification.id = "auto-coupon-notification";
@@ -344,6 +352,8 @@
           setTimeout(() => {
             if (notification.parentNode) {
               notification.parentNode.removeChild(notification);
+              // Reset the flag when notification is removed
+              window.__couponNotificationShown = false;
             }
           }, 300);
         }
@@ -385,6 +395,11 @@
   // Show feedback that coupon was used - UPDATED MODERN DESIGN
   function showCouponUsedFeedback(couponCode) {
     try {
+      // Check if notification already exists
+      if (document.getElementById("coupon-used-notification")) {
+        return; // Don't create duplicate notifications
+      }
+
       // Create notification element with modern design
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
