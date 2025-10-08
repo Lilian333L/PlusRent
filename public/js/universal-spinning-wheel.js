@@ -259,13 +259,13 @@
             .spinning-wheel-modal-header {
                 background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
                 color: white;
-                padding: 20px;
+                padding: 25px 20px;
                 text-align: center;
                 border-radius: 20px 20px 0 0;
-            }
+        }
 
             .spinning-wheel-modal-title {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
                 font-weight: 700;
                 margin: 0;
                 text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -274,7 +274,7 @@
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1rem;
+                font-size: 0.95rem;
                 margin: 10px 0 0 0;
                 opacity: 0.9;
                 font-family: Arial, sans-serif;
@@ -305,7 +305,7 @@
             
             .phone-input-container h3 {
                 color: #333;
-                font-size: 1.2rem;
+                font-size: 1.3rem;
                 margin: 0 0 15px 0;
                 font-weight: 600;
             }
