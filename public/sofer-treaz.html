@@ -976,6 +976,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function waitForI18n() {
     if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
       updateContent();
+      updateDynamicTranslations();
     } else {
       setTimeout(waitForI18n, 100);
     }
@@ -985,20 +986,139 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
     
     <script>
+        // Get current language helper
+        function getCurrentLanguage() {
+            const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+            if (storedLang) {
+                const lang = storedLang.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(lang)) return lang;
+            }
+            if (typeof i18next !== 'undefined' && i18next.language) {
+                const i18nextLang = i18next.language.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(i18nextLang)) return i18nextLang;
+            }
+            const htmlLang = document.documentElement.lang;
+            if (htmlLang) {
+                const lang = htmlLang.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(lang)) return lang;
+            }
+            return 'ro';
+        }
+
+        // All dynamic translations (not in i18n files)
+        const dynamicTranslations = {
+            en: {
+                emptyPhone: 'Please enter a valid phone number',
+                sending: 'Sending...',
+                errorGeneric: 'Error: Could not send callback request. Please try again.',
+                errorPrefix: 'Error: ',
+                callInMinutes: 'If available, we will call you within <strong>3-5 minutes</strong>',
+                safeTransport: 'Transport <strong>100% safe</strong> guaranteed',
+                keepPhone: 'Keep your phone handy',
+                understood: 'Understood'
+            },
+            ru: {
+                emptyPhone: 'Пожалуйста, введите действительный номер телефона',
+                sending: 'Отправка...',
+                errorGeneric: 'Ошибка: Не удалось отправить запрос обратного звонка. Пожалуйста, попробуйте еще раз.',
+                errorPrefix: 'Ошибка: ',
+                callInMinutes: 'В случае доступности мы позвоним вам в течение <strong>3-5 минут</strong>',
+                safeTransport: 'Транспорт <strong>100% безопасный</strong> гарантирован',
+                keepPhone: 'Держите телефон под рукой',
+                understood: 'Понятно'
+            },
+            ro: {
+                emptyPhone: 'Vă rugăm introduceți un număr de telefon valid',
+                sending: 'Se trimite...',
+                errorGeneric: 'Eroare: Nu s-a putut trimite solicitarea de apel. Vă rugăm încercați din nou.',
+                errorPrefix: 'Eroare: ',
+                callInMinutes: 'În caz de disponibilitate te vom suna în <strong>3-5 minute</strong>',
+                safeTransport: 'Transport <strong>100% sigur</strong> garantat',
+                keepPhone: 'Păstrează telefonul la îndemână',
+                understood: 'Înțeles'
+            }
+        };
+
+        // Get dynamic translation
+        function dt(key) {
+            const lang = getCurrentLanguage();
+            return dynamicTranslations[lang][key] || dynamicTranslations['ro'][key] || key;
+        }
+
+        // Update all dynamic translations in modal
+        function updateDynamicTranslations() {
+            const lang = getCurrentLanguage();
+            
+            // Update success details texts
+            const successDetails = document.querySelector('.success-details');
+            if (successDetails) {
+                const paragraphs = successDetails.querySelectorAll('p');
+                if (paragraphs[0]) {
+                    paragraphs[0].innerHTML = `<i class="fa fa-phone"></i> <span>${dt('callInMinutes')}</span>`;
+                }
+                if (paragraphs[1]) {
+                    paragraphs[1].innerHTML = `<i class="fa fa-shield"></i> <span>${dt('safeTransport')}</span>`;
+                }
+            }
+            
+            // Update keep phone text
+            const keepPhoneText = document.querySelector('.success-modal-content p[style*="color: #888"]');
+            if (keepPhoneText) {
+                keepPhoneText.textContent = dt('keepPhone');
+            }
+            
+            // Update close button text
+            updateCloseButtonText();
+        }
+
+        // Update close button text
+        function updateCloseButtonText() {
+            const closeBtn = document.querySelector('.btn-close-modal span[data-i18n="common.close"]');
+            if (closeBtn) {
+                // Try i18next first
+                if (typeof i18next !== 'undefined' && i18next.t && i18next.isInitialized) {
+                    const translation = i18next.t('common.close');
+                    if (translation && translation !== 'common.close') {
+                        closeBtn.textContent = translation;
+                        return;
+                    }
+                }
+                // Fallback to dynamic translations
+                closeBtn.textContent = dt('understood');
+            }
+        }
+
+        // Listen for language changes
+        if (typeof i18next !== 'undefined') {
+            i18next.on('languageChanged', function() {
+                updateDynamicTranslations();
+            });
+        }
+
+        // Also listen for custom language change events
+        window.addEventListener('languageChanged', function() {
+            updateDynamicTranslations();
+        });
+
+        // Initial update after a delay
+        setTimeout(function() {
+            updateDynamicTranslations();
+        }, 500);
+
         // Callback form handling
         document.getElementById('callbackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const phoneNumber = document.getElementById('callbackPhone').value;
             if (phoneNumber.trim() === '') {
-                alert('Vă rugăm introduceți un număr de telefon valid');
+                alert(dt('emptyPhone'));
                 return;
             }
             
             // Get the submit button and show loading state
             const submitButton = this.querySelector('.btn-request-call');
             const originalText = submitButton.textContent;
-            submitButton.textContent = 'Se trimite...';
+            submitButton.textContent = dt('sending');
             submitButton.disabled = true;
             
             try {
@@ -1038,13 +1158,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show success modal
                     document.getElementById('successModal').style.display = 'block';
                     document.getElementById('callbackPhone').value = '';
+                    
+                    // Update modal translations
+                    updateDynamicTranslations();
                 } else {
                     // Show error message
-                    alert('Eroare: ' + (result.error || 'Nu s-a putut trimite solicitarea de apel'));
+                    const errorMsg = result.error || dt('errorGeneric');
+                    alert(dt('errorPrefix') + errorMsg);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Eroare: Nu s-a putut trimite solicitarea de apel. Vă rugăm încercați din nou.');
+                alert(dt('errorGeneric'));
             } finally {
                 // Reset button state
                 submitButton.textContent = originalText;
