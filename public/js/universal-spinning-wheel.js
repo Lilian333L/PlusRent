@@ -77,43 +77,98 @@
         localStorage.removeItem('websiteTotalTime');
     }
 
+    function getCurrentLanguage() {
+    const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+    if (storedLang) {
+        const lang = storedLang.split('-')[0];
+        if (['en', 'ru', 'ro'].includes(lang)) {
+            return lang;
+        }
+    }
+    
+    if (typeof i18next !== 'undefined' && i18next.language) {
+        const i18nextLang = i18next.language.split('-')[0];
+        if (['en', 'ru', 'ro'].includes(i18nextLang)) {
+            return i18nextLang;
+        }
+    }
+    
+    const htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+        const lang = htmlLang.split('-')[0];
+        if (['en', 'ru', 'ro'].includes(lang)) {
+            return lang;
+        }
+    }
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && ['en', 'ru', 'ro'].includes(urlLang)) {
+        return urlLang;
+    }
+    
+    return 'ro';
+}
     // Create modal HTML
     function createModalHTML() {
-        return `
-            <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
-                <div class="spinning-wheel-modal-content">
-                    <div class="spinning-wheel-modal-close">&times;</div>
-                    <div class="spinning-wheel-modal-header">
-                        <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Try Your Luck!</h2>
-                        <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
+    return `
+        <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
+            <div class="spinning-wheel-modal-content">
+                <div class="spinning-wheel-modal-close">&times;</div>
+                <div class="spinning-wheel-modal-header">
+                    <div class="header-decoration"></div>
+                    <div class="header-gift-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 12v10H4V12"></path>
+                            <path d="M22 7H2v5h20V7z"></path>
+                            <path d="M12 22V7"></path>
+                            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Încearcă-ți norocul!</h2>
+                    <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Rotește roata și câștigă reduceri uimitoare!</p>
+                </div>
+                
+                <div class="spinning-wheel-wheel-content">
+                    <div class="spinning-wheel-phone-step" id="universalPhoneStep">
+                        <div class="phone-input-container">
+                            <div class="phone-icon-circle">
+                                <i class="fa fa-mobile-alt"></i>
+                            </div>
+                            <h3 data-i18n="wheel.enter_phone_title">Introdu Numărul Tău</h3>
+                            <p class="phone-description" data-i18n="wheel.phone_description">Îți vom trimite oferte exclusive și codul tău de reducere norocos!</p>
+                            <form class="phone-form" id="universalPhoneForm">
+                                <div class="input-wrapper">
+                                    <i class="fa fa-phone input-icon"></i>
+                                    <input type="tel" class="phone-input" id="universalPhoneInput" 
+                                           data-i18n-placeholder="wheel.phone_placeholder" placeholder="+373 XX XXX XXX" required>
+                                </div>
+                                <button type="submit" class="phone-submit-btn">
+                                    <span data-i18n="wheel.continue_button">Continuă</span>
+                                    <i class="fa fa-arrow-right btn-icon"></i>
+                                </button>
+                                <div class="privacy-badge">
+                                    <i class="fa fa-shield-alt"></i>
+                                    <span data-i18n="wheel.privacy_text">Datele tale sunt securizate</span>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     
-                    <div class="spinning-wheel-wheel-content">
-                        <div class="spinning-wheel-phone-step" id="universalPhoneStep">
-                            <div class="phone-input-container">
-                                <h3 data-i18n="wheel.enter_phone_title">Enter Your Phone Number</h3>
-                                <form class="phone-form" id="universalPhoneForm">
-                                    <div class="input-group">
-                                        <input type="tel" class="phone-input" id="universalPhoneInput" 
-                                               data-i18n-placeholder="wheel.phone_placeholder" placeholder="Enter your phone number" required>
-                                        <button type="submit" class="phone-submit-btn" data-i18n="wheel.continue_button">Continue</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        
-                        <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
-                            <iframe id="universalSpinningWheelIframe" 
-                                    src="${CONFIG.iframeSrc}" 
-                                    frameborder="0" 
-                                    style="width: 100%; height: 100%; border: none; border-radius: 10px;">
-                            </iframe>
-                        </div>
+                    <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
+                        <iframe id="universalSpinningWheelIframe" 
+                                src="${CONFIG.iframeSrc}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                style="width: 100%; height: 100%; border: none; border-radius: 12px;">
+                        </iframe>
                     </div>
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
     // Create modal CSS
     function createModalCSS() {
@@ -597,6 +652,21 @@
                     phoneInputElement.placeholder = translatedPhonePlaceholder;
                 }
             }
+            const phoneDescElement = state.modal.querySelector('[data-i18n="wheel.phone_description"]');
+            const privacyTextElement = state.modal.querySelector('[data-i18n="wheel.privacy_text"]');
+
+            if (phoneDescElement) {
+                const translatedPhoneDesc = i18next.t('wheel.phone_description');
+                if (translatedPhoneDesc && translatedPhoneDesc !== 'wheel.phone_description') {
+                phoneDescElement.textContent = translatedPhoneDesc;
+                }
+            }
+            if (privacyTextElement) {
+                const translatedPrivacy = i18next.t('wheel.privacy_text');
+                if (translatedPrivacy && translatedPrivacy !== 'wheel.privacy_text') {
+                privacyTextElement.textContent = translatedPrivacy;
+                }
+            }
             if (continueButtonElement) {
                 const translatedContinueButton = i18next.t('wheel.continue_button');
                 if (translatedContinueButton && translatedContinueButton !== 'wheel.continue_button') {
@@ -788,124 +858,124 @@
         }
     }
 
-    // Show phone input error
     function showPhoneError(input, message) {
         input.classList.add('phone-input-error');
-        
-        // Remove any existing error message
-        const existingError = input.parentNode.querySelector('.phone-error-message');
+    
+        const existingError = input.parentNode.parentNode.querySelector('.phone-error-message');
         if (existingError) {
             existingError.remove();
         }
-        
-        // Add error message
+    
         const errorDiv = document.createElement('div');
         errorDiv.className = 'phone-error-message';
         errorDiv.textContent = message;
-        errorDiv.style.cssText = 'color: #e74c3c; font-size: 0.9rem; margin-top: 5px; text-align: center;';
-        input.parentNode.appendChild(errorDiv);
+        input.parentNode.parentNode.insertBefore(errorDiv, input.parentNode.nextSibling);
     }
 
     // Handle phone form submission
-    async function handlePhoneSubmit(event) {
-        event.preventDefault();
-        
-        const phoneInput = document.getElementById('universalPhoneInput');
-        const phoneNumber = phoneInput.value.trim();
-        
-        // Remove any existing error styling
-        phoneInput.classList.remove('phone-input-error');
-        const existingError = phoneInput.parentNode.querySelector('.phone-error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-        
-        // Validate phone number
-        if (!phoneNumber) {
-            showPhoneError(phoneInput, 'Please enter a phone number');
-            return;
-        }
-        
-        if (!validatePhoneNumber(phoneNumber)) {
-            showPhoneError(phoneInput, 'Please enter a valid phone number (7-15 digits)');
-            return;
-        }
-        
-        // Format the phone number
-        const formattedPhone = formatPhoneNumber(phoneNumber);
+async function handlePhoneSubmit(event) {
+    event.preventDefault();
 
-        // Check if phone number already has available coupons
-        try {
-            const API_BASE_URL = window.location.origin;
-            const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/check-available-coupons`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ phoneNumber: formattedPhone })
-            });
+    const phoneInput = document.getElementById('universalPhoneInput');
+    const phoneNumber = phoneInput.value.trim();
 
-            if (response.ok) {
-                const result = await response.json();
-                
-                if (result.hasCoupons) {
-                    // User already has coupons (available or redeemed), show error
-                    let errorMessage = 'You have already received a reward for this phone number.';
-                    
-                    // Get current language and provide appropriate message
-                    const currentLang = localStorage.getItem('lang') || 'en';
-                    
-                    if (currentLang === 'ro') {
-                        errorMessage = 'Ai primit deja o recompensă pentru acest număr de telefon.';
-                    } else if (currentLang === 'ru') {
-                        errorMessage = 'Вы уже получили награду за этот номер телефона.';
-                    }
-                    
-                    showPhoneError(phoneInput, errorMessage);
-                    return;
-                }
+    // Текущий язык интерфейса
+    const currentLang = getCurrentLanguage();
+
+    // Сброс ошибок
+    phoneInput.classList.remove('phone-input-error');
+    const existingError = phoneInput.parentNode.querySelector('.phone-error-message');
+    if (existingError) existingError.remove();
+
+    // Локализованные сообщения
+    const EMPTY_PHONE_MSG = {
+        en: 'Please enter a phone number',
+        ru: 'Пожалуйста, введите номер телефона',
+        ro: 'Vă rugăm introduceți numărul de telefon'
+    };
+    const INVALID_PHONE_MSG = {
+        en: 'Please enter a valid phone number (7-15 digits)',
+        ru: 'Пожалуйста, введите корректный номер (7-15 цифр)',
+        ro: 'Vă rugăm introduceți un număr valid (7-15 cifre)'
+    };
+    const HAS_COUPONS_MSG = {
+        en: 'You have already received a reward for this phone number.',
+        ru: 'Вы уже получили награду за этот номер телефона.',
+        ro: 'Ai primit deja o recompensă pentru acest număr de telefon.'
+    };
+
+    // Валидация
+    if (!phoneNumber) {
+        showPhoneError(phoneInput, EMPTY_PHONE_MSG[currentLang] || EMPTY_PHONE_MSG.ro);
+        return;
+    }
+
+    if (!validatePhoneNumber(phoneNumber)) {
+        showPhoneError(phoneInput, INVALID_PHONE_MSG[currentLang] || INVALID_PHONE_MSG.ro);
+        return;
+    }
+
+    // Форматирование номера
+    const formattedPhone = formatPhoneNumber(phoneNumber);
+
+    // Проверка наличия уже полученных купонов
+    try {
+        const API_BASE_URL = window.location.origin;
+        const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/check-available-coupons`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber: formattedPhone })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            if (result.hasCoupons) {
+                showPhoneError(phoneInput, HAS_COUPONS_MSG[currentLang] || HAS_COUPONS_MSG.ro);
+                return;
             }
-        } catch (error) {
-            console.error('Error checking available coupons:', error);
-            // Continue with normal flow if check fails
         }
+    } catch (error) {
+        console.error('Error checking available coupons:', error);
+        // Продолжаем обычный поток при ошибке проверки
+    }
 
-        // Store phone number in localStorage
-        localStorage.setItem('spinningWheelPhone', formattedPhone);
-        localStorage.setItem('spinningWheelPhoneEntered', 'true');
+    // Сохраняем номер
+    localStorage.setItem('spinningWheelPhone', formattedPhone);
+    localStorage.setItem('spinningWheelPhoneEntered', 'true');
 
-        // Track phone number in database
+    // Трекинг номера в БД (без await, чтобы не блокировать UX)
+    try {
         const API_BASE_URL = window.location.origin;
         fetch(`${API_BASE_URL}/api/spinning-wheels/track-phone`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phoneNumber: formattedPhone })
-        }).catch(error => {
-            console.error('Error tracking phone number:', error);
-        });
-
-        // Switch to wheel step
-        document.getElementById('universalPhoneStep').style.display = 'none';
-        document.getElementById('universalWheelStep').style.display = 'flex';
-        
-        // Update modal size for wheel step
-        const modalContent = document.querySelector('.spinning-wheel-modal-content');
-        if (modalContent) {
-            modalContent.classList.remove('phone-step');
-            modalContent.classList.add('wheel-step');
-        }
-
-        // Send phone number to iframe
-        const iframe = document.getElementById('universalSpinningWheelIframe');
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage({
-                type: 'phoneNumberEntered',
-                phoneNumber: formattedPhone
-            }, '*');
-        }
+        }).catch(err => console.error('Error tracking phone number:', err));
+    } catch (err) {
+        console.error('Error tracking phone number:', err);
     }
+
+    // Переход к шагу колеса
+    document.getElementById('universalPhoneStep').style.display = 'none';
+    document.getElementById('universalWheelStep').style.display = 'flex';
+
+    // Адаптация размеров модалки
+    const modalContent = document.querySelector('.spinning-wheel-modal-content');
+    if (modalContent) {
+        modalContent.classList.remove('phone-step');
+        modalContent.classList.add('wheel-step');
+    }
+
+    // Отправка номера во фрейм
+    const iframe = document.getElementById('universalSpinningWheelIframe');
+    if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage(
+            { type: 'phoneNumberEntered', phoneNumber: formattedPhone },
+            '*'
+        );
+    }
+}
+
 
     // Handle iframe messages
     function handleWheelMessage(event) {
