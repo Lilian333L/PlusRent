@@ -971,6 +971,7 @@
     <script src="js/universal-include.js"></script>
 
     <script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Wait for i18n to be initialized and then update content
   function waitForI18n() {
@@ -985,20 +986,118 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
     
     <script>
+        // Get current language helper
+        function getCurrentLanguage() {
+            const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+            if (storedLang) {
+                const lang = storedLang.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(lang)) return lang;
+            }
+            if (typeof i18next !== 'undefined' && i18next.language) {
+                const i18nextLang = i18next.language.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(i18nextLang)) return i18nextLang;
+            }
+            const htmlLang = document.documentElement.lang;
+            if (htmlLang) {
+                const lang = htmlLang.split('-')[0];
+                if (['en', 'ru', 'ro'].includes(lang)) return lang;
+            }
+            return 'ro';
+        }
+
+        // All translations
+        const translations = {
+            en: {
+                emptyPhone: 'Please enter a valid phone number',
+                sending: 'Sending...',
+                errorSending: 'Error: Could not send callback request. Please try again.',
+                errorOccurred: 'Error: ',
+                understood: 'Understood',
+                close: 'Close'
+            },
+            ru: {
+                emptyPhone: 'Пожалуйста, введите действительный номер телефона',
+                sending: 'Отправка...',
+                errorSending: 'Ошибка: Не удалось отправить запрос обратного звонка. Пожалуйста, попробуйте еще раз.',
+                errorOccurred: 'Ошибка: ',
+                understood: 'Понятно',
+                close: 'Закрыть'
+            },
+            ro: {
+                emptyPhone: 'Vă rugăm introduceți un număr de telefon valid',
+                sending: 'Se trimite...',
+                errorSending: 'Eroare: Nu s-a putut trimite solicitarea de apel. Vă rugăm încercați din nou.',
+                errorOccurred: 'Eroare: ',
+                understood: 'Înțeles',
+                close: 'Închide'
+            }
+        };
+
+        // Get translation
+        function t(key) {
+            const lang = getCurrentLanguage();
+            return translations[lang][key] || translations['ro'][key] || key;
+        }
+
+        // Update modal translations
+        function updateModalTranslations() {
+            const lang = getCurrentLanguage();
+            
+            // Update button text in modal
+            const closeBtn = document.querySelector('.btn-close-modal span');
+            if (closeBtn && closeBtn.hasAttribute('data-i18n')) {
+                if (typeof i18next !== 'undefined' && i18next.t) {
+                    const translation = i18next.t('common.close');
+                    if (translation && translation !== 'common.close') {
+                        closeBtn.textContent = translation;
+                    }
+                } else {
+                    closeBtn.textContent = t('close');
+                }
+            }
+        }
+
+        // Update placeholder translations
+        function updatePlaceholderTranslations() {
+            const phoneInput = document.getElementById('callbackPhone');
+            if (phoneInput && phoneInput.hasAttribute('data-i18n-placeholder')) {
+                if (typeof i18next !== 'undefined' && i18next.t) {
+                    const translation = i18next.t('sober_driver.phone_placeholder');
+                    if (translation && translation !== 'sober_driver.phone_placeholder') {
+                        phoneInput.placeholder = translation;
+                    }
+                }
+            }
+        }
+
+        // Listen for language changes
+        if (typeof i18next !== 'undefined') {
+            i18next.on('languageChanged', function() {
+                updateModalTranslations();
+                updatePlaceholderTranslations();
+            });
+        }
+
+        // Initial update
+        setTimeout(function() {
+            updateModalTranslations();
+            updatePlaceholderTranslations();
+        }, 500);
+
         // Callback form handling
         document.getElementById('callbackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const phoneNumber = document.getElementById('callbackPhone').value;
             if (phoneNumber.trim() === '') {
-                alert('Vă rugăm introduceți un număr de telefon valid');
+                alert(t('emptyPhone'));
                 return;
             }
             
             // Get the submit button and show loading state
             const submitButton = this.querySelector('.btn-request-call');
             const originalText = submitButton.textContent;
-            submitButton.textContent = 'Se trimite...';
+            submitButton.textContent = t('sending');
             submitButton.disabled = true;
             
             try {
@@ -1038,13 +1137,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show success modal
                     document.getElementById('successModal').style.display = 'block';
                     document.getElementById('callbackPhone').value = '';
+                    
+                    // Update modal translations
+                    updateModalTranslations();
                 } else {
                     // Show error message
-                    alert('Eroare: ' + (result.error || 'Nu s-a putut trimite solicitarea de apel'));
+                    alert(t('errorOccurred') + (result.error || t('errorSending')));
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Eroare: Nu s-a putut trimite solicitarea de apel. Vă rugăm încercați din nou.');
+                alert(t('errorSending'));
             } finally {
                 // Reset button state
                 submitButton.textContent = originalText;
