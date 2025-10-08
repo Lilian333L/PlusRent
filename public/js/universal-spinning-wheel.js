@@ -1779,6 +1779,7 @@
             return null;
         }
     }
+    }
 
     // Start timer
     function startTimer() {
