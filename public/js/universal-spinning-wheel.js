@@ -77,13 +77,14 @@
         localStorage.removeItem('websiteTotalTime');
     }
 
-    // Create modal HTML
+// Create modal HTML
     function createModalHTML() {
         return `
             <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     <div class="spinning-wheel-modal-header">
+                        <div class="header-icon">🎁</div>
                         <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Try Your Luck!</h2>
                         <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
                     </div>
@@ -91,12 +92,23 @@
                     <div class="spinning-wheel-wheel-content">
                         <div class="spinning-wheel-phone-step" id="universalPhoneStep">
                             <div class="phone-input-container">
+                                <div class="phone-icon-wrapper">
+                                    <i class="fa fa-mobile-alt" style="font-size: 3rem; color: #20b2aa;"></i>
+                                </div>
                                 <h3 data-i18n="wheel.enter_phone_title">Enter Your Phone Number</h3>
+                                <p class="phone-description">We'll send you exclusive offers and your lucky discount code!</p>
                                 <form class="phone-form" id="universalPhoneForm">
                                     <div class="input-group">
                                         <input type="tel" class="phone-input" id="universalPhoneInput" 
-                                               data-i18n-placeholder="wheel.phone_placeholder" placeholder="Enter your phone number" required>
-                                        <button type="submit" class="phone-submit-btn" data-i18n="wheel.continue_button">Continue</button>
+                                               data-i18n-placeholder="wheel.phone_placeholder" placeholder="+373 XX XXX XXX" required>
+                                        <button type="submit" class="phone-submit-btn">
+                                            <span data-i18n="wheel.continue_button">Continue</span>
+                                            <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
+                                        </button>
+                                    </div>
+                                    <div class="privacy-note">
+                                        <i class="fa fa-lock" style="margin-right: 5px;"></i>
+                                        <span>Your data is secure and protected</span>
                                     </div>
                                 </form>
                             </div>
@@ -125,13 +137,14 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(5px);
                 z-index: ${CONFIG.zIndex};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 opacity: 0;
-                transition: opacity 0.3s ease;
+                transition: opacity 0.4s ease;
             }
 
             .spinning-wheel-modal.show {
@@ -140,14 +153,15 @@
 
             .spinning-wheel-modal-content {
                 background: white;
-                border-radius: 20px !important;
+                border-radius: 25px !important;
                 width: 90%;
                 max-width: 1000px;
                 max-height: 85vh;
                 position: relative;
                 overflow: hidden;
                 transform: scale(0.9);
-                transition: all 0.3s ease;
+                transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
             }
 
             @media (max-width: 1000px) {
@@ -158,8 +172,8 @@
             
             /* Smaller modal for phone input step */
             .spinning-wheel-modal-content.phone-step {
-                max-width: 500px !important;
-                max-height: 60vh !important;
+                max-width: 550px !important;
+                max-height: 65vh !important;
                 height: auto !important;
             }
             
@@ -182,51 +196,92 @@
                 position: absolute;
                 top: 15px;
                 right: 20px;
-                font-size: 28px;
+                font-size: 32px;
                 cursor: pointer;
                 color: #FFFFFF;
                 z-index: 10;
-                width: 30px;
-                height: 30px;
+                width: 40px;
+                height: 40px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 50%;
                 transition: all 0.3s ease;
                 padding-bottom: 4px;
+                background: rgba(255, 255, 255, 0.1);
             }
 
             .spinning-wheel-modal-close:hover {
-                background: #f0f0f0;
+                background: rgba(255, 255, 255, 0.9);
                 color: #333;
+                transform: rotate(90deg);
             }
 
             .spinning-wheel-modal-header {
                 background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
                 color: white;
-                padding: 20px;
+                padding: 30px 20px;
                 text-align: center;
-                border-radius: 20px 20px 0 0;
+                border-radius: 25px 25px 0 0;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .spinning-wheel-modal-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 200px;
+                height: 200px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+            }
+            
+            .spinning-wheel-modal-header::after {
+                content: '';
+                position: absolute;
+                bottom: -30%;
+                left: -10%;
+                width: 150px;
+                height: 150px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+            }
+            
+            .header-icon {
+                font-size: 3rem;
+                margin-bottom: 10px;
+                animation: bounceIcon 2s ease-in-out infinite;
+            }
+            
+            @keyframes bounceIcon {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
             }
 
             .spinning-wheel-modal-title {
-                font-size: 1.5rem;
+                font-size: 2rem;
                 font-weight: 700;
-                margin: 0;
-                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+                margin: 0 0 10px 0;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
                 font-family: Arial, sans-serif;
                 color: white;
+                position: relative;
+                z-index: 1;
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1rem;
-                margin: 10px 0 0 0;
-                opacity: 0.9;
+                font-size: 1.1rem;
+                margin: 0;
+                opacity: 0.95;
                 font-family: Arial, sans-serif;
+                position: relative;
+                z-index: 1;
             }
 
             .spinning-wheel-wheel-content {
-                background: white;
+                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
                 display: flex;
                 min-height: 500px;
             }
@@ -238,26 +293,48 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                padding: 40px;
-                background: white;
+                padding: 50px 40px;
+                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             }
             
             .phone-input-container {
                 text-align: center;
-                max-width: 400px;
+                max-width: 450px;
                 width: 100%;
+                animation: fadeInUp 0.5s ease;
+            }
+            
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .phone-icon-wrapper {
+                margin-bottom: 20px;
+                animation: pulse 2s ease-in-out infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
             }
             
             .phone-input-container h3 {
                 color: #333;
-                font-size: 1.2rem;
-                margin: 0 0 15px 0;
-                font-weight: 600;
+                font-size: 1.5rem;
+                margin: 0 0 10px 0;
+                font-weight: 700;
             }
             
-            .phone-info {
+            .phone-description {
                 color: #666;
-                font-size: 1.1rem;
+                font-size: 0.95rem;
                 margin: 0 0 30px 0;
                 line-height: 1.5;
             }
@@ -268,55 +345,85 @@
             
             .input-group {
                 display: flex;
-                gap: 10px;
-                margin-bottom: 15px;
+                gap: 12px;
+                margin-bottom: 20px;
             }
             
             .phone-input {
                 flex: 1;
-                padding: 15px;
+                padding: 16px 20px;
                 border: 2px solid #e1e5e9;
-                border-radius: 10px;
-                font-size: 1rem;
-                transition: border-color 0.3s ease;
+                border-radius: 12px;
+                font-size: 1.05rem;
+                transition: all 0.3s ease;
+                background: white;
             }
             
             @media (max-width: 768px) {
                 .phone-input {
-                    border-radius: 10px !important;
+                    border-radius: 12px !important;
                 }
                 .phone-submit-btn {
-                    border-radius: 10px !important;
+                    border-radius: 12px !important;
                 }
             }
             
             .phone-input:focus {
                 outline: none;
                 border-color: #20b2aa;
-                box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.1);
+                box-shadow: 0 0 0 4px rgba(32, 178, 170, 0.15);
+                transform: translateY(-2px);
             }
             
             .phone-input-error {
                 border-color: #e74c3c !important;
-                box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+                box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15) !important;
+                animation: shake 0.5s ease;
+            }
+            
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                75% { transform: translateX(10px); }
             }
             
             .phone-submit-btn {
-                padding: 15px 25px;
+                padding: 16px 30px;
                 background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
                 color: white;
                 border: none;
-                border-radius: 10px;
-                font-size: 1rem;
+                border-radius: 12px;
+                font-size: 1.05rem;
                 font-weight: 600;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 white-space: nowrap;
+                box-shadow: 0 4px 15px rgba(32, 178, 170, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
             .phone-submit-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(32, 178, 170, 0.3);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(32, 178, 170, 0.4);
+            }
+            
+            .phone-submit-btn:active {
+                transform: translateY(-1px);
+            }
+            
+            .privacy-note {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #888;
+                font-size: 0.85rem;
+                margin-top: 15px;
+            }
+            
+            .privacy-note i {
+                color: #20b2aa;
             }
 
             /* Wheel step styles */
@@ -356,7 +463,7 @@
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 30px 40px;
+                    padding: 40px;
                 }
                 
                 .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
@@ -364,7 +471,7 @@
                 }
                 
                 .spinning-wheel-modal-title {
-                    font-size: 2rem;
+                    font-size: 2.3rem;
                 }
                 
                 .spinning-wheel-modal-subtitle {
@@ -386,7 +493,7 @@
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
-                    padding: 50px;
+                    padding: 60px;
                 }
             }
             
@@ -399,15 +506,15 @@
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 25px 30px !important;
+                    padding: 30px !important;
                 }
                 
                 .spinning-wheel-modal-title {
-                    font-size: 1.8rem !important;
+                    font-size: 1.9rem !important;
                 }
                 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 1.1rem !important;
+                    font-size: 1.05rem !important;
                 }
                 
                 .spinning-wheel-wheel-content {
@@ -416,7 +523,7 @@
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
-                    padding: 20px !important;
+                    padding: 30px !important;
                 }
                 
                 .phone-input-container {
@@ -424,14 +531,13 @@
                 }
                 
                 .phone-input-container h3 {
-                    font-size: 1.2rem !important;
+                    font-size: 1.3rem !important;
                 }
                 
-                .phone-input-container p {
-                    font-size: 1.2rem !important;
+                .phone-description {
+                    font-size: 1rem !important;
                 }
 
-                /* Better spacing for phone input on tablets */
                 .phone-input-container {
                     padding: 20px !important;
                 }
@@ -442,7 +548,7 @@
                 
                 .phone-input,
                 .phone-submit-btn {
-                    padding: 18px 20px !important;
+                    padding: 18px 22px !important;
                     font-size: 1.1rem !important;
                 }
             }
@@ -453,11 +559,12 @@
                     max-width: calc(100vw - 20px);
                     max-height: calc(100vh - 20px);
                     height: calc(100vh - 20px) !important;
+                    border-radius: 20px !important;
                 }
                 
                 .spinning-wheel-modal-content.phone-step {
                     max-width: calc(100vw - 20px) !important;
-                    max-height: 50vh !important;
+                    max-height: 55vh !important;
                     height: auto !important;
                 }
                 
@@ -471,15 +578,26 @@
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 15px;
+                    padding: 20px 15px;
+                    border-radius: 20px 20px 0 0;
+                }
+                
+                .header-icon {
+                    font-size: 2.5rem;
                 }
                 
                 .spinning-wheel-modal-title {
-                    font-size: 1.3rem;
+                    font-size: 1.5rem;
                 }
                 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.9rem;
+                    font-size: 0.95rem;
+                }
+                
+                .spinning-wheel-modal-close {
+                    width: 35px;
+                    height: 35px;
+                    font-size: 28px;
                 }
                 
                 .spinning-wheel-wheel-content {
@@ -491,16 +609,29 @@
                 
                 .spinning-wheel-phone-step,
                 .spinning-wheel-wheel-step {
-                    padding: 20px;
+                    padding: 25px 20px;
                     height: 100% !important;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
                 }
                 
+                .phone-icon-wrapper i {
+                    font-size: 2.5rem !important;
+                }
+                
+                .phone-input-container h3 {
+                    font-size: 1.3rem;
+                }
+                
+                .phone-description {
+                    font-size: 0.9rem;
+                    margin-bottom: 25px;
+                }
+                
                 .input-group {
                     flex-direction: column;
-                    gap: 15px;
+                    gap: 12px;
                 }
                 
                 .phone-submit-btn {
@@ -519,6 +650,7 @@
                     max-height: 60vh !important;
                 }
             }
+            
             /* Extra small mobile devices (iPhone 14 Pro Max, etc.) */
             @media (max-width: 430px) {
                 .spinning-wheel-modal-content {
