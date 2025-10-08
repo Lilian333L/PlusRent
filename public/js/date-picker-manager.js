@@ -14,6 +14,7 @@ class DatePickerManager {
     this.returnFlatpickr = null;
     this.isModal = options.isModal || false;
     this.customClass = options.customClass || "";
+    this.timeUpdateInterval = null;
   }
 
   // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
@@ -28,26 +29,35 @@ class DatePickerManager {
 
   // Function to find the first available date after a given date
   findFirstAvailableDate(startDate, unavailableDates) {
+    // ✅ ИСПРАВЛЕНИЕ: Создаём дату правильно, избегая timezone проблем
     const currentDate = new Date(startDate);
+    
+    // Устанавливаем время в LOCAL timezone, а не UTC
     currentDate.setHours(0, 0, 0, 0);
+    
     let attempts = 0;
     const maxAttempts = 30; // Prevent infinite loop
 
     while (attempts < maxAttempts) {
-      const dateStr = currentDate.toISOString().split("T")[0];
+      // ✅ Форматируем дату в LOCAL timezone
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       if (!unavailableDates.includes(dateStr)) {
-        // Convert YYYY-MM-DD to dd-mm-yyyy format
-        const parts = dateStr.split("-");
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        // Convert to dd-mm-yyyy format
+        return `${day}-${month}-${year}`;
       }
       currentDate.setDate(currentDate.getDate() + 1);
       attempts++;
     }
 
     // Fallback: return the start date if no available date found
-    const fallbackDate = startDate.toISOString().split("T")[0];
-    const parts = fallbackDate.split("-");
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    return `${day}-${month}-${year}`;
   }
 
   // Load unavailable dates from API
@@ -113,9 +123,10 @@ class DatePickerManager {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Filter only future unavailable dates
+        // ✅ ИСПРАВЛЕНИЕ: Фильтруем unavailable dates правильно
         const futureUnavailableDates = unavailableDates.filter((date) => {
-          const unavailableDate = new Date(date);
+          const [year, month, day] = date.split('-').map(Number);
+          const unavailableDate = new Date(year, month - 1, day);
           unavailableDate.setHours(0, 0, 0, 0);
           return unavailableDate >= today;
         });
@@ -131,9 +142,10 @@ class DatePickerManager {
           function(date) {
             const checkDate = new Date(date);
             checkDate.setHours(0, 0, 0, 0);
-            const dateStr = checkDate.toISOString().split('T')[0];
-            const parts = dateStr.split('-');
-            const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            const year = checkDate.getFullYear();
+            const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+            const day = String(checkDate.getDate()).padStart(2, '0');
+            const formattedDate = `${day}-${month}-${year}`;
             return convertedUnavailableDates.includes(formattedDate);
           }
         ];
@@ -171,17 +183,24 @@ class DatePickerManager {
         $(returnInput).data("daterangepicker").remove();
       }
 
-      // Get today's date at midnight
+      // ✅ ИСПРАВЛЕНИЕ: Создаём даты правильно в LOCAL timezone
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
 
-      // Filter unavailable dates to only include future dates
+      console.log('📅 Today:', today.toISOString(), 'Local:', today.toLocaleDateString());
+      console.log('📅 Tomorrow:', tomorrow.toISOString(), 'Local:', tomorrow.toLocaleDateString());
+
+      // ✅ ИСПРАВЛЕНИЕ: Фильтруем unavailable dates правильно
       const futureUnavailableDates = unavailableDates.filter((date) => {
-        const unavailableDate = new Date(date);
+        // date в формате "2025-01-20"
+        const [year, month, day] = date.split('-').map(Number);
+        const unavailableDate = new Date(year, month - 1, day);
         unavailableDate.setHours(0, 0, 0, 0);
+        
         return unavailableDate >= today;
       });
 
@@ -191,7 +210,7 @@ class DatePickerManager {
         return `${parts[2]}-${parts[1]}-${parts[0]}`;
       });
 
-      // Find first available dates
+      // ✅ ИСПРАВЛЕНИЕ: Find first available dates using corrected function
       const firstAvailablePickupDate = this.findFirstAvailableDate(
         today,
         futureUnavailableDates
@@ -200,6 +219,9 @@ class DatePickerManager {
         tomorrow,
         futureUnavailableDates
       );
+
+      console.log('📅 First available pickup:', firstAvailablePickupDate);
+      console.log('📅 First available return:', firstAvailableReturnDate);
 
       // Set initial values
       pickupInput.value = firstAvailablePickupDate;
@@ -211,9 +233,10 @@ class DatePickerManager {
       const disableOccupiedDates = function(date) {
         const checkDate = new Date(date);
         checkDate.setHours(0, 0, 0, 0);
-        const dateStr = checkDate.toISOString().split('T')[0];
-        const parts = dateStr.split('-');
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const year = checkDate.getFullYear();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const formattedDate = `${day}-${month}-${year}`;
         return convertedUnavailableDates.includes(formattedDate);
       };
 
@@ -222,16 +245,17 @@ class DatePickerManager {
         const date = dayElem.dateObj;
         const checkDate = new Date(date);
         checkDate.setHours(0, 0, 0, 0);
-        const dateStr = checkDate.toISOString().split('T')[0];
-        const parts = dateStr.split('-');
-        const formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const year = checkDate.getFullYear();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const formattedDate = `${day}-${month}-${year}`;
         
         if (convertedUnavailableDates.includes(formattedDate)) {
           dayElem.classList.add('occupied');
         }
       };
 
-      // ✅ НОВАЯ ФУНКЦИЯ: Блокировка прошедшего времени для сегодняшнего дня
+      // ✅ ФУНКЦИЯ: Блокировка прошедшего времени для сегодняшнего дня
       const updateAvailableTime = () => {
         const now = new Date();
         const currentHour = now.getHours();
@@ -543,10 +567,56 @@ class DatePickerManager {
         });
       }
 
-      // ✅ Периодически обновляем доступное время (каждую минуту)
-      setInterval(() => {
-        updateAvailableTime();
-      }, 60000); // 60 секунд
+      // ✅ ОПТИМИЗАЦИЯ: Умная проверка времени с минимальной нагрузкой
+      let lastUpdateHour = new Date().getHours();
+
+      // Функция проверки и обновления
+      const checkAndUpdateTime = () => {
+        const currentHour = new Date().getHours();
+        if (currentHour !== lastUpdateHour) {
+          console.log(`⏰ Hour changed: ${lastUpdateHour} → ${currentHour}`);
+          updateAvailableTime();
+          lastUpdateHour = currentHour;
+        }
+      };
+
+      // Обновляем при возврате на страницу
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          checkAndUpdateTime();
+        }
+      });
+
+      // Обновляем при фокусе на время
+      if (pickupTimeSelect) {
+        pickupTimeSelect.addEventListener('focus', checkAndUpdateTime);
+        pickupTimeSelect.addEventListener('click', checkAndUpdateTime);
+      }
+
+      if (returnTimeSelect) {
+        returnTimeSelect.addEventListener('focus', checkAndUpdateTime);
+        returnTimeSelect.addEventListener('click', checkAndUpdateTime);
+      }
+
+      // ✅ Проверяем раз в 10 минут как резерв (только если выбран сегодняшний день)
+      const safetyCheckInterval = setInterval(() => {
+        const pickupDate = this.pickupFlatpickr?.selectedDates[0];
+        if (!pickupDate) return;
+        
+        const selectedDate = new Date(pickupDate);
+        selectedDate.setHours(0, 0, 0, 0);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Только если выбран сегодняшний день
+        if (selectedDate.getTime() === today.getTime()) {
+          checkAndUpdateTime();
+        }
+      }, 600000); // 10 минут
+
+      // Сохраняем для очистки
+      this.timeUpdateInterval = safetyCheckInterval;
 
       // Store references globally
       window.pickupFlatpickr = this.pickupFlatpickr;
@@ -683,6 +753,12 @@ class DatePickerManager {
   }
 
   destroy() {
+    // ✅ Очищаем interval при уничтожении
+    if (this.timeUpdateInterval) {
+      clearInterval(this.timeUpdateInterval);
+      this.timeUpdateInterval = null;
+    }
+    
     if (this.pickupFlatpickr) {
       this.pickupFlatpickr.destroy();
       this.pickupFlatpickr = null;
