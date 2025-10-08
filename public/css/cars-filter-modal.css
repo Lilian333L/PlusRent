@@ -420,96 +420,51 @@
   }
 }
 
-/* Mobile Responsiveness */
+/* Mobile Responsiveness - УЛУЧШЕННЫЙ ДИЗАЙН */
 @media (max-width: 767px) {
   .filter-modal-overlay {
-    padding: 12px;
+    padding: 0;
+    align-items: flex-end;
   }
   
   .filter-modal-container {
     width: 100%;
     max-width: 100%;
-    max-height: 92vh;
-    border-radius: 20px;
+    max-height: 85vh;
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+    box-shadow: 
+      0 -20px 60px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+  
+  .filter-modal-overlay.active .filter-modal-container {
+    transform: translateY(0);
   }
   
   .filter-modal-header {
-    padding: 24px 20px;
+    padding: 20px;
+    border-radius: 24px 24px 0 0;
+    position: relative;
+  }
+  
+  .filter-modal-header::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    z-index: 10;
   }
   
   .filter-modal-header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .filter-modal-header p {
-    font-size: 0.95rem;
-  }
-  
-  .filter-modal-close {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-  
-  .filter-modal-body {
-    padding: 24px 20px;
-    max-height: 60vh;
-    overflow-y: auto;
-    background: white;
-  }
-  
-  .filter-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  .filter-card {
-    padding: 20px 16px;
-    min-height: 120px;
-    border-radius: 12px;
-  }
-  
-  .filter-card-icon {
-    font-size: 2.2rem;
-    margin-bottom: 12px;
-  }
-  
-  .filter-card-title {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
+    margin-top: 8px;
     margin-bottom: 6px;
-  }
-  
-  .filter-card-description {
-    font-size: 0.85rem;
-  }
-  
-  .filter-modal-footer {
-    padding: 20px 24px;
-  }
-  
-  .filter-modal-footer p {
-    font-size: 0.85rem;
-  }
-}
-
-/* Extra Small Mobile */
-@media (max-width: 480px) {
-  .filter-modal-overlay {
-    padding: 8px;
-  }
-  
-  .filter-modal-container {
-    max-height: 95vh;
-    border-radius: 16px;
-  }
-  
-  .filter-modal-header {
-    padding: 20px 16px;
-  }
-  
-  .filter-modal-header h2 {
-    font-size: 1.3rem;
   }
   
   .filter-modal-header p {
@@ -520,42 +475,138 @@
     width: 32px;
     height: 32px;
     font-size: 16px;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .filter-modal-close:hover {
+    transform: translateY(-50%) rotate(90deg);
   }
   
   .filter-modal-body {
-    padding: 20px 16px;
-    max-height: 65vh;
+    padding: 20px;
+    max-height: calc(85vh - 140px);
+    overflow-y: auto;
+    background: white;
+    -webkit-overflow-scrolling: touch;
   }
   
   .filter-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-bottom: 20px;
   }
   
   .filter-card {
     padding: 16px 12px;
-    min-height: 110px;
+    min-height: 130px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .filter-card:active {
+    transform: scale(0.97);
   }
   
   .filter-card-icon {
-    font-size: 2rem;
+    font-size: 2.2rem;
     margin-bottom: 10px;
+  }
+  
+  .filter-card:hover .filter-card-icon {
+    transform: scale(1.1);
   }
   
   .filter-card-title {
     font-size: 1rem;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
+    font-weight: 700;
   }
   
   .filter-card-description {
     font-size: 0.8rem;
+    line-height: 1.3;
   }
   
   .filter-modal-footer {
     padding: 16px 20px;
+    border-radius: 0;
   }
   
   .filter-modal-footer p {
     font-size: 0.8rem;
+  }
+}
+
+/* Extra Small Mobile - ОПТИМИЗАЦИЯ ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ */
+@media (max-width: 480px) {
+  .filter-modal-container {
+    max-height: 88vh;
+  }
+  
+  .filter-modal-header {
+    padding: 18px 16px;
+  }
+  
+  .filter-modal-header h2 {
+    font-size: 1.25rem;
+    margin-top: 6px;
+  }
+  
+  .filter-modal-header p {
+    font-size: 0.85rem;
+  }
+  
+  .filter-modal-close {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    right: 14px;
+  }
+  
+  .filter-modal-body {
+    padding: 16px;
+    max-height: calc(88vh - 130px);
+  }
+  
+  .filter-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .filter-card {
+    padding: 14px 10px;
+    min-height: 120px;
+    border-radius: 10px;
+  }
+  
+  .filter-card-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+  
+  .filter-card-title {
+    font-size: 0.95rem;
+    margin-bottom: 3px;
+  }
+  
+  .filter-card-description {
+    font-size: 0.75rem;
+  }
+  
+  .filter-modal-footer {
+    padding: 14px 16px;
+  }
+  
+  .filter-modal-footer p {
+    font-size: 0.75rem;
+  }
+  
+  .filter-modal-footer::before {
+    width: 60px;
+    height: 2px;
   }
 }
 
@@ -645,7 +696,7 @@
   }
   
   .filter-modal-close:hover {
-    transform: none;
+    transform: translateY(-50%);
   }
   
   .filter-card:hover {
@@ -691,7 +742,7 @@
 
 /* Scrollbar Styling */
 .filter-modal-body::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .filter-modal-body::-webkit-scrollbar-track {
@@ -708,35 +759,20 @@
   background: linear-gradient(135deg, #764ba2, #667eea);
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-  .filter-modal-container {
-    background: #1e1e1e;
+/* Swipe indicator on mobile */
+@media (max-width: 767px) {
+  .filter-modal-header::after {
+    animation: swipePulse 2s ease-in-out infinite;
   }
   
-  .filter-modal-body {
-    background: #2a2a2a;
-  }
-  
-  .filter-card {
-    background: #1e1e1e;
-    border-color: #3a3a3a;
-  }
-  
-  .filter-card-title {
-    color: #ffffff;
-  }
-  
-  .filter-card-description {
-    color: #b0b0b0;
-  }
-  
-  .filter-modal-footer {
-    background: linear-gradient(to bottom, #2a2a2a 0%, #1e1e1e 100%);
-    border-top-color: #3a3a3a;
-  }
-  
-  .filter-modal-footer p {
-    color: #b0b0b0;
+  @keyframes swipePulse {
+    0%, 100% {
+      opacity: 0.4;
+      width: 40px;
+    }
+    50% {
+      opacity: 0.8;
+      width: 50px;
+    }
   }
 }
