@@ -10,6 +10,25 @@ class BookingFormHandler {
     this.onValidationError = options.onValidationError || this.defaultValidationErrorHandler;
   }
 
+  // Get current language helper
+  getCurrentLanguage() {
+    const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+    if (storedLang) {
+      const lang = storedLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) return lang;
+    }
+    if (typeof i18next !== 'undefined' && i18next.language) {
+      const i18nextLang = i18next.language.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(i18nextLang)) return i18nextLang;
+    }
+    const htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+      const lang = htmlLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) return lang;
+    }
+    return 'ro';
+  }
+
   // Set car ID (useful when car data is loaded asynchronously)
   setCarId(carId) {
     this.carId = carId;
@@ -18,14 +37,13 @@ class BookingFormHandler {
   // Handle form submission
   async handleSubmit(formElement, submitButton) {
     if (!formElement || !submitButton) {
-      
       return;
     }
 
     const originalText = submitButton.value || submitButton.textContent;
     
     // Show loading state
-    this.setButtonLoading(submitButton, 'Processing...');
+    this.setButtonLoading(submitButton);
 
     try {
       // Collect and validate form data
@@ -67,15 +85,12 @@ class BookingFormHandler {
       }
 
       // Send booking to server
-      
       const response = await this.submitBooking(bookingData);
 
       // Check if response contains an error
       if (response.error) {
-
         // Handle validation errors
         if (response.error === 'Validation error' && response.field) {
-
           // Get user-friendly error message
           let errorMessage = response.details || 'Please check your form and try again.';
           
@@ -99,9 +114,14 @@ class BookingFormHandler {
       }
       
     } catch (error) {
-
       // Handle unexpected errors
-      this.onError(error.message || 'An unexpected error occurred');
+      const lang = this.getCurrentLanguage();
+      const unexpectedError = {
+        en: 'An unexpected error occurred',
+        ru: 'Произошла непредвиденная ошибка',
+        ro: 'A apărut o eroare neașteptată'
+      };
+      this.onError(error.message || unexpectedError[lang] || unexpectedError['ro']);
     } finally {
       // Restore button state
       this.setButtonNormal(submitButton, originalText);
@@ -156,53 +176,127 @@ class BookingFormHandler {
       customer_age: formData.get('customer_age')
     };
     
-    
     return result;
   }
+
   // Validate booking data
   async validateBookingData(bookingData) {
+    const lang = this.getCurrentLanguage();
+
+    // Error messages in all languages
+    const errors = {
+      selectCar: {
+        en: 'Please select a car',
+        ru: 'Пожалуйста, выберите автомобиль',
+        ro: 'Vă rugăm să selectați o mașină'
+      },
+      selectDates: {
+        en: 'Please select pickup and return dates',
+        ru: 'Пожалуйста, выберите даты получения и возврата',
+        ro: 'Vă rugăm să selectați datele de ridicare și returnare'
+      },
+      selectTimes: {
+        en: 'Please select pickup and return times',
+        ru: 'Пожалуйста, выберите время получения и возврата',
+        ro: 'Vă rugăm să selectați orele de ridicare și returnare'
+      },
+      selectLocations: {
+        en: 'Please select pickup and dropoff locations',
+        ru: 'Пожалуйста, выберите места получения и возврата',
+        ro: 'Vă rugăm să selectați locațiile de ridicare și returnare'
+      },
+      enterPhone: {
+        en: 'Please enter your phone number',
+        ru: 'Пожалуйста, введите ваш номер телефона',
+        ro: 'Vă rugăm să introduceți numărul dvs. de telefon'
+      },
+      validPhone: {
+        en: 'Please enter a valid phone number',
+        ru: 'Пожалуйста, введите корректный номер телефона',
+        ro: 'Vă rugăm să introduceți un număr de telefon valid'
+      },
+      enterAge: {
+        en: 'Please enter your age',
+        ru: 'Пожалуйста, введите ваш возраст',
+        ro: 'Vă rugăm să introduceți vârsta dvs.'
+      },
+      validAge: {
+        en: 'Age must be between 18 and 100 years',
+        ru: 'Возраст должен быть от 18 до 100 лет',
+        ro: 'Vârsta trebuie să fie între 18 și 100 de ani'
+      },
+      validEmail: {
+        en: 'Please enter a valid email address',
+        ru: 'Пожалуйста, введите корректный адрес электронной почты',
+        ro: 'Vă rugăm să introduceți o adresă de email validă'
+      },
+      futureDate: {
+        en: 'Pickup date must be today or in the future',
+        ru: 'Дата получения должна быть сегодня или в будущем',
+        ro: 'Data de ridicare trebuie să fie astăzi sau în viitor'
+      },
+      phoneRequired: {
+        en: 'Phone number is required for outside hours pickup/dropoff',
+        ru: 'Номер телефона обязателен для получения/возврата в нерабочее время',
+        ro: 'Numărul de telefon este necesar pentru ridicare/returnare în afara programului'
+      },
+      invalidCoupon: {
+        en: 'Invalid coupon code',
+        ru: 'Неверный код купона',
+        ro: 'Cod cupon invalid'
+      },
+      couponError: {
+        en: 'Error validating coupon code',
+        ru: 'Ошибка при проверке кода купона',
+        ro: 'Eroare la validarea codului cupon'
+      }
+    };
+
+    // Helper to get error message
+    const getError = (key) => errors[key][lang] || errors[key]['ro'];
+
     // Check required fields
     if (!bookingData.car_id) {
-      return { isValid: false, error: 'Please select a car' };
+      return { isValid: false, error: getError('selectCar') };
     }
     
     if (!bookingData.pickup_date || !bookingData.return_date) {
-      return { isValid: false, error: 'Please select pickup and return dates' };
+      return { isValid: false, error: getError('selectDates') };
     }
     
     if (!bookingData.pickup_time || !bookingData.return_time) {
-      return { isValid: false, error: 'Please select pickup and return times' };
+      return { isValid: false, error: getError('selectTimes') };
     }
     
     if (!bookingData.pickup_location || !bookingData.dropoff_location) {
-      return { isValid: false, error: 'Please select pickup and dropoff locations' };
+      return { isValid: false, error: getError('selectLocations') };
     }
 
     // Customer information validation
     if (!bookingData.customer_phone) {
-      return { isValid: false, error: 'Please enter your phone number' };
+      return { isValid: false, error: getError('enterPhone') };
     }
 
     // Validate phone format (very lenient - just check it's not empty and has some digits)
     const phoneRegex = /.*[0-9].*/;
     if (!phoneRegex.test(bookingData.customer_phone)) {
-      return { isValid: false, error: 'Please enter a valid phone number' };
+      return { isValid: false, error: getError('validPhone') };
     }
     
     // Validate age
     if (!bookingData.customer_age) {
-      return { isValid: false, error: 'Please enter your age' };
+      return { isValid: false, error: getError('enterAge') };
     }
     const age = parseInt(bookingData.customer_age);
     if (isNaN(age) || age < 18 || age > 100) {
-      return { isValid: false, error: 'Age must be between 18 and 100 years' };
+      return { isValid: false, error: getError('validAge') };
     }
 
     // Validate email format if provided
     if (bookingData.customer_email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(bookingData.customer_email)) {
-        return { isValid: false, error: 'Please enter a valid email address' };
+        return { isValid: false, error: getError('validEmail') };
       }
     }
 
@@ -218,19 +312,8 @@ class BookingFormHandler {
     pickupDateOnly.setHours(0, 0, 0, 0);
 
     if (pickupDateOnly < today) {
-      return { isValid: false, error: 'Pickup date must be today or in the future' };
+      return { isValid: false, error: getError('futureDate') };
     }
-
-    // Handle same-day rentals
-    // if (bookingData.pickup_date === bookingData.return_date) {
-    //   // Same day rental: return time must be after pickup time
-    //   if (bookingData.pickup_time >= bookingData.return_time) {
-    //     return { isValid: false, error: 'For same-day rentals, return time must be after pickup time' };
-    //   }
-    // } else if (returnDate <= pickupDate) {
-    //   // Different days: return date must be after pickup date
-    //   return { isValid: false, error: 'Return date must be after pickup date' };
-    // }
 
     // Check if outside hours fields are required
     const pickupTime = new Date(`2000-01-01T${bookingData.pickup_time}`);
@@ -238,39 +321,47 @@ class BookingFormHandler {
     const isOutsideHours = pickupTime.getHours() < 8 || pickupTime.getHours() >= 18 || 
                           returnTime.getHours() < 8 || returnTime.getHours() >= 18;
     
-            if (isOutsideHours && !bookingData.customer_phone) {
-            return { isValid: false, error: 'Phone number is required for outside hours pickup/dropoff' };
-        }
+    if (isOutsideHours && !bookingData.customer_phone) {
+      return { isValid: false, error: getError('phoneRequired') };
+    }
 
     // Validate coupon code if provided
-       // Validate coupon code if provided
-       if (bookingData.discount_code && bookingData.discount_code.trim()) {
-        try {
-          const couponCode = bookingData.discount_code.trim();
-          const customerPhone = bookingData.customer_phone;
-          
-          // Use the new lookup endpoint
-          const lookupUrl = customerPhone
-            ? `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
-            : `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}`;
-          
-          const response = await fetch(lookupUrl);
-          const result = await response.json();
-          
-          if (!response.ok || !result.valid) {
-            return { isValid: false, error: result.message || 'Invalid coupon code' };
-          }
-        } catch (error) {
-          console.error('Error validating coupon:', error);
-          return { isValid: false, error: 'Error validating coupon code' };
+    if (bookingData.discount_code && bookingData.discount_code.trim()) {
+      try {
+        const couponCode = bookingData.discount_code.trim();
+        const customerPhone = bookingData.customer_phone;
+        
+        // Use the new lookup endpoint
+        const lookupUrl = customerPhone
+          ? `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}?phone=${encodeURIComponent(customerPhone)}`
+          : `${this.apiBaseUrl}/api/coupons/lookup/${couponCode}`;
+        
+        const response = await fetch(lookupUrl);
+        const result = await response.json();
+        
+        if (!response.ok || !result.valid) {
+          // Use server message if available, otherwise use localized default
+          return { isValid: false, error: result.message || getError('invalidCoupon') };
         }
+      } catch (error) {
+        console.error('Error validating coupon:', error);
+        return { isValid: false, error: getError('couponError') };
       }
+    }
 
     return { isValid: true };
   }
 
   // Check car availability for specific dates
   async checkCarAvailability(carId, pickupDate, returnDate) {
+    const lang = this.getCurrentLanguage();
+
+    const errorMessages = {
+      en: 'Unable to check availability. Please try again.',
+      ru: 'Не удалось проверить доступность. Пожалуйста, попробуйте еще раз.',
+      ro: 'Nu se poate verifica disponibilitatea. Vă rugăm să încercați din nou.'
+    };
+
     try {
       const response = await fetch(
         `${this.apiBaseUrl}/api/cars/${carId}/availability?pickup_date=${pickupDate}&return_date=${returnDate}`,
@@ -289,13 +380,24 @@ class BookingFormHandler {
 
       return await response.json();
     } catch (error) {
-      
-      return { available: false, reason: 'Unable to check availability. Please try again.' };
+      return { 
+        available: false, 
+        reason: errorMessages[lang] || errorMessages['ro']
+      };
     }
   }
 
   // Submit booking to server
   async submitBooking(bookingData) {
+    const lang = this.getCurrentLanguage();
+    
+    const errorMessages = {
+      invalidResponse: {
+        en: 'Invalid server response',
+        ru: 'Неверный ответ сервера',
+        ro: 'Răspuns invalid de la server'
+      }
+    };
 
     try {
       const response = await fetch(`${this.apiBaseUrl}/api/bookings`, {
@@ -309,21 +411,20 @@ class BookingFormHandler {
       let responseData;
       try {
         responseData = await response.json();
-        
       } catch (jsonError) {
-        
-        return { error: true, details: 'Invalid server response' };
+        return { 
+          error: true, 
+          details: errorMessages.invalidResponse[lang] || errorMessages.invalidResponse['ro']
+        };
       }
       
       if (!response.ok) {
-        
         // Return the error data instead of throwing
         return { error: true, ...responseData };
       }
 
       return responseData;
     } catch (error) {
-      
       return { error: true, details: error.message };
     }
   }
@@ -342,7 +443,6 @@ class BookingFormHandler {
           const totalPriceMatch = totalPriceText.match(/Total price:\s*(\d+)\s*€/);
           if (totalPriceMatch) {
             const displayedPrice = parseInt(totalPriceMatch[1]);
-            
             return displayedPrice;
           }
         }
@@ -351,7 +451,6 @@ class BookingFormHandler {
         const priceDisplay = document.querySelector('.total-price-display, .price-total, #total-price');
         if (priceDisplay) {
           const displayedPrice = parseFloat(priceDisplay.textContent.replace(/[^\d.]/g, ''));
-          
           return displayedPrice || 0;
         }
       }
@@ -370,12 +469,22 @@ class BookingFormHandler {
   }
 
   // Set button to loading state
-  setButtonLoading(button, text) {
+  setButtonLoading(button) {
+    const lang = this.getCurrentLanguage();
+
+    const loadingText = {
+      en: 'Processing...',
+      ru: 'Обработка...',
+      ro: 'Se procesează...'
+    };
+
     button.disabled = true;
+    const displayText = loadingText[lang] || loadingText['ro'];
+    
     if (button.tagName === 'INPUT') {
-      button.value = text;
+      button.value = displayText;
     } else {
-      button.textContent = text;
+      button.textContent = displayText;
     }
     button.style.opacity = '0.7';
   }
@@ -447,15 +556,18 @@ class BookingFormHandler {
 
   // Default validation error handler
   defaultValidationErrorHandler(errorMessage) {
-
     // Try to use the showError function if available
     if (window.showError && typeof window.showError === 'function') {
-      
       window.showError(errorMessage);
     } else {
-      
+      const lang = this.getCurrentLanguage();
+      const alertPrefix = {
+        en: 'Please fix the following issues:\n',
+        ru: 'Пожалуйста, исправьте следующие проблемы:\n',
+        ro: 'Vă rugăm să corectați următoarele probleme:\n'
+      };
       // Fallback to alert
-      alert('Please fix the following issues:\n' + errorMessage);
+      alert((alertPrefix[lang] || alertPrefix['ro']) + errorMessage);
     }
   }
 
@@ -643,10 +755,31 @@ class BookingFormHandler {
         
         wheelOptionsHTML += `
           <button class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
-            <div>
-              <div>${title}</div>
+            <div class="wheel-icon-circle">
+              ${config.type === 'percent' ? `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 8l8 8"></path>
+                  <circle cx="9" cy="9" r="1"></circle>
+                  <circle cx="15" cy="15" r="1"></circle>
+                </svg>
+              ` : `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              `}
+            </div>
+            <div class="wheel-text-content">
+              <div class="wheel-button-title">${title}</div>
               <div class="wheel-description">${description}</div>
             </div>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
         `;
       });
@@ -654,10 +787,20 @@ class BookingFormHandler {
       // Fallback if no configurations found
       wheelOptionsHTML = `
         <button class="wheel-button default-wheel" data-wheel-id="active">
-          <div>
-            <div>Spinning Wheel</div>
+          <div class="wheel-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </div>
+          <div class="wheel-text-content">
+            <div class="wheel-button-title">Spinning Wheel</div>
             <div class="wheel-description">Win amazing rewards</div>
           </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
       `;
     }
@@ -669,6 +812,15 @@ class BookingFormHandler {
         <div class="modal-content">
           <button class="modal-close" onclick="this.closest('.returning-customer-modal').classList.remove('show'); document.body.classList.remove('modal-open');">×</button>
           <div class="modal-header">
+            <div class="gift-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 12v10H4V12"></path>
+                <path d="M22 7H2v5h20V7z"></path>
+                <path d="M12 22V7"></path>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+              </svg>
+            </div>
             <h2 class="modal-title" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
             <p class="modal-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
           </div>
@@ -690,175 +842,494 @@ class BookingFormHandler {
       .returning-customer-modal {
         display: none;
         position: fixed;
-        z-index: 9999;
+        z-index: 10000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(5px);
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
         opacity: 0;
         transition: opacity 0.3s ease;
+        padding: 20px;
       }
+
       .returning-customer-modal.show {
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 1;
       }
+      
+      .returning-customer-modal.show .modal-content {
+        transform: scale(1);
+        animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
       .modal-content {
         background: white;
-        border-radius: 20px !important;
-        width: 90%;
-        max-width: 1000px;
-        max-height: 85vh;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
         position: relative;
         overflow: hidden;
         transform: scale(0.9);
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       }
-      .returning-customer-modal.show .modal-content {
-        transform: scale(1);
-      }
+
       .modal-close {
         position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 28px;
-        cursor: pointer;
-        color: #FFFFFF;
-        z-index: 10;
-        width: 30px;
-        height: 30px;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 24px;
+        cursor: pointer;
+        color: white;
+        z-index: 10;
         border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
         transition: all 0.3s ease;
-        background: none !important;
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
-      }
-      .modal-close:hover {
-        background: #f0f0f0 !important;
-        color: #333 !important;
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
+        backdrop-filter: blur(10px);
+        border: none;
+        outline: none;
+        box-shadow: none;
       }
       
-      /* Override any external CSS that might be affecting the close button */
-      .returning-customer-modal .modal-close,
-      .returning-customer-modal .modal-close:focus,
-      .returning-customer-modal .modal-close:active {
-        background: none !important;
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+        border: none;
+        outline: none;
+        box-shadow: none;
       }
+
       .modal-header {
-        background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%) !important;
-        color: white !important;
-        padding: 20px !important;
-        text-align: center !important;
-        border-radius: 20px 20px 0 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
       }
+
+      .modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+      }
+
+      .gift-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: bounce 2s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+      }
+
+      .gift-icon svg {
+        width: 36px;
+        height: 36px;
+        color: white;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      }
+
       .modal-title {
-        font-size: 1.5rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
-        font-family: Arial, sans-serif !important;
-        color: white !important;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        color: white;
+        position: relative;
+        z-index: 1;
       }
+
       .modal-subtitle {
-        font-size: 1rem !important;
-        margin: 10px 0 0 0 !important;
-        opacity: 0.9 !important;
-        font-family: Arial, sans-serif !important;
-        color: white !important;
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.95;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        color: white;
+        position: relative;
+        z-index: 1;
+        line-height: 1.5;
       }
+
       .modal-body {
-        padding: 40px;
+        padding: 40px 32px;
         text-align: center;
         background: white;
       }
+
       .welcome-message {
-        font-size: 1.2rem;
-        color: #333;
-        margin-bottom: 30px;
-        line-height: 1.6;
+        font-size: 1.1rem;
+        color: #4a5568;
+        margin-bottom: 32px;
+        line-height: 1.7;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       }
+
       .wheel-options {
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        margin-top: 30px;
+        gap: 16px;
+        margin-top: 32px;
       }
+
       .wheel-button {
-        padding: 20px 30px;
+        padding: 24px;
         border: none;
-        border-radius: 15px;
-        font-size: 1.1rem;
+        border-radius: 16px;
+        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        gap: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
       }
+
+      .wheel-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+      }
+
+      .wheel-button:hover::before {
+        left: 100%;
+      }
+
       .wheel-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
       }
+
+      .wheel-button:active {
+        transform: translateY(0);
+      }
+
       .wheel-button.percent-wheel {
-        background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
       }
+
       .wheel-button.free-days-wheel {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      .wheel-button.default-wheel {
         background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
         color: white;
       }
+
+      .wheel-icon-circle {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .wheel-icon-circle svg {
+        width: 28px;
+        height: 28px;
+        color: white;
+      }
+
+      .wheel-text-content {
+        flex: 1;
+      }
+
+      .wheel-button-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        line-height: 1.3;
+      }
+      
       .wheel-description {
         font-size: 0.9rem;
         opacity: 0.9;
-        margin-top: 5px;
+        line-height: 1.4;
       }
-      body.modal-open {
-        overflow: hidden;
+
+      .arrow-icon {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+        opacity: 0.7;
+        transition: transform 0.3s ease;
       }
-      @media (max-width: 768px) {
+
+      .wheel-button:hover .arrow-icon {
+        transform: translateX(4px);
+      }
+
+      /* Animations */
+      @keyframes modalSlideIn {
+        0% {
+          transform: translateY(-50px) scale(0.9);
+          opacity: 0;
+        }
+        60% {
+          transform: translateY(10px) scale(1.02);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.8;
+        }
+      }
+
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      /* Desktop styles */
+      @media (min-width: 1024px) {
         .modal-content {
-          margin: 10px;
-          max-width: calc(100vw - 20px);
-          max-height: calc(100vh - 20px);
+          max-width: 700px;
         }
+
         .modal-header {
-          padding: 20px;
+          padding: 48px 40px;
         }
+
+        .gift-icon {
+          width: 80px;
+          height: 80px;
+          margin-bottom: 24px;
+        }
+
+        .gift-icon svg {
+          width: 40px;
+          height: 40px;
+        }
+
+        .modal-title {
+          font-size: 2.25rem;
+        }
+
+        .modal-subtitle {
+          font-size: 1.2rem;
+        }
+
+        .modal-body {
+          padding: 48px 40px;
+        }
+
+        .welcome-message {
+          font-size: 1.15rem;
+          margin-bottom: 40px;
+        }
+
+        .wheel-options {
+          gap: 20px;
+        }
+
+        .wheel-button {
+          padding: 28px;
+        }
+      }
+
+      /* Tablet styles */
+      @media (min-width: 768px) and (max-width: 1023px) {
+        .modal-content {
+          max-width: 650px;
+        }
+
+        .modal-header {
+          padding: 36px 28px;
+        }
+
+        .modal-body {
+          padding: 36px 28px;
+        }
+      }
+
+      /* Mobile styles */
+      @media (max-width: 767px) {
+        .returning-customer-modal {
+          padding: 12px;
+        }
+
+        .modal-content {
+          border-radius: 20px;
+          max-height: 92vh;
+        }
+
+        .modal-close {
+          top: 12px;
+          right: 12px;
+          width: 32px;
+          height: 32px;
+          font-size: 22px;
+        }
+
+        .modal-header {
+          padding: 28px 24px;
+        }
+
+        .gift-icon {
+          width: 64px;
+          height: 64px;
+          margin-bottom: 16px;
+        }
+
+        .gift-icon svg {
+          width: 32px;
+          height: 32px;
+        }
+
         .modal-title {
           font-size: 1.5rem;
+          margin-bottom: 10px;
         }
+
         .modal-subtitle {
-          font-size: 1rem;
+          font-size: 0.95rem;
         }
+
         .modal-body {
-          padding: 30px 20px;
+          padding: 28px 20px;
         }
+
+        .welcome-message {
+          font-size: 0.95rem;
+          margin-bottom: 24px;
+        }
+
         .wheel-options {
-          gap: 15px;
+          gap: 12px;
+          margin-top: 24px;
         }
+
         .wheel-button {
-          padding: 15px 20px;
-          font-size: 1rem;
+          padding: 20px;
+          gap: 12px;
         }
+
+        .wheel-icon-circle {
+          width: 48px;
+          height: 48px;
+          min-width: 48px;
+        }
+
+        .wheel-icon-circle svg {
+          width: 24px;
+          height: 24px;
+        }
+
+        .wheel-button-title {
+          font-size: 1rem;
+          margin-bottom: 4px;
+        }
+
+        .wheel-description {
+          font-size: 0.85rem;
+        }
+
+        .arrow-icon {
+          width: 16px;
+          height: 16px;
+          min-width: 16px;
+        }
+      }
+
+      /* Extra small mobile */
+      @media (max-width: 400px) {
+        .returning-customer-modal {
+          padding: 8px;
+        }
+
+        .modal-header {
+          padding: 24px 20px;
+        }
+
+        .gift-icon {
+          width: 56px;
+          height: 56px;
+        }
+
+        .modal-title {
+          font-size: 1.3rem;
+        }
+
+        .modal-subtitle {
+          font-size: 0.875rem;
+        }
+
+        .modal-body {
+          padding: 24px 16px;
+        }
+
+        .welcome-message {
+          font-size: 0.875rem;
+        }
+
+        .wheel-button {
+          padding: 16px;
+        }
+
+        .wheel-button-title {
+          font-size: 0.95rem;
+        }
+
+        .wheel-description {
+          font-size: 0.8rem;
+        }
+      }
+
+      body.modal-open {
+        overflow: hidden;
       }
     `;
 
@@ -939,13 +1410,12 @@ class BookingFormHandler {
     const modal = document.getElementById('returningCustomerModal');
     if (!modal) return;
 
-
     // Check if i18next is available
     if (typeof i18next !== 'undefined' && i18next.t) {
       const wheelButtons = modal.querySelectorAll('.wheel-button');
 
       wheelButtons.forEach((button, index) => {
-        const titleElement = button.querySelector('div > div:first-child');
+        const titleElement = button.querySelector('.wheel-button-title');
         const descElement = button.querySelector('.wheel-description');
         
         if (titleElement && descElement) {
@@ -984,7 +1454,7 @@ class BookingFormHandler {
           // Apply description
           if (translatedDesc && translatedDesc !== descKey) {
             descElement.textContent = translatedDesc;
-            } else {
+          } else {
             descElement.textContent = fallbackDesc;
           }
         }
@@ -1084,7 +1554,6 @@ class BookingFormHandler {
       const phoneInput = document.querySelector('input[name="customer_phone"]');
       const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
       
-      
       // Show the spinning wheel modal with the specified wheel ID, skipping phone step
       window.UniversalSpinningWheel.show({
         skipPhoneStep: true,
@@ -1100,4 +1569,4 @@ class BookingFormHandler {
 }
 
 // Export for use in other files
-window.BookingFormHandler = BookingFormHandler; 
+window.BookingFormHandler = BookingFormHandler;
