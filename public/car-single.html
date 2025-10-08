@@ -1,345 +1,3 @@
-}, 300);
-    });
-  </script>
-
-  <!-- COMMENTED OUT CODE - May be needed later for occupied dates feature -->
-  <script>
-    // Function to fetch and display unavailable dates
-    // async function loadUnavailableDates(carId) {
-    //   try {
-    //     const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       const unavailableDates = [];
-    //       data.booking_dates.forEach(booking => {
-    //         const pickupDate = new Date(booking.pickup_date);
-    //         const returnDate = new Date(booking.return_date);
-    //         const currentDate = new Date(pickupDate);
-    //         while (currentDate <= returnDate) {
-    //           unavailableDates.push(currentDate.toISOString().split('T')[0]);
-    //           currentDate.setDate(currentDate.getDate() + 1);
-    //         }
-    //       });
-    //       initializeFlatpickrWithUnavailableDates(unavailableDates);
-    //     } else {
-    //       initializeFlatpickrWithUnavailableDates([]);
-    //     }
-    //   } catch (error) {
-    //     initializeFlatpickrWithUnavailableDates([]);
-    //   }
-    // }
-
-    // function findFirstAvailableDate(startDate, unavailableDates) {
-    //   const currentDate = new Date(startDate);
-    //   let attempts = 0;
-    //   const maxAttempts = 30;
-    //   while (attempts < maxAttempts) {
-    //     const dateStr = currentDate.toISOString().split('T')[0];
-    //     if (!unavailableDates.includes(dateStr)) {
-    //       const parts = dateStr.split('-');
-    //       return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    //     }
-    //     currentDate.setDate(currentDate.getDate() + 1);
-    //     attempts++;
-    //   }
-    //   const fallbackDate = startDate.toISOString().split('T')[0];
-    //   const parts = fallbackDate.split('-');
-    //   return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    // }
-
-    // function initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
-    //   if (window.pickupFlatpickr || window.returnFlatpickr) {
-    //     setTimeout(() => {
-    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-    //         window.priceCalculator.recalculatePrice();
-    //       }
-    //     }, 100);
-    //     return;
-    //   }
-    //   const pickupInput = document.getElementById('date-picker');
-    //   const returnInput = document.getElementById('date-picker-2');
-    //   if (pickupInput && returnInput) {
-    //     if ($(pickupInput).data('daterangepicker')) {
-    //       $(pickupInput).data('daterangepicker').remove();
-    //     }
-    //     if ($(returnInput).data('daterangepicker')) {
-    //       $(returnInput).data('daterangepicker').remove();
-    //     }
-    //     const today = new Date();
-    //     const tomorrow = new Date(today);
-    //     tomorrow.setDate(today.getDate() + 1);
-    //     const tomorrowStr = convertDateFormatToISO(tomorrow.toISOString().split('T')[0]);
-    //     const dayAfterTomorrow = new Date(tomorrow);
-    //     dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
-    //     const dayAfterTomorrowStr = convertDateFormatToISO(dayAfterTomorrow.toISOString().split('T')[0]);
-    //     const futureUnavailableDates = unavailableDates.filter(date => date >= tomorrowStr);
-    //     const firstAvailablePickupDate = findFirstAvailableDate(tomorrow, futureUnavailableDates);
-    //     const pickupDate = new Date(convertDateFormatToISO(firstAvailablePickupDate));
-    //     const minReturnDate = new Date(pickupDate);
-    //     minReturnDate.setDate(pickupDate.getDate() + 1);
-    //     const firstAvailableReturnDate = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
-    //     if (typeof flatpickr === 'undefined') {
-    //       return;
-    //     }
-    //     const pickupFlatpickr = flatpickr(pickupInput, {
-    //       dateFormat: "d-m-Y",
-    //       minDate: tomorrowStr,
-    //       defaultDate: firstAvailablePickupDate,
-    //       disable: futureUnavailableDates.map(date => convertDateFormatToISO(date)),
-    //       onChange: function (selectedDates, dateStr, instance) {
-    //         if (selectedDates.length > 0) {
-    //           const pickupDate = new Date(selectedDates[0]);
-    //           const minReturnDate = new Date(pickupDate);
-    //           minReturnDate.setDate(pickupDate.getDate() + 1);
-    //           const firstAvailableReturn = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
-    //           if (window.returnFlatpickr.selectedDates.length > 0) {
-    //             const returnDate = window.returnFlatpickr.selectedDates[0];
-    //             if (returnDate <= pickupDate) {
-    //               window.returnFlatpickr.setDate(firstAvailableReturn);
-    //             }
-    //           } else {
-    //             window.returnFlatpickr.setDate(firstAvailableReturn);
-    //           }
-    //         }
-    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-    //           window.priceCalculator.recalculatePrice();
-    //         }
-    //       }
-    //     });
-    //     const returnFlatpickr = flatpickr(returnInput, {
-    //       dateFormat: "d-m-Y",
-    //       minDate: dayAfterTomorrowStr,
-    //       defaultDate: firstAvailableReturnDate,
-    //       disable: futureUnavailableDates,
-    //       onChange: function (selectedDates, dateStr, instance) {
-    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-    //           window.priceCalculator.recalculatePrice();
-    //         }
-    //       }
-    //     });
-    //     window.pickupFlatpickr = pickupFlatpickr;
-    //     window.returnFlatpickr = returnFlatpickr;
-    //     setTimeout(() => {
-    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-    //         window.priceCalculator.recalculatePrice();
-    //       }
-    //     }, 100);
-    //   }
-    // }
-  </script>
-
-    input.is-invalid {
-      border-color: #dc3545 !important;
-      background-color: #fff5f5 !important;
-    }
-
-    /* Spacer utilities */
-    .spacer-10 {
-      height: 10px;
-    }
-
-    .spacer-single {
-      height: 30px;
-    }
-
-    /* Mobile accordion for booking sections */
-    @media (max-width: 767px) {
-      .booking-section:nth-of-type(-n+3) h5 {
-        cursor: pointer;
-        user-select: none;
-        position: relative;
-        padding-right: 35px;
-      }
-
-      .booking-section:nth-of-type(-n+3) h5::after {
-        content: '▼';
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 13px;
-        color: #718096;
-        transition: transform 0.3s ease;
-      }
-
-      .booking-section:nth-of-type(-n+3).collapsed h5::after {
-        transform: translateY(-50%) rotate(-90deg);
-      }
-
-      .booking-section:nth-of-type(-n+3) > div:not(h5) {
-        max-height: 1000px;
-        overflow: hidden;
-        opacity: 1;
-        transform: translateY(0);
-        transition: all 0.3s ease;
-      }
-
-      .booking-section:nth-of-type(-n+3).collapsed > div:not(h5) {
-        max-height: 0;
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-    }
-
-    /* Universal Error Popup Styles */
-    .universal-error-popup {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      max-width: 400px;
-      animation: slideInRight 0.3s ease;
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .universal-error-content {
-      background: #fff;
-      border-left: 4px solid #dc3545;
-      border-radius: 8px;
-      padding: 16px 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .universal-error-icon {
-      color: #dc3545;
-      font-size: 24px;
-      flex-shrink: 0;
-    }
-
-    .universal-error-text {
-      flex: 1;
-      color: #333;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .universal-error-close {
-      background: none;
-      border: none;
-      color: #999;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 0;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: color 0.2s;
-    }
-
-    .universal-error-close:hover {
-      color: #333;
-    }
-
-    /* Booking info message styles */
-    #booking-info-message {
-      display: block;
-      background: #e7f3ff;
-      border: 1px solid #b3d9ff;
-      border-radius: 6px;
-      padding: 12px;
-      margin-top: 10px;
-      text-align: center;
-      font-size: 13px;
-      color: #0056b3;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-
-  <!-- CRITICAL: All JavaScript initialization and event handlers -->
-  <script>
-    // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
-    function convertDateFormatToISO(dateStr) {
-      if (!dateStr) return '';
-      const parts = dateStr.split('-');
-      if (parts.length === 3) {
-        return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
-      }
-      return dateStr;
-    }
-
-    // Setup location change listeners for price recalculation
-    document.addEventListener('DOMContentLoaded', function() {
-      // Wait a bit for price calculator to be ready
-      setTimeout(() => {
-        const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
-        const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
-        
-        pickupLocationInputs.forEach(input => {
-          input.addEventListener('change', function () {
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        });
-
-        dropoffLocationInputs.forEach(input => {
-          input.addEventListener('change', function () {
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        });
-
-        // Setup time change listeners
-        const pickupTimeSelect = document.getElementById('pickup-time');
-        const returnTimeSelect = document.getElementById('collection-time');
-
-        function updateOutsideHoursNotice() {
-          if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
-            const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
-            const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
-            window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
-          }
-        }
-
-        if (pickupTimeSelect) {
-          pickupTimeSelect.addEventListener('change', function () {
-            updateOutsideHoursNotice();
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        }
-
-        if (returnTimeSelect) {
-          returnTimeSelect.addEventListener('change', function () {
-            updateOutsideHoursNotice();
-            if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-              window.priceCalculator.recalculatePrice();
-            }
-          });
-        }
-      }, 300);
-    });
-  </script>
-
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -363,7 +21,7 @@
   <meta name="author" content="PlusRent.md">
   <meta name="robots" content="index, follow">
   
-  <!-- Canonical -->
+  <!-- Canonical (dynamic - will be updated by JS) -->
   <link rel="canonical" href="https://plusrent.md/car-single">
   
   <!-- Open Graph -->
@@ -374,6 +32,7 @@
   <meta property="og:url" content="https://plusrent.md/car-single">
   <meta property="og:site_name" content="PlusRent">
   <meta property="og:locale" content="ro_RO">
+  <meta property="og:locale:alternate" content="ru_RU">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
@@ -383,7 +42,6 @@
 
   <!-- Car Meta Updater -->
   <script src="js/car-meta-updater.js"></script>
-  
   <!-- CSS Files -->
   <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
   <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
@@ -395,15 +53,12 @@
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   
-  <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  
   <!-- API Configuration -->
   <script>
     window.API_BASE_URL = '';
   </script>
   
-  <!-- Structured Data -->
+  <!-- Structured Data (JSON-LD) - будет динамически обновляться через JS -->
   <script type="application/ld+json" id="car-schema">
   {
     "@context": "https://schema.org",
@@ -430,11 +85,10 @@
     "image": "https://plusrent.md/images/LOGO-5-demo.png"
   }
   </script>
-
 <style>
 /* ============================================
-   OPTIMIZED CAR RENTAL DESIGN 2025
-   Mobile-First, Beautiful & Professional
+   ELEGANT CAR RENTAL DESIGN 2025
+   Clean, Sophisticated & Beautiful
    ============================================ */
 
 /* Custom carousel styles */
@@ -447,7 +101,7 @@
 
 .custom-carousel-main {
   position: relative;
-  height: 400px;
+  height: 450px;
   background: #f8f9fa;
   overflow: hidden;
 }
@@ -647,15 +301,140 @@
   font-weight: 600;
 }
 
+.lang-flag {
+  font-size: 20px;
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+}
+
+.lang-globe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 4px;
+}
+
+.lang-code {
+  font-weight: 600;
+}
+
 /* ============================================
-   BOOKING FORM - MOBILE OPTIMIZED
+   COMPACT SPECS CONTAINER
    ============================================ */
 
+.compact-specs-container {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
+  border: 2px solid #f0f4f8;
+}
+
+.compact-specs-container h4 {
+  margin-bottom: 28px;
+  color: #1a202c;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  position: relative;
+  padding-bottom: 16px;
+}
+
+.compact-specs-container h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #2196F3, #21CBF3);
+  border-radius: 4px;
+}
+
+/* Quick Specs Grid */
+.compact-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* Individual Spec Cards */
+.spec-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+  border: 2px solid #e8eef3;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.spec-card:hover {
+  background: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.12);
+  border-color: #2196F3;
+}
+
+.spec-card > div:first-child {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.spec-card:hover > div:first-child {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
+}
+
+.spec-card > div:first-child svg {
+  transition: all 0.3s ease;
+}
+
+.spec-card:hover > div:first-child svg {
+  filter: brightness(0) saturate(100%) invert(46%) sepia(99%) saturate(1878%) hue-rotate(187deg) brightness(98%) contrast(90%);
+}
+
+.spec-card > div:last-child {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4a5568;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.spec-card:hover > div:last-child {
+  color: #2196F3;
+}
+
+/* ============================================
+   BOOKING FORM DESIGN
+   ============================================ */
+
+/* Main Booking Form Container */
 .booking-form-main {
   background: white;
   border-radius: 24px;
-  padding: 32px 24px;
-  margin-bottom: 40px;
+  padding: 40px;
+  margin-bottom: 50px;
   width: 100% !important;
   max-width: none !important;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
@@ -663,13 +442,13 @@
 }
 
 .booking-form-main h4 {
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   color: #1a202c;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 700;
   text-align: center;
   position: relative;
-  padding-bottom: 14px;
+  padding-bottom: 16px;
 }
 
 .booking-form-main h4::after {
@@ -678,24 +457,24 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 70px;
+  width: 80px;
   height: 4px;
   background: linear-gradient(90deg, #2196F3, #21CBF3);
   border-radius: 4px;
 }
 
-/* Booking Form Grid - Mobile First */
+/* Booking Form Grid */
 .booking-form-container {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
 }
 
 /* Individual Booking Sections */
 .booking-section {
   background: #f8fafc;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   border: 2px solid #e8eef3;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -708,19 +487,19 @@
 }
 
 .booking-section h5 {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   color: #1a202c;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 2px solid #e8eef3;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .booking-section h5 i {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #2196F3;
   transition: transform 0.3s ease;
 }
@@ -736,9 +515,9 @@
 .booking-section input[type="number"],
 .booking-section select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border: 2px solid #e8eef3;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
   background: white;
@@ -761,25 +540,29 @@
 
 .booking-section label {
   display: block;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #4a5568;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 
 /* Date/Time Fields Container */
-.date-time-row {
+.booking-section > div[style*="display: flex"] {
   display: flex;
-  flex-direction: column;
   gap: 12px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.booking-section > div[style*="display: flex"] > div {
+  flex: 1;
+  min-width: 140px;
 }
 
 /* Radio Buttons */
 .booking-section input[type="radio"] {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
   accent-color: #2196F3;
   cursor: pointer;
 }
@@ -787,12 +570,12 @@
 .booking-section label:has(input[type="radio"]) {
   display: flex;
   align-items: center;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   border: 2px solid transparent;
   background: white;
 }
@@ -818,10 +601,10 @@
   display: none;
   background: #fffbeb;
   border: 2px solid #fcd34d;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-top: 12px;
-  font-size: 0.85rem;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 16px;
+  font-size: 0.875rem;
   box-shadow: 0 2px 8px rgba(252, 211, 77, 0.2);
 }
 
@@ -833,16 +616,16 @@
 /* Submit Button */
 #send_message {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
+  border-radius: 14px;
+  font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 24px;
+  margin-top: 28px;
   box-shadow: 0 8px 24px rgba(33, 150, 243, 0.3);
   position: relative;
   overflow: hidden;
@@ -874,103 +657,10 @@
 }
 
 /* ============================================
-   QUICK SPECS
-   ============================================ */
-
-.compact-specs-container {
-  background: white;
-  border-radius: 20px;
-  padding: 28px 20px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  margin-bottom: 32px;
-  border: 2px solid #f0f4f8;
-}
-
-.compact-specs-container h4 {
-  margin-bottom: 24px;
-  color: #1a202c;
-  font-size: 1.4rem;
-  font-weight: 700;
-  text-align: center;
-  position: relative;
-  padding-bottom: 14px;
-}
-
-.compact-specs-container h4::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, #2196F3, #21CBF3);
-  border-radius: 4px;
-}
-
-.compact-specs-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  width: 100%;
-}
-
-.spec-card {
-  background: #f8fafc;
-  border-radius: 14px;
-  padding: 18px 14px;
-  text-align: center;
-  border: 2px solid #e8eef3;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: default;
-}
-
-.spec-card:hover {
-  background: white;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(33, 150, 243, 0.12);
-  border-color: #2196F3;
-}
-
-.spec-card > div:first-child {
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.spec-card:hover > div:first-child {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
-}
-
-.spec-card > div:last-child {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #4a5568;
-  line-height: 1.3;
-  transition: color 0.3s ease;
-}
-
-.spec-card:hover > div:last-child {
-  color: #2196F3;
-}
-
-/* ============================================
    FLATPICKR CALENDAR STYLING
    ============================================ */
 
+/* Occupied dates styling */
 .flatpickr-day.occupied {
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   border: 2px solid #ef4444 !important;
@@ -994,6 +684,7 @@
   border-color: #dc2626 !important;
 }
 
+/* Available dates enhancement */
 .flatpickr-day:not(.occupied):not(.flatpickr-disabled):hover {
   background: linear-gradient(135deg, #dbeafe, #bfdbfe);
   border-color: #2196F3;
@@ -1001,6 +692,7 @@
   box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
 }
 
+/* Selected date */
 .flatpickr-day.selected {
   background: linear-gradient(135deg, #2196F3, #1976D2) !important;
   border-color: #1565C0 !important;
@@ -1009,6 +701,7 @@
   color: white !important;
 }
 
+/* Today indicator */
 .flatpickr-day.today {
   border: 2px solid #2196F3;
   font-weight: 700;
@@ -1019,146 +712,211 @@
   color: #1565C0;
 }
 
+/* Calendar header */
 .flatpickr-months {
   background: linear-gradient(135deg, #2196F3, #1976D2);
-  padding: 14px 0;
-  border-radius: 14px 14px 0 0;
+  padding: 16px 0;
+  border-radius: 16px 16px 0 0;
 }
 
 .flatpickr-current-month {
   color: white;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
 }
 
 .flatpickr-prev-month,
 .flatpickr-next-month {
   fill: white;
-  padding: 6px;
+  padding: 8px;
 }
 
 .flatpickr-prev-month:hover,
 .flatpickr-next-month:hover {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+  fill: white;
+}
+
+/* Weekdays */
 .flatpickr-weekday {
   color: #1565C0;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
 }
 
+/* Calendar container */
 .flatpickr-calendar {
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   border: 2px solid #e8eef3;
   overflow: hidden;
 }
 
 .flatpickr-days {
-  padding: 6px;
+  padding: 8px;
 }
 
 .flatpickr-day {
-  border-radius: 6px;
+  border-radius: 8px;
   margin: 2px;
   font-weight: 500;
 }
 
+/* Disabled past dates */
 .flatpickr-day.flatpickr-disabled {
   color: #cbd5e0 !important;
   background: #f7fafc;
   cursor: not-allowed;
+  position: relative;
+}
+
+.flatpickr-day.flatpickr-disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: #e2e8f0;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN - TABLET & DESKTOP
+   RESPONSIVE DESIGN
    ============================================ */
 
-@media (min-width: 768px) {
+@media (max-width: 1200px) {
   .booking-form-container {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-carousel-main {
+    height: 350px;
+  }
+
+  .booking-form-main {
+    padding: 28px 22px;
+    border-radius: 20px;
+  }
+  
+  .booking-form-container {
+    grid-template-columns: 1fr;
     gap: 20px;
+  }
+  
+  .booking-section {
+    padding: 22px;
+  }
+  
+  .compact-specs-container {
+    padding: 24px;
+    border-radius: 16px;
   }
   
   .compact-specs-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-  
-  .custom-carousel-main {
-    height: 450px;
-  }
-  
-  .date-time-row {
-    flex-direction: row;
     gap: 12px;
   }
   
-  .date-time-row > div {
-    flex: 1;
+  .spec-card {
+    padding: 16px 12px;
+    min-height: 90px;
+  }
+
+  /* Mobile accordion */
+  .booking-section:nth-of-type(-n+3) h5 {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 35px;
+  }
+
+  .booking-section:nth-of-type(-n+3) h5::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: #718096;
+    transition: transform 0.3s ease;
+  }
+
+  .booking-section:nth-of-type(-n+3).collapsed h5::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+
+  .booking-section:nth-of-type(-n+3) > div:not(h5) {
+    max-height: 1000px;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+
+  .booking-section:nth-of-type(-n+3).collapsed > div:not(h5) {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
-@media (min-width: 1024px) {
-  .booking-form-container {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+@media (max-width: 600px) {
+  .lang-picker-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+    min-width: 75px;
+    height: 36px;
   }
-  
-  .compact-specs-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+
+  .lang-picker-dropdown {
+    min-width: 110px;
   }
-  
-  .booking-form-main {
-    padding: 36px 32px;
+
+  .lang-option {
+    font-size: 13px;
+    padding: 8px 12px;
+    height: 36px;
   }
 }
 
 @media (max-width: 480px) {
   .custom-carousel-main {
-    height: 300px;
+    height: 280px;
   }
-  
-  .booking-form-main {
-    padding: 24px 18px;
-    border-radius: 18px;
-  }
-  
+
   .booking-form-main h4 {
-    font-size: 1.4rem;
-  }
-  
-  .booking-section {
-    padding: 18px;
+    font-size: 1.5rem;
   }
   
   .booking-section h5 {
-    font-size: 1rem;
-  }
-  
-  .compact-specs-container {
-    padding: 20px 16px;
+    font-size: 1.05rem;
   }
   
   .compact-specs-grid {
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
   
   .spec-card {
     padding: 14px 10px;
-    min-height: 90px;
+    min-height: 80px;
   }
   
   .spec-card > div:first-child {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
   }
   
   #send_message {
-    padding: 14px;
-    font-size: 1rem;
+    padding: 16px;
+    font-size: 1.05rem;
   }
 }
 
@@ -1178,7 +936,9 @@ header.header-mobile #mainmenu a:hover {
   .mobile-date-input {
     font-size: 16px !important;
     min-height: 44px !important;
-    padding: 12px 14px !important;
+    padding: 8px 12px !important;
+    position: relative;
+    z-index: 1000;
   }
 
   .mobile-date-input::-webkit-calendar-picker-indicator {
@@ -1193,6 +953,34 @@ header.header-mobile #mainmenu a:hover {
     top: 0;
     width: auto;
   }
+
+  .booking-section {
+    overflow: visible !important;
+    position: relative;
+  }
+
+  .booking-section > div[style*="display: flex"] {
+    flex-direction: column;
+    gap: 12px !important;
+  }
+
+  .booking-section > div[style*="display: flex"] > div {
+    min-width: 100% !important;
+    flex: none !important;
+  }
+}
+
+@media only screen and (max-width: 430px) {
+  .mobile-date-input {
+    font-size: 18px !important;
+    padding: 10px 14px !important;
+    min-height: 48px !important;
+  }
+
+  .mobile-date-input:focus {
+    position: relative;
+    z-index: 9999;
+  }
 }
 
 /* Helper classes */
@@ -1205,10 +993,13 @@ header.header-mobile #mainmenu a:hover {
   width: 100% !important;
 }
 </style>
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="js/date-picker-manager.js"></script>
+
 </head>
 
 <body>
@@ -1228,6 +1019,11 @@ header.header-mobile #mainmenu a:hover {
   </div>
 
   <div id="wrapper">
+
+    <!-- page preloader begin -->
+    <!-- <div id="de-preloader"></div> -->
+    <!-- page preloader close -->
+
     <!-- header begin -->
     <header class="transparent scroll-light has-topbar">
       <div id="topbar" class="topbar-dark text-light">
@@ -1235,15 +1031,18 @@ header.header-mobile #mainmenu a:hover {
           <div class="topbar-left xs-hide">
             <div class="topbar-widget">
               <div class="topbar-widget"><a href="tel:060000500"><i class="fa fa-phone"></i>060000500</a></div>
-              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
+              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i
+                    class="fa fa-envelope"></i>contact@plusrent.md</a></div>
               <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
             </div>
           </div>
 
           <div class="topbar-right">
             <div class="social-icons">
-              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-tiktok fa-lg"></i></a>
             </div>
           </div>
           <div class="clearfix"></div>
@@ -1255,16 +1054,19 @@ header.header-mobile #mainmenu a:hover {
             <div class="de-flex sm-pt10">
               <div class="de-flex-col">
                 <div class="de-flex-col">
+                  <!-- logo begin -->
                   <div id="logo">
                     <a href="/">
                       <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
                       <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                     </a>
                   </div>
+                  <!-- logo close -->
                 </div>
               </div>
 
               <div class="de-flex-col">
+                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
                 <ul id="mainmenu">
                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
@@ -1275,16 +1077,22 @@ header.header-mobile #mainmenu a:hover {
               </div>
 
               <div class="de-flex-col">
-                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+                <div class="menu_side_area"
+                  style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                  <!-- Call Now Button -->
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                    <a href="tel:060000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);">
+                    <a href="tel:060000500" class="call-now-btn"
+                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
                       <i class="fa fa-phone" style="font-size: 12px;"></i>
                       <span data-i18n="call_now">Call Now</span>
                     </a>
                   </div>
+                  <!-- Language Picker -->
                   <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                    <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                      <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                    <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false"
+                      style="height:36px;display:flex;align-items:center;">
+                      <span class="lang-globe" id="langGlobe"
+                        style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
                         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2" />
                           <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2" />
@@ -1296,13 +1104,23 @@ header.header-mobile #mainmenu a:hover {
                       <span class="lang-flag" id="langFlag"></span>
                       <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
                       <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
-                        <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round" />
+                        <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none"
+                          stroke-linecap="round" />
                       </svg>
                     </button>
                     <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                      <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
-                      <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
-                      <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                      <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img
+                            src="images/flags/romania.png" alt="RO"
+                            style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
+                          class="lang-code">RO</span></li>
+                      <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img
+                            src="images/flags/united-kingdom.png" alt="EN"
+                            style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
+                          class="lang-code">EN</span></li>
+                      <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img
+                            src="images/flags/russia.png" alt="RU"
+                            style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
+                          class="lang-code">RU</span></li>
                     </ul>
                   </div>
                 </div>
@@ -1317,8 +1135,7 @@ header.header-mobile #mainmenu a:hover {
           </div>
         </div>
       </div>
-    </header>
-
+    </header><!-- header close -->
     <!-- content begin -->
     <div class="no-bottom no-top zebra" id="content">
       <div id="top"></div>
@@ -1337,6 +1154,7 @@ header.header-mobile #mainmenu a:hover {
           </div>
         </div>
       </section>
+      <!-- section close -->
 
       <section id="section-car-single">
         <div class="container">
@@ -1345,68 +1163,117 @@ header.header-mobile #mainmenu a:hover {
               <div class="row">
                 <div class="col-lg-8">
                   <div class="custom-carousel">
-                    <div class="custom-carousel-main" id="car-images"></div>
+                    <div class="custom-carousel-main" id="car-images">
+                      <!-- Main images will be inserted here -->
+                    </div>
                     <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)">‹</button>
                     <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)">›</button>
-                    <div class="custom-carousel-nav" id="car-thumbs"></div>
+                    <div class="custom-carousel-nav" id="car-thumbs">
+                      <!-- Thumbnail images will be inserted here -->
+                    </div>
                   </div>
                 </div>
 
                 <div class="col-lg-4">
+                  <!-- Daily Rate From Section -->
                   <h3 id="car-name"></h3>
-                  <div class="daily-rate-from" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 14px; color: #666; margin-bottom: 6px;" data-i18n="cars.daily_rate">Daily rate from</div>
+                  <div class="daily-rate-from"
+                    style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 15px;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 6px;" data-i18n="cars.daily_rate">Daily
+                      rate from</div>
                     <div id="car-price-sidebar" style="font-size: 28px; font-weight: bold; color: #007bff;">€60</div>
                   </div>
 
-                  <div class="price-details-section" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); width: 100%;">
-                    <h5 style="margin-bottom: 12px; color: #333; font-weight: 600; text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 6px; font-size: 16px;">
+                  <!-- Daily Price Details Section -->
+                  <div class="price-details-section"
+                    style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); width: 100%;">
+                    <h5
+                      style="margin-bottom: 12px; color: #333; font-weight: 600; text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 6px; font-size: 16px;">
                       <i class="fa fa-euro" style="color: #007bff; margin-right: 6px;"></i>
                       <span data-i18n="cars.pricing_breakdown"></span>
                     </h5>
-                    <div id="price-tiers-main" style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
+                    <div id="price-tiers-main"
+                      style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                      <!-- Price tiers will be populated by JavaScript -->
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- BOOKING FORM - MOVED HERE (BEFORE SPECS) -->
+              <!-- Compact Quick Specs Section - Under Images -->
+              <div class="spacer-10"></div>
+              <div class="compact-specs-container"
+                style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; color: #333; font-weight: 600; font-size: 16px; text-align: center;"
+                  data-i18n="cars.quick_specs"></h4>
+                <div class="compact-specs-grid" id="car-specs-compact">
+                  <!-- Specs will be populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Booking Form Section - Moved from sidebar -->
               <div class="spacer-single"></div>
-              <div class="booking-form-main">
-                <div id="booking-success-notification" style="display: none; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
-                  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+              <div class="booking-form-main"
+                style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 30px; width: 100% !important; max-width: none !important;">
+
+                <!-- Booking Success Notification -->
+                <div id="booking-success-notification"
+                  style="display: none; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                  <div
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
                     <i class="fa fa-check-circle" style="color: #155724; font-size: 24px;"></i>
-                    <h4 style="color: #155724; margin: 0;" data-i18n="booking.success_title">Booking Submitted Successfully!</h4>
+                    <h4 style="color: #155724; margin: 0;" data-i18n="booking.success_title">Booking Submitted
+                      Successfully!</h4>
                   </div>
-                  <p style="color: #155724; margin: 0; font-size: 14px;" data-i18n="booking.success_message">Thank you for your booking request. We will contact you shortly to confirm your reservation.</p>
+                  <p style="color: #155724; margin: 0; font-size: 14px;" data-i18n="booking.success_message">
+                    Thank you for your booking request. We will contact you shortly to confirm your reservation.
+                  </p>
                 </div>
 
-                <div id="error_message" style="display: none; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
-                  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                <!-- Booking Error Notification -->
+                <div id="error_message"
+                  style="display: none; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                  <div
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
                     <i class="fa fa-exclamation-triangle" style="color: #721c24; font-size: 24px;"></i>
                     <h4 style="color: #721c24; margin: 0;" data-i18n="errors.booking_error">Booking Error</h4>
                   </div>
-                  <p id="error_message_text" style="color: #721c24; margin: 0; font-size: 14px;" data-i18n="errors.booking_error_message">Please check your form and try again.</p>
+                  <p id="error_message_text" style="color: #721c24; margin: 0; font-size: 14px;"
+                    data-i18n="errors.booking_error_message">
+                    Please check your form and try again.
+                  </p>
                 </div>
 
                 <form name="contactForm" id='contact_form' method="post">
-                  <h4 data-i18n="cars.book_now">Book Now</h4>
+                  <h4 style="margin-bottom: 20px; color: #333;" data-i18n="cars.book_now"></h4>
 
-                  <div class="booking-form-container">
+                  <!-- Responsive Booking Form -->
+                  <div class="booking-form-container"
+                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+
                     <!-- Booking Details -->
-                    <div class="booking-section">
-                      <h5>
-                        <i class="fa fa-calendar"></i>
-                        <span data-i18n="cars.booking_details">Booking Details</span>
+                    <div class="booking-section"
+                      style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                      <h5
+                        style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #007bff; padding-bottom: 5px;">
+                        <i class="fa fa-calendar" style="color: #007bff; margin-right: 8px;"></i>
+                        <span data-i18n="cars.booking_details"></span>
                       </h5>
 
-                      <div class="date-time-row">
-                        <div style="flex: 1;">
-                          <label data-i18n="cars.pickup_date">Pickup Date</label>
-                          <input type="text" id="date-picker" name="Pick Up Date" data-i18n-placeholder="booking.date_placeholder" class="form-control mobile-date-input">
+                      <!-- Date and Time Fields -->
+                      <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 120px;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.pickup_date"></label>
+                          <input type="text" id="date-picker" name="Pick Up Date"
+                            data-i18n-placeholder="booking.date_placeholder"
+                            class="form-control form-control-sm mobile-date-input">
                         </div>
-                        <div style="flex: 1;">
-                          <label data-i18n="cars.pickup_time">Pickup Time</label>
-                          <select id="pickup-time" name="Pick Up Time" class="form-control">
+                        <div style="flex: 1; min-width: 120px;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.pickup_time"></label>
+                          <select id="pickup-time" name="Pick Up Time" class="form-control"
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                             <option value="00:00">00:00</option>
                             <option value="01:00">01:00</option>
                             <option value="02:00">02:00</option>
@@ -1435,14 +1302,20 @@ header.header-mobile #mainmenu a:hover {
                         </div>
                       </div>
 
-                      <div class="date-time-row">
-                        <div style="flex: 1;">
-                          <label data-i18n="cars.return_date">Return Date</label>
-                          <input type="text" id="date-picker-2" name="Collection Date" data-i18n-placeholder="booking.date_placeholder" class="form-control mobile-date-input">
+                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 120px;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.return_date"></label>
+                          <input type="text" id="date-picker-2" name="Collection Date"
+                            data-i18n-placeholder="booking.date_placeholder"
+                            class="form-control form-control-sm mobile-date-input">
+
                         </div>
-                        <div style="flex: 1;">
-                          <label data-i18n="cars.return_time">Return Time</label>
-                          <select id="collection-time" name="Collection Time" class="form-control">
+                        <div style="flex: 1; min-width: 120px;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.return_time"></label>
+                          <select id="collection-time" name="Collection Time" class="form-control"
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                             <option value="00:00">00:00</option>
                             <option value="01:00">01:00</option>
                             <option value="02:00">02:00</option>
@@ -1471,13 +1344,17 @@ header.header-mobile #mainmenu a:hover {
                         </div>
                       </div>
 
-                      <div id="outside-hours-notice">
-                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                          <i class="fa fa-clock-o" style="color: #856404;"></i>
-                          <strong data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
+                      <!-- Outside Hours Notice - Compact Version -->
+                      <div id="outside-hours-notice"
+                        style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 6px; margin-top: 8px; font-size: 10px;">
+                        <div style="display: flex; align-items: center; gap: 3px; margin-bottom: 2px;">
+                          <i class="fa fa-clock-o" style="color: #856404; font-size: 10px;"></i>
+                          <strong style="color: #856404; font-size: 10px;"
+                            data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
                         </div>
-                        <div id="outside-hours-details" style="color: #856404; margin-bottom: 4px;"></div>
-                        <div style="color: #856404; font-size: 0.82rem;">
+                        <div id="outside-hours-details" style="font-size: 11px; color: #856404; margin-bottom: 2px;">
+                        </div>
+                        <div style="font-size: 10px; color: #856404;">
                           <strong data-i18n="price_calculator.working_hours">Working Hours:</strong> 08:00 - 18:00 |
                           <strong data-i18n="price_calculator.fee">Fee:</strong> <span id="outside-hours-fee">€15</span>
                           <span data-i18n="price_calculator.per_pickup_return"></span>
@@ -1486,179 +1363,240 @@ header.header-mobile #mainmenu a:hover {
                     </div>
 
                     <!-- Location Details -->
-                    <div class="booking-section">
-                      <h5>
-                        <i class="fa fa-map-marker"></i>
-                        <span data-i18n="cars.location_details">Location Details</span>
+                    <div class="booking-section"
+                      style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                      <h5
+                        style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">
+                        <i class="fa fa-map-marker" style="color: #28a745; margin-right: 8px;"></i>
+                        <span data-i18n="cars.location_details"></span>
                       </h5>
 
-                      <div style="display: flex; flex-direction: column; gap: 14px;">
-                        <div>
-                          <label data-i18n="cars.pickup_location">Pickup Location</label>
-                          <label><input type="radio" name="pickup_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
-                          <label><input type="radio" name="pickup_location" value="Our Office"> <span data-i18n="cars.our_office">Our Office</span></label>
-                          <label><input type="radio" name="pickup_location" value="Iasi Airport" checked> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
+                      <!-- Location Fields -->
+                      <div style="display: flex; gap: 11px;">
+                        <div style="flex: 1;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 5px; display: block;"
+                            data-i18n="cars.pickup_location"></label>
+                          <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px;"><input type="radio" name="pickup_location"
+                                value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport"></span></label>
+                            <label style="font-size: 11px;"><input type="radio" name="pickup_location"
+                                value="Our Office"> <span data-i18n="cars.our_office"></span></label>
+                            <label style="font-size: 11px;"><input type="radio" name="pickup_location"
+                                value="Iasi Airport" checked> <span data-i18n="cars.iasi_airport"></span></label>
+                          </div>
                         </div>
-                        <div>
-                          <label data-i18n="cars.dropoff_location">Dropoff Location</label>
-                          <label><input type="radio" name="dropoff_location" value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport">Chisinau Airport</span></label>
-                          <label><input type="radio" name="dropoff_location" value="Our Office" checked> <span data-i18n="cars.our_office">Our Office</span></label>
-                          <label><input type="radio" name="dropoff_location" value="Iasi Airport"> <span data-i18n="cars.iasi_airport">Iasi Airport</span></label>
+                        <div style="flex: 1;">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 5px; display: block;"
+                            data-i18n="cars.dropoff_location"></label>
+                          <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px;"><input type="radio" name="dropoff_location"
+                                value="Chisinau Airport"> <span data-i18n="cars.chisinau_airport"></span></label>
+                            <label style="font-size: 11px;"><input type="radio" name="dropoff_location"
+                                value="Our Office" checked> <span data-i18n="cars.our_office"></span></label>
+                            <label style="font-size: 11px;"><input type="radio" name="dropoff_location"
+                                value="Iasi Airport"> <span data-i18n="cars.iasi_airport"></span></label>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <!-- Contact Information -->
-                    <div class="booking-section">
-                      <h5>
-                        <i class="fa fa-user"></i>
-                        <span data-i18n="cars.contact_information">Contact Information</span>
+                    <div class="booking-section"
+                      style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                      <h5
+                        style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #ffc107; padding-bottom: 5px;">
+                        <i class="fa fa-user" style="color: #ffc107; margin-right: 8px;"></i>
+                        <span data-i18n="cars.contact_information"></span>
                       </h5>
 
-                      <div style="display: flex; flex-direction: column; gap: 10px;">
+                      <!-- Contact Fields -->
+                      <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div>
-                          <label data-i18n="cars.email_address">Email Address</label>
-                          <input type="email" name="customer_email" placeholder="your.email@example.com">
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.email_address"></label>
+                          <input type="email" name="customer_email" placeholder="your.email@example.com"
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                         </div>
                         <div>
-                          <label data-i18n="cars.phone_number">Phone Number</label>
-                          <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required>
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.phone_number"></label>
+                          <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                         </div>
                         <div>
-                          <label data-i18n="cars.customer_age">Age</label>
-                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required>
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.customer_age"></label>
+                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                         </div>
                         <div>
-                          <label data-i18n="cars.discount_code">Discount Code</label>
-                          <input type="text" name="discount_code" placeholder="Enter discount code" data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input>
+                          <label style="font-size: 12px; font-weight: 500; margin-bottom: 3px; display: block;"
+                            data-i18n="cars.discount_code"></label>
+                          <input type="text" name="discount_code" placeholder="Enter discount code"
+                            data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input
+                            style="border-radius: 4px; border: 1px solid #ddd; width: 100%; padding: 6px; font-size: 12px;">
                         </div>
                       </div>
                     </div>
 
                     <!-- Price Summary -->
-                    <div class="booking-section">
-                      <h5>
-                        <i class="fa fa-calculator"></i>
-                        <span data-i18n="cars.total_price_breakdown">Total Price</span>
+                    <div class="booking-section"
+                      style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                      <h5
+                        style="margin-bottom: 10px; color: #333; font-size: 14px; border-bottom: 2px solid #dc3545; padding-bottom: 5px;">
+                        <i class="fa fa-calculator" style="color: #dc3545; margin-right: 8px;"></i>
+                        <span data-i18n="cars.total_price_breakdown"></span>
                       </h5>
 
-                      <div id="price-loading" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 100px;">
-                        <span style="font-size: 13px; color: #6c757d;">Loading...</span>
+                      <!-- Price Summary Display -->
+                      <!-- <div id="price-breakdown" style="min-height: 80px; background: #f8f9fa; border-radius: 6px; border: 1px solid #ddd; padding: 12px; font-size: 13px;"> -->
+                      <div id="price-loading"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 100%;">
+                        <!-- <div
+                          style="width: 14px; height: 14px; border: 2px solid #f3f3f3; border-top: 2px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;">
+                        </div> -->
+                        <span style="font-size: 12px; color: #6c757d;">Loading...</span>
                       </div>
-                      <div id="price-content" style="display: none;"></div>
+                      <div id="price-content" style="display: none;">
+                        <!-- Price content will be populated by JavaScript -->
+                      </div>
+                      <!-- </div> -->
                     </div>
                   </div>
 
-                  <button type='submit' id='send_message' class="btn-main btn-fullwidth" data-i18n="cars.book_now">Book Now</button>
+
+                  <button type='submit' id='send_message' class="btn-main btn-fullwidth"
+                    style="margin-top: 15px; border-radius: 8px; padding: 12px; font-weight: 600; font-size: 16px;"
+                    data-i18n="cars.book_now">Book Now</button>
+
                   <div class="clearfix"></div>
                 </form>
               </div>
 
-              <!-- QUICK SPECS - NOW AFTER BOOKING FORM -->
-              <div class="spacer-10"></div>
-              <div class="compact-specs-container">
-                <h4 data-i18n="cars.quick_specs">Quick Specs</h4>
-                <div class="compact-specs-grid" id="car-specs-compact"></div>
-              </div>
-
               <!-- Description Section -->
               <div class="spacer-10"></div>
-              <h4 data-i18n="cars.description">Description</h4>
+              <h4 data-i18n="cars.description"></h4>
               <p id="car-description"></p>
+
               <div class="spacer-single"></div>
+
+              <!-- <h4>Features</h4>
+                            <ul class="ul-style-2" id="car-features"></ul> -->
+            </div>
+
+          </div>
+        </div>
+    </div>
+    </section>
+
+  </div>
+  <!-- content close -->
+
+  <a href="#" id="back-to-top"></a>
+
+  <!-- footer begin -->
+  <footer class="text-light">
+    <div class="container">
+      <div class="row g-custom-x">
+        <div class="col-lg-3">
+          <div class="widget">
+            <h5>About PlusRent</h5>
+            <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without
+              the burden of excessive costs. That's why we have meticulously crafted our offerings to provide you with
+              top-notch vehicles at minimum expense.</p>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <div class="widget">
+            <h5>Contact Info</h5>
+            <address class="s1">
+              <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica
+                Moldova</span>
+              <span><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
+              <span><i class="id-color fa fa-envelope-o fa-lg"></i><a
+                  href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
+            </address>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <h5 data-i18n="footer.quick_links"></h5>
+          <div class="widget">
+            <ul>
+              <li><a href="/" data-i18n="menu.home"></a></li>
+              <li><a href="/cars" data-i18n="menu.cars"></a></li>
+              <li><a href="/about" data-i18n="menu.about"></a></li>
+              <li><a href="/contact" data-i18n="menu.contact"></a></li>
+              <li><a href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <div class="widget">
+            <h5>Social Network</h5>
+            <div class="social-icons">
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i
+                  class="fab fa-tiktok fa-lg"></i></a>
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
-    <a href="#" id="back-to-top"></a>
-
-    <!-- footer begin -->
-    <footer class="text-light">
+    <div class="subfooter">
       <div class="container">
-        <div class="row g-custom-x">
-          <div class="col-lg-3">
-            <div class="widget">
-              <h5>About PlusRent</h5>
-              <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs.</p>
-            </div>
-          </div>
-
-          <div class="col-lg-3">
-            <div class="widget">
-              <h5>Contact Info</h5>
-              <address class="s1">
-                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Moldova</span>
-                <span><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
-                <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
-              </address>
-            </div>
-          </div>
-
-          <div class="col-lg-3">
-            <h5 data-i18n="footer.quick_links">Quick Links</h5>
-            <div class="widget">
-              <ul>
-                <li><a href="/" data-i18n="menu.home">Home</a></li>
-                <li><a href="/cars" data-i18n="menu.cars">Cars</a></li>
-                <li><a href="/about" data-i18n="menu.about">About</a></li>
-                <li><a href="/contact" data-i18n="menu.contact">Contact</a></li>
-                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="de-flex">
+              <div class="de-flex-col">
+                <a href="/">
+                  Copyright 2025 - PlusRent
+                </a>
+              </div>
+              <ul class="menu-simple">
+                <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
               </ul>
             </div>
           </div>
-
-          <div class="col-lg-3">
-            <div class="widget">
-              <h5>Social Network</h5>
-              <div class="social-icons">
-                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+    </div>
+  </footer>
+  <!-- footer close -->
 
-      <div class="subfooter">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="de-flex">
-                <div class="de-flex-col">
-                  <a href="/">Copyright 2025 - PlusRent</a>
-                </div>
-                <ul class="menu-simple">
-                  <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 
-  <!-- Javascript Files -->
+  <!-- Javascript Files
+    ================================================== -->
   <script src="js/plugins.js"></script>
   <script src="js/designesia.js"></script>
   <script src="js/config.js"></script>
   <script src="js/price-calculator.js"></script>
   <script src="js/booking-form-handler.js?v=1.1"></script>
   <script src="js/validation-booking.js"></script>
+  <!-- <script src="js/global-booking.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
   <script>
+
     // Global formatting function
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
-      return rawKey.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+      return rawKey
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
     }
 
     document.addEventListener('DOMContentLoaded', async function () {
+      // Wait for i18n to be initialized and then update content
       function waitForI18n() {
         if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
+
           updateContent();
         } else {
           setTimeout(waitForI18n, 100);
@@ -1666,10 +1604,16 @@ header.header-mobile #mainmenu a:hover {
       }
       waitForI18n();
 
+      // Initialize accordion functionality for mobile
+
+      initializeAccordion();
+
+      // Get car ID from URL, e.g. car-single.html?id=123
       const urlParams = new URLSearchParams(window.location.search);
       const carId = urlParams.get('id');
 
       if (!carId) {
+
         document.getElementById('car-title').textContent = 'Car not found';
         return;
       }
@@ -1678,67 +1622,171 @@ header.header-mobile #mainmenu a:hover {
       const bookingHandler = new BookingFormHandler({
         carId: carId,
         onSuccess: function (response, bookingData) {
+          // Hide the booking form
           const bookingForm = document.getElementById('contact_form');
-          if (bookingForm) bookingForm.style.display = 'none';
+          if (bookingForm) {
+            bookingForm.style.display = 'none';
+          }
 
+          // Hide any existing info message
           const infoMessage = document.getElementById('booking-info-message');
-          if (infoMessage) infoMessage.style.display = 'none';
+          if (infoMessage) {
+            infoMessage.style.display = 'none';
+          }
 
+          // Show success notification
           const successNotification = document.getElementById('booking-success-notification');
           if (successNotification) {
             successNotification.style.display = 'block';
-            successNotification.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
 
+          // Scroll to the notification
+          successNotification.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          // Clear auto-applied coupon from localStorage after successful booking
           localStorage.removeItem('autoApplyCoupon');
           localStorage.removeItem('spinningWheelWinningCoupon');
 
+          // Dispatch booking success event for other components (like auto-apply coupon cleanup)
           document.dispatchEvent(new CustomEvent('bookingSuccess', {
             detail: { bookingData: bookingData }
           }));
         },
-        onError: function (errorMessage) {},
+        onError: function (errorMessage) {
+          // Booking failed - no alert needed
+        },
         onValidationError: function (errorMessage) {
+
+          // Wait a bit for showError to be available (in case of timing issues)
           setTimeout(() => {
+            // Use the showError function if available
             if (window.showError && typeof window.showError === 'function') {
+
               window.showError(errorMessage);
+            } else {
+
+              // Fallback to the original info message system
+              const submitButton = document.getElementById('send_message');
+              const successNotification = document.getElementById('booking-success-notification');
+
+              // Hide success notification if it's showing
+              if (successNotification) {
+                successNotification.style.display = 'none';
+              }
+
+              // Create or update info message
+              let infoMessage = document.getElementById('booking-info-message');
+              if (!infoMessage) {
+                infoMessage = document.createElement('div');
+                infoMessage.id = 'booking-info-message';
+                infoMessage.style.cssText = 'display: block; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 12px; margin-top: 10px; text-align: center; font-size: 13px; color: #0056b3;';
+
+                // Insert after the submit button
+                if (submitButton) {
+                  submitButton.parentNode.insertBefore(infoMessage, submitButton.nextSibling);
+                }
+              } else {
+                // If element exists, make sure it's visible
+                infoMessage.style.display = 'block';
+              }
+
+              // Translate the error message if i18next is available
+              let translatedMessage = errorMessage;
+              if (typeof i18next !== 'undefined') {
+                // Map error messages to translation keys
+                const errorTranslations = {
+                  'For same-day rentals, return time must be after pickup time': 'booking.validation.same_day_time',
+                  'Return date must be after pickup date': 'booking.validation.return_date_after_pickup',
+                  'Please select pickup and return dates': 'booking.validation.select_dates',
+                  'Please select pickup and return times': 'booking.validation.select_times',
+                  'Please select pickup and dropoff locations': 'booking.validation.select_locations',
+                  'Please enter your phone number': 'booking.validation.phone_required',
+                  'Please enter a valid phone number': 'booking.validation.phone_invalid',
+                  'Please enter a valid email address': 'booking.validation.email_invalid',
+                  'Pickup date must be today or in the future': 'booking.validation.pickup_date_future',
+                  'Phone number is required for outside hours pickup/dropoff': 'booking.validation.phone_required_outside_hours',
+                  'Please enter your age': 'booking.validation.age_required',
+                  'Age must be between 18 and 100 years': 'booking.validation.age_invalid'
+                };
+
+                const translationKey = errorTranslations[errorMessage];
+                if (translationKey) {
+                  translatedMessage = i18next.t(translationKey, errorMessage);
+                }
+              }
+
+              infoMessage.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa fa-info-circle" style="font-size: 16px;"></i>
+            <span>${translatedMessage}</span>
+          </div>
+        `;
+
+              // Clear any existing timeout
+              if (window.bookingInfoTimeout) {
+                clearTimeout(window.bookingInfoTimeout);
+              }
+
+              // Auto-hide after 5 seconds
+              window.bookingInfoTimeout = setTimeout(() => {
+                if (infoMessage) {
+                  infoMessage.style.display = 'none';
+                }
+              }, 5000);
             }
-          }, 100);
+          }, 100); // 100ms delay to check for showError
         }
       });
 
+      // Initialize the booking form
       bookingHandler.initForm('contact_form', 'send_message');
 
+      // Initialize DatePickerManager - MOVED FROM HEAD SECTION TO FIX TIMING ISSUES
       const datePickerManager = new DatePickerManager({
         pickupInputId: "date-picker",
         returnInputId: "date-picker-2",
-        carId: carId || null,
+        carId: carId || null,  // Ensure it's always a value
         dateFormat: "d-m-Y",
         onDateChange: function () {
+          // Trigger price calculator when dates change
           if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === "function") {
             window.priceCalculator.recalculatePrice();
           }
         }
       });
 
+      // Initialize the date picker
       datePickerManager.initialize();
+
+      // Add debugging
+
 
       // Fetch car data
       let car;
       try {
         const apiUrl = `${window.API_BASE_URL}/api/cars/${carId}`;
+
         const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error('Not found');
+
+        if (!res.ok) {
+
+          throw new Error('Not found');
+        }
+
         car = await res.json();
+
       } catch (e) {
+
         document.getElementById('car-title').textContent = 'Car not found';
         return;
       }
 
-      // Images carousel
+      // Images
       const imagesDiv = document.getElementById('car-images');
       const thumbsDiv = document.getElementById('car-thumbs');
-      let mainImages = [], thumbImages = [];
+
+      let mainImages = [];
+      let thumbImages = [];
 
       if (car.gallery_images && car.gallery_images.length) {
         mainImages = car.gallery_images.map(img => img.startsWith('http') ? img : `${window.API_BASE_URL}${img}`);
@@ -1751,12 +1799,15 @@ header.header-mobile #mainmenu a:hover {
         thumbImages = mainImages;
       }
 
+      // Custom carousel implementation
       let currentSlide = 0;
       const totalSlides = thumbImages.length;
 
+      // Clear existing content
       imagesDiv.innerHTML = '';
       thumbsDiv.innerHTML = '';
 
+      // Create main images
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
         img.src = imagePath + '?v=' + Date.now();
@@ -1770,6 +1821,7 @@ header.header-mobile #mainmenu a:hover {
         imagesDiv.appendChild(img);
       });
 
+      // Create thumbnail images
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
         img.src = imagePath + '?v=' + Date.now();
@@ -1783,25 +1835,30 @@ header.header-mobile #mainmenu a:hover {
         thumbsDiv.appendChild(img);
       });
 
+      // Custom carousel functions - make them globally accessible
       window.changeSlide = function (direction) {
         const newSlide = (currentSlide + direction + totalSlides) % totalSlides;
         goToSlide(newSlide);
       };
 
       function goToSlide(index) {
+        // Hide all main images
         const mainImages = imagesDiv.querySelectorAll('img');
         mainImages.forEach(img => {
           img.style.display = 'none';
           img.classList.remove('active');
         });
 
+        // Show selected main image
         mainImages[index].style.display = 'block';
         mainImages[index].classList.add('active');
 
+        // Update thumbnails
         const thumbImages = thumbsDiv.querySelectorAll('img');
         thumbImages.forEach(img => img.classList.remove('active'));
         thumbImages[index].classList.add('active');
 
+        // Auto-scroll to selected thumbnail
         if (thumbImages[index]) {
           thumbImages[index].scrollIntoView({
             behavior: 'smooth',
@@ -1813,12 +1870,19 @@ header.header-mobile #mainmenu a:hover {
         currentSlide = index;
       }
 
+      // Add keyboard navigation
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') changeSlide(-1);
-        else if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') {
+          changeSlide(-1);
+        } else if (e.key === 'ArrowRight') {
+          changeSlide(1);
+        }
       });
 
-      let startX = 0, endX = 0;
+      // Add touch/swipe support
+      let startX = 0;
+      let endX = 0;
+
       imagesDiv.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
       });
@@ -1826,25 +1890,34 @@ header.header-mobile #mainmenu a:hover {
       imagesDiv.addEventListener('touchend', (e) => {
         endX = e.changedTouches[0].clientX;
         const diff = startX - endX;
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) changeSlide(1);
-          else changeSlide(-1);
+
+        if (Math.abs(diff) > 50) { // Minimum swipe distance
+          if (diff > 0) {
+            changeSlide(1); // Swipe left
+          } else {
+            changeSlide(-1); // Swipe right
+          }
         }
       });
 
+      // Name, description, price
       document.getElementById('car-title').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)} ${car.production_year}`;
       document.getElementById('car-name').textContent = `${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}`;
 
+      // Store car data globally for language updates
       window.currentCarData = car;
 
       if (typeof CarMetaUpdater !== 'undefined') {
         const metaUpdater = new CarMetaUpdater();
-        window.metaUpdater = metaUpdater;
+        window.metaUpdater = metaUpdater; // Сохранить глобально
         metaUpdater.updateMetaTags(car);
+        console.log('✅ Meta tags updated for car:', car.make_name, car.model_name);
+      } else {
+        console.warn('⚠️ CarMetaUpdater not loaded yet');
       }
-
+      // Update description with current language
       updateCarDescription();
-
+      // Calculate the lowest price from price policy
       let lowestPrice = '';
       if (car.price_policy) {
         const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
@@ -1854,27 +1927,72 @@ header.header-mobile #mainmenu a:hover {
 
       document.getElementById('car-price-sidebar').innerHTML = `€${lowestPrice}`;
 
+      // Populate price guide with car data
       populatePriceGuide(car);
 
+      // Trigger translation for the dynamically added content
       if (typeof updateContent === 'function') {
         updateContent();
       }
 
+      // Show immediate basic price info in the breakdown section
       showImmediatePriceInfo(car, lowestPrice);
 
+      // Function to get mapped display text for car attributes with multilanguage support
+      function getMappedDisplayText(attributeType, value) {
+        if (!value) return '-';
+
+        const luggageMappings = {
+          '1_small': i18next.t('car_attributes.luggage.1_small', '1 Small Suitcase'),
+          '2_small': i18next.t('car_attributes.luggage.2_small', '2 Small Suitcases'),
+          '1_large': i18next.t('car_attributes.luggage.1_large', '1 Large Suitcase'),
+          '2_large': i18next.t('car_attributes.luggage.2_large', '2 Large Suitcases'),
+          '3_large': i18next.t('car_attributes.luggage.3_large', '3 Large Suitcases'),
+          '1_small_1_large': i18next.t('car_attributes.luggage.1_small_1_large', '1 Small + 1 Large Suitcase'),
+          '2_small_1_large': i18next.t('car_attributes.luggage.2_small_1_large', '2 Small + 1 Large Suitcase'),
+          '1_small_2_large': i18next.t('car_attributes.luggage.1_small_2_large', '1 Small + 2 Large Suitcases'),
+          '2_small_2_large': i18next.t('car_attributes.luggage.2_small_2_large', '2 Small + 2 Large Suitcases'),
+          '3_small_1_large': i18next.t('car_attributes.luggage.3_small_1_large', '3 Small + 1 Large Suitcase'),
+          '4_small': i18next.t('car_attributes.luggage.4_small', '4 Small Suitcases'),
+          '5_small': i18next.t('car_attributes.luggage.5_small', '5 Small Suitcases'),
+          '4_large': i18next.t('car_attributes.luggage.4_large', '4 Large Suitcases'),
+          '5_large': i18next.t('car_attributes.luggage.5_large', '5 Large Suitcases')
+        };
+
+        const driveMappings = {
+          'front_wheel': i18next.t('car_attributes.drive.front_wheel', 'Front Wheel Drive'),
+          'rear_wheel': i18next.t('car_attributes.drive.rear_wheel', 'Rear Wheel Drive'),
+          'all_wheel': i18next.t('car_attributes.drive.all_wheel', 'All Wheel Drive'),
+          'four_wheel': i18next.t('car_attributes.drive.four_wheel', '4-Wheel Drive')
+        };
+
+        const mappings = {
+          luggage: luggageMappings,
+          drive: driveMappings
+        };
+
+        return mappings[attributeType]?.[value] || value;
+      }
+
+      // Function to update car description based on current language
       function updateCarDescription() {
         if (!window.currentCarData) return;
+
         const car = window.currentCarData;
         let descriptionText = '';
 
         try {
           if (car.description) {
+
+            // Check if description is valid JSON
             let descriptionObj;
             if (typeof car.description === 'string') {
               try {
                 descriptionObj = JSON.parse(car.description);
               } catch (parseError) {
+                // If it's not valid JSON, treat it as a plain string
                 descriptionText = car.description;
+
                 return;
               }
             } else {
@@ -1882,9 +2000,13 @@ header.header-mobile #mainmenu a:hover {
             }
 
             const currentLang = i18next.language || 'en';
+
             descriptionText = descriptionObj[currentLang] || descriptionObj.en || descriptionObj.ro || descriptionObj.ru || '';
+
           }
         } catch (e) {
+
+          // Fallback for old single-language descriptions
           descriptionText = car.description || '';
         }
 
@@ -1894,15 +2016,22 @@ header.header-mobile #mainmenu a:hover {
         }
       }
 
+      // Listen for language changes
       if (typeof i18next !== 'undefined') {
         i18next.on('languageChanged', function () {
+
           updateCarDescription();
+          // Update all data-i18n elements when language changes
           if (typeof updateContent === 'function') {
             updateContent();
           }
+          // Re-populate price tiers with new language
           if (window.currentCarData) {
             populatePriceGuide(window.currentCarData);
+          } else {
           }
+
+          // Re-update price breakdown with new language
           if (window.priceCalculator && typeof window.priceCalculator.debouncedRecalculate === 'function') {
             window.priceCalculator.debouncedRecalculate();
           } else if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
@@ -1911,6 +2040,27 @@ header.header-mobile #mainmenu a:hover {
         });
       }
 
+      // Specs with multilanguage support
+      const currentLang = i18next.language || 'en';
+
+      // Get localized spec labels
+      const specLabels = {
+        body: i18next.t('cars.specs.body', 'Body'),
+        seat: i18next.t('cars.specs.seat', 'Seat'),
+        door: i18next.t('cars.specs.door', 'Door'),
+        luggage: i18next.t('cars.specs.luggage', 'Luggage'),
+        fuel_type: i18next.t('cars.specs.fuel_type', 'Fuel Type'),
+        engine: i18next.t('cars.specs.engine', 'Engine'),
+        year: i18next.t('cars.specs.year', 'Year'),
+        mileage: i18next.t('cars.specs.mileage', 'Mileage'),
+        transmission: i18next.t('cars.specs.transmission', 'Transmission'),
+        drive: i18next.t('cars.specs.drive', 'Drive'),
+        fuel_economy: i18next.t('cars.specs.fuel_economy', 'Fuel Economy'),
+        exterior_color: i18next.t('cars.specs.exterior_color', 'Exterior Color'),
+        interior_color: i18next.t('cars.specs.interior_color', 'Interior Color')
+      };
+
+      // Get localized car type and fuel type - use functions instead of static objects
       const getCarTypeTranslation = (carType) => {
         const translations = {
           'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
@@ -1952,60 +2102,179 @@ header.header-mobile #mainmenu a:hover {
         return translations[transmissionType] || transmissionType || '-';
       };
 
+      const fuelTypeMapping = {
+        'Gasoline': i18next.t('cars.fuel.gasoline', 'Gasoline'),
+        'Diesel': i18next.t('cars.fuel.diesel', 'Diesel'),
+        'Electric': i18next.t('cars.fuel.electric', 'Electric'),
+        'Hybrid': i18next.t('cars.fuel.hybrid', 'Hybrid'),
+        'Plug-in Hybrid': i18next.t('cars.fuel.plugin_hybrid', 'Plug-in Hybrid'),
+        'Hydrogen': i18next.t('cars.fuel.hydrogen', 'Hydrogen')
+      };
+
+      const transmissionMapping = {
+        'Manual': i18next.t('cars.transmission.manual', 'Manual'),
+        'Automatic': i18next.t('cars.transmission.automatic', 'Automatic'),
+        'CVT': i18next.t('cars.transmission.cvt', 'CVT'),
+        'Semi-Automatic': i18next.t('cars.transmission.semi_automatic', 'Semi-Automatic')
+      };
+
+      // Create compact specs layout with custom SVG icons
       const compactSpecsHTML = `
-        <div class="spec-card">
-          <div><svg fill="#7699a2" height="20px" width="20px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235"><path d="M211.744,6.089C208.081,2.163,203.03,0,197.52,0h-15.143c-11.16,0-21.811,8.942-23.74,19.934l-0.955,5.436 c-0.96,5.47,0.332,10.651,3.639,14.589c3.307,3.938,8.186,6.106,13.74,6.106h19.561c2.714,0,5.339-0.542,7.778-1.504l-2.079,17.761 c-2.001-0.841-4.198-1.289-6.507-1.289h-22.318c-9.561,0-18.952,7.609-20.936,16.961l-19.732,93.027l-93.099-6.69 c-5.031-0.36-9.231,1.345-11.835,4.693c-2.439,3.136-3.152,7.343-2.009,11.847l10.824,42.618 c2.345,9.233,12.004,16.746,21.53,16.746h78.049h1.191h39.729c9.653,0,18.336-7.811,19.354-17.411l15.272-143.981 c0.087-0.823,0.097-1.634,0.069-2.437l5.227-44.648c0.738-1.923,1.207-3.967,1.354-6.087l0.346-4.97 C217.214,15.205,215.407,10.016,211.744,6.089z"></path></svg></div>
-          <div>${car.num_passengers || '-'}</div>
-        </div>
-        <div class="spec-card">
-          <div><svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#5daada"><path d="M11 6H8C7.05719 6 6.58579 6 6.29289 6.29289C6 6.58579 6 7.05719 6 8C6 8.94281 6 9.41421 6.29289 9.70711C6.58579 10 7.05719 10 8 10H11C11.9428 10 12.4142 10 12.7071 9.70711C13 9.41421 13 8.94281 13 8C13 7.05719 13 6.58579 12.7071 6.29289C12.4142 6 11.9428 6 11 6Z" stroke="#465791" stroke-width="1.5"></path><path d="M7 17H12" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path><path d="M17 22H2" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path><path d="M19.5 4L20.7331 4.98647C20.8709 5.09673 20.9398 5.15186 21.0025 5.20805C21.5937 5.73807 21.9508 6.48086 21.9953 7.27364C22 7.35769 22 7.44594 22 7.62244V18.5C22 19.3284 21.3284 20 20.5 20C19.6716 20 19 19.3284 19 18.5V18.4286C19 17.6396 18.3604 17 17.5714 17H16" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path><path d="M22 8H20.5C19.6716 8 19 8.67157 19 9.5V11.9189C19 12.5645 19.4131 13.1377 20.0257 13.3419L22 14" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path><path d="M16 22V15M3 22V18M3 14V8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H10C12.8284 2 14.2426 2 15.1213 2.87868C16 3.75736 16 5.17157 16 8V11" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path></svg></div>
-          <div>${getFuelTypeTranslation(car.fuel_type)}</div>
-        </div>
-        <div class="spec-card">
-          <div><svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4Z" stroke="#1C274C" stroke-width="1.5"></path><path d="M6 20C6 21.1046 5.10457 22 4 22C2.89543 22 2 21.1046 2 20C2 18.8954 2.89543 18 4 18C5.10457 18 6 18.8954 6 20Z" stroke="#1C274C" stroke-width="1.5"></path><path d="M14 20C14 21.1046 13.1046 22 12 22C10.8954 22 10 21.1046 10 20C10 18.8954 10.8954 18 12 18C13.1046 18 14 18.8954 14 20Z" stroke="#1C274C" stroke-width="1.5"></path><path d="M14 4C14 5.10457 13.1046 6 12 6C10.8954 6 10 5.10457 10 4C10 2.89543 10.8954 2 12 2C13.1046 2 14 2.89543 14 4Z" stroke="#1C274C" stroke-width="1.5"></path><path d="M22 4C22 5.10457 21.1046 6 20 6C18.8954 6 18 5.10457 18 4C18 2.89543 18.8954 2 20 2C21.1046 2 22 2.89543 22 4Z" stroke="#1C274C" stroke-width="1.5"></path><path opacity="0.5" d="M4.75 6C4.75 5.58579 4.41421 5.25 4 5.25C3.58579 5.25 3.25 5.58579 3.25 6H4.75ZM3.25 18C3.25 18.4142 3.58579 18.75 4 18.75C4.41421 18.75 4.75 18.4142 4.75 18H3.25ZM12.75 6C12.75 5.58579 12.4142 5.25 12 5.25C11.5858 5.25 11.25 5.58579 11.25 6H12.75ZM11.25 18C11.25 18.4142 11.5858 18.75 12 18.75C12.4142 18.75 12.75 18.4142 12.75 18H11.25ZM20.75 6C20.75 5.58579 20.4142 5.25 20 5.25C19.5858 5.25 19.25 5.58579 19.25 6H20.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM19.4142 11.4142L18.8839 10.8839L18.8839 10.8839L19.4142 11.4142ZM3.25 6V18H4.75V6H3.25ZM11.25 6V18H12.75V6H11.25ZM19.25 6V8H20.75V6H19.25ZM16 11.25H4V12.75H16V11.25ZM19.25 8C19.25 8.96401 19.2484 9.61157 19.1835 10.0946C19.1214 10.5561 19.0142 10.7536 18.8839 10.8839L19.9445 11.9445C20.4 11.4891 20.5857 10.9223 20.6701 10.2945C20.7516 9.68826 20.75 8.92161 20.75 8H19.25ZM16 12.75C16.9216 12.75 17.6883 12.7516 18.2945 12.6701C18.9223 12.5857 19.4891 12.4 19.9445 11.9445L18.8839 10.8839C18.7536 11.0142 18.5561 11.1214 18.0946 11.1835C17.6116 11.2484 16.964 11.25 16 11.25V12.75Z" fill="#1C274C"></path><path d="M18 15V14.25C17.5858 14.25 17.25 14.5858 17.25 15H18ZM17.25 22C17.25 22.4142 17.5858 22.75 18 22.75C18.4142 22.75 18.75 22.4142 18.75 22H17.25ZM21.3604 22.3916C21.5766 22.7449 22.0384 22.8559 22.3916 22.6396C22.7449 22.4234 22.8559 21.9616 22.6396 21.6084L21.3604 22.3916ZM18 15.75H20.2857V14.25H18V15.75ZM18.75 18.5V15H17.25V18.5H18.75ZM21.25 16.75C21.25 17.3169 20.8038 17.75 20.2857 17.75V19.25C21.6612 19.25 22.75 18.1161 22.75 16.75H21.25ZM20.2857 15.75C20.8038 15.75 21.25 16.1831 21.25 16.75H22.75C22.75 15.3839 21.6612 14.25 20.2857 14.25V15.75ZM20.2857 17.75H19.8571V19.25H20.2857V17.75ZM19.8571 17.75H18V19.25H19.8571V17.75ZM19.2175 18.8916L21.3604 22.3916L22.6396 21.6084L20.4968 18.1084L19.2175 18.8916ZM17.25 18.5V22H18.75V18.5H17.25Z" fill="#1C274C"></path></svg></div>
-          <div>${getTransmissionTranslation(car.gear_type)}</div>
-        </div>
-        <div class="spec-card">
-          <div><svg fill="#505b77" viewBox="0 -39.69 122.88 122.88" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M103.94,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76c-5.39,0-9.76-4.37-9.76-9.76 C94.18,28.34,98.55,23.97,103.94,23.97L103.94,23.97z M23,29.07v3.51h3.51C26.09,30.86,24.73,29.49,23,29.07L23,29.07z M26.52,34.87H23v3.51C24.73,37.97,26.09,36.6,26.52,34.87L26.52,34.87z M20.71,38.39v-3.51H17.2 C17.62,36.6,18.99,37.96,20.71,38.39L20.71,38.39z M17.2,32.59h3.51v-3.51C18.99,29.49,17.62,30.86,17.2,32.59L17.2,32.59z M105.09,29.07v3.51h3.51C108.18,30.86,106.82,29.49,105.09,29.07L105.09,29.07z M108.6,34.87h-3.51v3.51 C106.82,37.97,108.18,36.6,108.6,34.87L108.6,34.87z M102.8,38.39v-3.51h-3.51C99.71,36.6,101.07,37.96,102.8,38.39L102.8,38.39z M99.28,32.59h3.51v-3.51C101.07,29.49,99.71,30.86,99.28,32.59L99.28,32.59z M49.29,12.79c-1.54-0.35-3.07-0.35-4.61-0.28 C56.73,6.18,61.46,2.07,75.57,2.9l-1.94,12.87L50.4,16.65c0.21-0.61,0.33-0.94,0.37-1.55C50.88,13.36,50.86,13.15,49.29,12.79 L49.29,12.79z M79.12,3.13L76.6,15.6l24.13-0.98c2.48-0.1,2.91-1.19,1.41-3.28c-0.68-0.95-1.44-1.89-2.31-2.82 C93.59,1.86,87.38,3.24,79.12,3.13L79.12,3.13z M0.46,27.28H1.2c0.46-2.04,1.37-3.88,2.71-5.53c2.94-3.66,4.28-3.2,8.65-3.99 l24.46-4.61c5.43-3.86,11.98-7.3,19.97-10.2C64.4,0.25,69.63-0.01,77.56,0c4.54,0.01,9.14,0.28,13.81,0.84 c2.37,0.15,4.69,0.47,6.97,0.93c2.73,0.55,5.41,1.31,8.04,2.21l9.8,5.66c2.89,1.67,3.51,3.62,3.88,6.81l1.38,11.78h1.43v6.51 c-0.2,2.19-1.06,2.52-2.88,2.52h-2.37c0.92-20.59-28.05-24.11-27.42,1.63H34.76c3.73-17.75-14.17-23.91-22.96-13.76 c-2.67,3.09-3.6,7.31-3.36,12.3H2.03c-0.51-0.24-0.91-0.57-1.21-0.98c-1.05-1.43-0.82-5.74-0.74-8.23 C0.09,27.55-0.12,27.28,0.46,27.28L0.46,27.28z M21.86,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76 c-5.39,0-9.76-4.37-9.76-9.76C12.1,28.34,16.47,23.97,21.86,23.97L21.86,23.97z"></path></svg></div>
-          <div>${getCarTypeTranslation(car.car_type)}</div>
-        </div>
-        <div class="spec-card">
-          <div><svg fill="#5a7990" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 491.52 491.52"><path d="M471.04,163.84h-32.768c-8.192,0-16.384,6.144-20.48,14.336l-18.432,81.92l-14.336-40.96 c0-8.192-8.192-14.336-16.384-14.336h-40.96v-20.48c0-12.288-8.192-20.48-20.48-20.48H81.92c-10.24,0-20.48,8.192-20.48,20.48 v163.84c0,2.048,0,6.144,2.048,8.192l28.672,61.44c4.096,8.192,10.24,12.288,18.432,12.288H358.4 c8.192,0,14.336-4.096,18.432-10.24l18.432-30.72h6.144l18.432,49.152c4.096,8.192,10.24,12.288,18.432,12.288h32.768 c12.288,0,20.48-8.192,20.48-20.48V184.32C491.52,172.032,483.328,163.84,471.04,163.84z M458.752,421.888l-24.576-61.44 c-4.096-6.144-10.24-12.288-20.48-12.288h-32.768c-8.192,0-14.336,4.096-18.432,10.24l-16.384,30.72H124.928L102.4,344.064V204.8 h184.32v20.48c0,12.288,8.192,20.48,20.48,20.48h47.104l8.192,26.624c2.048,8.192,10.24,14.336,18.432,14.336h32.768 c8.192,0,16.384-6.144,20.48-14.336l24.576-81.92V421.888z"></path><path d="M81.92,266.24H20.48C8.192,266.24,0,274.432,0,286.72c0,12.288,10.24,20.48,20.48,20.48h61.44 c12.288,0,20.48-8.192,20.48-20.48C102.4,274.432,94.208,266.24,81.92,266.24z"></path><path d="M20.48,225.28C8.192,225.28,0,233.472,0,245.76v81.92c0,12.288,8.192,20.48,20.48,20.48c12.288,0,20.48-8.192,20.48-20.48 v-81.92C40.96,233.472,32.768,225.28,20.48,225.28z"></path><path d="M245.76,102.4h-81.92c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h81.92 c12.288,0,20.48-8.192,20.48-20.48v-61.44C266.24,110.592,258.048,102.4,245.76,102.4z M225.28,163.84h-40.96v-20.48h40.96V163.84 z"></path><path d="M286.72,40.96H122.88c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h163.84 c12.288,0,20.48-8.192,20.48-20.48V61.44C307.2,49.152,299.008,40.96,286.72,40.96z M266.24,102.4H143.36V81.92h122.88V102.4z"></path></svg></div>
-          <div>${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</div>
-        </div>
-        <div class="spec-card">
-          <div><svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#485284" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-          <div>${car.production_year || '-'}</div>
-        </div>
-      `;
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="margin-bottom: 8px; display: flex; justify-content: center; align-items: center;">
+        <svg fill="#7699a2" height="20px" width="20px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235">
+          <path d="M211.744,6.089C208.081,2.163,203.03,0,197.52,0h-15.143c-11.16,0-21.811,8.942-23.74,19.934l-0.955,5.436 c-0.96,5.47,0.332,10.651,3.639,14.589c3.307,3.938,8.186,6.106,13.74,6.106h19.561c2.714,0,5.339-0.542,7.778-1.504l-2.079,17.761 c-2.001-0.841-4.198-1.289-6.507-1.289h-22.318c-9.561,0-18.952,7.609-20.936,16.961l-19.732,93.027l-93.099-6.69 c-5.031-0.36-9.231,1.345-11.835,4.693c-2.439,3.136-3.152,7.343-2.009,11.847l10.824,42.618 c2.345,9.233,12.004,16.746,21.53,16.746h78.049h1.191h39.729c9.653,0,18.336-7.811,19.354-17.411l15.272-143.981 c0.087-0.823,0.097-1.634,0.069-2.437l5.227-44.648c0.738-1.923,1.207-3.967,1.354-6.087l0.346-4.97 C217.214,15.205,215.407,10.016,211.744,6.089z"></path>
+        </svg>
+      </div>
+
+      <div style="font-size: 12px; font-weight: 600; color: #333;">${car.num_passengers || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: center;">
+      <div style="margin-bottom: 4px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#5daada">
+          <path d="M11 6H8C7.05719 6 6.58579 6 6.29289 6.29289C6 6.58579 6 7.05719 6 8C6 8.94281 6 9.41421 6.29289 9.70711C6.58579 10 7.05719 10 8 10H11C11.9428 10 12.4142 10 12.7071 9.70711C13 9.41421 13 8.94281 13 8C13 7.05719 13 6.58579 12.7071 6.29289C12.4142 6 11.9428 6 11 6Z" stroke="#465791" stroke-width="1.5"></path>
+          <path d="M7 17H12" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M17 22H2" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M19.5 4L20.7331 4.98647C20.8709 5.09673 20.9398 5.15186 21.0025 5.20805C21.5937 5.73807 21.9508 6.48086 21.9953 7.27364C22 7.35769 22 7.44594 22 7.62244V18.5C22 19.3284 21.3284 20 20.5 20C19.6716 20 19 19.3284 19 18.5V18.4286C19 17.6396 18.3604 17 17.5714 17H16" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M22 8H20.5C19.6716 8 19 8.67157 19 9.5V11.9189C19 12.5645 19.4131 13.1377 20.0257 13.3419L22 14" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M16 22V15M3 22V18M3 14V8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H10C12.8284 2 14.2426 2 15.1213 2.87868C16 3.75736 16 5.17157 16 8V11" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 11px; font-weight: 600; color: #333;">${getFuelTypeTranslation(car.fuel_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M6 20C6 21.1046 5.10457 22 4 22C2.89543 22 2 21.1046 2 20C2 18.8954 2.89543 18 4 18C5.10457 18 6 18.8954 6 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 20C14 21.1046 13.1046 22 12 22C10.8954 22 10 21.1046 10 20C10 18.8954 10.8954 18 12 18C13.1046 18 14 18.8954 14 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 4C14 5.10457 13.1046 6 12 6C10.8954 6 10 5.10457 10 4C10 2.89543 10.8954 2 12 2C13.1046 2 14 2.89543 14 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M22 4C22 5.10457 21.1046 6 20 6C18.8954 6 18 5.10457 18 4C18 2.89543 18.8954 2 20 2C21.1046 2 22 2.89543 22 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path opacity="0.5" d="M4.75 6C4.75 5.58579 4.41421 5.25 4 5.25C3.58579 5.25 3.25 5.58579 3.25 6H4.75ZM3.25 18C3.25 18.4142 3.58579 18.75 4 18.75C4.41421 18.75 4.75 18.4142 4.75 18H3.25ZM12.75 6C12.75 5.58579 12.4142 5.25 12 5.25C11.5858 5.25 11.25 5.58579 11.25 6H12.75ZM11.25 18C11.25 18.4142 11.5858 18.75 12 18.75C12.4142 18.75 12.75 18.4142 12.75 18H11.25ZM20.75 6C20.75 5.58579 20.4142 5.25 20 5.25C19.5858 5.25 19.25 5.58579 19.25 6H20.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM19.4142 11.4142L18.8839 10.8839L18.8839 10.8839L19.4142 11.4142ZM3.25 6V18H4.75V6H3.25ZM11.25 6V18H12.75V6H11.25ZM19.25 6V8H20.75V6H19.25ZM16 11.25H4V12.75H16V11.25ZM19.25 8C19.25 8.96401 19.2484 9.61157 19.1835 10.0946C19.1214 10.5561 19.0142 10.7536 18.8839 10.8839L19.9445 11.9445C20.4 11.4891 20.5857 10.9223 20.6701 10.2945C20.7516 9.68826 20.75 8.92161 20.75 8H19.25ZM16 12.75C16.9216 12.75 17.6883 12.7516 18.2945 12.6701C18.9223 12.5857 19.4891 12.4 19.9445 11.9445L18.8839 10.8839C18.7536 11.0142 18.5561 11.1214 18.0946 11.1835C17.6116 11.2484 16.964 11.25 16 11.25V12.75Z" fill="#1C274C"></path>
+          <path d="M18 15V14.25C17.5858 14.25 17.25 14.5858 17.25 15H18ZM17.25 22C17.25 22.4142 17.5858 22.75 18 22.75C18.4142 22.75 18.75 22.4142 18.75 22H17.25ZM21.3604 22.3916C21.5766 22.7449 22.0384 22.8559 22.3916 22.6396C22.7449 22.4234 22.8559 21.9616 22.6396 21.6084L21.3604 22.3916ZM18 15.75H20.2857V14.25H18V15.75ZM18.75 18.5V15H17.25V18.5H18.75ZM21.25 16.75C21.25 17.3169 20.8038 17.75 20.2857 17.75V19.25C21.6612 19.25 22.75 18.1161 22.75 16.75H21.25ZM20.2857 15.75C20.8038 15.75 21.25 16.1831 21.25 16.75H22.75C22.75 15.3839 21.6612 14.25 20.2857 14.25V15.75ZM20.2857 17.75H19.8571V19.25H20.2857V17.75ZM19.8571 17.75H18V19.25H19.8571V17.75ZM19.2175 18.8916L21.3604 22.3916L22.6396 21.6084L20.4968 18.1084L19.2175 18.8916ZM17.25 18.5V22H18.75V18.5H17.25Z" fill="#1C274C"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${getTransmissionTranslation(car.gear_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#505b77" viewBox="0 -39.69 122.88 122.88" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" style="enable-background:new 0 0 122.88 43.49">
+          <path d="M103.94,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76c-5.39,0-9.76-4.37-9.76-9.76 C94.18,28.34,98.55,23.97,103.94,23.97L103.94,23.97z M23,29.07v3.51h3.51C26.09,30.86,24.73,29.49,23,29.07L23,29.07z M26.52,34.87H23v3.51C24.73,37.97,26.09,36.6,26.52,34.87L26.52,34.87z M20.71,38.39v-3.51H17.2 C17.62,36.6,18.99,37.96,20.71,38.39L20.71,38.39z M17.2,32.59h3.51v-3.51C18.99,29.49,17.62,30.86,17.2,32.59L17.2,32.59z M105.09,29.07v3.51h3.51C108.18,30.86,106.82,29.49,105.09,29.07L105.09,29.07z M108.6,34.87h-3.51v3.51 C106.82,37.97,108.18,36.6,108.6,34.87L108.6,34.87z M102.8,38.39v-3.51h-3.51C99.71,36.6,101.07,37.96,102.8,38.39L102.8,38.39z M99.28,32.59h3.51v-3.51C101.07,29.49,99.71,30.86,99.28,32.59L99.28,32.59z M49.29,12.79c-1.54-0.35-3.07-0.35-4.61-0.28 C56.73,6.18,61.46,2.07,75.57,2.9l-1.94,12.87L50.4,16.65c0.21-0.61,0.33-0.94,0.37-1.55C50.88,13.36,50.86,13.15,49.29,12.79 L49.29,12.79z M79.12,3.13L76.6,15.6l24.13-0.98c2.48-0.1,2.91-1.19,1.41-3.28c-0.68-0.95-1.44-1.89-2.31-2.82 C93.59,1.86,87.38,3.24,79.12,3.13L79.12,3.13z M0.46,27.28H1.2c0.46-2.04,1.37-3.88,2.71-5.53c2.94-3.66,4.28-3.2,8.65-3.99 l24.46-4.61c5.43-3.86,11.98-7.3,19.97-10.2C64.4,0.25,69.63-0.01,77.56,0c4.54,0.01,9.14,0.28,13.81,0.84 c2.37,0.15,4.69,0.47,6.97,0.93c2.73,0.55,5.41,1.31,8.04,2.21l9.8,5.66c2.89,1.67,3.51,3.62,3.88,6.81l1.38,11.78h1.43v6.51 c-0.2,2.19-1.06,2.52-2.88,2.52h-2.37c0.92-20.59-28.05-24.11-27.42,1.63H34.76c3.73-17.75-14.17-23.91-22.96-13.76 c-2.67,3.09-3.6,7.31-3.36,12.3H2.03c-0.51-0.24-0.91-0.57-1.21-0.98c-1.05-1.43-0.82-5.74-0.74-8.23 C0.09,27.55-0.12,27.28,0.46,27.28L0.46,27.28z M21.86,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76 c-5.39,0-9.76-4.37-9.76-9.76C12.1,28.34,16.47,23.97,21.86,23.97L21.86,23.97z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${getCarTypeTranslation(car.car_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#5a7990" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 491.52 491.52">
+          <path d="M471.04,163.84h-32.768c-8.192,0-16.384,6.144-20.48,14.336l-18.432,81.92l-14.336-40.96 c0-8.192-8.192-14.336-16.384-14.336h-40.96v-20.48c0-12.288-8.192-20.48-20.48-20.48H81.92c-10.24,0-20.48,8.192-20.48,20.48 v163.84c0,2.048,0,6.144,2.048,8.192l28.672,61.44c4.096,8.192,10.24,12.288,18.432,12.288H358.4 c8.192,0,14.336-4.096,18.432-10.24l18.432-30.72h6.144l18.432,49.152c4.096,8.192,10.24,12.288,18.432,12.288h32.768 c12.288,0,20.48-8.192,20.48-20.48V184.32C491.52,172.032,483.328,163.84,471.04,163.84z M458.752,421.888l-24.576-61.44 c-4.096-6.144-10.24-12.288-20.48-12.288h-32.768c-8.192,0-14.336,4.096-18.432,10.24l-16.384,30.72H124.928L102.4,344.064V204.8 h184.32v20.48c0,12.288,8.192,20.48,20.48,20.48h47.104l8.192,26.624c2.048,8.192,10.24,14.336,18.432,14.336h32.768 c8.192,0,16.384-6.144,20.48-14.336l24.576-81.92V421.888z"></path>
+          <path d="M81.92,266.24H20.48C8.192,266.24,0,274.432,0,286.72c0,12.288,10.24,20.48,20.48,20.48h61.44 c12.288,0,20.48-8.192,20.48-20.48C102.4,274.432,94.208,266.24,81.92,266.24z"></path>
+          <path d="M20.48,225.28C8.192,225.28,0,233.472,0,245.76v81.92c0,12.288,8.192,20.48,20.48,20.48c12.288,0,20.48-8.192,20.48-20.48 v-81.92C40.96,233.472,32.768,225.28,20.48,225.28z"></path>
+          <path d="M245.76,102.4h-81.92c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h81.92 c12.288,0,20.48-8.192,20.48-20.48v-61.44C266.24,110.592,258.048,102.4,245.76,102.4z M225.28,163.84h-40.96v-20.48h40.96V163.84 z"></path>
+          <path d="M286.72,40.96H122.88c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h163.84 c12.288,0,20.48-8.192,20.48-20.48V61.44C307.2,49.152,299.008,40.96,286.72,40.96z M266.24,102.4H143.36V81.92h122.88V102.4z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" ifill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#485284" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.production_year || '-'}</div>
+    </div>
+  `;
 
       document.getElementById('car-specs-compact').innerHTML = compactSpecsHTML;
 
+      // Listen for language changes to regenerate Quick Specs
       i18next.on('languageChanged', () => {
+
         if (window.currentCarData) {
+          // Regenerate the Quick Specs with new language
           populatePriceGuide(window.currentCarData);
         }
       });
 
-      // Initialize accordion functionality for mobile
+      // Define updateFeeDisplays function globally
+      window.updateFeeDisplays = async function () {
+        try {
+          const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+          if (response.ok) {
+            const fees = await response.json();
+
+            // Update outside hours fee display
+            const outsideHoursFeeElement = document.getElementById('outside-hours-fee');
+            if (outsideHoursFeeElement && fees.outside_hours_fee !== undefined) {
+              outsideHoursFeeElement.textContent = `€${fees.outside_hours_fee}`;
+            }
+
+          } else {
+
+          }
+        } catch (error) {
+
+        }
+      };
+
+      // Initialize price calculator after car data is loaded
+      if (window.priceCalculator) {
+        window.priceCalculator.updateCarData(car);
+        // Load dynamic fee displays
+        updateFeeDisplays();
+      } else {
+        // If price calculator hasn't loaded yet, wait a bit and try again
+        setTimeout(async () => {
+          if (window.priceCalculator) {
+            window.priceCalculator.updateCarData(car);
+            // Load dynamic fee displays
+            updateFeeDisplays();
+          }
+        }, 100);
+      }
+
+
+      if (window.priceCalculator) {
+
+        const discountInput = document.querySelector('input[name="discount_code"]');
+        if (discountInput && discountInput.value.trim().length >= 3) {
+          setTimeout(() => {
+            // Trigger blur event to validate the coupon
+            discountInput.dispatchEvent(new Event('blur'));
+          }, 500);
+        }
+      }
+      // Accordion functionality for mobile devices - only first 3 sections
       function initializeAccordion() {
+
         const bookingSections = document.querySelectorAll('.booking-section');
 
+        // Function to check if we're on mobile
         function isMobile() {
-          return window.innerWidth <= 767 || window.matchMedia('(max-width: 767px)').matches;
+          const mobile = window.innerWidth <= 767 || window.matchMedia('(max-width: 767px)').matches;
+
+          return mobile;
         }
 
         bookingSections.forEach((section, index) => {
           const title = section.querySelector('h5');
 
-          if (title && index < 3) {
+          if (title && index < 3) { // Only first 3 sections
+
             title.addEventListener('click', function (e) {
+
+              // Only toggle on mobile
               if (isMobile()) {
                 const isCollapsed = section.classList.contains('collapsed');
+
+                // Toggle current section
                 if (isCollapsed) {
                   section.classList.remove('collapsed');
+
                 } else {
                   section.classList.add('collapsed');
+
                 }
               }
             });
@@ -2013,81 +2282,61 @@ header.header-mobile #mainmenu a:hover {
         });
       }
 
-      // Call accordion initialization
-      initializeAccordion();
-
-      window.updateFeeDisplays = async function () {
-        try {
-          const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
-          if (response.ok) {
-            const fees = await response.json();
-            const outsideHoursFeeElement = document.getElementById('outside-hours-fee');
-            if (outsideHoursFeeElement && fees.outside_hours_fee !== undefined) {
-              outsideHoursFeeElement.textContent = `€${fees.outside_hours_fee}`;
-            }
-          }
-        } catch (error) {}
-      };
-
-      if (window.priceCalculator) {
-        window.priceCalculator.updateCarData(car);
-        updateFeeDisplays();
-      } else {
-        setTimeout(async () => {
-          if (window.priceCalculator) {
-            window.priceCalculator.updateCarData(car);
-            updateFeeDisplays();
-          }
-        }, 100);
-      }
-
-      if (window.priceCalculator) {
-        const discountInput = document.querySelector('input[name="discount_code"]');
-        if (discountInput && discountInput.value.trim().length >= 3) {
-          setTimeout(() => {
-            discountInput.dispatchEvent(new Event('blur'));
-          }, 500);
-        }
-      }
-
+      // Add coupon change detection
       const discountInput = document.querySelector('input[name="discount_code"]');
+
       if (discountInput) {
         let validationTimeout;
 
         discountInput.addEventListener('input', function () {
+          // Clear cached data when user types
           if (window.cachedCouponData) {
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
           }
+
+          // Clear any existing timeout
           if (validationTimeout) {
             clearTimeout(validationTimeout);
           }
           if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
             window.priceCalculator.hideFloatingFreeDaysNotification();
           }
+          // Recalculate price immediately (without discount)
           if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
             window.priceCalculator.recalculatePrice();
+          } else {
           }
         });
 
+        // Add blur event for coupon validation
         discountInput.addEventListener('blur', async function () {
           const code = this.value.trim();
+
           if (code && code.length >= 3) {
             try {
+
+              // First try redemption code validation (for individual codes)
               const phoneInput = document.querySelector('input[name="customer_phone"]');
               const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
+
+              // Build URL with phone number if available
               const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
 
+              // Use lookup endpoint (same as modal) for proper phone validation
               let response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
               let result = await response.json();
               if (!result.valid) {
+                // If redemption validation fails, try regular coupon validation
                 response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
                 result = await response.json();
+                console.log(result);
               }
 
               if (result.valid) {
                 this.classList.remove("is-invalid");
                 this.classList.add("is-valid");
+                // Store coupon data globally
                 window.cachedCouponData = result;
                 window.lastValidatedCouponCode = code;
 
@@ -2095,8 +2344,10 @@ header.header-mobile #mainmenu a:hover {
                 if (existingMessage) {
                   existingMessage.remove();
                 }
+                // Recalculate price with discount
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
                   window.priceCalculator.recalculatePrice();
+                } else {
                 }
               } else {
                 this.classList.remove("is-valid");
@@ -2104,8 +2355,10 @@ header.header-mobile #mainmenu a:hover {
                 if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
                   window.priceCalculator.hideFloatingFreeDaysNotification();
                 }
+                // Clear coupon data
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
+
               }
             } catch (error) {
               this.classList.remove("is-valid");
@@ -2115,31 +2368,51 @@ header.header-mobile #mainmenu a:hover {
             if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
               window.priceCalculator.hideFloatingFreeDaysNotification();
             }
+            // Clear validation state when input is empty
             this.classList.remove("is-valid", "is-invalid");
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
+          } else {
           }
         });
 
         discountInput.addEventListener('focus', function () {
           const code = this.value.trim();
-          if (code && code.length >= 3 && (!window.cachedCouponData || window.lastValidatedCouponCode !== code)) {
+
+          // If there's a value and it's not already validated, trigger validation
+          if (code && code.length >= 3 &&
+            (!window.cachedCouponData || window.lastValidatedCouponCode !== code)) {
+
+            // Trigger blur event to validate the coupon
             setTimeout(() => {
               this.dispatchEvent(new Event('blur'));
-            }, 100);
+            }, 100); // Small delay to ensure focus is complete
           }
         });
+
+        // Add click event for testing
+        discountInput.addEventListener('click', function () {
+        });
+
+        // Add focus event for testing
+        discountInput.addEventListener('focus', function () {
+        });
+
+      } else {
       }
     });
 
+    // Function to show immediate price information
     function showImmediatePriceInfo(car, lowestPrice) {
       const priceContent = document.getElementById('price-content');
       const priceLoading = document.getElementById('price-loading');
 
       if (priceContent && priceLoading) {
+        // Hide loading, show content
         priceLoading.style.display = 'none';
         priceContent.style.display = 'block';
 
+        // Show basic price info immediately
         priceContent.innerHTML = `
         <div style="text-align: center; color: #333;">
           <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: #007bff;">
@@ -2152,16 +2425,66 @@ header.header-mobile #mainmenu a:hover {
             <i class="fa fa-info-circle"></i> 
             <span data-i18n="cars.loading_breakdown">Loading detailed breakdown...</span>
           </div>
-        </div>
+          </div>
         `;
 
+        // Update translations for the new content
         if (typeof updateContent === 'function') {
           updateContent();
         }
       }
     }
 
+    // Function to populate the price guide with car data
     function populatePriceGuide(car) {
+
+      // Get localized car type and fuel type - create fresh translations each time
+      const getCarTypeTranslation = (carType) => {
+        const translations = {
+          'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
+          'SUV': i18next.t('cars.types.suv', 'SUV'),
+          'Hatchback': i18next.t('cars.types.hatchback', 'Hatchback'),
+          'Coupe': i18next.t('cars.types.coupe', 'Coupe'),
+          'Wagon': i18next.t('cars.types.wagon', 'Wagon'),
+          'Convertible': i18next.t('cars.types.convertible', 'Convertible'),
+          'Van': i18next.t('cars.types.van', 'Van'),
+          'Pickup': i18next.t('cars.types.pickup', 'Pickup'),
+          'Crossover': i18next.t('cars.types.crossover', 'Crossover'),
+          'Sports Car': i18next.t('cars.types.sports_car', 'Sports Car'),
+          'Luxury': i18next.t('cars.types.luxury', 'Luxury'),
+          'Electric': i18next.t('cars.types.electric', 'Electric'),
+          'Hybrid': i18next.t('cars.types.hybrid', 'Hybrid')
+        };
+        const result = translations[carType] || carType || '-';
+        return result;
+      };
+
+      const getFuelTypeTranslation = (fuelType) => {
+        const translations = {
+          'Gasoline': i18next.t('cars.fuel.gasoline', 'Gasoline'),
+          'Diesel': i18next.t('cars.fuel.diesel', 'Diesel'),
+          'Electric': i18next.t('cars.fuel.electric', 'Electric'),
+          'Hybrid': i18next.t('cars.fuel.hybrid', 'Hybrid'),
+          'Plug-in Hybrid': i18next.t('cars.fuel.plugin_hybrid', 'Plug-in Hybrid'),
+          'Hydrogen': i18next.t('cars.fuel.hydrogen', 'Hydrogen')
+        };
+        const result = translations[fuelType] || fuelType || '-';
+        return result;
+      };
+
+      const getTransmissionTranslation = (transmissionType) => {
+        const translations = {
+          'Manual': i18next.t('cars.transmission.manual', 'Manual'),
+          'Automatic': i18next.t('cars.transmission.automatic', 'Automatic'),
+          'CVT': i18next.t('cars.transmission.cvt', 'CVT'),
+          'Semi-Automatic': i18next.t('cars.transmission.semi_automatic', 'Semi-Automatic')
+        };
+        const result = translations[transmissionType] || transmissionType || '-';
+        return result;
+      };
+
+
+      // Populate main section price tiers
       const priceTiersMainDiv = document.getElementById('price-tiers-main');
       if (priceTiersMainDiv && car.price_policy) {
         const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
@@ -2200,46 +2523,95 @@ header.header-mobile #mainmenu a:hover {
 
         priceTiersMainDiv.innerHTML = mainTiersHTML;
 
+        // Trigger translation for the dynamically added content
         if (typeof updateContent === 'function') {
           updateContent();
         }
       }
+
+      // Create compact specs layout with custom SVG icons - MOVED INSIDE FUNCTION
+      const compactSpecsHTML = `
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="margin-bottom: 8px; display: flex; justify-content: center; align-items: center;">
+        <svg fill="#7699a2" height="20px" width="20px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.235 240.235">
+          <path d="M211.744,6.089C208.081,2.163,203.03,0,197.52,0h-15.143c-11.16,0-21.811,8.942-23.74,19.934l-0.955,5.436 c-0.96,5.47,0.332,10.651,3.639,14.589c3.307,3.938,8.186,6.106,13.74,6.106h19.561c2.714,0,5.339-0.542,7.778-1.504l-2.079,17.761 c-2.001-0.841-4.198-1.289-6.507-1.289h-22.318c-9.561,0-18.952,7.609-20.936,16.961l-19.732,93.027l-93.099-6.69 c-5.031-0.36-9.231,1.345-11.835,4.693c-2.439,3.136-3.152,7.343-2.009,11.847l10.824,42.618 c2.345,9.233,12.004,16.746,21.53,16.746h78.049h1.191h39.729c9.653,0,18.336-7.811,19.354-17.411l15.272-143.981 c0.087-0.823,0.097-1.634,0.069-2.437l5.227-44.648c0.738-1.923,1.207-3.967,1.354-6.087l0.346-4.97 C217.214,15.205,215.407,10.016,211.744,6.089z"></path>
+        </svg>
+      </div>
+
+      <div style="font-size: 12px; font-weight: 600; color: #333;">${car.num_passengers || '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 6px; padding: 8px; text-align: center; border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: center;">
+      <div style="margin-bottom: 4px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#5daada">
+          <path d="M11 6H8C7.05719 6 6.58579 6 6.29289 6.29289C6 6.58579 6 7.05719 6 8C6 8.94281 6 9.41421 6.29289 9.70711C6.58579 10 7.05719 10 8 10H11C11.9428 10 12.4142 10 12.7071 9.70711C13 9.41421 13 8.94281 13 8C13 7.05719 13 6.58579 12.7071 6.29289C12.4142 6 11.9428 6 11 6Z" stroke="#465791" stroke-width="1.5"></path>
+          <path d="M7 17H12" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M17 22H2" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M19.5 4L20.7331 4.98647C20.8709 5.09673 20.9398 5.15186 21.0025 5.20805C21.5937 5.73807 21.9508 6.48086 21.9953 7.27364C22 7.35769 22 7.44594 22 7.62244V18.5C22 19.3284 21.3284 20 20.5 20C19.6716 20 19 19.3284 19 18.5V18.4286C19 17.6396 18.3604 17 17.5714 17H16" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M22 8H20.5C19.6716 8 19 8.67157 19 9.5V11.9189C19 12.5645 19.4131 13.1377 20.0257 13.3419L22 14" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+          <path d="M16 22V15M3 22V18M3 14V8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H10C12.8284 2 14.2426 2 15.1213 2.87868C16 3.75736 16 5.17157 16 8V11" stroke="#465791" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 11px; font-weight: 600; color: #333;">${getFuelTypeTranslation(car.fuel_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M6 20C6 21.1046 5.10457 22 4 22C2.89543 22 2 21.1046 2 20C2 18.8954 2.89543 18 4 18C5.10457 18 6 18.8954 6 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 20C14 21.1046 13.1046 22 12 22C10.8954 22 10 21.1046 10 20C10 18.8954 10.8954 18 12 18C13.1046 18 14 18.8954 14 20Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M14 4C14 5.10457 13.1046 6 12 6C10.8954 6 10 5.10457 10 4C10 2.89543 10.8954 2 12 2C13.1046 2 14 2.89543 14 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path d="M22 4C22 5.10457 21.1046 6 20 6C18.8954 6 18 5.10457 18 4C18 2.89543 18.8954 2 20 2C21.1046 2 22 2.89543 22 4Z" stroke="#1C274C" stroke-width="1.5"></path>
+          <path opacity="0.5" d="M4.75 6C4.75 5.58579 4.41421 5.25 4 5.25C3.58579 5.25 3.25 5.58579 3.25 6H4.75ZM3.25 18C3.25 18.4142 3.58579 18.75 4 18.75C4.41421 18.75 4.75 18.4142 4.75 18H3.25ZM12.75 6C12.75 5.58579 12.4142 5.25 12 5.25C11.5858 5.25 11.25 5.58579 11.25 6H12.75ZM11.25 18C11.25 18.4142 11.5858 18.75 12 18.75C12.4142 18.75 12.75 18.4142 12.75 18H11.25ZM20.75 6C20.75 5.58579 20.4142 5.25 20 5.25C19.5858 5.25 19.25 5.58579 19.25 6H20.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM19.4142 11.4142L18.8839 10.8839L18.8839 10.8839L19.4142 11.4142ZM3.25 6V18H4.75V6H3.25ZM11.25 6V18H12.75V6H11.25ZM19.25 6V8H20.75V6H19.25ZM16 11.25H4V12.75H16V11.25ZM19.25 8C19.25 8.96401 19.2484 9.61157 19.1835 10.0946C19.1214 10.5561 19.0142 10.7536 18.8839 10.8839L19.9445 11.9445C20.4 11.4891 20.5857 10.9223 20.6701 10.2945C20.7516 9.68826 20.75 8.92161 20.75 8H19.25ZM16 12.75C16.9216 12.75 17.6883 12.7516 18.2945 12.6701C18.9223 12.5857 19.4891 12.4 19.9445 11.9445L18.8839 10.8839C18.7536 11.0142 18.5561 11.1214 18.0946 11.1835C17.6116 11.2484 16.964 11.25 16 11.25V12.75Z" fill="#1C274C"></path>
+          <path d="M18 15V14.25C17.5858 14.25 17.25 14.5858 17.25 15H18ZM17.25 22C17.25 22.4142 17.5858 22.75 18 22.75C18.4142 22.75 18.75 22.4142 18.75 22H17.25ZM21.3604 22.3916C21.5766 22.7449 22.0384 22.8559 22.3916 22.6396C22.7449 22.4234 22.8559 21.9616 22.6396 21.6084L21.3604 22.3916ZM18 15.75H20.2857V14.25H18V15.75ZM18.75 18.5V15H17.25V18.5H18.75ZM21.25 16.75C21.25 17.3169 20.8038 17.75 20.2857 17.75V19.25C21.6612 19.25 22.75 18.1161 22.75 16.75H21.25ZM20.2857 15.75C20.8038 15.75 21.25 16.1831 21.25 16.75H22.75C22.75 15.3839 21.6612 14.25 20.2857 14.25V15.75ZM20.2857 17.75H19.8571V19.25H20.2857V17.75ZM19.8571 17.75H18V19.25H19.8571V17.75ZM19.2175 18.8916L21.3604 22.3916L22.6396 21.6084L20.4968 18.1084L19.2175 18.8916ZM17.25 18.5V22H18.75V18.5H17.25Z" fill="#1C274C"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${getTransmissionTranslation(car.gear_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#505b77" viewBox="0 -39.69 122.88 122.88" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" style="enable-background:new 0 0 122.88 43.49">
+          <path d="M103.94,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76c-5.39,0-9.76-4.37-9.76-9.76 C94.18,28.34,98.55,23.97,103.94,23.97L103.94,23.97z M23,29.07v3.51h3.51C26.09,30.86,24.73,29.49,23,29.07L23,29.07z M26.52,34.87H23v3.51C24.73,37.97,26.09,36.6,26.52,34.87L26.52,34.87z M20.71,38.39v-3.51H17.2 C17.62,36.6,18.99,37.96,20.71,38.39L20.71,38.39z M17.2,32.59h3.51v-3.51C18.99,29.49,17.62,30.86,17.2,32.59L17.2,32.59z M105.09,29.07v3.51h3.51C108.18,30.86,106.82,29.49,105.09,29.07L105.09,29.07z M108.6,34.87h-3.51v3.51 C106.82,37.97,108.18,36.6,108.6,34.87L108.6,34.87z M102.8,38.39v-3.51h-3.51C99.71,36.6,101.07,37.96,102.8,38.39L102.8,38.39z M99.28,32.59h3.51v-3.51C101.07,29.49,99.71,30.86,99.28,32.59L99.28,32.59z M49.29,12.79c-1.54-0.35-3.07-0.35-4.61-0.28 C56.73,6.18,61.46,2.07,75.57,2.9l-1.94,12.87L50.4,16.65c0.21-0.61,0.33-0.94,0.37-1.55C50.88,13.36,50.86,13.15,49.29,12.79 L49.29,12.79z M79.12,3.13L76.6,15.6l24.13-0.98c2.48-0.1,2.91-1.19,1.41-3.28c-0.68-0.95-1.44-1.89-2.31-2.82 C93.59,1.86,87.38,3.24,79.12,3.13L79.12,3.13z M0.46,27.28H1.2c0.46-2.04,1.37-3.88,2.71-5.53c2.94-3.66,4.28-3.2,8.65-3.99 l24.46-4.61c5.43-3.86,11.98-7.3,19.97-10.2C64.4,0.25,69.63-0.01,77.56,0c4.54,0.01,9.14,0.28,13.81,0.84 c2.37,0.15,4.69,0.47,6.97,0.93c2.73,0.55,5.41,1.31,8.04,2.21l9.8,5.66c2.89,1.67,3.51,3.62,3.88,6.81l1.38,11.78h1.43v6.51 c-0.2,2.19-1.06,2.52-2.88,2.52h-2.37c0.92-20.59-28.05-24.11-27.42,1.63H34.76c3.73-17.75-14.17-23.91-22.96-13.76 c-2.67,3.09-3.6,7.31-3.36,12.3H2.03c-0.51-0.24-0.91-0.57-1.21-0.98c-1.05-1.43-0.82-5.74-0.74-8.23 C0.09,27.55-0.12,27.28,0.46,27.28L0.46,27.28z M21.86,23.97c5.39,0,9.76,4.37,9.76,9.76c0,5.39-4.37,9.76-9.76,9.76 c-5.39,0-9.76-4.37-9.76-9.76C12.1,28.34,16.47,23.97,21.86,23.97L21.86,23.97z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${getCarTypeTranslation(car.car_type)}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg fill="#5a7990" height="18px" width="18px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 491.52 491.52">
+          <path d="M471.04,163.84h-32.768c-8.192,0-16.384,6.144-20.48,14.336l-18.432,81.92l-14.336-40.96 c0-8.192-8.192-14.336-16.384-14.336h-40.96v-20.48c0-12.288-8.192-20.48-20.48-20.48H81.92c-10.24,0-20.48,8.192-20.48,20.48 v163.84c0,2.048,0,6.144,2.048,8.192l28.672,61.44c4.096,8.192,10.24,12.288,18.432,12.288H358.4 c8.192,0,14.336-4.096,18.432-10.24l18.432-30.72h6.144l18.432,49.152c4.096,8.192,10.24,12.288,18.432,12.288h32.768 c12.288,0,20.48-8.192,20.48-20.48V184.32C491.52,172.032,483.328,163.84,471.04,163.84z M458.752,421.888l-24.576-61.44 c-4.096-6.144-10.24-12.288-20.48-12.288h-32.768c-8.192,0-14.336,4.096-18.432,10.24l-16.384,30.72H124.928L102.4,344.064V204.8 h184.32v20.48c0,12.288,8.192,20.48,20.48,20.48h47.104l8.192,26.624c2.048,8.192,10.24,14.336,18.432,14.336h32.768 c8.192,0,16.384-6.144,20.48-14.336l24.576-81.92V421.888z"></path>
+          <path d="M81.92,266.24H20.48C8.192,266.24,0,274.432,0,286.72c0,12.288,10.24,20.48,20.48,20.48h61.44 c12.288,0,20.48-8.192,20.48-20.48C102.4,274.432,94.208,266.24,81.92,266.24z"></path>
+          <path d="M20.48,225.28C8.192,225.28,0,233.472,0,245.76v81.92c0,12.288,8.192,20.48,20.48,20.48c12.288,0,20.48-8.192,20.48-20.48 v-81.92C40.96,233.472,32.768,225.28,20.48,225.28z"></path>
+          <path d="M245.76,102.4h-81.92c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h81.92 c12.288,0,20.48-8.192,20.48-20.48v-61.44C266.24,110.592,258.048,102.4,245.76,102.4z M225.28,163.84h-40.96v-20.48h40.96V163.84 z"></path>
+          <path d="M286.72,40.96H122.88c-10.24,0-20.48,8.192-20.48,20.48v61.44c0,12.288,10.24,20.48,20.48,20.48h163.84 c12.288,0,20.48-8.192,20.48-20.48V61.44C307.2,49.152,299.008,40.96,286.72,40.96z M266.24,102.4H143.36V81.92h122.88V102.4z"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.engine_capacity ? car.engine_capacity + 'L' : '-'}</div>
+    </div>
+    <div class="spec-card" style="background: #f8f9fa; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #e9ecef;">
+      <div style="margin-bottom: 6px; display: flex; justify-content: center;">
+        <svg viewBox="0 0 24 24" height="18px" width="18px" ifill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#485284" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #333;">${car.production_year || '-'}</div>
+    </div>
+  `;
+
+      document.getElementById('car-specs-compact').innerHTML = compactSpecsHTML;
     }
 
-    const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
-    const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
-    pickupLocationInputs.forEach(input => {
-      input.addEventListener('change', function () {
-        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-          window.priceCalculator.recalculatePrice();
-        }
-      });
-    });
-
-    dropoffLocationInputs.forEach(input => {
-      input.addEventListener('change', function () {
-        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-          window.priceCalculator.recalculatePrice();
-        }
-      });
-    });
+    // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
+    function convertDateFormatToISO(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
+      }
+      return dateStr;
+    }
   </script>
-
-  <!-- i18next CDN -->
-  <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
-  <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
-
-  <!-- Translation System -->
-  <script src="js/i18n-init.js"></script>
-
-  <!-- Universal Spinning Wheel -->
-  <script src="js/universal-include.js"></script>
-
-  <!-- Auto-Apply Coupon -->
-  <script src="js/auto-apply-coupon.js"></script>
-
   <style>
-    /* Additional CSS for proper rendering */
+    /* Custom carousel styles - replacing Slick */
     .custom-carousel {
       width: 100%;
       margin: 0 auto;
@@ -2558,18 +2930,353 @@ header.header-mobile #mainmenu a:hover {
     [data-i18n].loading {
       opacity: 0.5;
     }
-
-    /* Coupon input validation styles */
-    input.is-valid {
-      border-color: #28a745 !important;
-      background-color: #f0fff4 !important;
-    }
-
-    input.is-invalid {
-      border-color: #dc3545 !important;
-      background-color: #fff5f5 !important;
-    }
   </style>
 
+  <!-- i18next CDN -->
+  <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
+  <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+
+  <!-- Translation System -->
+  <script src="js/i18n-init.js"></script>
+
+  <!-- Universal Spinning Wheel -->
+  <script src="js/universal-include.js"></script>
+
+  <!-- Auto-Apply Coupon -->
+  <script src="js/auto-apply-coupon.js"></script>
+
+  <!-- COMMENTED OUT - OLD IMPLEMENTATION
+  Function to fetch and display unavailable dates -->
+  <script>
+    // Function to fetch and display unavailable dates
+    // async function loadUnavailableDates(carId) {
+    //   try {
+    //     const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
+    //     if (response.ok) {
+    //       const data = await response.json();
+
+    //       const unavailableDates = [];
+
+    //       // Convert booking periods to individual dates
+    //       data.booking_dates.forEach(booking => {
+    //         const pickupDate = new Date(booking.pickup_date);
+    //         const returnDate = new Date(booking.return_date);
+
+    //         // Add all dates between pickup and return (inclusive)
+    //         const currentDate = new Date(pickupDate);
+    //         while (currentDate <= returnDate) {
+    //           unavailableDates.push(currentDate.toISOString().split('T')[0]);
+    //           currentDate.setDate(currentDate.getDate() + 1);
+    //         }
+    //       });
+
+    //       // Initialize Flatpickr with unavailable dates
+    //       initializeFlatpickrWithUnavailableDates(unavailableDates);
+
+    //     } else {
+    //       console.error('Failed to fetch booking dates:', response.status);
+    //       // Initialize Flatpickr with empty unavailable dates array
+    //       initializeFlatpickrWithUnavailableDates([]);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error loading unavailable dates:', error);
+    //     // Initialize Flatpickr with empty unavailable dates array
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // }
+
+
+    // Load unavailable dates when page loads
+    // document.addEventListener('DOMContentLoaded', function () {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const carId = urlParams.get('id');
+    //   if (carId) {
+    //     loadUnavailableDates(carId);
+    //   } else {
+    //     // If no car ID, initialize with empty unavailable dates
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // });
+  </script>
+  <script>
+    // Function to fetch and display unavailable dates
+    // async function loadUnavailableDates(carId) {
+    //   try {
+    //     const response = await fetch(`${window.API_BASE_URL}/api/cars/${carId}/booking-dates`);
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       const unavailableDates = [];
+
+    //       // Convert booking periods to individual dates
+    //       data.booking_dates.forEach(booking => {
+    //         const pickupDate = new Date(booking.pickup_date);
+    //         const returnDate = new Date(booking.return_date);
+
+    //         // Add all dates between pickup and return (inclusive)
+    //         const currentDate = new Date(pickupDate);
+    //         while (currentDate <= returnDate) {
+    //           unavailableDates.push(currentDate.toISOString().split('T')[0]);
+    //           currentDate.setDate(currentDate.getDate() + 1);
+    //         }
+    //       });
+
+    //       // Initialize Flatpickr with unavailable dates
+    //       initializeFlatpickrWithUnavailableDates(unavailableDates);
+
+    //     } else {
+    //       console.error('Failed to fetch booking dates:', response.status);
+    //       // Initialize Flatpickr with empty unavailable dates array
+    //       initializeFlatpickrWithUnavailableDates([]);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error loading unavailable dates:', error);
+    //     // Initialize Flatpickr with empty unavailable dates array
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // }
+
+    // // Function to find the first available date after a given date
+    // function findFirstAvailableDate(startDate, unavailableDates) {
+    //   const currentDate = new Date(startDate);
+    //   let attempts = 0;
+    //   const maxAttempts = 30; // Prevent infinite loop
+
+    //   while (attempts < maxAttempts) {
+    //     const dateStr = currentDate.toISOString().split('T')[0];
+    //     if (!unavailableDates.includes(dateStr)) {
+    //       // Convert YYYY-MM-DD to dd-mm-yyyy format
+    //       const parts = dateStr.split('-');
+    //       return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    //     }
+    //     currentDate.setDate(currentDate.getDate() + 1);
+    //     attempts++;
+    //   }
+
+    //   // Fallback: return the start date if no available date found
+    //   const fallbackDate = startDate.toISOString().split('T')[0];
+    //   const parts = fallbackDate.split('-');
+    //   return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    // }
+
+    // function initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
+    //   // Prevent multiple initializations
+    //   if (window.pickupFlatpickr || window.returnFlatpickr) {
+
+    //     // But still trigger price calculator if dates are set
+    //     setTimeout(() => {
+    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+
+    //         window.priceCalculator.recalculatePrice();
+    //       }
+    //     }, 100);
+
+    //     return;
+    //   }
+
+
+    //   const pickupInput = document.getElementById('date-picker');
+    //   const returnInput = document.getElementById('date-picker-2');
+
+
+    //   if (pickupInput && returnInput) {
+    //     // First, completely remove any existing daterangepicker
+    //     if ($(pickupInput).data('daterangepicker')) {
+    //       $(pickupInput).data('daterangepicker').remove();
+    //     }
+    //     if ($(returnInput).data('daterangepicker')) {
+    //       $(returnInput).data('daterangepicker').remove();
+    //     }
+
+    //     // Set minimum date to tomorrow
+    //     const today = new Date();
+    //     const tomorrow = new Date(today);
+    //     tomorrow.setDate(today.getDate() + 1);
+    //     const tomorrowStr = convertDateFormatToISO(tomorrow.toISOString().split('T')[0]);
+
+    //     const dayAfterTomorrow = new Date(tomorrow);
+    //     dayAfterTomorrow.setDate(tomorrow.getDate() + 1);
+    //     const dayAfterTomorrowStr = convertDateFormatToISO(dayAfterTomorrow.toISOString().split('T')[0]);
+
+    //     // Filter out dates that are before tomorrow (since they're already disabled by minDate)
+    //     const futureUnavailableDates = unavailableDates.filter(date => date >= tomorrowStr);
+
+    //     // Find the first available date for pickup (after tomorrow)
+    //     const firstAvailablePickupDate = findFirstAvailableDate(tomorrow, futureUnavailableDates);
+
+    //     // Find the first available date for return (after pickup date)
+    //     const pickupDate = new Date(convertDateFormatToISO(firstAvailablePickupDate));
+    //     const minReturnDate = new Date(pickupDate);
+    //     minReturnDate.setDate(pickupDate.getDate() + 1);
+    //     const firstAvailableReturnDate = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
+
+    //     // Check if Flatpickr is available
+    //     if (typeof flatpickr === 'undefined') {
+    //       console.error('Flatpickr is not loaded!');
+    //       return;
+    //     }
+
+
+    //     // Initialize pickup date picker
+    //     const pickupFlatpickr = flatpickr(pickupInput, {
+    //       dateFormat: "d-m-Y",
+    //       minDate: tomorrowStr,
+    //       defaultDate: firstAvailablePickupDate,
+    //       disable: futureUnavailableDates.map(date => convertDateFormatToISO(date)),
+    //       onChange: function (selectedDates, dateStr, instance) {
+
+    //         // Update return date minimum to be day after pickup
+    //         if (selectedDates.length > 0) {
+    //           const pickupDate = new Date(selectedDates[0]);
+    //           const minReturnDate = new Date(pickupDate);
+    //           minReturnDate.setDate(pickupDate.getDate() + 1);
+
+    //           // Find first available return date after pickup
+    //           const firstAvailableReturn = findFirstAvailableDate(minReturnDate, futureUnavailableDates);
+
+    //           // Update return date picker minimum and default
+    //           // If return date is before new minimum, clear it
+    //           // If return date is before new minimum, set it to day after pickup
+    //           if (window.returnFlatpickr.selectedDates.length > 0) {
+    //             const returnDate = window.returnFlatpickr.selectedDates[0];
+    //             if (returnDate <= pickupDate) {
+    //               // Set return date to day after pickup instead of clearing it
+    //               window.returnFlatpickr.setDate(firstAvailableReturn);
+    //             }
+    //           } else {
+    //             // If no return date is selected, set it to day after pickup
+    //             window.returnFlatpickr.setDate(firstAvailableReturn);
+    //           }
+    //         }
+
+    //         // Trigger price recalculation
+    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //           window.priceCalculator.recalculatePrice();
+    //         }
+    //       }
+    //     });
+
+    //     // Initialize return date picker
+    //     const returnFlatpickr = flatpickr(returnInput, {
+    //       dateFormat: "d-m-Y",
+    //       minDate: dayAfterTomorrowStr,
+    //       defaultDate: firstAvailableReturnDate,
+    //       disable: futureUnavailableDates,
+    //       onChange: function (selectedDates, dateStr, instance) {
+
+    //         // Trigger price recalculation
+    //         if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //           window.priceCalculator.recalculatePrice();
+    //         }
+    //       }
+    //     });
+
+    //     // Store references globally
+    //     window.pickupFlatpickr = pickupFlatpickr;
+    //     window.returnFlatpickr = returnFlatpickr;
+
+
+    //     // Trigger price calculator after dates are initialized
+    //     setTimeout(() => {
+
+    //       if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+    //         window.priceCalculator.recalculatePrice();
+    //       } else {
+    //       }
+    //     }, 100); // Small delay to ensure Flatpickr is fully ready
+
+    //   } else {
+    //     console.error('Date inputs not found!');
+    //   }
+    // }
+
+    // Load unavailable dates when page loads
+    // document.addEventListener('DOMContentLoaded', function () {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const carId = urlParams.get('id');
+    //   if (carId) {
+    //     loadUnavailableDates(carId);
+    //   } else {
+    //     // If no car ID, initialize with empty unavailable dates
+    //     initializeFlatpickrWithUnavailableDates([]);
+    //   }
+    // });
+  </script>
+
+  <script>
+    const pickupLocationInputs = document.querySelectorAll('input[name="pickup_location"]');
+    const dropoffLocationInputs = document.querySelectorAll('input[name="dropoff_location"]');
+    pickupLocationInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+          window.priceCalculator.recalculatePrice();
+        }
+      });
+    });
+
+    dropoffLocationInputs.forEach(input => {
+      input.addEventListener('change', function () {
+        if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+          window.priceCalculator.recalculatePrice();
+        }
+      });
+    });
+
+    // Ensure date inputs display properly and set up event listeners after price calculator is ready
+    // setTimeout(() => {
+    //   const pickupDateInput = document.getElementById('date-picker');
+    //   const returnDateInput = document.getElementById('date-picker-2');
+
+    //   // DON'T clone/replace inputs - this conflicts with Flatpickr
+    //   // Just get references to the existing inputs
+
+    //   const pickupTimeSelect = document.getElementById('pickup-time');
+    //   const returnTimeSelect = document.getElementById('collection-time');
+
+    // Function to update outside hours notice
+    // function updateOutsideHoursNotice() {
+    //   if (window.priceCalculator && window.priceCalculator.updateOutsideHoursNotice) {
+    //     const pickupTime = pickupTimeSelect ? pickupTimeSelect.value : '09:00';
+    //     const returnTime = returnTimeSelect ? returnTimeSelect.value : '09:00';
+    //     window.priceCalculator.updateOutsideHoursNotice(pickupTime, returnTime);
+    //   }
+    // }
+
+    // Only set up event listeners if price calculator is ready
+    // if (window.priceCalculator && window.currentCarData) {
+    //   // Set up time change listeners (these don't conflict with Flatpickr)
+    //   if (pickupTimeSelect) {
+    //     pickupTimeSelect.addEventListener('change', function () {
+    //       updateOutsideHoursNotice();
+    //     });
+    //   }
+
+    //     if (returnTimeSelect) {
+    //       returnTimeSelect.addEventListener('change', function () {
+    //         updateOutsideHoursNotice();
+    //       });
+    //     }
+    //   } else {
+    //     // If price calculator isn't ready yet, wait a bit more
+    //     setTimeout(() => {
+    //       if (window.priceCalculator && window.currentCarData) {
+    //         // Set up time change listeners
+    //         if (pickupTimeSelect) {
+    //           pickupTimeSelect.addEventListener('change', function () {
+    //             updateOutsideHoursNotice();
+    //           });
+    //         }
+
+    //         if (returnTimeSelect) {
+    //           returnTimeSelect.addEventListener('change', function () {
+    //             updateOutsideHoursNotice();
+    //           });
+    //         }
+    //       }
+    //     }, 500);
+    //   }
+    // }, 200);
+  </script>
+
 </body>
+
 </html>
