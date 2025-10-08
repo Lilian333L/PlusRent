@@ -372,26 +372,131 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.6);
-        backdrop-filter: blur(5px);
+        background-color: rgba(0,0,0,0.7);
+        backdrop-filter: blur(8px);
       }
       
       .success-modal-content {
-        background: white;
-        margin: 15% auto;
-        padding: 40px;
-        border-radius: 15px;
+        background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+        margin: 10% auto;
+        padding: 50px 40px;
+        border-radius: 20px;
         width: 90%;
-        max-width: 450px;
+        max-width: 500px;
         text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        animation: modalSlideIn 0.3s ease;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .success-modal-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #28a745, #20c997, #1E90FF);
       }
       
       @keyframes modalSlideIn {
         from {
           opacity: 0;
-          transform: translateY(-30px);
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .success-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 25px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: successPulse 0.6s ease;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+      }
+      
+      @keyframes successPulse {
+        0% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      
+      .success-icon {
+        font-size: 4rem;
+        color: white;
+        animation: checkmarkDraw 0.4s ease 0.2s both;
+      }
+      
+      @keyframes checkmarkDraw {
+        from {
+          transform: scale(0) rotate(-45deg);
+        }
+        to {
+          transform: scale(1) rotate(0deg);
+        }
+      }
+      
+      .success-title {
+        color: #28a745;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        animation: fadeInUp 0.5s ease 0.3s both;
+      }
+      
+      .success-message {
+        color: #555;
+        font-size: 1.15rem;
+        margin-bottom: 10px;
+        line-height: 1.6;
+        animation: fadeInUp 0.5s ease 0.4s both;
+      }
+      
+      .success-details {
+        background: #f0f8ff;
+        border-left: 4px solid #1E90FF;
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        text-align: left;
+        animation: fadeInUp 0.5s ease 0.5s both;
+      }
+      
+      .success-details p {
+        margin: 8px 0;
+        color: #444;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .success-details i {
+        color: #1E90FF;
+        width: 20px;
+      }
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
         to {
           opacity: 1;
@@ -399,38 +504,27 @@
         }
       }
       
-      .success-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-      }
-      
-      .success-title {
-        color: #28a745;
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-      }
-      
-      .success-message {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-      }
-      
       .btn-close-modal {
-        background: #1E90FF;
+        background: linear-gradient(135deg, #1E90FF, #0066CC);
         color: white;
         border: none;
-        padding: 12px 30px;
-        border-radius: 8px;
-        font-size: 1rem;
+        padding: 14px 35px;
+        border-radius: 10px;
+        font-size: 1.05rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        box-shadow: 0 5px 20px rgba(30, 144, 255, 0.3);
+        animation: fadeInUp 0.5s ease 0.6s both;
       }
       
       .btn-close-modal:hover {
-        background: #0066CC;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 144, 255, 0.4);
+      }
+      
+      .btn-close-modal:active {
+        transform: translateY(0);
       }
       
       /* Mobile Responsiveness */
@@ -519,8 +613,15 @@
         }
         
         .success-modal-content {
-          padding: 30px 20px;
+          padding: 35px 25px;
           margin: 20% auto;
+          max-width: 95%;
+        }
+        
+        .success-icon-wrapper {
+          width: 80px;
+          height: 80px;
+          margin-bottom: 20px;
         }
         
         .success-icon {
@@ -528,11 +629,25 @@
         }
         
         .success-title {
-          font-size: 1.5rem;
+          font-size: 1.6rem;
         }
         
         .success-message {
           font-size: 1rem;
+        }
+        
+        .success-details {
+          padding: 12px 15px;
+          margin: 15px 0;
+        }
+        
+        .success-details p {
+          font-size: 0.85rem;
+        }
+        
+        .btn-close-modal {
+          padding: 12px 25px;
+          font-size: 0.95rem;
         }
       }
       
@@ -540,6 +655,19 @@
         .phone-number {
           font-size: 1.2rem;
           padding: 10px 18px;
+        }
+        
+        .success-modal-content {
+          padding: 30px 20px;
+        }
+        
+        .success-icon-wrapper {
+          width: 70px;
+          height: 70px;
+        }
+        
+        .success-icon {
+          font-size: 2.5rem;
         }
       }
     </style>
@@ -737,10 +865,24 @@
             <!-- Success Modal -->
             <div id="successModal" class="success-modal">
                 <div class="success-modal-content">
-                    <div class="success-icon">✅</div>
+                    <div class="success-icon-wrapper">
+                        <div class="success-icon">✓</div>
+                    </div>
                     <h3 class="success-title" data-i18n="sober_driver.thank_you">Mulțumim!</h3>
-                    <p class="success-message" data-i18n="sober_driver.callback_success">Vei fi sunat înapoi în câteva minute.</p>
-                    <button class="btn-close-modal" onclick="closeModal()" data-i18n="common.close">Închide</button>
+                    <p class="success-message" data-i18n="sober_driver.callback_success">Cererea ta a fost trimisă cu succes!</p>
+                    
+                    <div class="success-details">
+                        <p><i class="fa fa-phone"></i> <span>Te vom suna în <strong>2-3 minute</strong></span></p>
+                        <p><i class="fa fa-clock-o"></i> <span>Șoferul va ajunge în <strong>15-20 minute</strong></span></p>
+                        <p><i class="fa fa-shield"></i> <span>Transport <strong>100% sigur</strong> garantat</span></p>
+                    </div>
+                    
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">Păstrează telefonul la îndemână</p>
+                    
+                    <button class="btn-close-modal" onclick="closeModal()">
+                        <i class="fa fa-check" style="margin-right: 8px;"></i>
+                        <span data-i18n="common.close">Înțeles</span>
+                    </button>
                 </div>
             </div>
         </div>
