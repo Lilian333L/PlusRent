@@ -8,6 +8,8 @@ class CarsFilterModal {
     this.modal = null;
     this.isOpen = false;
     this.hasShownOnLoad = false;
+    this.touchStartY = 0;
+    this.touchEndY = 0;
     this.priceFilterSettings = {
       economy: { min: 0, max: 30 },
       standard: { min: 31, max: 60 },
@@ -292,9 +294,9 @@ class CarsFilterModal {
       card.addEventListener('keydown', (e) => this.handleCardKeydown(e, card));
     });
 
-    // Close on overlay click
+    // Close on overlay click (only on desktop)
     this.modal.addEventListener('click', (e) => {
-      if (e.target === this.modal) {
+      if (e.target === this.modal && window.innerWidth > 767) {
         this.closeModal();
       }
     });
@@ -306,14 +308,95 @@ class CarsFilterModal {
       }
     });
 
+    // Setup touch events for swipe to close on mobile
+    this.setupTouchEvents();
+
     // Prevent body scroll when modal is open
-    this.modal.addEventListener('transitionend', () => {
-      if (this.isOpen) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
+    this.setupScrollLock();
+  }
+
+  setupTouchEvents() {
+    const modalBody = this.modal.querySelector('.filter-modal-body');
+    const container = this.modal.querySelector('.filter-modal-container');
+    
+    if (!modalBody || !container) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    let isAtTop = false;
+
+    container.addEventListener('touchstart', (e) => {
+      // Check if we're at the top of the scrollable content
+      isAtTop = modalBody.scrollTop === 0;
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      
+      if (isAtTop) {
+        isDragging = true;
       }
-    });
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      
+      currentY = e.touches[0].clientY;
+      const deltaY = currentY - startY;
+      
+      // Only allow downward swipes when at top
+      if (deltaY > 0 && isAtTop) {
+        // Prevent default to stop page scroll
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        
+        // Apply transform to container for visual feedback
+        const translateY = Math.min(deltaY * 0.5, 200);
+        container.style.transform = `translateY(${translateY}px)`;
+        container.style.transition = 'none';
+      }
+    }, { passive: false });
+
+    container.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      const deltaY = currentY - startY;
+      
+      // If swiped down more than 100px, close the modal
+      if (deltaY > 100) {
+        this.closeModal();
+      } else {
+        // Reset position
+        container.style.transform = '';
+        container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      }
+    }, { passive: true });
+  }
+
+  setupScrollLock() {
+    // Prevent background scroll on mobile when modal is open
+    const preventScroll = (e) => {
+      const modalBody = this.modal.querySelector('.filter-modal-body');
+      
+      // Allow scrolling inside modal body
+      if (modalBody && modalBody.contains(e.target)) {
+        return;
+      }
+      
+      // Prevent all other scrolling
+      if (this.isOpen) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener('wheel', preventScroll, { passive: false });
+    
+    // Store for cleanup
+    this.preventScrollHandler = preventScroll;
   }
 
   handleCardClick(e, card) {
@@ -433,6 +516,12 @@ class CarsFilterModal {
     // Update descriptions with dynamic values BEFORE showing modal
     this.updateModalDescriptions();
     
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = `-${window.scrollY}px`;
+    
     // Small delay to ensure DOM is updated
     setTimeout(() => {
       this.isOpen = true;
@@ -455,7 +544,12 @@ class CarsFilterModal {
     this.modal.classList.remove('active');
     
     // Restore body scroll
+    const scrollY = document.body.style.top;
     document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
     
     // Clean up observer if it exists
     if (this.contentObserver) {
@@ -467,6 +561,13 @@ class CarsFilterModal {
     if (this.priceUpdateInterval) {
       clearInterval(this.priceUpdateInterval);
       this.priceUpdateInterval = null;
+    }
+    
+    // Clean up scroll prevention
+    if (this.preventScrollHandler) {
+      document.removeEventListener('touchmove', this.preventScrollHandler);
+      document.removeEventListener('wheel', this.preventScrollHandler);
+      this.preventScrollHandler = null;
     }
   }
 
@@ -498,4 +599,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Export for global access
-window.CarsFilterModal = CarsFilterModal; 
+window.CarsFilterModal = CarsFilterModal;
