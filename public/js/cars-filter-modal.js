@@ -281,7 +281,13 @@ class CarsFilterModal {
     // Close button
     const closeBtn = this.modal.querySelector('.filter-modal-close');
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.closeModal());
+      closeBtn.addEventListener('click', () => {
+        // На мобильных при закрытии через X также выбираем "Все типы"
+        if (this.isMobile()) {
+          this.applyFilter('all');
+        }
+        this.closeModal();
+      });
     }
 
     // Update descriptions after modal is created
@@ -294,16 +300,27 @@ class CarsFilterModal {
       card.addEventListener('keydown', (e) => this.handleCardKeydown(e, card));
     });
 
-    // Close on overlay click (only on desktop)
+    // Close on overlay click - НА МОБИЛЬНЫХ АВТОМАТИЧЕСКИ ВЫБИРАЕТ "ВСЕ ТИПЫ"
     this.modal.addEventListener('click', (e) => {
-      if (e.target === this.modal && window.innerWidth > 767) {
-        this.closeModal();
+      if (e.target === this.modal) {
+        if (this.isMobile()) {
+          // На мобильных: применить фильтр "Все типы" и закрыть
+          this.applyFilter('all');
+          this.closeModal();
+        } else {
+          // На десктопе: просто закрыть без применения фильтра
+          this.closeModal();
+        }
       }
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isOpen) {
+        // На мобильных при Escape также выбираем "Все типы"
+        if (this.isMobile()) {
+          this.applyFilter('all');
+        }
         this.closeModal();
       }
     });
@@ -313,6 +330,11 @@ class CarsFilterModal {
 
     // Prevent body scroll when modal is open
     this.setupScrollLock();
+  }
+
+  // Проверка мобильного устройства
+  isMobile() {
+    return window.innerWidth <= 767;
   }
 
   setupTouchEvents() {
@@ -352,7 +374,7 @@ class CarsFilterModal {
         
         // Apply transform to container for visual feedback
         const translateY = Math.min(deltaY * 0.5, 200);
-        container.style.transform = `translateY(${translateY}px)`;
+        container.style.transform = `translateY(${translateY}px) scale(${1 - translateY / 1000})`;
         container.style.transition = 'none';
       }
     }, { passive: false });
@@ -363,8 +385,9 @@ class CarsFilterModal {
       isDragging = false;
       const deltaY = currentY - startY;
       
-      // If swiped down more than 100px, close the modal
+      // If swiped down more than 100px, apply "All Types" and close
       if (deltaY > 100) {
+        this.applyFilter('all');
         this.closeModal();
       } else {
         // Reset position
