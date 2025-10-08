@@ -1447,6 +1447,14 @@
       // Store car data globally for language updates
       window.currentCarData = car;
 
+      if (typeof CarMetaUpdater !== 'undefined') {
+        const metaUpdater = new CarMetaUpdater();
+        window.metaUpdater = metaUpdater; // Сохранить глобально
+        metaUpdater.updateMetaTags(car);
+        console.log('✅ Meta tags updated for car:', car.make_name, car.model_name);
+      } else {
+        console.warn('⚠️ CarMetaUpdater not loaded yet');
+      }
       // Update description with current language
       updateCarDescription();
       // Calculate the lowest price from price policy
