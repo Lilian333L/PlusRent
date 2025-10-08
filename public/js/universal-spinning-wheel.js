@@ -24,6 +24,86 @@
         isInitialized: false
     };
 
+    // Get current language
+    function getCurrentLanguage() {
+        const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+        if (storedLang) {
+            const lang = storedLang.split('-')[0];
+            if (['en', 'ru', 'ro'].includes(lang)) {
+                return lang;
+            }
+        }
+        
+        if (typeof i18next !== 'undefined' && i18next.language) {
+            const i18nextLang = i18next.language.split('-')[0];
+            if (['en', 'ru', 'ro'].includes(i18nextLang)) {
+                return i18nextLang;
+            }
+        }
+        
+        const htmlLang = document.documentElement.lang;
+        if (htmlLang) {
+            const lang = htmlLang.split('-')[0];
+            if (['en', 'ru', 'ro'].includes(lang)) {
+                return lang;
+            }
+        }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        if (urlLang && ['en', 'ru', 'ro'].includes(urlLang)) {
+            return urlLang;
+        }
+        
+        return 'ro';
+    }
+
+    // All translations
+    const translations = {
+        en: {
+            title: 'Try Your Luck!',
+            subtitle: 'Spin the wheel and win amazing discounts!',
+            enterPhoneTitle: 'Enter Your Number',
+            phoneDescription: 'We\'ll send you exclusive offers and your lucky discount code!',
+            phonePlaceholder: '+373 XX XXX XXX',
+            continueButton: 'Continue',
+            privacyText: 'Your data is secure',
+            emptyPhone: 'Please enter a phone number',
+            invalidPhone: 'Please enter a valid phone number (7-15 digits)',
+            hasCoupons: 'You have already received a reward for this phone number.'
+        },
+        ru: {
+            title: 'Испытай свою удачу!',
+            subtitle: 'Крути колесо и выигрывай удивительные скидки!',
+            enterPhoneTitle: 'Введите Ваш Номер',
+            phoneDescription: 'Мы отправим вам эксклюзивные предложения и ваш счастливый код скидки!',
+            phonePlaceholder: '+373 XX XXX XXX',
+            continueButton: 'Продолжить',
+            privacyText: 'Ваши данные защищены',
+            emptyPhone: 'Пожалуйста, введите номер телефона',
+            invalidPhone: 'Пожалуйста, введите корректный номер (7-15 цифр)',
+            hasCoupons: 'Вы уже получили награду за этот номер телефона.'
+        },
+        ro: {
+            title: 'Încearcă-ți norocul!',
+            subtitle: 'Rotește roata și câștigă reduceri uimitoare!',
+            enterPhoneTitle: 'Introdu Numărul Tău',
+            phoneDescription: 'Îți vom trimite oferte exclusive și codul tău de reducere norocos!',
+            phonePlaceholder: '+373 XX XXX XXX',
+            continueButton: 'Continuă',
+            privacyText: 'Datele tale sunt securizate',
+            emptyPhone: 'Vă rugăm introduceți numărul de telefon',
+            invalidPhone: 'Vă rugăm introduceți un număr valid (7-15 cifre)',
+            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.'
+        }
+    };
+
+    // Get translation
+    function t(key) {
+        const lang = getCurrentLanguage();
+        return translations[lang][key] || translations['ro'][key] || key;
+    }
+
     // Check if user has seen the modal today or has already received their reward
     function hasSeenModalToday() {
         // First check if user has already received their reward
@@ -77,39 +157,6 @@
         localStorage.removeItem('websiteTotalTime');
     }
 
-    function getCurrentLanguage() {
-        const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
-        if (storedLang) {
-            const lang = storedLang.split('-')[0];
-            if (['en', 'ru', 'ro'].includes(lang)) {
-                return lang;
-            }
-        }
-        
-        if (typeof i18next !== 'undefined' && i18next.language) {
-            const i18nextLang = i18next.language.split('-')[0];
-            if (['en', 'ru', 'ro'].includes(i18nextLang)) {
-                return i18nextLang;
-            }
-        }
-        
-        const htmlLang = document.documentElement.lang;
-        if (htmlLang) {
-            const lang = htmlLang.split('-')[0];
-            if (['en', 'ru', 'ro'].includes(lang)) {
-                return lang;
-            }
-        }
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlLang = urlParams.get('lang');
-        if (urlLang && ['en', 'ru', 'ro'].includes(urlLang)) {
-            return urlLang;
-        }
-        
-        return 'ro';
-    }
-
     // Create modal HTML
     function createModalHTML() {
         return `
@@ -127,8 +174,8 @@
                                 <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
                             </svg>
                         </div>
-                        <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Încearcă-ți norocul!</h2>
-                        <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Rotește roata și câștigă reduceri uimitoare!</p>
+                        <h2 class="spinning-wheel-modal-title">${t('title')}</h2>
+                        <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
                     </div>
                     
                     <div class="spinning-wheel-wheel-content">
@@ -140,18 +187,18 @@
                                         <line x1="12" y1="18" x2="12.01" y2="18"></line>
                                     </svg>
                                 </div>
-                                <h3 data-i18n="wheel.enter_phone_title">Introdu Numărul Tău</h3>
-                                <p class="phone-description" data-i18n="wheel.phone_description">Îți vom trimite oferte exclusive și codul tău de reducere norocos!</p>
+                                <h3 class="phone-step-title">${t('enterPhoneTitle')}</h3>
+                                <p class="phone-description">${t('phoneDescription')}</p>
                                 <form class="phone-form" id="universalPhoneForm">
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                         </svg>
                                         <input type="tel" class="phone-input" id="universalPhoneInput" 
-                                               data-i18n-placeholder="wheel.phone_placeholder" placeholder="+373 XX XXX XXX" required>
+                                               placeholder="${t('phonePlaceholder')}" required>
                                     </div>
                                     <button type="submit" class="phone-submit-btn">
-                                        <span data-i18n="wheel.continue_button">Continuă</span>
+                                        <span class="phone-btn-text">${t('continueButton')}</span>
                                         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="5" y1="12" x2="19" y2="12"></line>
                                             <polyline points="12 5 19 12 12 19"></polyline>
@@ -161,7 +208,7 @@
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                         </svg>
-                                        <span data-i18n="wheel.privacy_text">Datele tale sunt securizate</span>
+                                        <span class="privacy-text">${t('privacyText')}</span>
                                     </div>
                                 </form>
                             </div>
@@ -310,6 +357,7 @@
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 position: relative;
                 z-index: 1;
+                color: white;
             }
 
             .spinning-wheel-modal-subtitle {
@@ -319,6 +367,7 @@
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 position: relative;
                 z-index: 1;
+                color: white;
             }
 
             .spinning-wheel-wheel-content {
@@ -359,7 +408,7 @@
                 color: white;
             }
 
-            .phone-input-container h3 {
+            .phone-step-title {
                 color: #1a202c;
                 font-size: 1.5rem;
                 margin: 0 0 12px 0;
@@ -600,7 +649,7 @@
                     height: 32px;
                 }
 
-                .phone-input-container h3 {
+                .phone-step-title {
                     font-size: 1.3rem;
                     margin-bottom: 10px;
                 }
@@ -653,7 +702,7 @@
                     height: 56px;
                 }
 
-                .phone-input-container h3 {
+                .phone-step-title {
                     font-size: 1.15rem;
                 }
 
@@ -684,20 +733,27 @@
     function updateModalTranslations() {
         if (!state.modal) return;
         
-        if (typeof i18next !== 'undefined' && i18next.t) {
-            const elements = state.modal.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                const translation = i18next.t(key);
-                if (translation && translation !== key) {
-                    if (el.tagName === 'INPUT') {
-                        el.placeholder = translation;
-                    } else {
-                        el.textContent = translation;
-                    }
-                }
-            });
-        }
+        // Update all text content
+        const titleElement = state.modal.querySelector('.spinning-wheel-modal-title');
+        if (titleElement) titleElement.textContent = t('title');
+        
+        const subtitleElement = state.modal.querySelector('.spinning-wheel-modal-subtitle');
+        if (subtitleElement) subtitleElement.textContent = t('subtitle');
+        
+        const phoneTitleElement = state.modal.querySelector('.phone-step-title');
+        if (phoneTitleElement) phoneTitleElement.textContent = t('enterPhoneTitle');
+        
+        const phoneDescElement = state.modal.querySelector('.phone-description');
+        if (phoneDescElement) phoneDescElement.textContent = t('phoneDescription');
+        
+        const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
+        if (phoneInputElement) phoneInputElement.placeholder = t('phonePlaceholder');
+        
+        const phoneBtnText = state.modal.querySelector('.phone-btn-text');
+        if (phoneBtnText) phoneBtnText.textContent = t('continueButton');
+        
+        const privacyText = state.modal.querySelector('.privacy-text');
+        if (privacyText) privacyText.textContent = t('privacyText');
     }
 
     // Show modal
@@ -866,35 +922,18 @@
 
         const phoneInput = document.getElementById('universalPhoneInput');
         const phoneNumber = phoneInput.value.trim();
-        const currentLang = getCurrentLanguage();
 
         phoneInput.classList.remove('phone-input-error');
         const existingError = phoneInput.parentNode.parentNode.querySelector('.phone-error-message');
         if (existingError) existingError.remove();
 
-        const EMPTY_PHONE_MSG = {
-            en: 'Please enter a phone number',
-            ru: 'Пожалуйста, введите номер телефона',
-            ro: 'Vă rugăm introduceți numărul de telefon'
-        };
-        const INVALID_PHONE_MSG = {
-            en: 'Please enter a valid phone number (7-15 digits)',
-            ru: 'Пожалуйста, введите корректный номер (7-15 цифр)',
-            ro: 'Vă rugăm introduceți un număr valid (7-15 cifre)'
-        };
-        const HAS_COUPONS_MSG = {
-            en: 'You have already received a reward for this phone number.',
-            ru: 'Вы уже получили награду за этот номер телефона.',
-            ro: 'Ai primit deja o recompensă pentru acest număr de telefon.'
-        };
-
         if (!phoneNumber) {
-            showPhoneError(phoneInput, EMPTY_PHONE_MSG[currentLang] || EMPTY_PHONE_MSG.ro);
+            showPhoneError(phoneInput, t('emptyPhone'));
             return;
         }
 
         if (!validatePhoneNumber(phoneNumber)) {
-            showPhoneError(phoneInput, INVALID_PHONE_MSG[currentLang] || INVALID_PHONE_MSG.ro);
+            showPhoneError(phoneInput, t('invalidPhone'));
             return;
         }
 
@@ -911,7 +950,7 @@
             if (response.ok) {
                 const result = await response.json();
                 if (result.hasCoupons) {
-                    showPhoneError(phoneInput, HAS_COUPONS_MSG[currentLang] || HAS_COUPONS_MSG.ro);
+                    showPhoneError(phoneInput, t('hasCoupons'));
                     return;
                 }
             }
@@ -998,7 +1037,7 @@
     function showCouponAppliedNotification(couponCode) {
         const currentLang = getCurrentLanguage();
         
-        const translations = {
+        const notificationTranslations = {
             en: {
                 title: 'Coupon Applied!',
                 codeLabel: 'Code:',
@@ -1016,7 +1055,7 @@
             }
         };
         
-        const t = translations[currentLang] || translations.en;
+        const nt = notificationTranslations[currentLang] || notificationTranslations['ro'];
         
         const notification = document.createElement('div');
         notification.id = 'coupon-applied-notification';
@@ -1052,16 +1091,16 @@
                 <div class="coupon-notification-content">
                     <div class="coupon-title">
                         <span class="sparkle">✨</span>
-                        ${t.title}
+                        ${nt.title}
                         <span class="sparkle">✨</span>
                     </div>
                     <div class="coupon-code-container">
-                        <span class="coupon-label">${t.codeLabel}</span>
+                        <span class="coupon-label">${nt.codeLabel}</span>
                         <span class="coupon-code">${couponCode}</span>
                     </div>
                     <div class="coupon-message">
                         <span class="check-icon">✓</span>
-                        ${t.readyMessage}
+                        ${nt.readyMessage}
                     </div>
                 </div>
                 <div class="coupon-shine"></div>
