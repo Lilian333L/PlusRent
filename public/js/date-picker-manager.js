@@ -60,29 +60,45 @@ class DatePickerManager {
         const data = await response.json();
         const unavailableDates = [];
 
+        console.log('📦 Raw booking data:', data);
+
         if (data.booking_dates && Array.isArray(data.booking_dates)) {
           data.booking_dates.forEach((booking) => {
             if (booking.pickup_date && booking.return_date) {
-              // Add date range to unavailable dates
-              const startDate = new Date(booking.pickup_date);
-              const endDate = new Date(booking.return_date);
+              // ✅ Безопасная обработка дат без timezone проблем
+              const pickupStr = booking.pickup_date.split('T')[0]; // "2025-01-20"
+              const returnStr = booking.return_date.split('T')[0]; // "2025-01-25"
+              
+              const [pYear, pMonth, pDay] = pickupStr.split('-').map(Number);
+              const [rYear, rMonth, rDay] = returnStr.split('-').map(Number);
+              
+              const startDate = new Date(pYear, pMonth - 1, pDay);
+              const endDate = new Date(rYear, rMonth - 1, rDay);
 
-              for (
-                let d = new Date(startDate);
-                d <= endDate;
-                d.setDate(d.getDate() + 1)
-              ) {
-                const dateStr = d.toISOString().split("T")[0];
+              console.log(`🔍 Processing booking: ${pickupStr} to ${returnStr}`);
+
+              // ✅ Добавляем ВСЕ даты включительно (включая pickup date!)
+              const currentDate = new Date(startDate);
+              while (currentDate <= endDate) {
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
+                console.log(`  🚫 Blocking: ${dateStr}`);
                 unavailableDates.push(dateStr);
+                
+                currentDate.setDate(currentDate.getDate() + 1);
               }
             }
           });
         }
 
+        console.log('✅ Total unavailable dates:', unavailableDates.length, unavailableDates);
         return unavailableDates;
       }
     } catch (error) {
-      console.warn("Failed to load unavailable dates:", error);
+      console.error("❌ Failed to load unavailable dates:", error);
     }
 
     return [];
@@ -143,6 +159,8 @@ class DatePickerManager {
 
     const pickupInput = document.getElementById(this.pickupInputId);
     const returnInput = document.getElementById(this.returnInputId);
+    const pickupTimeSelect = document.getElementById("pickup-time");
+    const returnTimeSelect = document.getElementById("collection-time");
     
     if (pickupInput && returnInput) {
       // Remove any existing daterangepicker instances
@@ -213,6 +231,168 @@ class DatePickerManager {
         }
       };
 
+      // ✅ НОВАЯ ФУНКЦИЯ: Блокировка прошедшего времени для сегодняшнего дня
+      const updateAvailableTime = () => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // Получаем выбранную дату pickup
+        const pickupDate = this.pickupFlatpickr.selectedDates[0];
+        if (!pickupDate) return;
+
+        const selectedDate = new Date(pickupDate);
+        selectedDate.setHours(0, 0, 0, 0);
+        
+        const todayCheck = new Date();
+        todayCheck.setHours(0, 0, 0, 0);
+
+        // Если выбран сегодняшний день
+        const isToday = selectedDate.getTime() === todayCheck.getTime();
+
+        if (pickupTimeSelect && isToday) {
+          // Блокируем прошедшее время
+          Array.from(pickupTimeSelect.options).forEach(option => {
+            const [hours, minutes] = option.value.split(':').map(Number);
+            
+            // Если время уже прошло
+            if (hours < currentHour || (hours === currentHour && minutes <= currentMinute)) {
+              option.disabled = true;
+              option.style.color = '#ccc';
+            } else {
+              option.disabled = false;
+              option.style.color = '';
+            }
+          });
+
+          // Если текущее выбранное время уже прошло, выбираем следующее доступное
+          const selectedValue = pickupTimeSelect.value;
+          const [selectedHours, selectedMinutes] = selectedValue.split(':').map(Number);
+          
+          if (selectedHours < currentHour || (selectedHours === currentHour && selectedMinutes <= currentMinute)) {
+            // Находим следующий доступный час
+            let nextAvailableHour = currentHour + 1;
+            if (nextAvailableHour > 23) nextAvailableHour = 23;
+            
+            const nextTimeValue = `${String(nextAvailableHour).padStart(2, '0')}:00`;
+            const nextOption = Array.from(pickupTimeSelect.options).find(opt => opt.value === nextTimeValue);
+            
+            if (nextOption && !nextOption.disabled) {
+              pickupTimeSelect.value = nextTimeValue;
+            } else {
+              // Находим первый доступный вариант
+              const firstAvailable = Array.from(pickupTimeSelect.options).find(opt => !opt.disabled);
+              if (firstAvailable) {
+                pickupTimeSelect.value = firstAvailable.value;
+              }
+            }
+            
+            // Триггерим событие изменения для пересчёта цены
+            pickupTimeSelect.dispatchEvent(new Event('change'));
+          }
+        } else if (pickupTimeSelect) {
+          // Если выбрана будущая дата - разблокировать всё время
+          Array.from(pickupTimeSelect.options).forEach(option => {
+            option.disabled = false;
+            option.style.color = '';
+          });
+        }
+
+        // Аналогично для return time
+        if (returnTimeSelect) {
+          const returnDate = this.returnFlatpickr.selectedDates[0];
+          if (!returnDate) return;
+
+          const selectedReturnDate = new Date(returnDate);
+          selectedReturnDate.setHours(0, 0, 0, 0);
+
+          const isSameDay = selectedDate.getTime() === selectedReturnDate.getTime();
+          const isReturnToday = selectedReturnDate.getTime() === todayCheck.getTime();
+
+          if (isReturnToday && !isSameDay) {
+            // Блокируем прошедшее время для return если это сегодня (но не тот же день что pickup)
+            Array.from(returnTimeSelect.options).forEach(option => {
+              const [hours, minutes] = option.value.split(':').map(Number);
+              
+              if (hours < currentHour || (hours === currentHour && minutes <= currentMinute)) {
+                option.disabled = true;
+                option.style.color = '#ccc';
+              } else {
+                option.disabled = false;
+                option.style.color = '';
+              }
+            });
+
+            // Проверяем выбранное время
+            const selectedReturnValue = returnTimeSelect.value;
+            const [retHours, retMinutes] = selectedReturnValue.split(':').map(Number);
+            
+            if (retHours < currentHour || (retHours === currentHour && retMinutes <= currentMinute)) {
+              let nextAvailableHour = currentHour + 1;
+              if (nextAvailableHour > 23) nextAvailableHour = 23;
+              
+              const nextTimeValue = `${String(nextAvailableHour).padStart(2, '0')}:00`;
+              const nextOption = Array.from(returnTimeSelect.options).find(opt => opt.value === nextTimeValue);
+              
+              if (nextOption && !nextOption.disabled) {
+                returnTimeSelect.value = nextTimeValue;
+              } else {
+                const firstAvailable = Array.from(returnTimeSelect.options).find(opt => !opt.disabled);
+                if (firstAvailable) {
+                  returnTimeSelect.value = firstAvailable.value;
+                }
+              }
+              
+              returnTimeSelect.dispatchEvent(new Event('change'));
+            }
+          } else if (isSameDay) {
+            // Если pickup и return в один день, return должен быть после pickup
+            const pickupValue = pickupTimeSelect.value;
+            const [pickupHours, pickupMinutes] = pickupValue.split(':').map(Number);
+
+            Array.from(returnTimeSelect.options).forEach(option => {
+              const [hours, minutes] = option.value.split(':').map(Number);
+              
+              // Блокируем время, которое раньше или равно pickup времени
+              if (hours < pickupHours || (hours === pickupHours && minutes <= pickupMinutes)) {
+                option.disabled = true;
+                option.style.color = '#ccc';
+              } else {
+                option.disabled = false;
+                option.style.color = '';
+              }
+            });
+
+            // Проверяем выбранное return время
+            const selectedReturnValue = returnTimeSelect.value;
+            const [retHours, retMinutes] = selectedReturnValue.split(':').map(Number);
+            
+            if (retHours < pickupHours || (retHours === pickupHours && retMinutes <= pickupMinutes)) {
+              const nextAvailableHour = pickupHours + 1;
+              const nextTimeValue = `${String(nextAvailableHour).padStart(2, '0')}:00`;
+              const nextOption = Array.from(returnTimeSelect.options).find(opt => opt.value === nextTimeValue);
+              
+              if (nextOption && !nextOption.disabled) {
+                returnTimeSelect.value = nextTimeValue;
+              } else {
+                const firstAvailable = Array.from(returnTimeSelect.options).find(opt => !opt.disabled);
+                if (firstAvailable) {
+                  returnTimeSelect.value = firstAvailable.value;
+                }
+              }
+              
+              returnTimeSelect.dispatchEvent(new Event('change'));
+            }
+          } else {
+            // Разблокировать всё время если разные дни
+            Array.from(returnTimeSelect.options).forEach(option => {
+              option.disabled = false;
+              option.style.color = '';
+            });
+          }
+        }
+      };
+
       // Initialize pickup date picker
       this.pickupFlatpickr = flatpickr(pickupInput, {
         dateFormat: this.dateFormat,
@@ -276,7 +456,14 @@ class DatePickerManager {
             // Update return date picker
             this.returnFlatpickr.set("minDate", sameDay);
             this.returnFlatpickr.setDate(formattedDate);
+
+            // ✅ Обновляем доступное время после выбора даты
+            setTimeout(() => updateAvailableTime(), 50);
           }
+        },
+        onReady: () => {
+          // ✅ Обновляем время при загрузке
+          setTimeout(() => updateAvailableTime(), 100);
         },
       });
 
@@ -318,20 +505,24 @@ class DatePickerManager {
           if (this.onDateChange) {
             this.onDateChange();
           }
+          // ✅ Обновляем время после выбора return даты
+          setTimeout(() => updateAvailableTime(), 50);
         },
         onReady: (selectedDates, dateStr, instance) => {
           if (this.customClass) {
             instance.calendarContainer.classList.add(this.customClass);
           }
+          // ✅ Обновляем время при загрузке
+          setTimeout(() => updateAvailableTime(), 100);
         },
       });
 
       // Add event listeners to time select elements
-      const pickupTimeSelect = document.getElementById("pickup-time");
-      const returnTimeSelect = document.getElementById("collection-time");
-
       if (pickupTimeSelect) {
         pickupTimeSelect.addEventListener("change", () => {
+          // ✅ Обновляем доступное время при изменении pickup time
+          updateAvailableTime();
+          
           if (
             window.priceCalculator &&
             typeof window.priceCalculator.recalculatePrice === "function"
@@ -351,6 +542,11 @@ class DatePickerManager {
           }
         });
       }
+
+      // ✅ Периодически обновляем доступное время (каждую минуту)
+      setInterval(() => {
+        updateAvailableTime();
+      }, 60000); // 60 секунд
 
       // Store references globally
       window.pickupFlatpickr = this.pickupFlatpickr;
