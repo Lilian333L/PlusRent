@@ -242,7 +242,7 @@ class CarsFilterModal {
               <div class="filter-card premium" data-filter="premium" tabindex="0" role="button" aria-label="Filter premium cars">
                 <div class="filter-card-content">
                   <div class="filter-card-icon">
-                    <i class="fa fa-diamond"></i>
+                    <i class="fa fa-crown"></i>
                   </div>
                   <div class="filter-card-title" data-i18n="cars.filter_premium">Premium</div>
                   <div class="filter-card-description" data-i18n="cars.filter_premium_desc">Cars {{min}} EUR and above</div>
