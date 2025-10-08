@@ -1282,7 +1282,19 @@
         }
     }
 
-    // Handle auto-apply coupon
+    // Auto-apply winning coupon from localStorage
+    function autoApplyWinningCoupon() {
+        try {
+            const savedCouponCode = localStorage.getItem('spinningWheelWinningCoupon');
+            if (savedCouponCode) {
+                handleAutoApplyCoupon(savedCouponCode);
+            }
+        } catch (error) {
+            console.error('Error auto-applying winning coupon:', error);
+        }
+    }
+
+    // Handle auto-apply coupon functionality
     function handleAutoApplyCoupon(couponCode) {
         try {
             localStorage.setItem('autoApplyCoupon', couponCode);
@@ -1292,14 +1304,12 @@
                     window.AutoApplyCoupon.autoApply();
                 }, 100);
             }
-            
-            // Don't show notification here - AutoApplyCoupon script will handle it
         } catch (error) {
             console.error('Error handling auto-apply coupon:', error);
         }
     }
 
-    // Get current language
+    // Get current language from multiple sources
     function getCurrentLanguage() {
         const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
         if (storedLang) {
@@ -1333,12 +1343,12 @@
         return 'ro';
     }
 
-    // Handle outside click
+    // Handle outside click - disabled to prevent accidental closing
     function handleOutsideClick(event) {
         // Disabled
     }
 
-    // Handle escape key
+    // Handle escape key - disabled to prevent accidental closing
     function handleKeydown(event) {
         // Disabled
     }
@@ -1348,7 +1358,7 @@
         // CSS handles all responsive behavior
     }
 
-    // Handle visibility change
+    // Handle page visibility changes (tab switching, minimizing)
     function handleVisibilityChange() {
         if (document.hidden) {
             if (state.timer) {
@@ -1362,7 +1372,7 @@
         }
     }
 
-    // Handle before unload
+    // Handle page unload (navigation to different page)
     function handleBeforeUnload() {
         const currentTime = Date.now();
         const startTime = localStorage.getItem('websiteStartTime');
