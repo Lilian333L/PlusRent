@@ -1,7 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger
- * This script automatically injects the spinning wheel modal into any page on the website
- * No need to manually add it to each HTML page
+ * Universal Spinning Wheel Modal Trigger - Premium Design
+ * Полностью обновленный дизайн с поддержкой 3 языков (RO/RU/EN)
  */
 
 (function() {
@@ -9,7 +8,7 @@
 
     // Configuration
     const CONFIG = {
-        delay: 30 * 1000, // 30 seconds
+        delay: 30 * 1000,
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: 'spinning-wheel-standalone.html',
@@ -26,10 +25,9 @@
 
     // Check if user has seen the modal today or has already received their reward
     function hasSeenModalToday() {
-        // First check if user has already received their reward
         const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
-            return true; // Don't show modal if user already got their reward
+            return true;
         }
         
         const lastSeen = localStorage.getItem(CONFIG.storageKey);
@@ -48,13 +46,11 @@
         
         if (!startTime) return 0;
         
-        // If we have stored total time, use that as base
         let baseTime = 0;
         if (storedTotalTime) {
             baseTime = parseInt(storedTotalTime);
         }
         
-        // Add current session time
         const now = Date.now();
         const currentSessionTime = now - parseInt(startTime);
         
@@ -71,44 +67,52 @@
     // Mark modal as seen today
     function markModalAsSeen() {
         localStorage.setItem(CONFIG.storageKey, new Date().toISOString());
-        
-        // Reset website timer for next day
         localStorage.removeItem('websiteStartTime');
         localStorage.removeItem('websiteTotalTime');
     }
 
-// Create modal HTML
+    // Create modal HTML
     function createModalHTML() {
         return `
             <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     <div class="spinning-wheel-modal-header">
-                        <div class="header-icon">🎁</div>
-                        <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Try Your Luck!</h2>
-                        <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Spin the wheel and win amazing discounts on car rentals!</p>
+                        <div class="header-decoration"></div>
+                        <div class="header-gift-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 12v10H4V12"></path>
+                                <path d="M22 7H2v5h20V7z"></path>
+                                <path d="M12 22V7"></path>
+                                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="spinning-wheel-modal-title" data-i18n="wheel.title">Încearcă-ți norocul!</h2>
+                        <p class="spinning-wheel-modal-subtitle" data-i18n="wheel.subtitle">Rotește roata și câștigă reduceri uimitoare la închirieri auto!</p>
                     </div>
                     
                     <div class="spinning-wheel-wheel-content">
                         <div class="spinning-wheel-phone-step" id="universalPhoneStep">
                             <div class="phone-input-container">
-                                <div class="phone-icon-wrapper">
-                                    <i class="fa fa-mobile-alt" style="font-size: 3rem; color: #20b2aa;"></i>
+                                <div class="phone-icon-circle">
+                                    <i class="fa fa-mobile-alt"></i>
                                 </div>
-                                <h3 data-i18n="wheel.enter_phone_title">Enter Your Phone Number</h3>
-                                <p class="phone-description">We'll send you exclusive offers and your lucky discount code!</p>
+                                <h3 data-i18n="wheel.enter_phone_title">Introdu Numărul Tău</h3>
+                                <p class="phone-description" data-i18n="wheel.phone_description">Îți vom trimite oferte exclusive și codul tău de reducere norocos!</p>
                                 <form class="phone-form" id="universalPhoneForm">
-                                    <div class="input-group">
+                                    <div class="input-wrapper">
+                                        <i class="fa fa-phone input-icon"></i>
                                         <input type="tel" class="phone-input" id="universalPhoneInput" 
                                                data-i18n-placeholder="wheel.phone_placeholder" placeholder="+373 XX XXX XXX" required>
-                                        <button type="submit" class="phone-submit-btn">
-                                            <span data-i18n="wheel.continue_button">Continue</span>
-                                            <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
-                                        </button>
                                     </div>
-                                    <div class="privacy-note">
-                                        <i class="fa fa-lock" style="margin-right: 5px;"></i>
-                                        <span>Your data is secure and protected</span>
+                                    <button type="submit" class="phone-submit-btn">
+                                        <span data-i18n="wheel.continue_button">Continuă</span>
+                                        <i class="fa fa-arrow-right btn-icon"></i>
+                                    </button>
+                                    <div class="privacy-badge">
+                                        <i class="fa fa-shield-alt"></i>
+                                        <span data-i18n="wheel.privacy_text">Datele tale sunt securizate</span>
                                     </div>
                                 </form>
                             </div>
@@ -118,7 +122,8 @@
                             <iframe id="universalSpinningWheelIframe" 
                                     src="${CONFIG.iframeSrc}" 
                                     frameborder="0" 
-                                    style="width: 100%; height: 100%; border: none; border-radius: 10px;">
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    style="width: 100%; height: 100%; border: none; border-radius: 12px;">
                             </iframe>
                         </div>
                     </div>
@@ -131,6 +136,10 @@
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
+            /* ============================================
+               ОСНОВНЫЕ СТИЛИ МОДАЛЬНОГО ОКНА
+               ============================================ */
+            
             .spinning-wheel-modal {
                 position: fixed;
                 top: 0;
@@ -138,13 +147,13 @@
                 width: 100%;
                 height: 100%;
                 background: rgba(0, 0, 0, 0.85);
-                backdrop-filter: blur(5px);
+                backdrop-filter: blur(8px);
                 z-index: ${CONFIG.zIndex};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 opacity: 0;
-                transition: opacity 0.4s ease;
+                transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .spinning-wheel-modal.show {
@@ -152,141 +161,166 @@
             }
 
             .spinning-wheel-modal-content {
-                background: white;
-                border-radius: 25px !important;
+                background: #ffffff;
+                border-radius: 24px;
                 width: 90%;
                 max-width: 1000px;
-                max-height: 85vh;
+                max-height: 90vh;
                 position: relative;
                 overflow: hidden;
                 transform: scale(0.9);
                 transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
-            }
-
-            @media (max-width: 1000px) {
-                .wheel-step {
-                    overflow: scroll;
-                }
+                box-shadow: 
+                    0 30px 90px rgba(0, 0, 0, 0.4),
+                    0 0 0 1px rgba(255, 255, 255, 0.1);
             }
             
-            /* Smaller modal for phone input step */
             .spinning-wheel-modal-content.phone-step {
-                max-width: 550px !important;
-                max-height: 65vh !important;
-                height: auto !important;
+                max-width: 600px;
+                max-height: 70vh;
+                height: auto;
             }
             
-            /* Unset min-height for phone step content */
             .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
-                min-height: unset !important;
+                min-height: unset;
             }
             
-            /* Full size for spinning wheel step */
             .spinning-wheel-modal-content.wheel-step {
-                max-width: 1200px !important;
-                max-height: 90vh !important;
+                max-width: 1200px;
+                max-height: 92vh;
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-content {
                 transform: scale(1);
             }
 
+            /* ============================================
+               КНОПКА ЗАКРЫТИЯ
+               ============================================ */
+            
             .spinning-wheel-modal-close {
                 position: absolute;
-                top: 15px;
-                right: 20px;
+                top: 16px;
+                right: 16px;
                 font-size: 32px;
                 cursor: pointer;
-                color: #FFFFFF;
-                z-index: 10;
-                width: 40px;
-                height: 40px;
+                color: #ffffff;
+                z-index: 100;
+                width: 44px;
+                height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 50%;
-                transition: all 0.3s ease;
-                padding-bottom: 4px;
-                background: rgba(255, 255, 255, 0.1);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+                font-weight: 300;
+                line-height: 1;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(255, 255, 255, 0.9);
-                color: #333;
-                transform: rotate(90deg);
+                background: rgba(255, 255, 255, 0.95);
+                color: #1e90ff;
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             }
 
+            /* ============================================
+               HEADER (ШАПКА)
+               ============================================ */
+            
             .spinning-wheel-modal-header {
-                background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
-                padding: 30px 20px;
+                padding: 40px 30px;
                 text-align: center;
-                border-radius: 25px 25px 0 0;
+                border-radius: 24px 24px 0 0;
                 position: relative;
                 overflow: hidden;
             }
             
-            .spinning-wheel-modal-header::before {
-                content: '';
+            .header-decoration {
                 position: absolute;
-                top: -50%;
-                right: -20%;
-                width: 200px;
-                height: 200px;
-                background: rgba(255, 255, 255, 0.1);
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                opacity: 0.1;
+                background-image: 
+                    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            }
+            
+            .header-gift-icon {
+                width: 70px;
+                height: 70px;
+                margin: 0 auto 20px;
+                background: rgba(255, 255, 255, 0.2);
                 border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: floatBounce 3s ease-in-out infinite;
+                position: relative;
+                z-index: 1;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             }
             
-            .spinning-wheel-modal-header::after {
-                content: '';
-                position: absolute;
-                bottom: -30%;
-                left: -10%;
-                width: 150px;
-                height: 150px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
+            .header-gift-icon svg {
+                width: 35px;
+                height: 35px;
+                color: white;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
             }
             
-            .header-icon {
-                font-size: 3rem;
-                margin-bottom: 10px;
-                animation: bounceIcon 2s ease-in-out infinite;
-            }
-            
-            @keyframes bounceIcon {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
+            @keyframes floatBounce {
+                0%, 100% { 
+                    transform: translateY(0) scale(1);
+                }
+                50% { 
+                    transform: translateY(-12px) scale(1.05);
+                }
             }
 
             .spinning-wheel-modal-title {
                 font-size: 2rem;
-                font-weight: 700;
-                margin: 0 0 10px 0;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-                font-family: Arial, sans-serif;
+                font-weight: 800;
+                margin: 0 0 12px 0;
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+                font-family: 'Arial', sans-serif;
                 color: white;
                 position: relative;
                 z-index: 1;
+                letter-spacing: 0.5px;
             }
 
             .spinning-wheel-modal-subtitle {
                 font-size: 1.1rem;
                 margin: 0;
                 opacity: 0.95;
-                font-family: Arial, sans-serif;
+                font-family: 'Arial', sans-serif;
                 position: relative;
                 z-index: 1;
+                line-height: 1.5;
+                font-weight: 400;
             }
 
+            /* ============================================
+               CONTENT AREA
+               ============================================ */
+            
             .spinning-wheel-wheel-content {
-                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
                 display: flex;
                 min-height: 500px;
             }
 
-            /* Phone step styles */
+            /* ============================================
+               PHONE STEP (ШАГ ВВОДА ТЕЛЕФОНА)
+               ============================================ */
+            
             .spinning-wheel-phone-step {
                 flex: 1;
                 display: flex;
@@ -294,20 +328,20 @@
                 align-items: center;
                 justify-content: center;
                 padding: 50px 40px;
-                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             }
             
             .phone-input-container {
                 text-align: center;
-                max-width: 450px;
+                max-width: 480px;
                 width: 100%;
-                animation: fadeInUp 0.5s ease;
+                animation: slideInUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             }
             
-            @keyframes fadeInUp {
+            @keyframes slideInUp {
                 from {
                     opacity: 0;
-                    transform: translateY(20px);
+                    transform: translateY(30px);
                 }
                 to {
                     opacity: 1;
@@ -315,118 +349,184 @@
                 }
             }
             
-            .phone-icon-wrapper {
-                margin-bottom: 20px;
-                animation: pulse 2s ease-in-out infinite;
+            .phone-icon-circle {
+                width: 90px;
+                height: 90px;
+                margin: 0 auto 25px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: pulseGlow 2.5s ease-in-out infinite;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
             }
             
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
+            .phone-icon-circle i {
+                font-size: 2.5rem;
+                color: white;
+            }
+            
+            @keyframes pulseGlow {
+                0%, 100% { 
+                    transform: scale(1);
+                    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+                }
+                50% { 
+                    transform: scale(1.05);
+                    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.6);
+                }
             }
             
             .phone-input-container h3 {
-                color: #333;
-                font-size: 1.5rem;
-                margin: 0 0 10px 0;
+                color: #2d3748;
+                font-size: 1.8rem;
+                margin: 0 0 12px 0;
                 font-weight: 700;
+                letter-spacing: 0.3px;
             }
             
             .phone-description {
-                color: #666;
-                font-size: 0.95rem;
-                margin: 0 0 30px 0;
-                line-height: 1.5;
+                color: #4a5568;
+                font-size: 1rem;
+                margin: 0 0 35px 0;
+                line-height: 1.6;
+                font-weight: 400;
             }
             
             .phone-form {
+                margin-bottom: 0;
+            }
+            
+            .input-wrapper {
+                position: relative;
                 margin-bottom: 20px;
             }
             
-            .input-group {
-                display: flex;
-                gap: 12px;
-                margin-bottom: 20px;
+            .input-icon {
+                position: absolute;
+                left: 18px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #667eea;
+                font-size: 1.2rem;
+                z-index: 1;
             }
             
             .phone-input {
-                flex: 1;
-                padding: 16px 20px;
-                border: 2px solid #e1e5e9;
-                border-radius: 12px;
-                font-size: 1.05rem;
-                transition: all 0.3s ease;
+                width: 100%;
+                padding: 18px 18px 18px 50px;
+                border: 2px solid #e2e8f0;
+                border-radius: 14px;
+                font-size: 1.1rem;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 background: white;
+                font-weight: 500;
+                color: #2d3748;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             }
             
-            @media (max-width: 768px) {
-                .phone-input {
-                    border-radius: 12px !important;
-                }
-                .phone-submit-btn {
-                    border-radius: 12px !important;
-                }
+            .phone-input::placeholder {
+                color: #a0aec0;
+                font-weight: 400;
             }
             
             .phone-input:focus {
                 outline: none;
-                border-color: #20b2aa;
-                box-shadow: 0 0 0 4px rgba(32, 178, 170, 0.15);
+                border-color: #667eea;
+                box-shadow: 
+                    0 0 0 4px rgba(102, 126, 234, 0.15),
+                    0 4px 12px rgba(102, 126, 234, 0.2);
                 transform: translateY(-2px);
             }
             
             .phone-input-error {
-                border-color: #e74c3c !important;
-                box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15) !important;
-                animation: shake 0.5s ease;
+                border-color: #fc8181 !important;
+                box-shadow: 
+                    0 0 0 4px rgba(252, 129, 129, 0.15),
+                    0 4px 12px rgba(252, 129, 129, 0.2) !important;
+                animation: shakeError 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
             }
             
-            @keyframes shake {
+            @keyframes shakeError {
                 0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-10px); }
-                75% { transform: translateX(10px); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+                20%, 40%, 60%, 80% { transform: translateX(8px); }
+            }
+            
+            .phone-error-message {
+                color: #fc8181;
+                font-size: 0.9rem;
+                margin-top: 8px;
+                text-align: center;
+                font-weight: 500;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
             }
             
             .phone-submit-btn {
-                padding: 16px 30px;
-                background: linear-gradient(135deg, #20b2aa 0%, #1e90ff 100%);
+                width: 100%;
+                padding: 18px 30px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 border: none;
-                border-radius: 12px;
-                font-size: 1.05rem;
-                font-weight: 600;
+                border-radius: 14px;
+                font-size: 1.15rem;
+                font-weight: 700;
                 cursor: pointer;
-                transition: all 0.3s ease;
-                white-space: nowrap;
-                box-shadow: 0 4px 15px rgba(32, 178, 170, 0.3);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                gap: 10px;
+                letter-spacing: 0.5px;
+                margin-bottom: 20px;
             }
             
             .phone-submit-btn:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(32, 178, 170, 0.4);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
             }
             
             .phone-submit-btn:active {
                 transform: translateY(-1px);
             }
             
-            .privacy-note {
+            .btn-icon {
+                transition: transform 0.3s ease;
+            }
+            
+            .phone-submit-btn:hover .btn-icon {
+                transform: translateX(4px);
+            }
+            
+            .privacy-badge {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #888;
-                font-size: 0.85rem;
-                margin-top: 15px;
+                gap: 8px;
+                color: #718096;
+                font-size: 0.9rem;
+                padding: 12px;
+                background: rgba(255, 255, 255, 0.6);
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
             }
             
-            .privacy-note i {
-                color: #20b2aa;
+            .privacy-badge i {
+                color: #667eea;
+                font-size: 1rem;
             }
 
-            /* Wheel step styles */
+            /* ============================================
+               WHEEL STEP (ШАГ С КОЛЕСОМ)
+               ============================================ */
+            
             .spinning-wheel-wheel-step {
                 flex: 1;
                 display: flex;
@@ -436,253 +536,401 @@
                 padding: 40px;
                 background: white;
             }
+
+            /* ============================================
+               АДАПТИВНЫЙ ДИЗАЙН - DESKTOP
+               ============================================ */
             
-            @keyframes spinning-wheel-fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-
-            @keyframes spinning-wheel-slideIn {
-                from { 
-                    transform: translateY(-50px) scale(0.9);
-                    opacity: 0;
-                }
-                to { 
-                    transform: translateY(0) scale(1);
-                    opacity: 1;
-                }
-            }
-
-            /* Responsive design */
             @media (min-width: 1024px) {
                 .spinning-wheel-modal-content {
-                    width: 80%;
+                    width: 85%;
                     max-width: 1200px;
-                    max-height: 90vh;
-                    height: 80vh;
+                    max-height: 92vh;
+                    height: 85vh;
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 40px;
+                    padding: 50px 40px;
                 }
                 
-                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
-                    min-height: unset !important;
+                .header-gift-icon {
+                    width: 80px;
+                    height: 80px;
+                    margin-bottom: 24px;
+                }
+                
+                .header-gift-icon svg {
+                    width: 40px;
+                    height: 40px;
                 }
                 
                 .spinning-wheel-modal-title {
-                    font-size: 2.3rem;
+                    font-size: 2.5rem;
                 }
                 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 1.2rem;
+                    font-size: 1.25rem;
                 }
                 
                 .spinning-wheel-wheel-content {
                     min-height: 600px;
-                    height: 82%;                  
+                    height: calc(100% - 180px);
                 }
                 
                 .spinning-wheel-wheel-step {
                     height: 100%;
+                    padding: 50px;
                 }
                 
-            iframe {
-                height: 100% !important;
-            }
+                iframe {
+                    height: 100% !important;
+                }
                 
-                .spinning-wheel-phone-step,
-                .spinning-wheel-wheel-step {
-                    padding: 60px;
+                .spinning-wheel-phone-step {
+                    padding: 60px 50px;
                 }
             }
             
-            /* Tablet and medium devices (768px - 1023px) */
+            /* ============================================
+               АДАПТИВНЫЙ ДИЗАЙН - TABLET
+               ============================================ */
+            
             @media (min-width: 768px) and (max-width: 1023px) {
                 .spinning-wheel-modal-content {
-                    width: 95% !important;
-                    max-width: 1000px !important;
-                    max-height: 95vh !important;
+                    width: 95%;
+                    max-width: 900px;
+                    max-height: 95vh;
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 30px !important;
+                    padding: 35px 30px;
+                }
+                
+                .header-gift-icon {
+                    width: 65px;
+                    height: 65px;
+                    margin-bottom: 18px;
+                }
+                
+                .header-gift-icon svg {
+                    width: 32px;
+                    height: 32px;
                 }
                 
                 .spinning-wheel-modal-title {
-                    font-size: 1.9rem !important;
+                    font-size: 2rem;
                 }
                 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 1.05rem !important;
+                    font-size: 1.1rem;
                 }
                 
                 .spinning-wheel-wheel-content {
-                    min-height: 700px !important;
+                    min-height: 600px;
                 }
                 
-                .spinning-wheel-phone-step,
-                .spinning-wheel-wheel-step {
-                    padding: 30px !important;
+                .spinning-wheel-phone-step {
+                    padding: 40px 35px;
                 }
                 
-                .phone-input-container {
-                    max-width: 500px !important;
+                .phone-icon-circle {
+                    width: 80px;
+                    height: 80px;
+                }
+                
+                .phone-icon-circle i {
+                    font-size: 2.2rem;
                 }
                 
                 .phone-input-container h3 {
-                    font-size: 1.3rem !important;
+                    font-size: 1.6rem;
                 }
                 
                 .phone-description {
-                    font-size: 1rem !important;
-                }
-
-                .phone-input-container {
-                    padding: 20px !important;
-                }
-                
-                .input-group {
-                    margin-bottom: 25px !important;
+                    font-size: 1rem;
                 }
                 
                 .phone-input,
                 .phone-submit-btn {
-                    padding: 18px 22px !important;
-                    font-size: 1.1rem !important;
+                    padding: 16px 18px 16px 50px;
+                    font-size: 1.05rem;
                 }
             }
             
-            @media (max-width: 768px) {
+            /* ============================================
+               АДАПТИВНЫЙ ДИЗАЙН - MOBILE
+               ============================================ */
+            
+            @media (max-width: 767px) {
                 .spinning-wheel-modal-content {
-                    margin: 10px;
-                    max-width: calc(100vw - 20px);
-                    max-height: calc(100vh - 20px);
-                    height: calc(100vh - 20px) !important;
-                    border-radius: 20px !important;
+                    margin: 15px;
+                    width: calc(100% - 30px);
+                    max-width: calc(100vw - 30px);
+                    max-height: calc(100vh - 30px);
+                    height: auto;
+                    border-radius: 20px;
                 }
                 
                 .spinning-wheel-modal-content.phone-step {
-                    max-width: calc(100vw - 20px) !important;
-                    max-height: 55vh !important;
-                    height: auto !important;
-                }
-                
-                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
-                    min-height: unset !important;
+                    max-width: calc(100vw - 30px);
+                    max-height: 75vh;
+                    height: auto;
                 }
                 
                 .spinning-wheel-modal-content.wheel-step {
-                    max-width: calc(100vw - 20px) !important;
-                    max-height: calc(100vh - 20px) !important;
+                    max-width: calc(100vw - 30px);
+                    max-height: calc(100vh - 30px);
+                    height: calc(100vh - 30px);
+                }
+                
+                .spinning-wheel-modal-close {
+                    top: 12px;
+                    right: 12px;
+                    width: 38px;
+                    height: 38px;
+                    font-size: 28px;
                 }
                 
                 .spinning-wheel-modal-header {
-                    padding: 20px 15px;
+                    padding: 25px 20px;
                     border-radius: 20px 20px 0 0;
                 }
                 
-                .header-icon {
-                    font-size: 2.5rem;
+                .header-gift-icon {
+                    width: 60px;
+                    height: 60px;
+                    margin-bottom: 15px;
+                }
+                
+                .header-gift-icon svg {
+                    width: 30px;
+                    height: 30px;
                 }
                 
                 .spinning-wheel-modal-title {
                     font-size: 1.5rem;
+                    margin-bottom: 8px;
                 }
                 
                 .spinning-wheel-modal-subtitle {
                     font-size: 0.95rem;
                 }
                 
-                .spinning-wheel-modal-close {
-                    width: 35px;
-                    height: 35px;
-                    font-size: 28px;
-                }
-                
                 .spinning-wheel-wheel-content {
                     flex-direction: column;
                     min-height: auto;
-                    height: calc(100% - 120px) !important;
-                    flex: 1;
+                    height: auto;
                 }
                 
-                .spinning-wheel-phone-step,
-                .spinning-wheel-wheel-step {
-                    padding: 25px 20px;
-                    height: 100% !important;
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
+                .spinning-wheel-phone-step {
+                    padding: 30px 20px;
                 }
                 
-                .phone-icon-wrapper i {
-                    font-size: 2.5rem !important;
+                .phone-icon-circle {
+                    width: 70px;
+                    height: 70px;
+                    margin-bottom: 20px;
+                }
+                
+                .phone-icon-circle i {
+                    font-size: 2rem;
                 }
                 
                 .phone-input-container h3 {
-                    font-size: 1.3rem;
+                    font-size: 1.4rem;
+                    margin-bottom: 10px;
                 }
                 
                 .phone-description {
-                    font-size: 0.9rem;
+                    font-size: 0.92rem;
                     margin-bottom: 25px;
                 }
                 
-                .input-group {
-                    flex-direction: column;
-                    gap: 12px;
+                .input-wrapper {
+                    margin-bottom: 18px;
+                }
+                
+                .input-icon {
+                    left: 16px;
+                    font-size: 1.1rem;
+                }
+                
+                .phone-input {
+                    padding: 15px 15px 15px 45px;
+                    font-size: 1rem;
+                    border-radius: 12px;
                 }
                 
                 .phone-submit-btn {
-                    width: 100%;
+                    padding: 15px 25px;
+                    font-size: 1.05rem;
+                    border-radius: 12px;
+                    margin-bottom: 18px;
                 }
                 
-                #universalSpinningWheelIframe {
-                    height: 100% !important;
-                    min-height: 600px !important;
-                    border-radius: 10px;
-                }
-            }
-            
-            @media (max-width: 390px) {
-                .spinning-wheel-modal-content.phone-step {
-                    max-height: 60vh !important;
-                }
-            }
-            
-            /* Extra small mobile devices (iPhone 14 Pro Max, etc.) */
-            @media (max-width: 430px) {
-                .spinning-wheel-modal-content {
-                    height: 93vh !important;
-                    max-height: 100vh !important;
-                    margin: 0;
-                    border-radius: 20px !important;
-                }
-                
-                .spinning-wheel-wheel-content {
-                    height: calc(100vh - 140px) !important;
-                }
-                
-                .spinning-wheel-modal-content.phone-step .spinning-wheel-wheel-content {
-                    height: unset !important;
+                .privacy-badge {
+                    font-size: 0.85rem;
+                    padding: 10px;
                 }
                 
                 .spinning-wheel-wheel-step {
-                    height: 100% !important;
-                    padding: 15px;
+                    padding: 20px;
+                    height: calc(100vh - 200px);
+                    min-height: 500px;
                 }
                 
                 #universalSpinningWheelIframe {
                     height: 100% !important;
-                    min-height: 650px !important;
-                    border-radius: 10px;
+                    min-height: 500px;
+                    border-radius: 12px;
                 }
             }
-
-            @media (max-width: 400px) and (max-height: 700px) {
+            
+            /* ============================================
+               АДАПТИВНЫЙ ДИЗАЙН - SMALL MOBILE
+               ============================================ */
+            
+            @media (max-width: 480px) {
+                .spinning-wheel-modal-content {
+                    margin: 10px;
+                    width: calc(100% - 20px);
+                    border-radius: 18px;
+                }
+                
+                .spinning-wheel-modal-content.phone-step {
+                    max-height: 80vh;
+                }
+                
+                .spinning-wheel-modal-close {
+                    width: 36px;
+                    height: 36px;
+                    font-size: 26px;
+                }
+                
+                .spinning-wheel-modal-header {
+                    padding: 20px 15px;
+                }
+                
+                .header-gift-icon {
+                    width: 55px;
+                    height: 55px;
+                    margin-bottom: 12px;
+                }
+                
+                .header-gift-icon svg {
+                    width: 28px;
+                    height: 28px;
+                }
+                
+                .spinning-wheel-modal-title {
+                    font-size: 1.3rem;
+                }
+                
+                .spinning-wheel-modal-subtitle {
+                    font-size: 0.88rem;
+                }
+                
+                .spinning-wheel-phone-step {
+                    padding: 25px 18px;
+                }
+                
+                .phone-icon-circle {
+                    width: 65px;
+                    height: 65px;
+                    margin-bottom: 18px;
+                }
+                
+                .phone-icon-circle i {
+                    font-size: 1.8rem;
+                }
+                
+                .phone-input-container h3 {
+                    font-size: 1.25rem;
+                }
+                
+                .phone-description {
+                    font-size: 0.88rem;
+                    margin-bottom: 22px;
+                }
+                
+                .phone-input {
+                    padding: 14px 14px 14px 42px;
+                    font-size: 0.95rem;
+                }
+                
+                .phone-submit-btn {
+                    padding: 14px 22px;
+                    font-size: 1rem;
+                }
+                
+                .privacy-badge {
+                    font-size: 0.8rem;
+                    padding: 8px;
+                }
+                
+                .spinning-wheel-wheel-step {
+                    padding: 15px;
+                    height: calc(100vh - 180px);
+                    min-height: 450px;
+                }
+                
                 #universalSpinningWheelIframe {
-                    margin-top: 128px !important;
+                    min-height: 450px;
+                }
+            }
+            
+            /* ============================================
+               LANDSCAPE MODE MOBILE
+               ============================================ */
+            
+            @media (max-width: 767px) and (orientation: landscape) {
+                .spinning-wheel-modal-content {
+                    max-height: 95vh;
+                    height: 95vh;
+                }
+                
+                .spinning-wheel-modal-header {
+                    padding: 15px 20px;
+                }
+                
+                .header-gift-icon {
+                    width: 50px;
+                    height: 50px;
+                    margin-bottom: 8px;
+                }
+                
+                .spinning-wheel-modal-title {
+                    font-size: 1.2rem;
+                    margin-bottom: 5px;
+                }
+                
+                .spinning-wheel-modal-subtitle {
+                    font-size: 0.85rem;
+                }
+                
+                .spinning-wheel-phone-step {
+                    padding: 20px;
+                }
+                
+                .phone-icon-circle {
+                    width: 55px;
+                    height: 55px;
+                    margin-bottom: 12px;
+                }
+                
+                .phone-input-container h3 {
+                    font-size: 1.15rem;
+                    margin-bottom: 8px;
+                }
+                
+                .phone-description {
+                    font-size: 0.85rem;
+                    margin-bottom: 18px;
+                }
+                
+                .spinning-wheel-wheel-step {
+                    padding: 15px;
+                    height: calc(100vh - 150px);
                 }
             }
         `;
@@ -693,9 +941,7 @@
     function updateModalTranslations() {
         if (!state.modal) return;
         
-        // Check if i18next is available
         if (typeof i18next !== 'undefined' && i18next.t) {
-            // Update title and subtitle
             const titleElement = state.modal.querySelector('.spinning-wheel-modal-title');
             const subtitleElement = state.modal.querySelector('.spinning-wheel-modal-subtitle');
             
@@ -712,15 +958,22 @@
                 }
             }
             
-            // Update phone input elements
             const phoneTitleElement = state.modal.querySelector('[data-i18n="wheel.enter_phone_title"]');
+            const phoneDescElement = state.modal.querySelector('[data-i18n="wheel.phone_description"]');
             const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
             const continueButtonElement = state.modal.querySelector('[data-i18n="wheel.continue_button"]');
+            const privacyTextElement = state.modal.querySelector('[data-i18n="wheel.privacy_text"]');
             
             if (phoneTitleElement) {
                 const translatedPhoneTitle = i18next.t('wheel.enter_phone_title');
                 if (translatedPhoneTitle && translatedPhoneTitle !== 'wheel.enter_phone_title') {
                     phoneTitleElement.textContent = translatedPhoneTitle;
+                }
+            }
+            if (phoneDescElement) {
+                const translatedPhoneDesc = i18next.t('wheel.phone_description');
+                if (translatedPhoneDesc && translatedPhoneDesc !== 'wheel.phone_description') {
+                    phoneDescElement.textContent = translatedPhoneDesc;
                 }
             }
             if (phoneInputElement) {
@@ -735,6 +988,12 @@
                     continueButtonElement.textContent = translatedContinueButton;
                 }
             }
+            if (privacyTextElement) {
+                const translatedPrivacy = i18next.t('wheel.privacy_text');
+                if (translatedPrivacy && translatedPrivacy !== 'wheel.privacy_text') {
+                    privacyTextElement.textContent = translatedPrivacy;
+                }
+            }
         }
     }
 
@@ -742,15 +1001,10 @@
     function showModal(options = {}) {
         if (!state.modal) return;
         
-        // Update translations before showing
         updateModalTranslations();
         
-        // Handle options
         const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
         
-        
-        
-        // Update iframe source with wheel ID if specified
         if (options.wheelId) {
             const iframe = document.getElementById('universalSpinningWheelIframe');
             if (iframe) {
@@ -760,10 +1014,8 @@
             }
         }
         
-        // Get modal content element for sizing
         const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
         
-        // If we should skip the phone step, hide it and show the wheel directly
         if (skipPhoneStep) {
             const phoneStep = document.getElementById('universalPhoneStep');
             const wheelStep = document.getElementById('universalWheelStep');
@@ -772,38 +1024,28 @@
                 phoneStep.style.display = 'none';
                 wheelStep.style.display = 'flex';
                 
-                // Set modal to wheel step size
                 if (modalContent) {
                     modalContent.classList.remove('phone-step');
                     modalContent.classList.add('wheel-step');
                 }
                 
-                // If we have a phone number, store it and send to iframe
                 if (phoneNumber) {
-                    
                     localStorage.setItem('spinningWheelPhone', phoneNumber);
                     localStorage.setItem('spinningWheelPhoneEntered', 'true');
                     
-                    // Send phone number to iframe
                     setTimeout(() => {
                         const iframe = document.getElementById('universalSpinningWheelIframe');
                         if (iframe && iframe.contentWindow) {
-                            
                             iframe.contentWindow.postMessage({
                                 type: 'phoneNumberEntered',
                                 phoneNumber: phoneNumber,
                                 wheelType: wheelType
                             }, '*');
-                        } else {
-                            
                         }
                     }, 500);
-                } else {
-                    
                 }
             }
         } else {
-            // Normal flow - show phone step first
             const phoneStep = document.getElementById('universalPhoneStep');
             const wheelStep = document.getElementById('universalWheelStep');
             
@@ -811,7 +1053,6 @@
                 phoneStep.style.display = 'flex';
                 wheelStep.style.display = 'none';
                 
-                // Set modal to phone step size
                 if (modalContent) {
                     modalContent.classList.remove('wheel-step');
                     modalContent.classList.add('phone-step');
@@ -820,16 +1061,11 @@
         }
         
         state.modal.style.display = 'flex';
-        
-        // Force reflow
         state.modal.offsetHeight;
         
-        // Add show class for animation
         setTimeout(() => {
             state.modal.classList.add('show');
         }, 10);
-
-        // CSS media queries handle all responsive styling automatically
     }
 
     // Close modal
@@ -843,14 +1079,13 @@
         }, 300);
     }
 
-    // Cleanup function to remove event listeners
+    // Cleanup function
     function cleanup() {
         if (state.timer) {
             clearTimeout(state.timer);
             state.timer = null;
         }
         
-        // Remove event listeners
         if (state.modal) {
             state.modal.removeEventListener('click', handleOutsideClick);
         }
@@ -861,81 +1096,66 @@
         window.removeEventListener('message', handleWheelMessage);
     }
 
-    // Validate phone number format
+    // Validate phone number
     function validatePhoneNumber(phoneNumber) {
-        // Remove all non-digit characters except + at the beginning
         const cleaned = phoneNumber.replace(/[^\d+]/g, '');
         
-        // Check if it starts with + (international format)
         if (cleaned.startsWith('+')) {
-            // International format: + followed by 7-15 digits
             const digits = cleaned.substring(1);
             return digits.length >= 7 && digits.length <= 15 && /^\d+$/.test(digits);
         } else {
-            // Local format: 7-15 digits
             return cleaned.length >= 7 && cleaned.length <= 15 && /^\d+$/.test(cleaned);
         }
     }
 
-    // Format phone number for display
+    // Format phone number
     function formatPhoneNumber(phoneNumber) {
-        // Remove all non-digit characters except + at the beginning
         const cleaned = phoneNumber.replace(/[^\d+]/g, '');
         
         if (cleaned.startsWith('+')) {
-            return cleaned; // Keep international format as is
+            return cleaned;
         } else {
-            // Format local numbers (basic formatting)
             const digits = cleaned;
             if (digits.length >= 10) {
-                // Format as XXX-XXX-XXXX or similar
                 return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
             }
             return digits;
         }
     }
 
-    // Handle phone input validation
+    // Handle phone input
     function handlePhoneInput(event) {
         const input = event.target;
         let value = input.value;
         
-        // Allow only numbers, +, -, (, ), and spaces
         value = value.replace(/[^\d+\-\(\)\s]/g, '');
         
-        // Limit length to prevent extremely long inputs
         if (value.length > 20) {
             value = value.substring(0, 20);
         }
         
         input.value = value;
-        
-        // Remove error styling if present
         input.classList.remove('phone-input-error');
         
-        // Remove any existing error message
-        const existingError = input.parentNode.querySelector('.phone-error-message');
+        const existingError = input.parentNode.parentNode.querySelector('.phone-error-message');
         if (existingError) {
             existingError.remove();
         }
     }
 
-    // Show phone input error
+    // Show phone error
     function showPhoneError(input, message) {
         input.classList.add('phone-input-error');
         
-        // Remove any existing error message
-        const existingError = input.parentNode.querySelector('.phone-error-message');
+        const existingError = input.parentNode.parentNode.querySelector('.phone-error-message');
         if (existingError) {
             existingError.remove();
         }
         
-        // Add error message
         const errorDiv = document.createElement('div');
         errorDiv.className = 'phone-error-message';
         errorDiv.textContent = message;
-        errorDiv.style.cssText = 'color: #e74c3c; font-size: 0.9rem; margin-top: 5px; text-align: center;';
-        input.parentNode.appendChild(errorDiv);
+        input.parentNode.parentNode.insertBefore(errorDiv, input.parentNode.nextSibling);
     }
 
     // Handle phone form submission
@@ -945,28 +1165,36 @@
         const phoneInput = document.getElementById('universalPhoneInput');
         const phoneNumber = phoneInput.value.trim();
         
-        // Remove any existing error styling
         phoneInput.classList.remove('phone-input-error');
-        const existingError = phoneInput.parentNode.querySelector('.phone-error-message');
+        const existingError = phoneInput.parentNode.parentNode.querySelector('.phone-error-message');
         if (existingError) {
             existingError.remove();
         }
         
-        // Validate phone number
         if (!phoneNumber) {
-            showPhoneError(phoneInput, 'Please enter a phone number');
+            const currentLang = getCurrentLanguage();
+            const errorMessages = {
+                en: 'Please enter a phone number',
+                ru: 'Пожалуйста, введите номер телефона',
+                ro: 'Vă rugăm introduceți numărul de telefon'
+            };
+            showPhoneError(phoneInput, errorMessages[currentLang] || errorMessages.en);
             return;
         }
         
         if (!validatePhoneNumber(phoneNumber)) {
-            showPhoneError(phoneInput, 'Please enter a valid phone number (7-15 digits)');
+            const currentLang = getCurrentLanguage();
+            const errorMessages = {
+                en: 'Please enter a valid phone number (7-15 digits)',
+                ru: 'Пожалуйста, введите корректный номер (7-15 цифр)',
+                ro: 'Vă rugăm introduceți un număr valid (7-15 cifre)'
+            };
+            showPhoneError(phoneInput, errorMessages[currentLang] || errorMessages.en);
             return;
         }
         
-        // Format the phone number
         const formattedPhone = formatPhoneNumber(phoneNumber);
 
-        // Check if phone number already has available coupons
         try {
             const API_BASE_URL = window.location.origin;
             const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/check-available-coupons`, {
@@ -981,32 +1209,23 @@
                 const result = await response.json();
                 
                 if (result.hasCoupons) {
-                    // User already has coupons (available or redeemed), show error
-                    let errorMessage = 'You have already received a reward for this phone number.';
-                    
-                    // Get current language and provide appropriate message
-                    const currentLang = localStorage.getItem('lang') || 'en';
-                    
-                    if (currentLang === 'ro') {
-                        errorMessage = 'Ai primit deja o recompensă pentru acest număr de telefon.';
-                    } else if (currentLang === 'ru') {
-                        errorMessage = 'Вы уже получили награду за этот номер телефона.';
-                    }
-                    
-                    showPhoneError(phoneInput, errorMessage);
+                    const currentLang = getCurrentLanguage();
+                    const errorMessages = {
+                        en: 'You have already received a reward for this phone number.',
+                        ru: 'Вы уже получили награду за этот номер телефона.',
+                        ro: 'Ai primit deja o recompensă pentru acest număr de telefon.'
+                    };
+                    showPhoneError(phoneInput, errorMessages[currentLang] || errorMessages.en);
                     return;
                 }
             }
         } catch (error) {
             console.error('Error checking available coupons:', error);
-            // Continue with normal flow if check fails
         }
 
-        // Store phone number in localStorage
         localStorage.setItem('spinningWheelPhone', formattedPhone);
         localStorage.setItem('spinningWheelPhoneEntered', 'true');
 
-        // Track phone number in database
         const API_BASE_URL = window.location.origin;
         fetch(`${API_BASE_URL}/api/spinning-wheels/track-phone`, {
             method: 'POST',
@@ -1018,18 +1237,15 @@
             console.error('Error tracking phone number:', error);
         });
 
-        // Switch to wheel step
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'flex';
         
-        // Update modal size for wheel step
         const modalContent = document.querySelector('.spinning-wheel-modal-content');
         if (modalContent) {
             modalContent.classList.remove('phone-step');
             modalContent.classList.add('wheel-step');
         }
 
-        // Send phone number to iframe
         const iframe = document.getElementById('universalSpinningWheelIframe');
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -1042,21 +1258,18 @@
     // Handle iframe messages
     function handleWheelMessage(event) {
         if (event.data && event.data.type === 'closeModal') {
-            // Check if there's a winning coupon to auto-apply before closing
             autoApplyWinningCoupon();
             closeModal();
             markModalAsSeen();
         } else if (event.data && event.data.type === 'autoApplyCoupon') {
-            // Handle auto-apply coupon message from spinning wheel
             handleAutoApplyCoupon(event.data.couponCode);
         } else if (event.data && event.data.type === 'closeSpinningWheel') {
-            // Handle close message from spinning wheel
             closeModal();
             markModalAsSeen();
         }
     }
 
-    // Auto-apply winning coupon from localStorage
+    // Auto-apply winning coupon
     function autoApplyWinningCoupon() {
         try {
             const savedCouponCode = localStorage.getItem('spinningWheelWinningCoupon');
@@ -1068,77 +1281,61 @@
         }
     }
 
-    // Handle auto-apply coupon functionality
+    // Handle auto-apply coupon
     function handleAutoApplyCoupon(couponCode) {
         try {
-            
-            
-            // Save coupon code to localStorage for use on booking pages
             localStorage.setItem('autoApplyCoupon', couponCode);
             
-            // Trigger auto-apply immediately if the function is available
             if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
-                
                 setTimeout(() => {
                     window.AutoApplyCoupon.autoApply();
                 }, 100);
             }
             
-            // Show success notification
             showCouponAppliedNotification(couponCode);
-            
         } catch (error) {
             console.error('Error handling auto-apply coupon:', error);
         }
     }
 
-    // Get current language from multiple sources
+    // Get current language
     function getCurrentLanguage() {
-        // Try multiple sources to determine the current language
-        
-        // 1. Check localStorage
         const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
         if (storedLang) {
-            const lang = storedLang.split('-')[0]; // Get 'en' from 'en-US'
+            const lang = storedLang.split('-')[0];
             if (['en', 'ru', 'ro'].includes(lang)) {
                 return lang;
             }
         }
         
-        // 2. Check i18next if available
         if (typeof i18next !== 'undefined' && i18next.language) {
-            const i18nextLang = i18next.language.split('-')[0]; // Get 'en' from 'en-US'
+            const i18nextLang = i18next.language.split('-')[0];
             if (['en', 'ru', 'ro'].includes(i18nextLang)) {
                 return i18nextLang;
             }
         }
         
-        // 3. Check HTML lang attribute
         const htmlLang = document.documentElement.lang;
         if (htmlLang) {
-            const lang = htmlLang.split('-')[0]; // Get 'en' from 'en-US'
+            const lang = htmlLang.split('-')[0];
             if (['en', 'ru', 'ro'].includes(lang)) {
                 return lang;
             }
         }
         
-        // 4. Check URL for language parameter
         const urlParams = new URLSearchParams(window.location.search);
         const urlLang = urlParams.get('lang');
         if (urlLang && ['en', 'ru', 'ro'].includes(urlLang)) {
             return urlLang;
         }
         
-        // 5. Default to English
-        return 'en';
+        return 'ro';
     }
 
-    // Show notification that coupon was applied with beautiful design
+    // Show coupon applied notification
     function showCouponAppliedNotification(couponCode) {
-        // Get current language
         const currentLang = getCurrentLanguage();
         
-        // Translations for all languages
         const translations = {
             en: {
                 title: 'Coupon Applied!',
@@ -1148,23 +1345,21 @@
             ru: {
                 title: 'Купон Применён!',
                 codeLabel: 'Код:',
-                readyMessage: 'Готов к использованию при следующем бронировании!'
+                readyMessage: 'Готов к использованию при бронировании!'
             },
             ro: {
                 title: 'Cupon Aplicat!',
                 codeLabel: 'Cod:',
-                readyMessage: 'Gata de utilizare la următoarea rezervare!'
+                readyMessage: 'Gata pentru următoarea rezervare!'
             }
         };
         
-        const t = translations[currentLang] || translations.en;
+        const t = translations[currentLang] || translations.ro;
         
-        // Create notification element
         const notification = document.createElement('div');
         notification.id = 'coupon-applied-notification';
         notification.className = 'coupon-notification-container';
         
-        // Create confetti elements
         const confettiColors = ['#FFD700', '#FF69B4', '#00CED1', '#FF6347', '#9370DB', '#32CD32'];
         let confettiHTML = '';
         for (let i = 0; i < 6; i++) {
@@ -1211,7 +1406,6 @@
             </div>
         `;
         
-        // Add styles if not already added
         if (!document.getElementById('coupon-notification-styles')) {
             const style = document.createElement('style');
             style.id = 'coupon-notification-styles';
@@ -1425,7 +1619,6 @@
                     .coupon-notification-container {
                         top: 70px;
                         right: 8px;
-                        left: auto;
                         max-width: 200px;
                     }
                     
@@ -1486,7 +1679,6 @@
         
         document.body.appendChild(notification);
         
-        // Auto-remove after 5 seconds with fade out animation
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.style.animation = 'slideInBounce 0.4s ease-out reverse';
@@ -1500,65 +1692,50 @@
         }, 5000);
     }
 
-    // Handle outside click - disabled to prevent accidental closing
+    // Handle outside click
     function handleOutsideClick(event) {
-        // Disabled: Modal should only close via X button
-        // if (event.target === state.modal) {
-        //     closeModal();
-        //     markModalAsSeen();
-        // }
+        // Disabled
     }
 
-    // Handle escape key - disabled to prevent accidental closing
+    // Handle escape key
     function handleKeydown(event) {
-        // Disabled: Modal should only close via X button
-        // if (event.key === 'Escape' && state.modal && state.modal.style.display !== 'none') {
-        //     closeModal();
-        //     markModalAsSeen();
-        // }
+        // Disabled
     }
 
     // Handle window resize
     function handleResize() {
-        if (!state.modal || state.modal.style.display === 'none') return;
-        
-        const wheelContent = state.modal.querySelector('.spinning-wheel-wheel-content');
-        const iframe = state.modal.querySelector('#universalSpinningWheelIframe');
-        
-        // Let CSS media queries handle responsive design
-        // No inline styles needed - CSS will handle all responsive behavior
+        // CSS handles all responsive behavior
     }
 
-    // Handle page visibility changes (tab switching, minimizing)
+    // Handle visibility change
     function handleVisibilityChange() {
         if (document.hidden) {
-            // Page is hidden, pause the timer
             if (state.timer) {
                 clearTimeout(state.timer);
                 state.timer = null;
             }
         } else {
-            // Page is visible again, restart timer if needed
             if (!state.modal || state.modal.style.display === 'none') {
                 startTimer();
             }
         }
     }
 
-    // Handle page unload (navigation to different page)
+    // Handle before unload
     function handleBeforeUnload() {
-        // Store current time for accurate tracking across page navigation
         const currentTime = Date.now();
         const startTime = localStorage.getItem('websiteStartTime');
         
         if (startTime) {
-            // Calculate total time spent and store it
             const totalTime = currentTime - parseInt(startTime);
             localStorage.setItem('websiteTotalTime', totalTime.toString());
         }
     }
 
-    // Fetch the correct enabled, non-premium wheel
+    // Fetch correct wheel
+    async function fetchCorrectWheel() {
+        try {
+    // Fetch correct wheel
     async function fetchCorrectWheel() {
         try {
             const API_BASE_URL = window.API_BASE_URL || '';
@@ -1571,41 +1748,29 @@
             
             const wheelConfigs = await response.json();
             
-            
-            // Filter for non-premium wheels
             const nonPremiumWheels = wheelConfigs.filter(wheel => !wheel.is_premium);
             
-            
             if (nonPremiumWheels.length === 0) {
-                console.warn('No non-premium enabled wheels found. Available wheels:', wheelConfigs);
-                // Fallback: if no non-premium wheels, use any enabled wheel
+                console.warn('No non-premium enabled wheels found');
                 if (wheelConfigs.length > 0) {
-                    
                     return wheelConfigs[0];
                 }
                 return null;
             }
             
-            // If there's only one non-premium wheel, use it
             if (nonPremiumWheels.length === 1) {
-                
                 return nonPremiumWheels[0];
             }
             
-            // If there are multiple non-premium wheels, prefer 'percent' type, then 'free-days'
             const percentWheels = nonPremiumWheels.filter(wheel => wheel.type === 'percent');
             if (percentWheels.length > 0) {
-                
                 return percentWheels[0];
             }
             
             const freeDaysWheels = nonPremiumWheels.filter(wheel => wheel.type === 'free-days');
             if (freeDaysWheels.length > 0) {
-                
                 return freeDaysWheels[0];
             }
-            
-            // Fallback to first non-premium wheel
             
             return nonPremiumWheels[0];
             
@@ -1615,69 +1780,58 @@
         }
     }
 
-    // Start timer based on cumulative website time
+    // Start timer
     function startTimer() {
         if (hasSeenModalToday()) return;
         
-        // Set website start time if not already set
         setWebsiteStartTime();
         
-        // Check if we've already spent enough time on the website
         const totalTime = getTotalWebsiteTime();
         if (totalTime >= CONFIG.delay) {
-            // User has been on website long enough, show modal immediately
             showModalWithCorrectWheel();
             return;
         }
         
-        // Calculate remaining time needed
         const remainingTime = CONFIG.delay - totalTime;
         
-        // Set timer for remaining time
         state.timer = setTimeout(() => {
             showModalWithCorrectWheel();
         }, remainingTime);
     }
 
-    // Show modal with the correct wheel
+    // Show modal with correct wheel
     async function showModalWithCorrectWheel() {
         const correctWheel = await fetchCorrectWheel();
         
         if (correctWheel) {
             showModal({ wheelId: correctWheel.id, wheelType: correctWheel.type });
         } else {
-            // Fallback to default behavior if no correct wheel found
             showModal();
         }
     }
 
-    // Initialize the modal system
+    // Initialize
     function init() {
         if (state.isInitialized) return;
         
-        // Don't show on standalone spinning wheel pages
         if (window.location.pathname.includes('spinning-wheel')) {
             return;
         }
 
-        // Create and inject modal
         const modalHTML = createModalHTML();
         const modalCSS = createModalCSS();
         
         document.head.appendChild(modalCSS);
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         
-        // Get references
         state.modal = document.getElementById(CONFIG.modalId);
         state.iframe = document.getElementById('universalSpinningWheelIframe');
         
         if (!state.modal) return;
         
-        // Add event listeners
         const closeBtn = state.modal.querySelector('.spinning-wheel-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
-                // Auto-apply winning coupon before closing
                 autoApplyWinningCoupon();
                 closeModal();
                 markModalAsSeen();
@@ -1689,31 +1843,24 @@
             phoneForm.addEventListener('submit', handlePhoneSubmit);
         }
         
-        // Add input validation for phone number
         const phoneInput = document.getElementById('universalPhoneInput');
         if (phoneInput) {
             phoneInput.addEventListener('input', handlePhoneInput);
         }
         
-        // Global event listeners
         window.addEventListener('message', handleWheelMessage);
         state.modal.addEventListener('click', handleOutsideClick);
         document.addEventListener('keydown', handleKeydown);
         window.addEventListener('resize', handleResize);
-        
-        // Track page visibility and unload for better time tracking
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('beforeunload', handleBeforeUnload);
         
-        // Listen for language changes
         if (typeof i18next !== 'undefined') {
             i18next.on('languageChanged', updateModalTranslations);
         }
         
-        // Try to update translations after a delay in case i18next loads later
         setTimeout(updateModalTranslations, 1000);
         
-        // Check if user already has a phone number
         const existingPhone = localStorage.getItem('spinningWheelPhone');
         if (existingPhone) {
             document.getElementById('universalPhoneStep').style.display = 'none';
@@ -1722,7 +1869,6 @@
         
         state.isInitialized = true;
         
-        // Start timer
         startTimer();
     }
 
@@ -1751,7 +1897,7 @@
         }
     }
 
-    // Export for global access if needed
+    // Export for global access
     window.UniversalSpinningWheel = {
         show: showModal,
         close: closeModal,
