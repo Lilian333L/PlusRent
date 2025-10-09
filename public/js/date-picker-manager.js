@@ -128,11 +128,11 @@ class DatePickerManager {
         
         // Настройки диапазона лет
         const currentYear = new Date().getFullYear();
-        const minYear = currentYear - 5;  // 5 лет назад
+        const minYear = currentYear;  // Только текущий год
         const maxYear = currentYear + 5;  // 5 лет вперед от текущего года
         
-        // Заполняем опции
-        for (let year = maxYear; year >= minYear; year--) {
+        // Заполняем опции (от текущего до будущего)
+        for (let year = minYear; year <= maxYear; year++) {
           const option = document.createElement('option');
           option.value = year;
           option.textContent = year;
