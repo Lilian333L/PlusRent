@@ -142,30 +142,14 @@ class DatePickerManager {
           yearSelect.appendChild(option);
         }
         
-        // Стили для dropdown
-        yearSelect.style.cssText = `
-          background: rgba(255, 255, 255, 0.25);
-          color: white;
-          font-weight: 700;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          padding: 2px 6px;
-          font-size: 13px;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-          touch-action: manipulation;
-          width: auto;
-          min-width: 52px;
-          text-align: center;
-          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-          background-repeat: no-repeat;
-          background-position: right 2px center;
-          background-size: 14px;
-          padding-right: 20px;
-        `;
+        // Убираем стили встроенные, так как теперь они в CSS
+        // Но оставим класс для стилей
+        yearSelect.className = 'flatpickr-year-dropdown';
+        
+        // Добавляем атрибут к контейнеру для CSS селектора (для браузеров без :has)
+        if (yearInput.parentNode) {
+          yearInput.parentNode.setAttribute('data-has-dropdown', 'true');
+        }
         
         // Обработчик изменения
         yearSelect.addEventListener('change', function(e) {
