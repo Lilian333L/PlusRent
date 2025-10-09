@@ -167,6 +167,43 @@ class DatePickerManager {
           padding-right: 20px;
         `;
         
+        // Добавляем стили для опций dropdown (для ПК)
+        const styleId = 'flatpickr-year-dropdown-styles';
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement('style');
+          style.id = styleId;
+          style.textContent = `
+            .flatpickr-year-dropdown option {
+              background: #667eea !important;
+              color: white !important;
+              padding: 8px !important;
+              font-weight: 600 !important;
+              text-shadow: none !important;
+            }
+            .flatpickr-year-dropdown option:hover,
+            .flatpickr-year-dropdown option:checked {
+              background: #764ba2 !important;
+              color: white !important;
+            }
+            /* Фикс для Windows/Chrome где опции могут быть черными */
+            .flatpickr-year-dropdown {
+              background-color: #667eea !important;
+            }
+            .flatpickr-year-dropdown:focus option:checked {
+              background: linear-gradient(135deg, #667eea, #764ba2) !important;
+              color: white !important;
+            }
+            /* Для Firefox */
+            @-moz-document url-prefix() {
+              .flatpickr-year-dropdown option {
+                background-color: #667eea !important;
+                color: white !important;
+              }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
         // Обработчик изменения
         yearSelect.addEventListener('change', function(e) {
           instance.changeYear(parseInt(e.target.value));
