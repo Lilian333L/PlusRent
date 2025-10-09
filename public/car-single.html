@@ -992,43 +992,69 @@
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   color: white;
   font-weight: 700;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1.05rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months option {
-  background: white;
+  background: #ffffff;
   color: #2d3748;
   font-weight: 600;
-  padding: 8px 12px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
 }
 
 .flatpickr-current-month .numInputWrapper {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 4px 8px;
-  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+}
+
+.flatpickr-current-month .numInputWrapper:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .flatpickr-current-month .numInputWrapper input {
   color: white;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.flatpickr-current-month .numInputWrapper:hover {
-  background: rgba(255, 255, 255, 0.3);
+.flatpickr-current-month .numInputWrapper span {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.flatpickr-current-month .numInputWrapper span:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowUp:after {
+  border-bottom-color: white;
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowDown:after {
+  border-top-color: white;
 }
 
 .flatpickr-prev-month,
@@ -1417,8 +1443,7 @@ header.header-mobile #mainmenu a:hover {
           <div class="topbar-left xs-hide">
             <div class="topbar-widget">
               <div class="topbar-widget"><a href="tel:+37360000500"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
-              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i
-                    class="fa fa-envelope"></i>contact@plusrent.md</a></div>
+              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
               <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
             </div>
           </div>
@@ -1869,8 +1894,7 @@ header.header-mobile #mainmenu a:hover {
                 <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica
                   Moldova</span>
                 <span><i class="id-color fa fa-phone fa-lg"></i>+373 60 000 500</span>
-                <span><i class="id-color fa fa-envelope-o fa-lg"></i>
-                    href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
+                <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
               </address>
             </div>
           </div>
@@ -1936,6 +1960,11 @@ header.header-mobile #mainmenu a:hover {
 
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  
+  <!-- Flatpickr Locales -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ro.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+  
   <script src="js/date-picker-manager.js"></script>
 
   <!-- i18next CDN -->
@@ -2154,7 +2183,7 @@ header.header-mobile #mainmenu a:hover {
 
       bookingHandler.initForm('contact_form', 'send_message');
 
-      // Initialize DatePickerManager
+      // Initialize DatePickerManager with locale support
       const datePickerManager = new DatePickerManager({
         pickupInputId: "date-picker",
         returnInputId: "date-picker-2",
@@ -2168,6 +2197,28 @@ header.header-mobile #mainmenu a:hover {
       });
 
       datePickerManager.initialize();
+
+      // Update Flatpickr locale when language changes
+      if (typeof i18next !== 'undefined') {
+        i18next.on('languageChanged', function (lng) {
+          // Update flatpickr locale
+          if (window.datePickerInstances) {
+            const localeMap = {
+              'ro': flatpickr.l10ns.ro,
+              'ru': flatpickr.l10ns.ru,
+              'en': flatpickr.l10ns.default
+            };
+            
+            const locale = localeMap[lng] || flatpickr.l10ns.default;
+            
+            Object.values(window.datePickerInstances).forEach(picker => {
+              if (picker && picker.set) {
+                picker.set('locale', locale);
+              }
+            });
+          }
+        });
+      }
 
       // Fetch car data
       let car;
@@ -2660,7 +2711,7 @@ header.header-mobile #mainmenu a:hover {
           <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid #e8eef3;">
             <div style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #667eea;">
               €${lowestPrice}<span style="font-size: 14px; font-weight: 500; color: #6c757d;">/day</span>
-              </div>
+            </div>
             <div style="font-size: 13px; color: #718096; margin-top: 8px;">
               <i class="fa fa-info-circle" style="color: #667eea;"></i> 
               <span data-i18n="cars.loading_breakdown">Loading detailed breakdown...</span>
