@@ -114,174 +114,6 @@ class DatePickerManager {
     return [];
   }
 
-// Функция для преобразования year input в dropdown
-  convertYearToDropdown(instance) {
-    setTimeout(() => {
-      const yearInput = instance.calendarContainer.querySelector('.numInputWrapper input.cur-year');
-      
-      if (yearInput && !yearInput.hasAttribute('data-dropdown-applied')) {
-        yearInput.setAttribute('data-dropdown-applied', 'true');
-        
-        // Создаем select элемент
-        const yearSelect = document.createElement('select');
-        yearSelect.className = 'flatpickr-year-dropdown';
-        
-        // Настройки диапазона лет
-        const currentYear = new Date().getFullYear();
-        const minYear = currentYear;  // Только текущий год
-        const maxYear = currentYear + 5;  // 5 лет вперед от текущего года
-        
-        // Заполняем опции (от текущего до будущего)
-        for (let year = minYear; year <= maxYear; year++) {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = year;
-          if (year === instance.currentYear) {
-            option.selected = true;
-          }
-          yearSelect.appendChild(option);
-        }
-        
-        // Встроенные стили для dropdown
-        yearSelect.style.cssText = `
-          background: transparent;
-          color: white;
-          font-weight: 700;
-          border: none;
-          border-radius: 0;
-          padding: 2px 4px;
-          font-size: 13px;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-          touch-action: manipulation;
-          width: auto;
-          min-width: 52px;
-          text-align: center;
-          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-          background-repeat: no-repeat;
-          background-position: right 2px center;
-          background-size: 14px;
-          padding-right: 20px;
-        `;
-          /**
- * DatePickerManager - Reusable Flatpickr date picker with unavailable dates
- * Usage: new DatePickerManager(options)
- */
-
-class DatePickerManager {
-  constructor(options = {}) {
-    this.pickupInputId = options.pickupInputId || "date-picker";
-    this.returnInputId = options.returnInputId || "date-picker-2";
-    this.carId = options.carId || null;
-    this.onDateChange = options.onDateChange || null;
-    this.dateFormat = options.dateFormat || "d-m-Y";
-    this.pickupFlatpickr = null;
-    this.returnFlatpickr = null;
-    this.isModal = options.isModal || false;
-    this.customClass = options.customClass || "";
-    this.timeUpdateInterval = null;
-  }
-
-  // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
-  convertDateFormatToISO(dateStr) {
-    if (!dateStr) return "";
-    const parts = dateStr.split("-");
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`; // Convert dd-mm-yyyy to YYYY-MM-DD
-    }
-    return dateStr;
-  }
-
-  // Function to find the first available date after a given date
-  findFirstAvailableDate(startDate, unavailableDates) {
-    // ✅ ИСПРАВЛЕНИЕ: Создаём дату правильно, избегая timezone проблем
-    const currentDate = new Date(startDate);
-    
-    // Устанавливаем время в LOCAL timezone, а не UTC
-    currentDate.setHours(0, 0, 0, 0);
-    
-    let attempts = 0;
-    const maxAttempts = 30; // Prevent infinite loop
-
-    while (attempts < maxAttempts) {
-      // ✅ Форматируем дату в LOCAL timezone
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      
-      if (!unavailableDates.includes(dateStr)) {
-        // Convert to dd-mm-yyyy format
-        return `${day}-${month}-${year}`;
-      }
-      currentDate.setDate(currentDate.getDate() + 1);
-      attempts++;
-    }
-
-    // Fallback: return the start date if no available date found
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    return `${day}-${month}-${year}`;
-  }
-
-  // Load unavailable dates from API
-  async loadUnavailableDates(carId) {
-    try {
-      const response = await fetch(
-        `${window.API_BASE_URL}/api/cars/${carId}/booking-dates`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const unavailableDates = [];
-
-        console.log('📦 Raw booking data:', data);
-
-        if (data.booking_dates && Array.isArray(data.booking_dates)) {
-          data.booking_dates.forEach((booking) => {
-            if (booking.pickup_date && booking.return_date) {
-              // ✅ Безопасная обработка дат без timezone проблем
-              const pickupStr = booking.pickup_date.split('T')[0]; // "2025-01-20"
-              const returnStr = booking.return_date.split('T')[0]; // "2025-01-25"
-              
-              const [pYear, pMonth, pDay] = pickupStr.split('-').map(Number);
-              const [rYear, rMonth, rDay] = returnStr.split('-').map(Number);
-              
-              const startDate = new Date(pYear, pMonth - 1, pDay);
-              const endDate = new Date(rYear, rMonth - 1, rDay);
-
-              console.log(`🔍 Processing booking: ${pickupStr} to ${returnStr}`);
-
-              // ✅ Добавляем ВСЕ даты включительно (включая pickup date!)
-              const currentDate = new Date(startDate);
-              while (currentDate <= endDate) {
-                const year = currentDate.getFullYear();
-                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                const day = String(currentDate.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${day}`;
-                
-                console.log(`  🚫 Blocking: ${dateStr}`);
-                unavailableDates.push(dateStr);
-                
-                currentDate.setDate(currentDate.getDate() + 1);
-              }
-            }
-          });
-        }
-
-        console.log('✅ Total unavailable dates:', unavailableDates.length, unavailableDates);
-        return unavailableDates;
-      }
-    } catch (error) {
-      console.error("❌ Failed to load unavailable dates:", error);
-    }
-
-    return [];
-  }
-
   // Функция для преобразования year input в dropdown
   convertYearToDropdown(instance) {
     setTimeout(() => {
@@ -310,14 +142,30 @@ class DatePickerManager {
           yearSelect.appendChild(option);
         }
         
-        // Убираем стили встроенные, так как теперь они в CSS
-        // Но оставим класс для стилей
-        yearSelect.className = 'flatpickr-year-dropdown';
-        
-        // Добавляем атрибут к контейнеру для CSS селектора (для браузеров без :has)
-        if (yearInput.parentNode) {
-          yearInput.parentNode.setAttribute('data-has-dropdown', 'true');
-        }
+        // Стили для dropdown
+        yearSelect.style.cssText = `
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+          font-weight: 700;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          padding: 2px 6px;
+          font-size: 13px;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+          touch-action: manipulation;
+          width: auto;
+          min-width: 52px;
+          text-align: center;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 2px center;
+          background-size: 14px;
+          padding-right: 20px;
+        `;
         
         // Обработчик изменения
         yearSelect.addEventListener('change', function(e) {
