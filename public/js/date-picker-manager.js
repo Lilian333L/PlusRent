@@ -142,12 +142,12 @@ class DatePickerManager {
           yearSelect.appendChild(option);
         }
         
-        // Стили для dropdown
+        // Стили для dropdown - убираем прозрачность для лучшей видимости
         yearSelect.style.cssText = `
-          background: rgba(255, 255, 255, 0.25);
+          background: #667eea;
           color: white;
           font-weight: 700;
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          border: 2px solid rgba(255, 255, 255, 0.5);
           border-radius: 8px;
           padding: 2px 6px;
           font-size: 13px;
@@ -155,7 +155,7 @@ class DatePickerManager {
           appearance: none;
           -webkit-appearance: none;
           -moz-appearance: none;
-          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
           touch-action: manipulation;
           width: auto;
           min-width: 52px;
@@ -167,42 +167,80 @@ class DatePickerManager {
           padding-right: 20px;
         `;
         
-        // Добавляем стили для опций dropdown (для ПК)
+        // Добавляем стили для опций dropdown с более агрессивными правилами
         const styleId = 'flatpickr-year-dropdown-styles';
         if (!document.getElementById(styleId)) {
           const style = document.createElement('style');
           style.id = styleId;
           style.textContent = `
+            /* Основные стили для select */
+            .flatpickr-year-dropdown {
+              background-color: #667eea !important;
+              color: white !important;
+            }
+            
+            /* Стили для опций - делаем темный фон для контраста */
             .flatpickr-year-dropdown option {
-              background: #667eea !important;
+              background-color: #2d3748 !important;
               color: white !important;
               padding: 8px !important;
               font-weight: 600 !important;
               text-shadow: none !important;
             }
+            
             .flatpickr-year-dropdown option:hover,
-            .flatpickr-year-dropdown option:checked {
-              background: #764ba2 !important;
-              color: white !important;
-            }
-            /* Фикс для Windows/Chrome где опции могут быть черными */
-            .flatpickr-year-dropdown {
+            .flatpickr-year-dropdown option:focus,
+            .flatpickr-year-dropdown option:checked,
+            .flatpickr-year-dropdown option:active {
               background-color: #667eea !important;
-            }
-            .flatpickr-year-dropdown:focus option:checked {
-              background: linear-gradient(135deg, #667eea, #764ba2) !important;
               color: white !important;
+              box-shadow: inset 0 0 10px rgba(0,0,0,0.3) !important;
             }
-            /* Для Firefox */
+            
+            /* Webkit browsers (Chrome, Safari) */
+            .flatpickr-year-dropdown::-webkit-scrollbar {
+              width: 8px;
+            }
+            
+            .flatpickr-year-dropdown::-webkit-scrollbar-track {
+              background: #2d3748;
+            }
+            
+            .flatpickr-year-dropdown::-webkit-scrollbar-thumb {
+              background: #667eea;
+              border-radius: 4px;
+            }
+            
+            /* Firefox specific */
             @-moz-document url-prefix() {
-              .flatpickr-year-dropdown option {
+              .flatpickr-year-dropdown {
                 background-color: #667eea !important;
                 color: white !important;
               }
+              
+              .flatpickr-year-dropdown option {
+                background-color: #2d3748 !important;
+                color: white !important;
+              }
+            }
+            
+            /* Edge/IE fallback */
+            _:-ms-fullscreen, :root .flatpickr-year-dropdown option {
+              background-color: #2d3748 !important;
+              color: white !important;
             }
           `;
           document.head.appendChild(style);
         }
+        
+        // Дополнительно устанавливаем атрибуты для каждой опции
+        setTimeout(() => {
+          const options = yearSelect.querySelectorAll('option');
+          options.forEach(option => {
+            option.style.backgroundColor = '#2d3748';
+            option.style.color = 'white';
+          });
+        }, 0);
         
         // Обработчик изменения
         yearSelect.addEventListener('change', function(e) {
