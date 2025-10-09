@@ -57,71 +57,290 @@
   <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   
-  <!-- Дополнительные стили для календаря -->
+  <!-- ПРОСТОЙ КАЛЕНДАРЬ БЕЗ СЛОЖНОСТЕЙ -->
   <style>
-    /* Простое решение для локализации и видимости */
-    .flatpickr-calendar { 
-      font-size: 14px !important; 
-      width: auto !important;
+    /* ====== БАЗОВЫЙ КАЛЕНДАРЬ ====== */
+    .flatpickr-calendar {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12) !important;
+      border-radius: 10px !important;
+      border: 1px solid #e2e8f0 !important;
+      font-size: 14px !important;
     }
     
-    /* Скрываем стрелки года */
-    .numInputWrapper span.arrowUp,
-    .numInputWrapper span.arrowDown {
+    /* ====== ЗАГОЛОВОК - МЕСЯЦ И ГОД ВМЕСТЕ ====== */
+    .flatpickr-months {
+      background: linear-gradient(135deg, #667eea, #764ba2) !important;
+      border-radius: 10px 10px 0 0 !important;
+      height: 50px !important;
+      padding: 0 !important;
+    }
+    
+    .flatpickr-month {
+      height: 50px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    /* Скрываем выпадающий список месяцев и поле года - оставляем только текст */
+    .flatpickr-current-month {
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      color: white !important;
+      padding: 0 !important;
+      position: static !important;
+      left: 0 !important;
+      transform: none !important;
+      pointer-events: none !important;
+    }
+    
+    /* ПОЛНОСТЬЮ скрываем селекторы - оставляем только текст */
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
       display: none !important;
     }
     
-    /* Месяцы и год */
-    .flatpickr-months {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+    .flatpickr-current-month .numInputWrapper {
+      display: none !important;
     }
     
-    .flatpickr-current-month {
-      color: white;
+    /* Показываем только span с названием месяца и года */
+    .flatpickr-current-month span.cur-month {
+      display: inline !important;
+      color: white !important;
+      font-weight: 600 !important;
+      margin-right: 8px !important;
     }
     
-    .flatpickr-monthDropdown-months,
-    .flatpickr-current-month input {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
+    .flatpickr-current-month .cur-year {
+      display: inline !important;
+      color: white !important;
+      font-weight: 600 !important;
     }
     
-    /* Дни недели */
+    /* ====== СТРЕЛКИ НАВИГАЦИИ ====== */
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      padding: 8px !important;
+      width: 35px !important;
+      height: 35px !important;
+      border-radius: 50% !important;
+      background: rgba(255,255,255,0.2) !important;
+      transition: all 0.3s !important;
+    }
+    
+    .flatpickr-prev-month:hover,
+    .flatpickr-next-month:hover {
+      background: rgba(255,255,255,0.3) !important;
+    }
+    
+    .flatpickr-prev-month {
+      left: 10px !important;
+    }
+    
+    .flatpickr-next-month {
+      right: 10px !important;
+    }
+    
+    .flatpickr-prev-month svg,
+    .flatpickr-next-month svg {
+      fill: white !important;
+      width: 16px !important;
+      height: 16px !important;
+    }
+    
+    /* ====== ДНИ НЕДЕЛИ ====== */
+    .flatpickr-weekdays {
+      background: #f8f9fa !important;
+      height: 40px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .flatpickr-weekdaycontainer {
+      display: flex !important;
+      width: 100% !important;
+    }
+    
     .flatpickr-weekday {
-      color: #667eea;
-      font-weight: bold;
-      font-size: 13px;
+      flex: 1 !important;
+      color: #667eea !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+      text-align: center !important;
+      line-height: 40px !important;
+      text-transform: uppercase !important;
     }
     
-    /* Дни */
+    /* ====== ДНИ МЕСЯЦА ====== */
+    .flatpickr-days {
+      padding: 10px !important;
+      background: white !important;
+      border-radius: 0 0 10px 10px !important;
+    }
+    
+    .dayContainer {
+      width: 100% !important;
+      display: grid !important;
+      grid-template-columns: repeat(7, 1fr) !important;
+      gap: 4px !important;
+    }
+    
     .flatpickr-day {
-      border-radius: 4px;
+      height: 36px !important;
+      line-height: 36px !important;
+      margin: 0 !important;
+      border: 1px solid transparent !important;
+      border-radius: 6px !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      color: #2d3748 !important;
+      background: white !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
     }
     
-    .flatpickr-day.selected {
-      background: #667eea;
-      border-color: #667eea;
+    /* Hover эффект */
+    .flatpickr-day:hover:not(.flatpickr-disabled):not(.selected):not(.occupied) {
+      background: #f0f7ff !important;
+      border-color: #667eea !important;
     }
     
-    .flatpickr-day.today {
-      border-color: #667eea;
+    /* Выбранная дата */
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #667eea !important;
+      color: white !important;
+      font-weight: 600 !important;
+      border-color: #667eea !important;
     }
     
-    /* Мобильная версия */
+    /* Диапазон между датами */
+    .flatpickr-day.inRange {
+      background: #e0f2fe !important;
+      border-color: transparent !important;
+    }
+    
+    /* Сегодня */
+    .flatpickr-day.today:not(.selected) {
+      background: #fef3c7 !important;
+      color: #92400e !important;
+      font-weight: 600 !important;
+      border: 2px solid #fbbf24 !important;
+    }
+    
+    /* Недоступная дата */
+    .flatpickr-day.flatpickr-disabled {
+      color: #cbd5e0 !important;
+      background: #f7fafc !important;
+      cursor: not-allowed !important;
+      opacity: 0.5 !important;
+    }
+    
+    /* ====== ЗАНЯТЫЕ ДАТЫ (РЕЗЕРВАЦИЯ) ====== */
+    .flatpickr-day.occupied {
+      background: repeating-linear-gradient(
+        45deg,
+        #fee2e2,
+        #fee2e2 5px,
+        #fecaca 5px,
+        #fecaca 10px
+      ) !important;
+      color: #991b1b !important;
+      border: 2px solid #ef4444 !important;
+      cursor: not-allowed !important;
+      font-weight: 700 !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    .flatpickr-day.occupied::after {
+      content: '×' !important;
+      position: absolute !important;
+      top: 0 !important;
+      right: 2px !important;
+      font-size: 16px !important;
+      color: #dc2626 !important;
+      font-weight: bold !important;
+    }
+    
+    .flatpickr-day.occupied:hover {
+      background: repeating-linear-gradient(
+        45deg,
+        #fecaca,
+        #fecaca 5px,
+        #fca5a5 5px,
+        #fca5a5 10px
+      ) !important;
+      transform: none !important;
+    }
+    
+    /* ====== МОБИЛЬНАЯ ВЕРСИЯ ====== */
     @media (max-width: 480px) {
       .flatpickr-calendar {
         font-size: 16px !important;
+        width: calc(100vw - 20px) !important;
+        max-width: 360px !important;
+        margin: 0 auto !important;
       }
       
-      .flatpickr-day {
-        height: 35px;
-        line-height: 35px;
+      .flatpickr-months {
+        height: 45px !important;
+      }
+      
+      .flatpickr-month {
+        height: 45px !important;
+      }
+      
+      .flatpickr-current-month {
+        font-size: 16px !important;
+      }
+      
+      .flatpickr-prev-month,
+      .flatpickr-next-month {
+        width: 32px !important;
+        height: 32px !important;
+      }
+      
+      .flatpickr-weekdays {
+        height: 35px !important;
       }
       
       .flatpickr-weekday {
-        font-size: 12px;
+        font-size: 11px !important;
+        line-height: 35px !important;
       }
+      
+      .flatpickr-days {
+        padding: 8px !important;
+      }
+      
+      .dayContainer {
+        gap: 3px !important;
+      }
+      
+      .flatpickr-day {
+        height: 34px !important;
+        line-height: 34px !important;
+        font-size: 13px !important;
+      }
+    }
+    
+    /* ====== УБИРАЕМ ДУБЛИ И ЛИШНЕЕ ====== */
+    .flatpickr-innerContainer {
+      overflow: visible !important;
+    }
+    
+    .flatpickr-rContainer {
+      overflow: visible !important;
+    }
+    
+    /* Скрываем время если оно есть */
+    .flatpickr-time {
+      display: none !important;
     }
   </style>
   
