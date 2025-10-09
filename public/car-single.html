@@ -969,7 +969,7 @@
   font-weight: 500;
 }
 
-/* ====== FLATPICKR CALENDAR - ФИНАЛЬНАЯ ВЕРСИЯ ====== */
+/* ====== FLATPICKR CALENDAR - ФИНАЛЬНАЯ ВЕРСИЯ С ФИКСОМ ДЛЯ ANDROID ====== */
 
 /* ЗАЩИТА ОТ ЗУМА НА МОБИЛЬНЫХ */
 .flatpickr-calendar,
@@ -1376,7 +1376,71 @@
   }
 }
 
-/* iOS специфичные фиксы */
+/* ====== ANDROID СПЕЦИФИЧНЫЙ ФИКС - ПОКАЗЫВАЕМ ВСЕ ДАТЫ ТЕКУЩЕГО МЕСЯЦА ====== */
+/* Определяем Android устройства */
+@media (pointer: coarse) and (hover: none) {
+  /* Скрываем ТОЛЬКО даты предыдущего и следующего месяцев */
+  .flatpickr-day.prevMonthDay {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .flatpickr-day.nextMonthDay {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  /* Используем grid layout для равномерного распределения всех дат текущего месяца */
+  .dayContainer {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 3px !important;
+    padding: 6px !important;
+    align-items: start !important;
+    justify-items: center !important;
+    grid-auto-rows: 44px !important;
+  }
+  
+  /* Оптимизируем размеры дат для Android - показываем ВСЕ даты месяца */
+  .flatpickr-day {
+    width: 100% !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    line-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Увеличиваем высоту контейнера чтобы влезли ВСЕ даты месяца (до 6 недель) */
+  .flatpickr-days {
+    max-height: 320px !important;
+    min-height: 280px !important;
+  }
+  
+  .dayContainer {
+    max-height: 320px !important;
+    min-height: 280px !important;
+  }
+  
+  .flatpickr-calendar {
+    max-height: 430px !important;
+  }
+  
+  /* Занятые даты (occupied) остаются красивыми и видимыми */
+  .flatpickr-day.occupied {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  /* Disabled даты текущего месяца тоже показываем (прошедшие дни) */
+  .flatpickr-day.flatpickr-disabled:not(.prevMonthDay):not(.nextMonthDay) {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
+/* iOS специфичные фиксы - НЕ ТРОГАЕМ, работает хорошо */
 @supports (-webkit-touch-callout: none) {
   .flatpickr-day.prevMonthDay,
   .flatpickr-day.nextMonthDay {
