@@ -114,6 +114,83 @@ class DatePickerManager {
     return [];
   }
 
+  // Функция для преобразования year input в dropdown
+  convertYearToDropdown(instance) {
+    setTimeout(() => {
+      const yearInput = instance.calendarContainer.querySelector('.numInputWrapper input.cur-year');
+      
+      if (yearInput && !yearInput.hasAttribute('data-dropdown-applied')) {
+        yearInput.setAttribute('data-dropdown-applied', 'true');
+        
+        // Создаем select элемент
+        const yearSelect = document.createElement('select');
+        yearSelect.className = 'flatpickr-year-dropdown';
+        
+        // Настройки диапазона лет
+        const currentYear = new Date().getFullYear();
+        const minYear = currentYear - 5;  // 5 лет назад
+        const maxYear = currentYear + 5;  // 5 лет вперед от текущего года
+        
+        // Заполняем опции
+        for (let year = maxYear; year >= minYear; year--) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          if (year === instance.currentYear) {
+            option.selected = true;
+          }
+          yearSelect.appendChild(option);
+        }
+        
+        // Стили для dropdown
+        yearSelect.style.cssText = `
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+          font-weight: 700;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          padding: 2px 6px;
+          font-size: 13px;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+          touch-action: manipulation;
+          width: auto;
+          min-width: 52px;
+          text-align: center;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 2px center;
+          background-size: 14px;
+          padding-right: 20px;
+        `;
+        
+        // Обработчик изменения
+        yearSelect.addEventListener('change', function(e) {
+          instance.changeYear(parseInt(e.target.value));
+        });
+        
+        // Скрываем оригинальный input и стрелки
+        yearInput.style.display = 'none';
+        const arrowUp = yearInput.parentNode.querySelector('.arrowUp');
+        const arrowDown = yearInput.parentNode.querySelector('.arrowDown');
+        if (arrowUp) arrowUp.style.display = 'none';
+        if (arrowDown) arrowDown.style.display = 'none';
+        
+        // Вставляем select
+        yearInput.parentNode.insertBefore(yearSelect, yearInput);
+      }
+      
+      // Обновляем значение dropdown при изменении месяца
+      const yearSelect = instance.calendarContainer.querySelector('.flatpickr-year-dropdown');
+      if (yearSelect && yearSelect.value != instance.currentYear) {
+        yearSelect.value = instance.currentYear;
+      }
+    }, 100);
+  }
+
   // Initialize Flatpickr with unavailable dates
   async initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
     // Prevent multiple initializations
@@ -417,14 +494,19 @@ class DatePickerManager {
         }
       };
 
+      // Настройки для обоих date picker с year dropdown
+      const currentYear = new Date().getFullYear();
+      const maxDate = new Date(currentYear + 5, 11, 31); // 31 декабря через 5 лет
+
       // Initialize pickup date picker
       this.pickupFlatpickr = flatpickr(pickupInput, {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
         altInput: false,
-        minDate: "today", // ✅ БЛОКИРОВКА ПРОШЛОГО
+        minDate: "today",
+        maxDate: maxDate, // Ограничиваем максимальную дату
         defaultDate: firstAvailablePickupDate,
-        disable: [disableOccupiedDates], // ✅ Функция вместо массива
+        disable: [disableOccupiedDates],
         allowInput: false,
         static: this.isModal ? true : false,
         appendTo: document.body,
@@ -450,7 +532,13 @@ class DatePickerManager {
             ],
           },
         },
-        onDayCreate: addOccupiedClass, // ✅ Добавляем класс к занятым датам
+        onDayCreate: addOccupiedClass,
+        onOpen: (selectedDates, dateStr, instance) => {
+          this.convertYearToDropdown(instance);
+        },
+        onMonthChange: (selectedDates, dateStr, instance) => {
+          this.convertYearToDropdown(instance);
+        },
         onChange: (selectedDates, dateStr, instance) => {
           if (selectedDates.length > 0) {
             const selectedDate = selectedDates[0];
@@ -496,9 +584,10 @@ class DatePickerManager {
         dateFormat: this.dateFormat,
         altFormat: this.dateFormat,
         altInput: false,
-        minDate: "today", // ✅ БЛОКИРОВКА ПРОШЛОГО
+        minDate: "today",
+        maxDate: maxDate, // Ограничиваем максимальную дату
         defaultDate: firstAvailableReturnDate,
-        disable: [disableOccupiedDates], // ✅ Функция вместо массива
+        disable: [disableOccupiedDates],
         allowInput: false,
         static: this.isModal ? true : false,
         appendTo: document.body,
@@ -524,7 +613,13 @@ class DatePickerManager {
             ],
           },
         },
-        onDayCreate: addOccupiedClass, // ✅ Добавляем класс к занятым датам
+        onDayCreate: addOccupiedClass,
+        onOpen: (selectedDates, dateStr, instance) => {
+          this.convertYearToDropdown(instance);
+        },
+        onMonthChange: (selectedDates, dateStr, instance) => {
+          this.convertYearToDropdown(instance);
+        },
         onChange: (selectedDates, dateStr, instance) => {
           if (this.onDateChange) {
             this.onDateChange();
