@@ -969,7 +969,6 @@
   font-weight: 500;
 }
 
-<style>
 /* ====== FLATPICKR CALENDAR - ФИНАЛЬНАЯ ВЕРСИЯ ====== */
 
 /* ЗАЩИТА ОТ ЗУМА НА МОБИЛЬНЫХ */
@@ -1057,7 +1056,24 @@
   font-size: 16px !important;
 }
 
-.flatpickr-current-month .numInputWrapper {
+/* ИСПРАВЛЕНИЕ ДВОЙНОЙ ОБВОДКИ - убираем стили у контейнера когда есть dropdown */
+.flatpickr-current-month .numInputWrapper:has(.flatpickr-year-dropdown) {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* Fallback для браузеров без :has() */
+.flatpickr-current-month .numInputWrapper[data-has-dropdown="true"] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* Оригинальные стили для обычного numInputWrapper (без dropdown) */
+.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]) {
   background: rgba(255, 255, 255, 0.25);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
@@ -1066,7 +1082,7 @@
   transition: all 0.3s ease;
 }
 
-.flatpickr-current-month .numInputWrapper:hover {
+.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]):hover {
   background: rgba(255, 255, 255, 0.35);
   border-color: rgba(255, 255, 255, 0.5);
 }
@@ -1306,12 +1322,12 @@
   
   /* КРИТИЧНЫЕ ИЗМЕНЕНИЯ ДЛЯ МЕСЯЦА И ГОДА НА МОБИЛЬНЫХ */
   .flatpickr-months {
-    padding: 12px 40px !important; /* Оптимальный padding для стрелок */
+    padding: 12px 40px !important;
   }
   
   .flatpickr-prev-month,
   .flatpickr-next-month {
-    width: 34px !important; /* Еще немного уменьшаем стрелки */
+    width: 34px !important;
     height: 34px !important;
     padding: 5px !important;
     top: 50% !important;
@@ -1328,31 +1344,33 @@
   
   .flatpickr-prev-month::after,
   .flatpickr-next-month::after {
-    font-size: 20px !important; /* Уменьшаем символы стрелок */
+    font-size: 20px !important;
   }
   
   .flatpickr-current-month {
     padding: 0 !important;
-    gap: 3px !important; /* Минимальный gap между месяцем и годом */
-    flex-wrap: nowrap !important; /* Запрещаем перенос */
+    gap: 3px !important;
+    flex-wrap: nowrap !important;
   }
   
   .flatpickr-current-month .flatpickr-monthDropdown-months {
-    font-size: 13px !important; /* Синхронизируем размер с годом */
+    font-size: 13px !important;
     padding: 2px 4px !important;
     min-width: auto !important;
     white-space: nowrap !important;
   }
   
-  .flatpickr-current-month .numInputWrapper {
+  /* Мобильные стили для года с dropdown */
+  .flatpickr-current-month .numInputWrapper:has(.flatpickr-year-dropdown),
+  .flatpickr-current-month .numInputWrapper[data-has-dropdown="true"] {
     margin-left: 2px !important;
-    padding: 2px 3px !important;
-    min-width: 0 !important; /* Убираем минимальную ширину */
+    padding: 0 !important;
+    min-width: 0 !important;
   }
   
   .flatpickr-current-month .numInputWrapper input {
-    font-size: 13px !important; /* Такой же размер как у месяца */
-    width: 52px !important; /* Увеличиваем ширину для 4 цифр */
+    font-size: 13px !important;
+    width: 52px !important;
     padding: 0 2px !important;
     text-align: center !important;
   }
@@ -1533,15 +1551,14 @@
     font-size: 0.65rem;
   }
   
-  /* Еще больше уменьшаем для очень маленьких экранов */
   .flatpickr-current-month .flatpickr-monthDropdown-months {
     font-size: 12px !important;
     padding: 2px 3px !important;
   }
   
   .flatpickr-current-month .numInputWrapper input {
-    font-size: 12px !important; /* Синхронизируем с месяцем */
-    width: 48px !important; /* Достаточно для 4 цифр */
+    font-size: 12px !important;
+    width: 48px !important;
   }
   
   .flatpickr-months {
@@ -1586,8 +1603,8 @@
   }
   
   .flatpickr-current-month .numInputWrapper input {
-    font-size: 11px !important; /* Такой же как у месяца */
-    width: 45px !important; /* Достаточно для года */
+    font-size: 11px !important;
+    width: 45px !important;
     padding: 0 1px !important;
   }
   
@@ -1619,7 +1636,7 @@
   touch-action: manipulation !important;
 }
 
-/* ====== RESPONSIVE DESIGN (ваш существующий код) ====== */
+/* RESPONSIVE DESIGN */
 @media (min-width: 1200px) {
   .booking-form-grid {
     grid-template-columns: repeat(2, 1fr);
