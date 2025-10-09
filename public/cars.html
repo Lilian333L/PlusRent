@@ -404,89 +404,56 @@
       color: var(--text-muted);
     }
 
-    /* ===== SORT AND VIEW CONTROLS ===== */
-    .controls-bar {
+    /* ===== COMPACT SORT BAR ===== */
+    .sort-bar {
       background: white;
       border-radius: var(--radius);
-      padding: 16px 20px;
-      margin-bottom: 24px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
       box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      flex-wrap: wrap;
     }
 
-    .sort-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .sort-label {
-      font-weight: 600;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .sort-label i {
-      color: var(--primary);
-    }
-
-    .sort-select {
-      flex: 1;
-      padding: 8px 12px;
+    .sort-dropdown {
+      padding: 8px 36px 8px 12px;
       border: 2px solid var(--border-color);
       border-radius: var(--radius-sm);
       font-size: 0.9rem;
       font-weight: 500;
-      transition: var(--transition);
       background: white;
       cursor: pointer;
-      min-width: 150px;
+      transition: var(--transition);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      min-width: 180px;
     }
 
-    .sort-select:focus {
+    .sort-dropdown:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-light);
     }
 
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      background: var(--gray-light);
-      padding: 4px;
-      border-radius: var(--radius-sm);
+    .sort-dropdown:hover {
+      border-color: var(--primary);
     }
 
-    .view-btn {
-      padding: 8px 12px;
-      border: none;
-      background: transparent;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: var(--transition-fast);
+    .results-count {
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-weight: 500;
+      white-space: nowrap;
     }
 
-    .view-btn:hover {
-      color: var(--text-primary);
-    }
-
-    .view-btn.active {
-      background: white;
+    .results-count span:first-child {
       color: var(--primary);
-      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+      font-size: 1rem;
     }
 
     /* ===== CAR CARDS - PREMIUM DESIGN ===== */
@@ -911,18 +878,23 @@
         padding: 20px 0;
       }
       
-      .controls-bar {
+      .sort-bar {
         flex-direction: column;
-        align-items: stretch;
+        gap: 12px;
+        padding: 16px;
       }
       
-      .sort-group {
+      .sort-dropdown {
         width: 100%;
+        min-width: 100%;
       }
       
-      .view-toggle {
+      .results-count {
         width: 100%;
-        justify-content: center;
+        text-align: center;
+        padding: 8px;
+        background: var(--gray-light);
+        border-radius: var(--radius-sm);
       }
       
       .cars-grid {
@@ -969,6 +941,11 @@
       
       .mobile-filter-panel {
         width: 90%;
+      }
+      
+      .sort-dropdown {
+        font-size: 0.85rem;
+        padding: 10px 36px 10px 10px;
       }
     }
 
@@ -1354,28 +1331,17 @@
                 <span data-i18n="cars.filter.show_filters">Arată filtre</span>
               </button>
 
-              <!-- Sort and View Controls -->
-              <div class="controls-bar">
-                <div class="sort-group">
-                  <div class="sort-label">
-                    <i class="fa fa-sort"></i>
-                    <span data-i18n="cars.sort.label">Sortare:</span>
-                  </div>
-                  <select id="sortSelect" class="sort-select">
-                    <option value="default" data-i18n="cars.sort.default">Implicit</option>
-                    <option value="price-asc" data-i18n="cars.sort.price_asc">Preț crescător</option>
-                    <option value="price-desc" data-i18n="cars.sort.price_desc">Preț descrescător</option>
-                    <option value="name-asc" data-i18n="cars.sort.name_asc">Nume A-Z</option>
-                    <option value="name-desc" data-i18n="cars.sort.name_desc">Nume Z-A</option>
-                  </select>
-                </div>
-                <div class="view-toggle">
-                  <button class="view-btn active" id="gridView" aria-label="Grid View">
-                    <i class="fa fa-th"></i>
-                  </button>
-                  <button class="view-btn" id="listView" aria-label="List View">
-                    <i class="fa fa-list"></i>
-                  </button>
+              <!-- Compact Sort Control -->
+              <div class="sort-bar">
+                <select id="sortSelect" class="sort-dropdown">
+                  <option value="default" data-i18n="cars.sort.default">⇅ Sortare implicită</option>
+                  <option value="price-asc" data-i18n="cars.sort.price_asc">↑ Preț crescător</option>
+                  <option value="price-desc" data-i18n="cars.sort.price_desc">↓ Preț descrescător</option>
+                  <option value="name-asc" data-i18n="cars.sort.name_asc">A-Z Alfabetic</option>
+                  <option value="name-desc" data-i18n="cars.sort.name_desc">Z-A Alfabetic invers</option>
+                </select>
+                <div class="results-count">
+                  <span id="resultsCount">0</span> <span data-i18n="cars.results">mașini găsite</span>
                 </div>
               </div>
 
@@ -1672,23 +1638,6 @@
         renderCars();
       });
       
-      // View toggle
-      document.getElementById('gridView').addEventListener('click', function() {
-        currentView = 'grid';
-        document.getElementById('gridView').classList.add('active');
-        document.getElementById('listView').classList.remove('active');
-        document.getElementById('carsGrid').classList.remove('list-view');
-        renderCars();
-      });
-      
-      document.getElementById('listView').addEventListener('click', function() {
-        currentView = 'list';
-        document.getElementById('listView').classList.add('active');
-        document.getElementById('gridView').classList.remove('active');
-        document.getElementById('carsGrid').classList.add('list-view');
-        renderCars();
-      });
-      
       // Clear filters
       document.getElementById('clearFilters').addEventListener('click', function(e) {
         e.preventDefault();
@@ -1856,6 +1805,12 @@
     // Render cars to the grid
     function renderCars() {
       const carsGrid = document.getElementById('carsGrid');
+      
+      // Update results count
+      const resultsCount = document.getElementById('resultsCount');
+      if (resultsCount) {
+        resultsCount.textContent = filteredCars.length;
+      }
       
       if (filteredCars.length === 0) {
         showEmpty();
