@@ -140,11 +140,12 @@
       --transition-speed: 0.3s;
     }
 
-    /* Language Picker Styles */
+    /* Language Picker Styles - Fixed Version */
     .lang-picker-wrapper { 
       position: relative; 
       display: inline-block; 
-      vertical-align: middle; 
+      vertical-align: middle;
+      z-index: 1001;
     }
     
     .lang-picker-btn {
@@ -152,22 +153,24 @@
       align-items: center;
       gap: 7px;
       padding: 4px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: white;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f6f6f6;
       cursor: pointer;
       font-weight: 500;
       font-size: 14px;
       min-width: 90px;
       height: 38px;
       line-height: 1.2;
-      transition: all var(--transition-speed);
-      box-shadow: var(--shadow-sm);
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
     }
     
-    .lang-picker-btn:hover {
-      border-color: var(--primary-color);
-      box-shadow: var(--shadow-md);
+    .lang-picker-btn:focus, 
+    .lang-picker-btn[aria-expanded="true"] {
+      outline: none;
+      border-color: #f0c040;
+      box-shadow: 0 2px 12px rgba(240,192,64,0.08);
     }
     
     .lang-picker-dropdown {
@@ -175,18 +178,21 @@
       position: absolute;
       top: 110%;
       left: 0;
-      z-index: 1000;
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: var(--shadow-lg);
-      padding: 4px;
+      z-index: 1002;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 0;
       margin: 0;
       min-width: 120px;
       list-style: none;
     }
     
-    .lang-picker-dropdown.open { display: block; }
+    .lang-picker-dropdown.open { 
+      display: block; 
+    }
+    
     .lang-option {
       display: flex;
       align-items: center;
@@ -199,20 +205,28 @@
       transition: background 0.15s, color 0.15s;
       height: 32px;
       line-height: 1.2;
+      width: 100%;
     }
     
+    .lang-option:focus, 
     .lang-option:hover {
-      background: var(--light-bg);
+      background: #f0c04022;
+      color: #031B4E;
+      outline: none;
     }
     
     .lang-option.selected {
-      background: var(--primary-color);
-      color: white;
+      background: #f0c04044;
+      color: #031B4E;
+      font-weight: 600;
     }
     
     .lang-flag {
       width: 20px;
       height: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .lang-flag img {
@@ -220,6 +234,36 @@
       height: 100%;
       object-fit: cover;
       border-radius: 2px;
+    }
+    
+    .lang-globe {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .lang-code {
+      font-weight: 600;
+      margin: 0 2px;
+    }
+    
+    @media (max-width: 600px) {
+      .lang-picker-btn { 
+        font-size: 12px; 
+        padding: 3px 7px; 
+        min-width: 70px; 
+        height: 32px; 
+      }
+      .lang-picker-dropdown { 
+        min-width: 100px; 
+      }
+      .lang-option { 
+        font-size: 12px; 
+        padding: 6px 10px; 
+        height: 28px; 
+      }
     }
 
     /* Enhanced Filter Sidebar Styles */
@@ -579,7 +623,7 @@
       z-index: 9999;
       display: none;
       backdrop-filter: blur(4px);
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
     }
     
     .mobile-filter-overlay.active {
@@ -593,13 +637,13 @@
       width: 85%;
       max-width: 400px;
       height: 100%;
-      height: 100vh; /* Use viewport height */
-      height: -webkit-fill-available; /* iOS fix */
+      height: 100vh;
+      height: -webkit-fill-available;
       background: white;
       box-shadow: var(--shadow-lg);
       overflow-y: auto;
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
       transform: translateX(-100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
@@ -612,7 +656,7 @@
     
     .mobile-filter-header {
       position: sticky;
-      position: -webkit-sticky; /* iOS compatibility */
+      position: -webkit-sticky;
       top: 0;
       background: var(--primary-color);
       color: white;
@@ -645,12 +689,12 @@
       padding: 20px;
       overflow-y: auto;
       flex: 1;
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
     }
     
     .mobile-filter-actions {
       position: sticky;
-      position: -webkit-sticky; /* iOS compatibility */
+      position: -webkit-sticky;
       bottom: 0;
       background: white;
       padding: 20px;
@@ -824,19 +868,42 @@
                                         </a>
                                     </div>
                                     <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                    <div class="lang-picker-wrapper" style="min-width:90px;align-self:center;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
                                         <span class="lang-globe" id="langGlobe">
-                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/>
+                                            <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/>
+                                            <path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/>
+                                            <path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
+                                            <path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
+                                          </svg>
                                         </span>
                                         <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode">RO</span>
-                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                        <span id="langCode" class="lang-code">RO</span>
+                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                                          <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                        </svg>
                                       </button>
-                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
-                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
-                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                                      <ul id="langDropdown" class="lang-picker-dropdown" role="listbox" tabindex="-1">
+                                        <li class="lang-option" data-lang="ro" role="option" tabindex="0">
+                                          <span class="lang-flag">
+                                            <img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                          </span> 
+                                          <span class="lang-code">RO</span>
+                                        </li>
+                                        <li class="lang-option" data-lang="en" role="option" tabindex="0">
+                                          <span class="lang-flag">
+                                            <img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                          </span> 
+                                          <span class="lang-code">EN</span>
+                                        </li>
+                                        <li class="lang-option" data-lang="ru" role="option" tabindex="0">
+                                          <span class="lang-flag">
+                                            <img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                          </span> 
+                                          <span class="lang-code">RU</span>
+                                        </li>
                                       </ul>
                                     </div>
                                 </div>
@@ -1158,6 +1225,7 @@
             'footer.quick_links': 'Link-uri Rapide',
             'footer.social': 'Rețele Sociale',
             'footer.terms': 'Termeni și Condiții',
+            'call_now': 'Sună Acum'
         },
         en: {
             'cars.page_title': 'Our Fleet',
@@ -1283,7 +1351,6 @@
     // Format display text
     function formatDisplayText(rawKey) {
         if (!rawKey) return '';
-        // Convert to string first to handle any data type
         const text = String(rawKey);
         return text
             .split('_')
@@ -1329,7 +1396,6 @@
     function initializeDatePickers() {
         const lang = getCurrentLanguage();
         
-        // Configure Flatpickr options
         let flatpickrConfig = {
             dateFormat: "d.m.Y",
             minDate: "today",
@@ -1344,12 +1410,10 @@
             }
         };
         
-        // Add Russian locale if needed
         if (lang === 'ru' && typeof flatpickr.l10ns.ru !== 'undefined') {
             flatpickrConfig.locale = flatpickr.l10ns.ru;
         }
         
-        // Initialize desktop date pickers
         if (document.querySelector("#date-from")) {
             flatpickr("#date-from", flatpickrConfig);
         }
@@ -1357,7 +1421,6 @@
             flatpickr("#date-to", flatpickrConfig);
         }
         
-        // Mobile date pickers config
         let mobileFlatpickrConfig = {
             dateFormat: "d.m.Y",
             minDate: "today",
@@ -1375,7 +1438,6 @@
             mobileFlatpickrConfig.locale = flatpickr.l10ns.ru;
         }
         
-        // Initialize mobile date pickers
         if (document.querySelector("#mobile-date-from")) {
             flatpickr("#mobile-date-from", mobileFlatpickrConfig);
         }
@@ -1417,7 +1479,6 @@
             const isSelected = selectedValues.includes(String(opt));
             const isDisabled = count === 0 && !isSelected;
             
-            // Translate fuel type if needed
             let displayName = opt;
             if (field === 'fuel_type') {
                 displayName = translateFuelType(opt);
@@ -1449,24 +1510,18 @@
     function updateFiltersAndFetch() {
         const params = new URLSearchParams();
         
-        // Collect filter values
         const make = getSelectedValues('filter-make-options');
         const gear = getSelectedValues('filter-gear-options');
         const fuel = getSelectedValues('filter-fuel-options');
         const type = getSelectedValues('filter-type-options');
         const passengers = getSelectedValues('filter-passengers-options');
         
-        // Date filters
         const dateFrom = document.getElementById('date-from')?.value;
         const dateTo = document.getElementById('date-to')?.value;
-        
-        // Sort option
         const sortBy = document.getElementById('sort-select')?.value;
         
-        // Price category
         const priceCategory = document.querySelector('input[name="price-category"]:checked')?.value;
         
-        // Build query params
         if (make.length) params.set('make_name', make.join(','));
         if (gear.length) params.set('gear_type', gear.join(','));
         if (fuel.length) params.set('fuel_type', fuel.join(','));
@@ -1476,20 +1531,16 @@
         if (dateTo) params.set('date_to', dateTo);
         if (sortBy && sortBy !== 'default') params.set('sort', sortBy);
         
-        // Handle price category and sync with modal
         if (priceCategory && priceCategory !== 'all') {
             const settings = priceFilterSettings[priceCategory];
             if (settings) {
                 params.set('min_price', settings.min);
                 params.set('max_price', settings.max);
                 
-                // Update the modal filter if it exists
                 if (window.carsFilterModal && window.carsFilterModal.modal) {
-                    // Remove active class from all cards
                     window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                         card.classList.remove('selected');
                     });
-                    // Add active class to selected category
                     const selectedCard = window.carsFilterModal.modal.querySelector(`.filter-card[data-filter="${priceCategory === 'economy' ? 'econom' : priceCategory}"]`);
                     if (selectedCard) {
                         selectedCard.classList.add('selected');
@@ -1497,7 +1548,6 @@
                 }
             }
         } else {
-            // If "all" is selected, update modal
             if (window.carsFilterModal && window.carsFilterModal.modal) {
                 window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                     card.classList.remove('selected');
@@ -1509,32 +1559,25 @@
             }
         }
         
-        // Update URL
         const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.pushState({}, '', newUrl);
         
-        // Fetch and render
         fetchAndRenderCars();
     }
 
-    // Make updateFiltersAndFetch available globally for modal
     window.updateFiltersAndFetch = updateFiltersAndFetch;
 
-    // Sync function to be called from cars-filter-modal
     window.syncFiltersWithModal = function(priceCategory) {
-        // Update the filter radio buttons based on modal selection
         const radioButtons = document.querySelectorAll('input[name="price-category"]');
         radioButtons.forEach(radio => {
             radio.checked = radio.value === priceCategory;
         });
         
-        // Update mobile filter radio buttons too
         const mobileRadioButtons = document.querySelectorAll('input[name="mobile-price-category"]');
         mobileRadioButtons.forEach(radio => {
             radio.checked = radio.value === priceCategory;
         });
         
-        // Apply the filter
         updateFiltersAndFetch();
     };
 
@@ -1553,7 +1596,6 @@
                 return;
             }
             
-            // Sort cars if needed
             const sortBy = new URLSearchParams(window.location.search).get('sort');
             if (sortBy) {
                 cars.sort((a, b) => {
@@ -1624,7 +1666,6 @@
         }
     }
 
-    // Get lowest price from car
     function getLowestPrice(car) {
         if (car.price_policy) {
             const pricePolicy = typeof car.price_policy === 'string' ? 
@@ -1635,7 +1676,6 @@
         return 0;
     }
 
-    // Get car image URL
     function getCarImage(car) {
         if (car.head_image && car.head_image.startsWith('http')) {
             return car.head_image;
@@ -1645,7 +1685,6 @@
             window.API_BASE_URL + '/uploads/placeholder.png';
     }
 
-    // Render sidebar options
     function renderSidebarOptions() {
         const params = new URLSearchParams(window.location.search);
         const currentFilters = {
@@ -1656,11 +1695,9 @@
             num_passengers: params.get('num_passengers')?.split(',') || []
         };
         
-        // Get price params
         const minPrice = params.get('min_price');
         const maxPrice = params.get('max_price');
         
-        // Filter fuel types to only show Gasoline and Diesel
         const fuelTypes = ['Gasoline', 'Diesel'];
         const carTypes = ['Sedan', 'Suv', 'Crossover', 'Hatchback'];
         
@@ -1670,19 +1707,16 @@
         renderFilterOptions('filter-gear-options', getUniqueOptions(allCarsCache, 'gear_type'), currentFilters.gear_type, allCarsCache, currentFilters, 'gear_type');
         renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsCache, 'num_passengers'), currentFilters.num_passengers, allCarsCache, currentFilters, 'num_passengers');
         
-        // Set price category radio based on URL params
         const priceCategoryRadios = document.querySelectorAll('input[name="price-category"]');
         priceCategoryRadios.forEach(radio => {
             radio.checked = false;
         });
         
-        // Determine which category matches the current price range
         if (minPrice && maxPrice) {
             if (minPrice == priceFilterSettings.economy.min && maxPrice == priceFilterSettings.economy.max) {
                 const economyRadio = document.querySelector('input[name="price-category"][value="economy"]');
                 if (economyRadio) economyRadio.checked = true;
                 
-                // Sync with modal
                 if (window.carsFilterModal && window.carsFilterModal.modal) {
                     window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                         card.classList.remove('selected');
@@ -1694,7 +1728,6 @@
                 const standardRadio = document.querySelector('input[name="price-category"][value="standard"]');
                 if (standardRadio) standardRadio.checked = true;
                 
-                // Sync with modal
                 if (window.carsFilterModal && window.carsFilterModal.modal) {
                     window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                         card.classList.remove('selected');
@@ -1706,7 +1739,6 @@
                 const premiumRadio = document.querySelector('input[name="price-category"][value="premium"]');
                 if (premiumRadio) premiumRadio.checked = true;
                 
-                // Sync with modal
                 if (window.carsFilterModal && window.carsFilterModal.modal) {
                     window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                         card.classList.remove('selected');
@@ -1716,11 +1748,9 @@
                 }
             }
         } else {
-            // No price filter - select "All"
             const allRadio = document.querySelector('input[name="price-category"][value="all"]');
             if (allRadio) allRadio.checked = true;
             
-            // Sync with modal
             if (window.carsFilterModal && window.carsFilterModal.modal) {
                 window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                     card.classList.remove('selected');
@@ -1730,17 +1760,14 @@
             }
         }
         
-        // Attach event listeners
         document.querySelectorAll('.filter-sidebar input[type=checkbox]').forEach(cb => {
             cb.addEventListener('change', updateFiltersAndFetch);
         });
         
-        // Price category listeners with modal sync
         document.querySelectorAll('input[name="price-category"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 const category = e.target.value;
                 
-                // Update modal visual state
                 if (window.carsFilterModal && window.carsFilterModal.modal) {
                     window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                         card.classList.remove('selected');
@@ -1759,11 +1786,9 @@
             });
         });
         
-        // Sort listener
         document.getElementById('sort-select')?.addEventListener('change', updateFiltersAndFetch);
     }
 
-    // Mobile filter functions with fixed scrolling
     function toggleMobileFilter() {
         const overlay = document.getElementById('mobile-filter-overlay');
         if (!overlay) return;
@@ -1774,11 +1799,9 @@
             document.body.style.position = '';
             document.body.style.width = '';
             document.body.style.top = '';
-            // Restore scroll position
             const scrollY = document.body.style.top;
             window.scrollTo(0, parseInt(scrollY || '0') * -1);
         } else {
-            // Save scroll position and lock body
             const scrollY = window.scrollY;
             overlay.classList.add('active');
             document.body.style.position = 'fixed';
@@ -1797,7 +1820,6 @@
         const trans = translations[lang] || translations.ro;
         
         container.innerHTML = `
-            <!-- Date Range -->
             <div class="filter-category">
                 <h6 class="filter-section-title">${trans['cars.availability_period']}</h6>
                 <div class="date-input-group">
@@ -1815,7 +1837,6 @@
             
             <div class="filter-divider"></div>
             
-            <!-- Sort Options -->
             <div class="filter-category">
                 <h6 class="filter-section-title">${trans['cars.sort_by']}</h6>
                 <select id="mobile-sort-select" class="sort-select">
@@ -1827,7 +1848,6 @@
             
             <div class="filter-divider"></div>
             
-            <!-- Price Category -->
             <div class="filter-category">
                 <h6 class="filter-section-title">${trans['cars.price_category']}</h6>
                 <div class="filter-option-row">
@@ -1858,7 +1878,6 @@
             
             <div class="filter-divider"></div>
             
-            <!-- Other filters -->
             <div class="filter-category">
                 <h6 class="filter-section-title">${trans['cars.fuel_type']}</h6>
                 <div id="mobile-filter-fuel-options"></div>
@@ -1879,7 +1898,6 @@
             </div>
         `;
         
-        // Render mobile filter options
         const params = new URLSearchParams(window.location.search);
         const currentFilters = {
             fuel_type: params.get('fuel_type')?.split(',') || [],
@@ -1894,12 +1912,10 @@
         renderFilterOptions('mobile-filter-type-options', carTypes, currentFilters.car_type, allCarsCache, currentFilters, 'car_type');
         renderFilterOptions('mobile-filter-make-options', getUniqueOptions(allCarsCache, 'make_name'), currentFilters.make_name, allCarsCache, currentFilters, 'make_name');
         
-        // Initialize mobile date pickers
         initializeDatePickers();
     }
 
     function applyMobileFilters() {
-        // Sync mobile filters to desktop
         const mobileValues = {
             fuel: getSelectedValues('mobile-filter-fuel-options'),
             type: getSelectedValues('mobile-filter-type-options'),
@@ -1910,7 +1926,6 @@
             priceCategory: document.querySelector('input[name="mobile-price-category"]:checked')?.value
         };
         
-        // Build params
         const params = new URLSearchParams();
         if (mobileValues.fuel.length) params.set('fuel_type', mobileValues.fuel.join(','));
         if (mobileValues.type.length) params.set('car_type', mobileValues.type.join(','));
@@ -1927,7 +1942,6 @@
             }
         }
         
-        // Update URL and fetch
         const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.pushState({}, '', newUrl);
         fetchAndRenderCars();
@@ -1935,7 +1949,6 @@
     }
 
     function clearAllFilters() {
-        // Clear desktop filters
         document.querySelectorAll('.filter-sidebar input[type=checkbox]').forEach(cb => cb.checked = false);
         document.querySelectorAll('input[name="price-category"][value="all"]').forEach(radio => radio.checked = true);
         const dateFromDesktop = document.getElementById('date-from');
@@ -1945,7 +1958,6 @@
         const sortSelectDesktop = document.getElementById('sort-select');
         if (sortSelectDesktop) sortSelectDesktop.value = 'default';
         
-        // Clear mobile filters
         document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
         document.querySelectorAll('#mobile-filter-overlay input[type=radio][value="all"]').forEach(radio => radio.checked = true);
         const dateFromMobile = document.getElementById('mobile-date-from');
@@ -1956,35 +1968,66 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher
+    // Language switcher - Fixed version matching contact.html
     function initLanguageSwitcher() {
         const langBtn = document.getElementById('langPickerBtn');
         const langDropdown = document.getElementById('langDropdown');
         const langFlag = document.getElementById('langFlag');
         const langCode = document.getElementById('langCode');
         
+        if (!langBtn || !langDropdown) {
+            console.error('Language switcher elements not found');
+            return;
+        }
+        
         const currentLang = getCurrentLanguage();
         updateLanguageDisplay(currentLang);
         
-        langBtn?.addEventListener('click', (e) => {
+        langBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
+            const isOpen = langDropdown.classList.contains('open');
             langDropdown.classList.toggle('open');
+            langBtn.setAttribute('aria-expanded', String(!isOpen));
         });
         
         document.querySelectorAll('.lang-option').forEach(option => {
             option.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const lang = e.currentTarget.getAttribute('data-lang');
-                localStorage.setItem('lang', lang);
-                updateLanguageDisplay(lang);
-                langDropdown.classList.remove('open');
-                updatePageTranslations();
-                initializeDatePickers(); // Reinit with new locale
-                fetchAndRenderCars(); // Refresh cars with new translations
+                if (lang) {
+                    localStorage.setItem('lang', lang);
+                    updateLanguageDisplay(lang);
+                    langDropdown.classList.remove('open');
+                    langBtn.setAttribute('aria-expanded', 'false');
+                    updatePageTranslations();
+                    initializeDatePickers();
+                    fetchAndRenderCars();
+                }
+            });
+            
+            option.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    option.click();
+                }
             });
         });
         
-        document.addEventListener('click', () => {
-            langDropdown?.classList.remove('open');
+        document.addEventListener('click', (e) => {
+            if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+                langDropdown.classList.remove('open');
+                langBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && langDropdown.classList.contains('open')) {
+                langDropdown.classList.remove('open');
+                langBtn.setAttribute('aria-expanded', 'false');
+                langBtn.focus();
+            }
         });
     }
 
@@ -2011,7 +2054,6 @@
             langCode.textContent = codes[lang];
         }
         
-        // Update selected state
         document.querySelectorAll('.lang-option').forEach(option => {
             option.classList.toggle('selected', option.getAttribute('data-lang') === lang);
         });
@@ -2019,13 +2061,11 @@
 
     // Initialize everything
     async function initialize() {
-        // First, make functions globally available for modal
         window.updateFiltersAndFetch = updateFiltersAndFetch;
         window.fetchAndRenderCars = fetchAndRenderCars;
         
         await loadPriceFilterSettings();
         
-        // Load all cars for filter counts
         try {
             const res = await fetch(`${window.API_BASE_URL}/api/cars`);
             allCarsCache = await res.json();
@@ -2038,18 +2078,14 @@
         initializeDatePickers();
         fetchAndRenderCars();
         
-        // Clear filters button
         document.getElementById('clear-filters-link')?.addEventListener('click', (e) => {
             e.preventDefault();
             window.history.pushState({}, '', window.location.pathname);
             
-            // Clear all filter inputs
             clearAllFilters();
             
-            // Fetch cars without filters
             fetchAndRenderCars();
             
-            // Sync with modal - set to "all"
             if (window.carsFilterModal && window.carsFilterModal.modal) {
                 window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                     card.classList.remove('selected');
@@ -2061,22 +2097,18 @@
             }
         });
         
-        // Mobile filter overlay click outside
         document.getElementById('mobile-filter-overlay')?.addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 toggleMobileFilter();
             }
         });
         
-        // Check URL parameters on load to sync with modal
         const params = new URLSearchParams(window.location.search);
         const minPrice = params.get('min_price');
         const maxPrice = params.get('max_price');
         
-        // Wait a bit for modal to be ready, then sync
         setTimeout(() => {
             if (minPrice && maxPrice && window.carsFilterModal && window.carsFilterModal.modal) {
-                // Determine which category is selected based on prices
                 window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
                     card.classList.remove('selected');
                 });
@@ -2092,17 +2124,14 @@
                     if (premiumCard) premiumCard.classList.add('selected');
                 }
             } else if (!minPrice && !maxPrice && window.carsFilterModal && window.carsFilterModal.modal) {
-                // No price filter - select "All"
                 const allCard = window.carsFilterModal.modal.querySelector('.filter-card[data-filter="all"]');
                 if (allCard) allCard.classList.add('selected');
             }
         }, 500);
     }
 
-    // Start when DOM is ready
     document.addEventListener('DOMContentLoaded', initialize);
 
-    // Export functions for global use
     window.toggleMobileFilter = toggleMobileFilter;
     window.applyMobileFilters = applyMobileFilters;
     window.clearAllFilters = clearAllFilters;
@@ -2110,19 +2139,14 @@
     window.updateFiltersAndFetch = updateFiltersAndFetch;
     window.applyModalFilter = applyModalFilter;
     
-    // Override the modal's update function if needed
     document.addEventListener('DOMContentLoaded', function() {
-        // Wait for modal to be initialized
         setTimeout(() => {
             if (window.carsFilterModal) {
-                // Override the modal's updateCarList method to use our function
                 const originalUpdateCarList = window.carsFilterModal.updateCarList;
                 window.carsFilterModal.updateCarList = function() {
-                    // Get the current filter values from modal
                     const minPrice = document.getElementById('filter-price-min')?.value;
                     const maxPrice = document.getElementById('filter-price-max')?.value;
                     
-                    // Determine which category was selected based on prices
                     let filterType = 'all';
                     if (minPrice && maxPrice) {
                         if (minPrice == priceFilterSettings.economy.min && maxPrice == priceFilterSettings.economy.max) {
@@ -2134,7 +2158,6 @@
                         }
                     }
                     
-                    // Apply the filter through our system
                     window.applyModalFilter(filterType);
                 };
             }
