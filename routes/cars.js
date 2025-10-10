@@ -1010,7 +1010,33 @@ router.delete(
     const id = req.params.id;
 
     try {
-      // First, get the car data to check for images
+      // Сначала проверяем, есть ли бронирования для этой машины
+      const { data: bookingsCheck, error: bookingsError } = await supabase
+        .from("bookings")
+        .select("id, status")
+        .eq("car_id", id);
+
+      if (bookingsError) {
+        console.error("❌ Ошибка проверки бронирований:", bookingsError);
+        return res
+          .status(500)
+          .json({ error: "Ошибка базы данных: " + bookingsError.message });
+      }
+
+      // Если есть активные бронирования, запрещаем удаление
+      const activeBookings = bookingsCheck?.filter(b => 
+        b.status === 'confirmed' || b.status === 'pending'
+      ) || [];
+
+      if (activeBookings.length > 0) {
+        return res.status(400).json({ 
+          error: "Невозможно удалить машину с активными бронированиями",
+          activeBookingsCount: activeBookings.length,
+          suggestion: "Сначала отмените или завершите все активные бронирования"
+        });
+      }
+
+      // Получаем данные машины
       const { data: carData, error: carError } = await supabase
         .from("cars")
         .select("*")
@@ -1018,30 +1044,125 @@ router.delete(
         .single();
 
       if (carError) {
-        console.error("❌ Supabase error fetching car for deletion:", carError);
+        console.error("❌ Ошибка получения данных машины:", carError);
         return res
           .status(500)
-          .json({ error: "Database error: " + carError.message });
+          .json({ error: "Ошибка базы данных: " + carError.message });
       }
 
       if (!carData) {
-        return res.status(404).json({ error: "Car not found" });
+        return res.status(404).json({ error: "Машина не найдена" });
       }
 
-      // Delete the car from Supabase
+      // ВАРИАНТ 1: Удаляем все бронирования связанные с этой машиной
+      if (bookingsCheck && bookingsCheck.length > 0) {
+        console.log(`🗑️ Удаление ${bookingsCheck.length} бронирований для машины ID ${id}`);
+        
+        const { error: deleteBookingsError } = await supabase
+          .from("bookings")
+          .delete()
+          .eq("car_id", id);
+
+        if (deleteBookingsError) {
+          console.error("❌ Ошибка удаления бронирований:", deleteBookingsError);
+          return res
+            .status(500)
+            .json({ error: "Не удалось удалить связанные бронирования: " + deleteBookingsError.message });
+        }
+        console.log(`✅ Удалено ${bookingsCheck.length} бронирований`);
+      }
+
+      // Удаляем запись из booked_cars если есть
+      const { error: bookedCarsError } = await supabase
+        .from("booked_cars")
+        .delete()
+        .eq("car_id", id);
+
+      if (bookedCarsError) {
+        console.log("⚠️ Предупреждение при удалении из booked_cars:", bookedCarsError.message);
+        // Не останавливаем процесс, это не критично
+      }
+
+      // Удаляем изображения из Supabase Storage
+      try {
+        // Удаляем главное изображение
+        if (carData.head_image) {
+          const headImagePath = carData.head_image.split('/').pop();
+          if (headImagePath) {
+            const { error: headDeleteError } = await supabaseAdmin.storage
+              .from('car-images')
+              .remove([`car-${id}/${headImagePath}`]);
+            
+            if (headDeleteError) {
+              console.log("⚠️ Не удалось удалить главное изображение:", headDeleteError.message);
+            } else {
+              console.log("✅ Удалено главное изображение");
+            }
+          }
+        }
+
+        // Удаляем изображения галереи
+        if (carData.gallery_images) {
+          const galleryImages = typeof carData.gallery_images === 'string' 
+            ? JSON.parse(carData.gallery_images) 
+            : carData.gallery_images;
+
+          if (Array.isArray(galleryImages) && galleryImages.length > 0) {
+            const imagePaths = galleryImages.map(url => {
+              const filename = url.split('/').pop();
+              return `car-${id}/${filename}`;
+            });
+
+            const { error: galleryDeleteError } = await supabaseAdmin.storage
+              .from('car-images')
+              .remove(imagePaths);
+
+            if (galleryDeleteError) {
+              console.log("⚠️ Не удалось удалить изображения галереи:", galleryDeleteError.message);
+            } else {
+              console.log(`✅ Удалено ${imagePaths.length} изображений галереи`);
+            }
+          }
+        }
+
+        // Удаляем всю папку машины (на случай если остались файлы)
+        const { data: folderFiles } = await supabaseAdmin.storage
+          .from('car-images')
+          .list(`car-${id}`);
+
+        if (folderFiles && folderFiles.length > 0) {
+          const filePaths = folderFiles.map(file => `car-${id}/${file.name}`);
+          const { error: folderDeleteError } = await supabaseAdmin.storage
+            .from('car-images')
+            .remove(filePaths);
+            
+          if (folderDeleteError) {
+            console.log("⚠️ Не удалось удалить папку машины:", folderDeleteError.message);
+          } else {
+            console.log(`✅ Удалена папка car-${id} со всеми файлами`);
+          }
+        }
+      } catch (storageError) {
+        console.error("⚠️ Ошибка удаления изображений:", storageError);
+        // Продолжаем даже если не удалось удалить изображения
+      }
+
+      // Теперь удаляем саму машину из базы данных
       const { error: deleteError } = await supabase
         .from("cars")
         .delete()
         .eq("id", id);
 
       if (deleteError) {
-        console.error("❌ Supabase car deletion error:", deleteError);
+        console.error("❌ Ошибка удаления машины:", deleteError);
         return res
           .status(500)
-          .json({ error: "Database error: " + deleteError.message });
+          .json({ error: "Ошибка базы данных: " + deleteError.message });
       }
 
-      // Send Telegram notification
+      console.log(`✅ Машина ID ${id} успешно удалена`);
+
+      // Отправляем уведомление в Telegram
       try {
         const telegram = new TelegramNotifier();
         const carDataForTelegram = {
@@ -1054,16 +1175,18 @@ router.delete(
           telegram.formatCarDeletedMessage(carDataForTelegram)
         );
       } catch (error) {
-        console.error("Error sending Telegram notification:", error);
+        console.error("Ошибка отправки уведомления в Telegram:", error);
       }
 
       res.json({
         success: true,
-        message: "Car and all associated assets deleted successfully",
+        message: "Машина и все связанные данные успешно удалены",
+        deletedBookings: bookingsCheck?.length || 0,
+        carName: `${carData.make_name} ${carData.model_name} (${carData.production_year})`
       });
     } catch (error) {
-      console.error("❌ Supabase car deletion error:", error);
-      res.status(500).json({ error: "Database error: " + error.message });
+      console.error("❌ Ошибка удаления машины:", error);
+      res.status(500).json({ error: "Ошибка базы данных: " + error.message });
     }
   }
 );
