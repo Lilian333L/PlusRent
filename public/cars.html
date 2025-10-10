@@ -54,47 +54,32 @@
   <script src="js/i18n-init.js"></script>
 
   <style>
-    /* Professional Design System */
     :root {
       --primary: #1ccfc9;
       --primary-dark: #17a39e;
       --primary-light: #4dd9d4;
       --secondary: #031B4E;
       --accent: #f0c040;
-      --accent-dark: #d4a838;
       --text: #1a202c;
-      --text-light: #718096;
-      --text-lighter: #a0aec0;
+      --text-light: #64748b;
+      --text-lighter: #94a3b8;
       --border: #e2e8f0;
-      --bg: #f7fafc;
-      --bg-light: #edf2f7;
+      --bg: #f8fafc;
       --white: #ffffff;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
-      --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      --radius: 12px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
     }
 
     /* Language Picker */
-    .lang-picker-wrapper { 
-      position: relative; 
-      display: inline-block; 
-    }
-    
+    .lang-picker-wrapper { position: relative; display: inline-block; }
     .lang-picker-btn {
       display: flex;
       align-items: center;
@@ -106,18 +91,12 @@
       cursor: pointer;
       font-weight: 600;
       font-size: 14px;
-      min-width: 95px;
-      height: 42px;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
     }
-    
     .lang-picker-btn:hover {
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(28, 207, 201, 0.1);
-      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(28, 207, 201, 0.1);
     }
-    
     .lang-picker-dropdown {
       display: none;
       position: absolute;
@@ -126,30 +105,12 @@
       z-index: 1000;
       background: var(--white);
       border: 2px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: var(--shadow-lg);
       padding: 6px;
-      min-width: 140px;
-      list-style: none;
-      margin: 0;
+      min-width: 150px;
     }
-    
-    .lang-picker-dropdown.open { 
-      display: block;
-      animation: slideDown 0.2s ease-out;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
+    .lang-picker-dropdown.open { display: block; }
     .lang-option {
       display: flex;
       align-items: center;
@@ -158,690 +119,503 @@
       cursor: pointer;
       border-radius: 8px;
       transition: all 0.2s;
-      font-size: 14px;
       font-weight: 500;
     }
-    
-    .lang-option:hover {
-      background: var(--bg);
+    .lang-option:hover { background: var(--bg); }
+    .lang-option.selected {
+      background: rgba(28, 207, 201, 0.1);
+      font-weight: 700;
       color: var(--primary);
     }
-    
-    .lang-option.selected {
-      background: rgba(28, 207, 201, 0.15);
-      color: var(--primary-dark);
-      font-weight: 700;
-    }
-    
     .lang-flag img {
       width: 22px;
       height: 16px;
       border-radius: 3px;
       object-fit: cover;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     /* Main Container */
-    .cars-main-container {
-      padding: 3rem 0;
+    .cars-page {
+      padding: 2.5rem 0;
       background: var(--bg);
       min-height: 100vh;
     }
 
-    /* Sidebar */
-    .sidebar-wrapper {
+    /* Modern Filters Sidebar */
+    .filters-sidebar {
       position: sticky;
-      top: 110px;
-      max-height: calc(100vh - 130px);
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary) var(--bg-light);
-    }
-
-    .sidebar-wrapper::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .sidebar-wrapper::-webkit-scrollbar-track {
-      background: var(--bg-light);
-      border-radius: 10px;
-    }
-
-    .sidebar-wrapper::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border-radius: 10px;
-    }
-
-    .sidebar-wrapper::-webkit-scrollbar-thumb:hover {
-      background: var(--primary-dark);
-    }
-
-    .filter-card {
+      top: 100px;
       background: var(--white);
       border-radius: var(--radius);
-      box-shadow: var(--shadow-md);
-      padding: 1.75rem;
-      border: 2px solid var(--border);
-      margin-bottom: 1.5rem;
-      transition: var(--transition);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
 
-    .filter-card:hover {
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-light);
-    }
-
-    .filter-header {
+    .filters-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 3px solid var(--bg-light);
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--bg);
     }
 
-    .filter-header h3 {
-      font-size: 1.5rem;
-      font-weight: 800;
+    .filters-title {
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--text);
       margin: 0;
-      letter-spacing: -0.02em;
     }
 
-    .clear-btn {
+    .filters-clear {
       color: var(--primary);
       font-size: 0.875rem;
-      font-weight: 700;
-      cursor: pointer;
+      font-weight: 600;
       text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: var(--transition);
+      padding: 6px 12px;
+      border-radius: 6px;
       background: rgba(28, 207, 201, 0.1);
-      border: 2px solid transparent;
+      transition: all 0.2s;
     }
 
-    .clear-btn:hover {
+    .filters-clear:hover {
       background: var(--primary);
       color: var(--white);
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
     }
 
-    /* Section Styling */
-    .filter-section {
-      margin-bottom: 1.75rem;
+    /* Filter Group */
+    .filter-group {
+      margin-bottom: 1.5rem;
     }
 
-    .filter-section:last-child {
+    .filter-group:last-child {
       margin-bottom: 0;
     }
 
-    .section-title {
-      font-size: 0.875rem;
+    .filter-label {
+      font-size: 0.813rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 1rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+      display: block;
     }
 
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 18px;
-      background: linear-gradient(180deg, var(--primary), var(--primary-dark));
-      border-radius: 2px;
-    }
-
-    /* Date Picker */
-    .date-wrapper {
+    /* Date Inputs */
+    .date-inputs {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    .date-group {
+    .date-field {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
 
-    .date-group label {
-      font-size: 0.813rem;
+    .date-field label {
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-light);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    .date-group input {
+    .date-field input {
       width: 100%;
-      padding: 0.875rem 1rem;
-      border: 2px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 0.938rem;
-      transition: var(--transition);
-      background: var(--white);
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.2s;
       cursor: pointer;
-      font-weight: 500;
-      color: var(--text);
     }
 
-    .date-group input:hover {
-      border-color: var(--primary-light);
-    }
-
-    .date-group input:focus {
+    .date-field input:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(28, 207, 201, 0.1);
+      box-shadow: 0 0 0 3px rgba(28, 207, 201, 0.1);
     }
 
-    .date-actions {
+    .date-buttons {
       display: grid;
       grid-template-columns: 1fr 1.5fr;
-      gap: 0.75rem;
-      margin-top: 0.75rem;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
     }
 
     .date-btn {
-      padding: 0.875rem 1rem;
+      padding: 0.625rem;
       border: none;
-      border-radius: var(--radius-sm);
-      font-size: 0.875rem;
-      font-weight: 700;
+      border-radius: 6px;
+      font-size: 0.813rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      transition: all 0.2s;
     }
 
     .date-btn.clear {
-      background: var(--bg-light);
+      background: var(--bg);
       color: var(--text-light);
-      border: 2px solid var(--border);
     }
 
     .date-btn.clear:hover {
-      background: var(--bg);
-      border-color: var(--text-light);
-      color: var(--text);
+      background: #e2e8f0;
     }
 
     .date-btn.apply {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      background: var(--primary);
       color: var(--white);
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
     }
 
     .date-btn.apply:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(28, 207, 201, 0.4);
-    }
-
-    .date-btn.apply:active {
-      transform: translateY(0);
+      background: var(--primary-dark);
+      transform: translateY(-1px);
     }
 
     /* Sort Buttons */
-    .sort-wrapper {
+    .sort-buttons {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .sort-btn {
-      padding: 1rem;
-      border: 2px solid var(--border);
+      padding: 0.75rem;
+      border: 1px solid var(--border);
       background: var(--white);
-      border-radius: var(--radius-sm);
+      border-radius: 8px;
       cursor: pointer;
       font-size: 0.875rem;
       font-weight: 600;
-      transition: var(--transition);
+      transition: all 0.2s;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
       color: var(--text);
-    }
-
-    .sort-btn i {
-      color: var(--primary);
     }
 
     .sort-btn:hover {
       border-color: var(--primary);
       background: rgba(28, 207, 201, 0.05);
-      transform: translateX(4px);
     }
 
     .sort-btn.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      background: var(--primary);
       color: var(--white);
       border-color: var(--primary);
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
     }
 
-    .sort-btn.active i {
-      color: var(--white);
-    }
-
-    /* Filter Options */
-    .filter-list {
+    /* Checkbox/Radio Filters */
+    .filter-options {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
 
-    .filter-item {
+    .filter-option {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.875rem 1rem;
-      border-radius: var(--radius-sm);
-      transition: var(--transition);
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
       cursor: pointer;
-      background: var(--white);
-      border: 2px solid transparent;
     }
 
-    .filter-item:hover {
+    .filter-option:hover {
       background: var(--bg);
-      border-color: var(--primary-light);
-      transform: translateX(4px);
     }
 
-    .filter-item label {
+    .filter-option label {
       display: flex;
       align-items: center;
-      cursor: pointer;
       flex: 1;
-      font-size: 0.938rem;
-      color: var(--text);
-      font-weight: 500;
+      cursor: pointer;
       margin: 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
     }
 
-    .filter-item input[type="checkbox"],
-    .filter-item input[type="radio"] {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
+    .filter-option input[type="checkbox"],
+    .filter-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
       cursor: pointer;
       accent-color: var(--primary);
-      border-radius: 4px;
     }
 
-    .filter-count {
-      font-size: 0.875rem;
+    .filter-option .count {
+      font-size: 0.813rem;
       color: var(--text-light);
-      font-weight: 700;
-      min-width: 32px;
-      text-align: center;
-      background: var(--bg-light);
-      padding: 4px 10px;
-      border-radius: 20px;
+      font-weight: 600;
+      background: var(--bg);
+      padding: 2px 8px;
+      border-radius: 10px;
     }
 
-    .filter-item.disabled {
+    .filter-option.disabled {
       opacity: 0.4;
       pointer-events: none;
     }
 
     /* Car Grid */
-    .car-grid {
+    .cars-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
     }
 
-    /* Car Card - Professional Design */
+    /* Car Card */
     .car-card {
       background: var(--white);
       border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: var(--shadow-md);
-      transition: var(--transition);
-      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
       display: flex;
       flex-direction: column;
       height: 100%;
-      position: relative;
     }
 
     .car-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
-      border-color: var(--primary-light);
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
     }
 
-    /* Premium Card with Stunning Border */
+    /* Premium Card */
     .car-card.premium {
+      position: relative;
       border: 3px solid transparent;
-      background: linear-gradient(var(--white), var(--white)) padding-box,
-                  linear-gradient(135deg, 
-                    var(--accent) 0%, 
-                    #ffd700 25%, 
-                    var(--accent) 50%, 
-                    #ffd700 75%, 
-                    var(--accent) 100%) border-box;
-      background-size: 200% 200%;
-      animation: gradientShift 4s ease infinite;
-      box-shadow: 0 8px 30px rgba(240, 192, 64, 0.35);
+      background: 
+        linear-gradient(var(--white), var(--white)) padding-box,
+        linear-gradient(135deg, var(--accent) 0%, #ffd700 50%, var(--accent) 100%) border-box;
+      box-shadow: 0 6px 24px rgba(240, 192, 64, 0.3);
     }
 
-    @keyframes gradientShift {
-      0%, 100% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-    }
-
-    .car-card.premium:hover {
-      box-shadow: 0 12px 40px rgba(240, 192, 64, 0.5);
-      transform: translateY(-10px) scale(1.02);
-    }
-
-    /* Glowing effect for premium */
     .car-card.premium::before {
       content: '';
       position: absolute;
       inset: -3px;
       border-radius: var(--radius);
-      padding: 3px;
-      background: linear-gradient(135deg, 
-        var(--accent) 0%, 
-        #ffd700 25%, 
-        var(--accent) 50%, 
-        #ffd700 75%, 
-        var(--accent) 100%);
-      -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0.6;
-      filter: blur(8px);
+      background: linear-gradient(135deg, var(--accent), #ffd700, var(--accent));
+      filter: blur(10px);
+      opacity: 0.5;
       z-index: -1;
+    }
+
+    .car-card.premium:hover {
+      box-shadow: 0 10px 40px rgba(240, 192, 64, 0.5);
     }
 
     .car-image {
       position: relative;
-      height: 220px;
-      background: linear-gradient(135deg, var(--bg) 0%, var(--bg-light) 100%);
-      overflow: hidden;
-      border-bottom: 2px solid var(--border);
+      height: 200px;
+      background: linear-gradient(135deg, var(--bg) 0%, #ffffff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .car-image img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       padding: 1rem;
+      transition: transform 0.3s;
     }
 
     .car-card:hover .car-image img {
-      transform: scale(1.08) rotate(1deg);
+      transform: scale(1.05);
     }
 
     .premium-badge {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 12px;
+      right: 12px;
       background: linear-gradient(135deg, var(--accent), #ffd700);
       color: var(--secondary);
-      padding: 8px 20px;
-      border-radius: 25px;
+      padding: 6px 16px;
+      border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      box-shadow: 0 4px 16px rgba(240, 192, 64, 0.5);
-      z-index: 3;
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 4px 16px rgba(240, 192, 64, 0.5);
-      }
-      50% {
-        transform: scale(1.05);
-        box-shadow: 0 6px 24px rgba(240, 192, 64, 0.7);
-      }
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 12px rgba(240, 192, 64, 0.4);
+      z-index: 2;
     }
 
     .car-likes {
       position: absolute;
-      bottom: 16px;
-      right: 16px;
+      bottom: 12px;
+      right: 12px;
       background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      padding: 8px 14px;
-      border-radius: 25px;
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 20px;
       display: flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 3;
-      border: 2px solid var(--white);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 2;
     }
 
     .car-likes i {
       color: #ff4757;
-      font-size: 0.938rem;
+      font-size: 0.875rem;
     }
 
     .car-likes span {
-      font-size: 0.875rem;
+      font-size: 0.813rem;
       font-weight: 700;
       color: var(--text);
     }
 
-    .car-body {
-      padding: 1.75rem;
+    .car-content {
+      padding: 1.25rem;
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
-    .car-name {
-      font-size: 1.5rem;
-      font-weight: 800;
+    .car-title {
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--text);
       margin-bottom: 0.25rem;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
     }
 
-    .car-model {
-      font-size: 1.063rem;
+    .car-subtitle {
+      font-size: 0.938rem;
       color: var(--text-light);
-      margin-bottom: 1.25rem;
-      font-weight: 500;
+      margin-bottom: 1rem;
     }
 
     .car-specs {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.875rem;
-      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
     }
 
-    .spec {
+    .car-spec {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.938rem;
+      gap: 8px;
+      font-size: 0.875rem;
       color: var(--text);
-      padding: 0.75rem;
+      padding: 0.5rem;
       background: var(--bg);
-      border-radius: var(--radius-sm);
-      font-weight: 500;
-      transition: var(--transition);
-      border: 2px solid transparent;
+      border-radius: 6px;
     }
 
-    .spec:hover {
-      background: var(--white);
-      border-color: var(--primary-light);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+    .car-spec img {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
     }
 
-    .spec img {
-      width: 20px;
-      height: 20px;
-      opacity: 0.8;
-    }
-
-    .car-footer {
+    .car-price-section {
       margin-top: auto;
-      padding-top: 1.25rem;
-      border-top: 2px solid var(--bg-light);
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
     }
 
-    .price-label {
+    .car-price-label {
       font-size: 0.75rem;
       color: var(--text-light);
-      margin-bottom: 0.5rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
     }
 
-    .price-value {
-      font-size: 2rem;
+    .car-price {
+      font-size: 1.75rem;
       font-weight: 800;
       color: var(--primary);
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
-      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .car-price-unit {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-light);
     }
 
     .btn-rent {
       width: 100%;
-      padding: 1.125rem;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 0.875rem;
+      background: var(--primary);
       color: var(--white);
       border: none;
-      border-radius: var(--radius-sm);
-      font-size: 1rem;
+      border-radius: 8px;
+      font-size: 0.938rem;
       font-weight: 700;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s;
       text-decoration: none;
       display: block;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-rent::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-
-    .btn-rent:hover::before {
-      width: 300px;
-      height: 300px;
     }
 
     .btn-rent:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(28, 207, 201, 0.45);
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
       color: var(--white);
-    }
-
-    .btn-rent:active {
-      transform: translateY(-1px);
     }
 
     /* Mobile Filter */
     .mobile-filter-btn {
       display: none;
       width: 100%;
-      padding: 1.125rem 1.5rem;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 1rem;
+      background: var(--primary);
       color: var(--white);
       border: none;
       border-radius: var(--radius);
-      font-size: 1.063rem;
+      font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 16px rgba(28, 207, 201, 0.3);
-      transition: var(--transition);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .mobile-filter-btn:active {
-      transform: scale(0.98);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-md);
     }
 
     .mobile-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(3, 27, 78, 0.75);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
       z-index: 9998;
     }
 
     .mobile-overlay.active {
       display: block;
-      animation: fadeIn 0.3s ease-out;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .mobile-panel {
+    .mobile-sidebar {
       position: fixed;
       top: 0;
       left: 0;
-      width: 90%;
-      max-width: 420px;
+      width: 85%;
+      max-width: 400px;
       height: 100%;
       background: var(--white);
-      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
       transform: translateX(-100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s;
       z-index: 9999;
       display: flex;
       flex-direction: column;
     }
 
-    .mobile-overlay.active .mobile-panel {
+    .mobile-overlay.active .mobile-sidebar {
       transform: translateX(0);
     }
 
@@ -849,176 +623,112 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.75rem 2rem;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      background: var(--primary);
+      color: var(--white);
     }
 
     .mobile-header h3 {
-      color: var(--white);
-      font-size: 1.5rem;
-      font-weight: 800;
       margin: 0;
-      letter-spacing: -0.02em;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
 
     .mobile-close {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.2);
       border: none;
-      width: 42px;
-      height: 42px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       color: var(--white);
-      font-size: 1.5rem;
-      transition: var(--transition);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .mobile-close:hover {
-      background: rgba(255, 255, 255, 0.35);
-      transform: rotate(90deg);
+      font-size: 1.25rem;
     }
 
     .mobile-content {
       flex: 1;
       overflow-y: auto;
-      padding: 2rem 1.75rem;
+      padding: 1.5rem;
     }
 
     .mobile-actions {
-      padding: 1.5rem 2rem;
+      padding: 1rem 1.5rem;
       background: var(--white);
-      border-top: 2px solid var(--border);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
       display: grid;
-      grid-template-columns: 1fr 1.8fr;
-      gap: 1rem;
+      grid-template-columns: 1fr 2fr;
+      gap: 0.75rem;
     }
 
     .mobile-actions button {
-      padding: 1rem;
-      border-radius: var(--radius-sm);
+      padding: 0.875rem;
+      border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s;
       border: none;
-      font-size: 0.938rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    .mobile-actions .clear-all {
-      background: var(--bg-light);
-      color: var(--text);
-      border: 2px solid var(--border);
-    }
-
-    .mobile-actions .clear-all:hover {
+    .mobile-actions .clear {
       background: var(--bg);
-      border-color: var(--text-light);
+      color: var(--text);
     }
 
-    .mobile-actions .apply-all {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    .mobile-actions .apply {
+      background: var(--primary);
       color: var(--white);
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
     }
 
-    .mobile-actions .apply-all:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(28, 207, 201, 0.4);
-    }
-
-    /* Responsive */
-    @media (max-width: 991px) {
-      .sidebar-wrapper {
-        display: none;
-      }
-
-      .mobile-filter-btn {
-        display: block;
-      }
-
-      .car-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      }
-    }
-
-    @media (max-width: 768px) {
-      .cars-main-container {
-        padding: 1.5rem 0;
-      }
-
-      .car-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .mobile-actions {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (min-width: 992px) {
-      .car-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (min-width: 1400px) {
-      .car-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    /* Loading State */
-    .loading-state {
+    /* Loading/Empty States */
+    .loading-state, .empty-state {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 4rem 2rem;
+      padding: 3rem 1rem;
     }
 
-    .spinner-border {
+    .spinner {
       width: 3rem;
       height: 3rem;
-      border: 4px solid var(--bg-light);
+      border: 3px solid var(--bg);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    /* Empty State */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-light);
+    /* Responsive */
+    @media (max-width: 991px) {
+      .filters-sidebar { display: none; }
+      .mobile-filter-btn { display: block; }
     }
 
-    .empty-state i {
-      font-size: 4rem;
-      color: var(--text-lighter);
-      margin-bottom: 1rem;
+    @media (max-width: 768px) {
+      .cars-grid {
+        grid-template-columns: 1fr;
+      }
+      .mobile-actions {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .empty-state h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.5rem;
+    @media (min-width: 992px) {
+      .cars-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .empty-state p {
-      font-size: 1.063rem;
-      color: var(--text-light);
+    @media (min-width: 1400px) {
+      .cars-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
   </style>
 </head>
@@ -1129,121 +839,118 @@
             </section>
 
             <!-- Main Content -->
-            <div class="container cars-main-container">
+            <div class="container cars-page">
                 <!-- Mobile Filter Button -->
                 <button class="mobile-filter-btn" onclick="toggleMobileFilter()">
-                    <i class="fa fa-sliders"></i> <span data-i18n="cars.filter_title">Filters</span>
+                    <i class="fa fa-sliders"></i> <span data-i18n="cars.filters">Filters</span>
                 </button>
 
                 <div class="row">
                     <!-- Desktop Sidebar -->
-                    <div class="col-lg-3 sidebar-wrapper">
-                        <!-- Main Filter Card -->
-                        <div class="filter-card">
-                            <div class="filter-header">
-                                <h3 data-i18n="cars.filters">Filters</h3>
-                                <a href="#" class="clear-btn" id="clear-filters-link">
-                                    <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
-                                </a>
+                    <div class="col-lg-3">
+                        <div class="filters-sidebar">
+                            <div class="filters-header">
+                                <h3 class="filters-title" data-i18n="cars.filters">Filters</h3>
+                                <a href="#" class="filters-clear" id="clear-all" data-i18n="cars.clear_all">Clear All</a>
                             </div>
 
                             <!-- Date Range -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.date_availability">Date Availability</div>
-                                <div class="date-wrapper">
-                                    <div class="date-group">
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.availability">Availability</label>
+                                <div class="date-inputs">
+                                    <div class="date-field">
                                         <label data-i18n="cars.from">From</label>
-                                        <input type="text" id="date-from" readonly placeholder="Select date">
+                                        <input type="text" id="date-from" readonly>
                                     </div>
-                                    <div class="date-group">
+                                    <div class="date-field">
                                         <label data-i18n="cars.to">To</label>
-                                        <input type="text" id="date-to" readonly placeholder="Select date">
+                                        <input type="text" id="date-to" readonly>
                                     </div>
                                 </div>
-                                <div class="date-actions">
-                                    <button class="date-btn clear" onclick="clearDateRange()">
+                                <div class="date-buttons">
+                                    <button class="date-btn clear" onclick="clearDates()">
                                         <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
                                     </button>
-                                    <button class="date-btn apply" onclick="applyDateRange()">
+                                    <button class="date-btn apply" onclick="applyDates()">
                                         <i class="fa fa-check"></i> <span data-i18n="cars.apply">Apply</span>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Sort -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.sort_by">Sort By</div>
-                                <div class="sort-wrapper">
-                                    <button class="sort-btn" id="sort-price-asc" onclick="setSortOrder('price_asc')">
-                                        <i class="fa fa-arrow-up"></i> <span data-i18n="cars.price_low_high">Price: Low to High</span>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.sort">Sort</label>
+                                <div class="sort-buttons">
+                                    <button class="sort-btn" id="sort-asc" onclick="setSort('price_asc')">
+                                        <i class="fa fa-arrow-up"></i> <span data-i18n="cars.price_asc">Price: Low to High</span>
                                     </button>
-                                    <button class="sort-btn" id="sort-price-desc" onclick="setSortOrder('price_desc')">
-                                        <i class="fa fa-arrow-down"></i> <span data-i18n="cars.price_high_low">Price: High to Low</span>
+                                    <button class="sort-btn" id="sort-desc" onclick="setSort('price_desc')">
+                                        <i class="fa fa-arrow-down"></i> <span data-i18n="cars.price_desc">Price: High to Low</span>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Make -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.make">Make</div>
-                                <div class="filter-list" id="filter-make-options"></div>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.make">Make</label>
+                                <div class="filter-options" id="make-list"></div>
                             </div>
 
                             <!-- Transmission -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.transmission">Transmission</div>
-                                <div class="filter-list" id="filter-gear-options"></div>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.transmission">Transmission</label>
+                                <div class="filter-options" id="gear-list"></div>
                             </div>
 
                             <!-- Fuel -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.fuel">Fuel Type</div>
-                                <div class="filter-list" id="filter-fuel-options"></div>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.fuel">Fuel</label>
+                                <div class="filter-options" id="fuel-list"></div>
                             </div>
 
-                            <!-- Body Type -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.body_type">Body Type</div>
-                                <div class="filter-list" id="filter-type-options"></div>
+                            <!-- Type -->
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.type">Type</label>
+                                <div class="filter-options" id="type-list"></div>
                             </div>
 
                             <!-- Doors -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.doors">Doors</div>
-                                <div class="filter-list" id="filter-doors-options"></div>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.doors">Doors</label>
+                                <div class="filter-options" id="doors-list"></div>
                             </div>
 
                             <!-- Passengers -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.passengers">Passengers</div>
-                                <div class="filter-list" id="filter-passengers-options"></div>
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.passengers">Passengers</label>
+                                <div class="filter-options" id="passengers-list"></div>
                             </div>
 
                             <!-- Price Category -->
-                            <div class="filter-section">
-                                <div class="section-title" data-i18n="cars.price_category">Price Category</div>
-                                <div class="filter-list">
-                                    <div class="filter-item">
+                            <div class="filter-group">
+                                <label class="filter-label" data-i18n="cars.category">Category</label>
+                                <div class="filter-options">
+                                    <div class="filter-option">
                                         <label>
-                                            <input type="radio" name="price-category" value="econom" id="price-category-econom">
+                                            <input type="radio" name="category" value="econom">
                                             <span data-i18n="cars.economy">Economy</span>
                                         </label>
                                     </div>
-                                    <div class="filter-item">
+                                    <div class="filter-option">
                                         <label>
-                                            <input type="radio" name="price-category" value="standard" id="price-category-standard">
+                                            <input type="radio" name="category" value="standard">
                                             <span data-i18n="cars.standard">Standard</span>
                                         </label>
                                     </div>
-                                    <div class="filter-item">
+                                    <div class="filter-option">
                                         <label>
-                                            <input type="radio" name="price-category" value="premium" id="price-category-premium">
+                                            <input type="radio" name="category" value="premium">
                                             <span data-i18n="cars.premium">Premium</span>
                                         </label>
                                     </div>
-                                    <div class="filter-item">
+                                    <div class="filter-option">
                                         <label>
-                                            <input type="radio" name="price-category" value="all" id="price-category-all" checked>
+                                            <input type="radio" name="category" value="all" checked>
                                             <span data-i18n="cars.all">All</span>
                                         </label>
                                     </div>
@@ -1254,9 +961,9 @@
 
                     <!-- Car List -->
                     <div class="col-lg-9">
-                        <div class="car-grid" id="car-list">
+                        <div class="cars-grid" id="cars-list">
                             <div class="loading-state">
-                                <div class="spinner-border"></div>
+                                <div class="spinner"></div>
                                 <p data-i18n="cars.loading">Loading...</p>
                             </div>
                         </div>
@@ -1265,22 +972,22 @@
             </div>
 
             <!-- Mobile Filter Overlay -->
-            <div class="mobile-overlay" id="mobile-overlay">
-                <div class="mobile-panel">
+            <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileIfOutside(event)">
+                <div class="mobile-sidebar" onclick="event.stopPropagation()">
                     <div class="mobile-header">
                         <h3 data-i18n="cars.filters">Filters</h3>
                         <button class="mobile-close" onclick="toggleMobileFilter()">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
-                    <div class="mobile-content" id="mobile-content">
-                        <!-- Content will be populated -->
+                    <div class="mobile-content" id="mobile-filters">
+                        <!-- Populated dynamically -->
                     </div>
                     <div class="mobile-actions">
-                        <button class="clear-all" onclick="clearAllFilters()">
+                        <button class="clear" onclick="clearAllFilters()">
                             <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
                         </button>
-                        <button class="apply-all" onclick="applyMobileFilters()">
+                        <button class="apply" onclick="applyMobileFilters()">
                             <i class="fa fa-check"></i> <span data-i18n="cars.apply">Apply</span>
                         </button>
                     </div>
@@ -1370,104 +1077,85 @@
     <script src="js/cars-filter-modal.js"></script>
 
     <script>
-    // Global variables
-    let allCarsCache = [];
-    let priceSettings = {};
-    let sortOrder = null;
-    let dateRange = { from: null, to: null };
-    let datePickerFrom, datePickerTo;
+    // Globals
+    let allCars = [];
     let lang = 'ro';
+    let sortOrder = null;
+    let dates = { from: null, to: null };
+    let pickerFrom, pickerTo;
 
-    // Detect and set language
-    function detectLanguage() {
+    // Language
+    function initLang() {
       const saved = localStorage.getItem('lang');
-      if (saved && ['ro', 'ru', 'en'].includes(saved)) {
-        lang = saved;
-      }
+      if (saved && ['ro', 'ru', 'en'].includes(saved)) lang = saved;
       
-      const code = document.getElementById('langCode');
-      if (code) code.textContent = lang.toUpperCase();
-      
-      // Update selected state
+      document.getElementById('langCode').textContent = lang.toUpperCase();
       document.querySelectorAll('.lang-option').forEach(opt => {
         opt.classList.toggle('selected', opt.dataset.lang === lang);
       });
     }
 
-    // Translate fuel types
+    // Fuel translation
     function translateFuel(fuel) {
-      if (!fuel) return '';
-      
-      const translations = {
+      const t = {
         'gasoline': { 'ro': 'Benzină', 'ru': 'Бензин', 'en': 'Gasoline' },
         'diesel': { 'ro': 'Motorină', 'ru': 'Дизель', 'en': 'Diesel' },
         'electric': { 'ro': 'Electric', 'ru': 'Электрический', 'en': 'Electric' },
         'hybrid': { 'ro': 'Hibrid', 'ru': 'Гибрид', 'en': 'Hybrid' }
       };
-
-      return translations[fuel.toLowerCase()]?.[lang] || fuel;
+      return t[fuel?.toLowerCase()]?.[lang] || fuel || '';
     }
 
     // Format text
-    function formatText(text) {
-      if (!text) return '';
-      return text.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    function fmt(text) {
+      return text ? text.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') : '';
     }
 
-    // Get unique options
-    function getUniqueOptions(cars, field) {
-      return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
+    // Unique values
+    function unique(cars, field) {
+      return [...new Set(cars.map(c => c[field]).filter(Boolean))].sort();
     }
 
-    // Initialize date pickers
-    function initDatePickers() {
+    // Date pickers
+    function initDates() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const locale = lang === 'ro' ? flatpickr.l10ns.ro : lang === 'ru' ? flatpickr.l10ns.ru : flatpickr.l10ns.default;
 
-      const locale = lang === 'ro' ? flatpickr.l10ns.ro : 
-                     lang === 'ru' ? flatpickr.l10ns.ru : 
-                     flatpickr.l10ns.default;
-
-      datePickerFrom = flatpickr("#date-from", {
+      pickerFrom = flatpickr("#date-from", {
         minDate: today,
         dateFormat: "Y-m-d",
         locale: locale,
-        onChange: function(dates) {
-          if (dates[0]) {
-            dateRange.from = dates[0];
-            if (datePickerTo) {
-              datePickerTo.set('minDate', dates[0]);
-            }
+        onChange: (d) => {
+          if (d[0]) {
+            dates.from = d[0];
+            if (pickerTo) pickerTo.set('minDate', d[0]);
           }
         }
       });
 
-      datePickerTo = flatpickr("#date-to", {
+      pickerTo = flatpickr("#date-to", {
         minDate: today,
         dateFormat: "Y-m-d",
         locale: locale,
-        onChange: function(dates) {
-          if (dates[0]) {
-            dateRange.to = dates[0];
-          }
-        }
+        onChange: (d) => { if (d[0]) dates.to = d[0]; }
       });
     }
 
-    function applyDateRange() {
-      updateAndFetch();
+    function applyDates() {
+      update();
     }
 
-    function clearDateRange() {
-      dateRange = { from: null, to: null };
-      if (datePickerFrom) datePickerFrom.clear();
-      if (datePickerTo) datePickerTo.clear();
-      updateAndFetch();
+    function clearDates() {
+      dates = { from: null, to: null };
+      if (pickerFrom) pickerFrom.clear();
+      if (pickerTo) pickerTo.clear();
+      update();
     }
 
-    // Check car availability
-    async function isAvailable(carId) {
-      if (!dateRange.from || !dateRange.to) return true;
+    // Check availability
+    async function checkAvail(carId) {
+      if (!dates.from || !dates.to) return true;
 
       try {
         const res = await fetch(`${window.API_BASE_URL}/api/bookings/occupied-dates/${carId}`);
@@ -1476,211 +1164,181 @@
         const occupied = await res.json();
         if (!Array.isArray(occupied) || !occupied.length) return true;
 
-        const from = new Date(dateRange.from);
-        const to = new Date(dateRange.to);
+        const from = new Date(dates.from);
+        const to = new Date(dates.to);
 
         for (const dateStr of occupied) {
-          const date = new Date(dateStr);
-          if (date >= from && date <= to) return false;
+          const d = new Date(dateStr);
+          if (d >= from && d <= to) return false;
         }
         return true;
-      } catch (err) {
-        console.error('Error checking availability:', err);
+      } catch (e) {
+        console.error('Availability check failed:', e);
         return true;
       }
     }
 
-    function setSortOrder(order) {
+    // Sort
+    function setSort(order) {
       sortOrder = order;
-      
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-      const btn = document.getElementById('sort-' + order);
+      const btn = document.getElementById(order === 'price_asc' ? 'sort-asc' : 'sort-desc');
       if (btn) btn.classList.add('active');
-      
-      updateAndFetch();
+      update();
     }
 
     function sortCars(cars) {
       if (!sortOrder) return cars;
-
       return [...cars].sort((a, b) => {
-        const priceA = getLowestPrice(a);
-        const priceB = getLowestPrice(b);
-
-        return sortOrder === 'price_asc' ? priceA - priceB : priceB - priceA;
+        const pa = getLowest(a);
+        const pb = getLowest(b);
+        return sortOrder === 'price_asc' ? pa - pb : pb - pa;
       });
     }
 
-    function getLowestPrice(car) {
+    function getLowest(car) {
       if (!car.price_policy) return 0;
-      
-      const policy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
-      const prices = Object.values(policy).map(p => parseInt(p)).filter(p => !isNaN(p));
-      
+      const p = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
+      const prices = Object.values(p).map(v => parseInt(v)).filter(v => !isNaN(v));
       return prices.length ? Math.min(...prices) : 0;
     }
 
-    function renderFilters(containerId, options, selected, allCars, currentFilters, field) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
+    // Render filters
+    function renderFilters(id, opts, selected, all, current, field) {
+      const el = document.getElementById(id);
+      if (!el) return;
       
       const counts = new Map();
-      
-      options.forEach(opt => {
-        const count = allCars.filter(car => {
+      opts.forEach(opt => {
+        const cnt = all.filter(car => {
           if (String(car[field]) !== String(opt)) return false;
-          
-          for (const key in currentFilters) {
-            if (key === field) continue;
-            if (!currentFilters[key] || !currentFilters[key].length) continue;
-            if (!currentFilters[key].includes(String(car[key]))) return false;
+          for (const k in current) {
+            if (k === field) continue;
+            if (!current[k] || !current[k].length) continue;
+            if (!current[k].includes(String(car[k]))) return false;
           }
           return true;
         }).length;
-        counts.set(opt, count);
+        counts.set(opt, cnt);
       });
       
-      const html = options.map(opt => {
-        const count = counts.get(opt) || 0;
-        const isSelected = selected.includes(String(opt));
-        const disabled = count === 0 && !isSelected;
-        
+      const html = opts.map(opt => {
+        const cnt = counts.get(opt) || 0;
+        const isSel = selected.includes(String(opt));
+        const disabled = cnt === 0 && !isSel;
         const display = field === 'fuel_type' ? translateFuel(opt) : opt;
         
         return `
-          <div class="filter-item ${disabled ? 'disabled' : ''}">
+          <div class="filter-option ${disabled ? 'disabled' : ''}">
             <label>
-              <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
+              <input type="checkbox" value="${opt}" ${isSel ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
               <span>${display}</span>
             </label>
-            <span class="filter-count">${count}</span>
+            <span class="count">${cnt}</span>
           </div>
         `;
       }).join('');
       
-      container.innerHTML = html;
+      el.innerHTML = html;
     }
 
-    function getCurrentFilters() {
-      const params = new URLSearchParams(window.location.search);
+    function getCurrent() {
+      const p = new URLSearchParams(window.location.search);
       return {
-        make_name: params.get('make_name') ? params.get('make_name').split(',') : [],
-        gear_type: params.get('gear_type') ? params.get('gear_type').split(',') : [],
-        fuel_type: params.get('fuel_type') ? params.get('fuel_type').split(',') : [],
-        car_type: params.get('car_type') ? params.get('car_type').split(',') : [],
-        num_doors: params.get('num_doors') ? params.get('num_doors').split(',') : [],
-        num_passengers: params.get('num_passengers') ? params.get('num_passengers').split(',') : [],
+        make_name: p.get('make_name') ? p.get('make_name').split(',') : [],
+        gear_type: p.get('gear_type') ? p.get('gear_type').split(',') : [],
+        fuel_type: p.get('fuel_type') ? p.get('fuel_type').split(',') : [],
+        car_type: p.get('car_type') ? p.get('car_type').split(',') : [],
+        num_doors: p.get('num_doors') ? p.get('num_doors').split(',') : [],
+        num_passengers: p.get('num_passengers') ? p.get('num_passengers').split(',') : [],
       };
     }
 
-    function getSelected(containerId) {
-      return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`))
-        .map(cb => cb.value);
+    function getSel(id) {
+      return Array.from(document.querySelectorAll(`#${id} input[type=checkbox]:checked`)).map(cb => cb.value);
     }
 
-    function updateAndFetch() {
-      const make = getSelected('filter-make-options');
-      const gear = getSelected('filter-gear-options');
-      const fuel = getSelected('filter-fuel-options');
-      const type = getSelected('filter-type-options');
-      const doors = getSelected('filter-doors-options');
-      const passengers = getSelected('filter-passengers-options');
+    // Update and fetch
+    function update() {
+      const make = getSel('make-list');
+      const gear = getSel('gear-list');
+      const fuel = getSel('fuel-list');
+      const type = getSel('type-list');
+      const doors = getSel('doors-list');
+      const passengers = getSel('passengers-list');
       
-      const params = new URLSearchParams();
-      if (make.length) params.set('make_name', make.join(','));
-      if (gear.length) params.set('gear_type', gear.join(','));
-      if (fuel.length) params.set('fuel_type', fuel.join(','));
-      if (type.length) params.set('car_type', type.join(','));
-      if (doors.length) params.set('num_doors', doors.join(','));
-      if (passengers.length) params.set('num_passengers', passengers.join(','));
+      const p = new URLSearchParams();
+      if (make.length) p.set('make_name', make.join(','));
+      if (gear.length) p.set('gear_type', gear.join(','));
+      if (fuel.length) p.set('fuel_type', fuel.join(','));
+      if (type.length) p.set('car_type', type.join(','));
+      if (doors.length) p.set('num_doors', doors.join(','));
+      if (passengers.length) p.set('num_passengers', passengers.join(','));
       
-      const category = document.querySelector('input[name="price-category"]:checked');
-      if (category && category.value !== 'all') {
-        params.set('price_category', category.value);
-      }
+      const cat = document.querySelector('input[name="category"]:checked');
+      if (cat && cat.value !== 'all') p.set('price_category', cat.value);
       
-      if (sortOrder) params.set('sort', sortOrder);
-      if (dateRange.from) params.set('date_from', dateRange.from.toISOString().split('T')[0]);
-      if (dateRange.to) params.set('date_to', dateRange.to.toISOString().split('T')[0]);
+      if (sortOrder) p.set('sort', sortOrder);
+      if (dates.from) p.set('date_from', dates.from.toISOString().split('T')[0]);
+      if (dates.to) p.set('date_to', dates.to.toISOString().split('T')[0]);
       
-      const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      const url = window.location.pathname + (p.toString() ? '?' + p.toString() : '');
       window.history.pushState({}, '', url);
-      fetchCars();
+      fetch();
     }
 
-    async function fetchCars() {
-      const list = document.getElementById('car-list');
-      list.innerHTML = '<div class="loading-state"><div class="spinner-border"></div><p data-i18n="cars.loading">Loading...</p></div>';
+    async function fetch() {
+      const list = document.getElementById('cars-list');
+      list.innerHTML = '<div class="loading-state"><div class="spinner"></div><p data-i18n="cars.loading">Loading...</p></div>';
       
-      const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
+      const res = await window.fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
       let cars = await res.json();
       
-      if (dateRange.from && dateRange.to) {
-        const checks = await Promise.all(cars.map(car => isAvailable(car.id)));
+      if (dates.from && dates.to) {
+        const checks = await Promise.all(cars.map(c => checkAvail(c.id)));
         cars = cars.filter((_, i) => checks[i]);
       }
       
       cars = sortCars(cars);
       
       if (!cars.length) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <i class="fa fa-car"></i>
-            <h3 data-i18n="cars.no_results">No cars found</h3>
-            <p data-i18n="cars.try_filters">Try adjusting your filters</p>
-          </div>
-        `;
-        renderSidebar(allCarsCache);
+        list.innerHTML = '<div class="empty-state"><i class="fa fa-car" style="font-size:3rem;color:var(--text-lighter);margin-bottom:1rem;"></i><h3 data-i18n="cars.no_results">No cars found</h3><p data-i18n="cars.adjust_filters">Try adjusting your filters</p></div>';
+        renderSidebar(allCars);
         if (typeof updateContent === 'function') updateContent();
         return;
       }
       
       const html = cars.map(car => {
-        const isPremium = car.is_premium === 1 || car.is_premium === true;
+        const premium = car.is_premium === 1 || car.is_premium === true;
         const url = `car-single.html?id=${car.id}`;
         
         let price = '';
         if (car.price_policy) {
-          const policy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
-          const prices = Object.values(policy).map(p => parseInt(p)).filter(p => !isNaN(p));
+          const pol = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
+          const prices = Object.values(pol).map(v => parseInt(v)).filter(v => !isNaN(v));
           price = prices.length ? Math.min(...prices) : '';
         }
         
         return `
-          <div class="car-card${isPremium ? ' premium' : ''}">
+          <div class="car-card${premium ? ' premium' : ''}">
             <div class="car-image">
-              <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" alt="${formatText(car.make_name)} ${formatText(car.model_name)}">
-              ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
-              <div class="car-likes">
-                <i class="fa fa-heart"></i>
-                <span>${car.likes || 0}</span>
-              </div>
+              <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" alt="${fmt(car.make_name)} ${fmt(car.model_name)}">
+              ${premium ? '<div class="premium-badge">HOT</div>' : ''}
+              <div class="car-likes"><i class="fa fa-heart"></i><span>${car.likes || 0}</span></div>
             </div>
-            <div class="car-body">
-              <h3 class="car-name">${formatText(car.make_name)}</h3>
-              <p class="car-model">${formatText(car.model_name)}</p>
+            <div class="car-content">
+              <h3 class="car-title">${fmt(car.make_name)}</h3>
+              <p class="car-subtitle">${fmt(car.model_name)}</p>
               <div class="car-specs">
-                <div class="spec">
-                  <img src="images/icons/1-green.svg" alt="">
-                  <span>${car.num_passengers || '-'}</span>
-                </div>
-                <div class="spec">
-                  <img src="images/icons/2-green.svg" alt="">
-                  <span>${car.luggage || '-'}</span>
-                </div>
-                <div class="spec">
-                  <img src="images/icons/3-green.svg" alt="">
-                  <span>${car.num_doors || '-'}</span>
-                </div>
-                <div class="spec">
-                  <img src="images/icons/4-green.svg" alt="">
-                  <span>${car.car_type || '-'}</span>
-                </div>
+                <div class="car-spec"><img src="images/icons/1-green.svg" alt=""><span>${car.num_passengers || '-'}</span></div>
+                <div class="car-spec"><img src="images/icons/2-green.svg" alt=""><span>${car.luggage || '-'}</span></div>
+                <div class="car-spec"><img src="images/icons/3-green.svg" alt=""><span>${car.num_doors || '-'}</span></div>
+                <div class="car-spec"><img src="images/icons/4-green.svg" alt=""><span>${car.car_type || '-'}</span></div>
               </div>
-              <div class="car-footer">
-                <div class="price-label" data-i18n="cars.from">From</div>
-                <div class="price-value">${price ? price + '€' : 'N/A'}<span style="font-size: 1rem; font-weight: 600; color: var(--text-light);">/</span><span style="font-size: 0.875rem; font-weight: 600; color: var(--text-light);" data-i18n="cars.day">day</span></div>
-                <a class="btn-rent" href="${url}" data-i18n="cars.rent">Rent Now</a>
+              <div class="car-price-section">
+                <div class="car-price-label" data-i18n="cars.from">From</div>
+                <div class="car-price">${price ? price + '€' : 'N/A'}<span class="car-price-unit">/<span data-i18n="cars.day">day</span></span></div>
+                <a class="btn-rent" href="${url}" data-i18n="cars.rent_now">Rent Now</a>
               </div>
             </div>
           </div>
@@ -1688,83 +1346,34 @@
       }).join('');
       
       list.innerHTML = html;
-      renderSidebar(allCarsCache);
+      renderSidebar(allCars);
       
       if (typeof updateContent === 'function') updateContent();
     }
 
-    function renderSidebar(allCars) {
-      const params = new URLSearchParams(window.location.search);
-      const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
-      const selectedGears = params.get('gear_type') ? params.get('gear_type').split(',') : [];
-      const selectedFuels = params.get('fuel_type') ? params.get('fuel_type').split(',') : [];
-      const selectedTypes = params.get('car_type') ? params.get('car_type').split(',') : [];
-      const selectedDoors = params.get('num_doors') ? params.get('num_doors').split(',') : [];
-      const selectedPassengers = params.get('num_passengers') ? params.get('num_passengers').split(',') : [];
-      
-      const filters = getCurrentFilters();
+    function renderSidebar(all) {
+      const p = new URLSearchParams(window.location.search);
+      const cur = getCurrent();
 
-      renderFilters('filter-make-options', getUniqueOptions(allCars, 'make_name'), selectedMakes, allCars, filters, 'make_name');
-      renderFilters('filter-gear-options', getUniqueOptions(allCars, 'gear_type'), selectedGears, allCars, filters, 'gear_type');
-      renderFilters('filter-fuel-options', getUniqueOptions(allCars, 'fuel_type'), selectedFuels, allCars, filters, 'fuel_type');
-      renderFilters('filter-type-options', getUniqueOptions(allCars, 'car_type'), selectedTypes, allCars, filters, 'car_type');
-      renderFilters('filter-doors-options', getUniqueOptions(allCars, 'num_doors'), selectedDoors, allCars, filters, 'num_doors');
-      renderFilters('filter-passengers-options', getUniqueOptions(allCars, 'num_passengers'), selectedPassengers, allCars, filters, 'num_passengers');
+      renderFilters('make-list', unique(all, 'make_name'), cur.make_name, all, cur, 'make_name');
+      renderFilters('gear-list', unique(all, 'gear_type'), cur.gear_type, all, cur, 'gear_type');
+      renderFilters('fuel-list', unique(all, 'fuel_type'), cur.fuel_type, all, cur, 'fuel_type');
+      renderFilters('type-list', unique(all, 'car_type'), cur.car_type, all, cur, 'car_type');
+      renderFilters('doors-list', unique(all, 'num_doors'), cur.num_doors, all, cur, 'num_doors');
+      renderFilters('passengers-list', unique(all, 'num_passengers'), cur.num_passengers, all, cur, 'num_passengers');
 
-      const category = params.get('price_category') || 'all';
-      document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-        radio.checked = radio.value === category;
+      const cat = p.get('price_category') || 'all';
+      document.querySelectorAll('input[name="category"]').forEach(r => r.checked = r.value === cat);
+
+      ['make-list','gear-list','fuel-list','type-list','doors-list','passengers-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', update));
       });
 
-      ['filter-make-options', 'filter-gear-options', 'filter-fuel-options', 'filter-type-options', 'filter-doors-options', 'filter-passengers-options'].forEach(id => {
-        const container = document.getElementById(id);
-        if (container) {
-          container.querySelectorAll('input[type=checkbox]').forEach(cb => {
-            cb.addEventListener('change', updateAndFetch);
-          });
-        }
-      });
-
-      document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-        radio.addEventListener('change', handleCategoryChange);
-      });
+      document.querySelectorAll('input[name="category"]').forEach(r => r.addEventListener('change', update));
     }
 
-    async function loadPriceSettings() {
-      try {
-        const res = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
-        if (res.ok) {
-          const settings = await res.json();
-          
-          priceSettings = {
-            economy: {
-              min: settings.economy_price_min ?? 0,
-              max: settings.economy_price_max ?? 30
-            },
-            standard: {
-              min: settings.standard_price_min ?? 31,
-              max: settings.standard_price_max ?? 60
-            },
-            premium: {
-              min: settings.premium_price_min ?? 61,
-              max: settings.premium_price_max ?? 999
-            }
-          };
-        }
-      } catch (err) {
-        console.error('Error loading price settings:', err);
-        priceSettings = {
-          economy: { min: 0, max: 30 },
-          standard: { min: 31, max: 60 },
-          premium: { min: 61, max: 999 }
-        };
-      }
-    }
-
-    function handleCategoryChange() {
-      updateAndFetch();
-    }
-
+    // Mobile
     function toggleMobileFilter() {
       const overlay = document.getElementById('mobile-overlay');
       if (!overlay) return;
@@ -1775,30 +1384,28 @@
       } else {
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
-        renderMobileFilters();
+        renderMobile();
       }
     }
 
-    function renderMobileFilters() {
-      const content = document.getElementById('mobile-content');
-      if (!content) return;
+    function closeMobileIfOutside(e) {
+      if (e.target.id === 'mobile-overlay') {
+        toggleMobileFilter();
+      }
+    }
 
-      const desktop = document.querySelector('.filter-card');
-      if (desktop) {
+    function renderMobile() {
+      const content = document.getElementById('mobile-filters');
+      const desktop = document.querySelector('.filters-sidebar');
+      if (content && desktop) {
         content.innerHTML = desktop.innerHTML;
         
-        ['filter-make-options', 'filter-gear-options', 'filter-fuel-options', 'filter-type-options', 'filter-doors-options', 'filter-passengers-options'].forEach(id => {
-          const container = content.querySelector(`#${id}`);
-          if (container) {
-            container.querySelectorAll('input[type=checkbox]').forEach(cb => {
-              cb.addEventListener('change', updateAndFetch);
-            });
-          }
+        ['make-list','gear-list','fuel-list','type-list','doors-list','passengers-list'].forEach(id => {
+          const el = content.querySelector(`#${id}`);
+          if (el) el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', update));
         });
 
-        content.querySelectorAll('input[name="price-category"]').forEach(radio => {
-          radio.addEventListener('change', handleCategoryChange);
-        });
+        content.querySelectorAll('input[name="category"]').forEach(r => r.addEventListener('change', update));
       }
     }
 
@@ -1808,36 +1415,29 @@
 
     function clearAllFilters() {
       document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-        radio.checked = radio.value === 'all';
-      });
-      clearDateRange();
+      document.querySelectorAll('input[name="category"]').forEach(r => r.checked = r.value === 'all');
+      clearDates();
       sortOrder = null;
-      document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-      
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
       window.history.pushState({}, '', window.location.pathname);
-      fetchCars();
+      fetch();
     }
 
     // Sync from modal
     window.syncFiltersFromModal = function(filters) {
-      const params = new URLSearchParams(window.location.search);
+      const p = new URLSearchParams(window.location.search);
       
       if (filters.priceCategory && filters.priceCategory !== 'all') {
-        params.set('price_category', filters.priceCategory);
-        
-        document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-          radio.checked = radio.value === filters.priceCategory;
-        });
+        p.set('price_category', filters.priceCategory);
+        document.querySelectorAll('input[name="category"]').forEach(r => r.checked = r.value === filters.priceCategory);
       }
       
-      if (filters.carType) params.set('car_type', filters.carType);
-      if (filters.gearType) params.set('gear_type', filters.gearType);
+      if (filters.carType) p.set('car_type', filters.carType);
+      if (filters.gearType) p.set('gear_type', filters.gearType);
       
-      const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      const url = window.location.pathname + (p.toString() ? '?' + p.toString() : '');
       window.history.pushState({}, '', url);
-      
-      fetchCars();
+      fetch();
     };
 
     // Language picker
@@ -1846,17 +1446,16 @@
       const dropdown = document.getElementById('langDropdown');
       
       if (btn && dropdown) {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', (e) => {
           e.stopPropagation();
           dropdown.classList.toggle('open');
         });
 
-        document.addEventListener('click', function() {
-          dropdown.classList.remove('open');
-        });
+        document.addEventListener('click', () => dropdown.classList.remove('open'));
 
-        document.querySelectorAll('.lang-option').forEach(option => {
-          option.addEventListener('click', function() {
+        document.querySelectorAll('.lang-option').forEach(opt => {
+          opt.addEventListener('click', function(e) {
+            e.stopPropagation();
             const newLang = this.dataset.lang;
             localStorage.setItem('lang', newLang);
             lang = newLang;
@@ -1868,80 +1467,59 @@
             document.getElementById('langCode').textContent = newLang.toUpperCase();
             dropdown.classList.remove('open');
             
-            // Update selected state
-            document.querySelectorAll('.lang-option').forEach(opt => {
-              opt.classList.toggle('selected', opt.dataset.lang === newLang);
-            });
+            document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('selected', o.dataset.lang === newLang));
             
-            // Reinit date pickers
-            if (datePickerFrom) datePickerFrom.destroy();
-            if (datePickerTo) datePickerTo.destroy();
-            initDatePickers();
+            if (pickerFrom) pickerFrom.destroy();
+            if (pickerTo) pickerTo.destroy();
+            initDates();
             
-            fetchCars();
-            
-            if (typeof updateContent === 'function') {
-              updateContent();
-            }
+            fetch();
+            if (typeof updateContent === 'function') updateContent();
           });
         });
       }
     });
 
-    // Initialize
+    // Init
     document.addEventListener('DOMContentLoaded', async function() {
-      detectLanguage();
-      await loadPriceSettings();
-      initDatePickers();
+      initLang();
+      initDates();
       
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('sort')) {
-        sortOrder = params.get('sort');
-        const btn = document.getElementById('sort-' + sortOrder);
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('sort')) {
+        sortOrder = p.get('sort');
+        const btn = document.getElementById(sortOrder === 'price_asc' ? 'sort-asc' : 'sort-desc');
         if (btn) btn.classList.add('active');
       }
       
-      if (params.get('date_from')) {
-        const from = new Date(params.get('date_from'));
-        dateRange.from = from;
-        if (datePickerFrom) datePickerFrom.setDate(from);
+      if (p.get('date_from')) {
+        const from = new Date(p.get('date_from'));
+        dates.from = from;
+        if (pickerFrom) pickerFrom.setDate(from);
       }
       
-      if (params.get('date_to')) {
-        const to = new Date(params.get('date_to'));
-        dateRange.to = to;
-        if (datePickerTo) datePickerTo.setDate(to);
+      if (p.get('date_to')) {
+        const to = new Date(p.get('date_to'));
+        dates.to = to;
+        if (pickerTo) pickerTo.setDate(to);
       }
       
-      const res = await fetch(`${window.API_BASE_URL}/api/cars`);
-      allCarsCache = await res.json();
-      renderSidebar(allCarsCache);
+      const res = await window.fetch(`${window.API_BASE_URL}/api/cars`);
+      allCars = await res.json();
+      renderSidebar(allCars);
       
-      await fetchCars();
+      await fetch();
       
-      const clearLink = document.getElementById('clear-filters-link');
-      if (clearLink) {
-        clearLink.addEventListener('click', function(e) {
-          e.preventDefault();
-          clearAllFilters();
-        });
-      }
+      const clearBtn = document.getElementById('clear-all');
+      if (clearBtn) clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clearAllFilters();
+      });
       
-      const overlay = document.getElementById('mobile-overlay');
-      if (overlay) {
-        overlay.addEventListener('click', function(e) {
-          if (e.target === overlay) {
-            toggleMobileFilter();
-          }
-        });
-      }
-      
-      if (typeof updateContent === 'function') {
-        updateContent();
-      }
+      if (typeof updateContent === 'function') updateContent();
     });
 
-    window.addEventListener('popstate', fetchCars);
+    window.addEventListener('popstate', fetch);
     </script>
 
     <!-- Universal Spinning Wheel -->
