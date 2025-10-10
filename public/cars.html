@@ -54,6 +54,7 @@
 
   <!-- Flatpickr for date picker -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
   <!-- API Config -->
   <script>
@@ -1096,6 +1097,7 @@
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
     
     <!-- Main Cars Script -->
     <script>
@@ -1263,7 +1265,9 @@
     // Format display text
     function formatDisplayText(rawKey) {
         if (!rawKey) return '';
-        return rawKey
+        // Convert to string first to handle any data type
+        const text = String(rawKey);
+        return text
             .split('_')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
@@ -1306,33 +1310,60 @@
     // Initialize date pickers
     function initializeDatePickers() {
         const lang = getCurrentLanguage();
-        const locale = lang === 'ru' ? 'ru' : lang === 'en' ? 'en' : 'ro';
         
-        flatpickr("#date-from, #date-to", {
+        // Configure Flatpickr options
+        let flatpickrConfig = {
             dateFormat: "d.m.Y",
-            locale: locale,
             minDate: "today",
             onChange: function(selectedDates, dateStr, instance) {
                 if (instance.element.id === 'date-from') {
-                    const dateTo = document.querySelector('#date-to')._flatpickr;
-                    dateTo.set('minDate', dateStr);
+                    const dateTo = document.querySelector('#date-to')?._flatpickr;
+                    if (dateTo) {
+                        dateTo.set('minDate', dateStr);
+                    }
                 }
                 updateFiltersAndFetch();
             }
-        });
+        };
         
-        // Mobile date pickers
-        flatpickr("#mobile-date-from, #mobile-date-to", {
+        // Add Russian locale if needed
+        if (lang === 'ru' && typeof flatpickr.l10ns.ru !== 'undefined') {
+            flatpickrConfig.locale = flatpickr.l10ns.ru;
+        }
+        
+        // Initialize desktop date pickers
+        if (document.querySelector("#date-from")) {
+            flatpickr("#date-from", flatpickrConfig);
+        }
+        if (document.querySelector("#date-to")) {
+            flatpickr("#date-to", flatpickrConfig);
+        }
+        
+        // Mobile date pickers config
+        let mobileFlatpickrConfig = {
             dateFormat: "d.m.Y",
-            locale: locale,
             minDate: "today",
             onChange: function(selectedDates, dateStr, instance) {
                 if (instance.element.id === 'mobile-date-from') {
-                    const dateTo = document.querySelector('#mobile-date-to')._flatpickr;
-                    dateTo.set('minDate', dateStr);
+                    const dateTo = document.querySelector('#mobile-date-to')?._flatpickr;
+                    if (dateTo) {
+                        dateTo.set('minDate', dateStr);
+                    }
                 }
             }
-        });
+        };
+        
+        if (lang === 'ru' && typeof flatpickr.l10ns.ru !== 'undefined') {
+            mobileFlatpickrConfig.locale = flatpickr.l10ns.ru;
+        }
+        
+        // Initialize mobile date pickers
+        if (document.querySelector("#mobile-date-from")) {
+            flatpickr("#mobile-date-from", mobileFlatpickrConfig);
+        }
+        if (document.querySelector("#mobile-date-to")) {
+            flatpickr("#mobile-date-to", mobileFlatpickrConfig);
+        }
     }
 
     // Get unique options for filters
