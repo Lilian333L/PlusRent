@@ -118,520 +118,953 @@
   }
   </script>
 
-  <!-- CSS Files -->
-  <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
-  <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
-  <link href="css/plugins.css" rel="stylesheet" type="text/css">
-  <link href="css/style.css" rel="stylesheet" type="text/css">
-  <link href="css/coloring.css" rel="stylesheet" type="text/css">
-  <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
-
-  <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
   <!-- Config -->
   <script src="js/config.js"></script>
 
-    <!-- Custom Language Picker Styles -->
-    <style>
-        .lang-picker-wrapper {
-            position: relative;
-            display: inline-block;
-            vertical-align: middle;
-        }
+  <!-- Custom Styles -->
+  <style>
+    /* Language Picker Styles */
+    .lang-picker-wrapper {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
 
-        .lang-picker-btn {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 4px 12px;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
-            background: #f6f6f6;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            min-width: 80px;
-            height: 36px;
-            line-height: 1.2;
-            transition: border 0.2s, box-shadow 0.2s;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
-            margin-left: 0;
-        }
+    .lang-picker-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      background: #f6f6f6;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      min-width: 80px;
+      height: 36px;
+      line-height: 1.2;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+      margin-left: 0;
+    }
 
-        .lang-picker-btn:focus,
-        .lang-picker-btn[aria-expanded="true"] {
-            outline: none;
-            border-color: #f0c040;
-            box-shadow: 0 2px 12px rgba(240, 192, 64, 0.08);
-        }
+    .lang-picker-btn:focus,
+    .lang-picker-btn[aria-expanded="true"] {
+      outline: none;
+      border-color: #f0c040;
+      box-shadow: 0 2px 12px rgba(240, 192, 64, 0.08);
+    }
 
-        .lang-picker-dropdown {
-            display: none;
-            position: absolute;
-            top: 110%;
-            left: 0;
-            z-index: 1000;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            padding: 0;
-            margin: 0;
-            min-width: 120px;
-            list-style: none;
-        }
+    .lang-picker-dropdown {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      z-index: 1000;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      padding: 0;
+      margin: 0;
+      min-width: 120px;
+      list-style: none;
+    }
 
-        .lang-picker-dropdown.open {
-            display: block;
-        }
+    .lang-picker-dropdown.open {
+      display: block;
+    }
 
-        .lang-option {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 7px 14px;
-            cursor: pointer;
-            font-size: 14px;
-            background: none;
-            border: none;
-            transition: background 0.15s, color 0.15s;
-            height: 32px;
-            line-height: 1.2;
-        }
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      background: none;
+      border: none;
+      transition: background 0.15s, color 0.15s;
+      height: 32px;
+      line-height: 1.2;
+    }
 
-        .lang-option:focus,
-        .lang-option:hover {
-            background: #f0c04022;
-            color: #031B4E;
-            outline: none;
-        }
+    .lang-option:focus,
+    .lang-option:hover {
+      background: #f0c04022;
+      color: #031B4E;
+      outline: none;
+    }
 
-        .lang-option.selected {
-            background: #f0c04044;
-            color: #031B4E;
-            font-weight: 600;
-        }
+    .lang-option.selected {
+      background: #f0c04044;
+      color: #031B4E;
+      font-weight: 600;
+    }
 
-        .lang-flag {
-            font-size: 18px;
-            width: 20px;
-            display: inline-block;
-            text-align: center;
-        }
+    .lang-flag {
+      font-size: 18px;
+      width: 20px;
+      display: inline-block;
+      text-align: center;
+    }
 
-        .lang-globe {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-            margin-right: 3px;
-        }
+    .lang-globe {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 3px;
+    }
 
-        .lang-code {
-            font-weight: 600;
-            margin: 0 2px 0 2px;
-        }
+    .lang-code {
+      font-weight: 600;
+      margin: 0 2px 0 2px;
+    }
 
-        @media (max-width: 600px) {
-            .lang-picker-btn {
-                font-size: 12px;
-                padding: 3px 7px;
-                min-width: 60px;
-                height: 30px;
-            }
+    @media (max-width: 600px) {
+      .lang-picker-btn {
+        font-size: 12px;
+        padding: 3px 7px;
+        min-width: 60px;
+        height: 30px;
+      }
 
-            .lang-picker-dropdown {
-                min-width: 80px;
-            }
+      .lang-picker-dropdown {
+        min-width: 80px;
+      }
 
-            .lang-option {
-                font-size: 12px;
-                padding: 6px 8px;
-                height: 26px;
-            }
+      .lang-option {
+        font-size: 12px;
+        padding: 6px 8px;
+        height: 26px;
+      }
 
-            .lang-flag {
-                font-size: 15px;
-                width: 15px;
-            }
-        }
+      .lang-flag {
+        font-size: 15px;
+        width: 15px;
+      }
+    }
 
-        /* Call Now Button styles are now in global CSS */
-    </style>
+    /* Modern About Page Styles */
+    
+    /* Hero Description Section */
+    .about-hero-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-hero-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(28, 207, 201, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) translateX(0px);
+      }
+      50% {
+        transform: translateY(-30px) translateX(20px);
+      }
+    }
+
+    .about-hero-section h2 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin-bottom: 2rem;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .about-hero-section p {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: #555;
+      animation: fadeInUp 0.8s ease-out 0.2s;
+      animation-fill-mode: both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stats Section */
+    .stats-section {
+      padding: 60px 0;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .de_count {
+      background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%) !important;
+      padding: 40px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .de_count::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1ccfc9 0%, #17a398 100%);
+      transform: scaleX(0);
+      transition: transform 0.6s ease;
+    }
+
+    .de_count:hover::before {
+      transform: scaleX(1);
+    }
+
+    .de_count:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 16px 45px rgba(28, 207, 201, 0.18);
+      border-color: rgba(28, 207, 201, 0.2);
+    }
+
+    .de_count h3 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+
+    .de_count span {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 100px 0;
+      background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f8f9fa 100%);
+      position: relative;
+    }
+
+    .features-section h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #1a1a1a;
+      margin-bottom: 3rem;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .box-icon {
+      background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .box-icon::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: -1;
+    }
+
+    .box-icon:hover::before {
+      opacity: 1;
+    }
+
+    .box-icon:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(28, 207, 201, 0.2);
+      background: #ffffff;
+    }
+
+    .box-icon i {
+      font-size: 3rem;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      text-align: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      color: white;
+      margin-bottom: 20px;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(28, 207, 201, 0.25);
+    }
+
+    .box-icon:hover i {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 12px 30px rgba(28, 207, 201, 0.35);
+    }
+
+    .box-icon h4 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 15px;
+      transition: color 0.3s ease;
+    }
+
+    .box-icon:hover h4 {
+      color: #1ccfc9;
+    }
+
+    .box-icon span {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #666;
+    }
+
+    .features-car-image {
+      animation: carFloat 4s ease-in-out infinite;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+    }
+
+    @keyframes carFloat {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, #1ccfc9 0%, #17a398 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: ctaFloat 10s ease-in-out infinite;
+    }
+
+    @keyframes ctaFloat {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        transform: translate(50px, 30px) scale(1.1);
+      }
+    }
+
+    .cta-section h2 {
+      color: white;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .phone-num-big {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.4s ease;
+      margin-bottom: 20px;
+    }
+
+    .phone-num-big:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .phone-num-big i {
+      font-size: 2.5rem;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .phone-num-big .pnb-text {
+      display: block;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .phone-num-big .pnb-num {
+      display: block;
+      color: white;
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .cta-section .btn-main {
+      background: white;
+      color: #1ccfc9;
+      padding: 16px 40px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border: 3px solid white;
+    }
+
+    .cta-section .btn-main:hover {
+      background: transparent;
+      color: white;
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 991px) {
+      .about-hero-section h2 {
+        font-size: 2.2rem;
+      }
+
+      .about-hero-section {
+        padding: 60px 0;
+      }
+
+      .features-section {
+        padding: 60px 0;
+      }
+
+      .de_count h3 {
+        font-size: 2.8rem;
+      }
+
+      .box-icon {
+        margin-bottom: 30px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .about-hero-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .about-hero-section p {
+        font-size: 1rem;
+      }
+
+      .de_count {
+        padding: 30px 15px;
+        margin-bottom: 20px;
+      }
+
+      .de_count h3 {
+        font-size: 2.5rem;
+      }
+
+      .features-section h2 {
+        font-size: 2rem;
+      }
+
+      .box-icon {
+        padding: 25px;
+      }
+
+      .box-icon i {
+        width: 70px;
+        height: 70px;
+        line-height: 70px;
+        font-size: 2.5rem;
+      }
+
+      .cta-section h2 {
+        font-size: 1.8rem;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .phone-num-big {
+        padding: 25px;
+      }
+
+      .phone-num-big .pnb-num {
+        font-size: 1.6rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .about-hero-section {
+        padding: 40px 0;
+      }
+
+      .stats-section {
+        padding: 40px 0;
+      }
+
+      .features-section {
+        padding: 40px 0;
+      }
+
+      .cta-section {
+        padding: 50px 0;
+      }
+    }
+
+    /* Scroll Animations */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+
+    .animate-on-scroll.animated {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger Animation Delays */
+    .animate-on-scroll:nth-child(1) {
+      transition-delay: 0.1s;
+    }
+
+    .animate-on-scroll:nth-child(2) {
+      transition-delay: 0.2s;
+    }
+
+    .animate-on-scroll:nth-child(3) {
+      transition-delay: 0.3s;
+    }
+
+    .animate-on-scroll:nth-child(4) {
+      transition-delay: 0.4s;
+    }
+  </style>
 </head>
 
 <body>
-    <div id="wrapper">
+  <div id="wrapper">
 
-        <!-- page preloader begin -->
-        <div id="de-preloader"></div>
-        <!-- page preloader close -->
+    <!-- page preloader begin -->
+    <div id="de-preloader"></div>
+    <!-- page preloader close -->
 
-        <!-- header begin -->
-        <header class="transparent scroll-light has-topbar">
-            <div id="topbar" class="topbar-dark text-light">
-                <div class="container">
-                    <div class="topbar-left xs-hide">
-                        <div class="topbar-widget">
-                            <div class="topbar-widget"><a href="tel:+37360000500"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
-                            <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i
-                                        class="fa fa-envelope"></i>contact@plusrent.md</a></div>
-                            <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
-                        </div>
-                    </div>
-
-                    <div class="topbar-right">
-                        <div class="social-icons">
-                            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
+    <!-- header begin -->
+    <header class="transparent scroll-light has-topbar">
+      <div id="topbar" class="topbar-dark text-light">
+        <div class="container">
+          <div class="topbar-left xs-hide">
+            <div class="topbar-widget">
+              <div class="topbar-widget"><a href="tel:+37360000500"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
+              <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
+              <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
             </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="de-flex sm-pt10">
-                            <div class="de-flex-col">
-                                <div class="de-flex-col">
-                                    <!-- logo begin -->
-                                    <div id="logo">
-                                        <a href="/">
-                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
-                                            <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
-                                        </a>
-                                    </div>
-                                    <!-- logo close -->
-                                </div>
-                            </div>
+          </div>
 
-                            <div class="de-flex-col">
-                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
-                                <ul id="mainmenu">
-                                    <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                                    <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                                    <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                                    <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                                    <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="de-flex-col">
-                                <div class="menu_side_area"
-                                    style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
-                                    <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                                        <a href="tel:+37360000500" class="call-now-btn"
-                                            style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
-                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
-                                            <span data-i18n="call_now">Call Now</span>
-                                        </a>
-                                    </div>
-                                    <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                        <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox"
-                                            aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                                            <span class="lang-globe" id="langGlobe"
-                                                style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
-                                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2" />
-                                                    <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9"
-                                                        stroke-width="2" />
-                                                    <path d="M1 10h18" stroke="#1ccfc9" stroke-width="2" />
-                                                    <path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2" />
-                                                    <path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2" />
-                                                </svg>
-                                            </span>
-                                            <span class="lang-flag" id="langFlag"></span>
-                                            <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
-                                            <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
-                                                <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2"
-                                                    fill="none" stroke-linecap="round" />
-                                            </svg>
-                                        </button>
-                                        <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                            <li class="lang-option" data-lang="ro" tabindex="0"><span
-                                                    class="lang-flag"><img src="images/flags/romania.png" alt="RO"
-                                                        style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
-                                                <span class="lang-code">RO</span></li>
-                                            <li class="lang-option" data-lang="en" tabindex="0"><span
-                                                    class="lang-flag"><img src="images/flags/united-kingdom.png"
-                                                        alt="EN"
-                                                        style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
-                                                <span class="lang-code">EN</span></li>
-                                            <li class="lang-option" data-lang="ru" tabindex="0"><span
-                                                    class="lang-flag"><img src="images/flags/russia.png" alt="RU"
-                                                        style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
-                                                <span class="lang-code">RU</span></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="menu-btn">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="topbar-right">
+            <div class="social-icons">
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
             </div>
-        </header><!-- header close -->
-        <!-- content begin -->
-        <div class="no-bottom no-top zebra" id="content">
-            <div id="top"></div>
-
-            <!-- section begin -->
-            <section id="subheader" class="jarallax text-light">
-                <img src="images/background/subheader.jpg" class="jarallax-img" alt="">
-                <div class="center-y relative text-center">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12 text-center">
-                                <h1 data-i18n="about.title">About Us</h1>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <!-- section close -->
-
-            <section>
-                <div class="container">
-                    <div class="row g-5">
-                        <div class="col-lg-6 wow fadeInRight">
-                            <h2 id="about-offer-heading"></h2>
-                        </div>
-                        <div class="col-lg-6 wow fadeInRight" data-wow-delay=".25s">
-                            <p data-i18n="about.description"></p>
-                        </div>
-                    </div>
-                    <div class="row text-center">
-                        <div class="col-md-3 col-sm-6 mb-sm-30">
-                            <div class="de_count wow fadeInUp" data-bgcolor="#f5f5f5">
-                                <h3 class="timer" data-to="164" data-speed="3000">0</h3>
-                                <span data-i18n="about.completed_orders">Completed Orders</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-sm-30">
-                            <div class="de_count wow fadeInUp" data-bgcolor="#f5f5f5">
-                                <h3 class="timer" data-to="80" data-speed="3000">0</h3>
-                                <span data-i18n="about.happy_customers">Happy Customers</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-sm-30">
-                            <div class="de_count wow fadeInUp" data-bgcolor="#f5f5f5">
-                                <h3 class="timer" data-to="7" data-speed="3000">0</h3>
-                                <span data-i18n="about.vehicles_fleet">Vehicles Fleet</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-sm-30">
-                            <div class="de_count wow fadeInUp" data-bgcolor="#f5f5f5">
-                                <h3 class="timer" data-to="1" data-speed="3000">0</h3>
-                                <span data-i18n="about.years_experience">Years Experience</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-
-
-            <section aria-label="section">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 offset-lg-3 text-center">
-                            <h2 data-i18n="about.features_highlight">Features Highlight</h2>
-                            <div class="spacer-20"></div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-lg-3">
-                            <div class="box-icon s2 p-small mb20 wow fadeInRight" data-wow-delay=".5s">
-                                <i class="fa bg-color fa-trophy"></i>
-                                <div class="d-inner">
-                                    <h4 data-i18n="features.first_class_services">First class services</h4>
-                                    <span data-i18n="features.first_class_services_desc">Where luxury meets exceptional
-                                        care, creating unforgettable moments and exceeding your every
-                                        expectation.</span>
-                                </div>
-                            </div>
-                            <div class="box-icon s2 p-small mb20 wow fadeInL fadeInRight" data-wow-delay=".75s">
-                                <i class="fa bg-color fa-road"></i>
-                                <div class="d-inner">
-                                    <h4 data-i18n="features.road_assistance">24/7 road assistance</h4>
-                                    <span data-i18n="features.road_assistance_desc">Reliable support when you need it
-                                        most, keeping you on the move with confidence and peace of mind.</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <img src="images/misc/car.png" alt="" class="img-fluid wow fadeInUp">
-                        </div>
-
-                        <div class="col-lg-3">
-                            <div class="box-icon s2 d-invert p-small mb20 wow fadeInL fadeInLeft" data-wow-delay="1s">
-                                <i class="fa bg-color fa-tag"></i>
-                                <div class="d-inner">
-                                    <h4 data-i18n="features.quality_min_expense">Quality at Minimum Expense</h4>
-                                    <span data-i18n="features.quality_min_expense_desc">Unlocking affordable brilliance
-                                        with elevating quality while minimizing costs for maximum value.</span>
-                                </div>
-                            </div>
-                            <div class="box-icon s2 d-invert p-small mb20 wow fadeInL fadeInLeft"
-                                data-wow-delay="1.25s">
-                                <i class="fa bg-color fa-map-pin"></i>
-                                <div class="d-inner">
-                                    <h4 data-i18n="features.free_pickup">Free Pick-Up & Drop-Off</h4>
-                                    <span data-i18n="features.free_pickup_desc">Enjoy free pickup and drop-off services,
-                                        adding an extra layer of ease to your car rental experience.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="section-call-to-action" class="bg-color-2 pt60 pb60 text-light">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-8">
-                            <h2 class="s2" data-i18n="cta.call_us">Call us for further information. PlusRent customer
-                                care is here to help you anytime.</h2>
-                        </div>
-
-                        <div class="col-lg-4 text-lg-center text-sm-center">
-                            <div class="phone-num-big">
-                                <i class="fa fa-phone"></i>
-                                <span class="pnb-text" data-i18n="cta.call_us_now">Call Us Now</span>
-                                <span class="pnb-num">
-                                    +37360000500
-                                </span>
-                            </div>
-                            <a href="tel:+37360000500" class="btn-main" data-i18n="cta.contact_us">Contact Us</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+          </div>
+          <div class="clearfix"></div>
         </div>
-        <!-- content close -->
-
-        <a href="#" id="back-to-top"></a>
-
-        <!-- footer begin -->
-        <footer class="text-light">
-            <div class="container">
-                <div class="row g-custom-x">
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.about">About PlusRent</h5>
-                            <p data-i18n="footer.about_desc">Where quality meets affordability...</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.contact_info">Contact Info</h5>
-                            <address class="s1">
-                                <span data-i18n="footer.address"><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-                                <a href="tel:+37360000500"> <i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500 </a>
-                                <span data-i18n="footer.email"><i class="id-color fa fa-envelope-o fa-lg"></i><a
-                                        href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
-                            </address>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <h5 data-i18n="footer.quick_links"></h5>
-                        <div class="widget">
-                            <ul>
-                                <li><a href="/" data-i18n="menu.home"></a></li>
-                                <li><a href="/cars" data-i18n="menu.cars"></a></li>
-                                <li><a href="/about" data-i18n="menu.about"></a></li>
-                                <li><a href="/contact" data-i18n="menu.contact"></a></li>
-                                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-3">
-                        <div class="widget">
-                            <h5 data-i18n="footer.social_network">Social Network</h5>
-                            <div class="social-icons">
-                                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
-                            </div>
-                        </div>
-                    </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="de-flex sm-pt10">
+              <div class="de-flex-col">
+                <div class="de-flex-col">
+                  <!-- logo begin -->
+                  <div id="logo">
+                    <a href="/">
+                      <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
+                      <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
+                    </a>
+                  </div>
+                  <!-- logo close -->
                 </div>
+              </div>
+
+              <div class="de-flex-col">
+                <!-- Main Menu -->
+                <ul id="mainmenu">
+                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                  <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
+                </ul>
+              </div>
+
+              <div class="de-flex-col">
+                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+                  <!-- Call Now Button -->
+                  <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                    <a href="tel:+37360000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);">
+                      <i class="fa fa-phone" style="font-size: 12px;"></i>
+                      <span data-i18n="call_now">Call Now</span>
+                    </a>
+                  </div>
+                  <!-- Language Picker -->
+                  <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                    <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                      <span class="lang-globe" id="langGlobe">
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2" />
+                          <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2" />
+                          <path d="M1 10h18" stroke="#1ccfc9" stroke-width="2" />
+                          <path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2" />
+                          <path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2" />
+                        </svg>
+                      </span>
+                      <span class="lang-flag" id="langFlag"></span>
+                      <span id="langCode" class="lang-code">RO</span>
+                      <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                        <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round" />
+                      </svg>
+                    </button>
+                    <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                      <li class="lang-option" data-lang="ro" tabindex="0">
+                        <span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
+                        <span class="lang-code">RO</span>
+                      </li>
+                      <li class="lang-option" data-lang="en" tabindex="0">
+                        <span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
+                        <span class="lang-code">EN</span>
+                      </li>
+                      <li class="lang-option" data-lang="ru" tabindex="0">
+                        <span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span>
+                        <span class="lang-code">RU</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div id="menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- header close -->
+
+    <!-- content begin -->
+    <div class="no-bottom no-top zebra" id="content">
+      <div id="top"></div>
+
+      <!-- section begin -->
+      <section id="subheader" class="jarallax text-light">
+        <img src="images/background/subheader.jpg" class="jarallax-img" alt="">
+        <div class="center-y relative text-center">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12 text-center">
+                <h1 data-i18n="about.title">About Us</h1>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- section close -->
+
+      <!-- Hero Description Section -->
+      <section class="about-hero-section">
+        <div class="container">
+          <div class="row g-5">
+            <div class="col-lg-6 animate-on-scroll">
+              <h2 id="about-offer-heading"></h2>
+            </div>
+            <div class="col-lg-6 animate-on-scroll">
+              <p data-i18n="about.description"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="stats-section">
+        <div class="container">
+          <div class="row text-center">
+            <div class="col-md-3 col-sm-6 mb-sm-30 animate-on-scroll">
+              <div class="de_count">
+                <h3 class="timer" data-to="164" data-speed="3000">0</h3>
+                <span data-i18n="about.completed_orders">Completed Orders</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30 animate-on-scroll">
+              <div class="de_count">
+                <h3 class="timer" data-to="80" data-speed="3000">0</h3>
+                <span data-i18n="about.happy_customers">Happy Customers</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30 animate-on-scroll">
+              <div class="de_count">
+                <h3 class="timer" data-to="7" data-speed="3000">0</h3>
+                <span data-i18n="about.vehicles_fleet">Vehicles Fleet</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30 animate-on-scroll">
+              <div class="de_count">
+                <h3 class="timer" data-to="1" data-speed="3000">0</h3>
+                <span data-i18n="about.years_experience">Years Experience</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features-section" aria-label="section">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-12 text-center mb-5">
+              <h2 data-i18n="about.features_highlight">Features Highlight</h2>
             </div>
             
-            <div class="subfooter">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="de-flex">
-                                <div class="de-flex-col">
-                                    <a href="/">
-                                        Copyright 2025 - PlusRent
-                                    </a>
-                                </div>
-                                <ul class="menu-simple">
-                                    <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+              <div class="box-icon s2 p-small mb20">
+                <i class="fa fa-trophy"></i>
+                <div class="d-inner">
+                  <h4 data-i18n="features.first_class_services">First class services</h4>
+                  <span data-i18n="features.first_class_services_desc">Where luxury meets exceptional care, creating unforgettable moments and exceeding your every expectation.</span>
                 </div>
+              </div>
             </div>
-        </footer>
-        <!-- footer close -->
+
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+              <div class="box-icon s2 p-small mb20">
+                <i class="fa fa-road"></i>
+                <div class="d-inner">
+                  <h4 data-i18n="features.road_assistance">24/7 road assistance</h4>
+                  <span data-i18n="features.road_assistance_desc">Reliable support when you need it most, keeping you on the move with confidence and peace of mind.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+              <div class="box-icon s2 p-small mb20">
+                <i class="fa fa-tag"></i>
+                <div class="d-inner">
+                  <h4 data-i18n="features.quality_min_expense">Quality at Minimum Expense</h4>
+                  <span data-i18n="features.quality_min_expense_desc">Unlocking affordable brilliance with elevating quality while minimizing costs for maximum value.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+              <div class="box-icon s2 p-small mb20">
+                <i class="fa fa-map-pin"></i>
+                <div class="d-inner">
+                  <h4 data-i18n="features.free_pickup">Free Pick-Up & Drop-Off</h4>
+                  <span data-i18n="features.free_pickup_desc">Enjoy free pickup and drop-off services, adding an extra layer of ease to your car rental experience.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-12 text-center mt-5 animate-on-scroll">
+              <img src="images/misc/car.png" alt="" class="img-fluid features-car-image" style="max-width: 600px;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section" id="section-call-to-action">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-8 mb-4 mb-lg-0">
+              <h2 class="s2" data-i18n="cta.call_us">Call us for further information. PlusRent customer care is here to help you anytime.</h2>
+            </div>
+
+            <div class="col-lg-4 text-lg-center text-sm-center">
+              <div class="phone-num-big">
+                <i class="fa fa-phone"></i>
+                <span class="pnb-text" data-i18n="cta.call_us_now">Call Us Now</span>
+                <span class="pnb-num">+373 60 000 500</span>
+              </div>
+              <a href="tel:+37360000500" class="btn-main" data-i18n="cta.contact_us">Contact Us</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
     </div>
+    <!-- content close -->
 
+    <a href="#" id="back-to-top"></a>
 
-    <!-- Javascript Files
-    ================================================== -->
-    <script src="js/plugins.js"></script>
-    <script src="js/designesia.js"></script>
-    <!-- i18next CDN -->
-    <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
-    <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
-    <script src="js/i18n-init.js"></script>
+    <!-- footer begin -->
+    <footer class="text-light">
+      <div class="container">
+        <div class="row g-custom-x">
+          <div class="col-lg-3">
+            <div class="widget">
+              <h5 data-i18n="footer.about">About PlusRent</h5>
+              <p data-i18n="footer.about_desc">Where quality meets affordability...</p>
+            </div>
+          </div>
 
-    <!-- Universal Spinning Wheel -->
-    <script src="js/universal-include.js"></script>
+          <div class="col-lg-3">
+            <div class="widget">
+              <h5 data-i18n="footer.contact_info">Contact Info</h5>
+              <address class="s1">
+                <span data-i18n="footer.address"><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
+                <a href="tel:+37360000500"><i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500</a>
+                <span data-i18n="footer.email"><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
+              </address>
+            </div>
+          </div>
 
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Wait for i18n to be initialized and then update content
-  function waitForI18n() {
-    if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
-      updateContent();
-    } else {
-      setTimeout(waitForI18n, 100);
-    }
-  }
-  waitForI18n();
-});
-</script>
+          <div class="col-lg-3">
+            <h5 data-i18n="footer.quick_links">Quick Links</h5>
+            <div class="widget">
+              <ul>
+                <li><a href="/" data-i18n="menu.home">Home</a></li>
+                <li><a href="/cars" data-i18n="menu.cars">Cars</a></li>
+                <li><a href="/about" data-i18n="menu.about">About</a></li>
+                <li><a href="/contact" data-i18n="menu.contact">Contact</a></li>
+                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="widget">
+              <h5 data-i18n="footer.social_network">Social Network</h5>
+              <div class="social-icons">
+                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subfooter">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="de-flex">
+                <div class="de-flex-col">
+                  <a href="/">Copyright 2025 - PlusRent</a>
+                </div>
+                <ul class="menu-simple">
+                  <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- footer close -->
+
+  </div>
+
+  <!-- Javascript Files -->
+  <script src="js/plugins.js"></script>
+  <script src="js/designesia.js"></script>
+  
+  <!-- i18next CDN -->
+  <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
+  <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+  <script src="js/i18n-init.js"></script>
+
+  <!-- Universal Spinning Wheel -->
+  <script src="js/universal-include.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for i18n to be initialized and then update content
+      function waitForI18n() {
+        if (typeof i18next !== 'undefined' && typeof updateContent === 'function') {
+          updateContent();
+        } else {
+          setTimeout(waitForI18n, 100);
+        }
+      }
+      waitForI18n();
+
+      // Scroll Animation Observer
+      const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -100px 0px'
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      // Observe all elements with animate-on-scroll class
+      document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+      });
+    });
+  </script>
 
 </body>
-
-
 </html>
-
-
-
-
-
-
-
