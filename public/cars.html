@@ -1966,117 +1966,205 @@
     }
 
     function clearAllFilters() {
+        // Clear desktop filters
+        document.querySelectorAll('.filter-sidebar input[type=checkbox]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="price-category"]').forEach(radio => {
+            radio.checked = radio.value === 'all';
+        });
+
+        // Clear date filters with Flatpickr
+        const dateFrom = document.getElementById('date-from');
+        const dateTo = document.getElementById('date-to');
+        if (dateFrom && dateFrom._flatpickr) {
+            dateFrom._flatpickr.clear();
+        }
+        if (dateTo && dateTo._flatpickr) {
+            dateTo._flatpickr.clear();
+        }
+
+        // Clear sort
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.value = 'default';
+        }
+
+        // Clear mobile filters
         document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
-        document.querySelectorAll('#mobile-filter-overlay input[type=radio][value="all"]').forEach(radio => radio.checked = true);
-        document.getElementById('mobile-date-from').value = '';
-        document.getElementById('mobile-date-to').value = '';
-        document.getElementById('mobile-sort-select').value = 'default';
-    }
+        document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+            radio.checked = radio.value === 'all';
+        });
 
-    // Language switcher
-    function initLanguageSwitcher() {
-        const langBtn = document.getElementById('langPickerBtn');
-        const langDropdown = document.getElementById('langDropdown');
-        const langFlag = document.getElementById('langFlag');
-        const langCode = document.getElementById('langCode');
-        
-        const currentLang = getCurrentLanguage();
-        updateLanguageDisplay(currentLang);
-        
-        langBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            langDropdown.classList.toggle('open');
-        });
-        
-        document.querySelectorAll('.lang-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                const lang = e.currentTarget.getAttribute('data-lang');
-                localStorage.setItem('lang', lang);
-                updateLanguageDisplay(lang);
-                langDropdown.classList.remove('open');
-                updatePageTranslations();
-                initializeDatePickers(); // Reinit with new locale
-                fetchAndRenderCars(); // Refresh cars with new translations
-            });
-        });
-        
-        document.addEventListener('click', () => {
-            langDropdown?.classList.remove('open');
-        });
-    }
-
-    function updateLanguageDisplay(lang) {
-        const langFlag = document.getElementById('langFlag');
-        const langCode = document.getElementById('langCode');
-        
-        const flags = {
-            ro: 'images/flags/romania.png',
-            en: 'images/flags/united-kingdom.png',
-            ru: 'images/flags/russia.png'
-        };
-        
-        const codes = {
-            ro: 'RO',
-            en: 'EN',
-            ru: 'RU'
-        };
-        
-        if (langFlag && flags[lang]) {
-            langFlag.innerHTML = `<img src="${flags[lang]}" alt="${codes[lang]}">`;
+        // Clear mobile date filters
+        const mobileDateFrom = document.getElementById('mobile-date-from');
+        const mobileDateTo = document.getElementById('mobile-date-to');
+        if (mobileDateFrom && mobileDateFrom._flatpickr) {
+            mobileDateFrom._flatpickr.clear();
         }
-        if (langCode && codes[lang]) {
-            langCode.textContent = codes[lang];
+        if (mobileDateTo && mobileDateTo._flatpickr) {
+            mobileDateTo._flatpickr.clear();
         }
-        
-        // Update selected state
-        document.querySelectorAll('.lang-option').forEach(option => {
-            option.classList.toggle('selected', option.getAttribute('data-lang') === lang);
-        });
+
+        // Clear mobile sort
+        const mobileSortSelect = document.getElementById('mobile-sort-select');
+        if (mobileSortSelect) {
+            mobileSortSelect.value = 'default';
+        }
     }
 
-    // Initialize everything
-    async function initialize() {
-        // First, make functions globally available for modal
-        window.updateFiltersAndFetch = updateFiltersAndFetch;
-        window.fetchAndRenderCars = fetchAndRenderCars;
-        
-        await loadPriceFilterSettings();
-        
-        // Load all cars for filter counts
+    // 2. REPLACE the existing fetchAndRenderCars function with this updated version:
+    async function fetchAndRenderCars() {
+        const carListDiv = document.getElementById('car-list');
+        carListDiv.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>`;
+
         try {
-            const res = await fetch(`${window.API_BASE_URL}/api/cars`);
-            allCarsCache = await res.json();
-        } catch (error) {
-            console.error('Error loading cars cache:', error);
-        }
-        
-        initLanguageSwitcher();
-        updatePageTranslations();
-        initializeDatePickers();
-        fetchAndRenderCars();
-        
-        // Clear filters button
-        document.getElementById('clear-filters-link')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.history.pushState({}, '', window.location.pathname);
-            
-            // Clear all filter inputs
-            clearAllFilters();
-            
-            // Fetch cars without filters
-            fetchAndRenderCars();
-            
-            // Sync with modal - set to "all"
-            if (window.carsFilterModal && window.carsFilterModal.modal) {
-                window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
-                    card.classList.remove('selected');
-                });
-                const allCard = window.carsFilterModal.modal.querySelector('.filter-card[data-filter="all"]');
-                if (allCard) {
-                    allCard.classList.add('selected');
-                }
+            // Build URL with all parameters including dates
+            const params = new URLSearchParams(window.location.search);
+
+            // Get date values if they exist
+            const dateFrom = document.getElementById('date-from')?.value;
+            const dateTo = document.getElementById('date-to')?.value;
+
+            // Add dates to params if they exist
+            if (dateFrom) {
+                const [day, month, year] = dateFrom.split('.');
+                params.set('date_from', `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
             }
-        });
+            if (dateTo) {
+                const [day, month, year] = dateTo.split('.');
+                params.set('date_to', `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+            }
+
+            // Fetch cars with all parameters
+            const queryString = params.toString();
+            const res = await fetch(`${window.API_BASE_URL}/api/cars${queryString ? '?' + queryString : ''}`);
+            const cars = await res.json();
+
+            if (!cars.length) {
+                const lang = getCurrentLanguage();
+                let message = 'No cars available';
+
+                if (dateFrom && dateTo) {
+                    if (lang === 'ro') {
+                        message = 'Nu sunt mașini disponibile pentru perioada selectată';
+                    } else if (lang === 'ru') {
+                        message = 'Нет доступных автомобилей на выбранный период';
+                    } else {
+                        message = 'No cars available for the selected period';
+                    }
+                } else {
+                    message = translations[lang]?.['cars.no_cars'] || 'No cars available';
+                }
+
+                carListDiv.innerHTML = `<div class="col-12 text-center py-5"><h3>${message}</h3></div>`;
+                return;
+            }
+
+            // Sort cars if needed
+            const sortBy = params.get('sort');
+            if (sortBy) {
+                cars.sort((a, b) => {
+                    const priceA = getLowestPrice(a);
+                    const priceB = getLowestPrice(b);
+
+                    if (sortBy === 'price_asc') return priceA - priceB;
+                    if (sortBy === 'price_desc') return priceB - priceA;
+                    return 0;
+                });
+            }
+
+            const lang = getCurrentLanguage();
+            const carsHtml = cars.map(car => {
+                const isPremium = car.is_premium === 1 || car.is_premium === true;
+                const rentNowUrl = `car-single.html?id=${car.id}${dateFrom ? '&date_from=' + dateFrom : ''}${dateTo ? '&date_to=' + dateTo : ''}`;
+                const lowestPrice = getLowestPrice(car);
+
+                // Check if car is available (if the car is in the results, it means it's available)
+                const isAvailable = true;
+
+                return `
+                    <div class="col-xl-4 col-lg-6 col-md-6 col-12 mb-4">
+                        <div class="car-card ${isPremium ? 'premium' : ''} ${!isAvailable ? 'unavailable' : ''}">
+                            <div class="car-image-wrapper">
+                                <img src="${getCarImage(car)}" class="car-image" alt="${car.make_name} ${car.model_name}">
+                                ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
+                                ${!isAvailable ? '<div class="unavailable-badge">UNAVAILABLE</div>' : ''}
+                            </div>
+                            <div class="car-details">
+                                <h4 class="car-title">${formatDisplayText(car.make_name)}</h4>
+                                <p class="car-model">${formatDisplayText(car.model_name)}</p>
+                                <div class="car-features">
+                                    <div class="car-feature">
+                                        <i class="fa fa-users"></i>
+                                        <span>${car.num_passengers || '-'} ${lang === 'ro' ? 'locuri' : lang === 'ru' ? 'мест' : 'seats'}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-suitcase"></i>
+                                        <span>${car.luggage || '-'} ${lang === 'ro' ? 'bagaje' : lang === 'ru' ? 'багаж' : 'luggage'}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <span>${translateFuelType(car.fuel_type)}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-cog"></i>
+                                        <span>${car.gear_type || 'Manual'}</span>
+                                    </div>
+                                </div>
+                                <div class="car-price">
+                                    <span class="price-label" data-i18n="cars.daily_rate">Daily rate from</span>
+                                    <span class="price-value">€${lowestPrice}</span>
+                                </div>
+                                <a href="${rentNowUrl}" class="btn-rent ${!isAvailable ? 'btn-unavailable' : ''}" data-i18n="cars.rent_now">
+                                    ${isAvailable 
+                                        ? (lang === 'ro' ? 'Închiriază Acum' : lang === 'ru' ? 'Арендовать' : 'Rent Now')
+                                        : (lang === 'ro' ? 'Indisponibil' : lang === 'ru' ? 'Недоступно' : 'Unavailable')}
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            carListDiv.innerHTML = carsHtml;
+            updatePageTranslations();
+            renderSidebarOptions();
+
+        } catch (error) {
+            console.error('Error fetching cars:', error);
+            carListDiv.innerHTML = '<div class="col-12 text-center py-5"><h3>Error loading cars</h3></div>';
+        }
+    }
+
+    // 3. UPDATE the clear filters link event listener (find and replace):
+    document.getElementById('clear-filters-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Clear all filters
+        clearAllFilters();
+
+        // Reset URL to base path
+        window.history.pushState({}, '', window.location.pathname);
+
+        // Fetch cars without filters
+        fetchAndRenderCars();
+
+        // Sync with modal - set to "all"
+        if (window.carsFilterModal && window.carsFilterModal.modal) {
+            window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            const allCard = window.carsFilterModal.modal.querySelector('.filter-card[data-filter="all"]');
+            if (allCard) {
+                allCard.classList.add('selected');
+            }
+        }
+    });
+
+
         
         // Mobile filter overlay click outside
         document.getElementById('mobile-filter-overlay')?.addEventListener('click', (e) => {
