@@ -71,470 +71,717 @@
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
   <script src="js/i18n-init.js"></script>
 
-  <!-- Structured Data (JSON-LD) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "AutoRental",
-    "name": "PlusRent",
-    "image": "https://plusrent.md/images/LOGO-5-demo.png",
-    "logo": "https://plusrent.md/images/icon.png",
-    "@id": "https://plusrent.md",
-    "url": "https://plusrent.md/cars",
-    "description": "Flotă completă de mașini disponibile pentru închiriere în Chișinău și Moldova, cu livrare la aeroport și asistență 24/7.",
-    "priceRange": "€25-€120",
-    "telephone": "+373-60-000-500",
-    "email": "info@plusrent.md",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "str. Meșterul Manole 20",
-      "addressLocality": "Chișinău",
-      "postalCode": "MD-2001",
-      "addressCountry": "MD"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 47.0105,
-      "longitude": 28.8638
-    },
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-      ],
-      "opens": "00:00",
-      "closes": "23:59"
-    },
-    "sameAs": [
-      "https://www.instagram.com/plusrent.md",
-      "https://t.me/plusrent",
-      "https://www.tiktok.com/@plusrent"
-    ]
-  }
-  </script>
-    <style>
-      /* Modern Premium Design System */
-      :root {
-        --primary-color: #1ccfc9;
-        --primary-dark: #17a39e;
-        --primary-light: #4dd9d4;
-        --secondary-color: #031B4E;
-        --accent-gold: #f0c040;
-        --text-dark: #1a1a1a;
-        --text-medium: #555;
-        --text-light: #888;
-        --bg-light: #f8f9fb;
-        --bg-white: #ffffff;
-        --border-color: #e8ebf0;
-        --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-        --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-        --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
-        --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+  <style>
+    /* Clean, Professional Design System */
+    :root {
+      --primary: #1ccfc9;
+      --primary-dark: #17a39e;
+      --secondary: #031B4E;
+      --accent: #f0c040;
+      --text: #2d3748;
+      --text-light: #718096;
+      --border: #e2e8f0;
+      --bg: #f7fafc;
+      --white: #ffffff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+      --radius: 12px;
+    }
 
-      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
-      .lang-picker-btn {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 4px 12px;
-        border-radius: 4px;
-        border: 1px solid #e0e0e0;
-        background: #f6f6f6;
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 14px;
-        min-width: 80px;
-        height: 36px;
-        line-height: 1.2;
-        transition: border 0.2s, box-shadow 0.2s;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-        margin-left: 0;
-      }
-      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
-        outline: none;
-        border-color: #f0c040;
-        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
-      }
-      .lang-picker-dropdown {
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Language Picker */
+    .lang-picker-wrapper { position: relative; display: inline-block; }
+    .lang-picker-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      min-width: 90px;
+      height: 38px;
+      transition: all 0.2s;
+    }
+    .lang-picker-btn:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(28, 207, 201, 0.1);
+    }
+    .lang-picker-dropdown {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      z-index: 1000;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      padding: 4px;
+      min-width: 130px;
+      list-style: none;
+    }
+    .lang-picker-dropdown.open { display: block; }
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .lang-option:hover {
+      background: var(--bg);
+    }
+    .lang-option.selected {
+      background: rgba(28, 207, 201, 0.1);
+      font-weight: 600;
+    }
+    .lang-flag img {
+      width: 20px;
+      height: 15px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+
+    /* Page Container */
+    .cars-main-container {
+      padding: 2rem 0;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .filter-sidebar-wrapper {
+      position: sticky;
+      top: 120px;
+    }
+
+    .filter-sidebar {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .filter-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .clear-filters {
+      color: var(--primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      background: rgba(28, 207, 201, 0.1);
+    }
+
+    .clear-filters:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    /* Date Picker Section */
+    .date-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .date-section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .date-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .date-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .date-input-wrapper label {
+      font-size: 0.813rem;
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .date-input-wrapper input {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    .date-input-wrapper input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(28, 207, 201, 0.1);
+    }
+
+    .date-actions {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .date-actions button {
+      padding: 0.625rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-clear {
+      background: var(--bg);
+      color: var(--text-light);
+      border: 1px solid var(--border);
+    }
+
+    .btn-clear:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-apply {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-apply:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(28, 207, 201, 0.3);
+    }
+
+    /* Sort Section */
+    .sort-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sort-section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sort-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sort-btn {
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--white);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+
+    .sort-btn:hover {
+      border-color: var(--primary);
+      background: rgba(28, 207, 201, 0.05);
+    }
+
+    .sort-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+
+    /* Filter Categories */
+    .filter-category {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-category:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .category-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 0.75rem;
+      margin-bottom: 0.25rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .filter-option:hover {
+      background: var(--bg);
+    }
+
+    .filter-option label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.875rem;
+      color: var(--text);
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .filter-option input[type="checkbox"],
+    .filter-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .filter-count {
+      font-size: 0.813rem;
+      color: var(--text-light);
+      font-weight: 600;
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .filter-option.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Car Cards */
+    .car-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .car-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .car-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Premium Card Border */
+    .car-card.premium {
+      border: 2px solid var(--accent);
+      position: relative;
+      box-shadow: 0 4px 20px rgba(240, 192, 64, 0.2);
+    }
+
+    .car-card.premium::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: var(--radius);
+      padding: 2px;
+      background: linear-gradient(135deg, var(--accent) 0%, #ffd700 50%, var(--accent) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      animation: shimmer 3s linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .car-card.premium:hover {
+      box-shadow: 0 8px 30px rgba(240, 192, 64, 0.3);
+    }
+
+    .car-image {
+      position: relative;
+      height: 200px;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .car-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s;
+    }
+
+    .car-card:hover .car-image img {
+      transform: scale(1.05);
+    }
+
+    .premium-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, var(--accent), #ffd700);
+      color: var(--secondary);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 2;
+    }
+
+    .car-likes {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 2;
+    }
+
+    .car-likes i {
+      color: #ff4757;
+      font-size: 0.875rem;
+    }
+
+    .car-likes span {
+      font-size: 0.813rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .car-content {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .car-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .car-model {
+      font-size: 0.938rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .car-specs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text);
+      padding: 0.5rem;
+      background: var(--bg);
+      border-radius: 6px;
+    }
+
+    .spec-item img {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    .car-price {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .price-label {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .price-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-rent {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 0.938rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+    }
+
+    .btn-rent:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
+      color: var(--white);
+    }
+
+    /* Mobile Filter Button */
+    .mobile-filter-toggle {
+      display: none;
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-filter-toggle:active {
+      transform: scale(0.98);
+    }
+
+    /* Mobile Filter Overlay */
+    .mobile-filter-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+    }
+
+    .mobile-filter-overlay.active {
+      display: block;
+    }
+
+    .mobile-filter-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 85%;
+      max-width: 380px;
+      height: 100%;
+      background: var(--white);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      overflow-y: auto;
+      z-index: 10000;
+    }
+
+    .mobile-filter-overlay.active .mobile-filter-panel {
+      transform: translateX(0);
+    }
+
+    .mobile-filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--primary);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .mobile-filter-header h3 {
+      color: var(--white);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .mobile-filter-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--white);
+      font-size: 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .mobile-filter-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .mobile-filter-content {
+      padding: 1.5rem;
+    }
+
+    .mobile-filter-actions {
+      position: sticky;
+      bottom: 0;
+      background: var(--white);
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 0.75rem;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+
+    .mobile-filter-actions button {
+      padding: 0.875rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.938rem;
+    }
+
+    .mobile-filter-actions .btn-clear-all {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .mobile-filter-actions .btn-apply-all {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .filter-sidebar-wrapper {
         display: none;
-        position: absolute;
-        top: 110%;
-        left: 0;
-        z-index: 1000;
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        padding: 0;
-        margin: 0;
-        min-width: 120px;
-        list-style: none;
-      }
-      .lang-picker-dropdown.open { display: block; }
-      .lang-option {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 14px;
-        cursor: pointer;
-        font-size: 14px;
-        background: none;
-        border: none;
-        transition: background 0.15s, color 0.15s;
-        height: 32px;
-        line-height: 1.2;
-      }
-      .lang-option:focus, .lang-option:hover {
-        background: #f0c04022;
-        color: #031B4E;
-        outline: none;
-      }
-      .lang-option.selected {
-        background: #f0c04044;
-        color: #031B4E;
-        font-weight: 600;
-      }
-      .lang-flag {
-        font-size: 18px;
-        width: 20px;
-        display: inline-block;
-        text-align: center;
-      }
-      .lang-globe {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
       }
 
-      /* Premium car highlighting */
-      .de-item.premium {
-        border: 2px solid var(--accent-gold);
-        box-shadow: 0 8px 30px rgba(240, 192, 64, 0.25);
-        position: relative;
-        overflow: hidden;
+      .mobile-filter-toggle {
+        display: block;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .car-list {
+        grid-template-columns: 1fr;
       }
 
-      .de-item.premium::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--accent-gold), #ffed4e, var(--accent-gold));
-        animation: shimmer 2s infinite;
+      .cars-main-container {
+        padding: 1rem 0;
       }
+    }
 
-      @keyframes shimmer {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+    @media (min-width: 992px) {
+      .car-list {
+        grid-template-columns: repeat(2, 1fr);
       }
+    }
 
-      .de-item.premium:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 40px rgba(240, 192, 64, 0.35);
+    @media (min-width: 1400px) {
+      .car-list {
+        grid-template-columns: repeat(3, 1fr);
       }
-
-      .premium-badge {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
-        color: var(--secondary-color);
-        font-size: 0.7rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 6px 14px;
-        border-radius: 20px;
-        z-index: 3;
-        box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3);
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-      }
-      
-      .lang-flag {
-        width: 20px;
-        height: 20px;
-        margin-right: 3px;
-      }
-      .lang-code {
-        font-weight: 600;
-        margin: 0 2px 0 2px;
-      }
-
-      /* Modern Date Range Picker */
-      .date-range-container {
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-        border-radius: var(--radius-lg);
-        padding: 1.75rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .date-range-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
-      }
-
-      .date-range-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        margin-bottom: 1.25rem;
-        color: var(--text-dark);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .date-range-title::before {
-        content: '📅';
-        font-size: 1.25rem;
-      }
-
-      .date-inputs-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-
-      .date-input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-
-      .date-input-group label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--text-medium);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .date-input-group input {
-        padding: 0.85rem 1rem;
-        border: 2px solid var(--border-color);
-        border-radius: var(--radius-sm);
-        font-size: 0.95rem;
-        transition: all var(--transition-fast);
-        cursor: pointer;
-        background: var(--bg-white);
-        font-weight: 500;
-        color: var(--text-dark);
-      }
-
-      .date-input-group input:hover {
-        border-color: var(--primary-light);
-      }
-
-      .date-input-group input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(28, 207, 201, 0.1);
-      }
-
-      .date-range-actions {
-        margin-top: 1.25rem;
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 0.75rem;
-      }
-
-      .date-range-actions button {
-        padding: 0.85rem 1.25rem;
-        border: none;
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-
-      .btn-apply-dates {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
-      }
-
-      .btn-apply-dates:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(28, 207, 201, 0.4);
-      }
-
-      .btn-apply-dates:active {
-        transform: translateY(0);
-      }
-
-      .btn-clear-dates {
-        background: var(--bg-light);
-        color: var(--text-medium);
-        border: 2px solid var(--border-color);
-      }
-
-      .btn-clear-dates:hover {
-        background: #e8ebf0;
-        border-color: #d0d5dd;
-      }
-
-      /* Modern Sort Controls */
-      .sort-controls {
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .sort-controls::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, var(--accent-gold), #e6a520);
-      }
-
-      .sort-label {
-        font-weight: 700;
-        color: var(--text-dark);
-        font-size: 1.05rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .sort-label::before {
-        content: '⚡';
-        font-size: 1.2rem;
-      }
-
-      .sort-buttons {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-
-      .sort-btn {
-        padding: 0.7rem 1.25rem;
-        border: 2px solid var(--border-color);
-        background: var(--bg-white);
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all var(--transition-fast);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        color: var(--text-medium);
-      }
-
-      .sort-btn i {
-        font-size: 0.9rem;
-      }
-
-      .sort-btn:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(28, 207, 201, 0.15);
-      }
-
-      .sort-btn.active {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
-      }
-
-      .sort-btn.active:hover {
-        box-shadow: 0 6px 20px rgba(28, 207, 201, 0.4);
-      }
-
-      @media (max-width: 600px) {
-        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
-        .lang-picker-dropdown { min-width: 80px; }
-        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
-        .lang-flag { font-size: 15px; width: 15px; }
-        
-        .date-inputs-wrapper {
-          grid-template-columns: 1fr;
-        }
-
-        .date-range-actions {
-          grid-template-columns: 1fr;
-        }
-
-        .sort-controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .sort-buttons {
-          flex-direction: column;
-        }
-
-        .sort-btn {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-      
-      /* Car card button alignment */
-      .d-text {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 200px;
-      }
-      
-      .d-text .btn-main {
-        margin-top: auto;
-        align-self: flex-start;
-      }
-      
-      .d-text .btn-unavailable {
-        margin-top: auto;
-        align-self: flex-start;
-      }
-    </style>
+    }
+  </style>
 </head>
 
 <body>
@@ -558,8 +805,8 @@
                 
                     <div class="topbar-right">
                         <div class="social-icons">
-                            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
-                            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+                            <a href="https://www.instagram.com/plusrent.md/" target="_blank"><i class="fab fa-instagram fa-lg"></i></a>
+                            <a href="https://tiktok.me/plusrent" target="_blank"><i class="fab fa-tiktok fa-lg"></i></a>
                         </div>
                     </div>  
                     <div class="clearfix"></div>
@@ -571,19 +818,16 @@
                         <div class="de-flex sm-pt10">
                             <div class="de-flex-col">
                                 <div class="de-flex-col">
-                                    <!-- logo begin -->
                                     <div id="logo">
                                         <a href="/">
                                             <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
                                             <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                                         </a>
                                     </div>
-                                    <!-- logo close -->
                                 </div>
                             </div>
                             
                             <div class="de-flex-col">
-                                <!-- Main Menu -->
                                 <ul id="mainmenu">
                                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
@@ -594,28 +838,23 @@
                             </div>
                             
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
-                                    <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                                        <a href="tel:060000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                <div class="menu_side_area" style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="call-now-wrapper">
+                                        <a href="tel:060000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px;">
                                             <i class="fa fa-phone" style="font-size: 12px;"></i>
                                             <span data-i18n="call_now">Call Now</span>
                                         </a>
                                     </div>
-                                    <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
-                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
-                                        </span>
+                                    <div class="lang-picker-wrapper">
+                                      <button id="langPickerBtn" class="lang-picker-btn">
                                         <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
-                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                        <span id="langCode">RO</span>
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 8L2 4h8z"/></svg>
                                       </button>
-                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
-                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
-                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                                      <ul id="langDropdown" class="lang-picker-dropdown">
+                                        <li class="lang-option" data-lang="ro"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO"></span> <span>RO</span></li>
+                                        <li class="lang-option" data-lang="en"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN"></span> <span>EN</span></li>
+                                        <li class="lang-option" data-lang="ru"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU"></span> <span>RU</span></li>
                                       </ul>
                                     </div>
                                 </div>
@@ -631,7 +870,6 @@
                 </div>
             </div>
         </header>
-        <!-- header close -->
 
         <!-- content begin -->
         <div class="no-bottom no-top zebra" id="content">
@@ -644,264 +882,153 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <h1 data-i18n="menu.cars"></h1>
+                                <h1 data-i18n="menu.cars">Cars</h1>
                             </div>
-                            <div class="clearfix"></div>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- section close -->
 
-            <!-- Main content -->
+            <!-- Main Content -->
             <div class="container cars-main-container">
                 <!-- Mobile Filter Button -->
-                <div class="mobile-filter-button-container d-md-none">
-                    <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()">
-                        <i class="fa fa-filter"></i> <span data-i18n="cars.filter_cars">Filter Cars</span>
-                    </button>
-                </div>
-                
+                <button class="mobile-filter-toggle" onclick="toggleMobileFilter()">
+                    <i class="fa fa-filter"></i> <span data-i18n="cars.filter_cars">Filter Cars</span>
+                </button>
+
                 <div class="row">
                     <!-- Desktop Sidebar -->
-                    <div class="col-lg-3 col-md-4 small-sidebar d-none d-md-block">
-                        <!-- Date Range Picker -->
-                        <div class="date-range-container">
-                            <div class="date-range-title" data-i18n="cars.availability_dates">Availability Dates</div>
-                            <div class="date-inputs-wrapper">
-                                <div class="date-input-group">
-                                    <label data-i18n="cars.date_from">From</label>
-                                    <input type="text" id="date-from" placeholder="Select date" readonly>
-                                </div>
-                                <div class="date-input-group">
-                                    <label data-i18n="cars.date_to">To</label>
-                                    <input type="text" id="date-to" placeholder="Select date" readonly>
-                                </div>
-                            </div>
-                            <div class="date-range-actions">
-                                <button class="btn-clear-dates" onclick="clearDateRange()">
-                                    <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
-                                </button>
-                                <button class="btn-apply-dates" onclick="applyDateRange()">
-                                    <i class="fa fa-check"></i> <span data-i18n="cars.apply">Apply</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Sort Controls -->
-                        <div class="sort-controls">
-                            <span class="sort-label" data-i18n="cars.sort_by">Sort by:</span>
-                            <div class="sort-buttons">
-                                <button class="sort-btn" onclick="setSortOrder('price_asc')" id="sort-price-asc">
-                                    <i class="fa fa-arrow-up"></i> <span data-i18n="cars.price_low_high">Price: Low to High</span>
-                                </button>
-                                <button class="sort-btn" onclick="setSortOrder('price_desc')" id="sort-price-desc">
-                                    <i class="fa fa-arrow-down"></i> <span data-i18n="cars.price_high_low">Price: High to Low</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Filters -->
+                    <div class="col-lg-3 filter-sidebar-wrapper">
                         <div class="filter-sidebar">
-                            <div class="filter-title">
-                                <span data-i18n="cars.filters">Filters</span>
-                                <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Clear all filters</a>
+                            <!-- Header -->
+                            <div class="filter-header">
+                                <h3 data-i18n="cars.filters">Filters</h3>
+                                <a href="#" class="clear-filters" id="clear-filters-link" data-i18n="cars.clear_all">Clear All</a>
                             </div>
-                            <hr class="filter-divider">
-                            
+
+                            <!-- Date Picker -->
+                            <div class="date-section">
+                                <div class="date-section-title" data-i18n="cars.date_range">Date Range</div>
+                                <div class="date-inputs">
+                                    <div class="date-input-wrapper">
+                                        <label data-i18n="cars.from">From</label>
+                                        <input type="text" id="date-from" readonly>
+                                    </div>
+                                    <div class="date-input-wrapper">
+                                        <label data-i18n="cars.to">To</label>
+                                        <input type="text" id="date-to" readonly>
+                                    </div>
+                                </div>
+                                <div class="date-actions">
+                                    <button class="btn-clear" onclick="clearDateRange()">
+                                        <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
+                                    </button>
+                                    <button class="btn-apply" onclick="applyDateRange()">
+                                        <i class="fa fa-check"></i> <span data-i18n="cars.apply">Apply</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Sort -->
+                            <div class="sort-section">
+                                <div class="sort-section-title" data-i18n="cars.sort_by">Sort By</div>
+                                <div class="sort-buttons">
+                                    <button class="sort-btn" id="sort-price-asc" onclick="setSortOrder('price_asc')">
+                                        <i class="fa fa-arrow-up"></i> <span data-i18n="cars.price_asc">Price: Low to High</span>
+                                    </button>
+                                    <button class="sort-btn" id="sort-price-desc" onclick="setSortOrder('price_desc')">
+                                        <i class="fa fa-arrow-down"></i> <span data-i18n="cars.price_desc">Price: High to Low</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filters -->
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
+                                <div class="category-title" data-i18n="cars.make">Make</div>
                                 <div id="filter-make-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
+                                <div class="category-title" data-i18n="cars.transmission">Transmission</div>
                                 <div id="filter-gear-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
+                                <div class="category-title" data-i18n="cars.fuel">Fuel Type</div>
                                 <div id="filter-fuel-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
+                                <div class="category-title" data-i18n="cars.body_type">Body Type</div>
                                 <div id="filter-type-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
+                                <div class="category-title" data-i18n="cars.doors">Doors</div>
                                 <div id="filter-doors-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
+                                <div class="category-title" data-i18n="cars.passengers">Passengers</div>
                                 <div id="filter-passengers-options"></div>
                             </div>
-                            <hr class="filter-divider">
-                            
+
                             <div class="filter-category">
-                                <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
-                                <div class="filter-option-row">
+                                <div class="category-title" data-i18n="cars.price_category">Price Category</div>
+                                <div class="filter-option">
                                     <label>
                                         <input type="radio" name="price-category" value="econom" id="price-category-econom">
-                                        <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
+                                        <span data-i18n="cars.economy">Economy</span>
                                     </label>
                                 </div>
-                                <div class="filter-option-row">
+                                <div class="filter-option">
                                     <label>
                                         <input type="radio" name="price-category" value="standard" id="price-category-standard">
-                                        <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
+                                        <span data-i18n="cars.standard">Standard</span>
                                     </label>
                                 </div>
-                                <div class="filter-option-row">
+                                <div class="filter-option">
                                     <label>
                                         <input type="radio" name="price-category" value="premium" id="price-category-premium">
-                                        <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
+                                        <span data-i18n="cars.premium">Premium</span>
                                     </label>
                                 </div>
-                                <div class="filter-option-row">
+                                <div class="filter-option">
                                     <label>
                                         <input type="radio" name="price-category" value="all" id="price-category-all" checked>
-                                        <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
+                                        <span data-i18n="cars.all_categories">All Categories</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Mobile Filter Overlay -->
-                    <div class="mobile-filter-overlay" id="mobile-filter-overlay">
-                        <div class="mobile-filter-sidebar">
-                            <div class="mobile-filter-header">
-                                <h5 data-i18n="cars.filter_cars">Filter Cars</h5>
-                                <button class="mobile-filter-close" onclick="toggleMobileFilter()">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="mobile-filter-content">
-                                <div id="mobile-filter-loading" class="text-center py-4">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2 text-muted" data-i18n="cars.loading_filters">Loading filters...</p>
-                                </div>
-                                <div id="mobile-filter-options" style="display: none;">
-                                    <!-- Date Range for Mobile -->
-                                    <div class="date-range-container">
-                                        <div class="date-range-title" data-i18n="cars.availability_dates">Availability Dates</div>
-                                        <div class="date-inputs-wrapper">
-                                            <div class="date-input-group">
-                                                <label data-i18n="cars.date_from">From</label>
-                                                <input type="text" id="mobile-date-from" placeholder="Select date" readonly>
-                                            </div>
-                                            <div class="date-input-group">
-                                                <label data-i18n="cars.date_to">To</label>
-                                                <input type="text" id="mobile-date-to" placeholder="Select date" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Sort for Mobile -->
-                                    <div class="sort-controls" style="margin-top: 1rem;">
-                                        <span class="sort-label" data-i18n="cars.sort_by">Sort by:</span>
-                                        <div class="sort-buttons">
-                                            <button class="sort-btn" onclick="setSortOrder('price_asc')" id="mobile-sort-price-asc">
-                                                <i class="fa fa-arrow-up"></i> <span data-i18n="cars.price_low_high">Price: Low to High</span>
-                                            </button>
-                                            <button class="sort-btn" onclick="setSortOrder('price_desc')" id="mobile-sort-price-desc">
-                                                <i class="fa fa-arrow-down"></i> <span data-i18n="cars.price_high_low">Price: High to Low</span>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <hr class="filter-divider" style="margin: 1.5rem 0;">
-
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
-                                        <div id="mobile-filter-make-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
-                                        <div id="mobile-filter-gear-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
-                                        <div id="mobile-filter-fuel-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
-                                        <div id="mobile-filter-type-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
-                                        <div id="mobile-filter-doors-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
-                                        <div id="mobile-filter-passengers-options"></div>
-                                    </div>
-                                    <hr class="filter-divider">
-                                    
-                                    <div class="filter-category">
-                                        <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
-                                        <div class="filter-option-row">
-                                            <label>
-                                                <input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom">
-                                                <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
-                                            </label>
-                                        </div>
-                                        <div class="filter-option-row">
-                                            <label>
-                                                <input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard">
-                                                <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
-                                            </label>
-                                        </div>
-                                        <div class="filter-option-row">
-                                            <label>
-                                                <input type="radio" name="mobile-price-category" value="premium" id="mobile-price-category-premium">
-                                                <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
-                                            </label>
-                                        </div>
-                                        <div class="filter-option-row">
-                                            <label>
-                                                <input type="radio" name="mobile-price-category" value="all" id="mobile-price-category-all" checked>
-                                                <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mobile-filter-actions">
-                                    <button class="btn btn-outline-secondary" onclick="clearAllFilters()">
-                                        <i class="fa fa-times"></i> <span data-i18n="cars.filter_clear">Clear All</span>
-                                    </button>
-                                    <button class="btn btn-primary" onclick="applyMobileFilters()">
-                                        <i class="fa fa-check"></i> <span data-i18n="cars.apply_filters">Apply Filters</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Car List -->
+                    <div class="col-lg-9">
+                        <div class="car-list" id="car-list"></div>
                     </div>
-                    
-                    <!-- Main Content Area -->
-                    <div class="col-lg-9 col-md-8 col-12">
-                        <div class="row car-list-row" id="car-list"></div>
+                </div>
+            </div>
+
+            <!-- Mobile Filter Overlay -->
+            <div class="mobile-filter-overlay" id="mobile-filter-overlay">
+                <div class="mobile-filter-panel">
+                    <div class="mobile-filter-header">
+                        <h3 data-i18n="cars.filters">Filters</h3>
+                        <button class="mobile-filter-close" onclick="toggleMobileFilter()">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="mobile-filter-content" id="mobile-filter-content">
+                        <!-- Will be populated with same filters as desktop -->
+                    </div>
+                    <div class="mobile-filter-actions">
+                        <button class="btn-clear-all" onclick="clearAllFilters()">
+                            <i class="fa fa-times"></i> <span data-i18n="cars.clear_all">Clear All</span>
+                        </button>
+                        <button class="btn-apply-all" onclick="applyMobileFilters()">
+                            <i class="fa fa-check"></i> <span data-i18n="cars.apply_filters">Apply Filters</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -918,7 +1045,7 @@
                     <div class="col-lg-3">
                         <div class="widget">
                             <h5>About PlusRent</h5>
-                            <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs.</p>
+                            <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey.</p>
                         </div>
                     </div>
                     
@@ -926,7 +1053,7 @@
                         <div class="widget">
                             <h5>Contact Info</h5>
                             <address class="s1">
-                                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Moldova</span>
+                                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău</span>
                                 <span><i class="id-color fa fa-phone fa-lg"></i>060000500</span>
                                 <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
                             </address>
@@ -974,626 +1101,19 @@
                 </div>
             </div>
         </footer>
-        <!-- footer close -->
         
     </div>
 
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ro.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
 
     <!-- Javascript Files -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
     <script src="js/cars-filter-modal.js"></script>
-
-    <style>
-    /* Enhanced responsive styles */
-    @media (min-width: 992px) {
-      .col-lg-3 { width: 25%; flex: 0 0 25%; max-width: 25%; }
-      .col-lg-9 { width: 75%; flex: 0 0 75%; max-width: 75%; }
-    }
-
-    @media (min-width: 768px) and (max-width: 991px) {
-      .col-md-4 { width: 33.333333%; flex: 0 0 33.333333%; max-width: 33.333333%; }
-      .col-md-8 { width: 66.666667%; flex: 0 0 66.666667%; max-width: 66.666667%; }
-    }
-
-    .cars-main-container {
-      padding-top: 3rem;
-      padding-bottom: 3rem;
-      background: var(--bg-light);
-    }
-
-    /* Modern Filter Sidebar - Premium Design */
-    .filter-sidebar {
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 2rem;
-      width: 100%;
-      max-width: 100%;
-      border: 1px solid var(--border-color);
-      position: sticky;
-      top: 100px;
-      max-height: calc(100vh - 120px);
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-color) var(--bg-light);
-    }
-
-    .filter-sidebar::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .filter-sidebar::-webkit-scrollbar-track {
-      background: var(--bg-light);
-      border-radius: 10px;
-    }
-
-    .filter-sidebar::-webkit-scrollbar-thumb {
-      background: var(--primary-color);
-      border-radius: 10px;
-    }
-
-    .filter-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      letter-spacing: -0.02em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-dark);
-      padding-bottom: 1rem;
-      border-bottom: 3px solid var(--primary-color);
-    }
-
-    .filter-title::before {
-      content: '🎯';
-      margin-right: 0.5rem;
-      font-size: 1.4rem;
-    }
-
-    .filter-clear {
-      color: var(--primary-color);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius-sm);
-      transition: all var(--transition-fast);
-      background: rgba(28, 207, 201, 0.1);
-    }
-
-    .filter-clear:hover {
-      background: var(--primary-color);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(28, 207, 201, 0.3);
-    }
-
-    .filter-divider {
-      border: none;
-      border-top: 2px solid var(--border-color);
-      margin: 1.5rem 0;
-      opacity: 0.6;
-    }
-
-    .filter-section-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      margin-top: 0;
-      letter-spacing: -0.01em;
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .filter-section-title::before {
-      content: '';
-      width: 4px;
-      height: 20px;
-      background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
-      border-radius: 2px;
-    }
-
-    .filter-category {
-      margin-bottom: 1.5rem;
-    }
-
-    .filter-option-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.5rem;
-      border-radius: var(--radius-sm);
-      transition: all var(--transition-fast);
-      background: var(--bg-white);
-      border: 2px solid transparent;
-    }
-
-    .filter-option-row:hover {
-      background: rgba(28, 207, 201, 0.05);
-      border-color: var(--primary-light);
-      transform: translateX(4px);
-    }
-
-    .filter-option-row label {
-      display: flex;
-      align-items: center;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      flex: 1 1 auto;
-      color: var(--text-dark);
-    }
-
-    .filter-option-row input[type=checkbox],
-    .filter-option-row input[type=radio] {
-      width: 22px;
-      height: 22px;
-      margin-right: 12px;
-      accent-color: var(--primary-color);
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .option-label {
-      margin-right: 8px;
-      font-weight: 500;
-    }
-
-    .option-count {
-      color: var(--primary-color);
-      font-size: 0.9rem;
-      font-weight: 700;
-      min-width: 32px;
-      text-align: center;
-      background: rgba(28, 207, 201, 0.1);
-      padding: 4px 10px;
-      border-radius: 12px;
-    }
-
-    .filter-option-row.disabled-option {
-      opacity: 0.4;
-      pointer-events: none;
-      background: var(--bg-light);
-    }
-
-    .filter-option-row.disabled-option label {
-      cursor: not-allowed;
-    }
-
-    .option-label.disabled-text {
-      color: var(--text-light);
-    }
-
-    .option-count.disabled-count {
-      color: var(--text-light);
-      background: rgba(0,0,0,0.05);
-    }
-
-    /* Modern Car Cards */
-    .car-list-row {
-      margin-left: 0;
-      margin-right: 0;
-      gap: 2rem 0;
-      justify-content: flex-start;
-    }
-
-    .car-list-row > .col-xl-4, .car-list-row > .col-lg-4 {
-      padding-left: 15px;
-      padding-right: 15px;
-      margin-bottom: 0;
-      max-width: 380px;
-      flex: 1 1 300px;
-      display: flex;
-    }
-
-    .de-item.mb30 {
-      transition: all var(--transition-smooth);
-      margin-bottom: 0 !important;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 480px;
-      width: 100%;
-      background: var(--bg-white);
-      border: 2px solid transparent;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .de-item.mb30::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 0;
-      background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-      transition: height var(--transition-smooth);
-    }
-
-    .de-item.mb30:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-8px);
-      border-color: var(--primary-light);
-    }
-
-    .de-item.mb30:hover::before {
-      height: 4px;
-    }
-
-    .d-img {
-      position: relative;
-      margin-bottom: 1.25rem;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
-      min-height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--border-color);
-    }
-
-    .d-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      max-width: 100%;
-      max-height: 200px;
-      transition: transform var(--transition-smooth);
-    }
-
-    .de-item:hover .d-img img {
-      transform: scale(1.05);
-    }
-
-    .d-info {
-      flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .d-text h4 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-bottom: 0.25rem;
-      color: var(--text-dark);
-      letter-spacing: -0.02em;
-    }
-
-    .d-text p {
-      color: var(--text-medium);
-      margin-bottom: 1rem;
-      font-weight: 500;
-      font-size: 1.05rem;
-    }
-
-    .d-item_like {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 0.5rem 0.75rem;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 2;
-    }
-
-    .d-item_like i {
-      color: #ff4757;
-      font-size: 1rem;
-    }
-
-    .d-item_like span {
-      font-weight: 600;
-      color: var(--text-dark);
-      font-size: 0.9rem;
-    }
-
-    .d-atr-group {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      margin: 1.25rem 0;
-      padding: 1rem;
-      background: var(--bg-light);
-      border-radius: var(--radius-sm);
-    }
-
-    .d-atr {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--text-medium);
-      font-weight: 600;
-      padding: 0.5rem;
-      background: var(--bg-white);
-      border-radius: 6px;
-      transition: all var(--transition-fast);
-    }
-
-    .d-atr:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .d-atr img {
-      width: 20px;
-      height: 20px;
-      filter: brightness(0) saturate(100%) invert(57%) sepia(94%) saturate(436%) hue-rotate(130deg) brightness(96%) contrast(87%);
-    }
-
-    .d-price {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--primary-color);
-      margin: 1rem 0;
-      padding: 1rem;
-      background: linear-gradient(135deg, rgba(28, 207, 201, 0.1) 0%, rgba(28, 207, 201, 0.05) 100%);
-      border-radius: var(--radius-sm);
-      border-left: 4px solid var(--primary-color);
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .d-price > span:first-child {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-medium);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .d-price > span:last-child {
-      font-size: 1.5rem;
-      color: var(--primary-dark);
-    }
-
-    .btn-main {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: white;
-      padding: 1rem 2rem;
-      border-radius: var(--radius-sm);
-      text-decoration: none;
-      font-weight: 700;
-      display: inline-block;
-      transition: all var(--transition-smooth);
-      border: none;
-      cursor: pointer;
-      text-align: center;
-      box-shadow: 0 4px 16px rgba(28, 207, 201, 0.3);
-      position: relative;
-      overflow: hidden;
-      font-size: 1rem;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-
-    .btn-main::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-
-    .btn-main:hover::before {
-      width: 300px;
-      height: 300px;
-    }
-
-    .btn-main:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(28, 207, 201, 0.4);
-    }
-
-    .btn-main:active {
-      transform: translateY(-1px);
-    }
-
-    /* Mobile Filter Enhancements */
-    .mobile-filter-button-container {
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .mobile-filter-btn {
-      width: 100%;
-      max-width: 320px;
-      padding: 1rem 2rem;
-      font-size: 1.05rem;
-      font-weight: 700;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border: none;
-      color: white;
-      box-shadow: 0 4px 16px rgba(28, 207, 201, 0.3);
-      transition: all var(--transition-smooth);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .mobile-filter-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(28, 207, 201, 0.4);
-    }
-
-    .mobile-filter-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(3, 27, 78, 0.7);
-      z-index: 9999;
-      display: none;
-      backdrop-filter: blur(8px);
-    }
-
-    .mobile-filter-sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 90%;
-      max-width: 400px;
-      height: 100%;
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
-      overflow-y: auto;
-      transform: translateX(-100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .mobile-filter-overlay.active {
-      display: block;
-    }
-
-    .mobile-filter-overlay.active .mobile-filter-sidebar {
-      transform: translateX(0);
-    }
-
-    .mobile-filter-header {
-      display: flex;
-      align-items: center;
-      padding: 1.5rem 2rem;
-      border-bottom: 2px solid var(--border-color);
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    .mobile-filter-header h5 {
-      margin: 0;
-      font-weight: 800;
-      color: white;
-      flex: 1;
-      text-align: center;
-      font-size: 1.3rem;
-      letter-spacing: -0.02em;
-    }
-
-    .mobile-filter-close {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      font-size: 1.5rem;
-      color: white;
-      cursor: pointer;
-      padding: 0;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all var(--transition-fast);
-      flex-shrink: 0;
-    }
-
-    .mobile-filter-close:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: rotate(90deg);
-    }
-
-    .mobile-filter-content {
-      padding: 2rem 1.5rem;
-    }
-
-    .mobile-filter-actions {
-      position: sticky;
-      bottom: 0;
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-      padding: 1.5rem;
-      border-top: 2px solid var(--border-color);
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 0.75rem;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-    }
-
-    .mobile-filter-actions .btn {
-      padding: 1rem;
-      font-weight: 700;
-      border-radius: var(--radius-sm);
-      transition: all var(--transition-smooth);
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .mobile-filter-actions .btn-outline-secondary {
-      background: var(--bg-white);
-      border: 2px solid var(--border-color);
-      color: var(--text-medium);
-    }
-
-    .mobile-filter-actions .btn-outline-secondary:hover {
-      background: var(--bg-light);
-      border-color: var(--text-medium);
-    }
-
-    .mobile-filter-actions .btn-primary {
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      border: none;
-      color: white;
-      box-shadow: 0 4px 16px rgba(28, 207, 201, 0.3);
-    }
-
-    .mobile-filter-actions .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(28, 207, 201, 0.4);
-    }
-
-    @media (max-width: 991px) {
-      .small-sidebar { display: none; }
-      .cars-main-container { padding-left: 1rem; padding-right: 1rem; }
-    }
-
-    @media (max-width: 600px) {
-      .car-list-row {
-        gap: 1.5rem 0;
-        justify-content: center;
-      }
-      
-      .car-list-row > .col-12 {
-        display: flex;
-        justify-content: center;
-      }
-      
-      .car-list-row > .col-12 > .de-item {
-        max-width: 360px;
-        width: 100%;
-      }
-
-      .mobile-filter-actions {
-        grid-template-columns: 1fr;
-      }
-    }
-    </style>
 
     <script>
     // Global variables
@@ -1604,21 +1124,20 @@
     let dateFromPicker, dateToPicker, mobileDateFromPicker, mobileDateToPicker;
     let currentLanguage = 'ro';
 
-    // Detect and set language from localStorage or default
+    // Detect language
     function detectAndSetLanguage() {
       const savedLang = localStorage.getItem('lang');
       if (savedLang && ['ro', 'ru', 'en'].includes(savedLang)) {
         currentLanguage = savedLang;
       }
       
-      // Update language picker UI
       const langCode = document.getElementById('langCode');
       if (langCode) {
         langCode.textContent = currentLanguage.toUpperCase();
       }
     }
 
-    // Translate fuel types based on current language
+    // Translate fuel types
     function translateFuelType(fuelType) {
       if (!fuelType) return '';
       
@@ -1649,7 +1168,7 @@
       return fuelTranslations[normalizedFuel]?.[currentLanguage] || fuelType;
     }
 
-    // Global formatting function
+    // Format display text
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
       return rawKey
@@ -1658,20 +1177,24 @@
         .join(' ');
     }
 
-    // Helper: get all unique values for a field
+    // Get unique options
     function getUniqueOptions(cars, field) {
       return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
     }
 
-    // Initialize date pickers
+    // Initialize date pickers with localization
     function initializeDatePickers() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Desktop date pickers
+      const flatpickrLocale = currentLanguage === 'ro' ? flatpickr.l10ns.ro : 
+                              currentLanguage === 'ru' ? flatpickr.l10ns.ru : 
+                              flatpickr.l10ns.default;
+
       dateFromPicker = flatpickr("#date-from", {
         minDate: today,
         dateFormat: "Y-m-d",
+        locale: flatpickrLocale,
         onChange: function(selectedDates) {
           if (selectedDates[0]) {
             selectedDateRange.from = selectedDates[0];
@@ -1685,30 +1208,7 @@
       dateToPicker = flatpickr("#date-to", {
         minDate: today,
         dateFormat: "Y-m-d",
-        onChange: function(selectedDates) {
-          if (selectedDates[0]) {
-            selectedDateRange.to = selectedDates[0];
-          }
-        }
-      });
-
-      // Mobile date pickers
-      mobileDateFromPicker = flatpickr("#mobile-date-from", {
-        minDate: today,
-        dateFormat: "Y-m-d",
-        onChange: function(selectedDates) {
-          if (selectedDates[0]) {
-            selectedDateRange.from = selectedDates[0];
-            if (mobileDateToPicker) {
-              mobileDateToPicker.set('minDate', selectedDates[0]);
-            }
-          }
-        }
-      });
-
-      mobileDateToPicker = flatpickr("#mobile-date-to", {
-        minDate: today,
-        dateFormat: "Y-m-d",
+        locale: flatpickrLocale,
         onChange: function(selectedDates) {
           if (selectedDates[0]) {
             selectedDateRange.to = selectedDates[0];
@@ -1717,12 +1217,10 @@
       });
     }
 
-    // Apply date range filter
     function applyDateRange() {
       updateFiltersAndFetch();
     }
 
-    // Clear date range
     function clearDateRange() {
       selectedDateRange = { from: null, to: null };
       if (dateFromPicker) dateFromPicker.clear();
@@ -1732,7 +1230,6 @@
       updateFiltersAndFetch();
     }
 
-    // Check if car is available for date range
     async function isCarAvailableForDateRange(carId) {
       if (!selectedDateRange.from || !selectedDateRange.to) return true;
 
@@ -1754,28 +1251,21 @@
         }
         return true;
       } catch (error) {
-        console.error('Error checking car availability:', error);
+        console.error('Error checking availability:', error);
         return true;
       }
     }
 
-    // Set sort order
     function setSortOrder(order) {
       currentSortOrder = order;
       
-      // Update desktop buttons
       document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-      const desktopBtn = document.getElementById('sort-' + order);
-      if (desktopBtn) desktopBtn.classList.add('active');
-      
-      // Update mobile buttons
-      const mobileBtn = document.getElementById('mobile-sort-' + order);
-      if (mobileBtn) mobileBtn.classList.add('active');
+      const btn = document.getElementById('sort-' + order);
+      if (btn) btn.classList.add('active');
       
       updateFiltersAndFetch();
     }
 
-    // Sort cars array
     function sortCars(cars) {
       if (!currentSortOrder) return cars;
 
@@ -1792,7 +1282,6 @@
       });
     }
 
-    // Get lowest price from car
     function getLowestPrice(car) {
       if (!car.price_policy) return 0;
       
@@ -1807,7 +1296,6 @@
       return prices.length > 0 ? Math.min(...prices) : 0;
     }
 
-    // Render filter options
     function renderFilterOptions(containerId, options, selectedValues, allCarsFull, currentFilters, field) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -1835,16 +1323,15 @@
         const isSelected = selectedValues.includes(String(opt));
         const isDisabled = count === 0 && !isSelected;
         
-        // Translate fuel type if this is the fuel filter
         const displayText = field === 'fuel_type' ? translateFuelType(opt) : opt;
         
         return `
-          <div class="filter-option-row ${isDisabled ? 'disabled-option' : ''}">
+          <div class="filter-option ${isDisabled ? 'disabled' : ''}">
             <label>
               <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-              <span class="option-label ${isDisabled ? 'disabled-text' : ''}">${displayText}</span>
+              <span>${displayText}</span>
             </label>
-            <span class="option-count ${isDisabled ? 'disabled-count' : ''}">${count}</span>
+            <span class="filter-count">${count}</span>
           </div>
         `;
       }).join('');
@@ -1852,7 +1339,6 @@
       container.innerHTML = html;
     }
 
-    // Get current sidebar filters
     function getCurrentSidebarFilters() {
       const params = new URLSearchParams(window.location.search);
       return {
@@ -1865,13 +1351,11 @@
       };
     }
 
-    // Get selected values from checkboxes
     function getSelectedValues(containerId) {
       return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`))
         .map(cb => cb.value);
     }
 
-    // Update filters and fetch cars
     function updateFiltersAndFetch() {
       const make = getSelectedValues('filter-make-options');
       const gear = getSelectedValues('filter-gear-options');
@@ -1888,18 +1372,15 @@
       if (doors.length) params.set('num_doors', doors.join(','));
       if (passengers.length) params.set('num_passengers', passengers.join(','));
       
-      // Add price category from radio buttons
       const selectedCategory = document.querySelector('input[name="price-category"]:checked');
       if (selectedCategory && selectedCategory.value !== 'all') {
         params.set('price_category', selectedCategory.value);
       }
       
-      // Add sort order
       if (currentSortOrder) {
         params.set('sort', currentSortOrder);
       }
       
-      // Add date range
       if (selectedDateRange.from) {
         params.set('date_from', selectedDateRange.from.toISOString().split('T')[0]);
       }
@@ -1912,15 +1393,13 @@
       fetchAndRenderCars();
     }
 
-    // Fetch and render cars
     async function fetchAndRenderCars() {
       const carListDiv = document.getElementById('car-list');
-      carListDiv.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>';
+      carListDiv.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;"><div class="spinner-border text-primary"></div></div>';
       
       const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
       let cars = await res.json();
       
-      // Filter by date range if selected
       if (selectedDateRange.from && selectedDateRange.to) {
         const availabilityChecks = await Promise.all(
           cars.map(car => isCarAvailableForDateRange(car.id))
@@ -1928,11 +1407,10 @@
         cars = cars.filter((car, index) => availabilityChecks[index]);
       }
       
-      // Apply sorting
       cars = sortCars(cars);
       
       if (!cars.length) {
-        carListDiv.innerHTML = '<div class="col-12 text-center py-5"><p data-i18n="cars.no_cars">No cars available with the selected filters.</p></div>';
+        carListDiv.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem;"><p data-i18n="cars.no_cars">No cars available.</p></div>';
         renderSidebarOptions(allCarsFullCache);
         return;
       }
@@ -1955,30 +1433,40 @@
         }
         
         return `
-          <div class="col-xl-4 col-lg-4 col-md-6 col-12">
-            <div class="de-item mb30${isPremium ? ' premium' : ''}">
-              <div class="d-img">
-                <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}">
-                ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
+          <div class="car-card${isPremium ? ' premium' : ''}">
+            <div class="car-image">
+              <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" alt="${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}">
+              ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
+              <div class="car-likes">
+                <i class="fa fa-heart"></i>
+                <span>${car.likes || 0}</span>
               </div>
-              <div class="d-info">
-                <div class="d-text">
-                  <h4>${formatDisplayText(car.make_name)}</h4>
-                  <p>${formatDisplayText(car.model_name)}</p>
-                  <div class="d-item_like">
-                    <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-                  </div>
-                  <div class="d-atr-group">
-                    <span class="d-atr"><img src="images/icons/1-green.svg" alt=""> ${car.num_passengers || '-'}</span>
-                    <span class="d-atr"><img src="images/icons/2-green.svg" alt=""> ${car.luggage || '-'}</span>
-                    <span class="d-atr"><img src="images/icons/3-green.svg" alt=""> ${car.num_doors || '-'}</span>
-                    <span class="d-atr"><img src="images/icons/4-green.svg" alt=""> ${car.car_type || '-'}</span>
-                  </div>
-                  <div class="d-price">
-                    <span data-i18n="cars.daily_rate">Daily rate from</span> <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span>
-                  </div>
-                  <a class="btn-main" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
+            </div>
+            <div class="car-content">
+              <h3 class="car-title">${formatDisplayText(car.make_name)}</h3>
+              <p class="car-model">${formatDisplayText(car.model_name)}</p>
+              <div class="car-specs">
+                <div class="spec-item">
+                  <img src="images/icons/1-green.svg" alt="">
+                  <span>${car.num_passengers || '-'} <span data-i18n="cars.people">people</span></span>
                 </div>
+                <div class="spec-item">
+                  <img src="images/icons/2-green.svg" alt="">
+                  <span>${car.luggage || '-'} <span data-i18n="cars.bags">bags</span></span>
+                </div>
+                <div class="spec-item">
+                  <img src="images/icons/3-green.svg" alt="">
+                  <span>${car.num_doors || '-'} <span data-i18n="cars.doors_label">doors</span></span>
+                </div>
+                <div class="spec-item">
+                  <img src="images/icons/4-green.svg" alt="">
+                  <span>${car.car_type || '-'}</span>
+                </div>
+              </div>
+              <div class="car-price">
+                <div class="price-label" data-i18n="cars.daily_rate">Daily rate from</div>
+                <div class="price-amount">${lowestPrice ? lowestPrice + '€' : 'N/A'}</div>
+                <a class="btn-rent" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
               </div>
             </div>
           </div>
@@ -1993,7 +1481,6 @@
       }
     }
 
-    // Render sidebar options
     function renderSidebarOptions(allCarsFull) {
       const params = new URLSearchParams(window.location.search);
       const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
@@ -2012,13 +1499,11 @@
       renderFilterOptions('filter-doors-options', getUniqueOptions(allCarsFull, 'num_doors'), selectedDoors, allCarsFull, currentFilters, 'num_doors');
       renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsFull, 'num_passengers'), selectedPassengers, allCarsFull, currentFilters, 'num_passengers');
 
-      // Set price category from URL
       const priceCategory = params.get('price_category') || 'all';
       document.querySelectorAll('input[name="price-category"]').forEach(radio => {
         radio.checked = radio.value === priceCategory;
       });
 
-      // Attach event listeners
       ['filter-make-options', 'filter-gear-options', 'filter-fuel-options', 'filter-type-options', 'filter-doors-options', 'filter-passengers-options'].forEach(id => {
         const container = document.getElementById(id);
         if (container) {
@@ -2028,13 +1513,11 @@
         }
       });
 
-      // Price category radio handlers
       document.querySelectorAll('input[name="price-category"]').forEach(radio => {
         radio.addEventListener('change', handlePriceCategoryChange);
       });
     }
 
-    // Load price filter settings
     async function loadPriceFilterSettings() {
       try {
         const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
@@ -2066,11 +1549,8 @@
       }
     }
 
-    // Handle price category change
     function handlePriceCategoryChange(e) {
       const selectedCategory = e.target.value;
-      
-      // Update URL params
       const params = new URLSearchParams(window.location.search);
       
       if (selectedCategory === 'all') {
@@ -2085,7 +1565,6 @@
       updateFiltersAndFetch();
     }
 
-    // Mobile filter functions
     function toggleMobileFilter() {
       const overlay = document.getElementById('mobile-filter-overlay');
       if (!overlay) return;
@@ -2096,115 +1575,63 @@
       } else {
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
-        setTimeout(() => renderMobileFilterOptions(), 50);
+        renderMobileFilterOptions();
       }
     }
 
     function renderMobileFilterOptions() {
-      const loadingEl = document.getElementById('mobile-filter-loading');
-      const optionsEl = document.getElementById('mobile-filter-options');
-      if (loadingEl) loadingEl.style.display = 'block';
-      if (optionsEl) optionsEl.style.display = 'none';
-      
-      const params = new URLSearchParams(window.location.search);
-      const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
-      const selectedGears = params.get('gear_type') ? params.get('gear_type').split(',') : [];
-      const selectedFuels = params.get('fuel_type') ? params.get('fuel_type').split(',') : [];
-      const selectedTypes = params.get('car_type') ? params.get('car_type').split(',') : [];
-      const selectedDoors = params.get('num_doors') ? params.get('num_doors').split(',') : [];
-      const selectedPassengers = params.get('num_passengers') ? params.get('num_passengers').split(',') : [];
-      
-      const currentFilters = getCurrentSidebarFilters();
+      const mobileContent = document.getElementById('mobile-filter-content');
+      if (!mobileContent) return;
 
-      requestAnimationFrame(() => {
-        renderFilterOptions('mobile-filter-make-options', getUniqueOptions(allCarsFullCache, 'make_name'), selectedMakes, allCarsFullCache, currentFilters, 'make_name');
-        renderFilterOptions('mobile-filter-gear-options', getUniqueOptions(allCarsFullCache, 'gear_type'), selectedGears, allCarsFullCache, currentFilters, 'gear_type');
-        renderFilterOptions('mobile-filter-fuel-options', getUniqueOptions(allCarsFullCache, 'fuel_type'), selectedFuels, allCarsFullCache, currentFilters, 'fuel_type');
-        renderFilterOptions('mobile-filter-type-options', getUniqueOptions(allCarsFullCache, 'car_type'), selectedTypes, allCarsFullCache, currentFilters, 'car_type');
-        renderFilterOptions('mobile-filter-doors-options', getUniqueOptions(allCarsFullCache, 'num_doors'), selectedDoors, allCarsFullCache, currentFilters, 'num_doors');
-        renderFilterOptions('mobile-filter-passengers-options', getUniqueOptions(allCarsFullCache, 'num_passengers'), selectedPassengers, allCarsFullCache, currentFilters, 'num_passengers');
+      const desktopSidebar = document.querySelector('.filter-sidebar');
+      if (desktopSidebar) {
+        mobileContent.innerHTML = desktopSidebar.innerHTML;
         
-        // Set mobile price category
-        const priceCategory = params.get('price_category') || 'all';
-        document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
-          radio.checked = radio.value === priceCategory;
+        // Re-attach event listeners for mobile
+        ['filter-make-options', 'filter-gear-options', 'filter-fuel-options', 'filter-type-options', 'filter-doors-options', 'filter-passengers-options'].forEach(id => {
+          const container = mobileContent.querySelector(`#${id}`);
+          if (container) {
+            container.querySelectorAll('input[type=checkbox]').forEach(cb => {
+              cb.addEventListener('change', updateFiltersAndFetch);
+            });
+          }
         });
-        
-        if (loadingEl) loadingEl.style.display = 'none';
-        if (optionsEl) optionsEl.style.display = 'block';
-      });
+
+        mobileContent.querySelectorAll('input[name="price-category"]').forEach(radio => {
+          radio.addEventListener('change', handlePriceCategoryChange);
+        });
+      }
     }
 
     function applyMobileFilters() {
-      const make = getSelectedValues('mobile-filter-make-options');
-      const gear = getSelectedValues('mobile-filter-gear-options');
-      const fuel = getSelectedValues('mobile-filter-fuel-options');
-      const type = getSelectedValues('mobile-filter-type-options');
-      const doors = getSelectedValues('mobile-filter-doors-options');
-      const passengers = getSelectedValues('mobile-filter-passengers-options');
-      
-      const params = new URLSearchParams();
-      if (make.length) params.set('make_name', make.join(','));
-      if (gear.length) params.set('gear_type', gear.join(','));
-      if (fuel.length) params.set('fuel_type', fuel.join(','));
-      if (type.length) params.set('car_type', type.join(','));
-      if (doors.length) params.set('num_doors', doors.join(','));
-      if (passengers.length) params.set('num_passengers', passengers.join(','));
-      
-      // Add mobile price category
-      const mobileCategory = document.querySelector('input[name="mobile-price-category"]:checked');
-      if (mobileCategory && mobileCategory.value !== 'all') {
-        params.set('price_category', mobileCategory.value);
-      }
-      
-      // Add sort order
-      if (currentSortOrder) {
-        params.set('sort', currentSortOrder);
-      }
-      
-      // Add date range
-      if (selectedDateRange.from) {
-        params.set('date_from', selectedDateRange.from.toISOString().split('T')[0]);
-      }
-      if (selectedDateRange.to) {
-        params.set('date_to', selectedDateRange.to.toISOString().split('T')[0]);
-      }
-
-      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-      window.history.pushState({}, '', newUrl);
-      
-      fetchAndRenderCars();
       toggleMobileFilter();
     }
 
     function clearAllFilters() {
-      document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+      document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('input[name="price-category"]').forEach(radio => {
         radio.checked = radio.value === 'all';
       });
       clearDateRange();
       currentSortOrder = null;
       document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+      
+      window.history.pushState({}, '', window.location.pathname);
+      fetchAndRenderCars();
     }
 
-    // Sync filters from modal to sidebar
+    // Sync filters from modal
     window.syncFiltersFromModal = function(modalFilters) {
       const params = new URLSearchParams(window.location.search);
       
-      // Apply price category if set in modal
       if (modalFilters.priceCategory && modalFilters.priceCategory !== 'all') {
         params.set('price_category', modalFilters.priceCategory);
         
-        // Check the appropriate radio button
         document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-          radio.checked = radio.value === modalFilters.priceCategory;
-        });
-        document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
           radio.checked = radio.value === modalFilters.priceCategory;
         });
       }
       
-      // Apply other filters if present
       if (modalFilters.carType) params.set('car_type', modalFilters.carType);
       if (modalFilters.gearType) params.set('gear_type', modalFilters.gearType);
       
@@ -2214,13 +1641,56 @@
       fetchAndRenderCars();
     };
 
+    // Language picker functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const langPickerBtn = document.getElementById('langPickerBtn');
+      const langDropdown = document.getElementById('langDropdown');
+      
+      if (langPickerBtn && langDropdown) {
+        langPickerBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          langDropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function() {
+          langDropdown.classList.remove('open');
+        });
+
+        document.querySelectorAll('.lang-option').forEach(option => {
+          option.addEventListener('click', function() {
+            const lang = this.dataset.lang;
+            localStorage.setItem('lang', lang);
+            currentLanguage = lang;
+            
+            if (typeof i18next !== 'undefined' && i18next.changeLanguage) {
+              i18next.changeLanguage(lang);
+            }
+            
+            document.getElementById('langCode').textContent = lang.toUpperCase();
+            langDropdown.classList.remove('open');
+            
+            // Reinitialize date pickers with new locale
+            if (dateFromPicker) dateFromPicker.destroy();
+            if (dateToPicker) dateToPicker.destroy();
+            initializeDatePickers();
+            
+            // Re-render everything with new translations
+            fetchAndRenderCars();
+            
+            if (typeof updateContent === 'function') {
+              updateContent();
+            }
+          });
+        });
+      }
+    });
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', async function() {
       detectAndSetLanguage();
       await loadPriceFilterSettings();
       initializeDatePickers();
       
-      // Load URL parameters
       const params = new URLSearchParams(window.location.search);
       if (params.get('sort')) {
         currentSortOrder = params.get('sort');
@@ -2232,38 +1702,28 @@
         const dateFrom = new Date(params.get('date_from'));
         selectedDateRange.from = dateFrom;
         if (dateFromPicker) dateFromPicker.setDate(dateFrom);
-        if (mobileDateFromPicker) mobileDateFromPicker.setDate(dateFrom);
       }
       
       if (params.get('date_to')) {
         const dateTo = new Date(params.get('date_to'));
         selectedDateRange.to = dateTo;
         if (dateToPicker) dateToPicker.setDate(dateTo);
-        if (mobileDateToPicker) mobileDateToPicker.setDate(dateTo);
       }
       
-      // Fetch all cars for sidebar
       const res = await fetch(`${window.API_BASE_URL}/api/cars`);
       allCarsFullCache = await res.json();
       renderSidebarOptions(allCarsFullCache);
       
-      // Fetch and render filtered cars
       await fetchAndRenderCars();
       
-      // Clear filters handler
       const clearLink = document.getElementById('clear-filters-link');
       if (clearLink) {
         clearLink.addEventListener('click', function(e) {
           e.preventDefault();
-          window.history.pushState({}, '', window.location.pathname);
-          clearDateRange();
-          currentSortOrder = null;
-          document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-          fetchAndRenderCars();
+          clearAllFilters();
         });
       }
       
-      // Mobile filter overlay click
       const overlay = document.getElementById('mobile-filter-overlay');
       if (overlay) {
         overlay.addEventListener('click', function(e) {
@@ -2273,7 +1733,6 @@
         });
       }
       
-      // Update i18n
       if (typeof updateContent === 'function') {
         updateContent();
       }
