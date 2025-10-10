@@ -144,9 +144,10 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
               );
               // Don't fail the booking, just log the error
             } else {
+              console.log("✅ Redemption code marked as redeemed");
             }
           } else if (lookupResult.type === "main_coupon") {
-            // Main coupon codes (like "WELCOME10") are NOT tracked in coupon_redemptions
+            console.log("ℹ️ Main coupon code used (not tracked in redemptions)");
           }
         } else {
           // Coupon is not valid
@@ -260,124 +261,123 @@ router.get("/", async (req, res) => {
     }
 
     // Get all unique discount codes from bookings
-        // Get all unique discount codes from bookings
-        const discountCodes = [...new Set(bookings.map(b => b.discount_code).filter(Boolean))];
-    
-        // Fetch all coupon details in one query for main coupons
-        const { data: mainCoupons, error: mainCouponsError } = await supabase
-          .from('coupon_codes')
-          .select('*')
-          .in('code', discountCodes)
-          .eq('is_active', true);
-    
-        // Fetch all coupon details in one query for redemption codes
-        const { data: redemptionCoupons, error: redemptionError } = await supabase
-          .from('coupon_redemptions')
-          .select(`
-            *,
-            coupon_codes!coupon_redemptions_coupon_id_fkey (
-              id,
-              type,
-              discount_percentage,
-              free_days,
-              description,
-              expires_at,
-              is_active
-            )
-          `)
-          .in('redemption_code', discountCodes);
-    
-        // Create lookup maps for efficient access
-        const mainCouponsMap = new Map();
-        if (mainCoupons) {
-          mainCoupons.forEach(coupon => {
-            mainCouponsMap.set(coupon.code, {
-              type: 'main_coupon',
-              discount_percentage: coupon.discount_percentage,
-              free_days: coupon.free_days,
-              description: coupon.description,
-              coupon_id: coupon.id
-            });
-          });
-        }
-    
-        const redemptionCouponsMap = new Map();
-        if (redemptionCoupons) {
-          redemptionCoupons.forEach(redemption => {
-            const coupon = redemption.coupon_codes;
-            if (coupon && coupon.is_active) {
-              redemptionCouponsMap.set(redemption.redemption_code, {
-                type: 'redemption_code',
-                discount_percentage: coupon.discount_percentage,
-                free_days: coupon.free_days,
-                description: coupon.description,
-                coupon_id: coupon.id,
-                redemption_id: redemption.id
-              });
-            }
-          });
-        }
-    
-        // Enhance bookings with coupon details using the lookup maps
-        const enhancedBookings = bookings.map(booking => {
-          let couponDetails = null;
-    
-          if (booking.discount_code) {
-            // Check main coupons first
-            if (mainCouponsMap.has(booking.discount_code)) {
-              couponDetails = {
-                code: booking.discount_code,
-                ...mainCouponsMap.get(booking.discount_code)
-              };
-            }
-            // Check redemption codes second
-            else if (redemptionCouponsMap.has(booking.discount_code)) {
-              couponDetails = {
-                code: booking.discount_code,
-                ...redemptionCouponsMap.get(booking.discount_code)
-              };
-            }
-          }
-    
-          return {
-            ...booking,
-            coupon_details: couponDetails,
-          };
+    const discountCodes = [...new Set(bookings.map(b => b.discount_code).filter(Boolean))];
+
+    // Fetch all coupon details in one query for main coupons
+    const { data: mainCoupons, error: mainCouponsError } = await supabase
+      .from('coupon_codes')
+      .select('*')
+      .in('code', discountCodes)
+      .eq('is_active', true);
+
+    // Fetch all coupon details in one query for redemption codes
+    const { data: redemptionCoupons, error: redemptionError } = await supabase
+      .from('coupon_redemptions')
+      .select(`
+        *,
+        coupon_codes!coupon_redemptions_coupon_id_fkey (
+          id,
+          type,
+          discount_percentage,
+          free_days,
+          description,
+          expires_at,
+          is_active
+        )
+      `)
+      .in('redemption_code', discountCodes);
+
+    // Create lookup maps for efficient access
+    const mainCouponsMap = new Map();
+    if (mainCoupons) {
+      mainCoupons.forEach(coupon => {
+        mainCouponsMap.set(coupon.code, {
+          type: 'main_coupon',
+          discount_percentage: coupon.discount_percentage,
+          free_days: coupon.free_days,
+          description: coupon.description,
+          coupon_id: coupon.id
         });
+      });
+    }
+
+    const redemptionCouponsMap = new Map();
+    if (redemptionCoupons) {
+      redemptionCoupons.forEach(redemption => {
+        const coupon = redemption.coupon_codes;
+        if (coupon && coupon.is_active) {
+          redemptionCouponsMap.set(redemption.redemption_code, {
+            type: 'redemption_code',
+            discount_percentage: coupon.discount_percentage,
+            free_days: coupon.free_days,
+            description: coupon.description,
+            coupon_id: coupon.id,
+            redemption_id: redemption.id
+          });
+        }
+      });
+    }
+
+    // Enhance bookings with coupon details using the lookup maps
+    const enhancedBookings = bookings.map(booking => {
+      let couponDetails = null;
+
+      if (booking.discount_code) {
+        // Check main coupons first
+        if (mainCouponsMap.has(booking.discount_code)) {
+          couponDetails = {
+            code: booking.discount_code,
+            ...mainCouponsMap.get(booking.discount_code)
+          };
+        }
+        // Check redemption codes second
+        else if (redemptionCouponsMap.has(booking.discount_code)) {
+          couponDetails = {
+            code: booking.discount_code,
+            ...redemptionCouponsMap.get(booking.discount_code)
+          };
+        }
+      }
+
+      return {
+        ...booking,
+        coupon_details: couponDetails,
+      };
+    });
 
     // Auto-mark confirmed bookings as finished if return date has passed
-       const now = new Date();
-       const bookingsToUpdate = [];
-   
-       for (const booking of enhancedBookings) {
-         if (booking.status === "confirmed") {
-           // For same-day bookings, only mark as finished if return time has passed
-           // For multi-day bookings, mark as finished if return date has passed
-           const pickupDate = new Date(booking.pickup_date);
-           const returnDate = new Date(booking.return_date);
-           const isSameDay = pickupDate.toDateString() === returnDate.toDateString();
-           
-           if (isSameDay) {
-             // Same-day booking: check if return time has passed
-             const returnDateTime = new Date(
-               `${booking.return_date}T${booking.return_time || "23:59"}`
-             );
-             if (returnDateTime < now) {
-               bookingsToUpdate.push(booking.id);
-             }
-           } else {
-             // Multi-day booking: check if return date has passed (ignore time)
-             const returnDateOnly = new Date(booking.return_date);
-             const today = new Date();
-             today.setHours(0, 0, 0, 0); // Reset time to start of day
-             returnDateOnly.setHours(0, 0, 0, 0); // Reset time to start of day
-             
-             if (returnDateOnly < today) {
-               bookingsToUpdate.push(booking.id);
-             }
-           }
-         }
-       }
+    const now = new Date();
+    const bookingsToUpdate = [];
+
+    for (const booking of enhancedBookings) {
+      if (booking.status === "confirmed") {
+        // For same-day bookings, only mark as finished if return time has passed
+        // For multi-day bookings, mark as finished if return date has passed
+        const pickupDate = new Date(booking.pickup_date);
+        const returnDate = new Date(booking.return_date);
+        const isSameDay = pickupDate.toDateString() === returnDate.toDateString();
+        
+        if (isSameDay) {
+          // Same-day booking: check if return time has passed
+          const returnDateTime = new Date(
+            `${booking.return_date}T${booking.return_time || "23:59"}`
+          );
+          if (returnDateTime < now) {
+            bookingsToUpdate.push(booking.id);
+          }
+        } else {
+          // Multi-day booking: check if return date has passed (ignore time)
+          const returnDateOnly = new Date(booking.return_date);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Reset time to start of day
+          returnDateOnly.setHours(0, 0, 0, 0); // Reset time to start of day
+          
+          if (returnDateOnly < today) {
+            bookingsToUpdate.push(booking.id);
+          }
+        }
+      }
+    }
 
     // Update bookings to finished status if needed
     if (bookingsToUpdate.length > 0) {
@@ -391,6 +391,133 @@ router.get("/", async (req, res) => {
   } catch (error) {
     console.error("❌ Supabase error fetching bookings:", error);
     res.status(500).json({ error: "Database error: " + error.message });
+  }
+});
+
+// Get occupied dates for ALL cars (for date range filter on cars page)
+router.get("/occupied-dates", async (req, res) => {
+  try {
+    console.log("📅 Fetching occupied dates for all cars...");
+    
+    // Получаем все CONFIRMED бронирования для всех машин
+    const { data: bookings, error } = await supabase
+      .from("bookings")
+      .select("car_id, pickup_date, return_date, status")
+      .eq("status", "confirmed")
+      .order("car_id", { ascending: true })
+      .order("pickup_date", { ascending: true });
+
+    if (error) {
+      console.error("❌ Ошибка получения занятых дат:", error);
+      return res
+        .status(500)
+        .json({ error: "Ошибка базы данных: " + error.message });
+    }
+
+    console.log(`✅ Найдено ${bookings?.length || 0} подтвержденных бронирований`);
+
+    // Группируем бронирования по car_id
+    const occupiedDatesByCar = {};
+
+    if (bookings && bookings.length > 0) {
+      bookings.forEach((booking) => {
+        const carId = booking.car_id;
+
+        // Инициализируем массив для машины если его еще нет
+        if (!occupiedDatesByCar[carId]) {
+          occupiedDatesByCar[carId] = {
+            car_id: carId,
+            occupied_dates: [],
+            bookings: []
+          };
+        }
+
+        // Добавляем бронирование в список
+        occupiedDatesByCar[carId].bookings.push({
+          pickup_date: booking.pickup_date,
+          return_date: booking.return_date
+        });
+
+        // Генерируем все даты в диапазоне от pickup до return
+        const pickupDate = new Date(booking.pickup_date);
+        const returnDate = new Date(booking.return_date);
+        const currentDate = new Date(pickupDate);
+
+        while (currentDate <= returnDate) {
+          const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          if (!occupiedDatesByCar[carId].occupied_dates.includes(dateStr)) {
+            occupiedDatesByCar[carId].occupied_dates.push(dateStr);
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      });
+    }
+
+    console.log(`✅ Обработано машин с бронированиями: ${Object.keys(occupiedDatesByCar).length}`);
+
+    res.json({
+      success: true,
+      total_cars_with_bookings: Object.keys(occupiedDatesByCar).length,
+      total_bookings: bookings?.length || 0,
+      occupied_dates_by_car: occupiedDatesByCar
+    });
+
+  } catch (error) {
+    console.error("❌ Ошибка получения занятых дат:", error);
+    res.status(500).json({ error: "Ошибка базы данных: " + error.message });
+  }
+});
+
+// Get occupied dates for a specific car
+router.get("/occupied-dates/:carId", async (req, res) => {
+  const carId = req.params.carId;
+
+  try {
+    console.log(`📅 Fetching occupied dates for car ID: ${carId}`);
+    
+    const { data: bookings, error } = await supabase
+      .from("bookings")
+      .select("pickup_date, return_date, status")
+      .eq("car_id", carId)
+      .eq("status", "confirmed")
+      .order("pickup_date", { ascending: true });
+
+    if (error) {
+      console.error("❌ Ошибка получения занятых дат:", error);
+      return res
+        .status(500)
+        .json({ error: "Ошибка базы данных: " + error.message });
+    }
+
+    console.log(`✅ Найдено ${bookings?.length || 0} подтвержденных бронирований для машины ${carId}`);
+
+    const occupiedDates = [];
+
+    if (bookings && bookings.length > 0) {
+      bookings.forEach((booking) => {
+        const pickupDate = new Date(booking.pickup_date);
+        const returnDate = new Date(booking.return_date);
+        const currentDate = new Date(pickupDate);
+
+        while (currentDate <= returnDate) {
+          occupiedDates.push(currentDate.toISOString().split('T')[0]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      });
+    }
+
+    const uniqueOccupiedDates = [...new Set(occupiedDates)];
+
+    res.json({
+      success: true,
+      car_id: carId,
+      occupied_dates: uniqueOccupiedDates,
+      bookings_count: bookings?.length || 0
+    });
+
+  } catch (error) {
+    console.error("❌ Ошибка получения занятых дат:", error);
+    res.status(500).json({ error: "Ошибка базы данных: " + error.message });
   }
 });
 
@@ -471,6 +598,7 @@ router.put(
             id.toString()
           );
           if (trackingResult.success) {
+            console.log("✅ Phone number tracked successfully");
           } else {
             console.error(
               "❌ Failed to track phone number:",
@@ -669,6 +797,7 @@ router.put(
             bookingId.toString()
           );
           if (trackingResult.success) {
+            console.log("✅ Phone number tracked successfully");
           } else {
             console.error(
               "❌ Failed to track phone number:",
@@ -676,6 +805,7 @@ router.put(
             );
           }
         } else {
+          console.log("ℹ️ No phone number to track");
         }
       } catch (trackingError) {
         console.error("❌ Error tracking phone number:", trackingError);
@@ -823,7 +953,7 @@ router.put(
 // Helper function to restore coupon to available
 async function restoreCouponToAvailable(discountCode, customerPhone) {
   try {
-    console.log(`�� Attempting to restore coupon: ${discountCode}`);
+    console.log(`🔄 Attempting to restore coupon: ${discountCode}`);
     
     // Find the redemption record
     const { data: redemption, error: findError } = await supabase
