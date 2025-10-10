@@ -56,6 +56,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
+  <!-- Cars Filter Modal -->
+  <link href="css/cars-filter-modal.css" rel="stylesheet" type="text/css">
+
   <!-- API Config -->
   <script>
     window.API_BASE_URL = '';
@@ -565,7 +568,7 @@
       transform: scale(1.05);
     }
 
-    /* Mobile Filter Overlay */
+    /* Mobile Filter Overlay - Fixed Scrolling */
     .mobile-filter-overlay {
       position: fixed;
       top: 0;
@@ -576,6 +579,7 @@
       z-index: 9999;
       display: none;
       backdrop-filter: blur(4px);
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
     
     .mobile-filter-overlay.active {
@@ -589,11 +593,17 @@
       width: 85%;
       max-width: 400px;
       height: 100%;
+      height: 100vh; /* Use viewport height */
+      height: -webkit-fill-available; /* iOS fix */
       background: white;
       box-shadow: var(--shadow-lg);
       overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
       transform: translateX(-100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
     }
     
     .mobile-filter-overlay.active .mobile-filter-sidebar {
@@ -602,6 +612,7 @@
     
     .mobile-filter-header {
       position: sticky;
+      position: -webkit-sticky; /* iOS compatibility */
       top: 0;
       background: var(--primary-color);
       color: white;
@@ -610,6 +621,7 @@
       justify-content: space-between;
       align-items: center;
       z-index: 10;
+      flex-shrink: 0;
     }
     
     .mobile-filter-header h5 {
@@ -631,16 +643,21 @@
     
     .mobile-filter-content {
       padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
     
     .mobile-filter-actions {
       position: sticky;
+      position: -webkit-sticky; /* iOS compatibility */
       bottom: 0;
       background: white;
       padding: 20px;
       border-top: 1px solid var(--border-color);
       display: flex;
       gap: 12px;
+      flex-shrink: 0;
     }
     
     .mobile-filter-actions .btn {
@@ -1098,6 +1115,8 @@
     <script src="js/designesia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    <!-- Cars Filter Modal JavaScript -->
+    <script src="js/cars-filter-modal.js"></script>
     
     <!-- Main Cars Script -->
     <script>
@@ -1427,7 +1446,7 @@
             .map(cb => cb.value);
     }
 
-    // Update filters and fetch cars
+    // Update filters and fetch cars with modal sync
     function updateFiltersAndFetch() {
         const params = new URLSearchParams();
         
@@ -1467,6 +1486,11 @@
             }
         }
         
+        // Sync with cars-filter-modal if it exists
+        if (typeof window.syncModalWithFilters === 'function') {
+            window.syncModalWithFilters(priceCategory || 'all');
+        }
+        
         // Update URL
         const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.pushState({}, '', newUrl);
@@ -1474,6 +1498,24 @@
         // Fetch and render
         fetchAndRenderCars();
     }
+
+    // Sync function to be called from cars-filter-modal
+    window.syncFiltersWithModal = function(priceCategory) {
+        // Update the filter radio buttons based on modal selection
+        const radioButtons = document.querySelectorAll('input[name="price-category"]');
+        radioButtons.forEach(radio => {
+            radio.checked = radio.value === priceCategory;
+        });
+        
+        // Update mobile filter radio buttons too
+        const mobileRadioButtons = document.querySelectorAll('input[name="mobile-price-category"]');
+        mobileRadioButtons.forEach(radio => {
+            radio.checked = radio.value === priceCategory;
+        });
+        
+        // Apply the filter
+        updateFiltersAndFetch();
+    };
 
     // Fetch and render cars
     async function fetchAndRenderCars() {
@@ -1617,7 +1659,7 @@
         document.getElementById('sort-select')?.addEventListener('change', updateFiltersAndFetch);
     }
 
-    // Mobile filter functions
+    // Mobile filter functions with fixed scrolling
     function toggleMobileFilter() {
         const overlay = document.getElementById('mobile-filter-overlay');
         if (!overlay) return;
@@ -1625,8 +1667,19 @@
         if (overlay.classList.contains('active')) {
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.top = '';
+            // Restore scroll position
+            const scrollY = document.body.style.top;
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
         } else {
+            // Save scroll position and lock body
+            const scrollY = window.scrollY;
             overlay.classList.add('active');
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
             renderMobileFilterOptions();
         }
@@ -1868,6 +1921,10 @@
             e.preventDefault();
             window.history.pushState({}, '', window.location.pathname);
             fetchAndRenderCars();
+            // Sync with modal
+            if (typeof window.syncModalWithFilters === 'function') {
+                window.syncModalWithFilters('all');
+            }
         });
         
         // Mobile filter overlay click outside
@@ -1876,6 +1933,28 @@
                 toggleMobileFilter();
             }
         });
+        
+        // Sync initial state with cars-filter-modal if it exists
+        const params = new URLSearchParams(window.location.search);
+        const minPrice = params.get('min_price');
+        const maxPrice = params.get('max_price');
+        
+        if (minPrice && maxPrice) {
+            // Determine price category from URL params
+            let priceCategory = 'all';
+            if (minPrice == priceFilterSettings.economy.min && maxPrice == priceFilterSettings.economy.max) {
+                priceCategory = 'economy';
+            } else if (minPrice == priceFilterSettings.standard.min && maxPrice == priceFilterSettings.standard.max) {
+                priceCategory = 'standard';
+            } else if (minPrice == priceFilterSettings.premium.min && maxPrice == priceFilterSettings.premium.max) {
+                priceCategory = 'premium';
+            }
+            
+            // Sync with modal
+            if (typeof window.syncModalWithFilters === 'function') {
+                window.syncModalWithFilters(priceCategory);
+            }
+        }
     }
 
     // Start when DOM is ready
@@ -1885,6 +1964,48 @@
     window.toggleMobileFilter = toggleMobileFilter;
     window.applyMobileFilters = applyMobileFilters;
     window.clearAllFilters = clearAllFilters;
+    
+    // Integration with cars-filter-modal.js
+    window.syncModalWithFilters = function(priceCategory) {
+        // This function will be called from cars page to sync with modal
+        if (typeof window.updateModalPriceCategory === 'function') {
+            window.updateModalPriceCategory(priceCategory);
+        }
+    };
+    
+    // Function to be called from cars-filter-modal.js when modal changes
+    window.onModalPriceCategoryChange = function(category) {
+        // Update filter radio buttons
+        document.querySelectorAll('input[name="price-category"]').forEach(radio => {
+            radio.checked = radio.value === category;
+        });
+        
+        // Update mobile filter radio buttons
+        document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+            radio.checked = radio.value === category;
+        });
+        
+        // Apply filters
+        updateFiltersAndFetch();
+    };
+    </script>
+    
+    <!-- Initialize cars-filter-modal integration -->
+    <script>
+    // Integration bridge for cars-filter-modal
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for modal price category changes
+        if (typeof window.initCarsFilterModal === 'function') {
+            window.initCarsFilterModal();
+        }
+        
+        // Set up listener for modal category changes
+        document.addEventListener('modalPriceCategoryChanged', function(e) {
+            if (e.detail && e.detail.category) {
+                window.onModalPriceCategoryChange(e.detail.category);
+            }
+        });
+    });
     </script>
 </body>
 </html>
