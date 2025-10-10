@@ -906,29 +906,28 @@
                                                 <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/>
                                             </svg>
                                         </button>
-                                        <ul id="langDropdown" class="lang-picker-dropdown" role="listbox" tabindex="-1">
-                                            <li class="lang-option" data-lang="ro" role="option" tabindex="0">
+                                        <div id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                                            <div class="lang-option" data-lang="ro" tabindex="0">
                                                 <span class="lang-flag">
-                                                    <img src="images/flags/romania.png" alt="RO">
-                                                </span> 
+                                                    <img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                                </span>
                                                 <span class="lang-code">RO</span>
-                                            </li>
-                                            <li class="lang-option" data-lang="en" role="option" tabindex="0">
+                                            </div>
+                                            <div class="lang-option" data-lang="en" tabindex="0">
                                                 <span class="lang-flag">
-                                                    <img src="images/flags/united-kingdom.png" alt="EN">
-                                                </span> 
+                                                    <img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                                </span>
                                                 <span class="lang-code">EN</span>
-                                            </li>
-                                            <li class="lang-option" data-lang="ru" role="option" tabindex="0">
+                                            </div>
+                                            <div class="lang-option" data-lang="ru" tabindex="0">
                                                 <span class="lang-flag">
-                                                    <img src="images/flags/russia.png" alt="RU">
-                                                </span> 
+                                                    <img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;">
+                                                </span>
                                                 <span class="lang-code">RU</span>
-                                            </li>
-                                        </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+
                             
                             <div id="menu-btn">
                                 <span></span>
@@ -1975,7 +1974,7 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - FINAL WORKING version
+    // Language switcher - Simple version (like about.html)
     function initLanguageSwitcher() {
         const langBtn = document.getElementById('langPickerBtn');
         const langDropdown = document.getElementById('langDropdown');
@@ -1987,10 +1986,6 @@
             return;
         }
         
-        // Force close initially
-        langDropdown.classList.remove('open');
-        langBtn.setAttribute('aria-expanded', 'false');
-        
         const currentLang = getCurrentLanguage();
         updateLanguageDisplay(currentLang);
         
@@ -1999,9 +1994,9 @@
             e.preventDefault();
             e.stopPropagation();
             
-            const wasOpen = langDropdown.classList.contains('open');
+            const isOpen = langDropdown.classList.contains('open');
             
-            if (wasOpen) {
+            if (isOpen) {
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
             } else {
@@ -2027,24 +2022,15 @@
                     fetchAndRenderCars();
                 }
             });
-            
-            option.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    option.click();
-                }
-            });
         });
         
         // Click outside handler
         document.addEventListener('click', (e) => {
-            if (langBtn.contains(e.target) || langDropdown.contains(e.target)) {
-                return;
-            }
-            
-            if (langDropdown.classList.contains('open')) {
-                langDropdown.classList.remove('open');
-                langBtn.setAttribute('aria-expanded', 'false');
+            if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+                if (langDropdown.classList.contains('open')) {
+                    langDropdown.classList.remove('open');
+                    langBtn.setAttribute('aria-expanded', 'false');
+                }
             }
         });
         
@@ -2057,6 +2043,7 @@
             }
         });
     }
+
 
     function updateLanguageDisplay(lang) {
         const langFlag = document.getElementById('langFlag');
