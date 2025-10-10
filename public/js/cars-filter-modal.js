@@ -439,24 +439,68 @@ class CarsFilterModal {
   }
 
   applyFilter(filterType) {
-    // Clear existing price filters
-    this.clearPriceFilters();
+    // Check if we have the integrated applyModalFilter function (cars.html page)
+    if (typeof window.applyModalFilter === 'function') {
+      window.applyModalFilter(filterType);
+      return;
+    }
+    
+    // Otherwise, try to integrate with the page's filter system
+    const params = new URLSearchParams(window.location.search);
+    
+    // Clear existing price parameters
+    params.delete('min_price');
+    params.delete('max_price');
     
     // Apply new filter based on dynamic settings
     switch (filterType) {
-      case 'econom': // HTML uses 'econom' but settings use 'economy'
-        this.setPriceFilter(this.priceFilterSettings.economy.min, this.priceFilterSettings.economy.max);
+      case 'econom':
+        params.set('min_price', this.priceFilterSettings.economy.min);
+        params.set('max_price', this.priceFilterSettings.economy.max);
+        
+        // Try to update radio buttons if they exist
+        const economyRadio = document.querySelector('input[name="price-category"][value="economy"]');
+        if (economyRadio) {
+          document.querySelectorAll('input[name="price-category"]').forEach(r => r.checked = false);
+          economyRadio.checked = true;
+        }
         break;
+        
       case 'standard':
-        this.setPriceFilter(this.priceFilterSettings.standard.min, this.priceFilterSettings.standard.max);
+        params.set('min_price', this.priceFilterSettings.standard.min);
+        params.set('max_price', this.priceFilterSettings.standard.max);
+        
+        const standardRadio = document.querySelector('input[name="price-category"][value="standard"]');
+        if (standardRadio) {
+          document.querySelectorAll('input[name="price-category"]').forEach(r => r.checked = false);
+          standardRadio.checked = true;
+        }
         break;
+        
       case 'premium':
-        this.setPriceFilter(this.priceFilterSettings.premium.min, this.priceFilterSettings.premium.max);
+        params.set('min_price', this.priceFilterSettings.premium.min);
+        params.set('max_price', this.priceFilterSettings.premium.max);
+        
+        const premiumRadio = document.querySelector('input[name="price-category"][value="premium"]');
+        if (premiumRadio) {
+          document.querySelectorAll('input[name="price-category"]').forEach(r => r.checked = false);
+          premiumRadio.checked = true;
+        }
         break;
+        
       case 'all':
         // No price filter - show all cars
+        const allRadio = document.querySelector('input[name="price-category"][value="all"]');
+        if (allRadio) {
+          document.querySelectorAll('input[name="price-category"]').forEach(r => r.checked = false);
+          allRadio.checked = true;
+        }
         break;
     }
+    
+    // Update URL
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    window.history.pushState({}, '', newUrl);
     
     // Trigger car list update
     this.updateCarList();
@@ -499,14 +543,14 @@ class CarsFilterModal {
   }
 
   updateCarList() {
-    // Check if the existing updateFiltersAndFetch function exists
+    // Check if the existing functions exist (cars.html page)
     if (typeof updateFiltersAndFetch === 'function') {
       updateFiltersAndFetch();
     } else if (typeof fetchAndRenderCars === 'function') {
       fetchAndRenderCars();
     } else {
-      // Fallback: manually update URL and reload
-      this.updateURLAndReload();
+      // Fallback: reload the page with new parameters
+      window.location.reload();
     }
   }
 
@@ -623,3 +667,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for global access
 window.CarsFilterModal = CarsFilterModal;
+
+// Integration function for cars.html page
+window.applyModalFilter = function(filterType) {
+  // Clear existing price category selections
+  document.querySelectorAll('input[name="price-category"]').forEach(radio => {
+    radio.checked = false;
+  });
+  document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
+    radio.checked = false;
+  });
+  
+  // Map modal filter types to price categories
+  const filterMap = {
+    'econom': 'economy',
+    'standard': 'standard', 
+    'premium': 'premium',
+    'all': 'all'
+  };
+  
+  const priceCategory = filterMap[filterType] || 'all';
+  
+  // Set the appropriate radio button
+  const desktopRadio = document.querySelector(`input[name="price-category"][value="${priceCategory}"]`);
+  if (desktopRadio) {
+    desktopRadio.checked = true;
+  }
+  
+  const mobileRadio = document.querySelector(`input[name="mobile-price-category"][value="${priceCategory}"]`);
+  if (mobileRadio) {
+    mobileRadio.checked = true;
+  }
+  
+  // Build URL params
+  const params = new URLSearchParams();
+  
+  // Preserve existing filters
+  const existingParams = new URLSearchParams(window.location.search);
+  for (const [key, value] of existingParams) {
+    if (key !== 'min_price' && key !== 'max_price') {
+      params.set(key, value);
+    }
+  }
+  
+  // Get price settings from modal if available
+  const priceSettings = window.carsFilterModal?.priceFilterSettings || {
+    economy: { min: 0, max: 30 },
+    standard: { min: 31, max: 60 },
+    premium: { min: 61, max: 999 }
+  };
+  
+  // Apply price filter based on selection
+  if (priceCategory && priceCategory !== 'all') {
+    const settings = priceSettings[priceCategory];
+    if (settings) {
+      params.set('min_price', settings.min);
+      params.set('max_price', settings.max);
+    }
+  }
+  
+  // Update URL
+  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+  window.history.pushState({}, '', newUrl);
+  
+  // Fetch and render cars
+  if (typeof fetchAndRenderCars === 'function') {
+    fetchAndRenderCars();
+  } else if (typeof updateFiltersAndFetch === 'function') {
+    updateFiltersAndFetch();
+  } else {
+    // Fallback - reload page
+    window.location.reload();
+  }
+  
+  // Update modal visual state
+  if (window.carsFilterModal && window.carsFilterModal.modal) {
+    window.carsFilterModal.modal.querySelectorAll('.filter-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+    const selectedCard = window.carsFilterModal.modal.querySelector(`.filter-card[data-filter="${filterType}"]`);
+    if (selectedCard) {
+      selectedCard.classList.add('selected');
+    }
+  }
+};
