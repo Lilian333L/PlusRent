@@ -1975,130 +1975,61 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - ULTRA DEBUG version with full stack trace
+    // Language switcher - FINAL WORKING version
     function initLanguageSwitcher() {
-        console.log('🌍 Initializing language switcher...');
-        
         const langBtn = document.getElementById('langPickerBtn');
         const langDropdown = document.getElementById('langDropdown');
         const langFlag = document.getElementById('langFlag');
         const langCode = document.getElementById('langCode');
         
-        console.log('📍 Elements found:', {
-            langBtn: !!langBtn,
-            langDropdown: !!langDropdown,
-            langFlag: !!langFlag,
-            langCode: !!langCode
-        });
-        
         if (!langBtn || !langDropdown) {
-            console.error('❌ Language switcher elements not found!');
+            console.error('Language switcher elements not found!');
             return;
         }
-        
-        // Check initial state
-        console.log('🔍 Initial dropdown state:', {
-            hasOpenClass: langDropdown.classList.contains('open'),
-            display: window.getComputedStyle(langDropdown).display,
-            classList: Array.from(langDropdown.classList)
-        });
         
         // Force close initially
         langDropdown.classList.remove('open');
         langBtn.setAttribute('aria-expanded', 'false');
-        console.log('🔒 Forced dropdown to closed state');
         
         const currentLang = getCurrentLanguage();
-        console.log('🔤 Current language:', currentLang);
         updateLanguageDisplay(currentLang);
         
-        // Monitor for unwanted class changes - MUST be before click handler
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const stack = new Error().stack;
-                    console.log('⚠️ Dropdown class changed externally!');
-                    console.log('Old classes:', mutation.oldValue);
-                    console.log('New classes:', langDropdown.className);
-                    console.log('Stack trace:', stack);
-                    
-                    if (langDropdown.classList.contains('open') && !window._langPickerUserAction) {
-                        console.log('🛑 Blocking external "open" class addition!');
-                        langDropdown.classList.remove('open');
-                    }
-                }
-            });
-        });
-        
-        observer.observe(langDropdown, { 
-            attributes: true, 
-            attributeOldValue: true,
-            attributeFilter: ['class']
-        });
-        
-        // Button click handler - with user action flag
+        // Button click handler
         langBtn.addEventListener('click', (e) => {
-            console.log('🖱️ Language button clicked!');
             e.preventDefault();
             e.stopPropagation();
             
-            window._langPickerUserAction = true;
-            
             const wasOpen = langDropdown.classList.contains('open');
-            console.log('📂 Dropdown was:', wasOpen ? 'open' : 'closed');
             
             if (wasOpen) {
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
-                console.log('📂 Now closed');
             } else {
                 langDropdown.classList.add('open');
                 langBtn.setAttribute('aria-expanded', 'true');
-                console.log('📂 Now opened');
             }
-            
-            setTimeout(() => {
-                window._langPickerUserAction = false;
-            }, 50);
-            
-            setTimeout(() => {
-                const computedDisplay = window.getComputedStyle(langDropdown).display;
-                console.log('🔍 Dropdown display is:', computedDisplay);
-                console.log('🔍 Dropdown has "open" class:', langDropdown.classList.contains('open'));
-                console.log('🔍 All classes:', Array.from(langDropdown.classList));
-            }, 10);
         });
         
         // Option click handlers
-        document.querySelectorAll('.lang-option').forEach((option, index) => {
-            console.log(`⚙️ Setting up option ${index}:`, option.getAttribute('data-lang'));
-            
+        document.querySelectorAll('.lang-option').forEach((option) => {
             option.addEventListener('click', (e) => {
-                console.log('✅ Language option clicked!');
                 e.preventDefault();
                 e.stopPropagation();
                 const lang = e.currentTarget.getAttribute('data-lang');
-                console.log('🌐 Selected language:', lang);
                 
                 if (lang) {
-                    window._langPickerUserAction = true;
                     localStorage.setItem('lang', lang);
                     updateLanguageDisplay(lang);
                     langDropdown.classList.remove('open');
                     langBtn.setAttribute('aria-expanded', 'false');
-                    setTimeout(() => {
-                        window._langPickerUserAction = false;
-                    }, 50);
                     updatePageTranslations();
                     initializeDatePickers();
                     fetchAndRenderCars();
-                    console.log('🔄 Language changed to:', lang);
                 }
             });
             
             option.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                    console.log('⌨️ Keyboard activation');
                     e.preventDefault();
                     option.click();
                 }
@@ -2108,40 +2039,24 @@
         // Click outside handler
         document.addEventListener('click', (e) => {
             if (langBtn.contains(e.target) || langDropdown.contains(e.target)) {
-                console.log('👆 Click inside language picker - ignoring');
                 return;
             }
             
             if (langDropdown.classList.contains('open')) {
-                console.log('🔒 Closing dropdown - clicked outside');
-                window._langPickerUserAction = true;
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
-                setTimeout(() => {
-                    window._langPickerUserAction = false;
-                }, 50);
             }
         });
         
         // Escape key handler
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && langDropdown.classList.contains('open')) {
-                console.log('⎋ Closing dropdown - Escape pressed');
-                window._langPickerUserAction = true;
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
                 langBtn.focus();
-                setTimeout(() => {
-                    window._langPickerUserAction = false;
-                }, 50);
             }
         });
-        
-        console.log('✅ Language switcher initialized successfully!');
-        console.log('👀 Monitoring dropdown for external changes...');
     }
-
-
 
     function updateLanguageDisplay(lang) {
         const langFlag = document.getElementById('langFlag');
