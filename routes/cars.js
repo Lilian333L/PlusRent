@@ -288,7 +288,7 @@ router.get("/", async (req, res) => {
     if (minPrice !== null || maxPrice !== null) {
       filteredCars = carsWithAvailability.filter((car) => {
         const pp = car.price_policy || {};
-        const rateRaw = pp["1-2"];
+        const rateRaw = pp["46+"];
         const rate =
           rateRaw !== undefined && rateRaw !== null ? parseFloat(rateRaw) : NaN;
         if (Number.isNaN(rate)) return false;
