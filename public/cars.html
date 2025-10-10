@@ -1975,7 +1975,7 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - ULTRA DEBUG version
+    // Language switcher - ULTRA DEBUG version with full stack trace
     function initLanguageSwitcher() {
         console.log('🌍 Initializing language switcher...');
         
@@ -2012,17 +2012,41 @@
         console.log('🔤 Current language:', currentLang);
         updateLanguageDisplay(currentLang);
         
-        // Button click handler - FIXED VERSION
+        // Monitor for unwanted class changes - MUST be before click handler
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const stack = new Error().stack;
+                    console.log('⚠️ Dropdown class changed externally!');
+                    console.log('Old classes:', mutation.oldValue);
+                    console.log('New classes:', langDropdown.className);
+                    console.log('Stack trace:', stack);
+                    
+                    if (langDropdown.classList.contains('open') && !window._langPickerUserAction) {
+                        console.log('🛑 Blocking external "open" class addition!');
+                        langDropdown.classList.remove('open');
+                    }
+                }
+            });
+        });
+        
+        observer.observe(langDropdown, { 
+            attributes: true, 
+            attributeOldValue: true,
+            attributeFilter: ['class']
+        });
+        
+        // Button click handler - with user action flag
         langBtn.addEventListener('click', (e) => {
             console.log('🖱️ Language button clicked!');
             e.preventDefault();
             e.stopPropagation();
             
-            // Get current state by checking if dropdown has 'open' class
+            window._langPickerUserAction = true;
+            
             const wasOpen = langDropdown.classList.contains('open');
             console.log('📂 Dropdown was:', wasOpen ? 'open' : 'closed');
             
-            // Toggle the state
             if (wasOpen) {
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
@@ -2033,7 +2057,10 @@
                 console.log('📂 Now opened');
             }
             
-            // Log the actual computed style to verify
+            setTimeout(() => {
+                window._langPickerUserAction = false;
+            }, 50);
+            
             setTimeout(() => {
                 const computedDisplay = window.getComputedStyle(langDropdown).display;
                 console.log('🔍 Dropdown display is:', computedDisplay);
@@ -2054,10 +2081,14 @@
                 console.log('🌐 Selected language:', lang);
                 
                 if (lang) {
+                    window._langPickerUserAction = true;
                     localStorage.setItem('lang', lang);
                     updateLanguageDisplay(lang);
                     langDropdown.classList.remove('open');
                     langBtn.setAttribute('aria-expanded', 'false');
+                    setTimeout(() => {
+                        window._langPickerUserAction = false;
+                    }, 50);
                     updatePageTranslations();
                     initializeDatePickers();
                     fetchAndRenderCars();
@@ -2083,8 +2114,12 @@
             
             if (langDropdown.classList.contains('open')) {
                 console.log('🔒 Closing dropdown - clicked outside');
+                window._langPickerUserAction = true;
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
+                setTimeout(() => {
+                    window._langPickerUserAction = false;
+                }, 50);
             }
         });
         
@@ -2092,34 +2127,20 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && langDropdown.classList.contains('open')) {
                 console.log('⎋ Closing dropdown - Escape pressed');
+                window._langPickerUserAction = true;
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
                 langBtn.focus();
+                setTimeout(() => {
+                    window._langPickerUserAction = false;
+                }, 50);
             }
-        });
-        
-        // Monitor for unwanted class changes
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    console.log('⚠️ Dropdown class changed externally!', {
-                        oldValue: mutation.oldValue,
-                        newValue: langDropdown.className,
-                        stack: new Error().stack
-                    });
-                }
-            });
-        });
-        
-        observer.observe(langDropdown, { 
-            attributes: true, 
-            attributeOldValue: true,
-            attributeFilter: ['class']
         });
         
         console.log('✅ Language switcher initialized successfully!');
         console.log('👀 Monitoring dropdown for external changes...');
     }
+
 
 
     function updateLanguageDisplay(lang) {
