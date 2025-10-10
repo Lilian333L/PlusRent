@@ -165,6 +165,8 @@
       line-height: 1.2;
       transition: border 0.2s, box-shadow 0.2s;
       box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      position: relative;
+      z-index: 1001;
     }
     
     .lang-picker-btn:focus, 
@@ -192,7 +194,7 @@
     }
     
     .lang-picker-dropdown.open { 
-      display: block; 
+      display: block !important;
     }
     
     .lang-option {
@@ -1968,7 +1970,7 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - Debugging version
+    // Language switcher - Fixed version with proper event handling
     function initLanguageSwitcher() {
         console.log('🌍 Initializing language switcher...');
         
@@ -1993,16 +1995,24 @@
         console.log('🔤 Current language:', currentLang);
         updateLanguageDisplay(currentLang);
         
-        // Button click handler
+        // Button click handler with stopPropagation
         langBtn.addEventListener('click', (e) => {
             console.log('🖱️ Language button clicked!');
             e.preventDefault();
             e.stopPropagation();
+            
             const isOpen = langDropdown.classList.contains('open');
             console.log('📂 Dropdown is currently:', isOpen ? 'open' : 'closed');
-            langDropdown.classList.toggle('open');
-            langBtn.setAttribute('aria-expanded', String(!isOpen));
-            console.log('📂 Dropdown is now:', !isOpen ? 'open' : 'closed');
+            
+            if (isOpen) {
+                langDropdown.classList.remove('open');
+                langBtn.setAttribute('aria-expanded', 'false');
+                console.log('📂 Dropdown closed');
+            } else {
+                langDropdown.classList.add('open');
+                langBtn.setAttribute('aria-expanded', 'true');
+                console.log('📂 Dropdown opened');
+            }
         });
         
         // Option click handlers
@@ -2024,6 +2034,7 @@
                     updatePageTranslations();
                     initializeDatePickers();
                     fetchAndRenderCars();
+                    console.log('🔄 Language changed to:', lang);
                 }
             });
             
@@ -2036,14 +2047,17 @@
             });
         });
         
-        // Click outside handler
+        // Click outside handler - use return to avoid conflict
         document.addEventListener('click', (e) => {
-            if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
-                if (langDropdown.classList.contains('open')) {
-                    console.log('🔒 Closing dropdown - clicked outside');
-                    langDropdown.classList.remove('open');
-                    langBtn.setAttribute('aria-expanded', 'false');
-                }
+            // Don't close if clicking the button or dropdown
+            if (langBtn.contains(e.target) || langDropdown.contains(e.target)) {
+                return;
+            }
+            
+            if (langDropdown.classList.contains('open')) {
+                console.log('🔒 Closing dropdown - clicked outside');
+                langDropdown.classList.remove('open');
+                langBtn.setAttribute('aria-expanded', 'false');
             }
         });
         
