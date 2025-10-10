@@ -1975,7 +1975,7 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - FINAL FIXED version
+    // Language switcher - ULTRA DEBUG version
     function initLanguageSwitcher() {
         console.log('🌍 Initializing language switcher...');
         
@@ -1995,6 +1995,18 @@
             console.error('❌ Language switcher elements not found!');
             return;
         }
+        
+        // Check initial state
+        console.log('🔍 Initial dropdown state:', {
+            hasOpenClass: langDropdown.classList.contains('open'),
+            display: window.getComputedStyle(langDropdown).display,
+            classList: Array.from(langDropdown.classList)
+        });
+        
+        // Force close initially
+        langDropdown.classList.remove('open');
+        langBtn.setAttribute('aria-expanded', 'false');
+        console.log('🔒 Forced dropdown to closed state');
         
         const currentLang = getCurrentLanguage();
         console.log('🔤 Current language:', currentLang);
@@ -2026,6 +2038,7 @@
                 const computedDisplay = window.getComputedStyle(langDropdown).display;
                 console.log('🔍 Dropdown display is:', computedDisplay);
                 console.log('🔍 Dropdown has "open" class:', langDropdown.classList.contains('open'));
+                console.log('🔍 All classes:', Array.from(langDropdown.classList));
             }, 10);
         });
         
@@ -2063,13 +2076,11 @@
         
         // Click outside handler
         document.addEventListener('click', (e) => {
-            // Don't process if clicking on the button or dropdown
             if (langBtn.contains(e.target) || langDropdown.contains(e.target)) {
                 console.log('👆 Click inside language picker - ignoring');
                 return;
             }
             
-            // Close if open
             if (langDropdown.classList.contains('open')) {
                 console.log('🔒 Closing dropdown - clicked outside');
                 langDropdown.classList.remove('open');
@@ -2087,8 +2098,29 @@
             }
         });
         
+        // Monitor for unwanted class changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    console.log('⚠️ Dropdown class changed externally!', {
+                        oldValue: mutation.oldValue,
+                        newValue: langDropdown.className,
+                        stack: new Error().stack
+                    });
+                }
+            });
+        });
+        
+        observer.observe(langDropdown, { 
+            attributes: true, 
+            attributeOldValue: true,
+            attributeFilter: ['class']
+        });
+        
         console.log('✅ Language switcher initialized successfully!');
+        console.log('👀 Monitoring dropdown for external changes...');
     }
+
 
     function updateLanguageDisplay(lang) {
         const langFlag = document.getElementById('langFlag');
