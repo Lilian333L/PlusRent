@@ -1935,11 +1935,25 @@
     }
 
     function clearAllFilters() {
+        // Clear desktop filters
+        document.querySelectorAll('.filter-sidebar input[type=checkbox]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="price-category"][value="all"]').forEach(radio => radio.checked = true);
+        const dateFromDesktop = document.getElementById('date-from');
+        const dateToDesktop = document.getElementById('date-to');
+        if (dateFromDesktop) dateFromDesktop.value = '';
+        if (dateToDesktop) dateToDesktop.value = '';
+        const sortSelectDesktop = document.getElementById('sort-select');
+        if (sortSelectDesktop) sortSelectDesktop.value = 'default';
+        
+        // Clear mobile filters
         document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
         document.querySelectorAll('#mobile-filter-overlay input[type=radio][value="all"]').forEach(radio => radio.checked = true);
-        document.getElementById('mobile-date-from').value = '';
-        document.getElementById('mobile-date-to').value = '';
-        document.getElementById('mobile-sort-select').value = 'default';
+        const dateFromMobile = document.getElementById('mobile-date-from');
+        const dateToMobile = document.getElementById('mobile-date-to');
+        if (dateFromMobile) dateFromMobile.value = '';
+        if (dateToMobile) dateToMobile.value = '';
+        const sortSelectMobile = document.getElementById('mobile-sort-select');
+        if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
     // Language switcher
