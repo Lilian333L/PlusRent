@@ -52,8 +52,8 @@
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-  <!-- Cars Filter Modal -->
-  <link href="css/cars-filter-modal.css" rel="stylesheet" type="text/css">
+  <!-- Flatpickr for date picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
   <!-- API Config -->
   <script>
@@ -115,152 +115,620 @@
     ]
   }
   </script>
-    <style>
-      .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
-      .lang-picker-btn {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 4px 12px;
-        border-radius: 4px;
-        border: 1px solid #e0e0e0;
-        background: #f6f6f6;
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 14px;
-        min-width: 80px;
-        height: 36px;
-        line-height: 1.2;
-        transition: border 0.2s, box-shadow 0.2s;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-        margin-left: 0;
+  
+  <style>
+    /* Enhanced Professional Design System */
+    :root {
+      --primary-color: #1976d2;
+      --primary-dark: #115293;
+      --secondary-color: #f0c040;
+      --success-color: #4caf50;
+      --danger-color: #f44336;
+      --warning-color: #ff9800;
+      --info-color: #2196f3;
+      --light-bg: #f8f9fa;
+      --border-color: #e0e0e0;
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.16);
+      --transition-speed: 0.3s;
+    }
+
+    /* Language Picker Styles */
+    .lang-picker-wrapper { 
+      position: relative; 
+      display: inline-block; 
+      vertical-align: middle; 
+    }
+    
+    .lang-picker-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      min-width: 90px;
+      height: 38px;
+      line-height: 1.2;
+      transition: all var(--transition-speed);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .lang-picker-btn:hover {
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .lang-picker-dropdown {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      z-index: 1000;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      padding: 4px;
+      margin: 0;
+      min-width: 120px;
+      list-style: none;
+    }
+    
+    .lang-picker-dropdown.open { 
+      display: block; 
+    }
+    
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    
+    .lang-option:hover {
+      background: var(--light-bg);
+    }
+    
+    .lang-option.selected {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .lang-flag {
+      width: 20px;
+      height: 15px;
+    }
+    
+    .lang-flag img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 2px;
+    }
+
+    /* Enhanced Filter Sidebar Styles */
+    .filter-sidebar {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      padding: 24px;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .filter-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .filter-clear {
+      font-size: 0.875rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    .filter-clear:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    .filter-divider {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 1.5rem 0;
+    }
+    
+    .filter-section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+    
+    /* Date Range Picker Styles */
+    .date-range-picker {
+      margin-bottom: 1.5rem;
+    }
+    
+    .date-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    
+    .date-input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+    
+    .date-input-wrapper input {
+      width: 100%;
+      padding: 10px 40px 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .date-input-wrapper input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+    
+    .date-input-wrapper .icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+    
+    /* Sort Options Styles */
+    .sort-section {
+      background: var(--light-bg);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .sort-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    
+    .sort-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    /* Filter Options Styles */
+    .filter-option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      transition: background 0.2s;
+      border-radius: 4px;
+    }
+    
+    .filter-option-row:hover {
+      background: var(--light-bg);
+      padding: 8px;
+    }
+    
+    .filter-option-row label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      flex: 1;
+    }
+    
+    .filter-option-row input[type="checkbox"],
+    .filter-option-row input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      accent-color: var(--primary-color);
+      cursor: pointer;
+    }
+    
+    .option-label {
+      font-size: 14px;
+      color: var(--text-primary);
+      flex: 1;
+    }
+    
+    .option-count {
+      background: var(--light-bg);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 28px;
+      text-align: center;
+    }
+    
+    /* Disabled Options */
+    .filter-option-row.disabled-option {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .filter-option-row.disabled-option:hover {
+      background: transparent;
+    }
+
+    /* Car Card Styles */
+    .car-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-speed);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .car-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .car-card.premium {
+      border: 2px solid var(--secondary-color);
+      position: relative;
+    }
+    
+    .car-card .car-image-wrapper {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+      background: var(--light-bg);
+    }
+    
+    .car-card .car-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    
+    .car-card:hover .car-image {
+      transform: scale(1.05);
+    }
+    
+    .premium-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #333;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-md);
+      z-index: 2;
+    }
+    
+    .car-card .car-details {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .car-card .car-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .car-card .car-model {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    .car-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    
+    .car-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .car-feature i {
+      color: var(--primary-color);
+      width: 16px;
+    }
+    
+    .car-price {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .price-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .price-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .btn-rent {
+      display: block;
+      width: 100%;
+      padding: 12px 24px;
+      background: var(--primary-color);
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      margin-top: 16px;
+    }
+    
+    .btn-rent:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-unavailable {
+      background: var(--text-secondary) !important;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Mobile Filter Button */
+    .mobile-filter-button-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: none;
+    }
+    
+    @media (max-width: 991px) {
+      .mobile-filter-button-container {
+        display: block;
       }
-      .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
-        outline: none;
-        border-color: #f0c040;
-        box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+    }
+    
+    .mobile-filter-btn {
+      padding: 14px 32px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 16px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+    
+    .mobile-filter-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    /* Mobile Filter Overlay */
+    .mobile-filter-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+    
+    .mobile-filter-overlay.active {
+      display: block;
+    }
+    
+    .mobile-filter-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 85%;
+      max-width: 400px;
+      height: 100%;
+      background: white;
+      box-shadow: var(--shadow-lg);
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .mobile-filter-overlay.active .mobile-filter-sidebar {
+      transform: translateX(0);
+    }
+    
+    .mobile-filter-header {
+      position: sticky;
+      top: 0;
+      background: var(--primary-color);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    
+    .mobile-filter-header h5 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .mobile-filter-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+    
+    .mobile-filter-content {
+      padding: 20px;
+    }
+    
+    .mobile-filter-actions {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 12px;
+    }
+    
+    .mobile-filter-actions .btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mobile-filter-actions .btn-clear {
+      background: white;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    
+    .mobile-filter-actions .btn-apply {
+      background: var(--primary-color);
+      border: none;
+      color: white;
+    }
+
+    /* Responsive Grid */
+    @media (max-width: 767px) {
+      .car-list-container {
+        padding: 0 15px;
       }
-      .lang-picker-dropdown {
+      
+      .car-card {
+        margin-bottom: 20px;
+      }
+      
+      .filter-sidebar {
         display: none;
-        position: absolute;
-        top: 110%;
-        left: 0;
-        z-index: 1000;
-        background: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        padding: 0;
-        margin: 0;
-        min-width: 120px;
-        list-style: none;
       }
-      .lang-picker-dropdown.open { display: block; }
-      .lang-option {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 14px;
-        cursor: pointer;
-        font-size: 14px;
-        background: none;
-        border: none;
-        transition: background 0.15s, color 0.15s;
-        height: 32px;
-        line-height: 1.2;
+    }
+    
+    @media (min-width: 768px) and (max-width: 991px) {
+      .filter-sidebar {
+        display: none;
       }
-      .lang-option:focus, .lang-option:hover {
-        background: #f0c04022;
-        color: #031B4E;
-        outline: none;
+    }
+    
+    @media (min-width: 992px) {
+      .mobile-filter-button-container {
+        display: none !important;
       }
-      .lang-option.selected {
-        background: #f0c04044;
-        color: #031B4E;
-        font-weight: 600;
+      
+      .mobile-filter-overlay {
+        display: none !important;
       }
-      .lang-flag {
-        font-size: 18px;
-        width: 20px;
-        display: inline-block;
-        text-align: center;
-      }
-      .lang-globe {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
+    }
 
-      /* Premium car highlighting for public cars page */
-      .de-item.premium {
-        border: 3px solid #ffd700;
-        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
-        transform: scale(1.02);
-        transition: all 0.3s ease;
-      }
+    /* Call Now Button */
+    .call-now-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #1E90FF, #187bcd);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+    }
+    
+    .call-now-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+    }
 
-      .de-item.premium:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
-      }
-
-      .premium-badge {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        background: linear-gradient(135deg, #ffd700, #ffed4e);
-        color: #333;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        padding: 6px 12px 5px 12px;
-        border-radius: 0 0 7px 0;
-        z-index: 3;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border: none;
-        max-width: 120px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      
-      .lang-flag {
-        width: 20px;
-        height: 20px;
-        margin-right: 3px;
-      }
-      .lang-code {
-        font-weight: 600;
-        margin: 0 2px 0 2px;
-      }
-      @media (max-width: 600px) {
-        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
-        .lang-picker-dropdown { min-width: 80px; }
-        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
-        .lang-flag { font-size: 15px; width: 15px; }
-      }
-      
-      /* Car card button alignment */
-      .d-text {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        min-height: 200px;
-      }
-      
-      .d-text .btn-main {
-        margin-top: auto;
-        align-self: flex-start;
-      }
-      
-      .d-text .btn-unavailable {
-        margin-top: auto;
-        align-self: flex-start;
-      }
-      
-      /* Call Now Button styles are now in global CSS */
-    </style>
+    /* Loading Spinner */
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+    }
+    
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+      border-width: 0.3em;
+    }
+  </style>
 </head>
 
 <body>
@@ -300,8 +768,8 @@
                                     <!-- logo begin -->
                                     <div id="logo">
                                         <a href="/">
-                                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
-                <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
+                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
+                                            <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                                         </a>
                                     </div>
                                     <!-- logo close -->
@@ -309,7 +777,7 @@
                             </div>
                             
                             <div class="de-flex-col">
-                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
+                                <!-- Main Menu -->
                                 <ul id="mainmenu">
                                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
@@ -320,28 +788,38 @@
                             </div>
                             
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
                                     <!-- Call Now Button -->
-                                    <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                                        <a href="tel:+37360000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
-                                            <i class="fa fa-phone" style="font-size: 12px;"></i>
+                                    <div class="call-now-wrapper">
+                                        <a href="tel:+37360000500" class="call-now-btn">
+                                            <i class="fa fa-phone"></i>
                                             <span data-i18n="call_now">Call Now</span>
                                         </a>
                                     </div>
                                     <!-- Language Picker -->
-                                    <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
-                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
+                                    <div class="lang-picker-wrapper">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="lang-flag" id="langFlag">
+                                          <img src="images/flags/romania.png" alt="RO">
                                         </span>
-                                        <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
-                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                                        <span id="langCode">RO</span>
+                                        <svg width="10" height="6" viewBox="0 0 10 6">
+                                          <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                        </svg>
                                       </button>
-                                      <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="images/flags/romania.png" alt="RO" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
-                                        <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
-                                        <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="images/flags/russia.png" alt="RU" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                                      <ul id="langDropdown" class="lang-picker-dropdown">
+                                        <li class="lang-option" data-lang="ro">
+                                          <span class="lang-flag"><img src="images/flags/romania.png" alt="RO"></span>
+                                          <span>Română</span>
+                                        </li>
+                                        <li class="lang-option" data-lang="en">
+                                          <span class="lang-flag"><img src="images/flags/united-kingdom.png" alt="EN"></span>
+                                          <span>English</span>
+                                        </li>
+                                        <li class="lang-option" data-lang="ru">
+                                          <span class="lang-flag"><img src="images/flags/russia.png" alt="RU"></span>
+                                          <span>Русский</span>
+                                        </li>
                                       </ul>
                                     </div>
                                 </div>
@@ -351,13 +829,14 @@
                               <span></span>
                               <span></span>
                               <span></span>
-                          </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
-            <!-- header close -->
+        <!-- header close -->
+        
         <!-- content begin -->
         <div class="no-bottom no-top zebra" id="content">
             <div id="top"></div>
@@ -365,1188 +844,180 @@
             <!-- section begin -->
             <section id="subheader" class="jarallax text-light">
                 <img src="images/background/2.jpg" class="jarallax-img" alt="">
-                    <div class="center-y relative text-center">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-12 text-center">
-									<h1 data-i18n="menu.cars"></h1>
-                                </div>
-                                <div class="clearfix"></div>
+                <div class="center-y relative text-center">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <h1 data-i18n="cars.page_title">Our Fleet</h1>
                             </div>
+                            <div class="clearfix"></div>
                         </div>
                     </div>
+                </div>
             </section>
             <!-- section close -->
 
-            <!-- Sidebar filter and car list layout -->
-<div class="container cars-main-container">
-    <!-- Mobile Filter Button -->
-    <div class="mobile-filter-button-container d-md-none">
-        <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()">
-            <i class="fa fa-filter"></i> <span data-i18n="cars.filter_cars">Filter Cars</span>
-        </button>
-    </div>
-    
-    <div class="row">
-        <!-- Desktop Sidebar -->
-        <div class="col-lg-3 col-md-4 small-sidebar d-none d-md-block">
-            <div class="filter-sidebar">
-                <div class="filter-title">
-                    Filter
-                    <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Clear all filters</a>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
-                    <div id="filter-make-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
-                    <div id="filter-gear-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
-                    <div id="filter-fuel-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
-                    <div id="filter-type-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
-                    <div id="filter-doors-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
-                    <div id="filter-passengers-options"></div>
-                </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="number" id="filter-price-min" class="form-control" placeholder="From" min="0" data-i18n-placeholder="cars.filter_price_from">
-                        <span>-</span>
-                        <input type="number" id="filter-price-max" class="form-control" placeholder="To" min="0" data-i18n-placeholder="cars.filter_price_to">
+            <!-- Cars Section -->
+            <section class="py-5">
+                <div class="container">
+                    <div class="row">
+                        <!-- Desktop Sidebar -->
+                        <div class="col-lg-3 d-none d-lg-block">
+                            <div class="filter-sidebar">
+                                <div class="filter-title">
+                                    <span data-i18n="cars.filters">Filters</span>
+                                    <a href="#" class="filter-clear" id="clear-filters-link" data-i18n="cars.clear_filters">Clear all</a>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Date Range Filter -->
+                                <div class="filter-category date-range-picker">
+                                    <h6 class="filter-section-title" data-i18n="cars.availability_period">Availability Period</h6>
+                                    <div class="date-input-group">
+                                        <div class="date-input-wrapper">
+                                            <input type="text" id="date-from" class="form-control" placeholder="From" data-i18n-placeholder="cars.date_from">
+                                            <i class="fa fa-calendar icon"></i>
+                                        </div>
+                                        <span>-</span>
+                                        <div class="date-input-wrapper">
+                                            <input type="text" id="date-to" class="form-control" placeholder="To" data-i18n-placeholder="cars.date_to">
+                                            <i class="fa fa-calendar icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Sort Options -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.sort_by">Sort By</h6>
+                                    <select id="sort-select" class="sort-select">
+                                        <option value="default" data-i18n="cars.sort_default">Default</option>
+                                        <option value="price_asc" data-i18n="cars.sort_price_asc">Price: Low to High</option>
+                                        <option value="price_desc" data-i18n="cars.sort_price_desc">Price: High to Low</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Price Category Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.price_category">Price Category</h6>
+                                    <div class="filter-option-row">
+                                        <label>
+                                            <input type="radio" name="price-category" value="all" checked>
+                                            <span class="option-label" data-i18n="cars.all_categories">All Categories</span>
+                                        </label>
+                                    </div>
+                                    <div class="filter-option-row">
+                                        <label>
+                                            <input type="radio" name="price-category" value="economy">
+                                            <span class="option-label" data-i18n="cars.economy">Economy</span>
+                                        </label>
+                                    </div>
+                                    <div class="filter-option-row">
+                                        <label>
+                                            <input type="radio" name="price-category" value="standard">
+                                            <span class="option-label" data-i18n="cars.standard">Standard</span>
+                                        </label>
+                                    </div>
+                                    <div class="filter-option-row">
+                                        <label>
+                                            <input type="radio" name="price-category" value="premium">
+                                            <span class="option-label" data-i18n="cars.premium">Premium</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Fuel Type Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.fuel_type">Fuel Type</h6>
+                                    <div id="filter-fuel-options"></div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Car Type Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.car_type">Car Type</h6>
+                                    <div id="filter-type-options"></div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Make Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.make">Make</h6>
+                                    <div id="filter-make-options"></div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Transmission Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.transmission">Transmission</h6>
+                                    <div id="filter-gear-options"></div>
+                                </div>
+                                
+                                <div class="filter-divider"></div>
+                                
+                                <!-- Passengers Filter -->
+                                <div class="filter-category">
+                                    <h6 class="filter-section-title" data-i18n="cars.passengers">Passengers</h6>
+                                    <div id="filter-passengers-options"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content Area -->
+                        <div class="col-lg-9 col-12">
+                            <div class="row" id="car-list">
+                                <!-- Cars will be loaded here -->
+                                <div class="loading-spinner">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <hr class="filter-divider">
-                <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
-                    <div class="filter-option-row">
-                        <label>
-                            <input type="radio" name="price-category" value="econom" id="price-category-econom">
-                            <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
-                        </label>
-                    </div>
-                    <div class="filter-option-row">
-                        <label>
-                            <input type="radio" name="price-category" value="standard" id="price-category-standard">
-                            <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
-                        </label>
-                    </div>
-                    <div class="filter-option-row">
-                        <label>
-                            <input type="radio" name="price-category" value="premium" id="price-category-premium">
-                            <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
-                        </label>
-                    </div>
-                    <div class="filter-option-row">
-                        <label>
-                            <input type="radio" name="price-category" value="all" id="price-category-all" checked>
-                            <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
-                        </label>
-                    </div>
-                </div>
+            </section>
+
+            <!-- Mobile Filter Button -->
+            <div class="mobile-filter-button-container">
+                <button class="mobile-filter-btn" onclick="toggleMobileFilter()">
+                    <i class="fa fa-filter"></i>
+                    <span data-i18n="cars.filter">Filter</span>
+                </button>
             </div>
-        </div>
-        
-        <!-- Mobile Filter Overlay -->
-        <div class="mobile-filter-overlay" id="mobile-filter-overlay">
-            <div class="mobile-filter-sidebar">
-                <div class="mobile-filter-header">
-                    <h5 data-i18n="cars.filter_cars">Filter Cars</h5>
-                    <button class="mobile-filter-close" onclick="toggleMobileFilter()">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </div>
-                <div class="mobile-filter-content">
-                    <div id="mobile-filter-loading" class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2 text-muted" data-i18n="cars.loading_filters">Loading filters...</p>
+
+            <!-- Mobile Filter Overlay -->
+            <div class="mobile-filter-overlay" id="mobile-filter-overlay">
+                <div class="mobile-filter-sidebar">
+                    <div class="mobile-filter-header">
+                        <h5 data-i18n="cars.filter_cars">Filter Cars</h5>
+                        <button class="mobile-filter-close" onclick="toggleMobileFilter()">
+                            <i class="fa fa-times"></i>
+                        </button>
                     </div>
-                    <div id="mobile-filter-options" style="display: none;">
-                        <div class="filter-category">
-                            <h6 class="filter-section-title" data-i18n="cars.filter_make">Make</h6>
-                            <div id="mobile-filter-make-options"></div>
-                        </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_gear">Gear</h6>
-                        <div id="mobile-filter-gear-options"></div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Fuel</h6>
-                        <div id="mobile-filter-fuel-options"></div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_type">Type</h6>
-                        <div id="mobile-filter-type-options"></div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_doors">Doors</h6>
-                        <div id="mobile-filter-doors-options"></div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Passengers</h6>
-                        <div id="mobile-filter-passengers-options"></div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_price">Price</h6>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="number" id="mobile-filter-price-min" class="form-control" placeholder="From" min="0" data-i18n="cars.filter_price_from">
-                            <span>-</span>
-                            <input type="number" id="mobile-filter-price-max" class="form-control" placeholder="To" min="0" data-i18n="cars.filter_price_to">
-                        </div>
-                    </div>
-                    <hr class="filter-divider">
-                    <div class="filter-category">
-                        <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Price Category</h6>
-                        <div class="filter-option-row">
-                            <label>
-                                <input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom">
-                                <span class="option-label" data-i18n="cars.filter_econom">Econom</span>
-                            </label>
-                        </div>
-                        <div class="filter-option-row">
-                            <label>
-                                <input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard">
-                                <span class="option-label" data-i18n="cars.filter_standard">Standard</span>
-                            </label>
-                        </div>
-                        <div class="filter-option-row">
-                            <label>
-                                <input type="radio" name="mobile-price-category" value="premium" id="mobile-price-category-premium">
-                                <span class="option-label" data-i18n="cars.filter_premium">Premium</span>
-                            </label>
-                        </div>
-                        <div class="filter-option-row">
-                            <label>
-                                <input type="radio" name="mobile-price-category" value="all" id="mobile-price-category-all" checked>
-                                <span class="option-label" data-i18n="cars.filter_all_types">All Types</span>
-                            </label>
-                        </div>
-                    </div>
+                    <div class="mobile-filter-content">
+                        <!-- Mobile filters will be populated here -->
+                        <div id="mobile-filter-options"></div>
                     </div>
                     <div class="mobile-filter-actions">
-                        <button class="btn btn-outline-secondary" onclick="clearAllFilters()">
-                            <i class="fa fa-times"></i> <span data-i18n="cars.filter_clear">Clear All</span>
+                        <button class="btn btn-clear" onclick="clearAllFilters()">
+                            <i class="fa fa-times"></i> <span data-i18n="cars.clear">Clear</span>
                         </button>
-                        <button class="btn btn-primary" onclick="applyMobileFilters()">
-                            <i class="fa fa-check"></i> <span data-i18n="cars.apply_filters">Apply Filters</span>
+                        <button class="btn btn-apply" onclick="applyMobileFilters()">
+                            <i class="fa fa-check"></i> <span data-i18n="cars.apply">Apply</span>
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="col-lg-9 col-md-8 col-12">
-            <div class="row car-list-row" id="car-list"></div>
-        </div>
-    </div>
-</div>
-
-<style>
-/* Responsive grid adjustments to prevent overlapping */
-@media (min-width: 992px) {
-  .col-lg-3 {
-    width: 25%;
-    flex: 0 0 25%;
-    max-width: 25%;
-  }
-  .col-lg-9 {
-    width: 75%;
-    flex: 0 0 75%;
-    max-width: 75%;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .col-md-4 {
-    width: 33.333333%;
-    flex: 0 0 33.333333%;
-    max-width: 33.333333%;
-  }
-  .col-md-8 {
-    width: 66.666667%;
-    flex: 0 0 66.666667%;
-    max-width: 66.666667%;
-  }
-}
-
-.cars-main-container {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
-.small-sidebar {
-  /* Remove max-width constraint that was causing issues */
-}
-.filter-sidebar {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 15px;
-  width: 100%;
-  max-width: 100%;
-}
-.filter-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 0.7rem;
-  letter-spacing: 0.01em;
-}
-.filter-clear {
-  float: right;
-  color: #1976d2;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-}
-.filter-divider {
-  border: none;
-  border-top: 1.5px solid #9e9797;
-  margin: 1.1rem 0 1.1rem 0;
-}
-.filter-section-title {
-  font-size: 1.08rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  margin-top: 1.2rem;
-  letter-spacing: 0.01em;
-}
-.filter-option-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 2px;
-  margin-bottom: 6px;
-}
-.filter-option-row label {
-  display: flex;
-  align-items: center;
-  font-size: 1rem;
-  font-weight: 400;
-  cursor: pointer;
-  flex: 1 1 auto;
-}
-.filter-option-row input[type=checkbox] {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-  accent-color: #1976d2;
-}
-.option-label {
-  margin-right: 8px;
-}
-.option-count {
-  color: #222;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* Disabled filter option styles */
-.filter-option-row.disabled-option {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.filter-option-row.disabled-option label {
-  cursor: not-allowed;
-}
-
-.filter-option-row.disabled-option input[type=checkbox] {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.option-label.disabled-text {
-  color: #999;
-}
-
-.option-count.disabled-count {
-  color: #999;
-  font-weight: 400;
-}
-
-.option-count {
-  min-width: 24px;
-  text-align: right;
-  margin-left: 10px;
-  background: none;
-  padding: 0;
-  border-radius: 0;
-  display: inline-block;
-  text-align: left;
-}
-.car-list-row {
-  margin-left: 0;
-  margin-right: 0;
-  gap: 1.5rem 0;
-  justify-content: flex-start; /* Desktop: left-aligned */
-}
-
-/* Additional responsive adjustments */
-@media (max-width: 767px) {
-  .cars-main-container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  
-  .car-list-row {
-    gap: 1rem 0;
-    justify-content: center;
-  }
-  
-  .car-list-row > .col-12 {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .car-list-row > .col-12 > .de-item {
-    max-width: 320px;
-    width: 100%;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .filter-sidebar {
-    padding: 12px;
-  }
-  
-  .filter-title {
-    font-size: 1.2rem;
-  }
-  
-  .filter-section-title {
-    font-size: 1rem;
-  }
-}
-.car-list-row > .col-xl-4, .car-list-row > .col-lg-4 {
-  padding-left: 10px;
-  padding-right: 10px;
-  margin-bottom: 24px;
-  max-width: 320px;
-  flex: 1 1 260px;
-  
-  display: flex;
-}
-.de-item.mb30 {
-  transition: box-shadow 0.25s, transform 0.25s;
-  margin-bottom: 0 !important;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 0.7rem 0.7rem 1.1rem 0.7rem;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 420px;
-  width: 100%;
-}
-.car-unavailable {
-  opacity: 0.6;
-  pointer-events: none;
-  filter: grayscale(0.7);
-}
-.img-unavailable img{
-    filter: grayscale(0.22) brightness(0.96);
-}
-.btn-main.disabled, .btn-main[aria-disabled="true"] {
-  background: #aaa !important;
-  color: #fff !important;
-  cursor: not-allowed !important;
-  pointer-events: none;
-}
-.booked-until-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: rgba(60,60,60,0.82);
-  color: #fff;
-  font-size: 0.98rem;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 6px;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  pointer-events: none;
-}
-.d-img {
-  position: relative;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f8f9fa;
-  min-height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.d-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  max-width: 100%;
-  max-height: 160px;
-}
-
-.car-list-row .d-img {
-  height: 200px;
-}
-
-.car-list-row .d-img img {
-  height: 100%;
-  object-fit: cover;
-  max-height: 160px;
-}
-
-.d-info {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.d-text {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 200px;
-}
-
-.d-text .btn-main {
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.d-text .btn-unavailable {
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.unavailable-badge {
-  position: absolute;
-  top: 0px;
-  right: 0;
-  background: #ff6b5b;
-  color: #fff;
-  font-size: 0.52rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 5px 14px 4px 14px;
-  border-radius: 7px;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-  pointer-events: none;
-  border: none;
-}
-.btn-unavailable {
-  background: #ececec !important;
-  color: #888 !important;
-  border: 2px solid #ececec !important;
-  cursor: not-allowed !important;
-  pointer-events: none;
-  font-weight: 700;
-  border-radius: 8px;
-  /* padding: 0.7rem 2.2rem; */
-  /* margin-top: 0.7rem; */
-  display: inline-block;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  transition: background 0.2s, color 0.2s, border 0.2s;
-}
-.btn-main {
-  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
-}
-.filter-option-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 2px;
-  margin-bottom: 2px;
-}
-.option-label {
-  margin-right: 8px;
-}
-
-/* Mobile Filter Styles */
-.mobile-filter-button-container {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.mobile-filter-btn {
-  width: 100%;
-  max-width: 300px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.mobile-filter-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  display: none;
-  backdrop-filter: blur(2px);
-}
-
-.mobile-filter-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 85%;
-  max-width: 350px;
-  height: 100%;
-  background: white;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  transform: translateX(-100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-}
-
-.mobile-filter-overlay.active {
-  display: block;
-}
-
-.mobile-filter-overlay.active .mobile-filter-sidebar {
-  transform: translateX(0);
-}
-
-.mobile-filter-header {
-  display: flex;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.mobile-filter-header h5 {
-  margin: 0;
-  font-weight: 600;
-  color: #333;
-  flex: 1;
-  text-align: center;
-}
-
-.mobile-filter-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-  flex-shrink: 0;
-}
-
-.mobile-filter-close:hover {
-  background-color: #e9ecef;
-}
-
-.mobile-filter-content {
-  padding: 1.5rem;
-}
-
-.mobile-filter-actions {
-  position: sticky;
-  bottom: 0;
-  background: white;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 2rem;
-}
-#car-list > *{
-  justify-content: center;
-}
-
-.mobile-filter-actions .btn {
-  flex: 1;
-  padding: 12px;
-  font-weight: 500;
-}
-
-@media (max-width: 991px) {
-  .small-sidebar { display: none; }
-  .cars-main-container { padding-left: 0.5rem; padding-right: 0.5rem; }
-}
-@media (max-width: 600px) {
-  .car-list-row > .col-xl-4, .car-list-row > .col-lg-4 {
-    min-width: 100%;
-    max-width: 100%;
-    padding-left: 4vw;
-    padding-right: 4vw;
-  }
-  .cars-main-container { padding-left: 0.2rem; padding-right: 0.2rem; }
-}
-</style>
-
-<script>
-// Global formatting function
-function formatDisplayText(rawKey) {
-  if (!rawKey) return '';
-  return rawKey
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-}
-
-// Helper: get all unique values for a field from cars array
-function getUniqueOptions(cars, field) {
-  return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
-}
-
-// Render checkboxes for a filter category
-function renderFilterOptions(containerId, options, selectedValues, allCarsFull, currentFilters, field) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  // Pre-calculate counts for better performance
-  const countCache = new Map();
-  
-  // Only calculate counts if we have data
-  if (allCarsFull && allCarsFull.length > 0) {
-    options.forEach(opt => {
-      const count = allCarsFull.filter(car => {
-        // Check if this specific car matches the current option
-        if (String(car[field]) !== String(opt)) return false;
-        
-        // Check if it matches all other current filters
-        for (const key in currentFilters) {
-          if (key === field) continue; // Skip the current field we're calculating for
-          if (!currentFilters[key] || !currentFilters[key].length) continue;
-          if (!currentFilters[key].includes(String(car[key]))) return false;
-        }
-        return true;
-      }).length;
-      countCache.set(opt, count);
-    });
-  }
-  
-  // Build HTML string more efficiently
-  const html = options.map(opt => {
-    const count = countCache.get(opt) || 0;
-    const isSelected = selectedValues.includes(String(opt));
-    const isDisabled = count === 0 && !isSelected; // Disable if count is 0 and not selected
-    
-    return `
-      <div class="filter-option-row ${isDisabled ? 'disabled-option' : ''}">
-        <label>
-          <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-          <span class="option-label ${isDisabled ? 'disabled-text' : ''}">${opt}</span>
-        </label>
-        <span class="option-count ${isDisabled ? 'disabled-count' : ''}">${count}</span>
-      </div>
-    `;
-  }).join('');
-  
-  container.innerHTML = html;
-}
-
-function getCurrentSidebarFilters() {
-  const params = new URLSearchParams(window.location.search);
-  return {
-    make_name: params.get('make_name') ? params.get('make_name').split(',') : [],
-    gear_type: params.get('gear_type') ? params.get('gear_type').split(',') : [],
-    fuel_type: params.get('fuel_type') ? params.get('fuel_type').split(',') : [],
-    car_type: params.get('car_type') ? params.get('car_type').split(',') : [],
-    num_doors: params.get('num_doors') ? params.get('num_doors').split(',') : [],
-    num_passengers: params.get('num_passengers') ? params.get('num_passengers').split(',') : [],
-    // price is not included in count logic for now
-  };
-}
-
-// Get selected values from all checkboxes in a container
-function getSelectedValues(containerId) {
-  return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);
-}
-
-// Update URL and fetch cars
-function updateFiltersAndFetch() {
-  const make = getSelectedValues('filter-make-options');
-  const gear = getSelectedValues('filter-gear-options');
-  const fuel = getSelectedValues('filter-fuel-options');
-  const type = getSelectedValues('filter-type-options');
-  const doors = getSelectedValues('filter-doors-options');
-  const passengers = getSelectedValues('filter-passengers-options');
-  const priceMin = document.getElementById('filter-price-min').value;
-  const priceMax = document.getElementById('filter-price-max').value;
-  const params = new URLSearchParams();
-  if (make.length) params.set('make_name', make.join(','));
-  if (gear.length) params.set('gear_type', gear.join(','));
-  if (fuel.length) params.set('fuel_type', fuel.join(','));
-  if (type.length) params.set('car_type', type.join(','));
-  if (doors.length) params.set('num_doors', doors.join(','));
-  if (passengers.length) params.set('num_passengers', passengers.join(','));
-  if (priceMin) params.set('min_price', priceMin);
-  if (priceMax) params.set('max_price', priceMax);
-  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-  window.history.pushState({}, '', newUrl);
-  fetchAndRenderCars();
-}
-
-// Fetch and render cars based on current filters
-async function fetchAndRenderCars() {
-  const carListDiv = document.getElementById('car-list');
-  const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
-  const cars = await res.json();
-  if (!cars.length) {
-    carListDiv.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
-    renderSidebarOptions(allCarsFullCache); // Always use the full cache to keep all filter options visible
-    return;
-  }
-  const carsHtml = cars.map(car => {
-    const isPremium = car.is_premium === 1 || car.is_premium === true;
-    const rentNowUrl = `car-single.html?id=${car.id}`;
-
-    // Calculate the lowest price from price policy
-    let lowestPrice = '';
-    if (car.price_policy) {
-      const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
-    
-      
-      const prices = Object.values(pricePolicy).map(price => {
-        const parsedPrice = parseInt(price);
-        return parsedPrice;
-      });
-      
-      lowestPrice = Math.min(...prices).toString();
-    }
-
-    const carHtml = `
-      <div class="col-xl-4 col-lg-4 col-md-6 ">
-        <div class="de-item mb30${isPremium ? ' premium' : ''}">
-          <div class="d-img">
-            <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="">
-            ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
-          </div>
-          <div class="d-info">
-            <div class="d-text">
-              <h4>${formatDisplayText(car.make_name)}</h4>
-              <p>${formatDisplayText(car.model_name)}</p>
-              <div class="d-item_like">
-                <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
-              </div>
-              <div class="d-atr-group">
-                <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span ></span> ${car.num_passengers || '-'}</span>
-                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span ></span> ${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${ car.num_doors|| '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span ></span> ${car.car_type || '-'}</span>
-              </div>
-              <div class="d-price">
-                <span data-i18n="cars.daily_rate">Daily rate from</span> <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span>
-              </div>
-              <a class="btn-main" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    return carHtml;
-  }).join('');
-  carListDiv.innerHTML = carsHtml;
-  renderSidebarOptions(allCarsFullCache); // Use the cached full list for sidebar
-  
-
-
-  // Update i18n translations for dynamically added content
-  if (typeof updateContent === 'function') {
-    updateContent();
-    
-  }
-}
-
-// Render sidebar options and attach event listeners
-function renderSidebarOptions(allCarsFull) {
-  const params = new URLSearchParams(window.location.search);
-  const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
-  const selectedGears = params.get('gear_type') ? params.get('gear_type').split(',') : [];
-  const selectedFuels = params.get('fuel_type') ? params.get('fuel_type').split(',') : [];
-  const selectedTypes = params.get('car_type') ? params.get('car_type').split(',') : [];
-  const selectedDoors = params.get('num_doors') ? params.get('num_doors').split(',') : [];
-  const selectedPassengers = params.get('num_passengers') ? params.get('num_passengers').split(',') : [];
-  const priceMin = params.get('min_price') ? params.get('min_price') : '';
-  const priceMax = params.get('max_price') ? params.get('max_price') : '';
-  const currentFilters = getCurrentSidebarFilters();
-
-  renderFilterOptions('filter-make-options', getUniqueOptions(allCarsFull, 'make_name'), selectedMakes, allCarsFull, currentFilters, 'make_name');
-  renderFilterOptions('filter-gear-options', getUniqueOptions(allCarsFull, 'gear_type'), selectedGears, allCarsFull, currentFilters, 'gear_type');
-  renderFilterOptions('filter-fuel-options', getUniqueOptions(allCarsFull, 'fuel_type'), selectedFuels, allCarsFull, currentFilters, 'fuel_type');
-  renderFilterOptions('filter-type-options', getUniqueOptions(allCarsFull, 'car_type'), selectedTypes, allCarsFull, currentFilters, 'car_type');
-  renderFilterOptions('filter-doors-options', getUniqueOptions(allCarsFull, 'num_doors'), selectedDoors, allCarsFull, currentFilters, 'num_doors');
-  renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsFull, 'num_passengers'), selectedPassengers, allCarsFull, currentFilters, 'num_passengers');
-  document.getElementById('filter-price-min').value = priceMin;
-  document.getElementById('filter-price-max').value = priceMax;
-  
-  // Set price category radio button based on current price range
-  const priceCategoryRadios = document.querySelectorAll('input[name="price-category"]');
-  priceCategoryRadios.forEach(radio => {
-    radio.checked = false;
-  });
-  
-  // Determine which category matches the current price range using dynamic settings
-  if (priceFilterSettings.economy && priceMin === priceFilterSettings.economy.min.toString() && priceMax === priceFilterSettings.economy.max.toString()) {
-    document.getElementById('price-category-econom').checked = true;
-  } else if (priceFilterSettings.standard && priceMin === priceFilterSettings.standard.min.toString() && priceMax === priceFilterSettings.standard.max.toString()) {
-    document.getElementById('price-category-standard').checked = true;
-  } else if (priceFilterSettings.premium && priceMin === priceFilterSettings.premium.min.toString() && priceMax === priceFilterSettings.premium.max.toString()) {
-    document.getElementById('price-category-premium').checked = true;
-  } else {
-    document.getElementById('price-category-all').checked = true;
-  }
-
-  // Attach change listeners
-  ['filter-make-options','filter-gear-options','filter-fuel-options','filter-type-options','filter-doors-options','filter-passengers-options'].forEach(id => {
-    document.getElementById(id).querySelectorAll('input[type=checkbox]').forEach(cb => {
-      cb.addEventListener('change', updateFiltersAndFetch);
-    });
-  });
-  document.getElementById('filter-price-min').addEventListener('change', updateFiltersAndFetch);
-  document.getElementById('filter-price-max').addEventListener('change', updateFiltersAndFetch);
-  
-  // Add price category radio button handlers
-  document.querySelectorAll('input[name="price-category"]').forEach(radio => {
-    radio.addEventListener('change', handlePriceCategoryChange);
-  });
-  
-  // Add mobile price category radio button handlers
-  document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
-    radio.addEventListener('change', handleMobilePriceCategoryChange);
-  });
-}
-
-// Global variable to store price filter settings
-let priceFilterSettings = {};
-
-// Load price filter settings from API
-async function loadPriceFilterSettings() {
-  try {
-    const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
-    if (response.ok) {
-      const feeSettings = await response.json();
-      
-      // Extract price filter settings
-      priceFilterSettings = {
-        economy: {
-          min: feeSettings.economy_price_min ?? 0,
-          max: feeSettings.economy_price_max ?? 30
-        },
-        standard: {
-          min: feeSettings.standard_price_min ?? 31,
-          max: feeSettings.standard_price_max ?? 60
-        },
-        premium: {
-          min: feeSettings.premium_price_min ?? 61,
-          max: feeSettings.premium_price_max ?? 999
-        }
-      };
-
-    }
-  } catch (error) {
-    
-    // Fallback to default values
-    priceFilterSettings = {
-      economy: { min: 0, max: 30 },
-      standard: { min: 31, max: 60 },
-      premium: { min: 61, max: 999 }
-    };
-  }
-}
-
-// Handle price category radio button changes
-function handlePriceCategoryChange(e) {
-  const selectedCategory = e.target.value;
-  
-  // Clear existing price filters
-  document.getElementById('filter-price-min').value = '';
-  document.getElementById('filter-price-max').value = '';
-  
-  // Apply new filter based on dynamic settings
-  switch (selectedCategory) {
-    case 'econom': // HTML uses 'econom' but API uses 'economy'
-      document.getElementById('filter-price-min').value = priceFilterSettings.economy.min;
-      document.getElementById('filter-price-max').value = priceFilterSettings.economy.max;
-      break;
-    case 'standard':
-      document.getElementById('filter-price-min').value = priceFilterSettings.standard.min;
-      document.getElementById('filter-price-max').value = priceFilterSettings.standard.max;
-      break;
-    case 'premium':
-      document.getElementById('filter-price-min').value = priceFilterSettings.premium.min;
-      document.getElementById('filter-price-max').value = priceFilterSettings.premium.max;
-      break;
-    case 'all':
-      // No price filter - already cleared above
-      break;
-  }
-  
-  // Update filters and fetch cars
-  updateFiltersAndFetch();
-}
-
-// Handle mobile price category radio button changes
-function handleMobilePriceCategoryChange(e) {
-  const selectedCategory = e.target.value;
-  
-  // Clear existing mobile price filters
-  const priceMinEl = document.getElementById('mobile-filter-price-min');
-  const priceMaxEl = document.getElementById('mobile-filter-price-max');
-  
-  if (!priceMinEl || !priceMaxEl) {
-    return;
-  }
-  
-  priceMinEl.value = '';
-  priceMaxEl.value = '';
-  
-  // Apply new filter based on dynamic settings
-  switch (selectedCategory) {
-    case 'econom': // HTML uses 'econom' but API uses 'economy'
-      priceMinEl.value = priceFilterSettings.economy.min;
-      priceMaxEl.value = priceFilterSettings.economy.max;
-      break;
-    case 'standard':
-      priceMinEl.value = priceFilterSettings.standard.min;
-      priceMaxEl.value = priceFilterSettings.standard.max;
-      break;
-    case 'premium':
-      priceMinEl.value = priceFilterSettings.premium.min;
-      priceMaxEl.value = priceFilterSettings.premium.max;
-      break;
-    case 'all':
-      // No price filter - already cleared above
-      break;
-  }
-}
-
-// Mobile Filter Functions
-function toggleMobileFilter() {
-  const overlay = document.getElementById('mobile-filter-overlay');
-  if (!overlay) return;
-  
-  if (overlay.classList.contains('active')) {
-    // Close filter
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  } else {
-    // Open filter - optimize by showing overlay first, then populating
-    overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Populate mobile filter options asynchronously for better perceived performance
-    setTimeout(() => {
-      renderMobileFilterOptions();
-    }, 50); // Small delay to let the animation start
-  }
-}
-
-function renderMobileFilterOptions() {
-  // Show loading state first
-  const loadingEl = document.getElementById('mobile-filter-loading');
-  const optionsEl = document.getElementById('mobile-filter-options');
-  if (loadingEl) loadingEl.style.display = 'block';
-  if (optionsEl) optionsEl.style.display = 'none';
-  
-  // Cache DOM elements for better performance
-  const params = new URLSearchParams(window.location.search);
-  const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
-  const selectedGears = params.get('gear_type') ? params.get('gear_type').split(',') : [];
-  const selectedFuels = params.get('fuel_type') ? params.get('fuel_type').split(',') : [];
-  const selectedTypes = params.get('car_type') ? params.get('car_type').split(',') : [];
-  const selectedDoors = params.get('num_doors') ? params.get('num_doors').split(',') : [];
-  const selectedPassengers = params.get('num_passengers') ? params.get('num_passengers').split(',') : [];
-  const priceMin = params.get('min_price') ? params.get('min_price') : '';
-  const priceMax = params.get('max_price') ? params.get('max_price') : '';
-  
-  // Use cached filter data instead of recalculating
-  const currentFilters = getCurrentSidebarFilters();
-
-  // Batch DOM updates for better performance
-  requestAnimationFrame(() => {
-    // Render mobile filter options
-    renderFilterOptions('mobile-filter-make-options', getUniqueOptions(allCarsFullCache, 'make_name'), selectedMakes, allCarsFullCache, currentFilters, 'make_name');
-    renderFilterOptions('mobile-filter-gear-options', getUniqueOptions(allCarsFullCache, 'gear_type'), selectedGears, allCarsFullCache, currentFilters, 'gear_type');
-    renderFilterOptions('mobile-filter-fuel-options', getUniqueOptions(allCarsFullCache, 'fuel_type'), selectedFuels, allCarsFullCache, currentFilters, 'fuel_type');
-    renderFilterOptions('mobile-filter-type-options', getUniqueOptions(allCarsFullCache, 'car_type'), selectedTypes, allCarsFullCache, currentFilters, 'car_type');
-    renderFilterOptions('mobile-filter-doors-options', getUniqueOptions(allCarsFullCache, 'num_doors'), selectedDoors, allCarsFullCache, currentFilters, 'num_doors');
-    renderFilterOptions('mobile-filter-passengers-options', getUniqueOptions(allCarsFullCache, 'num_passengers'), selectedPassengers, allCarsFullCache, currentFilters, 'num_passengers');
-    
-    // Update price inputs
-    const priceMinEl = document.getElementById('mobile-filter-price-min');
-    const priceMaxEl = document.getElementById('mobile-filter-price-max');
-    if (priceMinEl) priceMinEl.value = priceMin;
-    if (priceMaxEl) priceMaxEl.value = priceMax;
-    
-    // Hide loading and show options
-    if (loadingEl) loadingEl.style.display = 'none';
-    if (optionsEl) optionsEl.style.display = 'block';
-    
-    // Update mobile price category radio buttons based on current price range
-    const mobilePriceCategoryRadios = document.querySelectorAll('input[name="mobile-price-category"]');
-    mobilePriceCategoryRadios.forEach(radio => {
-      radio.checked = false;
-    });
-    
-    // Determine which mobile category matches the current price range using dynamic settings
-    if (priceFilterSettings.economy && priceMin === priceFilterSettings.economy.min.toString() && priceMax === priceFilterSettings.economy.max.toString()) {
-      document.getElementById('mobile-price-category-econom').checked = true;
-    } else if (priceFilterSettings.standard && priceMin === priceFilterSettings.standard.min.toString() && priceMax === priceFilterSettings.standard.max.toString()) {
-      document.getElementById('mobile-price-category-standard').checked = true;
-    } else if (priceFilterSettings.premium && priceMin === priceFilterSettings.premium.min.toString() && priceMax === priceFilterSettings.premium.max.toString()) {
-      document.getElementById('mobile-price-category-premium').checked = true;
-    } else {
-      document.getElementById('mobile-price-category-all').checked = true;
-    }
-    
-    // Add mobile price category event listeners after elements are rendered
-    document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
-      // Remove existing listeners to prevent duplicates
-      radio.removeEventListener('change', handleMobilePriceCategoryChange);
-      // Add new listener
-      radio.addEventListener('change', handleMobilePriceCategoryChange);
-    });
-  });
-}
-
-function applyMobileFilters() {
-  // Get values from mobile filter inputs
-  const make = getSelectedValues('mobile-filter-make-options');
-  const gear = getSelectedValues('mobile-filter-gear-options');
-  const fuel = getSelectedValues('mobile-filter-fuel-options');
-  const type = getSelectedValues('mobile-filter-type-options');
-  const doors = getSelectedValues('mobile-filter-doors-options');
-  const passengers = getSelectedValues('mobile-filter-passengers-options');
-  const priceMin = document.getElementById('mobile-filter-price-min').value;
-  const priceMax = document.getElementById('mobile-filter-price-max').value;
-  
-  // Handle mobile price category selection
-  const mobilePriceCategory = document.querySelector('input[name="mobile-price-category"]:checked');
-  if (mobilePriceCategory && mobilePriceCategory.value !== 'all') {
-    // Clear manual price inputs and apply category filter
-    document.getElementById('mobile-filter-price-min').value = '';
-    document.getElementById('mobile-filter-price-max').value = '';
-    
-    switch (mobilePriceCategory.value) {
-      case 'econom':
-        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.economy.min;
-        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.economy.max;
-        break;
-      case 'standard':
-        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.standard.min;
-        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.standard.max;
-        break;
-      case 'premium':
-        document.getElementById('mobile-filter-price-min').value = priceFilterSettings.premium.min;
-        document.getElementById('mobile-filter-price-max').value = priceFilterSettings.premium.max;
-        break;
-    }
-  }
-
-  // Build query parameters
-  const params = new URLSearchParams();
-  if (make.length > 0) params.set('make_name', make.join(','));
-  if (gear.length > 0) params.set('gear_type', gear.join(','));
-  if (fuel.length > 0) params.set('fuel_type', fuel.join(','));
-  if (type.length > 0) params.set('car_type', type.join(','));
-  if (doors.length > 0) params.set('num_doors', doors.join(','));
-  if (passengers.length > 0) params.set('num_passengers', passengers.join(','));
-  if (priceMin) params.set('min_price', priceMin);
-  if (priceMax) params.set('max_price', priceMax);
-
-  // Update URL and fetch cars
-  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-  window.history.pushState({}, '', newUrl);
-  
-  // Fetch and render cars
-  fetchAndRenderCars();
-  
-  // Close mobile filter
-  toggleMobileFilter();
-}
-
-function clearAllFilters() {
-  // Clear all mobile filter inputs
-  document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
-  document.getElementById('mobile-filter-price-min').value = '';
-  document.getElementById('mobile-filter-price-max').value = '';
-  
-  // Reset price category radio buttons to "All Types"
-  document.querySelectorAll('input[name="mobile-price-category"]').forEach(radio => {
-    radio.checked = radio.value === 'all';
-  });
-}
-
-// Close mobile filter when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-  const overlay = document.getElementById('mobile-filter-overlay');
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      toggleMobileFilter();
-    }
-  });
-});
-
-// Initial load
-// On page load, fetch all cars once for sidebar options
-let allCarsFullCache = [];
-fetch(`${window.API_BASE_URL}/api/cars`).then(res => res.json()).then(allCarsFull => {
-  allCarsFullCache = allCarsFull;
-  renderSidebarOptions(allCarsFull);
-});
-
-window.addEventListener('popstate', fetchAndRenderCars);
-document.addEventListener('DOMContentLoaded', fetchAndRenderCars);
-
-document.getElementById('clear-filters-link').addEventListener('click', function(e) {
-  e.preventDefault();
-  window.history.pushState({}, '', window.location.pathname);
-  fetchAndRenderCars();
-  renderSidebarOptions(allCarsFullCache);
-});
-</script>
-
         </div>
         <!-- content close -->
 
@@ -1558,38 +1029,38 @@ document.getElementById('clear-filters-link').addEventListener('click', function
                 <div class="row g-custom-x">
                     <div class="col-lg-3">
                         <div class="widget">
-                            <h5>About PlusRent</h5>
-                            <p>Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs. That's why we have meticulously crafted our offerings to provide you with top-notch vehicles at minimum expense.</p>
+                            <h5 data-i18n="footer.about_title">About PlusRent</h5>
+                            <p data-i18n="footer.about_text">Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs.</p>
                         </div>
                     </div>
                     
                     <div class="col-lg-3">
                         <div class="widget">
-                            <h5>Contact Info</h5>
+                            <h5 data-i18n="footer.contact_title">Contact Info</h5>
                             <address class="s1">
-                                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-                                <a href="tel:+37360000500"> <i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500 </a>
+                                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Moldova</span>
+                                <a href="tel:+37360000500"><i class="id-color fa fa-phone fa-lg"></i>+373 60 000 500</a>
                                 <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
                             </address>
                         </div>
                     </div>
 
                     <div class="col-lg-3">
-                        <h5 data-i18n="footer.quick_links"></h5>
+                        <h5 data-i18n="footer.quick_links">Quick Links</h5>
                         <div class="widget">
                             <ul>
-                                <li><a href="/" data-i18n="menu.home"></a></li>
-                                <li><a href="/cars" data-i18n="menu.cars"></a></li>
-                                <li><a href="/about" data-i18n="menu.about"></a></li>
-                                <li><a href="/contact" data-i18n="menu.contact"></a></li>
-                                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
+                                <li><a href="/" data-i18n="menu.home">Home</a></li>
+                                <li><a href="/cars" data-i18n="menu.cars">Cars</a></li>
+                                <li><a href="/about" data-i18n="menu.about">About</a></li>
+                                <li><a href="/contact" data-i18n="menu.contact">Contact</a></li>
+                                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="col-lg-3">
                         <div class="widget">
-                            <h5>Social Network</h5>
+                            <h5 data-i18n="footer.social">Social Network</h5>
                             <div class="social-icons">
                                 <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
                                 <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
@@ -1610,68 +1081,779 @@ document.getElementById('clear-filters-link').addEventListener('click', function
                                     </a>
                                 </div>
                                 <ul class="menu-simple">
-                                    <li><a href="/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
+                                    <li><a href="/terms" data-i18n="footer.terms">Terms & Conditions</a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </footer>
         <!-- footer close -->
-        
     </div>
 
-    <!-- Javascript Files
-    ================================================== -->
+    <!-- Javascript Files -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
-    <script src="js/config.js"></script>
-    <!-- Cars Filter Modal JavaScript -->
-    <script src="js/cars-filter-modal.js"></script>
-    <script>
-      // Ensure i18n is properly initialized and update content
-      document.addEventListener('DOMContentLoaded', function() {
-        // Load price filter settings first
-        loadPriceFilterSettings();
-        
-        // Function to check and update i18n content
-        function checkAndUpdateI18n() {
-          if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-            if (typeof updateContent === 'function') {
-              updateContent();
-            }
-            return true;
-          }
-          return false;
-        }
-
-        // Try immediately
-        if (!checkAndUpdateI18n()) {
-          // If not ready, try with increasing delays
-          let attempts = 0;
-          const maxAttempts = 10;
-          const checkInterval = setInterval(function() {
-            attempts++;
-            if (checkAndUpdateI18n() || attempts >= maxAttempts) {
-              clearInterval(checkInterval);
-              if (attempts >= maxAttempts) {
-                
-                // Force update with fallback translations
-                if (typeof loadFallbackTranslations === 'function') {
-                  const savedLang = localStorage.getItem('lang') || 'ro';
-                  loadFallbackTranslations(savedLang);
-                }
-              }
-            }
-          }, 200);
-        }
-      });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
-    <!-- Spinning Wheel Modal Trigger -->
-    <script src="js/universal-spinning-wheel.js"></script>
-</body>
+    <!-- Main Cars Script -->
+    <script>
+    // Multilingual translations
+    const translations = {
+        ro: {
+            'cars.page_title': 'Flota Noastră',
+            'cars.filters': 'Filtre',
+            'cars.clear_filters': 'Șterge tot',
+            'cars.availability_period': 'Perioada de Disponibilitate',
+            'cars.date_from': 'De la',
+            'cars.date_to': 'Până la',
+            'cars.sort_by': 'Sortează după',
+            'cars.sort_default': 'Implicit',
+            'cars.sort_price_asc': 'Preț: Crescător',
+            'cars.sort_price_desc': 'Preț: Descrescător',
+            'cars.price_category': 'Categoria de Preț',
+            'cars.all_categories': 'Toate Categoriile',
+            'cars.economy': 'Econom',
+            'cars.standard': 'Standard',
+            'cars.premium': 'Premium',
+            'cars.fuel_type': 'Tip Combustibil',
+            'cars.gasoline': 'Benzină',
+            'cars.diesel': 'Motorină',
+            'cars.car_type': 'Tip Mașină',
+            'cars.make': 'Marcă',
+            'cars.transmission': 'Transmisie',
+            'cars.passengers': 'Pasageri',
+            'cars.filter': 'Filtrează',
+            'cars.filter_cars': 'Filtrează Mașini',
+            'cars.clear': 'Șterge',
+            'cars.apply': 'Aplică',
+            'cars.daily_rate': 'Tarif zilnic de la',
+            'cars.rent_now': 'Închiriază Acum',
+            'cars.no_cars': 'Nu sunt mașini disponibile',
+            'footer.about_title': 'Despre PlusRent',
+            'footer.about_text': 'Unde calitatea întâlnește accesibilitatea. Înțelegem importanța unei călătorii line și plăcute fără povara costurilor excesive.',
+            'footer.contact_title': 'Informații Contact',
+            'footer.quick_links': 'Link-uri Rapide',
+            'footer.social': 'Rețele Sociale',
+            'footer.terms': 'Termeni și Condiții',
+            'call_now': 'Sună Acum'
+        },
+        en: {
+            'cars.page_title': 'Our Fleet',
+            'cars.filters': 'Filters',
+            'cars.clear_filters': 'Clear all',
+            'cars.availability_period': 'Availability Period',
+            'cars.date_from': 'From',
+            'cars.date_to': 'To',
+            'cars.sort_by': 'Sort By',
+            'cars.sort_default': 'Default',
+            'cars.sort_price_asc': 'Price: Low to High',
+            'cars.sort_price_desc': 'Price: High to Low',
+            'cars.price_category': 'Price Category',
+            'cars.all_categories': 'All Categories',
+            'cars.economy': 'Economy',
+            'cars.standard': 'Standard',
+            'cars.premium': 'Premium',
+            'cars.fuel_type': 'Fuel Type',
+            'cars.gasoline': 'Gasoline',
+            'cars.diesel': 'Diesel',
+            'cars.car_type': 'Car Type',
+            'cars.make': 'Make',
+            'cars.transmission': 'Transmission',
+            'cars.passengers': 'Passengers',
+            'cars.filter': 'Filter',
+            'cars.filter_cars': 'Filter Cars',
+            'cars.clear': 'Clear',
+            'cars.apply': 'Apply',
+            'cars.daily_rate': 'Daily rate from',
+            'cars.rent_now': 'Rent Now',
+            'cars.no_cars': 'No cars available',
+            'footer.about_title': 'About PlusRent',
+            'footer.about_text': 'Where quality meets affordability. We understand the importance of a smooth and enjoyable journey without the burden of excessive costs.',
+            'footer.contact_title': 'Contact Info',
+            'footer.quick_links': 'Quick Links',
+            'footer.social': 'Social Network',
+            'footer.terms': 'Terms & Conditions',
+            'call_now': 'Call Now'
+        },
+        ru: {
+            'cars.page_title': 'Наш Автопарк',
+            'cars.filters': 'Фильтры',
+            'cars.clear_filters': 'Очистить все',
+            'cars.availability_period': 'Период Доступности',
+            'cars.date_from': 'С',
+            'cars.date_to': 'До',
+            'cars.sort_by': 'Сортировать по',
+            'cars.sort_default': 'По умолчанию',
+            'cars.sort_price_asc': 'Цена: По возрастанию',
+            'cars.sort_price_desc': 'Цена: По убыванию',
+            'cars.price_category': 'Категория Цены',
+            'cars.all_categories': 'Все Категории',
+            'cars.economy': 'Эконом',
+            'cars.standard': 'Стандарт',
+            'cars.premium': 'Премиум',
+            'cars.fuel_type': 'Тип Топлива',
+            'cars.gasoline': 'Бензин',
+            'cars.diesel': 'Дизель',
+            'cars.car_type': 'Тип Автомобиля',
+            'cars.make': 'Марка',
+            'cars.transmission': 'Трансмиссия',
+            'cars.passengers': 'Пассажиры',
+            'cars.filter': 'Фильтр',
+            'cars.filter_cars': 'Фильтровать Машины',
+            'cars.clear': 'Очистить',
+            'cars.apply': 'Применить',
+            'cars.daily_rate': 'Суточный тариф от',
+            'cars.rent_now': 'Арендовать',
+            'cars.no_cars': 'Нет доступных автомобилей',
+            'footer.about_title': 'О PlusRent',
+            'footer.about_text': 'Где качество встречается с доступностью. Мы понимаем важность плавного и приятного путешествия без бремени чрезмерных затрат.',
+            'footer.contact_title': 'Контактная Информация',
+            'footer.quick_links': 'Быстрые Ссылки',
+            'footer.social': 'Социальные Сети',
+            'footer.terms': 'Условия и Положения',
+            'call_now': 'Позвонить'
+        }
+    };
 
+    // Get current language
+    function getCurrentLanguage() {
+        return localStorage.getItem('lang') || 'ro';
+    }
+
+    // Update text content based on language
+    function updatePageTranslations() {
+        const lang = getCurrentLanguage();
+        const trans = translations[lang] || translations.ro;
+        
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (trans[key]) {
+                element.textContent = trans[key];
+            }
+        });
+        
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            if (trans[key]) {
+                element.placeholder = trans[key];
+            }
+        });
+    }
+
+    // Translate fuel type
+    function translateFuelType(fuel) {
+        const lang = getCurrentLanguage();
+        const fuelTranslations = {
+            'Gasoline': {
+                ro: 'Benzină',
+                en: 'Gasoline',
+                ru: 'Бензин'
+            },
+            'Diesel': {
+                ro: 'Motorină',
+                en: 'Diesel',
+                ru: 'Дизель'
+            }
+        };
+        return fuelTranslations[fuel]?.[lang] || fuel;
+    }
+
+    // Format display text
+    function formatDisplayText(rawKey) {
+        if (!rawKey) return '';
+        return rawKey
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+
+    // Global variables
+    let allCarsCache = [];
+    let priceFilterSettings = {
+        economy: { min: 0, max: 30 },
+        standard: { min: 31, max: 60 },
+        premium: { min: 61, max: 999 }
+    };
+
+    // Load price filter settings from API
+    async function loadPriceFilterSettings() {
+        try {
+            const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+            if (response.ok) {
+                const feeSettings = await response.json();
+                priceFilterSettings = {
+                    economy: {
+                        min: feeSettings.economy_price_min ?? 0,
+                        max: feeSettings.economy_price_max ?? 30
+                    },
+                    standard: {
+                        min: feeSettings.standard_price_min ?? 31,
+                        max: feeSettings.standard_price_max ?? 60
+                    },
+                    premium: {
+                        min: feeSettings.premium_price_min ?? 61,
+                        max: feeSettings.premium_price_max ?? 999
+                    }
+                };
+            }
+        } catch (error) {
+            console.error('Error loading price settings:', error);
+        }
+    }
+
+    // Initialize date pickers
+    function initializeDatePickers() {
+        const lang = getCurrentLanguage();
+        const locale = lang === 'ru' ? 'ru' : lang === 'en' ? 'en' : 'ro';
+        
+        flatpickr("#date-from, #date-to", {
+            dateFormat: "d.m.Y",
+            locale: locale,
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (instance.element.id === 'date-from') {
+                    const dateTo = document.querySelector('#date-to')._flatpickr;
+                    dateTo.set('minDate', dateStr);
+                }
+                updateFiltersAndFetch();
+            }
+        });
+        
+        // Mobile date pickers
+        flatpickr("#mobile-date-from, #mobile-date-to", {
+            dateFormat: "d.m.Y",
+            locale: locale,
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (instance.element.id === 'mobile-date-from') {
+                    const dateTo = document.querySelector('#mobile-date-to')._flatpickr;
+                    dateTo.set('minDate', dateStr);
+                }
+            }
+        });
+    }
+
+    // Get unique options for filters
+    function getUniqueOptions(cars, field) {
+        return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
+    }
+
+    // Render filter options
+    function renderFilterOptions(containerId, options, selectedValues, allCars, currentFilters, field) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const countCache = new Map();
+        
+        if (allCars && allCars.length > 0) {
+            options.forEach(opt => {
+                const count = allCars.filter(car => {
+                    if (String(car[field]) !== String(opt)) return false;
+                    
+                    for (const key in currentFilters) {
+                        if (key === field) continue;
+                        if (!currentFilters[key] || !currentFilters[key].length) continue;
+                        if (!currentFilters[key].includes(String(car[key]))) return false;
+                    }
+                    return true;
+                }).length;
+                countCache.set(opt, count);
+            });
+        }
+        
+        const html = options.map(opt => {
+            const count = countCache.get(opt) || 0;
+            const isSelected = selectedValues.includes(String(opt));
+            const isDisabled = count === 0 && !isSelected;
+            
+            // Translate fuel type if needed
+            let displayName = opt;
+            if (field === 'fuel_type') {
+                displayName = translateFuelType(opt);
+            } else {
+                displayName = formatDisplayText(opt);
+            }
+            
+            return `
+                <div class="filter-option-row ${isDisabled ? 'disabled-option' : ''}">
+                    <label>
+                        <input type="checkbox" value="${opt}" ${isSelected ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+                        <span class="option-label">${displayName}</span>
+                    </label>
+                    <span class="option-count">${count}</span>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = html;
+    }
+
+    // Get selected values from checkboxes
+    function getSelectedValues(containerId) {
+        return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`))
+            .map(cb => cb.value);
+    }
+
+    // Update filters and fetch cars
+    function updateFiltersAndFetch() {
+        const params = new URLSearchParams();
+        
+        // Collect filter values
+        const make = getSelectedValues('filter-make-options');
+        const gear = getSelectedValues('filter-gear-options');
+        const fuel = getSelectedValues('filter-fuel-options');
+        const type = getSelectedValues('filter-type-options');
+        const passengers = getSelectedValues('filter-passengers-options');
+        
+        // Date filters
+        const dateFrom = document.getElementById('date-from')?.value;
+        const dateTo = document.getElementById('date-to')?.value;
+        
+        // Sort option
+        const sortBy = document.getElementById('sort-select')?.value;
+        
+        // Price category
+        const priceCategory = document.querySelector('input[name="price-category"]:checked')?.value;
+        
+        // Build query params
+        if (make.length) params.set('make_name', make.join(','));
+        if (gear.length) params.set('gear_type', gear.join(','));
+        if (fuel.length) params.set('fuel_type', fuel.join(','));
+        if (type.length) params.set('car_type', type.join(','));
+        if (passengers.length) params.set('num_passengers', passengers.join(','));
+        if (dateFrom) params.set('date_from', dateFrom);
+        if (dateTo) params.set('date_to', dateTo);
+        if (sortBy && sortBy !== 'default') params.set('sort', sortBy);
+        
+        // Handle price category
+        if (priceCategory && priceCategory !== 'all') {
+            const settings = priceFilterSettings[priceCategory];
+            if (settings) {
+                params.set('min_price', settings.min);
+                params.set('max_price', settings.max);
+            }
+        }
+        
+        // Update URL
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.pushState({}, '', newUrl);
+        
+        // Fetch and render
+        fetchAndRenderCars();
+    }
+
+    // Fetch and render cars
+    async function fetchAndRenderCars() {
+        const carListDiv = document.getElementById('car-list');
+        carListDiv.innerHTML = '<div class="loading-spinner"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        
+        try {
+            const res = await fetch(`${window.API_BASE_URL}/api/cars${window.location.search}`);
+            const cars = await res.json();
+            
+            if (!cars.length) {
+                carListDiv.innerHTML = `<div class="col-12 text-center py-5"><h3 data-i18n="cars.no_cars">No cars available</h3></div>`;
+                updatePageTranslations();
+                return;
+            }
+            
+            // Sort cars if needed
+            const sortBy = new URLSearchParams(window.location.search).get('sort');
+            if (sortBy) {
+                cars.sort((a, b) => {
+                    const priceA = getLowestPrice(a);
+                    const priceB = getLowestPrice(b);
+                    
+                    if (sortBy === 'price_asc') {
+                        return priceA - priceB;
+                    } else if (sortBy === 'price_desc') {
+                        return priceB - priceA;
+                    }
+                    return 0;
+                });
+            }
+            
+            const lang = getCurrentLanguage();
+            const carsHtml = cars.map(car => {
+                const isPremium = car.is_premium === 1 || car.is_premium === true;
+                const rentNowUrl = `car-single.html?id=${car.id}`;
+                const lowestPrice = getLowestPrice(car);
+                
+                return `
+                    <div class="col-xl-4 col-lg-6 col-md-6 col-12 mb-4">
+                        <div class="car-card ${isPremium ? 'premium' : ''}">
+                            <div class="car-image-wrapper">
+                                <img src="${getCarImage(car)}" class="car-image" alt="${car.make_name} ${car.model_name}">
+                                ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
+                            </div>
+                            <div class="car-details">
+                                <h4 class="car-title">${formatDisplayText(car.make_name)}</h4>
+                                <p class="car-model">${formatDisplayText(car.model_name)}</p>
+                                <div class="car-features">
+                                    <div class="car-feature">
+                                        <i class="fa fa-users"></i>
+                                        <span>${car.num_passengers || '-'} ${lang === 'ro' ? 'locuri' : lang === 'ru' ? 'мест' : 'seats'}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-suitcase"></i>
+                                        <span>${car.luggage || '-'} ${lang === 'ro' ? 'bagaje' : lang === 'ru' ? 'багаж' : 'luggage'}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <span>${translateFuelType(car.fuel_type)}</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fa fa-cog"></i>
+                                        <span>${car.gear_type || 'Manual'}</span>
+                                    </div>
+                                </div>
+                                <div class="car-price">
+                                    <span class="price-label" data-i18n="cars.daily_rate">Daily rate from</span>
+                                    <span class="price-value">€${lowestPrice}</span>
+                                </div>
+                                <a href="${rentNowUrl}" class="btn-rent" data-i18n="cars.rent_now">Rent Now</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            carListDiv.innerHTML = carsHtml;
+            updatePageTranslations();
+            renderSidebarOptions();
+            
+        } catch (error) {
+            console.error('Error fetching cars:', error);
+            carListDiv.innerHTML = '<div class="col-12 text-center py-5"><h3>Error loading cars</h3></div>';
+        }
+    }
+
+    // Get lowest price from car
+    function getLowestPrice(car) {
+        if (car.price_policy) {
+            const pricePolicy = typeof car.price_policy === 'string' ? 
+                JSON.parse(car.price_policy) : car.price_policy;
+            const prices = Object.values(pricePolicy).map(p => parseInt(p));
+            return Math.min(...prices);
+        }
+        return 0;
+    }
+
+    // Get car image URL
+    function getCarImage(car) {
+        if (car.head_image && car.head_image.startsWith('http')) {
+            return car.head_image;
+        }
+        return car.head_image ? 
+            window.API_BASE_URL + car.head_image : 
+            window.API_BASE_URL + '/uploads/placeholder.png';
+    }
+
+    // Render sidebar options
+    function renderSidebarOptions() {
+        const params = new URLSearchParams(window.location.search);
+        const currentFilters = {
+            make_name: params.get('make_name')?.split(',') || [],
+            gear_type: params.get('gear_type')?.split(',') || [],
+            fuel_type: params.get('fuel_type')?.split(',') || [],
+            car_type: params.get('car_type')?.split(',') || [],
+            num_passengers: params.get('num_passengers')?.split(',') || []
+        };
+        
+        // Filter fuel types to only show Gasoline and Diesel
+        const fuelTypes = ['Gasoline', 'Diesel'];
+        const carTypes = ['Sedan', 'SUV', 'Crossover', 'Hatchback'];
+        
+        renderFilterOptions('filter-fuel-options', fuelTypes, currentFilters.fuel_type, allCarsCache, currentFilters, 'fuel_type');
+        renderFilterOptions('filter-type-options', carTypes, currentFilters.car_type, allCarsCache, currentFilters, 'car_type');
+        renderFilterOptions('filter-make-options', getUniqueOptions(allCarsCache, 'make_name'), currentFilters.make_name, allCarsCache, currentFilters, 'make_name');
+        renderFilterOptions('filter-gear-options', getUniqueOptions(allCarsCache, 'gear_type'), currentFilters.gear_type, allCarsCache, currentFilters, 'gear_type');
+        renderFilterOptions('filter-passengers-options', getUniqueOptions(allCarsCache, 'num_passengers'), currentFilters.num_passengers, allCarsCache, currentFilters, 'num_passengers');
+        
+        // Attach event listeners
+        document.querySelectorAll('.filter-sidebar input[type=checkbox]').forEach(cb => {
+            cb.addEventListener('change', updateFiltersAndFetch);
+        });
+        
+        // Price category listeners
+        document.querySelectorAll('input[name="price-category"]').forEach(radio => {
+            radio.addEventListener('change', updateFiltersAndFetch);
+        });
+        
+        // Sort listener
+        document.getElementById('sort-select')?.addEventListener('change', updateFiltersAndFetch);
+    }
+
+    // Mobile filter functions
+    function toggleMobileFilter() {
+        const overlay = document.getElementById('mobile-filter-overlay');
+        if (!overlay) return;
+        
+        if (overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            renderMobileFilterOptions();
+        }
+    }
+
+    function renderMobileFilterOptions() {
+        const container = document.getElementById('mobile-filter-options');
+        if (!container) return;
+        
+        const lang = getCurrentLanguage();
+        const trans = translations[lang] || translations.ro;
+        
+        container.innerHTML = `
+            <!-- Date Range -->
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.availability_period']}</h6>
+                <div class="date-input-group">
+                    <div class="date-input-wrapper">
+                        <input type="text" id="mobile-date-from" placeholder="${trans['cars.date_from']}">
+                        <i class="fa fa-calendar icon"></i>
+                    </div>
+                    <span>-</span>
+                    <div class="date-input-wrapper">
+                        <input type="text" id="mobile-date-to" placeholder="${trans['cars.date_to']}">
+                        <i class="fa fa-calendar icon"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-divider"></div>
+            
+            <!-- Sort Options -->
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.sort_by']}</h6>
+                <select id="mobile-sort-select" class="sort-select">
+                    <option value="default">${trans['cars.sort_default']}</option>
+                    <option value="price_asc">${trans['cars.sort_price_asc']}</option>
+                    <option value="price_desc">${trans['cars.sort_price_desc']}</option>
+                </select>
+            </div>
+            
+            <div class="filter-divider"></div>
+            
+            <!-- Price Category -->
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.price_category']}</h6>
+                <div class="filter-option-row">
+                    <label>
+                        <input type="radio" name="mobile-price-category" value="all" checked>
+                        <span class="option-label">${trans['cars.all_categories']}</span>
+                    </label>
+                </div>
+                <div class="filter-option-row">
+                    <label>
+                        <input type="radio" name="mobile-price-category" value="economy">
+                        <span class="option-label">${trans['cars.economy']}</span>
+                    </label>
+                </div>
+                <div class="filter-option-row">
+                    <label>
+                        <input type="radio" name="mobile-price-category" value="standard">
+                        <span class="option-label">${trans['cars.standard']}</span>
+                    </label>
+                </div>
+                <div class="filter-option-row">
+                    <label>
+                        <input type="radio" name="mobile-price-category" value="premium">
+                        <span class="option-label">${trans['cars.premium']}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-divider"></div>
+            
+            <!-- Other filters -->
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.fuel_type']}</h6>
+                <div id="mobile-filter-fuel-options"></div>
+            </div>
+            
+            <div class="filter-divider"></div>
+            
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.car_type']}</h6>
+                <div id="mobile-filter-type-options"></div>
+            </div>
+            
+            <div class="filter-divider"></div>
+            
+            <div class="filter-category">
+                <h6 class="filter-section-title">${trans['cars.make']}</h6>
+                <div id="mobile-filter-make-options"></div>
+            </div>
+        `;
+        
+        // Render mobile filter options
+        const params = new URLSearchParams(window.location.search);
+        const currentFilters = {
+            fuel_type: params.get('fuel_type')?.split(',') || [],
+            car_type: params.get('car_type')?.split(',') || [],
+            make_name: params.get('make_name')?.split(',') || []
+        };
+        
+        const fuelTypes = ['Gasoline', 'Diesel'];
+        const carTypes = ['Sedan', 'SUV', 'Crossover', 'Hatchback'];
+        
+        renderFilterOptions('mobile-filter-fuel-options', fuelTypes, currentFilters.fuel_type, allCarsCache, currentFilters, 'fuel_type');
+        renderFilterOptions('mobile-filter-type-options', carTypes, currentFilters.car_type, allCarsCache, currentFilters, 'car_type');
+        renderFilterOptions('mobile-filter-make-options', getUniqueOptions(allCarsCache, 'make_name'), currentFilters.make_name, allCarsCache, currentFilters, 'make_name');
+        
+        // Initialize mobile date pickers
+        initializeDatePickers();
+    }
+
+    function applyMobileFilters() {
+        // Sync mobile filters to desktop
+        const mobileValues = {
+            fuel: getSelectedValues('mobile-filter-fuel-options'),
+            type: getSelectedValues('mobile-filter-type-options'),
+            make: getSelectedValues('mobile-filter-make-options'),
+            dateFrom: document.getElementById('mobile-date-from')?.value,
+            dateTo: document.getElementById('mobile-date-to')?.value,
+            sort: document.getElementById('mobile-sort-select')?.value,
+            priceCategory: document.querySelector('input[name="mobile-price-category"]:checked')?.value
+        };
+        
+        // Build params
+        const params = new URLSearchParams();
+        if (mobileValues.fuel.length) params.set('fuel_type', mobileValues.fuel.join(','));
+        if (mobileValues.type.length) params.set('car_type', mobileValues.type.join(','));
+        if (mobileValues.make.length) params.set('make_name', mobileValues.make.join(','));
+        if (mobileValues.dateFrom) params.set('date_from', mobileValues.dateFrom);
+        if (mobileValues.dateTo) params.set('date_to', mobileValues.dateTo);
+        if (mobileValues.sort && mobileValues.sort !== 'default') params.set('sort', mobileValues.sort);
+        
+        if (mobileValues.priceCategory && mobileValues.priceCategory !== 'all') {
+            const settings = priceFilterSettings[mobileValues.priceCategory];
+            if (settings) {
+                params.set('min_price', settings.min);
+                params.set('max_price', settings.max);
+            }
+        }
+        
+        // Update URL and fetch
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.pushState({}, '', newUrl);
+        fetchAndRenderCars();
+        toggleMobileFilter();
+    }
+
+    function clearAllFilters() {
+        document.querySelectorAll('#mobile-filter-overlay input[type=checkbox]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#mobile-filter-overlay input[type=radio][value="all"]').forEach(radio => radio.checked = true);
+        document.getElementById('mobile-date-from').value = '';
+        document.getElementById('mobile-date-to').value = '';
+        document.getElementById('mobile-sort-select').value = 'default';
+    }
+
+    // Language switcher
+    function initLanguageSwitcher() {
+        const langBtn = document.getElementById('langPickerBtn');
+        const langDropdown = document.getElementById('langDropdown');
+        const langFlag = document.getElementById('langFlag');
+        const langCode = document.getElementById('langCode');
+        
+        const currentLang = getCurrentLanguage();
+        updateLanguageDisplay(currentLang);
+        
+        langBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdown.classList.toggle('open');
+        });
+        
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const lang = e.currentTarget.getAttribute('data-lang');
+                localStorage.setItem('lang', lang);
+                updateLanguageDisplay(lang);
+                langDropdown.classList.remove('open');
+                updatePageTranslations();
+                initializeDatePickers(); // Reinit with new locale
+                fetchAndRenderCars(); // Refresh cars with new translations
+            });
+        });
+        
+        document.addEventListener('click', () => {
+            langDropdown?.classList.remove('open');
+        });
+    }
+
+    function updateLanguageDisplay(lang) {
+        const langFlag = document.getElementById('langFlag');
+        const langCode = document.getElementById('langCode');
+        
+        const flags = {
+            ro: 'images/flags/romania.png',
+            en: 'images/flags/united-kingdom.png',
+            ru: 'images/flags/russia.png'
+        };
+        
+        const codes = {
+            ro: 'RO',
+            en: 'EN',
+            ru: 'RU'
+        };
+        
+        if (langFlag && flags[lang]) {
+            langFlag.innerHTML = `<img src="${flags[lang]}" alt="${codes[lang]}">`;
+        }
+        if (langCode && codes[lang]) {
+            langCode.textContent = codes[lang];
+        }
+        
+        // Update selected state
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.classList.toggle('selected', option.getAttribute('data-lang') === lang);
+        });
+    }
+
+    // Initialize everything
+    async function initialize() {
+        await loadPriceFilterSettings();
+        
+        // Load all cars for filter counts
+        try {
+            const res = await fetch(`${window.API_BASE_URL}/api/cars`);
+            allCarsCache = await res.json();
+        } catch (error) {
+            console.error('Error loading cars cache:', error);
+        }
+        
+        initLanguageSwitcher();
+        updatePageTranslations();
+        initializeDatePickers();
+        fetchAndRenderCars();
+        
+        // Clear filters button
+        document.getElementById('clear-filters-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.history.pushState({}, '', window.location.pathname);
+            fetchAndRenderCars();
+        });
+        
+        // Mobile filter overlay click outside
+        document.getElementById('mobile-filter-overlay')?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                toggleMobileFilter();
+            }
+        });
+    }
+
+    // Start when DOM is ready
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    // Export functions for global use
+    window.toggleMobileFilter = toggleMobileFilter;
+    window.applyMobileFilters = applyMobileFilters;
+    window.clearAllFilters = clearAllFilters;
+    </script>
+</body>
 </html>
