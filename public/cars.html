@@ -140,17 +140,17 @@
       --transition-speed: 0.3s;
     }
 
-    /* Language Picker Styles - Fixed Version */
+    /* Language Picker Styles - ULTRA FIXED Version */
     .lang-picker-wrapper { 
       position: relative; 
       display: inline-block; 
       vertical-align: middle;
-      z-index: 1001;
+      z-index: 10001 !important;
       margin-left: 10px;
     }
     
     .lang-picker-btn {
-      display: flex;
+      display: flex !important;
       align-items: center;
       gap: 7px;
       padding: 4px 12px;
@@ -166,7 +166,7 @@
       transition: border 0.2s, box-shadow 0.2s;
       box-shadow: 0 1px 4px rgba(0,0,0,0.02);
       position: relative;
-      z-index: 1001;
+      z-index: 10001;
     }
     
     .lang-picker-btn:focus, 
@@ -177,20 +177,21 @@
     }
     
     .lang-picker-dropdown {
-      display: none;
+      display: none !important;
       position: absolute;
-      top: 100%;
+      top: calc(100% + 4px);
       right: 0;
       left: auto;
-      margin-top: 8px;
-      z-index: 1002;
+      margin-top: 4px;
+      z-index: 10002 !important;
       background: #fff;
       border: 1px solid #e0e0e0;
       border-radius: 6px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       padding: 4px;
       min-width: 120px;
       list-style: none;
+      margin: 0;
     }
     
     .lang-picker-dropdown.open { 
@@ -210,6 +211,7 @@
       transition: background 0.15s, color 0.15s;
       width: 100%;
       text-align: left;
+      list-style: none;
     }
     
     .lang-option:focus, 
@@ -231,6 +233,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     
     .lang-flag img {
@@ -246,6 +249,7 @@
       justify-content: center;
       width: 20px;
       height: 20px;
+      flex-shrink: 0;
     }
     
     .lang-code {
@@ -258,6 +262,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
+      z-index: 10000;
     }
     
     @media (max-width: 991px) {
@@ -866,11 +872,11 @@
                             <div class="de-flex-col">
                                 <!-- Main Menu -->
                                 <ul id="mainmenu">
-                                  <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
-                                  <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                                  <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
-                                  <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                                  <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
+                                    <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
+                                    <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                                    <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
+                                    <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                                    <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
                                 </ul>
                             </div>
                             
@@ -884,51 +890,50 @@
                                     
                                     <!-- Language Picker -->
                                     <div class="lang-picker-wrapper">
-                                      <button id="langPickerBtn" class="lang-picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                                        <span class="lang-globe" id="langGlobe">
-                                          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/>
-                                            <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/>
-                                            <path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/>
-                                            <path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
-                                            <path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
-                                          </svg>
-                                        </span>
-                                        <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode" class="lang-code">RO</span>
-                                        <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
-                                          <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/>
-                                        </svg>
-                                      </button>
-                                      <ul id="langDropdown" class="lang-picker-dropdown" role="listbox" tabindex="-1">
-                                        <li class="lang-option" data-lang="ro" role="option" tabindex="0">
-                                          <span class="lang-flag">
-                                            <img src="images/flags/romania.png" alt="RO">
-                                          </span> 
-                                          <span class="lang-code">RO</span>
-                                        </li>
-                                        <li class="lang-option" data-lang="en" role="option" tabindex="0">
-                                          <span class="lang-flag">
-                                            <img src="images/flags/united-kingdom.png" alt="EN">
-                                          </span> 
-                                          <span class="lang-code">EN</span>
-                                        </li>
-                                        <li class="lang-option" data-lang="ru" role="option" tabindex="0">
-                                          <span class="lang-flag">
-                                            <img src="images/flags/russia.png" alt="RU">
-                                          </span> 
-                                          <span class="lang-code">RU</span>
-                                        </li>
-                                      </ul>
+                                        <button id="langPickerBtn" class="lang-picker-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                            <span class="lang-globe" id="langGlobe">
+                                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/>
+                                                    <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/>
+                                                    <path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/>
+                                                    <path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
+                                                    <path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/>
+                                                </svg>
+                                            </span>
+                                            <span class="lang-flag" id="langFlag"></span>
+                                            <span id="langCode" class="lang-code">RO</span>
+                                            <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                                                <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                            </svg>
+                                        </button>
+                                        <ul id="langDropdown" class="lang-picker-dropdown" role="listbox" tabindex="-1">
+                                            <li class="lang-option" data-lang="ro" role="option" tabindex="0">
+                                                <span class="lang-flag">
+                                                    <img src="images/flags/romania.png" alt="RO">
+                                                </span> 
+                                                <span class="lang-code">RO</span>
+                                            </li>
+                                            <li class="lang-option" data-lang="en" role="option" tabindex="0">
+                                                <span class="lang-flag">
+                                                    <img src="images/flags/united-kingdom.png" alt="EN">
+                                                </span> 
+                                                <span class="lang-code">EN</span>
+                                            </li>
+                                            <li class="lang-option" data-lang="ru" role="option" tabindex="0">
+                                                <span class="lang-flag">
+                                                    <img src="images/flags/russia.png" alt="RU">
+                                                </span> 
+                                                <span class="lang-code">RU</span>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-
                             
                             <div id="menu-btn">
-                              <span></span>
-                              <span></span>
-                              <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
                             </div>
                         </div>
                     </div>
@@ -1970,7 +1975,7 @@
         if (sortSelectMobile) sortSelectMobile.value = 'default';
     }
 
-    // Language switcher - Fixed version with proper event handling
+    // Language switcher - FINAL FIXED version
     function initLanguageSwitcher() {
         console.log('🌍 Initializing language switcher...');
         
@@ -1995,24 +2000,33 @@
         console.log('🔤 Current language:', currentLang);
         updateLanguageDisplay(currentLang);
         
-        // Button click handler with stopPropagation
+        // Button click handler - FIXED VERSION
         langBtn.addEventListener('click', (e) => {
             console.log('🖱️ Language button clicked!');
             e.preventDefault();
             e.stopPropagation();
             
-            const isOpen = langDropdown.classList.contains('open');
-            console.log('📂 Dropdown is currently:', isOpen ? 'open' : 'closed');
+            // Get current state by checking if dropdown has 'open' class
+            const wasOpen = langDropdown.classList.contains('open');
+            console.log('📂 Dropdown was:', wasOpen ? 'open' : 'closed');
             
-            if (isOpen) {
+            // Toggle the state
+            if (wasOpen) {
                 langDropdown.classList.remove('open');
                 langBtn.setAttribute('aria-expanded', 'false');
-                console.log('📂 Dropdown closed');
+                console.log('📂 Now closed');
             } else {
                 langDropdown.classList.add('open');
                 langBtn.setAttribute('aria-expanded', 'true');
-                console.log('📂 Dropdown opened');
+                console.log('📂 Now opened');
             }
+            
+            // Log the actual computed style to verify
+            setTimeout(() => {
+                const computedDisplay = window.getComputedStyle(langDropdown).display;
+                console.log('🔍 Dropdown display is:', computedDisplay);
+                console.log('🔍 Dropdown has "open" class:', langDropdown.classList.contains('open'));
+            }, 10);
         });
         
         // Option click handlers
@@ -2047,13 +2061,15 @@
             });
         });
         
-        // Click outside handler - use return to avoid conflict
+        // Click outside handler
         document.addEventListener('click', (e) => {
-            // Don't close if clicking the button or dropdown
+            // Don't process if clicking on the button or dropdown
             if (langBtn.contains(e.target) || langDropdown.contains(e.target)) {
+                console.log('👆 Click inside language picker - ignoring');
                 return;
             }
             
+            // Close if open
             if (langDropdown.classList.contains('open')) {
                 console.log('🔒 Closing dropdown - clicked outside');
                 langDropdown.classList.remove('open');
