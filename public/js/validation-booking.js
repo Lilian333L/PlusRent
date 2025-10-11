@@ -870,7 +870,8 @@ $("#modal-discount-code").on("input", function () {
           result.message === "coupons.invalid_code"
             ? "coupons.invalid_code"
             : result.message || "coupons.invalid_code";
-        showUniversalError(i18next.t(msgKey));
+        showError(i18next.t(msgKey));
+
 
         calculateModalPrice();
       }
@@ -880,7 +881,7 @@ $("#modal-discount-code").on("input", function () {
       cachedCouponData = null;
       lastValidatedCouponCode = null;
       hideFloatingFreeDaysNotification();
-      showUniversalError(i18next.t("errors.error_validating_coupon"));
+      showError(i18next.t("errors.error_validating_coupon"));
     } finally {
       currentValidationAbort = null;
     }
@@ -1357,14 +1358,14 @@ async function submitBooking() {
 
           if (!result.valid) {
             const errorKey = result.message || "coupons.invalid_code";
-            showUniversalError(i18next.t(errorKey)); // ensure user sees invalid coupon on submit
+            showError(i18next.t(errorKey)); // ensure user sees invalid coupon on submit
             return false;
           }
           // Optionally cache:
           // cachedCouponData = result;
           // lastValidatedCouponCode = couponCode;
         } catch (error) {
-          showUniversalError(i18next.t("errors.error_validating_coupon"));
+          showError(i18next.t("errors.error_validating_coupon"));
           return false;
         }
       }
@@ -1418,9 +1419,9 @@ async function submitBooking() {
             } else {
             }
 
-            showUniversalError(finalMessage);
+            showError(finalMessage);
           } else {
-            showUniversalError(
+            showError(
               data.message || data.error || "Booking failed. Please try again."
             );
           }
@@ -2880,3 +2881,40 @@ function hideFloatingFreeDaysNotification() {
     existingNotification.remove();
   }
 }
+
+// Функция для показа ошибок
+function showError(message) {
+    const errorDiv = document.getElementById('error_message');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.classList.remove('success');
+        errorDiv.classList.add('show');
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// Функция для показа успешных сообщений
+function showSuccess(message) {
+    const errorDiv = document.getElementById('error_message');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.classList.add('success');
+        errorDiv.classList.add('show');
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+            errorDiv.classList.remove('success');
+        }, 5000);
+    }
+}
+
+// Make functions globally available
+window.showError = showError;
+window.showSuccess = showSuccess;
