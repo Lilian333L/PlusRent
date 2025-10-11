@@ -3505,8 +3505,8 @@
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
   <script src="js/i18n-init.js"></script>
 
-  <script>
-// ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Показываем ВСЕ 7 дней в неделю
+<script>
+// ✅ ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Показываем ВСЕ 7 дней на ВСЕХ устройствах
 document.addEventListener('DOMContentLoaded', function() {
     const originalFlatpickr = flatpickr;
     
@@ -3520,6 +3520,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 originalOnReady(selectedDates, dateStr, instance);
             }
             fixCalendarDisplay(instance);
+            // Повторяем исправление для мобильных с задержкой
+            setTimeout(() => fixCalendarDisplay(instance), 50);
+            setTimeout(() => fixCalendarDisplay(instance), 200);
         };
         
         const originalOnMonthChange = config.onMonthChange;
@@ -3529,6 +3532,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 originalOnMonthChange(selectedDates, dateStr, instance);
             }
             setTimeout(() => fixCalendarDisplay(instance), 10);
+            setTimeout(() => fixCalendarDisplay(instance), 100);
+        };
+        
+        // ✅ НОВОЕ: Исправляем при открытии календаря
+        const originalOnOpen = config.onOpen;
+        
+        config.onOpen = function(selectedDates, dateStr, instance) {
+            if (originalOnOpen) {
+                originalOnOpen(selectedDates, dateStr, instance);
+            }
+            setTimeout(() => fixCalendarDisplay(instance), 10);
+            setTimeout(() => fixCalendarDisplay(instance), 100);
         };
         
         return originalFlatpickr(selector, config);
@@ -3544,14 +3559,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayContainer = instance.calendarContainer.querySelector('.dayContainer');
         if (!dayContainer) return;
         
-        const allDays = dayContainer.querySelectorAll('.flatpickr-day');
+        // ✅ КРИТИЧНО: Находим ВСЕ даты, включая скрытые классами
+        const allDays = dayContainer.querySelectorAll('.flatpickr-day, .prevMonthDay, .nextMonthDay, .flatpickr-disabled');
+        
         allDays.forEach(day => {
-            day.style.display = 'inline-block';
-            day.style.visibility = 'visible';
+            // ✅ Показываем через множественные свойства
+            day.style.display = 'inline-block !important';
+            day.style.visibility = 'visible !important';
+            day.style.opacity = day.classList.contains('prevMonthDay') || day.classList.contains('nextMonthDay') ? '0.3' : '1';
+            
+            // ✅ Удаляем inline стили которые могут скрывать
+            if (day.style.display === 'none') {
+                day.style.display = 'inline-block';
+            }
         });
         
-        console.log('✅ Calendar fixed - showing all 7 days');
+        // ✅ МОБИЛЬНЫЕ: Принудительно показываем grid
+        if (window.innerWidth <= 767) {
+            dayContainer.style.display = 'grid';
+            dayContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
+            dayContainer.style.width = '100%';
+        }
+        
+        console.log('✅ Calendar fixed - showing all 7 days (' + allDays.length + ' days found)');
     }
+    
+    // ✅ НОВОЕ: Исправляем при изменении размера окна
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            document.querySelectorAll('.flatpickr-calendar').forEach(cal => {
+                const instance = cal._flatpickr;
+                if (instance) {
+                    fixCalendarDisplay(instance);
+                }
+            });
+        }, 250);
+    });
 });
 </script>
   <script>
