@@ -4476,7 +4476,217 @@
       });
     });
   </script>
+<!-- Fix: Load Vehicle Data into Price Calculator Modal -->
+<script>
+  // Enhanced openPriceCalculator to load vehicle data
+  (function() {
+    const originalOpenCalculator = window.openPriceCalculator;
+    
+    window.openPriceCalculator = function() {
+      // Call original function to open modal
+      if (originalOpenCalculator) {
+        originalOpenCalculator();
+      } else {
+        const modal = document.getElementById('price-calculator-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+      
+      // Load vehicle data into modal
+      loadVehicleDataIntoModal();
+    };
+    
+    function loadVehicleDataIntoModal() {
+      // Get selected vehicle from main form
+      const vehicleSelect = document.getElementById('vehicle_type');
+      
+      if (!vehicleSelect || !vehicleSelect.value) {
+        console.warn('No vehicle selected');
+        return;
+      }
+      
+      const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+      
+      // Get vehicle data from the main form's vehicle card
+      const mainVehicleImage = document.getElementById('vehicle-image');
+      const mainVehicleName = document.getElementById('vehicle-name');
+      const mainVehicleDetails = document.getElementById('vehicle-details');
+      const mainVehiclePrice = document.getElementById('vehicle-price');
+      
+      // Get modal elements
+      const modalVehicleImage = document.getElementById('modal-vehicle-image');
+      const modalVehicleName = document.getElementById('modal-vehicle-name');
+      const modalVehicleDetails = document.getElementById('modal-vehicle-details');
+      const modalVehiclePrice = document.getElementById('modal-vehicle-price');
+      
+      // Copy data from main form to modal
+      if (mainVehicleImage && modalVehicleImage && mainVehicleImage.src) {
+        modalVehicleImage.src = mainVehicleImage.src;
+        modalVehicleImage.alt = mainVehicleImage.alt || 'Vehicle';
+      }
+      
+      if (mainVehicleName && modalVehicleName && mainVehicleName.textContent) {
+        modalVehicleName.textContent = mainVehicleName.textContent;
+      }
+      
+      if (mainVehicleDetails && modalVehicleDetails && mainVehicleDetails.textContent) {
+        modalVehicleDetails.textContent = mainVehicleDetails.textContent;
+      }
+      
+      if (mainVehiclePrice && modalVehiclePrice && mainVehiclePrice.textContent) {
+        modalVehiclePrice.textContent = mainVehiclePrice.textContent;
+      }
+      
+      // Alternative: Get data from selected option's data attributes
+      if (!modalVehicleImage.src || modalVehicleImage.src === window.location.href) {
+        if (selectedOption.dataset.image) {
+          modalVehicleImage.src = selectedOption.dataset.image;
+        }
+        
+        if (selectedOption.dataset.name) {
+          modalVehicleName.textContent = selectedOption.dataset.name;
+        }
+        
+        if (selectedOption.dataset.details) {
+          modalVehicleDetails.textContent = selectedOption.dataset.details;
+        }
+        
+        if (selectedOption.dataset.price) {
+          modalVehiclePrice.textContent = selectedOption.dataset.price + ' /день';
+        }
+      }
+      
+      // Get pickup and dropoff locations
+      const pickupLocation = document.querySelector('input[name="pickup_location"]:checked');
+      const dropoffLocation = document.querySelector('input[name="destination"]:checked');
+      
+      const modalPickupLocation = document.getElementById('modal-pickup-location');
+      const modalDropoffLocation = document.getElementById('modal-dropoff-location');
+      
+      if (pickupLocation && modalPickupLocation) {
+        // Get the label text
+        const pickupLabel = pickupLocation.parentElement.textContent.trim();
+        modalPickupLocation.textContent = pickupLabel;
+      }
+      
+      if (dropoffLocation && modalDropoffLocation) {
+        // Get the label text
+        const dropoffLabel = dropoffLocation.parentElement.textContent.trim();
+        modalDropoffLocation.textContent = dropoffLabel;
+      }
+      
+      console.log('Vehicle data loaded into modal');
+    }
+  })();
+  
+  // Also ensure vehicle data is loaded when vehicle selection changes
+  document.addEventListener('DOMContentLoaded', function() {
+    const vehicleSelect = document.getElementById('vehicle_type');
+    
+    if (vehicleSelect) {
+      vehicleSelect.addEventListener('change', function() {
+        // Store current selection for modal
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (selectedOption && selectedOption.value) {
+          // Store in data attributes for easy access
+          this.dataset.selectedImage = document.getElementById('vehicle-image')?.src || '';
+          this.dataset.selectedName = document.getElementById('vehicle-name')?.textContent || '';
+          this.dataset.selectedDetails = document.getElementById('vehicle-details')?.textContent || '';
+          this.dataset.selectedPrice = document.getElementById('vehicle-price')?.textContent || '';
+        }
+      });
+    }
+  });
+</script>
 
+<!-- Additional: Ensure validation-booking.js also updates modal data -->
+<script>
+  // Hook into the existing openPriceCalculator if defined in validation-booking.js
+  document.addEventListener('DOMContentLoaded', function() {
+    // Wait for all scripts to load
+    setTimeout(function() {
+      // Check if calculator button exists
+      const calculatorButtons = document.querySelectorAll('[onclick*="openPriceCalculator"]');
+      
+      calculatorButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Small delay to ensure modal is open
+          setTimeout(function() {
+            // Re-load vehicle data
+            const vehicleSelect = document.getElementById('vehicle_type');
+            
+            if (vehicleSelect && vehicleSelect.value) {
+              // Trigger change event to update stored data
+              vehicleSelect.dispatchEvent(new Event('change'));
+              
+              // Then load into modal
+              setTimeout(function() {
+                const modalImage = document.getElementById('modal-vehicle-image');
+                const modalName = document.getElementById('modal-vehicle-name');
+                const modalDetails = document.getElementById('modal-vehicle-details');
+                const modalPrice = document.getElementById('modal-vehicle-price');
+                
+                const mainImage = document.getElementById('vehicle-image');
+                const mainName = document.getElementById('vehicle-name');
+                const mainDetails = document.getElementById('vehicle-details');
+                const mainPrice = document.getElementById('vehicle-price');
+                
+                if (mainImage && modalImage && mainImage.src) {
+                  modalImage.src = mainImage.src;
+                }
+                
+                if (mainName && modalName && mainName.textContent) {
+                  modalName.textContent = mainName.textContent;
+                }
+                
+                if (mainDetails && modalDetails && mainDetails.textContent) {
+                  modalDetails.textContent = mainDetails.textContent;
+                }
+                
+                if (mainPrice && modalPrice && mainPrice.textContent) {
+                  modalPrice.textContent = mainPrice.textContent;
+                }
+              }, 100);
+            } else {
+              console.warn('Please select a vehicle before opening calculator');
+            }
+          }, 150);
+        });
+      });
+    }, 500);
+  });
+</script>
+
+<!-- Debug: Log modal vehicle data -->
+<script>
+  if (window.DEBUG) {
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('price-calculator-modal');
+      
+      if (modal) {
+        const observer = new MutationObserver(function(mutations) {
+          if (modal.style.display === 'flex') {
+            console.log('=== MODAL VEHICLE DATA ===');
+            console.log('Image:', document.getElementById('modal-vehicle-image')?.src);
+            console.log('Name:', document.getElementById('modal-vehicle-name')?.textContent);
+            console.log('Details:', document.getElementById('modal-vehicle-details')?.textContent);
+            console.log('Price:', document.getElementById('modal-vehicle-price')?.textContent);
+            console.log('=========================');
+          }
+        });
+        
+        observer.observe(modal, {
+          attributes: true,
+          attributeFilter: ['style']
+        });
+      }
+    });
+  }
+</script>
+  
 </body>
 </html>
 <!-- Enhanced i18n Integration for Error Messages -->
