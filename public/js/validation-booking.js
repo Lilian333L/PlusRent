@@ -2872,107 +2872,91 @@ function hideFloatingFreeDaysNotification() {
   }
 }
 
-// Функция для показа ошибок
+// ========== MODERN TOAST NOTIFICATION SYSTEM ==========
+
+function showToast(message, type = 'error', duration = 5000) {
+    console.log(`🔔 showToast called: ${type} - ${message}`);
+    
+    const container = document.getElementById('toast-container');
+    if (!container) {
+        console.error('❌ Toast container not found!');
+        alert(message);
+        return;
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    
+    const icons = {
+        error: '✕',
+        success: '✓',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    const titles = {
+        error: typeof i18next !== 'undefined' ? i18next.t('toast.error_title', 'Error') : 'Error',
+        success: typeof i18next !== 'undefined' ? i18next.t('toast.success_title', 'Success') : 'Success',
+        warning: typeof i18next !== 'undefined' ? i18next.t('toast.warning_title', 'Warning') : 'Warning',
+        info: typeof i18next !== 'undefined' ? i18next.t('toast.info_title', 'Info') : 'Info'
+    };
+
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || 'ℹ'}</div>
+        <div class="toast-content">
+            <div class="toast-title">${titles[type]}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 300);
+    }, duration);
+
+    return toast;
+}
+
+function showErrorToast(message, duration = 5000) {
+    return showToast(message, 'error', duration);
+}
+
+function showSuccessToast(message, duration = 5000) {
+    return showToast(message, 'success', duration);
+}
+
+function showWarningToast(message, duration = 5000) {
+    return showToast(message, 'warning', duration);
+}
+
+function showInfoToast(message, duration = 5000) {
+    return showToast(message, 'info', duration);
+}
+
+// ✅ Простые обёртки для совместимости со старым кодом
 function showError(message) {
     console.log('🔴 showError called:', message);
-    
-    // Функция для показа ошибки в купоне
-    function showCouponError() {
-        const couponError = document.getElementById('coupon-error-message');
-        if (couponError) {
-            console.log('✅ Found coupon error element');
-            couponError.textContent = message;
-            couponError.style.display = 'block';
-            couponError.classList.remove('success');
-            couponError.classList.add('show');
-            
-            setTimeout(() => {
-                couponError.style.display = 'none';
-                couponError.classList.remove('show');
-            }, 5000);
-            return true;
-        }
-        return false;
-    }
-    
-    // Пытаемся показать ошибку в купоне
-    if (showCouponError()) {
-        return; // Успешно показали
-    }
-    
-    // Если модал ещё не открыт, показываем универсальную ошибку
-    console.log('⚠️ Coupon error element not found - using universal error');
-    
-    // Используем универсальную систему ошибок
-    if (typeof showUniversalError === 'function') {
-        showUniversalError(message);
-        return;
-    }
-    
-    // Fallback: общий error_message
-    const errorDiv = document.getElementById('error_message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        errorDiv.classList.remove('success');
-        errorDiv.classList.add('show');
-        
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-            errorDiv.classList.remove('show');
-        }, 5000);
-    } else {
-        // Последний fallback - alert
-        alert(message);
-    }
+    showErrorToast(message);
 }
 
-// Функция для показа успешных сообщений
 function showSuccess(message) {
     console.log('🟢 showSuccess called:', message);
-    
-    // Функция для показа успеха в купоне
-    function showCouponSuccess() {
-        const couponError = document.getElementById('coupon-error-message');
-        if (couponError) {
-            console.log('✅ Found coupon error element for success');
-            couponError.textContent = message;
-            couponError.style.display = 'block';
-            couponError.classList.add('success');
-            couponError.classList.add('show');
-            
-            setTimeout(() => {
-                couponError.style.display = 'none';
-                couponError.classList.remove('success');
-                couponError.classList.remove('show');
-            }, 5000);
-            return true;
-        }
-        return false;
-    }
-    
-    // Пытаемся показать успех в купоне
-    if (showCouponSuccess()) {
-        return;
-    }
-    
-    // Fallback: универсальная система
-    const errorDiv = document.getElementById('error_message');
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        errorDiv.classList.add('success');
-        errorDiv.classList.add('show');
-        
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-            errorDiv.classList.remove('success');
-            errorDiv.classList.remove('show');
-        }, 5000);
-    }
+    showSuccessToast(message);
 }
 
-// ✅ Делаем функции глобально доступными
+// ✅ Делаем все функции глобально доступными
+window.showToast = showToast;
+window.showErrorToast = showErrorToast;
+window.showSuccessToast = showSuccessToast;
+window.showWarningToast = showWarningToast;
+window.showInfoToast = showInfoToast;
 window.showError = showError;
 window.showSuccess = showSuccess;
 
