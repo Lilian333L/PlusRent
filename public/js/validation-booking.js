@@ -2874,9 +2874,12 @@ function hideFloatingFreeDaysNotification() {
 
 // Функция для показа ошибок
 function showError(message) {
+    console.log('🔴 showError called:', message); // Debug log
+    
     // Проверяем, есть ли специальный блок для ошибок купона
     const couponError = document.getElementById('coupon-error-message');
     if (couponError) {
+        console.log('✅ Found coupon error element'); // Debug log
         couponError.textContent = message;
         couponError.style.display = 'block'; // ✅ Принудительно показываем
         couponError.classList.remove('success');
@@ -2888,6 +2891,8 @@ function showError(message) {
             couponError.classList.remove('show');
         }, 5000);
         return;
+    } else {
+        console.log('❌ Coupon error element not found'); // Debug log
     }
     
     // Fallback: если нет блока для купона, используем общий error_message
@@ -2906,9 +2911,12 @@ function showError(message) {
 
 // Функция для показа успешных сообщений
 function showSuccess(message) {
+    console.log('🟢 showSuccess called:', message); // Debug log
+    
     // Проверяем, есть ли специальный блок для купона
     const couponError = document.getElementById('coupon-error-message');
     if (couponError) {
+        console.log('✅ Found coupon error element for success'); // Debug log
         couponError.textContent = message;
         couponError.style.display = 'block'; // ✅ Принудительно показываем
         couponError.classList.add('success');
@@ -2940,4 +2948,5 @@ function showSuccess(message) {
 // ✅ Делаем функции глобально доступными
 window.showError = showError;
 window.showSuccess = showSuccess;
+
 
