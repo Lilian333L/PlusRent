@@ -6187,3 +6187,1098 @@
     </script>
 </body>
 </html>
+<!-- Enhanced Error Handling and Validation -->
+    <script>
+      // Global Error Handler
+      window.addEventListener('error', function(e) {
+        console.error('Global error caught:', e.error);
+        
+        // You can send error to analytics here
+        // Example: sendErrorToAnalytics(e.error);
+      });
+
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+        
+        // You can send error to analytics here
+        // Example: sendErrorToAnalytics(e.reason);
+      });
+
+      // Enhanced Phone Validation with International Format Support
+      function validatePhoneNumberAdvanced(phone) {
+        // Remove all spaces, dashes, parentheses, and plus signs for validation
+        const cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
+        
+        // Check if it contains only digits
+        if (!/^\d+$/.test(cleaned)) {
+          return {
+            valid: false,
+            message: i18next.t('errors.phone_invalid_format') || 'Invalid phone number format. Please use only digits.'
+          };
+        }
+        
+        // Check minimum length (international standard minimum is 8)
+        if (cleaned.length < 8) {
+          return {
+            valid: false,
+            message: i18next.t('errors.phone_invalid_length') || 'Phone number is too short. Please enter at least 8 digits.'
+          };
+        }
+        
+        // Check maximum length (international standard maximum is 15)
+        if (cleaned.length > 15) {
+          return {
+            valid: false,
+            message: i18next.t('errors.phone_too_long') || 'Phone number is too long. Maximum 15 digits allowed.'
+          };
+        }
+        
+        return {
+          valid: true,
+          message: '',
+          cleaned: cleaned
+        };
+      }
+
+      // Enhanced Email Validation
+      function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email) {
+          return {
+            valid: false,
+            message: i18next.t('errors.email_required') || 'Email address is required.'
+          };
+        }
+        
+        if (!emailRegex.test(email)) {
+          return {
+            valid: false,
+            message: i18next.t('errors.email_invalid') || 'Please enter a valid email address.'
+          };
+        }
+        
+        return {
+          valid: true,
+          message: ''
+        };
+      }
+
+      // Enhanced Date Validation
+      function validateDateRange(dateFrom, dateTo) {
+        if (!dateFrom || !dateTo) {
+          return {
+            valid: false,
+            message: i18next.t('errors.dates_required') || 'Please select both pickup and return dates.'
+          };
+        }
+        
+        const fromDate = new Date(dateFrom);
+        const toDate = new Date(dateTo);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Check if dates are valid
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+          return {
+            valid: false,
+            message: i18next.t('errors.dates_invalid') || 'Invalid date format.'
+          };
+        }
+        
+        // Check if pickup date is in the past
+        if (fromDate < today) {
+          return {
+            valid: false,
+            message: i18next.t('errors.date_past') || 'Pickup date cannot be in the past.'
+          };
+        }
+        
+        // Check if return date is before or equal to pickup date
+        if (toDate <= fromDate) {
+          return {
+            valid: false,
+            message: i18next.t('errors.date_order') || 'Return date must be after pickup date.'
+          };
+        }
+        
+        // Calculate rental duration
+        const durationDays = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+        
+        // Check minimum rental period (1 day)
+        if (durationDays < 1) {
+          return {
+            valid: false,
+            message: i18next.t('errors.date_min_duration') || 'Minimum rental period is 1 day.'
+          };
+        }
+        
+        // Check maximum rental period (365 days)
+        if (durationDays > 365) {
+          return {
+            valid: false,
+            message: i18next.t('errors.date_max_duration') || 'Maximum rental period is 365 days.'
+          };
+        }
+        
+        return {
+          valid: true,
+          message: '',
+          durationDays: durationDays
+        };
+      }
+
+      // Update Calculator Phone Validation to use Enhanced Version
+      document.getElementById('calc-phone').addEventListener('input', function() {
+        const validation = validatePhoneNumberAdvanced(this.value);
+        const errorElement = document.getElementById('calc-phone-error');
+        
+        if (this.value && !validation.valid) {
+          showCalculatorError('calc-phone-error', validation.message);
+        } else {
+          hideCalculatorError('calc-phone-error');
+        }
+      });
+
+      // Format Phone Number Input (optional visual enhancement)
+      function formatPhoneNumber(input) {
+        const cleaned = input.replace(/\D/g, '');
+        
+        // Format as: +373 XX XXX XXX
+        if (cleaned.length <= 3) {
+          return '+' + cleaned;
+        } else if (cleaned.length <= 5) {
+          return '+' + cleaned.slice(0, 3) + ' ' + cleaned.slice(3);
+        } else if (cleaned.length <= 8) {
+          return '+' + cleaned.slice(0, 3) + ' ' + cleaned.slice(3, 5) + ' ' + cleaned.slice(5);
+        } else {
+          return '+' + cleaned.slice(0, 3) + ' ' + cleaned.slice(3, 5) + ' ' + cleaned.slice(5, 8) + ' ' + cleaned.slice(8, 11);
+        }
+      }
+
+      // Auto-format phone input (optional)
+      document.getElementById('calc-phone').addEventListener('keyup', function(e) {
+        // Only format on input, not on backspace or delete
+        if (e.key !== 'Backspace' && e.key !== 'Delete') {
+          const cursorPosition = this.selectionStart;
+          const formatted = formatPhoneNumber(this.value);
+          const diff = formatted.length - this.value.length;
+          
+          this.value = formatted;
+          
+          // Maintain cursor position
+          this.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+        }
+      });
+
+      // Debounce Function for Performance
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Throttle Function for Performance
+      function throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+          if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+          }
+        };
+      }
+
+      // Enhanced Fetch with Retry Logic
+      async function fetchWithRetry(url, options = {}, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(url, options);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response;
+          } catch (error) {
+            console.error(`Fetch attempt ${i + 1} failed:`, error);
+            
+            if (i === retries - 1) {
+              throw error;
+            }
+            
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+          }
+        }
+      }
+
+      // Local Storage Helper with Expiration
+      const storage = {
+        set: function(key, value, expirationMinutes = null) {
+          const item = {
+            value: value,
+            timestamp: Date.now()
+          };
+          
+          if (expirationMinutes) {
+            item.expiration = Date.now() + (expirationMinutes * 60 * 1000);
+          }
+          
+          try {
+            localStorage.setItem(key, JSON.stringify(item));
+            return true;
+          } catch (e) {
+            console.error('Error saving to localStorage:', e);
+            return false;
+          }
+        },
+        
+        get: function(key) {
+          try {
+            const itemStr = localStorage.getItem(key);
+            
+            if (!itemStr) {
+              return null;
+            }
+            
+            const item = JSON.parse(itemStr);
+            
+            // Check if item has expired
+            if (item.expiration && Date.now() > item.expiration) {
+              localStorage.removeItem(key);
+              return null;
+            }
+            
+            return item.value;
+          } catch (e) {
+            console.error('Error reading from localStorage:', e);
+            return null;
+          }
+        },
+        
+        remove: function(key) {
+          try {
+            localStorage.removeItem(key);
+            return true;
+          } catch (e) {
+            console.error('Error removing from localStorage:', e);
+            return false;
+          }
+        },
+        
+        clear: function() {
+          try {
+            localStorage.clear();
+            return true;
+          } catch (e) {
+            console.error('Error clearing localStorage:', e);
+            return false;
+          }
+        }
+      };
+
+      // Cookie Helper Functions
+      const cookies = {
+        set: function(name, value, days = 30) {
+          const expires = new Date();
+          expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+          document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+        },
+        
+        get: function(name) {
+          const nameEQ = name + "=";
+          const ca = document.cookie.split(';');
+          
+          for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+              return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
+          }
+          
+          return null;
+        },
+        
+        remove: function(name) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
+        }
+      };
+
+      // URL Parameter Helper
+      const urlParams = {
+        get: function(param) {
+          const params = new URLSearchParams(window.location.search);
+          return params.get(param);
+        },
+        
+        getAll: function() {
+          const params = new URLSearchParams(window.location.search);
+          const result = {};
+          
+          for (const [key, value] of params) {
+            result[key] = value;
+          }
+          
+          return result;
+        },
+        
+        set: function(param, value, pushState = true) {
+          const params = new URLSearchParams(window.location.search);
+          params.set(param, value);
+          
+          const newUrl = `${window.location.pathname}?${params.toString()}`;
+          
+          if (pushState) {
+            window.history.pushState({}, '', newUrl);
+          } else {
+            window.history.replaceState({}, '', newUrl);
+          }
+        },
+        
+        remove: function(param, pushState = true) {
+          const params = new URLSearchParams(window.location.search);
+          params.delete(param);
+          
+          const newUrl = params.toString() 
+            ? `${window.location.pathname}?${params.toString()}`
+            : window.location.pathname;
+          
+          if (pushState) {
+            window.history.pushState({}, '', newUrl);
+          } else {
+            window.history.replaceState({}, '', newUrl);
+          }
+        }
+      };
+
+      // Device Detection
+      const device = {
+        isMobile: function() {
+          return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        },
+        
+        isTablet: function() {
+          return /(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(navigator.userAgent);
+        },
+        
+        isDesktop: function() {
+          return !this.isMobile() && !this.isTablet();
+        },
+        
+        isIOS: function() {
+          return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        },
+        
+        isAndroid: function() {
+          return /Android/.test(navigator.userAgent);
+        },
+        
+        isTouchDevice: function() {
+          return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        },
+        
+        getOrientation: function() {
+          return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+        },
+        
+        getViewportSize: function() {
+          return {
+            width: window.innerWidth,
+            height: window.innerHeight
+          };
+        }
+      };
+
+      // Browser Detection
+      const browser = {
+        isChrome: function() {
+          return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        },
+        
+        isFirefox: function() {
+          return /Firefox/.test(navigator.userAgent);
+        },
+        
+        isSafari: function() {
+          return /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+        },
+        
+        isEdge: function() {
+          return /Edg/.test(navigator.userAgent);
+        },
+        
+        isIE: function() {
+          return /MSIE|Trident/.test(navigator.userAgent);
+        },
+        
+        getVersion: function() {
+          const ua = navigator.userAgent;
+          let match;
+          
+          if (this.isChrome()) {
+            match = ua.match(/Chrome\/(\d+)/);
+          } else if (this.isFirefox()) {
+            match = ua.match(/Firefox\/(\d+)/);
+          } else if (this.isSafari()) {
+            match = ua.match(/Version\/(\d+)/);
+          } else if (this.isEdge()) {
+            match = ua.match(/Edg\/(\d+)/);
+          } else if (this.isIE()) {
+            match = ua.match(/(?:MSIE |rv:)(\d+)/);
+          }
+          
+          return match ? parseInt(match[1]) : null;
+        }
+      };
+
+      // Network Status Monitor
+      const network = {
+        isOnline: function() {
+          return navigator.onLine;
+        },
+        
+        getSpeed: function() {
+          if ('connection' in navigator) {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            return {
+              effectiveType: connection.effectiveType,
+              downlink: connection.downlink,
+              rtt: connection.rtt,
+              saveData: connection.saveData
+            };
+          }
+          return null;
+        },
+        
+        isSlow: function() {
+          const speed = this.getSpeed();
+          if (speed) {
+            return speed.effectiveType === 'slow-2g' || speed.effectiveType === '2g';
+          }
+          return false;
+        }
+      };
+
+      // Animation Observer (Intersection Observer)
+      const animationObserver = {
+        observer: null,
+        
+        init: function(options = {}) {
+          const defaultOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+          };
+          
+          const observerOptions = { ...defaultOptions, ...options };
+          
+          this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+                
+                // Optionally unobserve after animation
+                if (entry.target.dataset.animateOnce === 'true') {
+                  this.observer.unobserve(entry.target);
+                }
+              }
+            });
+          }, observerOptions);
+        },
+        
+        observe: function(selector) {
+          if (!this.observer) {
+            this.init();
+          }
+          
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => this.observer.observe(el));
+        },
+        
+        unobserve: function(element) {
+          if (this.observer && element) {
+            this.observer.unobserve(element);
+          }
+        },
+        
+        disconnect: function() {
+          if (this.observer) {
+            this.observer.disconnect();
+          }
+        }
+      };
+
+      // Initialize animation observer for car cards
+      document.addEventListener('DOMContentLoaded', function() {
+        if ('IntersectionObserver' in window) {
+          setTimeout(() => {
+            animationObserver.observe('.de-item.mb30');
+          }, 500);
+        }
+      });
+
+      // Price Formatter
+      function formatPrice(price, currency = '€', locale = 'ro-RO') {
+        try {
+          return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency === '€' ? 'EUR' : currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+          }).format(price);
+        } catch (e) {
+          // Fallback if Intl is not supported
+          return `${price}${currency}`;
+        }
+      }
+
+      // Date Formatter
+      function formatDate(date, locale = 'ro-RO', options = {}) {
+        const defaultOptions = {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        };
+        
+        const formatOptions = { ...defaultOptions, ...options };
+        
+        try {
+          return new Intl.DateTimeFormat(locale, formatOptions).format(new Date(date));
+        } catch (e) {
+          // Fallback
+          return new Date(date).toLocaleDateString();
+        }
+      }
+
+      // Number Formatter
+      function formatNumber(number, locale = 'ro-RO') {
+        try {
+          return new Intl.NumberFormat(locale).format(number);
+        } catch (e) {
+          return number.toString();
+        }
+      }
+
+      // Copy to Clipboard
+      async function copyToClipboard(text) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+              document.execCommand('copy');
+              textArea.remove();
+              return true;
+            } catch (err) {
+              console.error('Fallback copy failed:', err);
+              textArea.remove();
+              return false;
+            }
+          }
+        } catch (err) {
+          console.error('Copy to clipboard failed:', err);
+          return false;
+        }
+      }
+
+      // Share API
+      async function shareContent(data) {
+        if (navigator.share) {
+          try {
+            await navigator.share(data);
+            return true;
+          } catch (err) {
+            console.error('Share failed:', err);
+            return false;
+          }
+        } else {
+          // Fallback: Copy to clipboard
+          const shareText = `${data.title}\n${data.text}\n${data.url}`;
+          const copied = await copyToClipboard(shareText);
+          
+          if (copied) {
+            showNotification(
+              i18next.t('share.copied_title') || 'Copied!',
+              i18next.t('share.copied_message') || 'Link copied to clipboard',
+              'success'
+            );
+          }
+          
+          return copied;
+        }
+      }
+
+      // Print Page
+      function printPage() {
+        window.print();
+      }
+
+      // Download as PDF (requires browser support)
+      function downloadAsPDF() {
+        window.print();
+      }
+
+      // Generate Unique ID
+      function generateUniqueId(prefix = 'id') {
+        return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+
+      // Sanitize HTML to prevent XSS
+      function sanitizeHTML(html) {
+        const temp = document.createElement('div');
+        temp.textContent = html;
+        return temp.innerHTML;
+      }
+
+      // Escape HTML
+      function escapeHTML(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+      }
+
+      // Get Query String as Object
+      function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const queries = queryString.split('&');
+        
+        queries.forEach(query => {
+          const [key, value] = query.split('=');
+          if (key) {
+            params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+          }
+        });
+        
+        return params;
+      }
+
+      // Build Query String from Object
+      function buildQueryString(params) {
+        return Object.keys(params)
+          .filter(key => params[key] !== null && params[key] !== undefined && params[key] !== '')
+          .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+          .join('&');
+      }
+
+      // Deep Clone Object
+      function deepClone(obj) {
+        if (obj === null || typeof obj !== 'object') {
+          return obj;
+        }
+        
+        if (obj instanceof Date) {
+          return new Date(obj.getTime());
+        }
+        
+        if (obj instanceof Array) {
+          return obj.map(item => deepClone(item));
+        }
+        
+        if (obj instanceof Object) {
+          const clonedObj = {};
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              clonedObj[key] = deepClone(obj[key]);
+            }
+          }
+          return clonedObj;
+        }
+      }
+
+      // Check if Object is Empty
+      function isEmpty(obj) {
+        if (obj === null || obj === undefined) return true;
+        if (typeof obj === 'string' || Array.isArray(obj)) return obj.length === 0;
+        if (typeof obj === 'object') return Object.keys(obj).length === 0;
+        return false;
+      }
+
+      // Capitalize First Letter
+      function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      // Truncate String
+      function truncateString(str, maxLength = 100, suffix = '...') {
+        if (!str || str.length <= maxLength) return str;
+        return str.substring(0, maxLength - suffix.length) + suffix;
+      }
+
+      // Sleep/Delay Function
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      // Random Number Generator
+      function randomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // Random String Generator
+      function randomString(length = 10) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      }
+
+      // Check if Element is in Viewport
+      function isInViewport(element, offset = 0) {
+        if (!element) return false;
+        
+        const rect = element.getBoundingClientRect();
+        return (
+          rect.top >= -offset &&
+          rect.left >= -offset &&
+          rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + offset &&
+          rect.right <= (window.innerWidth || document.documentElement.clientWidth) + offset
+        );
+      }
+
+      // Scroll to Element
+      function scrollToElement(element, offset = 0, behavior = 'smooth') {
+        if (!element) return;
+        
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: behavior
+        });
+      }
+
+      // Get Element Offset
+      function getElementOffset(element) {
+        if (!element) return { top: 0, left: 0 };
+        
+        const rect = element.getBoundingClientRect();
+        return {
+          top: rect.top + window.pageYOffset,
+          left: rect.left + window.pageXOffset
+        };
+      }
+
+      // Add Event Listener with Options
+      function addEventListenerWithOptions(element, event, handler, options = {}) {
+        if (!element) return;
+        
+        const defaultOptions = {
+          capture: false,
+          once: false,
+          passive: true
+        };
+        
+        const eventOptions = { ...defaultOptions, ...options };
+        element.addEventListener(event, handler, eventOptions);
+        
+        // Return function to remove listener
+        return () => element.removeEventListener(event, handler, eventOptions);
+      }
+
+      // Delegate Event
+      function delegate(parent, eventType, selector, handler) {
+        if (!parent) return;
+        
+        parent.addEventListener(eventType, function(event) {
+          const targetElement = event.target.closest(selector);
+          
+          if (targetElement && parent.contains(targetElement)) {
+            handler.call(targetElement, event);
+          }
+        });
+      }
+
+      // Polyfill for Element.closest() if needed
+      if (!Element.prototype.closest) {
+        Element.prototype.closest = function(selector) {
+          let el = this;
+          while (el) {
+            if (el.matches(selector)) {
+              return el;
+            }
+            el = el.parentElement;
+          }
+          return null;
+        };
+      }
+
+      // Polyfill for Element.matches() if needed
+      if (!Element.prototype.matches) {
+        Element.prototype.matches = 
+          Element.prototype.matchesSelector ||
+          Element.prototype.mozMatchesSelector ||
+          Element.prototype.msMatchesSelector ||
+          Element.prototype.oMatchesSelector ||
+          Element.prototype.webkitMatchesSelector ||
+          function(s) {
+            const matches = (this.document || this.ownerDocument).querySelectorAll(s);
+            let i = matches.length;
+            while (--i >= 0 && matches.item(i) !== this) {}
+            return i > -1;
+          };
+      }
+
+      // Analytics Event Tracking (if needed)
+      function trackEvent(category, action, label = '', value = 0) {
+        // Google Analytics
+        if (typeof gtag !== 'undefined') {
+          gtag('event', action, {
+            'event_category': category,
+            'event_label': label,
+            'value': value
+          });
+        }
+        
+        // Facebook Pixel
+        if (typeof fbq !== 'undefined') {
+          fbq('trackCustom', action, {
+            category: category,
+            label: label,
+            value: value
+          });
+        }
+        
+        // Console log for development
+        console.log('Event tracked:', { category, action, label, value });
+      }
+
+      // Log Page View (if needed)
+      function logPageView(page) {
+        // Google Analytics
+        if (typeof gtag !== 'undefined') {
+          gtag('config', 'GA_MEASUREMENT_ID', {
+            'page_path': page
+          });
+        }
+        
+        // Facebook Pixel
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'PageView');
+        }
+        
+        console.log('Page view logged:', page);
+      }
+
+      // Console log with styling
+      function log(message, type = 'info') {
+        const styles = {
+          info: 'color: #1ccfc9; font-weight: bold;',
+          success: 'color: #10b981; font-weight: bold;',
+          warning: 'color: #f59e0b; font-weight: bold;',
+          error: 'color: #ef4444; font-weight: bold;'
+        };
+        
+        console.log(`%c${message}`, styles[type] || styles.info);
+      }
+
+      // Make utility functions globally available
+      window.utils = {
+        validatePhoneNumberAdvanced,
+        validateEmail,
+        validateDateRange,
+        formatPhoneNumber,
+        debounce,
+        throttle,
+        fetchWithRetry,
+        storage,
+        cookies,
+        urlParams,
+        device,
+        browser,
+        network,
+        animationObserver,
+        formatPrice,
+        formatDate,
+        formatNumber,
+        copyToClipboard,
+        shareContent,
+        printPage,
+        downloadAsPDF,
+        generateUniqueId,
+        sanitizeHTML,
+        escapeHTML,
+        getQueryParams,
+        buildQueryString,
+        deepClone,
+        isEmpty,
+        capitalizeFirstLetter,
+        truncateString,
+        sleep,
+        randomNumber,
+        randomString,
+        isInViewport,
+        scrollToElement,
+        getElementOffset,
+        addEventListenerWithOptions,
+        delegate,
+        trackEvent,
+        logPageView,
+        log
+      };
+
+      // Development mode detection
+      const isDevelopment = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '';
+
+      if (isDevelopment) {
+        console.log('%c🔧 Development Mode', 'color: #f59e0b; font-size: 16px; font-weight: bold;');
+        console.log('%cUtils available at window.utils', 'color: #999; font-size: 12px;');
+      }
+    </script>
+
+    <!-- Enhanced i18n Translation Updates -->
+    <script>
+      // Add translation keys for new error messages
+      if (typeof i18next !== 'undefined') {
+        i18next.on('initialized', function() {
+          // Add missing translation keys
+          const additionalTranslations = {
+            ro: {
+              errors: {
+                phone_invalid_format: 'Format de număr de telefon invalid. Vă rugăm să folosiți doar cifre.',
+                phone_invalid_length: 'Numărul de telefon este prea scurt. Introduceți cel puțin 8 cifre.',
+                phone_too_long: 'Numărul de telefon este prea lung. Maximum 15 cifre permise.',
+                email_required: 'Adresa de email este obligatorie.',
+                email_invalid: 'Vă rugăm să introduceți o adresă de email validă.',
+                dates_required: 'Vă rugăm să selectați datele de ridicare și returnare.',
+                dates_invalid: 'Format de dată invalid.',
+                date_past: 'Data ridicării nu poate fi în trecut.',
+                date_order: 'Data returnării trebuie să fie după data ridicării.',
+                date_min_duration: 'Perioada minimă de închiriere este 1 zi.',
+                date_max_duration: 'Perioada maximă de închiriere este 365 de zile.'
+              },
+              share: {
+                copied_title: 'Copiat!',
+                copied_message: 'Link copiat în clipboard'
+              },
+              calculator: {
+                title: 'Calculator Preț',
+                pickup_date: 'Data Ridicării',
+                return_date: 'Data Returnării',
+                phone: 'Număr de Telefon',
+                phone_placeholder: '+373 60 000 500',
+                select_pickup: 'Selectați data ridicării',
+                select_return: 'Selectați data returnării',
+                calculate_btn: 'Calculează Prețul',
+                calculating: 'Se calculează prețul...',
+                total_price: 'Preț Total',
+                rental_days: 'Zile de Închiriere',
+                daily_rate: 'Tarif Zilnic',
+                error_pickup: 'Vă rugăm să selectați data ridicării',
+                error_return: 'Vă rugăm să selectați data returnării',
+                error_phone: 'Vă rugăm să introduceți un număr de telefon valid (minim 8 cifre)'
+              }
+            },
+            ru: {
+              errors: {
+                phone_invalid_format: 'Неверный формат номера телефона. Пожалуйста, используйте только цифры.',
+                phone_invalid_length: 'Номер телефона слишком короткий. Введите не менее 8 цифр.',
+                phone_too_long: 'Номер телефона слишком длинный. Максимум 15 цифр.',
+                email_required: 'Адрес электронной почты обязателен.',
+                email_invalid: 'Пожалуйста, введите действительный адрес электронной почты.',
+                dates_required: 'Пожалуйста, выберите даты получения и возврата.',
+                dates_invalid: 'Неверный формат даты.',
+                date_past: 'Дата получения не может быть в прошлом.',
+                date_order: 'Дата возврата должна быть после даты получения.',
+                date_min_duration: 'Минимальный период аренды - 1 день.',
+                date_max_duration: 'Максимальный период аренды - 365 дней.'
+              },
+              share: {
+                copied_title: 'Скопировано!',
+                copied_message: 'Ссылка скопирована в буфер обмена'
+              },
+              calculator: {
+                title: 'Калькулятор Цены',
+                pickup_date: 'Дата Получения',
+                return_date: 'Дата Возврата',
+                phone: 'Номер Телефона',
+                phone_placeholder: '+373 60 000 500',
+                select_pickup: 'Выберите дату получения',
+                select_return: 'Выберите дату возврата',
+                calculate_btn: 'Рассчитать Цену',
+                calculating: 'Рассчитываем цену...',
+                total_price: 'Общая Цена',
+                rental_days: 'Дни Аренды',
+                daily_rate: 'Дневной Тариф',
+                error_pickup: 'Пожалуйста, выберите дату получения',
+                error_return: 'Пожалуйста, выберите дату возврата',
+                error_phone: 'Пожалуйста, введите действительный номер телефона (минимум 8 цифр)'
+              }
+            },
+            en: {
+              errors: {
+                phone_invalid_format: 'Invalid phone number format. Please use only digits.',
+                phone_invalid_length: 'Phone number is too short. Please enter at least 8 digits.',
+                phone_too_long: 'Phone number is too long. Maximum 15 digits allowed.',
+                email_required: 'Email address is required.',
+                email_invalid: 'Please enter a valid email address.',
+                dates_required: 'Please select both pickup and return dates.',
+                dates_invalid: 'Invalid date format.',
+                date_past: 'Pickup date cannot be in the past.',
+                date_order: 'Return date must be after pickup date.',
+                date_min_duration: 'Minimum rental period is 1 day.',
+                date_max_duration: 'Maximum rental period is 365 days.'
+              },
+              share: {
+                copied_title: 'Copied!',
+                copied_message: 'Link copied to clipboard'
+              },
+              calculator: {
+                title: 'Price Calculator',
+                pickup_date: 'Pickup Date',
+                return_date: 'Return Date',
+                phone: 'Phone Number',
+                phone_placeholder: '+373 60 000 500',
+                select_pickup: 'Select pickup date',
+                select_return: 'Select return date',
+                calculate_btn: 'Calculate Price',
+                calculating: 'Calculating price...',
+                total_price: 'Total Price',
+                rental_days: 'Rental Days',
+                daily_rate: 'Daily Rate',
+                error_pickup: 'Please select a pickup date',
+                error_return: 'Please select a return date',
+                error_phone: 'Please enter a valid phone number (minimum 8 digits)'
+              }
+            }
+          };
+
+          // Merge translations
+          Object.keys(additionalTranslations).forEach(lang => {
+            i18next.addResourceBundle(lang, 'translation', additionalTranslations[lang], true, true);
+          });
+        });
+      }
+    </script>
+</body>
+</html>
