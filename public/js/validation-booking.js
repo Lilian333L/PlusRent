@@ -2874,6 +2874,21 @@ function hideFloatingFreeDaysNotification() {
 
 // Функция для показа ошибок
 function showError(message) {
+    // Проверяем, есть ли специальный блок для ошибок купона
+    const couponError = document.getElementById('coupon-error-message');
+    if (couponError) {
+        couponError.textContent = message;
+        couponError.style.display = 'block';
+        couponError.classList.remove('success');
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            couponError.style.display = 'none';
+        }, 5000);
+        return;
+    }
+    
+    // Fallback: если нет блока для купона, используем общий error_message
     const errorDiv = document.getElementById('error_message');
     if (errorDiv) {
         errorDiv.textContent = message;
@@ -2890,6 +2905,22 @@ function showError(message) {
 
 // Функция для показа успешных сообщений
 function showSuccess(message) {
+    // Проверяем, есть ли специальный блок для купона
+    const couponError = document.getElementById('coupon-error-message');
+    if (couponError) {
+        couponError.textContent = message;
+        couponError.style.display = 'block';
+        couponError.classList.add('success');
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            couponError.style.display = 'none';
+            couponError.classList.remove('success');
+        }, 5000);
+        return;
+    }
+    
+    // Fallback: если нет блока для купона, используем общий error_message
     const errorDiv = document.getElementById('error_message');
     if (errorDiv) {
         errorDiv.textContent = message;
