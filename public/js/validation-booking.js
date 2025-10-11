@@ -1921,10 +1921,6 @@ function hideUniversalError() {
 window.showUniversalError = showUniversalError;
 window.hideUniversalError = hideUniversalError;
 
-// Override the existing showError function to use popup
-window.showError = function (message) {
-  showUniversalError(message);
-};
 
 // Debug: Test modal error display
 window.testModalError = function () {
