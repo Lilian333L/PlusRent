@@ -2874,28 +2874,42 @@ function hideFloatingFreeDaysNotification() {
 
 // Функция для показа ошибок
 function showError(message) {
-    console.log('🔴 showError called:', message); // Debug log
+    console.log('🔴 showError called:', message);
     
-    // Проверяем, есть ли специальный блок для ошибок купона
-    const couponError = document.getElementById('coupon-error-message');
-    if (couponError) {
-        console.log('✅ Found coupon error element'); // Debug log
-        couponError.textContent = message;
-        couponError.style.display = 'block'; // ✅ Принудительно показываем
-        couponError.classList.remove('success');
-        couponError.classList.add('show'); // ✅ Добавляем класс для анимации
-        
-        // Автоматически скрываем через 5 секунд
-        setTimeout(() => {
-            couponError.style.display = 'none';
-            couponError.classList.remove('show');
-        }, 5000);
-        return;
-    } else {
-        console.log('❌ Coupon error element not found'); // Debug log
+    // Функция для показа ошибки в купоне
+    function showCouponError() {
+        const couponError = document.getElementById('coupon-error-message');
+        if (couponError) {
+            console.log('✅ Found coupon error element');
+            couponError.textContent = message;
+            couponError.style.display = 'block';
+            couponError.classList.remove('success');
+            couponError.classList.add('show');
+            
+            setTimeout(() => {
+                couponError.style.display = 'none';
+                couponError.classList.remove('show');
+            }, 5000);
+            return true;
+        }
+        return false;
     }
     
-    // Fallback: если нет блока для купона, используем общий error_message
+    // Пытаемся показать ошибку в купоне
+    if (showCouponError()) {
+        return; // Успешно показали
+    }
+    
+    // Если модал ещё не открыт, показываем универсальную ошибку
+    console.log('⚠️ Coupon error element not found - using universal error');
+    
+    // Используем универсальную систему ошибок
+    if (typeof showUniversalError === 'function') {
+        showUniversalError(message);
+        return;
+    }
+    
+    // Fallback: общий error_message
     const errorDiv = document.getElementById('error_message');
     if (errorDiv) {
         errorDiv.textContent = message;
@@ -2905,32 +2919,44 @@ function showError(message) {
         
         setTimeout(() => {
             errorDiv.style.display = 'none';
+            errorDiv.classList.remove('show');
         }, 5000);
+    } else {
+        // Последний fallback - alert
+        alert(message);
     }
 }
 
 // Функция для показа успешных сообщений
 function showSuccess(message) {
-    console.log('🟢 showSuccess called:', message); // Debug log
+    console.log('🟢 showSuccess called:', message);
     
-    // Проверяем, есть ли специальный блок для купона
-    const couponError = document.getElementById('coupon-error-message');
-    if (couponError) {
-        console.log('✅ Found coupon error element for success'); // Debug log
-        couponError.textContent = message;
-        couponError.style.display = 'block'; // ✅ Принудительно показываем
-        couponError.classList.add('success');
-        couponError.classList.add('show'); // ✅ Добавляем класс для анимации
-        
-        setTimeout(() => {
-            couponError.style.display = 'none';
-            couponError.classList.remove('success');
-            couponError.classList.remove('show');
-        }, 5000);
+    // Функция для показа успеха в купоне
+    function showCouponSuccess() {
+        const couponError = document.getElementById('coupon-error-message');
+        if (couponError) {
+            console.log('✅ Found coupon error element for success');
+            couponError.textContent = message;
+            couponError.style.display = 'block';
+            couponError.classList.add('success');
+            couponError.classList.add('show');
+            
+            setTimeout(() => {
+                couponError.style.display = 'none';
+                couponError.classList.remove('success');
+                couponError.classList.remove('show');
+            }, 5000);
+            return true;
+        }
+        return false;
+    }
+    
+    // Пытаемся показать успех в купоне
+    if (showCouponSuccess()) {
         return;
     }
     
-    // Fallback
+    // Fallback: универсальная система
     const errorDiv = document.getElementById('error_message');
     if (errorDiv) {
         errorDiv.textContent = message;
@@ -2941,6 +2967,7 @@ function showSuccess(message) {
         setTimeout(() => {
             errorDiv.style.display = 'none';
             errorDiv.classList.remove('success');
+            errorDiv.classList.remove('show');
         }, 5000);
     }
 }
