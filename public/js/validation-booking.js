@@ -296,12 +296,6 @@ $(document).ready(function () {
 
   // Show success message - This function is now defined later in the file with the professional modal
 
-  // Show error message
-  window.showError = function (message) {
-    // Use universal error popup instead
-    showUniversalError(message);
-  };
-
   // Clear error states when user starts typing
   $("input, select, textarea").on("input change", function () {
     $(this).removeClass("error_input");
