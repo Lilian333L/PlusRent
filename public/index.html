@@ -3506,6 +3506,55 @@
   <script src="js/i18n-init.js"></script>
 
   <script>
+// ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Показываем ВСЕ 7 дней в неделю
+document.addEventListener('DOMContentLoaded', function() {
+    const originalFlatpickr = flatpickr;
+    
+    window.flatpickr = function(selector, config) {
+        config = config || {};
+        
+        const originalOnReady = config.onReady;
+        
+        config.onReady = function(selectedDates, dateStr, instance) {
+            if (originalOnReady) {
+                originalOnReady(selectedDates, dateStr, instance);
+            }
+            fixCalendarDisplay(instance);
+        };
+        
+        const originalOnMonthChange = config.onMonthChange;
+        
+        config.onMonthChange = function(selectedDates, dateStr, instance) {
+            if (originalOnMonthChange) {
+                originalOnMonthChange(selectedDates, dateStr, instance);
+            }
+            setTimeout(() => fixCalendarDisplay(instance), 10);
+        };
+        
+        return originalFlatpickr(selector, config);
+    };
+    
+    Object.keys(originalFlatpickr).forEach(key => {
+        window.flatpickr[key] = originalFlatpickr[key];
+    });
+    
+    function fixCalendarDisplay(instance) {
+        if (!instance || !instance.calendarContainer) return;
+        
+        const dayContainer = instance.calendarContainer.querySelector('.dayContainer');
+        if (!dayContainer) return;
+        
+        const allDays = dayContainer.querySelectorAll('.flatpickr-day');
+        allDays.forEach(day => {
+            day.style.display = 'inline-block';
+            day.style.visibility = 'visible';
+        });
+        
+        console.log('✅ Calendar fixed - showing all 7 days');
+    }
+});
+</script>
+  <script>
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
       return rawKey
