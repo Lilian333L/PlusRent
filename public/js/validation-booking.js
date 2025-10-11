@@ -2878,12 +2878,14 @@ function showError(message) {
     const couponError = document.getElementById('coupon-error-message');
     if (couponError) {
         couponError.textContent = message;
-        couponError.style.display = 'block';
+        couponError.style.display = 'block'; // ✅ Принудительно показываем
         couponError.classList.remove('success');
+        couponError.classList.add('show'); // ✅ Добавляем класс для анимации
         
         // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             couponError.style.display = 'none';
+            couponError.classList.remove('show');
         }, 5000);
         return;
     }
@@ -2896,7 +2898,6 @@ function showError(message) {
         errorDiv.classList.remove('success');
         errorDiv.classList.add('show');
         
-        // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             errorDiv.style.display = 'none';
         }, 5000);
@@ -2909,18 +2910,19 @@ function showSuccess(message) {
     const couponError = document.getElementById('coupon-error-message');
     if (couponError) {
         couponError.textContent = message;
-        couponError.style.display = 'block';
+        couponError.style.display = 'block'; // ✅ Принудительно показываем
         couponError.classList.add('success');
+        couponError.classList.add('show'); // ✅ Добавляем класс для анимации
         
-        // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             couponError.style.display = 'none';
             couponError.classList.remove('success');
+            couponError.classList.remove('show');
         }, 5000);
         return;
     }
     
-    // Fallback: если нет блока для купона, используем общий error_message
+    // Fallback
     const errorDiv = document.getElementById('error_message');
     if (errorDiv) {
         errorDiv.textContent = message;
@@ -2928,7 +2930,6 @@ function showSuccess(message) {
         errorDiv.classList.add('success');
         errorDiv.classList.add('show');
         
-        // Автоматически скрываем через 5 секунд
         setTimeout(() => {
             errorDiv.style.display = 'none';
             errorDiv.classList.remove('success');
@@ -2936,6 +2937,7 @@ function showSuccess(message) {
     }
 }
 
-// Make functions globally available
+// ✅ Делаем функции глобально доступными
 window.showError = showError;
 window.showSuccess = showSuccess;
+
