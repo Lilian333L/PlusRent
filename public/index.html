@@ -223,6 +223,17 @@
       animation: slideInDown 0.3s ease-out;
     }
 
+    /* Success Message Styling */
+    #error_message.success {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+
+    #error_message.success:before {
+      content: "✅";
+      margin-right: 8px;
+      font-size: 16px;
+    }
+
     @keyframes slideInDown {
       from {
         opacity: 0;
@@ -3352,20 +3363,28 @@
       </div>
       <div class="modal-body">
         <div class="tariff-info">
-          <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours &
-              Location Fees</span></h6>
-          <div class="tariff-details" id="tariff-details-container">
-            <div><span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00
-                PM):</span> <span data-i18n="price_calculator.standard_pricing">Standard pricing</span></div>
-            <div><span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
-              +<span id="index-outside-hours-fee">€15</span> <span data-i18n="price_calculator.outside_hours_fee">fee
-                per pickup/return</span></div>
-            <div><span class="location-fees" data-i18n="price_calculator.airport_delivery">Airport Delivery:</span>
-              <span id="dynamic-airport-fees">Loading...</span></div>
-            <div><i class="fa fa-clock-o"></i> <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24
-                hours</span></div>
-          </div>
+            <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours & Location Fees</span></h6>
+            <div class="tariff-details" id="tariff-details-container">
+                <div>
+                    <span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00 PM):</span> 
+                    <span data-i18n="price_calculator.standard_pricing">Standard pricing</span>
+                </div>
+                <div>
+                    <span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
+                    +<span id="index-outside-hours-fee">€15</span> 
+                    <span data-i18n="price_calculator.outside_hours_fee">fee per pickup/return</span>
+                </div>
+                <div>
+                    <span class="location-fees" data-i18n="price_calculator.airport_delivery">Livrare la Aeroport:</span>
+                    <span id="dynamic-airport-fees">Chișinău Aeroport +€25, Iași Aeroport +€35</span>
+                </div>
+                <div>
+                    <i class="fa fa-clock-o"></i> 
+                    <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24 hours</span>
+                </div>
+            </div>
         </div>
+
 
         <div class="calculator-section">
           <h5><i class="fa fa-calendar"></i> <span data-i18n="price_calculator.rental_period">Rental Period</span></h5>
@@ -3622,64 +3641,60 @@
       }
     });
 
-    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Загрузка тарифов из админки
+    // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ: Правильный формат аэропортов
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('🔧 Loading tariff fees from admin panel...');
-      
-      // Функция для загрузки тарифов
-      async function loadTariffFees() {
-        try {
-          const response = await fetch(window.API_BASE_URL + '/api/settings');
-          const settings = await response.json();
-          
-          console.log('✅ Tariff settings loaded:', settings);
-          
-          // Обновляем тарифы в модальном окне
-          const outsideHoursFee = settings.outside_working_hours_fee || '15';
-          const chisinauPickup = settings.chisinau_airport_pickup || '25';
-          const chisinauDropoff = settings.chisinau_airport_dropoff || '25';
-          const iasiPickup = settings.iasi_airport_pickup || '35';
-          const iasiDropoff = settings.iasi_airport_dropoff || '35';
-          
-          // Обновляем текст в tariff-info
-          document.getElementById('index-outside-hours-fee').textContent = '€' + outsideHoursFee;
-          
-          // Создаем правильный текст для аэропортов
-          const airportFeesText = `Chisinau Pickup +€${chisinauPickup}, Chisinau Dropoff +€${chisinauDropoff}, Iasi Pickup +€${iasiPickup}, Iasi Dropoff +€${iasiDropoff}`;
-          
-          // Обновляем динамический текст
-          const dynamicFeesEl = document.getElementById('dynamic-airport-fees');
-          if (dynamicFeesEl) {
-            dynamicFeesEl.textContent = airportFeesText;
-          }
-          
-          console.log('✅ Tariff fees updated in modal');
-          
-          // Сохраняем в глобальной переменной для использования в калькуляторе
-          window.TARIFF_FEES = {
-            outsideHours: parseInt(outsideHoursFee),
-            chisinauPickup: parseInt(chisinauPickup),
-            chisinauDropoff: parseInt(chisinauDropoff),
-            iasiPickup: parseInt(iasiPickup),
-            iasiDropoff: parseInt(iasiDropoff)
-          };
-          
-        } catch (error) {
-          console.error('❌ Error loading tariff fees:', error);
-          // Используем значения по умолчанию
-          window.TARIFF_FEES = {
-            outsideHours: 15,
-            chisinauPickup: 25,
-            chisinauDropoff: 25,
-            iasiPickup: 35,
-            iasiDropoff: 35
-          };
+        console.log('🔧 Loading tariff fees from admin panel...');
+        
+        async function loadTariffFees() {
+            try {
+                const response = await fetch(window.API_BASE_URL + '/api/settings');
+                const settings = await response.json();
+                
+                console.log('✅ Tariff settings loaded:', settings);
+                
+                // Получаем тарифы
+                const outsideHoursFee = settings.outside_working_hours_fee || '15';
+                
+                // ✅ ИСПРАВЛЕНИЕ: Используем правильные поля для аэропортов
+                // Берем общую стоимость доставки для каждого аэропорта
+                const chisinauAirportFee = settings.chisinau_airport_pickup || settings.chisinau_airport_dropoff || '25';
+                const iasiAirportFee = settings.iasi_airport_pickup || settings.iasi_airport_dropoff || '35';
+                
+                // Обновляем outside hours fee
+                document.getElementById('index-outside-hours-fee').textContent = '€' + outsideHoursFee;
+                
+                // ✅ НОВЫЙ ФОРМАТ: Только название аэропорта + цена
+                const airportFeesText = `Chișinău Aeroport +€${chisinauAirportFee}, Iași Aeroport +€${iasiAirportFee}`;
+                
+                // Обновляем динамический текст
+                const dynamicFeesEl = document.getElementById('dynamic-airport-fees');
+                if (dynamicFeesEl) {
+                    dynamicFeesEl.textContent = airportFeesText;
+                }
+                
+                console.log('✅ Airport fees updated:', airportFeesText);
+                
+                // Сохраняем в глобальной переменной для калькулятора
+                window.TARIFF_FEES = {
+                    outsideHours: parseInt(outsideHoursFee),
+                    chisinauAirport: parseInt(chisinauAirportFee),
+                    iasiAirport: parseInt(iasiAirportFee)
+                };
+                
+            } catch (error) {
+                console.error('❌ Error loading tariff fees:', error);
+                // Значения по умолчанию
+                window.TARIFF_FEES = {
+                    outsideHours: 15,
+                    chisinauAirport: 25,
+                    iasiAirport: 35
+                };
+            }
         }
-      }
-      
-      // Загружаем тарифы при загрузке страницы
-      loadTariffFees();
+        
+        loadTariffFees();
     });
+
   </script>
 
   <script>
