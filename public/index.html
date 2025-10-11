@@ -2360,7 +2360,7 @@
   </style>
 
 <style>
-    /* ========== FLATPICKR CALENDAR - ИСПРАВЛЕННАЯ ВЕРСИЯ ========== */
+    /* ========== FLATPICKR CALENDAR - ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ ========== */
 
     /* Base Calendar Container */
     .flatpickr-calendar {
@@ -2487,8 +2487,12 @@
       font-size: 16px !important;
     }
 
-    /* ✅ ГОД - УБРАНА ВСЯ ДВОЙНАЯ ОБВОДКА */
-    .flatpickr-current-month .numInputWrapper {
+    /* ✅ ГОД - ПОЛНОЕ УДАЛЕНИЕ ДВОЙНОЙ ОБВОДКИ */
+    .flatpickr-current-month .numInputWrapper,
+    .flatpickr-current-month .numInputWrapper:hover,
+    .flatpickr-current-month .numInputWrapper:focus,
+    .flatpickr-current-month .numInputWrapper:focus-within,
+    .flatpickr-current-month .numInputWrapper:active {
       background: rgba(255, 255, 255, 0.25) !important;
       backdrop-filter: blur(10px) !important;
       border: 2px solid rgba(255, 255, 255, 0.3) !important;
@@ -2500,21 +2504,15 @@
       outline: none !important;
     }
 
-    .flatpickr-current-month .numInputWrapper:hover {
-      background: rgba(255, 255, 255, 0.35) !important;
-      border-color: rgba(255, 255, 255, 0.5) !important;
-      transform: translateY(-1px) !important;
-      box-shadow: none !important;
-      outline: none !important;
-    }
-
     .flatpickr-current-month .numInputWrapper:focus-within {
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important;
-      outline: none !important;
       border-color: rgba(255, 255, 255, 0.5) !important;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15) !important;
     }
 
-    .flatpickr-current-month .numInputWrapper input {
+    .flatpickr-current-month .numInputWrapper input,
+    .flatpickr-current-month .numInputWrapper input:hover,
+    .flatpickr-current-month .numInputWrapper input:focus,
+    .flatpickr-current-month .numInputWrapper input:active {
       color: white !important;
       font-weight: 700 !important;
       font-size: 16px !important;
@@ -2524,12 +2522,6 @@
       box-shadow: none !important;
       border: none !important;
       background: transparent !important;
-    }
-
-    .flatpickr-current-month .numInputWrapper input:focus {
-      outline: none !important;
-      box-shadow: none !important;
-      border: none !important;
     }
 
     .flatpickr-current-month .numInputWrapper span {
@@ -2636,29 +2628,28 @@
       background: #ffffff;
     }
 
-    /* ✅ ИСПРАВЛЕНИЕ: 7 ДНЕЙ В НЕДЕЛЮ */
+    /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: 7 ДНЕЙ В НЕДЕЛЮ */
     .dayContainer {
-      width: 100% !important;
-      min-width: 100% !important;
-      max-width: 100% !important;
-      display: grid !important;
-      grid-template-columns: repeat(7, 1fr) !important;
-      gap: 3px !important;
+      width: 308px !important;
+      min-width: 308px !important;
+      max-width: 308px !important;
     }
 
-    /* ✅ ВСЕ ДНИ ВИДИМЫ - ВКЛЮЧАЯ 7-Й */
+    /* ✅ ВСЕ ДНИ ВИДИМЫ - 44px * 7 = 308px */
     .flatpickr-day {
       border-radius: 12px;
       font-weight: 600;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      width: 100% !important;
+      width: 40px !important;
+      max-width: 40px !important;
       height: 40px !important;
       line-height: 40px !important;
       font-size: 14px;
       color: #334155;
       border: 1px solid transparent;
-      display: block !important;
-      margin: 0 !important;
+      display: inline-block !important;
+      margin: 2px !important;
+      flex: 0 0 40px !important;
     }
 
     .flatpickr-day:hover:not(.flatpickr-disabled):not(.occupied) {
@@ -2723,11 +2714,11 @@
       color: #cbd5e1 !important;
       background: #f8fafc;
       cursor: not-allowed;
-      display: block !important;
+      display: inline-block !important;
       opacity: 0.4;
     }
 
-    /* ✅ МОБИЛЬНЫЕ - 7 ДНЕЙ В GRID */
+    /* ✅ МОБИЛЬНЫЕ - ФИКСИРОВАННАЯ ШИРИНА */
     @media (pointer: coarse), (max-width: 767px) {
       .flatpickr-calendar {
         border-radius: 16px;
@@ -2755,8 +2746,11 @@
         right: 6px !important;
       }
 
+      /* ✅ МОБИЛЬНЫЙ GRID - calc((100% - 12px) / 7) */
       .dayContainer {
         width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
@@ -2765,6 +2759,7 @@
 
       .flatpickr-day {
         width: 100% !important;
+        max-width: 100% !important;
         height: 44px !important;
         line-height: 44px !important;
         margin: 0 !important;
@@ -2775,6 +2770,7 @@
       .flatpickr-day.prevMonthDay,
       .flatpickr-day.nextMonthDay {
         display: block !important;
+        visibility: visible !important;
         opacity: 0.25 !important;
       }
 
@@ -2816,6 +2812,7 @@
       .flatpickr-day.prevMonthDay,
       .flatpickr-day.nextMonthDay {
         display: block !important;
+        visibility: visible !important;
         opacity: 0.25 !important;
       }
     }
