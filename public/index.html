@@ -2487,7 +2487,7 @@
   font-size: 16px !important;
 }
 
-/* ✅ ЯДЕРНОЕ УДАЛЕНИЕ ОБВОДКИ ГОДА */
+css/* ✅ ГОД - ПОЛНОЕ УДАЛЕНИЕ ДВОЙНОЙ ОБВОДКИ */
 .flatpickr-current-month .numInputWrapper,
 .flatpickr-current-month .numInputWrapper:hover,
 .flatpickr-current-month .numInputWrapper:focus,
@@ -2499,6 +2499,7 @@
   border-radius: 12px !important;
   padding: 5px 8px !important;
   margin-left: 10px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -2508,53 +2509,31 @@
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15) !important;
 }
 
-/* ✅ КРИТИЧНО: Убираем ВСЕ с input */
-.flatpickr-current-month .numInputWrapper input {
+/* ✅ КРИТИЧНО: Убираем ВСЕ обводки с input внутри */
+.flatpickr-current-month .numInputWrapper input,
+.flatpickr-current-month .numInputWrapper input:hover,
+.flatpickr-current-month .numInputWrapper input:focus,
+.flatpickr-current-month .numInputWrapper input:active,
+.flatpickr-current-month .numInputWrapper input:focus-visible {
   color: white !important;
   font-weight: 700 !important;
   font-size: 16px !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   width: 54px !important;
-  background: transparent !important;
-  
-  /* ✅ ЯДЕРНОЕ УДАЛЕНИЕ */
-  outline: 0 !important;
   outline: none !important;
-  outline-width: 0 !important;
-  outline-style: none !important;
-  outline-color: transparent !important;
-  outline-offset: 0 !important;
-  
   box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  -moz-box-shadow: none !important;
-  
-  border: 0 !important;
   border: none !important;
-  border-width: 0 !important;
-  border-style: none !important;
-  border-color: transparent !important;
-  
+  background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
 }
 
-/* ✅ Все состояния */
-.flatpickr-current-month .numInputWrapper input:hover,
-.flatpickr-current-month .numInputWrapper input:focus,
-.flatpickr-current-month .numInputWrapper input:active,
-.flatpickr-current-month .numInputWrapper input:focus-visible,
-.flatpickr-current-month .numInputWrapper input:focus-within {
-  outline: 0 !important;
-  box-shadow: none !important;
-  border: 0 !important;
-}
-
-/* ✅ Убираем спиннеры */
+/* ✅ НОВОЕ: Убираем стандартную обводку браузера */
 .flatpickr-current-month .numInputWrapper input::-webkit-inner-spin-button,
 .flatpickr-current-month .numInputWrapper input::-webkit-outer-spin-button {
   display: none !important;
   -webkit-appearance: none !important;
+  margin: 0 !important;
 }
 
 .flatpickr-current-month .numInputWrapper input[type=number] {
@@ -2579,7 +2558,47 @@
 .flatpickr-current-month .numInputWrapper span.arrowDown:after {
   border-top-color: white !important;
 }
+/* ✅ КРИТИЧНО: Убираем обводку при любом взаимодействии */
+.flatpickr-current-month .numInputWrapper *,
+.flatpickr-current-month .numInputWrapper *:focus,
+.flatpickr-current-month .numInputWrapper *:active,
+.flatpickr-current-month .numInputWrapper *:focus-within,
+.flatpickr-current-month .numInputWrapper *:focus-visible {
+  outline: 0 !important;
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
 
+/* ✅ Убираем обводку только для input, оставляем для wrapper */
+.flatpickr-current-month .numInputWrapper input {
+  border: none !important;
+  outline: none !important;
+}
+
+.flatpickr-current-month .numInputWrapper {
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.flatpickr-current-month .numInputWrapper:focus-within {
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15) !important;
+  outline: none !important;
+}
+
+/* ✅ Специально для Chrome/Edge */
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill,
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill:hover,
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill:focus {
+  border: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+  
 /* Modern Navigation Arrows */
 .flatpickr-prev-month,
 .flatpickr-next-month {
@@ -2929,6 +2948,14 @@
   }
 }
 </style>
+</head>
+
+<body>
+  <script>
+    if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
+      window.API_BASE_URL = '';
+    }
+  </script>
 
   <div id="wrapper">
     <div id="de-preloader"></div>
@@ -4156,48 +4183,6 @@ document.addEventListener('DOMContentLoaded', function() {
             input.style.setProperty('border', 'none', 'important');
         });
     }, 100);
-});
-</script>
-
-<script>
-// ✅ СУПЕР АГРЕССИВНОЕ УДАЛЕНИЕ ОБВОДКИ
-document.addEventListener('DOMContentLoaded', function() {
-    function killOutline(input) {
-        if (!input) return;
-        
-        // Удаляем через style
-        input.style.cssText += `
-            outline: 0 !important;
-            outline: none !important;
-            box-shadow: none !important;
-            border: 0 !important;
-            border: none !important;
-        `;
-        
-        // Удаляем через setAttribute
-        input.setAttribute('style', input.getAttribute('style') + 
-            '; outline: none !important; box-shadow: none !important; border: none !important;');
-    }
-    
-    function processAllInputs() {
-        document.querySelectorAll('.flatpickr-current-month .numInputWrapper input').forEach(killOutline);
-    }
-    
-    // Обрабатываем каждые 100ms
-    setInterval(processAllInputs, 100);
-    
-    // Обрабатываем при любом событии
-    document.addEventListener('click', processAllInputs, true);
-    document.addEventListener('focus', processAllInputs, true);
-    document.addEventListener('mousedown', processAllInputs, true);
-    
-    // MutationObserver для отслеживания изменений
-    new MutationObserver(processAllInputs).observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class']
-    });
 });
 </script>
   <script>
