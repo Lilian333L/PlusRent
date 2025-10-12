@@ -2106,16 +2106,30 @@
   opacity: 0.4 !important;
 }
 
-/* МОБИЛЬНЫЕ СТИЛИ - ОКОНЧАТЕЛЬНОЕ ИСПРАВЛЕНИЕ (РЕЗИНОВЫЙ КАЛЕНДАРЬ) */
+/* МОБИЛЬНЫЕ СТИЛИ - ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ (БЕЗ РАЗДЕЛЕНИЯ) */
 @media (max-width: 767px), (pointer: coarse) {
   .flatpickr-calendar {
     border-radius: 16px !important;
-    width: calc(100vw - 20px) !important; /* ← КРИТИЧНО: принудительная ширина */
+    width: calc(100vw - 20px) !important;
     max-width: calc(100vw - 20px) !important;
-    min-width: 0 !important; /* ← УБИРАЕМ минимальную ширину */
+    min-width: 0 !important;
     max-height: 90vh !important;
     padding: 0 !important;
     margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Убираем flex из innerContainer */
+  .flatpickr-innerContainer {
+    display: block !important; /* ← БЫЛО: flex */
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ✅ КРИТИЧЕСКОЕ: Убираем rContainer который создаёт второй столбец */
+  .flatpickr-rContainer {
+    width: 100% !important;
+    display: block !important;
     box-sizing: border-box !important;
   }
 
@@ -2151,7 +2165,7 @@
     right: 6px !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ: Дни недели - РЕЗИНОВЫЕ */
+  /* ✅ КРИТИЧЕСКОЕ: Дни недели */
   .flatpickr-weekdays {
     padding: 12px 10px 8px !important;
     width: 100% !important;
@@ -2160,13 +2174,13 @@
     display: flex !important;
     flex-wrap: nowrap !important;
     justify-content: space-between !important;
-    gap: 2px !important; /* ← ДОБАВИЛИ gap для красоты */
+    gap: 2px !important;
   }
   
   .flatpickr-weekdays .flatpickr-weekday {
-    flex: 1 1 0 !important; /* ← РАВНОМЕРНОЕ РАСПРЕДЕЛЕНИЕ */
+    flex: 1 1 0 !important;
     min-width: 0 !important;
-    max-width: none !important; /* ← БЕЗ ОГРАНИЧЕНИЙ */
+    max-width: none !important;
     width: auto !important;
     font-size: 10px !important;
     background: transparent !important;
@@ -2178,11 +2192,11 @@
     opacity: 1 !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ: Контейнер дней - РЕЗИНОВЫЙ */
+  /* ✅ КРИТИЧЕСКОЕ: Контейнер дней */
   .dayContainer {
-    width: 100% !important; /* ← НЕ calc(), просто 100% */
+    width: 100% !important;
     max-width: 100% !important;
-    min-width: 0 !important; /* ← УБИРАЕМ минимум */
+    min-width: 0 !important;
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
     gap: 3px !important;
@@ -2192,7 +2206,7 @@
     background: transparent !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ: Дни - РЕЗИНОВЫЕ */
+  /* ✅ КРИТИЧЕСКОЕ: Дни */
   .flatpickr-day {
     width: 100% !important;
     max-width: 100% !important;
@@ -2217,7 +2231,7 @@
     background: #f8fafc !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ: Контейнер календаря - РЕЗИНОВЫЙ */
+  /* ✅ КРИТИЧЕСКОЕ: Контейнер календаря */
   .flatpickr-days {
     padding: 10px 10px !important;
     max-height: calc(90vh - 160px) !important;
@@ -2258,7 +2272,6 @@
   }
 }
 
-/* ✅ ИСПРАВЛЕНО ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ */
 @media (max-width: 480px) {
   .flatpickr-calendar {
     font-size: 11px !important;
@@ -2320,7 +2333,6 @@
   }
 }
 
-/* ✅ ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
 @media (max-width: 360px) {
   .flatpickr-calendar {
     width: calc(100vw - 12px) !important;
