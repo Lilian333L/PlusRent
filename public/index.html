@@ -4158,6 +4158,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 </script>
+
+<script>
+// ✅ СУПЕР АГРЕССИВНОЕ УДАЛЕНИЕ ОБВОДКИ
+document.addEventListener('DOMContentLoaded', function() {
+    function killOutline(input) {
+        if (!input) return;
+        
+        // Удаляем через style
+        input.style.cssText += `
+            outline: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            border: none !important;
+        `;
+        
+        // Удаляем через setAttribute
+        input.setAttribute('style', input.getAttribute('style') + 
+            '; outline: none !important; box-shadow: none !important; border: none !important;');
+    }
+    
+    function processAllInputs() {
+        document.querySelectorAll('.flatpickr-current-month .numInputWrapper input').forEach(killOutline);
+    }
+    
+    // Обрабатываем каждые 100ms
+    setInterval(processAllInputs, 100);
+    
+    // Обрабатываем при любом событии
+    document.addEventListener('click', processAllInputs, true);
+    document.addEventListener('focus', processAllInputs, true);
+    document.addEventListener('mousedown', processAllInputs, true);
+    
+    // MutationObserver для отслеживания изменений
+    new MutationObserver(processAllInputs).observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+    });
+});
+</script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🔧 Initializing vehicle data sync for modal');
