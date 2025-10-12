@@ -2706,15 +2706,17 @@
   opacity: 0.4;
 }
   
-/* ✅ МОБИЛЬНЫЕ УСТРОЙСТВА */
+/* ✅ МОБИЛЬНЫЕ УСТРОЙСТВА - УВЕЛИЧЕННАЯ ШИРИНА */
 @media (pointer: coarse), (max-width: 767px) {
   .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important; /* ✅ КРИТИЧНО: 16px против zoom */
-    padding: 6px 8px !important;
-    padding-right: 24px !important;
-    min-width: 60px !important;
-    max-width: 70px !important;
-    width: 70px !important;
+    font-size: 16px !important; /* КРИТИЧНО: 16px против zoom */
+    padding: 6px 10px !important; /* ✅ Увеличили с 6px 8px */
+    padding-right: 28px !important; /* ✅ Больше места для стрелки */
+    min-width: 75px !important; /* ✅ Было 60px → стало 75px */
+    max-width: 85px !important; /* ✅ Было 70px → стало 85px */
+    width: 85px !important; /* ✅ Фиксированная ширина 85px */
+    background-position: right 6px center !important;
+    background-size: 10px !important;
     -webkit-tap-highlight-color: transparent !important;
     transform: none !important;
     transition: none !important;
@@ -2748,7 +2750,6 @@
     right: 6px !important;
   }
 
-  /* ✅ GRID С МЕНЬШИМИ ОТСТУПАМИ */
   .dayContainer {
     width: calc(100vw - 24px) !important;
     max-width: calc(100vw - 24px) !important;
@@ -2761,7 +2762,6 @@
     box-sizing: border-box !important;
   }
 
-  /* ✅ ДНИ КОМПАКТНЕЕ */
   .flatpickr-day {
     width: 100% !important;
     max-width: 100% !important;
@@ -2799,7 +2799,6 @@
     box-sizing: border-box !important;
   }
   
-  /* ✅ КРИТИЧНО: Названия дней недели тоже 7 штук */
   .flatpickr-weekdays .flatpickr-weekday {
     width: calc((100% - 6px) / 7) !important;
     flex: none !important;
@@ -2807,38 +2806,7 @@
   }
 }
 
-/* ✅ ЛАНДШАФТ - СКРОЛЛ */
-@media (max-width: 768px) and (orientation: landscape) {
-  .flatpickr-calendar {
-    max-height: 95vh !important;
-  }
-
-  .flatpickr-days {
-    max-height: calc(95vh - 140px) !important;
-    overflow-y: auto !important;
-  }
-}
-
-/* ✅ iOS - ПРИНУДИТЕЛЬНЫЙ ПОКАЗ */
-@supports (-webkit-touch-callout: none) {
-  .flatpickr-calendar input,
-  .flatpickr-calendar select {
-    font-size: 16px !important;
-  }
-
-  .flatpickr-days {
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .flatpickr-day.prevMonthDay,
-  .flatpickr-day.nextMonthDay,
-  .flatpickr-day.flatpickr-disabled {
-    display: block !important;
-    visibility: visible !important;
-  }
-}
-
-/* Small Screens - ЕЩЁ КОМПАКТНЕЕ */
+/* Small Screens (до 480px) - ЕЩЁ БОЛЬШЕ МЕСТА */
 @media (max-width: 480px) {
   .flatpickr-calendar {
     font-size: 11px !important;
@@ -2854,18 +2822,19 @@
 
   .flatpickr-current-month {
     font-size: 13px;
-    gap: 2px;
+    gap: 3px; /* ✅ Увеличили с 2px */
     padding: 0 2px;
   }
   
   .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important; /* ✅ ВСЕГДА 16px */
-    padding: 6px 6px !important;
-    padding-right: 22px !important;
-    min-width: 58px !important;
-    max-width: 64px !important;
-    background-position: right 2px center !important;
-    background-size: 9px !important;
+    font-size: 16px !important; /* ВСЕГДА 16px */
+    padding: 6px 10px !important; /* ✅ Увеличили */
+    padding-right: 28px !important; /* ✅ Место для стрелки */
+    min-width: 78px !important; /* ✅ Было 58px → стало 78px */
+    max-width: 88px !important; /* ✅ Было 64px → стало 88px */
+    width: 88px !important; /* ✅ Фиксированная ширина */
+    background-position: right 6px center !important;
+    background-size: 10px !important;
   }
   
   .flatpickr-current-month .flatpickr-monthDropdown-months {
