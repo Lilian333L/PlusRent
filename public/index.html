@@ -2709,19 +2709,22 @@
 /* ✅ МОБИЛЬНЫЕ УСТРОЙСТВА - УВЕЛИЧЕННАЯ ШИРИНА */
 @media (pointer: coarse), (max-width: 767px) {
   .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important; /* КРИТИЧНО: 16px против zoom */
-    padding: 6px 10px !important; /* ✅ Увеличили с 6px 8px */
-    padding-right: 28px !important; /* ✅ Больше места для стрелки */
-    min-width: 75px !important; /* ✅ Было 60px → стало 75px */
-    max-width: 85px !important; /* ✅ Было 70px → стало 85px */
-    width: 85px !important; /* ✅ Фиксированная ширина 85px */
+    font-size: 16px !important; /* Браузер видит 16px (без zoom) */
+    transform: scale(0.8125) !important; /* 16px * 0.8125 = 13px визуально */
+    transform-origin: center !important;
+    padding: 7px 9px !important;
+    padding-right: 26px !important;
+    min-width: 75px !important; /* Компенсируем scale */
+    max-width: 80px !important;
+    width: 80px !important;
     background-position: right 6px center !important;
     background-size: 10px !important;
     -webkit-tap-highlight-color: transparent !important;
-    transform: none !important;
     transition: none !important;
   }
-  
+  .flatpickr-current-month .flatpickr-year-dropdown:hover {
+    transform: scale(0.8125) translateY(-1px) !important;
+  } 
   .flatpickr-calendar {
     border-radius: 16px;
     max-width: 100vw !important;
@@ -2822,19 +2825,21 @@
 
   .flatpickr-current-month {
     font-size: 13px;
-    gap: 3px; /* ✅ Увеличили с 2px */
+    gap: 2px;
     padding: 0 2px;
   }
   
   .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important; /* ВСЕГДА 16px */
-    padding: 6px 10px !important; /* ✅ Увеличили */
-    padding-right: 28px !important; /* ✅ Место для стрелки */
-    min-width: 78px !important; /* ✅ Было 58px → стало 78px */
-    max-width: 88px !important; /* ✅ Было 64px → стало 88px */
-    width: 88px !important; /* ✅ Фиксированная ширина */
-    background-position: right 6px center !important;
-    background-size: 10px !important;
+    font-size: 16px !important;
+    transform: scale(0.8125) !important; /* Визуально 13px */
+    transform-origin: center !important;
+    padding: 7px 8px !important;
+    padding-right: 24px !important;
+    min-width: 72px !important;
+    max-width: 78px !important;
+    width: 78px !important;
+    background-position: right 4px center !important;
+    background-size: 9px !important;
   }
   
   .flatpickr-current-month .flatpickr-monthDropdown-months {
