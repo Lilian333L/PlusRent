@@ -2784,6 +2784,54 @@
 .flatpickr-day.today:not(.selected):hover {
   background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
 }
+  /* ========== УБИВАЕМ ВСЕ ОБВОДКИ И ЭФФЕКТЫ ПРИ КЛИКЕ ========== */
+.flatpickr-current-month .flatpickr-year-dropdown,
+.flatpickr-current-month .flatpickr-year-dropdown *,
+.flatpickr-current-month .flatpickr-year-dropdown::before,
+.flatpickr-current-month .flatpickr-year-dropdown::after {
+  /* Убиваем всё */
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
+  outline-offset: 0 !important;
+  
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  
+  /* Убиваем подсветку */
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+  
+  /* Убиваем фокусные кольца */
+  -moz-focus-inner: none !important;
+  -moz-focus-outer: none !important;
+}
+
+/* Специально для псевдоэлементов */
+.flatpickr-current-month .flatpickr-year-dropdown::before,
+.flatpickr-current-month .flatpickr-year-dropdown::after {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+}
+
+/* Убиваем focus-visible (новый стандарт) */
+.flatpickr-current-month .flatpickr-year-dropdown:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Убиваем active состояние */
+.flatpickr-current-month .flatpickr-year-dropdown:active,
+.flatpickr-current-month .flatpickr-year-dropdown:active * {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
 
 /* Occupied Days */
 .flatpickr-day.occupied {
