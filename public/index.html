@@ -2575,12 +2575,47 @@ css/* ✅ ГОД - ПОЛНОЕ УДАЛЕНИЕ ДВОЙНОЙ ОБВОДКИ *
 
 /* ✅ Убираем обводку только для input, оставляем для wrapper */
 .flatpickr-current-month .numInputWrapper input {
-  border: none !important;
-  outline: none !important;
+  color: white;
+  font-weight: 700;
+  font-size: 16px !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  width: 50px;
+  touch-action: manipulation !important;
 }
 
 .flatpickr-current-month .numInputWrapper {
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ИСПРАВЛЕНИЕ ДВОЙНОЙ ОБВОДКИ - убираем стили у контейнера когда есть dropdown */
+.flatpickr-current-month .numInputWrapper:has(.flatpickr-year-dropdown) {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* Fallback для браузеров без :has() */
+.flatpickr-current-month .numInputWrapper[data-has-dropdown="true"] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-left: 4px !important;
+}
+
+/* Оригинальные стили для обычного numInputWrapper (без dropdown) */
+.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]) {
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 3px 6px;
+  margin-left: 8px;
+  transition: all 0.3s ease;
+}
+
+.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]):hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .flatpickr-current-month .numInputWrapper:focus-within {
