@@ -4039,25 +4039,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   </script>
-  <script>
-// Принудительное удаление обводок в реальном времени
+<script>
+// ✅ ПРАВИЛЬНОЕ РЕШЕНИЕ: Убираем обводки только когда нужно
 document.addEventListener('DOMContentLoaded', function() {
-    function killAllOutlines() {
-        document.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *').forEach(el => {
-            el.style.outline = 'none !important';
-            el.style.boxShadow = 'none !important';
-            el.style.border = 'none !important';
+    function removeOutlines(target) {
+        const wrappers = target ? 
+            target.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *') :
+            document.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *');
+        
+        wrappers.forEach(el => {
+            el.style.outline = 'none';
+            el.style.boxShadow = 'none';
+            el.style.border = 'none';
         });
     }
     
-    // Запускаем каждые 100мс для надежности
-    setInterval(killAllOutlines, 100);
+    // Используем MutationObserver для отслеживания появления календаря
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1 && (node.classList?.contains('flatpickr-calendar') || node.querySelector?.('.flatpickr-calendar'))) {
+                    removeOutlines(node);
+                }
+            });
+        });
+    });
     
-    // Также при любом клике
-    document.addEventListener('click', killAllOutlines);
-    document.addEventListener('touchstart', killAllOutlines);
+    // Наблюдаем только за body
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Применяем сразу для уже существующих календарей
+    removeOutlines(document);
+    
+    // Убираем обводки при взаимодействии (один раз при клике, а не постоянно)
+    document.addEventListener('focusin', function(e) {
+        if (e.target.closest('.flatpickr-current-month')) {
+            removeOutlines(e.target.closest('.flatpickr-calendar'));
+        }
+    }, true);
 });
-  </script>
+</script>
    <!-- Price Calculator Modal -->
    <div id="price-calculator-modal" class="price-calculator-modal">
      <div class="price-calculator-content">
