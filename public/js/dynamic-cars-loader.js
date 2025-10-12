@@ -53,6 +53,8 @@ class DynamicCarsLoader {
           option.setAttribute('data-car-id', car.id);
           option.setAttribute('data-daily-price', car.price_policy?.['1-2'] || '0');
           option.setAttribute('data-car-details', JSON.stringify(car));
+          option.dataset.year = car.production_year || car.year || '-';
+
 
           this.selectElement.appendChild(option);
         });
