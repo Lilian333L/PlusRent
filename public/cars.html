@@ -11,7 +11,7 @@
 
   <!-- Meta Base -->
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#ffffff">
   <meta name="msapplication-TileImage" content="images/icon.png">
   <meta name="msapplication-TileColor" content="#ffffff">
@@ -2590,6 +2590,76 @@ input[type="text"]#mobile-filter-date-to::-webkit-calendar-picker-indicator {
   
   .date-input-wrapper input:active {
     background: rgba(28, 207, 201, 0.05) !important;
+  }
+}
+    /* 1️⃣ Увеличиваем font-size до 16px для всех input на мобильных */
+@media (max-width: 767px) {
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important; /* ← iOS не зумит если ≥16px */
+  }
+
+  /* Для date picker инпутов */
+  .date-input-wrapper input {
+    font-size: 16px !important;
+    padding-left: 40px !important; /* ← Увеличиваем из-за большего шрифта */
+  }
+
+  .mobile-filter-content .date-input-wrapper input {
+    font-size: 16px !important;
+    padding-left: 38px !important;
+  }
+
+  /* Для price inputs */
+  .price-range-inputs input {
+    font-size: 16px !important;
+  }
+
+  .mobile-filter-content .price-range-inputs input {
+    font-size: 16px !important;
+  }
+}
+
+/* 2️⃣ Запрещаем зум через CSS */
+@media (max-width: 767px) {
+  html {
+    -webkit-text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+    -ms-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+  }
+
+  body {
+    -webkit-text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+    -ms-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+  }
+}
+
+/* 3️⃣ Отключаем зум при фокусе на input */
+@media (max-width: 767px) {
+  input:focus,
+  select:focus,
+  textarea:focus {
+    font-size: 16px !important; /* ← Принудительно 16px при фокусе */
+  }
+}
+
+/* 4️⃣ Для Flatpickr инпутов внутри календаря */
+@media (max-width: 767px) {
+  .flatpickr-calendar input,
+  .flatpickr-calendar select {
+    font-size: 16px !important; /* ← Уже было, но дублируем для надёжности */
+  }
+}
+
+/* 5️⃣ Убираем возможность тач-зума на всех элементах */
+@media (max-width: 767px) {
+  * {
+    touch-action: manipulation !important; /* ← Запрещаем двойной тап для зума */
   }
 }
   </style>
