@@ -2508,72 +2508,72 @@
   border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
-/* ========== ГОД КАК DROPDOWN - ИДЕНТИЧНО МЕСЯЦУ ========== */
+/* ========== ФИНАЛЬНОЕ РЕШЕНИЕ: ФИКСИРУЕМ BORDER ========== */
 .flatpickr-current-month .flatpickr-year-dropdown,
 .flatpickr-current-month .flatpickr-year-dropdown:hover,
 .flatpickr-current-month .flatpickr-year-dropdown:focus,
+.flatpickr-current-month .flatpickr-year-dropdown:focus-visible,
+.flatpickr-current-month .flatpickr-year-dropdown:focus-within,
 .flatpickr-current-month .flatpickr-year-dropdown:active {
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px) !important;
   color: white !important;
   font-weight: 700 !important;
+  
+  /* 🔥 КРИТИЧНО: BORDER НЕ МЕНЯЕТСЯ НИКОГДА */
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-width: 2px !important;
+  border-style: solid !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  
   border-radius: 10px !important;
   padding: 4px 6px !important;
+  padding-right: 20px !important;
   font-size: 15px !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; /* ✅ КАК У МЕСЯЦА */
+  
+  /* ✅ УБИВАЕМ ВСЁ */
+  outline: none !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
+  
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
   margin-left: 0px !important;
   min-width: 58px !important;
   max-width: 65px !important;
+  width: 65px !important;
+  box-sizing: border-box !important;
   
-  outline: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
   
-  /* ✅ БЕЗ transform при обычном состоянии */
-  transform: none !important;
-  
-  /* Кастомная стрелка */
+  /* Стрелка */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right 4px center !important;
   background-size: 10px !important;
-  padding-right: 20px !important;
 }
 
-/* ✅ При hover - КАК У МЕСЯЦА с translateY */
+/* 🔥 При hover ТОЛЬКО меняем фон, НЕ border! */
 .flatpickr-current-month .flatpickr-year-dropdown:hover {
   background-color: rgba(255, 255, 255, 0.35) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  transform: translateY(-1px) !important; /* ✅ КАК У МЕСЯЦА */
-  box-shadow: none !important;
+  /* border остаётся прежним! */
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
 }
 
-/* ✅ При focus БЕЗ анимации сдвига */
+/* 🔥 При focus/active БЕЗ изменений border! */
 .flatpickr-current-month .flatpickr-year-dropdown:focus,
-.flatpickr-current-month .flatpickr-year-dropdown:focus-visible,
-.flatpickr-current-month .flatpickr-year-dropdown:focus-within {
-  outline: none !important;
-  box-shadow: none !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  transform: none !important; /* ✅ БЕЗ СДВИГА */
-  -webkit-tap-highlight-color: transparent !important;
-}
-
-/* ✅ При active БЕЗ анимации И СДВИГА */
 .flatpickr-current-month .flatpickr-year-dropdown:active {
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
   transform: none !important;
   transition: none !important;
-  box-shadow: none !important;
-  padding: 4px 6px !important; /* 🔥 ФИКСИРУЕМ PADDING */
-  padding-right: 20px !important; /* 🔥 ДЛЯ СТРЕЛКИ */
-  border: 2px solid rgba(255, 255, 255, 0.3) !important; /* 🔥 ФИКСИРУЕМ BORDER */
 }
 
 /* ✅ Убираем стандартные браузерные обводки */
