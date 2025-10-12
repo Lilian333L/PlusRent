@@ -334,16 +334,7 @@
     display: block !important;
     animation: slideInDown 0.3s ease-out;
 }
-    @keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+    
 
     .radio-group {
       background: #f8f9fa;
@@ -548,26 +539,6 @@
       padding: 15px;
       border-radius: 8px;
       margin-top: 10px;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #f0c040;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
     }
 
     .price-summary {
@@ -843,8 +814,7 @@
         width: 15px;
       }
     }
-
-    .fleet-car-grid.car-list-row {
+.fleet-car-grid.car-list-row {
       display: flex;
       flex-wrap: wrap;
       margin-left: 0;
@@ -2373,9 +2343,8 @@
       }
     }
   </style>
-
 <style>
-/* ========== FLATPICKR CALENDAR - ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ 7 ДНЕЙ ========== */
+/* ========== FLATPICKR CALENDAR - ОЧИЩЕННЫЙ И ОПТИМИЗИРОВАННЫЙ ========== */
 
 /* Base Calendar Container */
 .flatpickr-calendar {
@@ -2448,15 +2417,6 @@
   border-radius: 20px 20px 0 0;
   pointer-events: none;
 }
-/* ✅ Убираем стандартные браузерные обводки */
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-inner {
-  border: 0 !important;
-  outline: 0 !important;
-}
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-outer {
-  border: 0 !important;
-  outline: 0 !important;
-}
 
 /* Current Month Display */
 .flatpickr-current-month {
@@ -2472,7 +2432,7 @@
   letter-spacing: 0.3px;
   position: relative;
   z-index: 1;
-  gap: 3px; /* ✅ Минимальный отступ */
+  gap: 3px;
   flex-wrap: nowrap;
   overflow: visible;
 }
@@ -2499,7 +2459,6 @@
   background: rgba(255, 255, 255, 0.35);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
-  box-shadow: none;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:focus {
@@ -2508,54 +2467,32 @@
   border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
-/* ========== УБИВАЕМ numInputWrapper ПОЛНОСТЬЮ ========== */
-.flatpickr-current-month .numInputWrapper,
-.flatpickr-current-month .numInputWrapper:hover,
-.flatpickr-current-month .numInputWrapper:focus,
-.flatpickr-current-month .numInputWrapper:focus-within,
-.flatpickr-current-month .numInputWrapper:active {
+/* ========== YEAR DROPDOWN - ЧИСТОЕ РЕШЕНИЕ ========== */
+.flatpickr-current-month .numInputWrapper {
   background: transparent !important;
   border: none !important;
-  border-width: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
   box-shadow: none !important;
   outline: none !important;
-  box-sizing: border-box !important;
 }
 
-/* ========== СТИЛИ ТОЛЬКО ДЛЯ DROPDOWN ========== */
-.flatpickr-current-month .flatpickr-year-dropdown,
-.flatpickr-current-month .flatpickr-year-dropdown:hover,
-.flatpickr-current-month .flatpickr-year-dropdown:focus,
-.flatpickr-current-month .flatpickr-year-dropdown:focus-visible,
-.flatpickr-current-month .flatpickr-year-dropdown:focus-within,
-.flatpickr-current-month .flatpickr-year-dropdown:active {
+.flatpickr-current-month .flatpickr-year-dropdown {
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px) !important;
   color: white !important;
   font-weight: 700 !important;
-  
-  /* 🔥 BORDER НЕ МЕНЯЕТСЯ НИКОГДА */
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-width: 2px !important;
-  border-style: solid !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  
   border-radius: 10px !important;
   padding: 4px 6px !important;
   padding-right: 20px !important;
-  font-size: 15px !important;
+  font-size: 16px !important; /* ✅ КРИТИЧНО: 16px против zoom */
   cursor: pointer !important;
-  
   outline: none !important;
   box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
   margin: 0 !important;
@@ -2563,93 +2500,22 @@
   max-width: 65px !important;
   width: 65px !important;
   box-sizing: border-box !important;
-  
   -webkit-tap-highlight-color: transparent !important;
-  
-  /* Стрелка */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
   background-position: right 4px center !important;
   background-size: 10px !important;
 }
 
-/* 🔥 При hover ТОЛЬКО фон меняется */
 .flatpickr-current-month .flatpickr-year-dropdown:hover {
   background-color: rgba(255, 255, 255, 0.35) !important;
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px) !important;
 }
 
-/* 🔥 При focus/active БЕЗ изменений */
 .flatpickr-current-month .flatpickr-year-dropdown:focus,
 .flatpickr-current-month .flatpickr-year-dropdown:active {
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-/* ✅ Убираем браузерные обводки */
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-inner,
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-outer {
-  border: 0 !important;
-  outline: 0 !important;
-}
-
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-outer {
-  border: 0 !important;
-  outline: 0 !important;
-}
-
-/* ========== ГОД numInputWrapper - СКРЫВАЕМ КОГДА ЕСТЬ DROPDOWN ========== */
-.flatpickr-current-month .numInputWrapper:has(.flatpickr-year-dropdown) {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  margin-left: 0px !important;
-  box-shadow: none !important;
   outline: none !important;
-}
-
-.flatpickr-current-month .numInputWrapper[data-has-dropdown="true"] {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  margin-left: 0px !important;
   box-shadow: none !important;
-  outline: none !important;
-}
-
-.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]) {
-  background: rgba(255, 255, 255, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  padding: 4px 6px;
-  margin-left: 0px;
-  max-width: 70px;
-  box-shadow: none;
-  outline: none;
-}
-
-.flatpickr-current-month .numInputWrapper:not(:has(.flatpickr-year-dropdown)):not([data-has-dropdown="true"]):hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.flatpickr-current-month .numInputWrapper:focus-within {
-  border: 2px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* ✅ Специально для Chrome/Edge */
-.flatpickr-current-month .numInputWrapper input:-webkit-autofill,
-.flatpickr-current-month .numInputWrapper input:-webkit-autofill:hover,
-.flatpickr-current-month .numInputWrapper input:-webkit-autofill:focus {
-  border: none !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
-  outline: none !important;
 }
   
 /* Modern Navigation Arrows */
@@ -2798,54 +2664,6 @@
 .flatpickr-day.today:not(.selected):hover {
   background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
 }
-  /* ========== УБИВАЕМ ВСЕ ОБВОДКИ И ЭФФЕКТЫ ПРИ КЛИКЕ ========== */
-.flatpickr-current-month .flatpickr-year-dropdown,
-.flatpickr-current-month .flatpickr-year-dropdown *,
-.flatpickr-current-month .flatpickr-year-dropdown::before,
-.flatpickr-current-month .flatpickr-year-dropdown::after {
-  /* Убиваем всё */
-  outline: none !important;
-  outline-width: 0 !important;
-  outline-style: none !important;
-  outline-color: transparent !important;
-  outline-offset: 0 !important;
-  
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  -moz-box-shadow: none !important;
-  
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  
-  /* Убиваем подсветку */
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
-  
-  /* Убиваем фокусные кольца */
-  -moz-focus-inner: none !important;
-  -moz-focus-outer: none !important;
-}
-
-/* Специально для псевдоэлементов */
-.flatpickr-current-month .flatpickr-year-dropdown::before,
-.flatpickr-current-month .flatpickr-year-dropdown::after {
-  display: none !important;
-  content: none !important;
-  visibility: hidden !important;
-}
-
-/* Убиваем focus-visible (новый стандарт) */
-.flatpickr-current-month .flatpickr-year-dropdown:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Убиваем active состояние */
-.flatpickr-current-month .flatpickr-year-dropdown:active,
-.flatpickr-current-month .flatpickr-year-dropdown:active * {
-  outline: none !important;
-  box-shadow: none !important;
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
-}
 
 /* Occupied Days */
 .flatpickr-day.occupied {
@@ -2888,133 +2706,20 @@
   opacity: 0.4;
 }
   
-/* ✅ МОБИЛЬНЫЕ: Убираем подсветку при нажатии */
+/* ✅ МОБИЛЬНЫЕ УСТРОЙСТВА */
 @media (pointer: coarse), (max-width: 767px) {
-  /* ✅ ФИКСИРУЕМ СТИЛИ ДЛЯ ГОДА */
-  .flatpickr-current-month .flatpickr-year-dropdown,
-  .flatpickr-current-month .flatpickr-year-dropdown:hover,
-  .flatpickr-current-month .flatpickr-year-dropdown:focus,
-  .flatpickr-current-month .flatpickr-year-dropdown:active {
+  .flatpickr-current-month .flatpickr-year-dropdown {
+    font-size: 16px !important; /* ✅ КРИТИЧНО: 16px против zoom */
+    padding: 6px 8px !important;
+    padding-right: 24px !important;
+    min-width: 60px !important;
+    max-width: 70px !important;
+    width: 70px !important;
     -webkit-tap-highlight-color: transparent !important;
-    -webkit-touch-callout: none !important;
-    -webkit-user-select: none !important;
-    user-select: none !important;
     transform: none !important;
     transition: none !important;
-    
-    /* 🔥 ФИКСИРУЕМ ВСЁ */
-    padding: 4px 6px !important;
-    padding-right: 20px !important;
-    border-width: 2px !important;
-    box-sizing: border-box !important;
-    
-    /* 🔥 УБИВАЕМ ВСЕ БРАУЗЕРНЫЕ ЭФФЕКТЫ */
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
-    outline: none !important;
-    outline-width: 0 !important;
-    outline-style: none !important;
-    outline-color: transparent !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    
-    /* 🔥 ФИКСИРУЕМ РАЗМЕРЫ */
-    min-width: 58px !important;
-    max-width: 65px !important;
-    width: 65px !important; /* 🔥 КРИТИЧНО: фиксируем ширину */
   }
   
-  /* ✅ ОРИГИНАЛЬНЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ - ОСТАВЛЯЕМ */
-  .flatpickr-calendar {
-    border-radius: 16px;
-    max-width: 100vw !important;
-    max-height: 90vh !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-  }
-
-  .flatpickr-months {
-    padding: 16px 50px !important;
-    border-radius: 16px 16px 0 0;
-  }
-
-  .flatpickr-prev-month,
-  .flatpickr-next-month {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 10px !important;
-  }
-
-  .flatpickr-prev-month {
-    left: 6px !important;
-  }
-
-  .flatpickr-next-month {
-    right: 6px !important;
-  }
-
-  /* ✅ GRID С МЕНЬШИМИ ОТСТУПАМИ */
-  .dayContainer {
-    width: calc(100vw - 24px) !important;
-    max-width: calc(100vw - 24px) !important;
-    min-width: 0 !important;
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 1px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-  }
-
-  /* ✅ ДНИ КОМПАКТНЕЕ */
-  .flatpickr-day {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 40px !important;
-    line-height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 6px !important;
-    display: block !important;
-    visibility: visible !important;
-    font-size: 12px !important;
-    box-sizing: border-box !important;
-  }
-
-  .flatpickr-day.prevMonthDay,
-  .flatpickr-day.nextMonthDay {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 0.25 !important;
-  }
-
-  .flatpickr-days {
-    padding: 8px 4px !important;
-    max-height: calc(90vh - 160px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  .flatpickr-weekdays {
-    padding: 12px 4px 8px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
-  /* ✅ КРИТИЧНО: Названия дней недели тоже 7 штук */
-  .flatpickr-weekdays .flatpickr-weekday {
-    width: calc((100% - 6px) / 7) !important;
-    flex: none !important;
-    font-size: 10px !important;
-  }
-}
-/* ✅ МОБИЛЬНЫЕ: УМЕНЬШЕННЫЕ ДНИ ЧТОБЫ ВСЕ 7 ВЛЕЗЛИ */
-@media (pointer: coarse), (max-width: 767px) {
   .flatpickr-calendar {
     border-radius: 16px;
     max-width: 100vw !important;
@@ -3148,21 +2853,21 @@
   }
 
   .flatpickr-current-month {
-    font-size: 13px; /* ✅ Меньше шрифт */
-    gap: 2px; /* ✅ Меньше отступ */
+    font-size: 13px;
+    gap: 2px;
     padding: 0 2px;
   }
+  
   .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 13px !important;
-    padding: 3px 4px !important;
-    min-width: 52px !important;
-    max-width: 58px !important;
+    font-size: 16px !important; /* ✅ ВСЕГДА 16px */
+    padding: 6px 6px !important;
+    padding-right: 22px !important;
+    min-width: 58px !important;
+    max-width: 64px !important;
     background-position: right 2px center !important;
     background-size: 9px !important;
-    padding-right: 16px !important;
-    transform: none !important; /* ✅ БЕЗ АНИМАЦИИ */
-    transition: none !important; /* ✅ БЕЗ АНИМАЦИИ */
   }
+  
   .flatpickr-current-month .flatpickr-monthDropdown-months {
     font-size: 13px !important;
     padding: 3px 6px;
@@ -3170,14 +2875,6 @@
     margin-right: -4px;
   }
 
-  .flatpickr-current-month .numInputWrapper input {
-    font-size: 13px !important; /* ✅ Меньше год */
-    width: 42px !important; /* ✅ Уже */
-  }
-
-  .flatpickr-current-month .numInputWrapper span {
-    width: 10px !important; /* ✅ Ещё уже стрелки */
-  }
   .flatpickr-prev-month,
   .flatpickr-next-month {
     width: 36px !important;
@@ -3199,16 +2896,6 @@
   .flatpickr-weekdays .flatpickr-weekday {
     font-size: 9px !important;
   }
-}
-  /* ========== УБИВАЕМ ОБВОДКУ numInputWrapper ========== */
-.flatpickr-current-month .numInputWrapper:focus-within,
-.numInputWrapper:focus-within {
-  border: none !important;
-  border-width: 0 !important;
-  border-style: none !important;
-  border-color: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
 }
 </style>
 </head>
@@ -3326,7 +3013,7 @@
         </div>
       </div>
     </header>
-    <!-- content begin -->
+<!-- content begin -->
     <div class="no-bottom no-top" id="content">
       <div id="top"></div>
       <section id="section-hero" aria-label="section" class="jarallax">
@@ -3864,7 +3551,7 @@
   <script src="js/i18n-init.js"></script>
 
 <script>
-// ✅ ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Показываем ВСЕ 7 дней на ВСЕХ устройствах
+// ✅ ОПТИМИЗИРОВАННЫЙ СКРИПТ: Показываем ВСЕ 7 дней на ВСЕХ устройствах
 document.addEventListener('DOMContentLoaded', function() {
     const originalFlatpickr = flatpickr;
     
@@ -3878,7 +3565,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 originalOnReady(selectedDates, dateStr, instance);
             }
             fixCalendarDisplay(instance);
-            // Повторяем исправление для мобильных с задержкой
             setTimeout(() => fixCalendarDisplay(instance), 50);
             setTimeout(() => fixCalendarDisplay(instance), 200);
         };
@@ -3893,7 +3579,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => fixCalendarDisplay(instance), 100);
         };
         
-        // ✅ НОВОЕ: Исправляем при открытии календаря
         const originalOnOpen = config.onOpen;
         
         config.onOpen = function(selectedDates, dateStr, instance) {
@@ -3917,32 +3602,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayContainer = instance.calendarContainer.querySelector('.dayContainer');
         if (!dayContainer) return;
         
-        // ✅ КРИТИЧНО: Находим ВСЕ даты, включая скрытые классами
         const allDays = dayContainer.querySelectorAll('.flatpickr-day, .prevMonthDay, .nextMonthDay, .flatpickr-disabled');
         
         allDays.forEach(day => {
-            // ✅ Показываем через множественные свойства
             day.style.display = 'inline-block !important';
             day.style.visibility = 'visible !important';
             day.style.opacity = day.classList.contains('prevMonthDay') || day.classList.contains('nextMonthDay') ? '0.3' : '1';
             
-            // ✅ Удаляем inline стили которые могут скрывать
             if (day.style.display === 'none') {
                 day.style.display = 'inline-block';
             }
         });
         
-        // ✅ МОБИЛЬНЫЕ: Принудительно показываем grid
         if (window.innerWidth <= 767) {
             dayContainer.style.display = 'grid';
             dayContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
             dayContainer.style.width = '100%';
         }
-        
-        console.log('✅ Calendar fixed - showing all 7 days (' + allDays.length + ' days found)');
     }
     
-    // ✅ НОВОЕ: Исправляем при изменении размера окна
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
@@ -3957,7 +3635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-  <script>
+<script>
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
       return rawKey
@@ -4039,8 +3717,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   </script>
+
 <script>
-// ✅ ПРАВИЛЬНОЕ РЕШЕНИЕ: Убираем обводки только когда нужно
+// ✅ ПРАВИЛЬНОЕ РЕШЕНИЕ: Event-based подход вместо setInterval
 document.addEventListener('DOMContentLoaded', function() {
     function removeOutlines(target) {
         const wrappers = target ? 
@@ -4079,6 +3758,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
 });
 </script>
+
    <!-- Price Calculator Modal -->
    <div id="price-calculator-modal" class="price-calculator-modal">
      <div class="price-calculator-content">
@@ -4088,7 +3768,6 @@ document.addEventListener('DOMContentLoaded', function() {
        </div>
        <div class="modal-body">
          
-         <!-- ВЕСЬ ОСТАЛЬНОЙ КОНТЕНТ МОДАЛА ИДЁТ ЗДЕСЬ -->
          <div class="tariff-info">
            <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours & Location Fees</span></h6>
            <div class="tariff-details" id="tariff-details-container">
@@ -4111,8 +3790,6 @@ document.addEventListener('DOMContentLoaded', function() {
              </div>
            </div>
          </div> 
-
-
 
         <div class="calculator-section">
           <h5><i class="fa fa-calendar"></i> <span data-i18n="price_calculator.rental_period">Rental Period</span></h5>
@@ -4247,7 +3924,6 @@ document.addEventListener('DOMContentLoaded', function() {
                  data-i18n-placeholder="cars.discount_code_placeholder" 
                  placeholder="Enter discount code">
                
-               <!-- ✅ Блок ошибки для купона -->
                <div 
                  id="coupon-error-message" 
                  class="field-error" 
@@ -4256,8 +3932,6 @@ document.addEventListener('DOMContentLoaded', function() {
              </div>
            </div>
          </div>
-
-
 
         <div class="modal-price-summary">
           <h5><i class="fa fa-euro"></i> <span data-i18n="price_calculator.price_breakdown">Price Breakdown</span></h5>
@@ -4394,21 +4068,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 console.log('✅ Tariff settings loaded:', settings);
                 
-                // Получаем тарифы
                 const outsideHoursFee = settings.outside_working_hours_fee || '15';
-                
-                // ✅ ИСПРАВЛЕНИЕ: Используем правильные поля для аэропортов
-                // Берем общую стоимость доставки для каждого аэропорта
                 const chisinauAirportFee = settings.chisinau_airport_pickup || settings.chisinau_airport_dropoff || '25';
                 const iasiAirportFee = settings.iasi_airport_pickup || settings.iasi_airport_dropoff || '35';
                 
-                // Обновляем outside hours fee
                 document.getElementById('index-outside-hours-fee').textContent = '€' + outsideHoursFee;
                 
-                // ✅ НОВЫЙ ФОРМАТ: Только название аэропорта + цена
                 const airportFeesText = `Chișinău Aeroport +€${chisinauAirportFee}, Iași Aeroport +€${iasiAirportFee}`;
                 
-                // Обновляем динамический текст
                 const dynamicFeesEl = document.getElementById('dynamic-airport-fees');
                 if (dynamicFeesEl) {
                     dynamicFeesEl.textContent = airportFeesText;
@@ -4416,7 +4083,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 console.log('✅ Airport fees updated:', airportFeesText);
                 
-                // Сохраняем в глобальной переменной для калькулятора
                 window.TARIFF_FEES = {
                     outsideHours: parseInt(outsideHoursFee),
                     chisinauAirport: parseInt(chisinauAirportFee),
@@ -4425,7 +4091,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
             } catch (error) {
                 console.error('❌ Error loading tariff fees:', error);
-                // Значения по умолчанию
                 window.TARIFF_FEES = {
                     outsideHours: 15,
                     chisinauAirport: 25,
@@ -4436,58 +4101,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         loadTariffFees();
     });
-
   </script>
 <script>
-// ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Убираем обводку в реальном времени через JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Наблюдаем за всеми календарями Flatpickr
-    const observer = new MutationObserver(function() {
-        document.querySelectorAll('.flatpickr-current-month .numInputWrapper input').forEach(function(input) {
-            // Принудительно убираем обводку при любом событии
-            input.style.setProperty('outline', 'none', 'important');
-            input.style.setProperty('box-shadow', 'none', 'important');
-            input.style.setProperty('border', 'none', 'important');
-            
-            // Убираем обводку при фокусе
-            input.addEventListener('focus', function() {
-                this.style.setProperty('outline', 'none', 'important');
-                this.style.setProperty('box-shadow', 'none', 'important');
-                this.style.setProperty('border', 'none', 'important');
-            });
-            
-            // Убираем обводку при клике
-            input.addEventListener('click', function() {
-                this.style.setProperty('outline', 'none', 'important');
-                this.style.setProperty('box-shadow', 'none', 'important');
-                this.style.setProperty('border', 'none', 'important');
-            });
-            
-            // Убираем обводку при наведении
-            input.addEventListener('mouseenter', function() {
-                this.style.setProperty('outline', 'none', 'important');
-                this.style.setProperty('box-shadow', 'none', 'important');
-            });
-        });
-    });
-    
-    // Запускаем наблюдение за изменениями DOM
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-    
-    // Также применяем сразу для уже существующих календарей
-    setTimeout(function() {
-        document.querySelectorAll('.flatpickr-current-month .numInputWrapper input').forEach(function(input) {
-            input.style.setProperty('outline', 'none', 'important');
-            input.style.setProperty('box-shadow', 'none', 'important');
-            input.style.setProperty('border', 'none', 'important');
-        });
-    }, 100);
-});
-</script>
-  <script>
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🔧 Initializing vehicle data sync for modal');
       
@@ -4499,7 +4114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalImage = document.getElementById('modal-vehicle-image');
         const modalName = document.getElementById('modal-vehicle-name');
         const modalDetails = document.getElementById('modal-vehicle-details');
-        const modalYear = document.getElementById('modal-vehicle-year'); // Добавили
+        const modalYear = document.getElementById('modal-vehicle-year');
         
         if (vehicleImage && modalImage && vehicleImage.src && vehicleImage.src !== window.location.href) {
           modalImage.src = vehicleImage.src;
@@ -4516,7 +4131,6 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('✅ Synced details:', vehicleDetails.textContent.trim());
         }
         
-        // Добавляем синхронизацию года из выбранного автомобиля
         const vehicleSelect = document.getElementById('vehicle_type');
         if (vehicleSelect && vehicleSelect.value && modalYear) {
           const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
