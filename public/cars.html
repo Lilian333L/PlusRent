@@ -2106,11 +2106,11 @@
   opacity: 0.4 !important;
 }
 
-/* МОБИЛЬНЫЕ СТИЛИ - ИСПРАВЛЕНО ДЛЯ 7 ДНЕЙ */
+/* МОБИЛЬНЫЕ СТИЛИ - ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ ДЛЯ 7 ДНЕЙ */
 @media (max-width: 767px), (pointer: coarse) {
   .flatpickr-calendar {
     border-radius: 16px !important;
-    max-width: calc(100vw - 16px) !important; /* ← ИСПРАВЛЕНО: уменьшаем отступы */
+    max-width: calc(100vw - 12px) !important;
     max-height: 90vh !important;
     padding: 0 !important;
     margin: 0 auto !important;
@@ -2145,33 +2145,60 @@
     right: 6px !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Контейнер дней */
+  /* ✅ КРИТИЧЕСКОЕ: Дни недели */
+  .flatpickr-weekdays {
+    padding: 12px 8px 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
+    display: flex !important; /* ← Оставляем flex, но фиксируем */
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    gap: 0 !important;
+  }
+  
+  .flatpickr-weekdays .flatpickr-weekday {
+    flex: 1 1 14.2857% !important; /* ← 100% / 7 = 14.2857% */
+    min-width: 0 !important;
+    max-width: 14.2857% !important;
+    width: 14.2857% !important;
+    font-size: 10px !important;
+    background: transparent !important;
+    text-align: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* ✅ КРИТИЧЕСКОЕ: Контейнер дней */
   .dayContainer {
-    width: 100% !important; /* ← БЫЛО: calc(100vw - 24px) */
+    width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important; /* ← БЫЛО: 1px */
+    gap: 2px !important;
     padding: 0 !important;
     margin: 0 !important;
     box-sizing: border-box !important;
     background: transparent !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дни */
+  /* ✅ КРИТИЧЕСКОЕ: Дни */
   .flatpickr-day {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    height: 42px !important; /* ← БЫЛО: 40px */
+    height: 42px !important;
     line-height: 42px !important;
     margin: 0 !important;
     padding: 0 !important;
     border-radius: 6px !important;
     display: block !important;
     visibility: visible !important;
-    font-size: 13px !important; /* ← БЫЛО: 12px */
+    font-size: 13px !important;
     box-sizing: border-box !important;
     background: transparent !important;
   }
@@ -2184,34 +2211,14 @@
     background: #f8fafc !important;
   }
 
-  /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Контейнер календаря */
   .flatpickr-days {
-    padding: 8px 8px !important; /* ← БЫЛО: 8px 4px */
+    padding: 8px 8px !important;
     max-height: calc(90vh - 160px) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
     box-sizing: border-box !important;
     background: #ffffff !important;
-  }
-
-  /* ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дни недели */
-  .flatpickr-weekdays {
-    padding: 12px 8px 8px !important; /* ← БЫЛО: 12px 4px 8px */
-    width: 100% !important;
-    box-sizing: border-box !important;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
-    display: grid !important; /* ← НОВОЕ */
-    grid-template-columns: repeat(7, 1fr) !important; /* ← НОВОЕ */
-    gap: 2px !important; /* ← НОВОЕ */
-  }
-  
-  .flatpickr-weekdays .flatpickr-weekday {
-    width: 100% !important; /* ← БЫЛО: calc((100% - 6px) / 7) */
-    flex: none !important;
-    font-size: 11px !important; /* ← БЫЛО: 10px */
-    background: transparent !important;
-    text-align: center !important; /* ← НОВОЕ */
   }
 }
 
@@ -2244,11 +2251,10 @@
   }
 }
 
-/* ✅ ИСПРАВЛЕНО ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ */
 @media (max-width: 480px) {
   .flatpickr-calendar {
     font-size: 11px !important;
-    max-width: calc(100vw - 12px) !important; /* ← БЫЛО: calc(100vw - 16px) */
+    max-width: calc(100vw - 10px) !important;
     border-radius: 14px !important;
   }
 
@@ -2286,17 +2292,18 @@
   }
 
   .dayContainer {
-    gap: 1px !important; /* ← БЫЛО: 0.5px */
+    gap: 1px !important;
   }
 
   .flatpickr-day {
-    font-size: 12px !important; /* ← БЫЛО: 11px */
-    height: 40px !important; /* ← БЫЛО: 38px */
+    font-size: 12px !important;
+    height: 40px !important;
     line-height: 40px !important;
   }
   
+  /* ✅ КРИТИЧЕСКОЕ: Ещё меньший шрифт для маленьких экранов */
   .flatpickr-weekdays .flatpickr-weekday {
-    font-size: 10px !important; /* ← БЫЛО: 9px */
+    font-size: 9px !important;
   }
 }
 
