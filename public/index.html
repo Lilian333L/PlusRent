@@ -4112,6 +4112,92 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <script>
+// ✅ ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ЦЕНЫ В VEHICLE INFO (для диапазонов 1-2, 3-7, 8-20, 21-45, 46+)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Initializing dynamic vehicle price update');
+    
+    // Функция для обновления цены в vehicle info
+    function updateVehicleInfoPrice() {
+        const vehicleSelect = document.getElementById('vehicle_type');
+        if (!vehicleSelect || !vehicleSelect.value) return;
+        
+        const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+        const pricePolicy = selectedOption.dataset.pricePolicy;
+        
+        if (!pricePolicy) return;
+        
+        try {
+            const prices = JSON.parse(pricePolicy);
+            
+            // Получаем количество дней из калькулятора
+            const durationElement = document.getElementById('rental-duration');
+            let days = 1;
+            
+            if (durationElement && durationElement.textContent) {
+                const match = durationElement.textContent.match(/(\d+)/);
+                if (match) {
+                    days = parseInt(match[1]);
+                }
+            }
+            
+            // ✅ Определяем цену на основе ВАШИХ диапазонов: 1-2, 3-7, 8-20, 21-45, 46+
+            let dailyRate = 0;
+            if (days >= 46) {
+                dailyRate = parseInt(prices['46+'] || prices['21-45'] || prices['8-20'] || prices['3-7'] || prices['1-2']);
+            } else if (days >= 21) {
+                dailyRate = parseInt(prices['21-45'] || prices['8-20'] || prices['3-7'] || prices['1-2']);
+            } else if (days >= 8) {
+                dailyRate = parseInt(prices['8-20'] || prices['3-7'] || prices['1-2']);
+            } else if (days >= 3) {
+                dailyRate = parseInt(prices['3-7'] || prices['1-2']);
+            } else {
+                dailyRate = parseInt(prices['1-2']);
+            }
+            
+            // Обновляем цену в vehicle info (основная форма)
+            const vehiclePriceElement = document.getElementById('vehicle-price');
+            if (vehiclePriceElement) {
+                vehiclePriceElement.textContent = `€${dailyRate}`;
+                console.log(`✅ Updated vehicle price to €${dailyRate} for ${days} day(s)`);
+            }
+            
+            // Обновляем цену в модальном окне калькулятора
+            const modalVehiclePriceElement = document.getElementById('modal-vehicle-price');
+            if (modalVehiclePriceElement) {
+                modalVehiclePriceElement.textContent = `€${dailyRate}/day`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error updating vehicle price:', error);
+        }
+    }
+    
+    // Слушаем изменения в продолжительности аренды
+    const observer = new MutationObserver(function() {
+        updateVehicleInfoPrice();
+    });
+    
+    const durationElement = document.getElementById('rental-duration');
+    if (durationElement) {
+        observer.observe(durationElement, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+    }
+    
+    // Обновляем цену при выборе машины
+    const vehicleSelect = document.getElementById('vehicle_type');
+    if (vehicleSelect) {
+        vehicleSelect.addEventListener('change', function() {
+            setTimeout(updateVehicleInfoPrice, 500);
+        });
+    }
+    
+    console.log('✅ Dynamic vehicle price update initialized');
+});
+</script>
+  <script>
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
     }
