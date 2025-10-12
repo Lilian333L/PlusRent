@@ -4111,13 +4111,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <i class="fa fa-comments"></i>
   </div>
 
-  <script>
-// ✅ ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ЦЕНЫ В VEHICLE INFO (для диапазонов 1-2, 3-7, 8-20, 21-45, 46+)
+<script>
+// ✅ ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ ЦЕНЫ В VEHICLE INFO (ГЛОБАЛЬНАЯ ФУНКЦИЯ)
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing dynamic vehicle price update');
     
-    // Функция для обновления цены в vehicle info
-    function updateVehicleInfoPrice() {
+    // ✅ КРИТИЧНО: Делаем функцию ГЛОБАЛЬНОЙ
+    window.updateVehicleInfoPrice = function() {
         const vehicleSelect = document.getElementById('vehicle_type');
         if (!vehicleSelect || !vehicleSelect.value) return;
         
@@ -4140,7 +4140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // ✅ Определяем цену на основе ВАШИХ диапазонов: 1-2, 3-7, 8-20, 21-45, 46+
+            // ✅ Определяем цену на основе диапазонов: 1-2, 3-7, 8-20, 21-45, 46+
             let dailyRate = 0;
             if (days >= 46) {
                 dailyRate = parseInt(prices['46+'] || prices['21-45'] || prices['8-20'] || prices['3-7'] || prices['1-2']);
@@ -4170,11 +4170,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('❌ Error updating vehicle price:', error);
         }
-    }
+    };
     
     // Слушаем изменения в продолжительности аренды
     const observer = new MutationObserver(function() {
-        updateVehicleInfoPrice();
+        window.updateVehicleInfoPrice();
     });
     
     const durationElement = document.getElementById('rental-duration');
@@ -4190,11 +4190,84 @@ document.addEventListener('DOMContentLoaded', function() {
     const vehicleSelect = document.getElementById('vehicle_type');
     if (vehicleSelect) {
         vehicleSelect.addEventListener('change', function() {
-            setTimeout(updateVehicleInfoPrice, 500);
+            setTimeout(window.updateVehicleInfoPrice, 500);
         });
     }
     
     console.log('✅ Dynamic vehicle price update initialized');
+});
+</script>
+
+<script>
+// ✅ АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ ЦЕНЫ ПРИ ИЗМЕНЕНИИ ДАТ В МОДАЛЬНОМ ОКНЕ
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Setting up modal date change listeners');
+    
+    // Функция для подсчета дней между двумя датами
+    function calculateDays() {
+        const pickupDateInput = document.getElementById('modal-pickup-date');
+        const returnDateInput = document.getElementById('modal-return-date');
+        
+        if (!pickupDateInput || !returnDateInput) return 1;
+        
+        const pickupDate = pickupDateInput._flatpickr?.selectedDates[0];
+        const returnDate = returnDateInput._flatpickr?.selectedDates[0];
+        
+        if (!pickupDate || !returnDate) return 1;
+        
+        const diffTime = Math.abs(returnDate - pickupDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays > 0 ? diffDays : 1;
+    }
+    
+    // Ждем пока Flatpickr инициализируется
+    setTimeout(function() {
+        const pickupDateInput = document.getElementById('modal-pickup-date');
+        const returnDateInput = document.getElementById('modal-return-date');
+        
+        if (pickupDateInput && pickupDateInput._flatpickr) {
+            pickupDateInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+                console.log('📅 Modal pickup date changed:', dateStr);
+                
+                // Обновляем количество дней в #rental-duration
+                const days = calculateDays();
+                const durationElement = document.getElementById('rental-duration');
+                if (durationElement) {
+                    const daysText = durationElement.querySelector('span[data-i18n="price_calculator.days"]')?.textContent || 'days';
+                    durationElement.innerHTML = `${days} ${daysText}`;
+                    console.log(`✅ Updated duration to ${days} days`);
+                }
+                
+                // Триггерим обновление цены
+                if (typeof window.updateVehicleInfoPrice === 'function') {
+                    setTimeout(window.updateVehicleInfoPrice, 100);
+                }
+            });
+        }
+        
+        if (returnDateInput && returnDateInput._flatpickr) {
+            returnDateInput._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+                console.log('📅 Modal return date changed:', dateStr);
+                
+                // Обновляем количество дней в #rental-duration
+                const days = calculateDays();
+                const durationElement = document.getElementById('rental-duration');
+                if (durationElement) {
+                    const daysText = durationElement.querySelector('span[data-i18n="price_calculator.days"]')?.textContent || 'days';
+                    durationElement.innerHTML = `${days} ${daysText}`;
+                    console.log(`✅ Updated duration to ${days} days`);
+                }
+                
+                // Триггерим обновление цены
+                if (typeof window.updateVehicleInfoPrice === 'function') {
+                    setTimeout(window.updateVehicleInfoPrice, 100);
+                }
+            });
+        }
+        
+        console.log('✅ Modal date change listeners attached');
+    }, 1000);
 });
 </script>
   <script>
