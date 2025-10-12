@@ -3765,28 +3765,32 @@ document.addEventListener('DOMContentLoaded', function() {
        </div>
        <div class="modal-body">
          
-         <div class="tariff-info">
-           <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours & Location Fees</span></h6>
-           <div class="tariff-details" id="tariff-details-container">
-             <div>
-               <span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00 PM):</span> 
-               <span data-i18n="price_calculator.standard_pricing">Standard pricing</span>
-             </div>
-             <div>
-               <span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
-               +<span id="index-outside-hours-fee">€15</span> 
-               <span data-i18n="price_calculator.outside_hours_fee">fee per pickup/return</span>
-             </div>
-             <div>
-               <span class="location-fees" data-i18n="price_calculator.airport_delivery">Livrare la Aeroport:</span>
-               <span id="dynamic-airport-fees">Chișinău Aeroport +€25, Iași Aeroport +€35</span>
-             </div>
-             <div>
-               <i class="fa fa-clock-o"></i> 
-               <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24 hours</span>
-             </div>
-           </div>
-         </div> 
+          <div class="tariff-info">
+              <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours & Location Fees</span></h6>
+              <div class="tariff-details" id="tariff-details-container">
+                  <div>
+                      <span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00 PM):</span> 
+                      <span data-i18n="price_calculator.standard_pricing">Standard pricing</span>
+                  </div>
+                  <div>
+                      <span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
+                      +<span id="index-outside-hours-fee">€15</span> 
+                      <span data-i18n="price_calculator.outside_hours_fee">fee per pickup/return</span>
+                  </div>
+                  <div>
+                      <span class="location-fees" data-i18n="price_calculator.airport_delivery">Airport Delivery:</span>
+                      <span id="dynamic-airport-fees">
+                          <span data-i18n="location.chisinau_airport">Chișinău Airport</span> +€<span id="chisinau-fee">25</span>, 
+                          <span data-i18n="location.iasi_airport">Iași Airport</span> +€<span id="iasi-fee">35</span>
+                      </span>
+                  </div>
+                  <div>
+                      <i class="fa fa-clock-o"></i> 
+                      <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24 hours</span>
+                  </div>
+              </div>
+          </div>
+
 
         <div class="calculator-section">
           <h5><i class="fa fa-calendar"></i> <span data-i18n="price_calculator.rental_period">Rental Period</span></h5>
@@ -4054,51 +4058,91 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ: Правильный формат аэропортов
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔧 Loading tariff fees from admin panel...');
-        
-        async function loadTariffFees() {
-            try {
-                const response = await fetch(window.API_BASE_URL + '/api/settings');
-                const settings = await response.json();
-                
-                console.log('✅ Tariff settings loaded:', settings);
-                
-                const outsideHoursFee = settings.outside_working_hours_fee || '15';
-                const chisinauAirportFee = settings.chisinau_airport_pickup || settings.chisinau_airport_dropoff || '25';
-                const iasiAirportFee = settings.iasi_airport_pickup || settings.iasi_airport_dropoff || '35';
-                
-                document.getElementById('index-outside-hours-fee').textContent = '€' + outsideHoursFee;
-                
-                const airportFeesText = `Chișinău Aeroport +€${chisinauAirportFee}, Iași Aeroport +€${iasiAirportFee}`;
-                
-                const dynamicFeesEl = document.getElementById('dynamic-airport-fees');
-                if (dynamicFeesEl) {
-                    dynamicFeesEl.textContent = airportFeesText;
+// 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ с публичным endpoint
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Loading tariff fees from backend...');
+    
+    async function loadTariffFees() {
+        try {
+            // ✅ Используем публичный endpoint БЕЗ аутентификации
+            const response = await fetch(window.API_BASE_URL + '/api/public/tariffs', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-                
-                console.log('✅ Airport fees updated:', airportFeesText);
-                
-                window.TARIFF_FEES = {
-                    outsideHours: parseInt(outsideHoursFee),
-                    chisinauAirport: parseInt(chisinauAirportFee),
-                    iasiAirport: parseInt(iasiAirportFee)
-                };
-                
-            } catch (error) {
-                console.error('❌ Error loading tariff fees:', error);
-                window.TARIFF_FEES = {
-                    outsideHours: 15,
-                    chisinauAirport: 25,
-                    iasiAirport: 35
-                };
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
+            const settings = await response.json();
+            console.log('✅ Tariff settings loaded:', settings);
+            
+            // Извлекаем значения тарифов
+            const outsideHoursFee = settings.outside_working_hours_fee || '15';
+            const chisinauAirportFee = settings.chisinau_airport_pickup || settings.chisinau_airport_dropoff || '25';
+            const iasiAirportFee = settings.iasi_airport_pickup || settings.iasi_airport_dropoff || '35';
+            
+            // Обновляем Outside Hours Fee
+            const outsideHoursEl = document.getElementById('index-outside-hours-fee');
+            if (outsideHoursEl) {
+                outsideHoursEl.textContent = '€' + outsideHoursFee;
+            }
+            
+            // Обновляем Airport Fees
+            const chisinauFeeEl = document.getElementById('chisinau-fee');
+            const iasiFeeEl = document.getElementById('iasi-fee');
+            
+            if (chisinauFeeEl) {
+                chisinauFeeEl.textContent = chisinauAirportFee;
+            }
+            
+            if (iasiFeeEl) {
+                iasiFeeEl.textContent = iasiAirportFee;
+            }
+            
+            console.log('✅ Airport fees updated: Chișinău €' + chisinauAirportFee + ', Iași €' + iasiAirportFee);
+            
+            // Сохраняем глобально для использования в калькуляторе
+            window.TARIFF_FEES = {
+                outsideHours: parseInt(outsideHoursFee),
+                chisinauAirport: parseInt(chisinauAirportFee),
+                iasiAirport: parseInt(iasiAirportFee)
+            };
+            
+        } catch (error) {
+            console.error('❌ Error loading tariff fees:', error);
+            console.log('⚠️ Using default tariff values');
+            
+            // Используем значения по умолчанию при ошибке
+            window.TARIFF_FEES = {
+                outsideHours: 15,
+                chisinauAirport: 25,
+                iasiAirport: 35
+            };
+            
+            // Устанавливаем значения по умолчанию в интерфейсе
+            const outsideHoursEl = document.getElementById('index-outside-hours-fee');
+            const chisinauFeeEl = document.getElementById('chisinau-fee');
+            const iasiFeeEl = document.getElementById('iasi-fee');
+            
+            if (outsideHoursEl) outsideHoursEl.textContent = '€15';
+            if (chisinauFeeEl) chisinauFeeEl.textContent = '25';
+            if (iasiFeeEl) iasiFeeEl.textContent = '35';
         }
-        
-        loadTariffFees();
+    }
+    
+    // ✅ Загружаем тарифы сразу
+    loadTariffFees();
+    
+    // ✅ Перезагружаем при смене языка (текст аэропортов обновится через i18n)
+    window.addEventListener('languageChanged', function() {
+        console.log('🌐 Language changed - text will update automatically via i18n');
+        // Тарифы уже загружены, только i18n обновит текст
     });
-  </script>
+});
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🔧 Initializing vehicle data sync for modal');
