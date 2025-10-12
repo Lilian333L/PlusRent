@@ -1713,6 +1713,21 @@
       letter-spacing: -0.3px;
     }
 
+   .vehicle-year {
+     display: flex;
+     align-items: center;
+     gap: 4px;
+     margin-top: 4px;
+    }
+
+    .vehicle-year .text-muted {
+      font-size: 12px;
+    }
+
+    .vehicle-year .fw-bold {
+      font-size: 13px;
+      color: #667eea;
+    }
     .calculator-section h5 i {
       color: #667eea;
       font-size: 20px;
@@ -3976,8 +3991,9 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="col-9">
                 <h6 id="modal-vehicle-name" class="mb-1 small"></h6>
                 <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
-                <div class="vehicle-price">
-                  <span class="text-primary fw-bold small" id="modal-vehicle-price"></span>
+                <div class="vehicle-year">
+                  <span class="text-muted small">Year: </span>
+                  <span class="fw-bold small" id="modal-vehicle-year">-</span>
                 </div>
               </div>
             </div>
@@ -4254,12 +4270,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const vehicleImage = document.getElementById('vehicle-image');
         const vehicleName = document.getElementById('vehicle-name');
         const vehicleDetails = document.getElementById('vehicle-details');
-        const vehiclePrice = document.getElementById('vehicle-price');
         
         const modalImage = document.getElementById('modal-vehicle-image');
         const modalName = document.getElementById('modal-vehicle-name');
         const modalDetails = document.getElementById('modal-vehicle-details');
-        const modalPrice = document.getElementById('modal-vehicle-price');
+        const modalYear = document.getElementById('modal-vehicle-year'); // Добавили
         
         if (vehicleImage && modalImage && vehicleImage.src && vehicleImage.src !== window.location.href) {
           modalImage.src = vehicleImage.src;
@@ -4276,9 +4291,13 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('✅ Synced details:', vehicleDetails.textContent.trim());
         }
         
-        if (vehiclePrice && modalPrice && vehiclePrice.textContent.trim()) {
-          modalPrice.textContent = vehiclePrice.textContent.trim();
-          console.log('✅ Synced price:', vehiclePrice.textContent.trim());
+        // Добавляем синхронизацию года из выбранного автомобиля
+        const vehicleSelect = document.getElementById('vehicle_type');
+        if (vehicleSelect && vehicleSelect.value && modalYear) {
+          const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+          const year = selectedOption.dataset.year || '-';
+          modalYear.textContent = year;
+          console.log('✅ Synced year:', year);
         }
         
         const pickupChecked = document.querySelector('input[name="pickup_location"]:checked');
