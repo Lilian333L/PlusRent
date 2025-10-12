@@ -4064,8 +4064,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadTariffFees() {
         try {
-            // ✅ Используем публичный endpoint БЕЗ аутентификации
-            const response = await fetch(window.API_BASE_URL + '/api/public/tariffs', {
+            // ✅ Используем правильный путь к fee-settings
+            const response = await fetch(window.API_BASE_URL + '/api/fee-settings/tariffs', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -4081,8 +4081,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Извлекаем значения тарифов
             const outsideHoursFee = settings.outside_working_hours_fee || '15';
-            const chisinauAirportFee = settings.chisinau_airport_pickup || settings.chisinau_airport_dropoff || '25';
-            const iasiAirportFee = settings.iasi_airport_pickup || settings.iasi_airport_dropoff || '35';
+            const chisinauAirportFee = settings.chisinau_airport_pickup || '25';
+            const iasiAirportFee = settings.iasi_airport_pickup || '35';
             
             // Обновляем Outside Hours Fee
             const outsideHoursEl = document.getElementById('index-outside-hours-fee');
@@ -4136,10 +4136,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ✅ Загружаем тарифы сразу
     loadTariffFees();
     
-    // ✅ Перезагружаем при смене языка (текст аэропортов обновится через i18n)
+    // ✅ Перезагружаем при смене языка
     window.addEventListener('languageChanged', function() {
         console.log('🌐 Language changed - text will update automatically via i18n');
-        // Тарифы уже загружены, только i18n обновит текст
     });
 });
 </script>
