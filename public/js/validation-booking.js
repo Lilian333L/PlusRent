@@ -1068,11 +1068,19 @@ if (dropoffLocation === "Chisinau Airport") {
 function updateModalPriceDisplay(priceData) {
   const currencySymbol = "€";
 
+  
   // Update daily rate
   $("#modal-daily-rate").text(currencySymbol + priceData.dailyRate.toFixed(2));
 
-  // Update duration
-  $("#modal-rental-duration").text(priceData.days + " days");
+  // Update duration - ИСПРАВЛЕНО: обновляем только число, сохраняя перевод
+  $("#modal-duration-number").text(priceData.days);
+
+
+  // Принудительно обновляем перевод "days"
+  const daysText = document.querySelector('#modal-rental-duration [data-i18n="price_calculator.days"]');
+  if (daysText && typeof i18next !== 'undefined' && i18next.isInitialized) {
+  daysText.textContent = i18next.t('price_calculator.days');
+  }
 
   // Update location fees
   $("#modal-location-fees").text(
