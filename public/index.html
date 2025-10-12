@@ -2515,8 +2515,8 @@
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px) !important;
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 10px !important; /* ✅ КАК У МЕСЯЦА */
-  padding: 4px 8px !important; /* ✅ КАК У МЕСЯЦА */
+  border-radius: 10px !important;
+  padding: 4px 8px !important;
   margin-left: 10px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: none !important;
@@ -2531,27 +2531,41 @@
 }
 
 .flatpickr-current-month .numInputWrapper:focus-within {
-  border-color: rgba(255, 255, 255, 0.5) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important;
+  outline: none !important;
 }
 
-/* ✅ КРИТИЧНО: Убираем ВСЕ обводки с input внутри */
+/* ✅ КРИТИЧНО: Убираем ВСЕ обводки с input внутри - ТРОЙНОЕ УСИЛЕНИЕ */
 .flatpickr-current-month .numInputWrapper input,
 .flatpickr-current-month .numInputWrapper input:hover,
 .flatpickr-current-month .numInputWrapper input:focus,
 .flatpickr-current-month .numInputWrapper input:active,
-.flatpickr-current-month .numInputWrapper input:focus-visible {
+.flatpickr-current-month .numInputWrapper input:focus-visible,
+.flatpickr-current-month .numInputWrapper input:focus-within {
   color: white !important;
   font-weight: 700 !important;
-  font-size: 15px !important; /* ✅ КАК У МЕСЯЦА */
+  font-size: 15px !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   width: 54px !important;
+  outline: 0 !important;
   outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
+  outline-offset: 0 !important;
   box-shadow: none !important;
+  border: 0 !important;
   border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
   background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
 }
 
 /* ✅ Убираем спиннеры */
@@ -2567,7 +2581,7 @@
   appearance: textfield !important;
 }
 
-/* Стрелки вверх/вниз */
+/* ✅ Стрелки вверх/вниз */
 .flatpickr-current-month .numInputWrapper span {
   border-color: rgba(255, 255, 255, 0.4) !important;
   transition: all 0.2s ease !important;
@@ -2587,7 +2601,35 @@
   border-top-color: white !important;
 }
 
-/* ✅ КРИТИЧНО: Убираем обводку при любом взаимодействии */
+/* ✅ НОВОЕ: Специально для Chrome/Edge/Safari - максимальная агрессия */
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill,
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill:hover,
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill:focus,
+.flatpickr-current-month .numInputWrapper input:-webkit-autofill:active {
+  border: none !important;
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* ✅ НОВОЕ: Для Firefox */
+.flatpickr-current-month .numInputWrapper input::-moz-focus-inner {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+.flatpickr-current-month .numInputWrapper input::-moz-focus-outer {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* ✅ НОВОЕ: Убираем highlight в Safari/iOS */
+.flatpickr-current-month .numInputWrapper input::-webkit-focus-ring-color {
+  outline: none !important;
+}
+
+/* ✅ КРИТИЧНО: Убираем обводку на всех уровнях вложенности */
 .flatpickr-current-month .numInputWrapper *,
 .flatpickr-current-month .numInputWrapper *:focus,
 .flatpickr-current-month .numInputWrapper *:active,
@@ -2599,7 +2641,6 @@
   outline-style: none !important;
   outline-color: transparent !important;
   box-shadow: none !important;
-  border: none !important;
 }
 
 /* ✅ Убираем обводку только для input, оставляем для wrapper */
