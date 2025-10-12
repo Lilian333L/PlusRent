@@ -57,6 +57,72 @@ router.get('/public', async (req, res) => {
   }
 });
 
+// ✅ NEW: Get tariffs in specific format for frontend (no auth required)
+router.get('/tariffs', async (req, res) => {
+  try {
+    const { data: settings, error } = await supabaseAdmin
+      .from('fee_settings')
+      .select('setting_key, amount, is_active')
+      .eq('is_active', true);
+    
+    if (error) {
+      console.error('Error fetching tariff settings:', error);
+      // Возвращаем значения по умолчанию при ошибке
+      return res.json({
+        outside_working_hours_fee: '15',
+        chisinau_airport_pickup: '25',
+        chisinau_airport_dropoff: '25',
+        iasi_airport_pickup: '35',
+        iasi_airport_dropoff: '35'
+      });
+    }
+    
+    // Преобразуем в нужный формат с значениями по умолчанию
+    const tariffs = {
+      outside_working_hours_fee: '15',
+      chisinau_airport_pickup: '25',
+      chisinau_airport_dropoff: '25',
+      iasi_airport_pickup: '35',
+      iasi_airport_dropoff: '35'
+    };
+    
+    // Обновляем значения из базы данных
+    settings.forEach(setting => {
+      switch(setting.setting_key) {
+        case 'outside_hours_fee':
+          tariffs.outside_working_hours_fee = String(setting.amount);
+          break;
+        case 'chisinau_airport_pickup':
+          tariffs.chisinau_airport_pickup = String(setting.amount);
+          break;
+        case 'chisinau_airport_dropoff':
+          tariffs.chisinau_airport_dropoff = String(setting.amount);
+          break;
+        case 'iasi_airport_pickup':
+          tariffs.iasi_airport_pickup = String(setting.amount);
+          break;
+        case 'iasi_airport_dropoff':
+          tariffs.iasi_airport_dropoff = String(setting.amount);
+          break;
+      }
+    });
+    
+    console.log('✅ Tariffs sent to frontend:', tariffs);
+    res.json(tariffs);
+    
+  } catch (error) {
+    console.error('Error in GET /fee-settings/tariffs:', error);
+    // Всегда возвращаем значения по умолчанию при ошибке
+    res.json({
+      outside_working_hours_fee: '15',
+      chisinau_airport_pickup: '25',
+      chisinau_airport_dropoff: '25',
+      iasi_airport_pickup: '35',
+      iasi_airport_dropoff: '35'
+    });
+  }
+});
+
 // Update a specific fee setting (Admin only)
 router.patch('/:setting_key', authenticateToken, async (req, res) => {
   const { setting_key } = req.params;
@@ -320,4 +386,4 @@ router.post('/initialize', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
