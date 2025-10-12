@@ -2508,7 +2508,23 @@
   border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
-/* ========== ФИНАЛЬНОЕ РЕШЕНИЕ: ФИКСИРУЕМ BORDER ========== */
+/* ========== УБИВАЕМ numInputWrapper ПОЛНОСТЬЮ ========== */
+.flatpickr-current-month .numInputWrapper,
+.flatpickr-current-month .numInputWrapper:hover,
+.flatpickr-current-month .numInputWrapper:focus,
+.flatpickr-current-month .numInputWrapper:focus-within,
+.flatpickr-current-month .numInputWrapper:active {
+  background: transparent !important;
+  border: none !important;
+  border-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+/* ========== СТИЛИ ТОЛЬКО ДЛЯ DROPDOWN ========== */
 .flatpickr-current-month .flatpickr-year-dropdown,
 .flatpickr-current-month .flatpickr-year-dropdown:hover,
 .flatpickr-current-month .flatpickr-year-dropdown:focus,
@@ -2520,7 +2536,7 @@
   color: white !important;
   font-weight: 700 !important;
   
-  /* 🔥 КРИТИЧНО: BORDER НЕ МЕНЯЕТСЯ НИКОГДА */
+  /* 🔥 BORDER НЕ МЕНЯЕТСЯ НИКОГДА */
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-width: 2px !important;
   border-style: solid !important;
@@ -2532,9 +2548,7 @@
   font-size: 15px !important;
   cursor: pointer !important;
   
-  /* ✅ УБИВАЕМ ВСЁ */
   outline: none !important;
-  outline: 0 !important;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   
@@ -2544,7 +2558,7 @@
   
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
-  margin-left: 0px !important;
+  margin: 0 !important;
   min-width: 58px !important;
   max-width: 65px !important;
   width: 65px !important;
@@ -2559,15 +2573,14 @@
   background-size: 10px !important;
 }
 
-/* 🔥 При hover ТОЛЬКО меняем фон, НЕ border! */
+/* 🔥 При hover ТОЛЬКО фон меняется */
 .flatpickr-current-month .flatpickr-year-dropdown:hover {
   background-color: rgba(255, 255, 255, 0.35) !important;
-  /* border остаётся прежним! */
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px) !important;
 }
 
-/* 🔥 При focus/active БЕЗ изменений border! */
+/* 🔥 При focus/active БЕЗ изменений */
 .flatpickr-current-month .flatpickr-year-dropdown:focus,
 .flatpickr-current-month .flatpickr-year-dropdown:active {
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
@@ -2576,8 +2589,9 @@
   transition: none !important;
 }
 
-/* ✅ Убираем стандартные браузерные обводки */
-.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-inner {
+/* ✅ Убираем браузерные обводки */
+.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-inner,
+.flatpickr-current-month .flatpickr-year-dropdown::-moz-focus-outer {
   border: 0 !important;
   outline: 0 !important;
 }
