@@ -2662,6 +2662,81 @@ input[type="text"]#mobile-filter-date-to::-webkit-calendar-picker-indicator {
     touch-action: manipulation !important; /* ← Запрещаем двойной тап для зума */
   }
 }
+/* ========== КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Убираем "прыгание" календаря на iOS ========== */
+
+/* 1️⃣ СКРЫВАЕМ календарь ДО полного позиционирования */
+@media (max-width: 767px) {
+  .flatpickr-calendar {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.15s ease, visibility 0s linear 0.15s !important;
+  }
+
+  /* 2️⃣ ПОКАЗЫВАЕМ календарь ТОЛЬКО когда он открыт и позиционирован */
+  .flatpickr-calendar.open {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: opacity 0.2s ease 0.05s, visibility 0s !important;
+  }
+
+  /* 3️⃣ ПРИНУДИТЕЛЬНОЕ центрирование с самого начала */
+  .flatpickr-calendar.open {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    animation: none !important; /* ← УБИРАЕМ анимацию появления */
+  }
+
+  /* 4️⃣ ОТКЛЮЧАЕМ дефолтную анимацию Flatpickr */
+  .flatpickr-calendar.inline {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* 5️⃣ ФОРСИРУЕМ GPU рендеринг для плавности */
+  .flatpickr-calendar {
+    will-change: transform, opacity !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .flatpickr-calendar.open {
+    transform: translate(-50%, -50%) translate3d(0, 0, 0) !important;
+  }
+}
+
+/* 6️⃣ УБИРАЕМ задержку появления на очень медленных устройствах */
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .flatpickr-calendar {
+    transition: none !important;
+  }
+  
+  .flatpickr-calendar.open {
+    transition: none !important;
+  }
+}
+
+/* 7️⃣ ДОПОЛНИТЕЛЬНАЯ ОПТИМИЗАЦИЯ: Предотвращаем reflow */
+@media (max-width: 767px) {
+  .flatpickr-calendar {
+    contain: layout style paint !important; /* ← CSS Containment для производительности */
+  }
+
+  /* Предварительное выделение места для календаря */
+  .flatpickr-calendar::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}
   </style>
 </head>
 
