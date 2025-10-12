@@ -2601,7 +2601,7 @@
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 10px !important;
   padding: 4px 8px !important;
-  margin-left: 10px !important;
+  margin-left: 6px !important; /* ✅ БЛИЖЕ К МЕСЯЦУ (было 10px) */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: none !important;
   outline: none !important;
@@ -2614,13 +2614,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
+/* ✅ КРИТИЧНО: При фокусе НЕ добавляем лишнюю обводку */
 .flatpickr-current-month .numInputWrapper:focus-within {
-  border: 2px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important; /* ✅ Оставляем только border */
+  box-shadow: none !important; /* ✅ УБИРАЕМ box-shadow который создавал вторую обводку */
   outline: none !important;
 }
 
-/* ✅ КРИТИЧНО: Убираем ВСЕ обводки с input внутри - ТРОЙНОЕ УСИЛЕНИЕ */
+/* ✅ КРИТИЧНО: Убираем ВСЕ обводки с input внутри */
 .flatpickr-current-month .numInputWrapper input,
 .flatpickr-current-month .numInputWrapper input:hover,
 .flatpickr-current-month .numInputWrapper input:focus,
