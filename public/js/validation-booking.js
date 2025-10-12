@@ -1536,350 +1536,528 @@ window.showSuccess = function (bookingData) {
 
   // Add CSS for the clean success modal
   const successModalCSS = `
-        <style>
-            .booking-success-modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                backdrop-filter: blur(5px);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                animation: fadeIn 0.3s ease-out;
-            }
-            
-            .success-modal-content {
-                background: #ffffff;
-                border-radius: 16px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                max-width: 480px;
-                width: 90%;
-                max-height: 85vh;
-                overflow-y: auto;
-                animation: slideIn 0.4s ease-out;
-            }
-            
-            .success-modal-header {
-                text-align: center;
-                padding: 32px 24px 24px;
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                border-radius: 16px 16px 0 0;
-                position: relative;
-            }
-            
-            .success-icon {
-                margin-bottom: 16px;
-                animation: iconBounce 0.6s ease-out;
-            }
-            
-            .success-icon svg {
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-            }
-            
-            .success-title {
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin: 0 0 8px;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .success-subtitle {
-                font-size: 0.95rem;
-                margin: 0;
-                opacity: 0.95;
-                font-weight: 400;
-            }
-            
-            .success-modal-body {
-                padding: 24px;
-            }
-            
-            .booking-summary-card {
-                background: #f8f9fa;
-                border-radius: 12px;
-                padding: 20px;
-                margin-bottom: 20px;
-                border: 1px solid #e9ecef;
-            }
-            
-            .summary-compact {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-            }
-            
-            .summary-main {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-            
-            .vehicle-info {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            
-            .vehicle-name {
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: #495057;
-            }
-            
-            .customer-name {
-                font-size: 0.95rem;
-                color: #6c757d;
-                font-weight: 500;
-            }
-            
-            .booking-dates {
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-            }
-            
-            .date-range {
-                font-size: 0.95rem;
-                font-weight: 600;
-                color: #495057;
-            }
-            
-            .time-range {
-                font-size: 0.85rem;
-                color: #6c757d;
-            }
-            
-            .location-info {
-                margin-top: 4px;
-            }
-            
-            .location-text {
-                font-size: 0.9rem;
-                color: #495057;
-                font-weight: 500;
-            }
-            
-            .price-highlight {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                padding: 16px;
-                border-radius: 8px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-weight: 600;
-            }
-            
-            .price-label {
-                font-size: 0.9rem;
-            }
-            
-            .price-value {
-                font-size: 1.1rem;
-            }
-            
-            .next-steps-compact {
-                background: #e8f5e8;
-                border-radius: 12px;
-                padding: 16px;
-                border-left: 4px solid #28a745;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-            
-            .steps-icon {
-                font-size: 1.4rem;
-                flex-shrink: 0;
-            }
-            
-            .steps-content h5 {
-                color: #28a745;
-                margin: 0 0 4px 0;
-                font-weight: 600;
-                font-size: 0.95rem;
-            }
-            
-            .steps-content p {
-                margin: 0;
-                color: #495057;
-                font-size: 0.85rem;
-                line-height: 1.4;
-            }
-            
-            .success-modal-footer {
-                padding: 20px 24px 24px;
-                text-align: center;
-                display: flex;
-                gap: 12px;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .btn-success-primary, .btn-success-secondary {
-                padding: 12px 24px;
-                border: none;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 0.9rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .btn-success-primary {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            }
-            
-            .btn-success-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            }
-            
-            .btn-success-secondary {
-                background: #6c757d;
-                color: white;
-                box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-            }
-            
-            .btn-success-secondary:hover {
-                background: #5a6268;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-            }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            
-            @keyframes slideIn {
-                from { 
-                    opacity: 0;
-                    transform: translateY(-30px) scale(0.95);
-                }
-                to { 
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
-            }
-            
-            @keyframes iconBounce {
-                0% { 
-                    transform: scale(0.3);
-                    opacity: 0;
-                }
-                50% { 
-                    transform: scale(1.1);
-                }
-                100% { 
-                    transform: scale(1);
-                    opacity: 1;
-                }
-            }
-            
-            @media (max-width: 768px) {
-                .success-modal-content {
-                    width: 95%;
-                    margin: 10px;
-                    max-height: 90vh;
-                }
-                
-                .success-modal-header {
-                    padding: 24px 20px 20px;
-                }
-                
-                .success-icon svg {
-                    width: 40px;
-                    height: 40px;
-                }
-                
-                .success-title {
-                    font-size: 1.5rem;
-                }
-                
-                .success-subtitle {
-                    font-size: 0.9rem;
-                }
-                
-                .success-modal-body {
-                    padding: 20px;
-                }
-                
-                .booking-summary-card {
-                    padding: 16px;
-                    margin-bottom: 16px;
-                }
-                
-                .vehicle-name {
-                    font-size: 1rem;
-                }
-                
-                .customer-name {
-                    font-size: 0.9rem;
-                }
-                
-                .date-range {
-                    font-size: 0.9rem;
-                }
-                
-                .time-range {
-                    font-size: 0.8rem;
-                }
-                
-                .location-text {
-                    font-size: 0.85rem;
-                }
-                
-                .price-highlight {
-                    padding: 14px;
-                }
-                
-                .price-value {
-                    font-size: 1rem;
-                }
-                
-                .next-steps-compact {
-                    padding: 14px;
-                    gap: 10px;
-                }
-                
-                .steps-icon {
-                    font-size: 1.2rem;
-                }
-                
-                .steps-content h5 {
-                    font-size: 0.9rem;
-                }
-                
-                .steps-content p {
-                    font-size: 0.8rem;
-                }
-                
-                .success-modal-footer {
-                    padding: 16px 20px 20px;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                
-                .btn-success-primary, .btn-success-secondary {
-                    width: 100%;
-                    justify-content: center;
-                    padding: 14px 20px;
-                    font-size: 0.9rem;
-                }
-            }
-        </style>
+<style>
+    .booking-success-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.4s ease-out;
+        padding: 20px;
+    }
+    
+    .success-modal-content {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+        max-width: 520px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+    
+    .success-modal-header {
+        text-align: center;
+        padding: 40px 30px 30px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-radius: 24px 24px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Декоративные элементы в заголовке */
+    .success-modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .success-modal-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+    
+    .success-icon {
+        margin-bottom: 20px;
+        animation: iconBounce 0.8s ease-out;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .success-icon svg {
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+        width: 64px;
+        height: 64px;
+    }
+    
+    .success-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 12px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        letter-spacing: -0.5px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .success-subtitle {
+        font-size: 1rem;
+        margin: 0;
+        opacity: 0.95;
+        font-weight: 400;
+        line-height: 1.5;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .success-modal-body {
+        padding: 30px;
+    }
+    
+    .booking-summary-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    
+    .summary-compact {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .summary-main {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .vehicle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .vehicle-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e293b;
+        letter-spacing: -0.3px;
+    }
+    
+    .customer-name {
+        font-size: 1rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+    
+    .booking-dates {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #10b981;
+    }
+    
+    .date-range {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .date-range::before {
+        content: '📅';
+        font-size: 1.1rem;
+    }
+    
+    .time-range {
+        font-size: 0.9rem;
+        color: #64748b;
+        padding-left: 28px;
+    }
+    
+    .location-info {
+        margin-top: 8px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .location-text {
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .location-text::before {
+        content: '📍';
+        font-size: 1.1rem;
+    }
+    
+    .price-highlight {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .price-label {
+        font-size: 0.95rem;
+        opacity: 0.95;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .price-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+    
+    .next-steps-compact {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 4px solid #3b82f6;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+    
+    .steps-icon {
+        font-size: 1.8rem;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+    
+    .steps-content h5 {
+        color: #1e40af;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    .steps-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    .success-modal-footer {
+        padding: 24px 30px 30px;
+        text-align: center;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        background: #fafafa;
+        border-radius: 0 0 24px 24px;
+    }
+    
+    .btn-success-primary, .btn-success-secondary {
+        padding: 14px 28px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        letter-spacing: 0.3px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-success-primary::before,
+    .btn-success-secondary::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-success-primary:hover::before,
+    .btn-success-secondary:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .btn-success-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        flex: 1;
+        min-width: 180px;
+    }
+    
+    .btn-success-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+    }
+    
+    .btn-success-primary:active {
+        transform: translateY(-1px);
+    }
+    
+    .btn-success-secondary {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(100, 116, 139, 0.3);
+        flex: 1;
+        min-width: 180px;
+    }
+    
+    .btn-success-secondary:hover {
+        background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(100, 116, 139, 0.4);
+    }
+    
+    .btn-success-secondary:active {
+        transform: translateY(-1px);
+    }
+    
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+        }
+        to { 
+            opacity: 1; 
+        }
+    }
+    
+    @keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-40px) scale(0.9);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    @keyframes iconBounce {
+        0% { 
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% { 
+            transform: scale(1.15);
+        }
+        70% {
+            transform: scale(0.95);
+        }
+        100% { 
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    /* Улучшенная прокрутка */
+    .success-modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .success-modal-content::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 0 24px 24px 0;
+    }
+    
+    .success-modal-content::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    
+    .success-modal-content::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-success-modal {
+            padding: 10px;
+        }
+        
+        .success-modal-content {
+            width: 100%;
+            max-height: 95vh;
+            border-radius: 20px;
+        }
+        
+        .success-modal-header {
+            padding: 30px 20px 24px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .success-icon svg {
+            width: 52px;
+            height: 52px;
+        }
+        
+        .success-title {
+            font-size: 1.6rem;
+        }
+        
+        .success-subtitle {
+            font-size: 0.95rem;
+        }
+        
+        .success-modal-body {
+            padding: 24px 20px;
+        }
+        
+        .booking-summary-card {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .vehicle-name {
+            font-size: 1.1rem;
+        }
+        
+        .customer-name {
+            font-size: 0.95rem;
+        }
+        
+        .date-range {
+            font-size: 0.95rem;
+        }
+        
+        .time-range {
+            font-size: 0.85rem;
+        }
+        
+        .location-text {
+            font-size: 0.9rem;
+        }
+        
+        .price-highlight {
+            padding: 18px;
+        }
+        
+        .price-value {
+            font-size: 1.3rem;
+        }
+        
+        .next-steps-compact {
+            padding: 16px;
+            gap: 12px;
+        }
+        
+        .steps-icon {
+            font-size: 1.5rem;
+        }
+        
+        .steps-content h5 {
+            font-size: 0.95rem;
+        }
+        
+        .steps-content p {
+            font-size: 0.85rem;
+        }
+        
+        .success-modal-footer {
+            padding: 20px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn-success-primary, .btn-success-secondary {
+            width: 100%;
+            min-width: auto;
+            justify-content: center;
+            padding: 16px 24px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .success-modal-content {
+            border-radius: 16px;
+        }
+        
+        .success-modal-header {
+            padding: 24px 16px 20px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .success-title {
+            font-size: 1.4rem;
+        }
+        
+        .success-subtitle {
+            font-size: 0.9rem;
+        }
+        
+        .success-modal-body {
+            padding: 20px 16px;
+        }
+        
+        .booking-summary-card {
+            padding: 16px;
+        }
+        
+        .vehicle-name {
+            font-size: 1rem;
+        }
+        
+        .price-value {
+            font-size: 1.2rem;
+        }
+    }
+</style>
     `;
 
   // Add CSS to head if not already present
