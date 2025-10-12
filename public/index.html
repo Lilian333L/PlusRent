@@ -2438,17 +2438,19 @@
 .flatpickr-current-month {
   color: white;
   font-weight: 700;
-  font-size: 15px; /* ✅ Уменьшили с 17px до 15px */
+  font-size: 15px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 0;
+  padding: 0 10px; /* ✅ Добавили небольшой padding */
   letter-spacing: 0.3px;
   position: relative;
   z-index: 1;
-  gap: 8px; /* ✅ НОВОЕ: Добавили отступ между месяцем и годом */
+  gap: 6px; /* ✅ Уменьшили с 8px до 6px */
+  flex-wrap: nowrap;
+  overflow: visible;
 }
 
 /* Month Dropdown */
@@ -2458,14 +2460,18 @@
   color: white;
   font-weight: 700;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px; /* ✅ Чуть меньше радиус */
-  padding: 4px 10px; /* ✅ Компактнее padding */
-  font-size: 15px !important; /* ✅ Такой же размер как год */
+  border-radius: 10px;
+  padding: 4px 8px; /* ✅ Уменьшили padding */
+  font-size: 15px !important;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   appearance: none;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  max-width: 120px; /* ✅ НОВОЕ: Ограничиваем ширину */
+  max-width: 110px; /* ✅ Ограничили ширину */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1; /* ✅ Разрешаем сжиматься если нужно */
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
@@ -2547,6 +2553,7 @@ css/* ✅ ГОД - ПОЛНОЕ УДАЛЕНИЕ ДВОЙНОЙ ОБВОДКИ *
   border-color: rgba(255, 255, 255, 0.4) !important;
   transition: all 0.2s ease !important;
   outline: none !important;
+  width: 14px !important; /* ✅ НОВОЕ: Уменьшили стрелки */
 }
 
 .flatpickr-current-month .numInputWrapper span:hover {
@@ -2579,9 +2586,9 @@ css/* ✅ ГОД - ПОЛНОЕ УДАЛЕНИЕ ДВОЙНОЙ ОБВОДКИ *
 .flatpickr-current-month .numInputWrapper input {
   color: white;
   font-weight: 700;
-  font-size: 15px !important; /* ✅ Единый размер с месяцем */
+  font-size: 15px !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  width: 52px !important; /* ✅ Чуть меньше ширина */
+  width: 50px !important; /* ✅ Уменьшили ширину */
   touch-action: manipulation !important;
   outline: none !important;
   box-shadow: none !important;
