@@ -2415,6 +2415,117 @@
         page-break-inside: avoid;
       }
     }
+/* ========== КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ДЛЯ МОБИЛЬНЫХ ========== */
+
+/* 1️⃣ ОТКЛЮЧАЕМ НАТИВНЫЙ КАЛЕНДАРЬ iOS/Android */
+input[type="text"]#filter-date-from,
+input[type="text"]#filter-date-to,
+input[type="text"]#mobile-filter-date-from,
+input[type="text"]#mobile-filter-date-to {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Убираем стрелки выбора даты на iOS */
+input[type="text"]#filter-date-from::-webkit-calendar-picker-indicator,
+input[type="text"]#filter-date-to::-webkit-calendar-picker-indicator,
+input[type="text"]#mobile-filter-date-from::-webkit-calendar-picker-indicator,
+input[type="text"]#mobile-filter-date-to::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 2️⃣ ИСПРАВЛЯЕМ ПОЗИЦИЮ ИКОНКИ КАЛЕНДАРЯ НА МОБИЛЬНЫХ */
+@media (max-width: 767px) {
+  .date-input-wrapper {
+    position: relative;
+    padding-left: 0 !important;
+  }
+  
+  .date-input-wrapper i {
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #1ccfc9 !important;
+    font-size: 13px !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    width: 16px !important;
+    text-align: center !important;
+  }
+  
+  .date-input-wrapper input {
+    padding-left: 36px !important; /* Увеличиваем отступ слева */
+    font-size: 13px !important;
+    height: 44px !important; /* Увеличиваем высоту для удобства тапа */
+    line-height: 44px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+  
+  /* Для мобильного фильтра */
+  .mobile-filter-content .date-input-wrapper i {
+    left: 10px !important;
+    font-size: 12px !important;
+  }
+  
+  .mobile-filter-content .date-input-wrapper input {
+    padding-left: 34px !important;
+    font-size: 12px !important;
+    height: 42px !important;
+    line-height: 42px !important;
+  }
+}
+
+/* 3️⃣ ФОРСИРУЕМ FLATPICKR НА ВСЕХ УСТРОЙСТВАХ */
+.flatpickr-mobile {
+  display: none !important;
+}
+
+/* 4️⃣ УЛУЧШАЕМ ВИДИМОСТЬ FLATPICKR НА МОБИЛЬНЫХ */
+@media (max-width: 767px) {
+  .flatpickr-calendar.open {
+    z-index: 99999 !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Делаем фон затемнённым при открытом календаре */
+  .flatpickr-calendar.open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* 5️⃣ УВЕЛИЧИВАЕМ ОБЛАСТЬ КЛИКА НА МОБИЛЬНЫХ */
+@media (max-width: 767px) {
+  .date-input-wrapper input {
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: rgba(28, 207, 201, 0.2) !important;
+  }
+  
+  .date-input-wrapper input:active {
+    background: rgba(28, 207, 201, 0.05) !important;
+  }
+}
   </style>
 </head>
 
@@ -3566,56 +3677,63 @@ setTimeout(function() {
         }
       }
 
-      // Initialize date pickers
-      function initializeDatePickers() {
-        const today = new Date();
-        
-        // Desktop date pickers
-        dateFromPickerDesktop = flatpickr('#filter-date-from', {
-          dateFormat: 'Y-m-d',
-          minDate: today,
-          onChange: function(selectedDates, dateStr) {
-            dateToPickerDesktop.set('minDate', dateStr);
-            updateFiltersAndFetch();
-          }
-        });
-        
-        dateToPickerDesktop = flatpickr('#filter-date-to', {
-          dateFormat: 'Y-m-d',
-          minDate: today,
-          onChange: function() {
-            updateFiltersAndFetch();
-          }
-        });
-        
-        // Mobile date pickers
-        mobileDateFromPicker = flatpickr('#mobile-filter-date-from', {
-          dateFormat: 'Y-m-d',
-          minDate: today,
-          onChange: function(selectedDates, dateStr) {
-            mobileDateToPicker.set('minDate', dateStr);
-          }
-        });
-        
-        mobileDateToPicker = flatpickr('#mobile-filter-date-to', {
-          dateFormat: 'Y-m-d',
-          minDate: today
-        });
-        
-        // Sync desktop values with URL params
-        const params = new URLSearchParams(window.location.search);
-        const dateFrom = params.get('date_from');
-        const dateTo = params.get('date_to');
-        
-        if (dateFrom) {
-          dateFromPickerDesktop.setDate(dateFrom);
-          mobileDateFromPicker.setDate(dateFrom);
-        }
-        if (dateTo) {
-          dateToPickerDesktop.setDate(dateTo);
-          mobileDateToPicker.setDate(dateTo);
-        }
-      }
+// Initialize date pickers
+function initializeDatePickers() {
+  const today = new Date();
+  
+  // КРИТИЧЕСКОЕ: Отключаем мобильный режим Flatpickr
+  const commonConfig = {
+    dateFormat: 'Y-m-d',
+    minDate: today,
+    disableMobile: true, // ✅ ОТКЛЮЧАЕМ НАТИВНЫЙ КАЛЕНДАРЬ
+    static: false,
+    appendTo: document.body, // ✅ Показываем календарь поверх всего
+    clickOpens: true,
+    allowInput: false // ✅ Запрещаем ручной ввод
+  };
+  
+  // Desktop date pickers
+  dateFromPickerDesktop = flatpickr('#filter-date-from', {
+    ...commonConfig,
+    onChange: function(selectedDates, dateStr) {
+      dateToPickerDesktop.set('minDate', dateStr);
+      updateFiltersAndFetch();
+    }
+  });
+  
+  dateToPickerDesktop = flatpickr('#filter-date-to', {
+    ...commonConfig,
+    onChange: function() {
+      updateFiltersAndFetch();
+    }
+  });
+  
+  // Mobile date pickers
+  mobileDateFromPicker = flatpickr('#mobile-filter-date-from', {
+    ...commonConfig,
+    onChange: function(selectedDates, dateStr) {
+      mobileDateToPicker.set('minDate', dateStr);
+    }
+  });
+  
+  mobileDateToPicker = flatpickr('#mobile-filter-date-to', {
+    ...commonConfig
+  });
+  
+  // Sync values with URL params
+  const params = new URLSearchParams(window.location.search);
+  const dateFrom = params.get('date_from');
+  const dateTo = params.get('date_to');
+  
+  if (dateFrom) {
+    dateFromPickerDesktop.setDate(dateFrom);
+    mobileDateFromPicker.setDate(dateFrom);
+  }
+  if (dateTo) {
+    dateToPickerDesktop.setDate(dateTo);
+    mobileDateToPicker.setDate(dateTo);
+  }
+}
 
       // Mobile filter functions
       function toggleMobileFilter() {
