@@ -2566,11 +2566,14 @@
   -webkit-tap-highlight-color: transparent !important;
 }
 
-/* ✅ При active БЕЗ анимации */
+/* ✅ При active БЕЗ анимации И СДВИГА */
 .flatpickr-current-month .flatpickr-year-dropdown:active {
   transform: none !important;
-  transition: none !important; /* 🔥 КРИТИЧНО: Убираем transition */
+  transition: none !important;
   box-shadow: none !important;
+  padding: 4px 6px !important; /* 🔥 ФИКСИРУЕМ PADDING */
+  padding-right: 20px !important; /* 🔥 ДЛЯ СТРЕЛКИ */
+  border: 2px solid rgba(255, 255, 255, 0.3) !important; /* 🔥 ФИКСИРУЕМ BORDER */
 }
 
 /* ✅ Убираем стандартные браузерные обводки */
@@ -2824,6 +2827,7 @@
 }
 /* ✅ МОБИЛЬНЫЕ: Убираем подсветку при нажатии */
 @media (pointer: coarse), (max-width: 767px) {
+  /* ✅ ФИКСИРУЕМ СТИЛИ ДЛЯ ГОДА */
   .flatpickr-current-month .flatpickr-year-dropdown,
   .flatpickr-current-month .flatpickr-year-dropdown:hover,
   .flatpickr-current-month .flatpickr-year-dropdown:focus,
@@ -2833,9 +2837,14 @@
     -webkit-user-select: none !important;
     user-select: none !important;
     transform: none !important;
-    transition: none !important; /* 🔥 УБРАЛИ АНИМАЦИЮ ПОЛНОСТЬЮ */
+    transition: none !important;
+    
+    /* 🔥 ФИКСИРУЕМ ВСЁ */
+    padding: 4px 6px !important;
+    padding-right: 20px !important;
+    border-width: 2px !important;
+    box-sizing: border-box !important; /* 🔥 КРИТИЧНО */
   }
-  
   /* ✅ ОРИГИНАЛЬНЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ - ОСТАВЛЯЕМ */
   .flatpickr-calendar {
     border-radius: 16px;
