@@ -848,6 +848,27 @@
             const langFlag = document.getElementById('langFlag');
             const langCode = document.getElementById('langCode');
             
+            // Function to update the language picker display
+            function updateLanguageDisplay(lang) {
+                const option = document.querySelector(`[data-lang="${lang}"]`);
+                if (option) {
+                    const flagImg = option.querySelector('.lang-flag img');
+                    const code = option.querySelector('.lang-code').textContent;
+                    
+                    // Clear and update flag
+                    if (flagImg) {
+                        langFlag.innerHTML = flagImg.outerHTML;
+                    }
+                    langCode.textContent = code;
+                    
+                    // Update selected state
+                    document.querySelectorAll('.lang-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                }
+            }
+            
             // Toggle dropdown
             langPickerBtn.addEventListener('click', function() {
                 const isExpanded = this.getAttribute('aria-expanded') === 'true';
@@ -859,14 +880,14 @@
             document.querySelectorAll('.lang-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
-                    const currentLang = localStorage.getItem('lang') || 'en';
+                    const currentLang = localStorage.getItem('lang') || 'ro';
                     
                     // Only proceed if language is actually changing
                     if (lang !== currentLang) {
                         // Store the new language preference
                         localStorage.setItem('lang', lang);
                         
-                        // Reload the page to prevent copy from getting messed up
+                        // Reload the page to apply new language
                         window.location.reload();
                     } else {
                         // Just close dropdown if same language selected
@@ -884,20 +905,23 @@
                 }
             });
             
-            // Set initial language
-            const savedLang = localStorage.getItem('lang') || 'ro';
-            const savedOption = document.querySelector(`[data-lang="${savedLang}"]`);
-            if (savedOption) {
-                const flag = savedOption.querySelector('.lang-flag').textContent;
-                const code = savedOption.querySelector('.lang-code').textContent;
-                langFlag.textContent = flag;
-                langCode.textContent = code;
+            // Wait for i18next to be initialized before updating display
+            function initLanguageDisplay() {
+                const savedLang = localStorage.getItem('lang') || 'ro';
+                updateLanguageDisplay(savedLang);
+            }
+            
+            // If i18next is already initialized, update display immediately
+            if (window.i18next && window.i18next.isInitialized) {
+                initLanguageDisplay();
+            } else {
+                // Otherwise, wait for the i18next:initialized event
+                window.addEventListener('i18nextInitialized', initLanguageDisplay);
                 
-                if (window.i18next && window.i18next.changeLanguage) {
-                    window.i18next.changeLanguage(savedLang);
-                }
+                // Fallback: try after a short delay
+                setTimeout(initLanguageDisplay, 100);
             }
         });
     </script>
 </body>
-</html> 
+</html>
