@@ -24,6 +24,59 @@
         isInitialized: false
     };
 
+    // ✅ НОВАЯ ФУНКЦИЯ: Проверка открытых модалов
+    function isAnyModalOpen() {
+        // Проверяем популярные селекторы модалов
+        const modalSelectors = [
+            '.modal.show',                    // Bootstrap модалы
+            '.modal.active',                  // Кастомные модалы
+            '.modal[style*="display: block"]',// Inline style модалы
+            '.modal[style*="display:block"]',
+            '[role="dialog"][style*="display: block"]',
+            '[role="dialog"][style*="display:block"]',
+            '.popup.open',
+            '.popup.active',
+            '.lightbox.open',
+            '.lightbox.active',
+            '#imageLightbox[style*="display: block"]', // Ваш lightbox
+            '#imageLightbox[style*="display:block"]'
+        ];
+
+        // Проверяем каждый селектор
+        for (const selector of modalSelectors) {
+            const elements = document.querySelectorAll(selector);
+            if (elements.length > 0) {
+                // Проверяем, что элемент видим
+                for (const element of elements) {
+                    if (element.offsetParent !== null || 
+                        window.getComputedStyle(element).display !== 'none') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Проверяем body классы (часто добавляются при открытии модала)
+        const bodyClasses = [
+            'modal-open',
+            'no-scroll',
+            'overflow-hidden'
+        ];
+
+        for (const className of bodyClasses) {
+            if (document.body.classList.contains(className)) {
+                return true;
+            }
+        }
+
+        // Проверяем overflow: hidden на body
+        if (document.body.style.overflow === 'hidden') {
+            return true;
+        }
+
+        return false;
+    }
+
     // Get current language
     function getCurrentLanguage() {
         const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
@@ -106,10 +159,9 @@
 
     // Check if user has seen the modal today or has already received their reward
     function hasSeenModalToday() {
-        // First check if user has already received their reward
         const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
-            return true; // Don't show modal if user already got their reward
+            return true;
         }
         
         const lastSeen = localStorage.getItem(CONFIG.storageKey);
@@ -128,13 +180,11 @@
         
         if (!startTime) return 0;
         
-        // If we have stored total time, use that as base
         let baseTime = 0;
         if (storedTotalTime) {
             baseTime = parseInt(storedTotalTime);
         }
         
-        // Add current session time
         const now = Date.now();
         const currentSessionTime = now - parseInt(startTime);
         
@@ -152,7 +202,6 @@
     function markModalAsSeen() {
         localStorage.setItem(CONFIG.storageKey, new Date().toISOString());
         
-        // Reset website timer for next day
         localStorage.removeItem('websiteStartTime');
         localStorage.removeItem('websiteTotalTime');
     }
@@ -733,7 +782,6 @@
     function updateModalTranslations() {
         if (!state.modal) return;
         
-        // Update all text content
         const titleElement = state.modal.querySelector('.spinning-wheel-modal-title');
         if (titleElement) titleElement.textContent = t('title');
         
@@ -756,9 +804,20 @@
         if (privacyText) privacyText.textContent = t('privacyText');
     }
 
-    // Show modal
+    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Show modal с проверкой других модалов
     function showModal(options = {}) {
         if (!state.modal) return;
+        
+        // ✅ ПРОВЕРЯЕМ, НЕ ОТКРЫТ ЛИ ДРУГОЙ МОДАЛ
+        if (isAnyModalOpen()) {
+            // Откладываем показ на 2 секунды и проверяем снова
+            setTimeout(() => {
+                if (!isAnyModalOpen()) {
+                    showModal(options);
+                }
+            }, 2000);
+            return;
+        }
         
         updateModalTranslations();
         
@@ -955,7 +1014,7 @@
                 }
             }
         } catch (error) {
-            console.error('Error checking available coupons:', error);
+            // Error handling silenced
         }
 
         localStorage.setItem('spinningWheelPhone', formattedPhone);
@@ -967,10 +1026,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phoneNumber: formattedPhone })
-            }).catch(err => console.error('Error tracking phone number:', err));
-        } catch (err) {
-            console.error('Error tracking phone number:', err);
-        }
+            }).catch(err => {});
+        } catch (err) {}
 
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'flex';
@@ -1011,9 +1068,7 @@
             if (savedCouponCode) {
                 handleAutoApplyCoupon(savedCouponCode);
             }
-        } catch (error) {
-            console.error('Error auto-applying winning coupon:', error);
-        }
+        } catch (error) {}
     }
 
     // Handle auto-apply coupon
@@ -1028,9 +1083,7 @@
             }
             
             showCouponAppliedNotification(couponCode);
-        } catch (error) {
-            console.error('Error handling auto-apply coupon:', error);
-        }
+        } catch (error) {}
     }
 
     // Show coupon notification
@@ -1430,7 +1483,6 @@
             const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/enabled-configs`);
             
             if (!response.ok) {
-                console.error('Error fetching enabled wheels:', response.status);
                 return null;
             }
             
@@ -1438,7 +1490,6 @@
             const nonPremiumWheels = wheelConfigs.filter(wheel => !wheel.is_premium);
             
             if (nonPremiumWheels.length === 0) {
-                console.warn('No non-premium enabled wheels found');
                 if (wheelConfigs.length > 0) {
                     return wheelConfigs[0];
                 }
@@ -1462,7 +1513,6 @@
             return nonPremiumWheels[0];
             
         } catch (error) {
-            console.error('Error fetching correct wheel:', error);
             return null;
         }
     }
@@ -1574,7 +1624,6 @@
             const wheelData = await response.json();
             return wheelData.id;
         } catch (error) {
-            console.error('Error fetching wheel ID by type:', error);
             return null;
         }
     }
