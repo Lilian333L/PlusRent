@@ -21,7 +21,9 @@
         modal: null,
         iframe: null,
         timer: null,
-        isInitialized: false
+        isInitialized: false,
+        userClosedModal: false, // ✅ ДОБАВЛЕНО
+        modalCheckInterval: null // ✅ ДОБАВЛЕНО
     };
 
     // ✅ НОВАЯ ФУНКЦИЯ: Проверка открытых модалов
@@ -808,14 +810,31 @@
     function showModal(options = {}) {
         if (!state.modal) return;
         
+        // ✅ ПРОВЕРЯЕМ, НЕ ЗАКРЫЛ ЛИ ПОЛЬЗОВАТЕЛЬ МОДАЛ ВРУЧНУЮ
+        if (state.userClosedModal) {
+            console.log('⏸️ User manually closed modal, not showing again');
+            return;
+        }
+        
         // ✅ ПРОВЕРЯЕМ, НЕ ОТКРЫТ ЛИ ДРУГОЙ МОДАЛ
         if (isAnyModalOpen()) {
-            // Откладываем показ на 2 секунды и проверяем снова
-            setTimeout(() => {
-                if (!isAnyModalOpen()) {
-                    showModal(options);
+            console.log('⏳ Another modal is open, delaying spinning wheel...');
+            
+            // Останавливаем предыдущий интервал если есть
+            if (state.modalCheckInterval) {
+                clearInterval(state.modalCheckInterval);
+            }
+            
+            // ✅ ИСПОЛЬЗУЕМ ИНТЕРВАЛ ВМЕСТО setTimeout
+            state.modalCheckInterval = setInterval(() => {
+                if (!isAnyModalOpen() && !state.userClosedModal) {
+                    console.log('✅ Other modals closed, showing spinning wheel now');
+                    clearInterval(state.modalCheckInterval);
+                    state.modalCheckInterval = null;
+                    showModal(options); // Рекурсивно вызываем без задержки
                 }
-            }, 2000);
+            }, 1000); // Проверяем каждую секунду
+            
             return;
         }
         
@@ -884,11 +903,23 @@
         setTimeout(() => {
             state.modal.classList.add('show');
         }, 10);
+        
+        console.log('🎡 Spinning wheel modal shown');
     }
 
-    // Close modal
+    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Close modal
     function closeModal() {
         if (!state.modal) return;
+        
+        // ✅ ПОМЕЧАЕМ, ЧТО ПОЛЬЗОВАТЕЛЬ ЗАКРЫЛ МОДАЛ
+        state.userClosedModal = true;
+        console.log('❌ User closed modal manually');
+        
+        // Останавливаем проверку других модалов
+        if (state.modalCheckInterval) {
+            clearInterval(state.modalCheckInterval);
+            state.modalCheckInterval = null;
+        }
         
         state.modal.classList.remove('show');
         
@@ -897,11 +928,17 @@
         }, 300);
     }
 
-    // Cleanup function
+    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Cleanup
     function cleanup() {
         if (state.timer) {
             clearTimeout(state.timer);
             state.timer = null;
+        }
+        
+        // ✅ ДОБАВЛЕНО: Очистка интервала проверки модалов
+        if (state.modalCheckInterval) {
+            clearInterval(state.modalCheckInterval);
+            state.modalCheckInterval = null;
         }
         
         if (state.modal) {
