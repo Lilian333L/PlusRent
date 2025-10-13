@@ -3535,6 +3535,19 @@ setTimeout(function() {
           'en': 'Van'
         }
       };
+      // Translation mapping for gear types
+      const gearTranslations = {
+        'automatic': {
+          'ro': 'Automată',
+          'ru': 'Автоматическая',
+          'en': 'Automatic'
+        },
+        'manual': {
+          'ro': 'Manuală',
+          'ru': 'Механическая',
+          'en': 'Manual'
+        }
+      };
 
       // Format display text
       function formatDisplayText(rawKey) {
@@ -3564,7 +3577,15 @@ setTimeout(function() {
         }
         return formatDisplayText(carType);
       }
-
+      // Translate gear type based on current language
+      function translateGearType(gearType) {
+          if (!gearType) return '';
+        const normalizedGear = gearType.toLowerCase();
+        if (gearTranslations[normalizedGear] && gearTranslations[normalizedGear][currentLanguage]) {
+          return gearTranslations[normalizedGear][currentLanguage];
+        }
+        return formatDisplayText(gearType);
+      }
       // Get unique options for a field
       function getUniqueOptions(cars, field) {
         return Array.from(new Set(cars.map(car => car[field]).filter(Boolean))).sort();
@@ -3712,6 +3733,8 @@ setTimeout(function() {
             displayText = translateFuelType(opt);
           } else if (field === 'car_type') {
             displayText = translateCarType(opt);
+          } else if (field === 'gear_type') {
+            displayText = translateGearType(opt);
           }
           
           return `
