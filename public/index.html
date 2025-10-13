@@ -80,7 +80,88 @@
     "telephone": "+37360000500"
   }
   </script>
-  
+  <script>
+    (function() {
+      'use strict';
+      
+      // Полностью отключаем консоль
+      const noop = function() {};
+      const consoleProps = ['log', 'warn', 'error', 'info', 'debug', 'trace', 'dir', 'dirxml', 
+                           'group', 'groupEnd', 'groupCollapsed', 'time', 'timeEnd', 'timeLog',
+                           'assert', 'clear', 'count', 'countReset', 'profile', 'profileEnd', 
+                           'table', 'memory'];
+      
+      consoleProps.forEach(prop => {
+        try {
+          console[prop] = noop;
+        } catch(e) {}
+      });
+      
+      // Блокируем попытки восстановить console
+      Object.defineProperty(window, 'console', {
+        value: new Proxy(console, {
+          get: function() { return noop; }
+        }),
+        writable: false,
+        configurable: false
+      });
+      
+      // Отключаем debugger
+      setInterval(function() {
+        (function() {
+          return false;
+        }['constructor']('debugger')());
+      }, 50);
+      
+      // Блокируем DevTools (необязательно, но эффективно)
+      const devtools = { open: false };
+      const threshold = 160;
+      
+      setInterval(function() {
+        if (window.outerWidth - window.innerWidth > threshold || 
+            window.outerHeight - window.innerHeight > threshold) {
+          devtools.open = true;
+          // Можно перенаправить или показать warning
+          // window.location.href = '/';
+        }
+      }, 500);
+      
+      // Блокируем правый клик
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+      
+      // Блокируем горячие клавиши
+      document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+J
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.keyCode === 85) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+S (Save)
+        if (e.ctrlKey && e.keyCode === 83) {
+          e.preventDefault();
+          return false;
+        }
+      });
+    })();
+  </script>
   <script>
     // Global API configuration
     window.API_BASE_URL = '';
