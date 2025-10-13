@@ -57,8 +57,8 @@
   <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
   <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
   <link href="css/plugins.css" rel="stylesheet" type="text/css">
-  <link href="css/style.css" rel="stylesheet" type="text/css">
-  <link href="css/coloring.css" rel="stylesheet" type="text/css">
+  
+  
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
@@ -96,7 +96,89 @@
     window.API_BASE_URL = '';
   </script>
 
+  <!-- Custom Language Picker Styles -->
+  
+  <!-- MODERN PRICE CALCULATOR MODAL WITH GLASSMORPHISM -->
+  
+
+
+  <!-- ========== CRITICAL CSS INLINE ========== -->
+  
+  
+  <!-- ========== PRELOAD NON-CRITICAL CSS ========== -->
+  <link rel="preload" href="css/layout.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/components/header.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/components/fleet-cards.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/components/forms.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+  <noscript>
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components/header.css">
+    <link rel="stylesheet" href="css/components/fleet-cards.css">
+    <link rel="stylesheet" href="css/components/forms.css">
+  </noscript>
+  
+  <!-- ========== LAZY LOAD COMPONENTS ========== -->
+  <script>
+    function loadModalCSS() {
+      if (!document.getElementById('modal-css')) {
+        const link = document.createElement('link');
+        link.id = 'modal-css';
+        link.rel = 'stylesheet';
+        link.href = 'css/components/modals.css';
+        document.head.appendChild(link);
+      }
+    }
+    
+    function loadCalendarCSS() {
+      if (!document.getElementById('calendar-css')) {
+        const link = document.createElement('link');
+        link.id = 'calendar-css';
+        link.rel = 'stylesheet';
+        link.href = 'css/components/calendar.css';
+        document.head.appendChild(link);
+      }
+    }
+    
+    function loadToastCSS() {
+      if (!document.getElementById('toast-css')) {
+        const link = document.createElement('link');
+        link.id = 'toast-css';
+        link.rel = 'stylesheet';
+        link.href = 'css/components/toast.css';
+        document.head.appendChild(link);
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const modalTriggers = document.querySelectorAll('[onclick*="openPriceCalculator"], [onclick*="openContactPopup"]');
+      modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', loadModalCSS, { once: true });
+      });
+      
+      const dateInputs = document.querySelectorAll('input[type="text"][id*="date"], .mobile-date-input');
+      dateInputs.forEach(input => {
+        input.addEventListener('focus', loadCalendarCSS, { once: true });
+      });
+    });
+    
+    const originalShowToast = window.showToast;
+    window.showToast = function() {
+      loadToastCSS();
+      if (originalShowToast) {
+        originalShowToast.apply(this, arguments);
+      }
+    };
+  </script>
+
+
+  <!-- Preconnect для внешних ресурсов -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  
+  <!-- ========== CRITICAL CSS INLINE ========== -->
   <style>
+/* ========== CRITICAL CSS - Inline в HEAD ========== */
 
 .modal-body {
   scroll-behavior:smooth;
@@ -495,6 +577,7 @@
   
   <!-- ========== LAZY LOAD COMPONENTS ========== -->
   <script>
+    // Load modal CSS только при открытии
     function loadModalCSS() {
       if (!document.getElementById('modal-css')) {
         const link = document.createElement('link');
@@ -505,6 +588,7 @@
       }
     }
     
+    // Load calendar CSS при фокусе на дате
     function loadCalendarCSS() {
       if (!document.getElementById('calendar-css')) {
         const link = document.createElement('link');
@@ -515,6 +599,7 @@
       }
     }
     
+    // Load toast CSS при показе уведомления
     function loadToastCSS() {
       if (!document.getElementById('toast-css')) {
         const link = document.createElement('link');
@@ -525,18 +610,22 @@
       }
     }
     
+    // Автозагрузка при взаимодействии
     document.addEventListener('DOMContentLoaded', function() {
-      const modalTriggers = document.querySelectorAll('[onclick*="openPriceCalculator"], [onclick*="openContactPopup"]');
-      modalTriggers.forEach(trigger => {
-        trigger.addEventListener('click', loadModalCSS, { once: true });
+      // Modal triggers
+      const modalBtns = document.querySelectorAll('[onclick*="openPriceCalculator"], [onclick*="openContactPopup"]');
+      modalBtns.forEach(btn => {
+        btn.addEventListener('click', loadModalCSS, { once: true });
       });
       
+      // Calendar triggers
       const dateInputs = document.querySelectorAll('input[type="text"][id*="date"], .mobile-date-input');
       dateInputs.forEach(input => {
         input.addEventListener('focus', loadCalendarCSS, { once: true });
       });
     });
     
+    // Hook в showToast
     const originalShowToast = window.showToast;
     window.showToast = function() {
       loadToastCSS();
