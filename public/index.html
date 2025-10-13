@@ -24,7 +24,7 @@
   
   <!-- Meta base -->
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://stackpath.bootstrapcdn.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://*.supabase.co https://*.vercel.app; object-src 'none'; media-src 'self'; frame-src 'self'; base-uri 'self'; form-action 'self';">
@@ -62,7 +62,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
-  
+  <!-- API Configuration -->
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -81,22 +82,31 @@
   }
   </script>
   <script>
-    // Global API configuration
+    // Global API configuration for Vercel deployment
     window.API_BASE_URL = '';
+
+    // Cache busting for development
     window.API_VERSION = Date.now();
 
+    // Log API configuration
+
+    // Global function to ensure API_BASE_URL is always available
     window.ensureApiConfig = function () {
       if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
+
         window.API_BASE_URL = '';
       }
       return window.API_BASE_URL;
     };
 
+    // Ensure API_BASE_URL is available globally
     window.API_BASE_URL = '';
   </script>
 
   <!-- Custom Language Picker Styles -->
   <style>
+
+
     .lang-picker-wrapper {
       position: relative;
       display: inline-block;
@@ -113,6 +123,7 @@
       background: #fff;
     }
 
+    /* Ensure submit button is always visible */
     #send_message {
       display: block !important;
       visibility: visible !important;
@@ -143,6 +154,7 @@
       box-shadow: none !important;
     }
 
+    /* Ensure field-set and submit container are properly styled */
     .field-set {
       margin-bottom: 20px;
     }
@@ -152,6 +164,7 @@
       text-align: center;
     }
 
+    /* Loading spinner for submit button */
     .loading-spinner {
       display: inline-block;
       width: 16px;
@@ -198,6 +211,7 @@
       padding: 12px 15px;
     }
 
+    /* Enhanced Error Message Styling */
     #error_message {
       background: linear-gradient(135deg, #ff6b6b, #ee5a52) !important;
       color: white !important;
@@ -222,28 +236,19 @@
       animation: slideInDown 0.3s ease-out;
     }
 
-    /* Success Message Styling */
-    #error_message.success {
-      background: linear-gradient(135deg, #10b981, #059669) !important;
-    }
-
-    #error_message.success:before {
-      content: "✅";
-      margin-right: 8px;
-      font-size: 16px;
-    }
-
     @keyframes slideInDown {
       from {
         opacity: 0;
         transform: translateY(-10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
+    /* Location Information Styling */
     .location-info {
       background: #f8f9fa;
       border: 1px solid #e9ecef;
@@ -314,27 +319,13 @@
     }
 
     .field-error {
-    display: none;
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-top: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-    animation: slideInDown 0.3s ease-out;
-}
-    .field-error.success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-}
-    .field-error.show {
-    display: block !important;
-    animation: slideInDown 0.3s ease-out;
-}
-    
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
 
+    /* Radio Button Styles */
     .radio-group {
       background: #f8f9fa;
       border: 1px solid #e9ecef;
@@ -417,6 +408,7 @@
       box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
     }
 
+    /* Location Card Styling */
     .location-card {
       background: #f8f9fa;
       border: 1px solid #e9ecef;
@@ -475,12 +467,15 @@
         transform: scale(0.3);
         opacity: 0;
       }
+
       50% {
         transform: scale(1.05);
       }
+
       70% {
         transform: scale(0.9);
       }
+
       100% {
         transform: scale(1);
         opacity: 1;
@@ -510,6 +505,7 @@
       color: #333;
     }
 
+    /* Booking Info Alert */
     .booking-info .alert {
       border-radius: 8px;
       border: none;
@@ -540,6 +536,29 @@
       margin-top: 10px;
     }
 
+    /* Loading animation */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #f0c040;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Price Summary Styles */
     .price-summary {
       background: #f8f9fa;
       border: 1px solid #e0e0e0;
@@ -581,6 +600,7 @@
       border-color: #e0e0e0;
     }
 
+    /* Compact Price Summary */
     .price-summary-compact {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       border: 1px solid #dee2e6;
@@ -625,6 +645,538 @@
       font-weight: 700;
     }
 
+    /* Price Calculator Modal */
+    .price-calculator-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .price-calculator-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+      color: #fff;
+      padding: 20px 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-header h4 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .close-modal {
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .close-modal:hover {
+      opacity: 1;
+    }
+
+    .modal-body {
+      padding: 25px;
+      max-height: calc(90vh - 80px);
+      /* Account for header */
+      overflow-y: auto;
+    }
+
+    .calculator-section {
+      margin-bottom: 20px;
+    }
+
+    /* Compact form controls */
+    .form-control-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 0.2rem;
+    }
+
+    .form-label.small {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Compact vehicle card */
+    .vehicle-card {
+      border: 1px solid #dee2e6;
+      transition: all 0.2s ease;
+    }
+
+    .vehicle-card:hover {
+      border-color: #f0c040;
+      box-shadow: 0 2px 8px rgba(240, 192, 64, 0.1);
+    }
+
+    .calculator-section h5 {
+      color: #495057;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #f0c040;
+      padding-bottom: 5px;
+    }
+
+    .tariff-info {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-left: 4px solid #f0c040;
+    }
+
+    .tariff-info h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .tariff-details {
+      font-size: 13px;
+      color: #6c757d;
+    }
+
+    .tariff-details .working-hours {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .tariff-details .outside-hours {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .tariff-details .location-fees {
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .modal-price-summary {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 2px solid #f0c040;
+    }
+
+    .modal-price-summary h5 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .modal-price-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .modal-price-item.total {
+      color: #495057;
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px solid #dee2e6;
+    }
+
+    .modal-price-item .text-primary {
+      color: #f0c040 !important;
+      font-weight: 700;
+    }
+
+    .modal-actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .btn-calculate {
+      background: linear-gradient(135deg, #f0c040 0%, #e6b800 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 10px;
+    }
+
+    .btn-calculate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(240, 192, 64, 0.3);
+    }
+
+    .btn-close-calc {
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-close-calc:hover {
+      background: #5a6268;
+    }
+
+    /* Responsive Modal Styles */
+    @media (max-width: 768px) {
+      .price-calculator-content {
+        margin: 2% auto;
+        width: 95%;
+        max-width: none;
+        max-height: 95vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .modal-header {
+        padding: 15px 20px;
+      }
+
+      .modal-header h4 {
+        font-size: 16px;
+      }
+
+      .close-modal {
+        right: 15px;
+        font-size: 20px;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .calculator-section {
+        margin-bottom: 15px;
+      }
+
+      .calculator-section h5 {
+        font-size: 15px;
+        margin-bottom: 10px;
+      }
+
+      .tariff-info {
+        padding: 12px;
+        margin-bottom: 15px;
+      }
+
+      .tariff-info h6 {
+        font-size: 13px;
+      }
+
+      .tariff-details {
+        font-size: 12px;
+      }
+
+      .modal-price-summary {
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .modal-price-summary h5 {
+        font-size: 15px;
+        margin-bottom: 12px;
+      }
+
+      .modal-price-item {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .modal-price-item.total {
+        font-size: 15px;
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+
+      .modal-actions {
+        margin-top: 15px;
+      }
+
+      .btn-calculate,
+      .btn-close-calc {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .btn-calculate {
+        margin-right: 0;
+        width: 100%;
+      }
+
+      .btn-close-calc {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .price-calculator-content {
+        margin: 1% auto;
+        width: 98%;
+        max-height: 98vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .modal-header {
+        padding: 12px 15px;
+      }
+
+      .modal-header h4 {
+        font-size: 15px;
+      }
+
+      .close-modal {
+        right: 12px;
+        font-size: 18px;
+      }
+
+      .modal-body {
+        padding: 15px;
+      }
+
+      .calculator-section {
+        margin-bottom: 12px;
+      }
+
+      .calculator-section h5 {
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .tariff-info {
+        padding: 10px;
+        margin-bottom: 12px;
+      }
+
+      .tariff-info h6 {
+        font-size: 12px;
+      }
+
+      .tariff-details {
+        font-size: 11px;
+      }
+
+      .modal-price-summary {
+        padding: 12px;
+        margin-top: 12px;
+      }
+
+      .modal-price-summary h5 {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .modal-price-item {
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+
+      .modal-price-item.total {
+        font-size: 14px;
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+
+      .modal-actions {
+        margin-top: 12px;
+      }
+
+      .btn-calculate,
+      .btn-close-calc {
+        padding: 8px 16px;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      /* Mobile-specific optimizations */
+      .vehicle-card {
+        padding: 8px !important;
+      }
+
+      .vehicle-card .col-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+      }
+
+      .vehicle-card .col-9 {
+        flex: 0 0 75%;
+        max-width: 75%;
+      }
+
+      .vehicle-card img {
+        max-height: 50px !important;
+      }
+
+      .vehicle-card h6 {
+        font-size: 13px !important;
+        line-height: 1.2;
+      }
+
+      .vehicle-card p {
+        font-size: 11px !important;
+        line-height: 1.2;
+      }
+
+      .vehicle-card .vehicle-price {
+        font-size: 12px !important;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .price-calculator-content {
+        margin: 1% auto;
+        max-height: 99vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .modal-body {
+        padding: 15px;
+      }
+
+      .calculator-section {
+        margin-bottom: 10px;
+      }
+
+      .tariff-info {
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+
+      .modal-price-summary {
+        padding: 12px;
+        margin-top: 10px;
+      }
+
+      .modal-actions {
+        margin-top: 10px;
+      }
+    }
+
+    /* Landscape orientation on mobile */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .price-calculator-content {
+        margin: 0.5% auto;
+        max-height: 99vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .modal-body {
+        padding: 12px;
+      }
+
+      .calculator-section {
+        margin-bottom: 8px;
+      }
+
+      .calculator-section h5 {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .tariff-info {
+        padding: 6px;
+        margin-bottom: 8px;
+      }
+
+      .tariff-info h6 {
+        font-size: 11px;
+      }
+
+      .tariff-details {
+        font-size: 10px;
+      }
+
+      .modal-price-summary {
+        padding: 8px;
+        margin-top: 8px;
+      }
+
+      .modal-price-summary h5 {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .modal-price-item {
+        font-size: 11px;
+        margin-bottom: 3px;
+      }
+
+      .modal-price-item.total {
+        font-size: 13px;
+        margin-top: 6px;
+        padding-top: 6px;
+      }
+
+      .modal-actions {
+        margin-top: 8px;
+      }
+
+      .btn-calculate,
+      .btn-close-calc {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+    }
+
+    /* Quick Book Button */
     .quick-book-btn {
       background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
       color: #fff;
@@ -644,10 +1196,12 @@
       box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     }
 
+    /* Modal body styles */
     body.modal-open {
       overflow: hidden;
     }
 
+    /* Ensure modal can be closed */
     .modal-backdrop {
       z-index: 1040;
     }
@@ -656,6 +1210,7 @@
       z-index: 1050;
     }
 
+    /* Force modal close button to work */
     .close-modal,
     .btn-close-calc {
       cursor: pointer !important;
@@ -663,13 +1218,16 @@
       position: relative !important;
     }
 
+    /* Ensure modal content is clickable */
     .price-calculator-content {
       pointer-events: auto !important;
     }
 
+    /* Ensure smooth scrolling for modal content */
     .price-calculator-content {
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
+      /* For iOS smooth scrolling */
     }
 
     .modal-body {
@@ -677,6 +1235,7 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /* Responsive adjustments for modal */
     @media (max-width: 768px) {
       .price-calculator-content {
         width: 95%;
@@ -813,7 +1372,9 @@
         width: 15px;
       }
     }
-.fleet-car-grid.car-list-row {
+
+    /* --- Fleet Car Grid: Match Cars Page --- */
+    .fleet-car-grid.car-list-row {
       display: flex;
       flex-wrap: wrap;
       margin-left: 0;
@@ -829,6 +1390,7 @@
       margin-bottom: 24px;
       max-width: 320px;
       flex: 1 1 260px;
+
       display: flex;
     }
 
@@ -894,6 +1456,7 @@
       overflow: hidden;
       background: #f8f9fa;
       height: 200px;
+      /* Fixed height instead of min-height */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -973,6 +1536,7 @@
       }
     }
 
+    /* --- Fleet Car Grid: Scoped to Fleet Section Only --- */
     #section-cars .fleet-car-grid.car-list-row {
       display: flex;
       flex-wrap: wrap;
@@ -989,48 +1553,8 @@
       margin-bottom: 24px;
       max-width: 320px;
       flex: 1 1 260px;
+
       display: flex;
-    }
-    #section-cars .price-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-    #section-cars .price-icon {
-      color: #f57c00;
-      font-size: 14px;
-    }
-
-    #section-cars .price-label {
-      font-size: 13px;
-      color: #757575;
-      font-weight: 500;
-    }
-
-    #section-cars .price-main {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    #section-cars .price-from {
-      font-size: 13px;
-      color: #bf360c;
-      font-weight: 600;
-    }
-
-    #section-cars .price-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #1976d2;
-      letter-spacing: -0.5px;
-    }
-
-    #section-cars .price-period {
-      font-size: 14px;
-      color: #9e9e9e;
-      font-weight: 500;
     }
 
     #section-cars .de-item.mb30 {
@@ -1081,6 +1605,7 @@
       border-radius: 8px;
       overflow: hidden;
       background: #f8f9fa;
+      /* min-height: 160px; */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1089,9 +1614,13 @@
     #section-cars .d-img img {
       width: 100%;
       height: 100%;
+      /* Fill the container */
       object-fit: contain;
+      /* Changed from 'contain' to 'cover' */
       max-width: 100%;
       max-height: 200px;
+      /* Match container height */
+
     }
 
     #section-cars .d-info {
@@ -1138,11 +1667,9 @@
     }
 
     #section-cars .d-price {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      margin-bottom: 1rem;
-      padding: 8px 0;
+      font-weight: 600;
+      margin-bottom: 0.7rem;
+      color: #031B4E;
     }
 
     #section-cars .btn-main {
@@ -1158,6 +1685,7 @@
     }
 
     @media (max-width: 600px) {
+
       #section-cars .fleet-car-grid .col-xl-4,
       #section-cars .fleet-car-grid .col-lg-4 {
         min-width: 100%;
@@ -1171,6 +1699,7 @@
       }
     }
 
+    /* Premium car highlighting for homepage */
     .de-item.premium {
       border: 3px solid #ffd700;
       box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
@@ -1204,6 +1733,9 @@
       text-overflow: ellipsis;
     }
 
+    /* Call Now Button styles are now in global CSS */
+
+    /* Contact Pop-up Module Styles */
     .contact-popup-overlay {
       position: fixed;
       top: 0;
@@ -1236,6 +1768,7 @@
         opacity: 0;
         transform: translateY(-50px) scale(0.9);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1361,6 +1894,7 @@
       font-size: 13px;
     }
 
+    /* Floating Contact Button */
     .floating-contact-btn {
       position: fixed;
       bottom: 80px;
@@ -1390,17 +1924,25 @@
     }
 
     @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
+
+      0%,
+      20%,
+      50%,
+      80%,
+      100% {
         transform: translateY(0);
       }
+
       40% {
         transform: translateY(-10px);
       }
+
       60% {
         transform: translateY(-5px);
       }
     }
 
+    /* Mobile Responsive */
     @media (max-width: 768px) {
       .contact-popup {
         width: 85%;
@@ -1464,6 +2006,7 @@
       }
     }
 
+    /*modal date picker*/
     .modal-return-date-picker {
       right: 0 !important;
     }
@@ -1476,1479 +2019,26 @@
       display: none !important;
     }
   </style>
-  <!-- MODERN PRICE CALCULATOR MODAL WITH GLASSMORPHISM -->
-  <style>
-    /* ========== PRICE CALCULATOR MODAL - WORLD-CLASS DESIGN ========== */
-    
-    /* Modal Overlay with Blur Effect */
-    .price-calculator-modal {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    /* Modern Calculator Content Container */
-    .price-calculator-content {
-      background: linear-gradient(145deg, 
-        rgba(255, 255, 255, 0.95) 0%, 
-        rgba(248, 250, 252, 0.98) 100%);
-      margin: 3% auto;
-      padding: 0;
-      border-radius: 24px;
-      width: 90%;
-      max-width: 680px;
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
-      animation: slideUpFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      max-height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    @keyframes slideUpFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(40px) scale(0.96);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* Glassmorphism Header */
-    .modal-header {
-      background: linear-gradient(135deg, 
-        #667eea 0%, 
-        #764ba2 100%);
-      color: #fff;
-      padding: 28px 32px;
-      position: relative;
-      border-radius: 24px 24px 0 0;
-      box-shadow: 
-        0 4px 20px rgba(102, 126, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    .modal-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(180deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        transparent 100%);
-      border-radius: 24px 24px 0 0;
-      pointer-events: none;
-    }
-
-    .modal-header h4 {
-      margin: 0;
-      font-weight: 700;
-      font-size: 24px;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .modal-header h4 i {
-      font-size: 28px;
-      opacity: 0.95;
-    }
-
-    /* Modern Close Button */
-    .close-modal {
-      position: absolute;
-      right: 24px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #fff;
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-    }
-
-    .close-modal:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-50%) rotate(90deg);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .close-modal:active {
-      transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Scrollable Modal Body */
-    .modal-body {
-      padding: 32px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      max-height: calc(90vh - 200px);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-    }
-
-    .modal-body::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-      background: rgba(102, 126, 234, 0.3);
-      border-radius: 3px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb:hover {
-      background: rgba(102, 126, 234, 0.5);
-    }
-
-    /* Modern Info Card */
-    .tariff-info {
-      background: linear-gradient(135deg, 
-        rgba(102, 126, 234, 0.08) 0%, 
-        rgba(118, 75, 162, 0.08) 100%);
-      border: 1px solid rgba(102, 126, 234, 0.2);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .tariff-info::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px 0 0 16px;
-    }
-
-    .tariff-info h6 {
-      color: #1e293b;
-      font-weight: 700;
-      margin-bottom: 16px;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tariff-info h6 i {
-      color: #667eea;
-      font-size: 18px;
-    }
-
-    .tariff-details {
-      font-size: 14px;
-      color: #475569;
-      line-height: 1.8;
-    }
-
-    .tariff-details > div {
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .tariff-details > div:last-child {
-      border-bottom: none;
-    }
-
-    .working-hours {
-      color: #10b981;
-      font-weight: 600;
-    }
-
-    .outside-hours {
-      color: #f59e0b;
-      font-weight: 600;
-    }
-
-    .location-fees {
-      color: #3b82f6;
-      font-weight: 600;
-    }
-
-    /* Calculator Section */
-    .calculator-section {
-      margin-bottom: 28px;
-    }
-
-    .calculator-section h5 {
-      color: #1e293b;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      letter-spacing: -0.3px;
-    }
-
-   .vehicle-year {
-     display: flex;
-     align-items: center;
-     gap: 4px;
-     margin-top: 4px;
-    }
-
-    .vehicle-year .text-muted {
-      font-size: 12px;
-    }
-
-    .vehicle-year .fw-bold {
-      font-size: 13px;
-      color: #667eea;
-    }
-    .calculator-section h5 i {
-      color: #667eea;
-      font-size: 20px;
-    }
-
-    /* Modern Form Controls */
-    .form-control-sm {
-      padding: 12px 16px;
-      font-size: 14px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      transition: all 0.3s ease;
-      background: #fff;
-      font-weight: 500;
-    }
-
-    .form-control-sm:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      outline: none;
-      background: #fff;
-    }
-
-    .form-control-sm:hover {
-      border-color: #cbd5e1;
-    }
-
-    .form-label.small {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #475569;
-      display: block;
-      letter-spacing: 0.3px;
-    }
-
-    /* Modern Vehicle Card */
-    .vehicle-card {
-      background: linear-gradient(135deg, 
-        rgba(240, 192, 64, 0.05) 0%, 
-        rgba(255, 255, 255, 0.8) 100%);
-      border: 2px solid rgba(240, 192, 64, 0.2);
-      border-radius: 16px;
-      padding: 16px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .vehicle-card:hover {
-      border-color: rgba(240, 192, 64, 0.4);
-      box-shadow: 0 8px 24px rgba(240, 192, 64, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .vehicle-card img {
-      border-radius: 10px;
-      transition: transform 0.3s ease;
-    }
-
-    .vehicle-card:hover img {
-      transform: scale(1.05);
-    }
-
-    .vehicle-card h6 {
-      color: #1e293b;
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-
-    .vehicle-card p {
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .vehicle-price {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .vehicle-price .text-primary {
-      color: #667eea !important;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    /* Location Card */
-    .location-card {
-      background: linear-gradient(135deg, 
-        rgba(59, 130, 246, 0.05) 0%, 
-        rgba(147, 197, 253, 0.05) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .location-card .fw-bold {
-      color: #1e293b;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .location-card small {
-      color: #64748b;
-      font-size: 12px;
-    }
-
-    /* Premium Price Summary */
-    .modal-price-summary {
-      background: linear-gradient(145deg, 
-        rgba(16, 185, 129, 0.05) 0%, 
-        rgba(167, 243, 208, 0.08) 100%);
-      border: 2px solid rgba(16, 185, 129, 0.2);
-      border-radius: 20px;
-      padding: 24px;
-      margin-top: 28px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .modal-price-summary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, 
-        rgba(16, 185, 129, 0.1) 0%, 
-        transparent 70%);
-      border-radius: 50%;
-      transform: translate(50%, -50%);
-    }
-
-    .modal-price-summary h5 {
-      color: #1e293b;
-      font-weight: 700;
-      margin-bottom: 20px;
-      text-align: center;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .modal-price-summary h5 i {
-      color: #10b981;
-      font-size: 20px;
-    }
-
-    .modal-price-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      font-size: 15px;
-      color: #475569;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      position: relative;
-      z-index: 1;
-    }
-
-    .modal-price-item:last-child {
-      border-bottom: none;
-    }
-
-    .modal-price-item span:first-child {
-      font-weight: 500;
-    }
-
-    .modal-price-item span:last-child {
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .modal-price-item.total {
-      color: #1e293b;
-      font-weight: 700;
-      font-size: 20px;
-      margin-top: 8px;
-      padding-top: 16px;
-      border-top: 2px solid rgba(16, 185, 129, 0.3);
-      border-bottom: none;
-    }
-
-    .modal-price-item.total .text-primary {
-      color: #10b981 !important;
-      font-size: 24px;
-      letter-spacing: -0.5px;
-    }
-
-    /* Modern Action Buttons */
-    .modal-actions {
-      text-align: center;
-      margin-top: 28px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn-calculate {
-      flex: 1;
-      min-width: 180px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #fff;
-      border: none;
-      padding: 16px 32px;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-      letter-spacing: 0.3px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-calculate:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
-
-    .btn-calculate:active {
-      transform: translateY(0);
-    }
-
-    .btn-close-calc {
-      flex: 1;
-      min-width: 140px;
-      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-      color: #fff;
-      border: none;
-      padding: 16px 28px;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 14px rgba(100, 116, 139, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-close-calc:hover {
-      background: linear-gradient(135deg, #475569 0%, #334155 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(100, 116, 139, 0.3);
-    }
-
-    .btn-close-calc:active {
-      transform: translateY(0);
-    }
-
-    /* Mobile Responsive Design */
-    @media (max-width: 768px) {
-      .price-calculator-content {
-        margin: 2% auto;
-        width: 96%;
-        max-width: none;
-        max-height: 95vh;
-        border-radius: 20px;
-      }
-
-      .modal-header {
-        padding: 20px 24px;
-        border-radius: 20px 20px 0 0;
-      }
-
-      .modal-header h4 {
-        font-size: 20px;
-        padding-right: 40px;
-      }
-
-      .close-modal {
-        right: 20px;
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
-      }
-
-      .modal-body {
-        padding: 24px 20px;
-        max-height: calc(95vh - 180px);
-      }
-
-      .calculator-section {
-        margin-bottom: 20px;
-      }
-
-      .calculator-section h5 {
-        font-size: 16px;
-        margin-bottom: 12px;
-      }
-
-      .tariff-info {
-        padding: 16px;
-        margin-bottom: 20px;
-      }
-
-      .tariff-info h6 {
-        font-size: 14px;
-        margin-bottom: 12px;
-      }
-
-      .tariff-details {
-        font-size: 13px;
-      }
-
-      .modal-price-summary {
-        padding: 20px;
-        margin-top: 20px;
-        border-radius: 16px;
-      }
-
-      .modal-price-summary h5 {
-        font-size: 16px;
-        margin-bottom: 16px;
-      }
-
-      .modal-price-item {
-        font-size: 14px;
-        padding: 10px 0;
-      }
-
-      .modal-price-item.total {
-        font-size: 18px;
-        padding-top: 14px;
-      }
-
-      .modal-price-item.total .text-primary {
-        font-size: 20px;
-      }
-
-      .modal-actions {
-        margin-top: 20px;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .btn-calculate,
-      .btn-close-calc {
-        width: 100%;
-        min-width: 100%;
-        padding: 14px 24px;
-        font-size: 14px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .price-calculator-content {
-        width: 98%;
-        max-height: 96vh;
-        border-radius: 16px;
-      }
-
-      .modal-header {
-        padding: 18px 20px;
-        border-radius: 16px 16px 0 0;
-      }
-
-      .modal-header h4 {
-        font-size: 18px;
-      }
-
-      .modal-header h4 i {
-        font-size: 22px;
-      }
-
-      .close-modal {
-        right: 16px;
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
-      }
-
-      .modal-body {
-        padding: 20px 16px;
-      }
-
-      .calculator-section h5 {
-        font-size: 15px;
-      }
-
-      .calculator-section h5 i {
-        font-size: 18px;
-      }
-
-      .tariff-info {
-        padding: 14px;
-      }
-
-      .form-control-sm {
-        padding: 10px 14px;
-        font-size: 13px;
-      }
-
-      .vehicle-card {
-        padding: 12px;
-      }
-
-      .modal-price-summary {
-        padding: 16px;
-      }
-    }
-      /* ========== TOAST NOTIFICATIONS - MODERN DESIGN ========== */
-
-#toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 400px;
-    pointer-events: none;
-}
-
-.toast-notification {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: white;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-width: 300px;
-    max-width: 400px;
-    pointer-events: auto;
-    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.toast-notification::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #3b82f6;
-}
-
-.toast-notification.error::before {
-    background: linear-gradient(180deg, #ef4444, #dc2626);
-}
-
-.toast-notification.success::before {
-    background: linear-gradient(180deg, #10b981, #059669);
-}
-
-.toast-notification.warning::before {
-    background: linear-gradient(180deg, #f59e0b, #d97706);
-}
-
-.toast-notification.info::before {
-    background: linear-gradient(180deg, #3b82f6, #2563eb);
-}
-
-.toast-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.toast-notification.error .toast-icon {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
-}
-
-.toast-notification.success .toast-icon {
-    background: rgba(16, 185, 129, 0.2);
-    color: #6ee7b7;
-}
-
-.toast-notification.warning .toast-icon {
-    background: rgba(245, 158, 11, 0.2);
-    color: #fcd34d;
-}
-
-.toast-notification.info .toast-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
-}
-
-.toast-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.toast-title {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.2;
-}
-
-.toast-message {
-    font-size: 13px;
-    line-height: 1.4;
-    opacity: 0.9;
-}
-
-.toast-close {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 12px;
-    transition: all 0.2s ease;
-    opacity: 0.7;
-}
-
-.toast-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(120%);
-    }
-}
-
-.toast-notification.removing {
-    animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1);
-}
-
-@media (max-width: 768px) {
-    #toast-container {
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-
-    .toast-notification {
-        min-width: auto;
-        max-width: none;
-    }
-}
-    /* Landscape Mode Adjustments */
-    @media (max-width: 768px) and (orientation: landscape) {
-      .price-calculator-content {
-        max-height: 98vh;
-        margin: 1% auto;
-      }
-
-      .modal-body {
-        max-height: calc(98vh - 160px);
-      }
-
-      .calculator-section {
-        margin-bottom: 16px;
-      }
-
-      .tariff-info {
-        padding: 12px;
-        margin-bottom: 16px;
-      }
-
-      .modal-price-summary {
-        padding: 16px;
-        margin-top: 16px;
-      }
-
-      .modal-actions {
-        margin-top: 16px;
-      }
-    }
-
-    /* High Contrast Mode Support */
-    @media (prefers-contrast: high) {
-      .price-calculator-content {
-        border: 3px solid #1e293b;
-      }
-
-      .modal-header {
-        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-      }
-
-      .form-control-sm:focus {
-        border-width: 3px;
-      }
-    }
-
-    /* Reduced Motion Support */
-    @media (prefers-reduced-motion: reduce) {
-      .price-calculator-modal,
-      .price-calculator-content,
-      .btn-calculate,
-      .btn-close-calc,
-      .vehicle-card {
-        animation: none;
-        transition: none;
-      }
-
-      .close-modal:hover {
-        transform: translateY(-50%);
-      }
-    }
-  </style>
-<style>
-/* ========== FLATPICKR CALENDAR - ОЧИЩЕННЫЙ И ОПТИМИЗИРОВАННЫЙ ========== */
-
-/* Base Calendar Container */
-.flatpickr-calendar {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  border: none !important;
-  overflow: visible !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  font-size: 14px;
-  max-height: 420px !important;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-  animation: calendarFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes calendarFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Touch and Interaction Protection */
-.flatpickr-calendar,
-.flatpickr-calendar * {
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-touch-callout: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  user-select: none !important;
-}
-
-/* Modern Header with Gradient */
-.flatpickr-months {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px 60px !important;
-  border-radius: 20px 20px 0 0;
-  position: relative !important;
-  min-height: 60px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5 !important;
-  box-shadow: 
-    0 4px 20px rgba(102, 126, 234, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.flatpickr-months::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.15) 0%, 
-    transparent 100%);
-  border-radius: 20px 20px 0 0;
-  pointer-events: none;
-}
-
-/* Current Month Display */
-.flatpickr-current-month {
-  color: white;
-  font-weight: 700;
-  font-size: 15px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 0 4px;
-  letter-spacing: 0.3px;
-  position: relative;
-  z-index: 1;
-  gap: 3px;
-  flex-wrap: nowrap;
-  overflow: visible;
-}
-
-/* Month Dropdown */
-.flatpickr-current-month .flatpickr-monthDropdown-months {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-weight: 700;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: 15px !important;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  appearance: none;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
-  margin-right: -6px;
-}
-
-.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-.flatpickr-current-month .flatpickr-monthDropdown-months:focus {
-  outline: none !important;
-  box-shadow: none !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-}
-/* ✅ КРИТИЧНО: Стили для раскрывающегося списка месяцев */
-.flatpickr-current-month .flatpickr-monthDropdown-months option {
-  background-color: #667eea !important; /* Фиолетовый фон */
-  color: white !important; /* Белый текст */
-  padding: 10px !important;
-  font-weight: 600 !important;
-}
-
-/* При наведении на месяц в списке */
-.flatpickr-current-month select.flatpickr-monthDropdown-months option:hover {
-  background-color: #764ba2 !important; /* Темнее при hover */
-}
-
-/* Выбранный месяц */
-.flatpickr-current-month select.flatpickr-monthDropdown-months option:checked {
-  background-color: #5a67d8 !important; /* Синий для выбранного */
-  font-weight: 700 !important;
-}
-
-/* Сам select при раскрытии (для браузеров где это работает) */
-.flatpickr-current-month select.flatpickr-monthDropdown-months:focus option {
-  background-color: #667eea !important;
-  color: white !important;
-}
-/* ========== YEAR DROPDOWN - ЧИСТОЕ РЕШЕНИЕ ========== */
-.flatpickr-current-month .numInputWrapper {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-.flatpickr-current-month .flatpickr-year-dropdown {
-  background: rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(10px) !important;
-  color: white !important;
-  font-weight: 700 !important;
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 10px !important;
-  padding: 4px 6px !important;
-  padding-right: 20px !important;
-  font-size: 15px !important; /* ✅ КРИТИЧНО: 16px против zoom */
-  cursor: pointer !important;
-  outline: none !important;
-  box-shadow: none !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-  text-align: center !important;
-  margin: 0 !important;
-  min-width: 58px !important;
-  max-width: 65px !important;
-  width: 65px !important;
-  box-sizing: border-box !important;
-  -webkit-tap-highlight-color: transparent !important;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 4px center !important;
-  background-size: 10px !important;
-}
-
-.flatpickr-current-month .flatpickr-year-dropdown:hover {
-  background-color: rgba(255, 255, 255, 0.35) !important;
-  transform: translateY(-1px) !important;
-}
-
-.flatpickr-current-month .flatpickr-year-dropdown:focus,
-.flatpickr-current-month .flatpickr-year-dropdown:active {
-  outline: none !important;
-  box-shadow: none !important;
-}
-  
-/* Modern Navigation Arrows */
-.flatpickr-prev-month,
-.flatpickr-next-month {
-  fill: white;
-  position: absolute !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  z-index: 10 !important;
-  width: 44px !important;
-  height: 44px !important;
-  padding: 0 !important;
-  background: rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(10px) !important;
-  border-radius: 12px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.flatpickr-prev-month {
-  left: 8px !important;
-}
-
-.flatpickr-next-month {
-  right: 8px !important;
-}
-
-.flatpickr-prev-month::after,
-.flatpickr-next-month::after {
-  font-size: 24px !important;
-  color: white !important;
-  font-weight: 700 !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.flatpickr-prev-month::after {
-  content: '‹' !important;
-}
-
-.flatpickr-next-month::after {
-  content: '›' !important;
-}
-
-.flatpickr-prev-month svg,
-.flatpickr-next-month svg {
-  display: none !important;
-}
-
-.flatpickr-prev-month:hover,
-.flatpickr-next-month:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
-  transform: translateY(-50%) scale(1.05) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.flatpickr-prev-month:active,
-.flatpickr-next-month:active {
-  transform: translateY(-50%) scale(0.95) !important;
-}
-
-/* Weekdays Header */
-.flatpickr-weekdays {
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  padding: 16px 10px 12px;
-  border-bottom: 2px solid #f1f5f9;
-}
-
-.flatpickr-weekday {
-  color: #667eea;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Days Container */
-.flatpickr-days {
-  padding: 12px;
-  background: #ffffff;
-}
-
-/* ✅ DESKTOP: 7 ДНЕЙ В РЯД */
-.dayContainer {
-  width: 308px !important;
-  min-width: 308px !important;
-  max-width: 308px !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-}
-
-/* ✅ DESKTOP: ВСЕ ДНИ ВИДНЫ */
-.flatpickr-day {
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 40px !important;
-  max-width: 40px !important;
-  min-width: 40px !important;
-  height: 40px !important;
-  line-height: 40px !important;
-  font-size: 14px;
-  color: #334155;
-  border: 1px solid transparent;
-  display: inline-block !important;
-  visibility: visible !important;
-  margin: 2px !important;
-  flex: 0 0 40px !important;
-  opacity: 1 !important;
-}
-
-.flatpickr-day:hover:not(.flatpickr-disabled):not(.occupied) {
-  background: linear-gradient(135deg, #e0e7ff, #ddd6fe);
-  border-color: #667eea;
-  transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
-  color: #1e293b;
-}
-
-/* Selected Day */
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
-  border-color: transparent !important;
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-  font-weight: 700;
-  color: white !important;
-  transform: scale(1.05);
-}
-
-/* Today */
-.flatpickr-day.today {
-  border-color: #667eea;
-  font-weight: 700;
-  background: linear-gradient(135deg, #e0e7ff, #f5f3ff);
-  color: #667eea;
-}
-
-.flatpickr-day.today:not(.selected):hover {
-  background: linear-gradient(135deg, #ddd6fe, #e0e7ff);
-}
-
-/* Occupied Days */
-.flatpickr-day.occupied {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  border: 2px solid #ef4444 !important;
-  color: #991b1b !important;
-  cursor: not-allowed;
-  font-weight: 600;
-  position: relative;
-}
-
-.flatpickr-day.occupied::before {
-  content: '🚗';
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 10px;
-}
-
-.flatpickr-day.occupied:hover {
-  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%) !important;
-  transform: none;
-}
-
-/* ✅ КРИТИЧНО: Показываем даты других месяцев */
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-  display: inline-block !important;
-  visibility: visible !important;
-  opacity: 0.3 !important;
-  color: #cbd5e1 !important;
-  background: #f8fafc !important;
-}
-
-.flatpickr-day.flatpickr-disabled {
-  color: #cbd5e1 !important;
-  background: #f8fafc;
-  cursor: not-allowed;
-  display: inline-block !important;
-  opacity: 0.4;
-}
-  
-/* ✅ МОБИЛЬНЫЕ УСТРОЙСТВА - УВЕЛИЧЕННАЯ ШИРИНА */
-@media (pointer: coarse), (max-width: 767px) {
-  .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important; /* Браузер видит 16px (без zoom) */
-    transform: scale(0.8125) !important; /* 16px * 0.8125 = 13px визуально */
-    transform-origin: center !important;
-    padding: 7px 9px !important;
-    padding-right: 26px !important;
-    min-width: 75px !important; /* Компенсируем scale */
-    max-width: 80px !important;
-    width: 80px !important;
-    background-position: right 6px center !important;
-    background-size: 10px !important;
-    -webkit-tap-highlight-color: transparent !important;
-    transition: none !important;
-  }
-  .flatpickr-current-month .flatpickr-year-dropdown:hover {
-    transform: scale(0.8125) translateY(-1px) !important;
-  } 
-  .flatpickr-calendar {
-    border-radius: 16px;
-    max-width: 100vw !important;
-    max-height: 90vh !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-  }
-
-  .flatpickr-months {
-    padding: 16px 50px !important;
-    border-radius: 16px 16px 0 0;
-  }
-
-  .flatpickr-prev-month,
-  .flatpickr-next-month {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 10px !important;
-  }
-
-  .flatpickr-prev-month {
-    left: 6px !important;
-  }
-
-  .flatpickr-next-month {
-    right: 6px !important;
-  }
-
-  .dayContainer {
-    width: calc(100vw - 24px) !important;
-    max-width: calc(100vw - 24px) !important;
-    min-width: 0 !important;
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 1px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-  }
-
-  .flatpickr-day {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 40px !important;
-    line-height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: 6px !important;
-    display: block !important;
-    visibility: visible !important;
-    font-size: 12px !important;
-    box-sizing: border-box !important;
-  }
-
-  .flatpickr-day.prevMonthDay,
-  .flatpickr-day.nextMonthDay {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 0.25 !important;
-  }
-
-  .flatpickr-days {
-    padding: 8px 4px !important;
-    max-height: calc(90vh - 160px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  .flatpickr-weekdays {
-    padding: 12px 4px 8px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
-  .flatpickr-weekdays .flatpickr-weekday {
-    width: calc((100% - 6px) / 7) !important;
-    flex: none !important;
-    font-size: 10px !important;
-  }
-}
-
-/* Small Screens (до 480px) - ЕЩЁ БОЛЬШЕ МЕСТА */
-@media (max-width: 480px) {
-  .flatpickr-calendar {
-    font-size: 11px !important;
-    max-width: calc(100vw - 16px) !important;
-    border-radius: 14px;
-  }
-
-  .flatpickr-months {
-    padding: 14px 46px !important;
-    min-height: 50px !important;
-    border-radius: 14px 14px 0 0;
-  }
-
-  .flatpickr-current-month {
-    font-size: 13px;
-    gap: 2px;
-    padding: 0 2px;
-  }
-  
-  .flatpickr-current-month .flatpickr-year-dropdown {
-    font-size: 16px !important;
-    transform: scale(0.8125) !important; /* Визуально 13px */
-    transform-origin: center !important;
-    padding: 7px 8px !important;
-    padding-right: 24px !important;
-    min-width: 72px !important;
-    max-width: 78px !important;
-    width: 78px !important;
-    background-position: right 4px center !important;
-    background-size: 9px !important;
-  }
-  
-  .flatpickr-current-month .flatpickr-monthDropdown-months {
-    font-size: 13px !important;
-    padding: 3px 6px;
-    border-radius: 8px;
-    margin-right: -4px;
-  }
-
-  .flatpickr-prev-month,
-  .flatpickr-next-month {
-    width: 36px !important;
-    height: 36px !important;
-  }
-
-  .dayContainer {
-    width: calc(100vw - 32px) !important;
-    max-width: calc(100vw - 32px) !important;
-    gap: 0.5px !important;
-  }
-
-  .flatpickr-day {
-    font-size: 11px !important;
-    height: 38px !important;
-    line-height: 38px !important;
-  }
-  
-  .flatpickr-weekdays .flatpickr-weekday {
-    font-size: 9px !important;
-  }
-}
-</style>
 </head>
 
 <body>
+  <!-- Global API Configuration Check -->
   <script>
+    // Ensure API_BASE_URL is always available globally
     if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
+
       window.API_BASE_URL = '';
     }
+
   </script>
 
   <div id="wrapper">
-    <div id="de-preloader"></div>
 
+    <!-- page preloader begin -->
+    <div id="de-preloader"></div>
+    <!-- page preloader close -->
+
+    <!-- header begin -->
     <header class="transparent scroll-light has-topbar">
       <div id="topbar" class="topbar-dark text-light">
         <div class="container">
@@ -2975,16 +2065,19 @@
             <div class="de-flex sm-pt10">
               <div class="de-flex-col">
                 <div class="de-flex-col">
+                  <!-- logo begin -->
                   <div id="logo">
                     <a href="/">
                       <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
                       <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                     </a>
                   </div>
+                  <!-- logo close -->
                 </div>
               </div>
 
               <div class="de-flex-col">
+                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
                 <ul id="mainmenu">
                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
@@ -2997,6 +2090,7 @@
               <div class="de-flex-col">
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                  <!-- Call Now Button -->
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
                     <a href="tel:+37360000500" class="call-now-btn"
                       style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
@@ -3004,6 +2098,7 @@
                       <span data-i18n="call_now">Call Now</span>
                     </a>
                   </div>
+                  <!-- Language Picker -->
                   <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                     <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false"
                       style="height:36px;display:flex;align-items:center;">
@@ -3051,8 +2146,8 @@
           </div>
         </div>
       </div>
-    </header>
-<!-- content begin -->
+    </header><!-- header close -->
+    <!-- content begin -->
     <div class="no-bottom no-top" id="content">
       <div id="top"></div>
       <section id="section-hero" aria-label="section" class="jarallax">
@@ -3075,6 +2170,7 @@
                   <div class="col-lg-6 d-light car-picker-window">
                     <h4 data-i18n="booking.booking_title"></h4>
 
+                    <!-- Vehicle Selection with Enhanced UI -->
                     <div class="vehicle-selection-wrapper mb-4">
                       <select name='vehicle_type' id="vehicle_type" class="form-control vehicle-select">
                         <option value="" disabled selected data-i18n="booking.loading_cars"></option>
@@ -3102,6 +2198,7 @@
                       <div class="col-lg-6">
                         <h5 data-i18n="booking.pickup_location"></h5>
                         <div class="radio-group">
+                          <!-- Pickup Location -->
                           <label class="radio-option">
                             <input type="radio" name="pickup_location" value="Chisinau Airport" id="pickup_chisinau">
                             <span class="radio-custom"></span>
@@ -3123,6 +2220,7 @@
                       <div class="col-lg-6">
                         <h5 data-i18n="booking.destination"></h5>
                         <div class="radio-group">
+                          <!-- Dropoff Location -->
                           <label class="radio-option">
                             <input type="radio" name="destination" value="Chisinau Airport" id="dropoff_chisinau">
                             <span class="radio-custom"></span>
@@ -3142,6 +2240,7 @@
                       </div>
                     </div>
 
+                    <!-- Location Information -->
                     <div class="row mt-3">
                       <div class="col-12">
                         <div class="location-info">
@@ -3155,8 +2254,16 @@
                     </div>
                   </div>
 
+                  <!-- customer details -->
+
                   <div class="col-lg-6 customer-details-window">
                     <h4 data-i18n="booking.enter_details_title"></h4>
+
+                    <!-- Error message positioned right after title -->
+                    <div id="error_message" class='error' data-i18n="booking.form_error"
+                      style="display: none; margin-top: 15px; margin-bottom: 20px;">
+                      Sorry there was an error sending your form.
+                    </div>
 
                     <div class="row g-4">
                       <div class="col-lg-12">
@@ -3177,6 +2284,7 @@
                         </div>
                       </div>
 
+                      <!-- Hidden field for total price from calculator -->
                       <input type="hidden" name="total_price" id="total_price" value="0">
 
                       <div class="col-lg-12">
@@ -3192,6 +2300,7 @@
                   </div>
 
                   <div class="col-lg-3">
+                    <!-- Compact Price Summary - Hidden by default, only shown in modal -->
                     <div id="price-summary" class="price-summary-compact" style="display: none;">
                       <h6>Price Summary</h6>
                       <div class="price-breakdown-compact">
@@ -3233,6 +2342,7 @@
                       <div class="booking-details mb-4">
                         <h5 data-i18n="booking.booking_summary">Booking Summary</h5>
                         <div id="booking-summary" class="text-left">
+                          <!-- Booking details will be populated here -->
                         </div>
                       </div>
                       <div class="spacer-20"></div>
@@ -3356,6 +2466,7 @@
               <div class="spacer-20"></div>
             </div>
             <div class="clearfix"></div>
+            <!-- Dynamic car grid will be rendered here -->
             <div id="fleet-car-grid" class="fleet-car-grid">
               <div style="text-align:center;padding:2em;">
                 <p>Loading vehicle fleet...</p>
@@ -3458,13 +2569,13 @@
           <div class="row text-center">
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="439" data-speed="3000">0</h3>
+                <h3 class="timer" data-to="164" data-speed="3000">0</h3>
                 <span data-i18n="about.completed_orders"></span>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="350" data-speed="3000">0</h3>
+                <h3 class="timer" data-to="80" data-speed="3000">0</h3>
                 <span data-i18n="about.happy_customers"></span>
               </div>
             </div>
@@ -3476,7 +2587,7 @@
             </div>
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="3" data-speed="3000">0</h3>
+                <h3 class="timer" data-to="1" data-speed="3000">0</h3>
                 <span data-i18n="about.years_experience"></span>
               </div>
             </div>
@@ -3510,7 +2621,9 @@
       </section>
 
     </div>
+    <!-- content close -->
     <a href="#" id="back-to-top"></a>
+    <!-- footer begin -->
     <footer class="text-light">
       <div class="container">
         <div class="row g-custom-x">
@@ -3576,105 +2689,27 @@
     </div>
 
     </footer>
+    <!-- footer close -->
   </div>
 
+  <!-- Javascript Files
+    ================================================== -->
   <script src="js/plugins.js"></script>
   <script src="js/designesia.js"></script>
   <script src="js/config.js"></script>
   <script src="js/dynamic-cars-loader.js"></script>
+  <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="js/date-picker-manager.js"></script>
   <script src="js/validation-booking.js"></script>
+  <!-- Google Maps API removed to prevent errors -->
+  <!-- i18next CDN -->
   <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
   <script src="js/i18n-init.js"></script>
 
-<script>
-// ✅ ОПТИМИЗИРОВАННЫЙ СКРИПТ: Показываем ВСЕ 7 дней на ВСЕХ устройствах
-document.addEventListener('DOMContentLoaded', function() {
-    const originalFlatpickr = flatpickr;
-    
-    window.flatpickr = function(selector, config) {
-        config = config || {};
-        
-        const originalOnReady = config.onReady;
-        
-        config.onReady = function(selectedDates, dateStr, instance) {
-            if (originalOnReady) {
-                originalOnReady(selectedDates, dateStr, instance);
-            }
-            fixCalendarDisplay(instance);
-            setTimeout(() => fixCalendarDisplay(instance), 50);
-            setTimeout(() => fixCalendarDisplay(instance), 200);
-        };
-        
-        const originalOnMonthChange = config.onMonthChange;
-        
-        config.onMonthChange = function(selectedDates, dateStr, instance) {
-            if (originalOnMonthChange) {
-                originalOnMonthChange(selectedDates, dateStr, instance);
-            }
-            setTimeout(() => fixCalendarDisplay(instance), 10);
-            setTimeout(() => fixCalendarDisplay(instance), 100);
-        };
-        
-        const originalOnOpen = config.onOpen;
-        
-        config.onOpen = function(selectedDates, dateStr, instance) {
-            if (originalOnOpen) {
-                originalOnOpen(selectedDates, dateStr, instance);
-            }
-            setTimeout(() => fixCalendarDisplay(instance), 10);
-            setTimeout(() => fixCalendarDisplay(instance), 100);
-        };
-        
-        return originalFlatpickr(selector, config);
-    };
-    
-    Object.keys(originalFlatpickr).forEach(key => {
-        window.flatpickr[key] = originalFlatpickr[key];
-    });
-    
-    function fixCalendarDisplay(instance) {
-        if (!instance || !instance.calendarContainer) return;
-        
-        const dayContainer = instance.calendarContainer.querySelector('.dayContainer');
-        if (!dayContainer) return;
-        
-        const allDays = dayContainer.querySelectorAll('.flatpickr-day, .prevMonthDay, .nextMonthDay, .flatpickr-disabled');
-        
-        allDays.forEach(day => {
-            day.style.display = 'inline-block !important';
-            day.style.visibility = 'visible !important';
-            day.style.opacity = day.classList.contains('prevMonthDay') || day.classList.contains('nextMonthDay') ? '0.3' : '1';
-            
-            if (day.style.display === 'none') {
-                day.style.display = 'inline-block';
-            }
-        });
-        
-        if (window.innerWidth <= 767) {
-            dayContainer.style.display = 'grid';
-            dayContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
-            dayContainer.style.width = '100%';
-        }
-    }
-    
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            document.querySelectorAll('.flatpickr-calendar').forEach(cal => {
-                const instance = cal._flatpickr;
-                if (instance) {
-                    fixCalendarDisplay(instance);
-                }
-            });
-        }, 250);
-    });
-});
-</script>
-<script>
+  <script>
+    // Global formatting function
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
       return rawKey
@@ -3682,13 +2717,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
     }
-    
+
     document.addEventListener('DOMContentLoaded', function () {
+
       const grid = document.getElementById('fleet-car-grid');
       if (!grid) {
+
         return;
       }
 
+      // Ensure API configuration is available
       window.ensureApiConfig();
 
       grid.className = 'fleet-car-grid car-list-row';
@@ -3698,12 +2736,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       fetch(apiUrl)
         .then(res => {
+
           if (!res.ok) {
             throw new Error(`HTTP ${res.status}: ${res.statusText}`);
           }
           return res.json();
         })
         .then(cars => {
+
           if (!cars.length) {
             grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
             return;
@@ -3713,154 +2753,80 @@ document.addEventListener('DOMContentLoaded', function() {
             const isPremium = car.is_premium === 1 || car.is_premium === true;
             const rentNowUrl = `car-single?id=${car.id}`;
 
+            // Calculate the lowest price from price policy
             let lowestPrice = '';
             if (car.price_policy) {
               const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
               const prices = Object.values(pricePolicy).map(price => parseInt(price));
               lowestPrice = Math.min(...prices).toString();
             }
-
+ 
             return `
-              <div class="col-xl-4 col-lg-4 col-md-6">
-                <div class="de-item mb30${isPremium ? ' premium' : ''}">
-                  <div class="d-img">
-                    <img src="${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}" class="img-fluid" alt="">
-                    ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
-                  </div>
-                  <div class="d-info">
-                    <div class="d-text">
-                      <h4>${formatDisplayText(car.make_name)}</h4>
-                      <p>${formatDisplayText(car.model_name)}</p>
-                      <div class="d-item_like">
-                        <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
+                <div class=\"col-xl-4 col-lg-4 col-md-6\">
+                  <div class=\"de-item mb30${isPremium ? ' premium' : ''}\">
+                    <div class=\"d-img\">
+                      <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">
+                      ${isPremium ? '<div class=\"premium-badge\">HOT</div>' : ''}
+                    </div>
+                    <div class=\"d-info\">
+                      <div class=\"d-text\">
+                        <h4>${formatDisplayText(car.make_name)}</h4>
+                        <p>${formatDisplayText(car.model_name)}</p>
+                        <div class=\"d-item_like\">
+                          <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
+                        </div>
+                        <div class=\"d-atr-group\">
+                          <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span ></span> ${car.num_passengers || '-'}</span>
+                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span ></span> ${car.luggage || '-'}</span>
+                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${ car.num_doors|| '-'}</span>
+                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span ></span> ${car.car_type || '-'}</span>
+                        </div>
+                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span></div>
+                        <a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>
                       </div>
-                      <div class="d-atr-group">
-                        <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span></span> ${car.num_passengers || '-'}</span>
-                        <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span></span> ${car.luggage || '-'}</span>
-                        <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.num_doors || '-'}</span>
-                        <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span></span> ${car.car_type || '-'}</span>
-                      </div>
-                      <div class="d-price">
-                        <span class="price-label" data-i18n="cars.price_from">de la</span>
-                        <span class="price-value">${lowestPrice ? lowestPrice + '€' : 'N/A'}</span>
-                        <span class="price-period" data-i18n="cars.per_day">/zi</span>
-                      </div>
-                      <a class="btn-main" href="${rentNowUrl}" data-i18n="cars.rent_now">Rent Now</a>
                     </div>
                   </div>
                 </div>
-              </div>
-            `;
+              `;
           }).join('');
           
           grid.innerHTML = carsHtml;
 
-          // ✅ КРИТИЧНО: Применяем переводы к динамически загруженным элементам
-          if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-            const elementsToTranslate = grid.querySelectorAll('[data-i18n]');
-            elementsToTranslate.forEach(element => {
-              const key = element.getAttribute('data-i18n');
-              if (key) {
-                element.textContent = i18next.t(key);
-              }
-            });
-          } else {
-            setTimeout(() => {
-              if (typeof i18next !== 'undefined' && i18next.isInitialized) {
-                const elementsToTranslate = grid.querySelectorAll('[data-i18n]');
-                elementsToTranslate.forEach(element => {
-                  const key = element.getAttribute('data-i18n');
-                  if (key) {
-                    element.textContent = i18next.t(key);
-                  }
-                });
-              }
-            }, 500);
-          }
         })
         .catch((error) => {
+
           grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
         });
     });
-</script>
+  </script>
 
-<script>
-// ✅ ПРАВИЛЬНОЕ РЕШЕНИЕ: Event-based подход вместо setInterval
-document.addEventListener('DOMContentLoaded', function() {
-    function removeOutlines(target) {
-        const wrappers = target ? 
-            target.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *') :
-            document.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *');
-        
-        wrappers.forEach(el => {
-            el.style.outline = 'none';
-            el.style.boxShadow = 'none';
-            el.style.border = 'none';
-        });
-    }
-    
-    // Используем MutationObserver для отслеживания появления календаря
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1 && (node.classList?.contains('flatpickr-calendar') || node.querySelector?.('.flatpickr-calendar'))) {
-                    removeOutlines(node);
-                }
-            });
-        });
-    });
-    
-    // Наблюдаем только за body
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // Применяем сразу для уже существующих календарей
-    removeOutlines(document);
-    
-    // Убираем обводки при взаимодействии (один раз при клике, а не постоянно)
-    document.addEventListener('focusin', function(e) {
-        if (e.target.closest('.flatpickr-current-month')) {
-            removeOutlines(e.target.closest('.flatpickr-calendar'));
-        }
-    }, true);
-});
-</script>
-
-   <!-- Price Calculator Modal -->
-   <div id="price-calculator-modal" class="price-calculator-modal">
-     <div class="price-calculator-content">
-       <div class="modal-header">
-         <h4><i class="fa fa-calculator"></i> <span data-i18n="price_calculator.title">Price Calculator</span></h4>
-         <button type="button" class="close-modal" onclick="closePriceCalculator()">&times;</button>
-       </div>
-       <div class="modal-body">
-         
-          <div class="tariff-info">
-              <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours & Location Fees</span></h6>
-              <div class="tariff-details" id="tariff-details-container">
-                  <div>
-                      <span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00 PM):</span> 
-                      <span data-i18n="price_calculator.standard_pricing">Standard pricing</span>
-                  </div>
-                  <div>
-                      <span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
-                      +<span id="index-outside-hours-fee">€15</span> 
-                      <span data-i18n="price_calculator.outside_hours_fee">fee per pickup/return</span>
-                  </div>
-                  <div>
-                      <span class="location-fees" data-i18n="price_calculator.airport_delivery">Airport Delivery:</span>
-                      <span id="dynamic-airport-fees">
-                          <span data-i18n="location.chisinau_airport">Chișinău Airport</span> +€<span id="chisinau-fee">25</span>, 
-                          <span data-i18n="location.iasi_airport">Iași Airport</span> +€<span id="iasi-fee">35</span>
-                      </span>
-                  </div>
-                  <div>
-                      <i class="fa fa-clock-o"></i> 
-                      <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24 hours</span>
-                  </div>
-              </div>
+  <!-- Price Calculator Modal -->
+  <!-- Price Calculator Modal -->
+  <div id="price-calculator-modal" class="price-calculator-modal">
+    <div class="price-calculator-content">
+      <div class="modal-header">
+        <h4><i class="fa fa-calculator"></i> <span data-i18n="price_calculator.title">Price Calculator</span></h4>
+        <button type="button" class="close-modal" onclick="closePriceCalculator()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Tariff Information -->
+        <div class="tariff-info">
+          <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Working Hours &
+              Location Fees</span></h6>
+          <div class="tariff-details">
+            <div><span class="working-hours" data-i18n="price_calculator.working_hours">Working Hours (8:00 AM - 6:00
+                PM):</span> <span data-i18n="price_calculator.standard_pricing">Standard pricing</span></div>
+            <div><span class="outside-hours" data-i18n="price_calculator.outside_hours">Outside Working Hours:</span>
+              +<span id="index-outside-hours-fee">€15</span> <span data-i18n="price_calculator.outside_hours_fee">fee
+                per pickup/return</span></div>
+            <div><span class="location-fees" data-i18n="price_calculator.airport_delivery">Airport Delivery:</span>
+              Chisinau +<span id="index-chisinau-fee">€25</span>, Iasi +<span id="index-iasi-fee">€35</span></div>
+            <div><i class="fa fa-clock-o"></i> <span data-i18n="price_calculator.minimum_rental">Minimum rental: 24
+                hours</span></div>
           </div>
+        </div>
 
-
+        <!-- Calculator Section -->
         <div class="calculator-section">
           <h5><i class="fa fa-calendar"></i> <span data-i18n="price_calculator.rental_period">Rental Period</span></h5>
           <div class="row g-2">
@@ -3935,6 +2901,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
 
+        <!-- Location Information -->
         <div class="calculator-section">
           <h5><i class="fa fa-map-marker"></i> <span data-i18n="price_calculator.selected_locations">Selected
               Locations</span></h5>
@@ -3952,6 +2919,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
 
+        <!-- Vehicle Selection -->
         <div class="calculator-section">
           <h5><i class="fa fa-car"></i> <span data-i18n="price_calculator.selected_vehicle">Selected Vehicle</span></h5>
           <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
@@ -3963,15 +2931,15 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="col-9">
                 <h6 id="modal-vehicle-name" class="mb-1 small"></h6>
                 <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
-                <div class="vehicle-year">
-                  <span class="text-muted small" data-i18n="price_calculator.year">Year: </span>
-                  <span class="fw-bold small" id="modal-vehicle-year">-</span>
+                <div class="vehicle-price">
+                  <span class="text-primary fw-bold small" id="modal-vehicle-price"></span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Customer Age -->
         <div class="calculator-section">
           <h5><i class="fa fa-user"></i> <span data-i18n="price_calculator.customer_age">Customer Age</span></h5>
           <div class="row g-2">
@@ -3983,26 +2951,19 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
 
-         <div class="calculator-section">
-           <h5><i class="fa fa-ticket"></i> <span data-i18n="price_calculator.discount_code">Discount Code</span></h5>
-           <div class="row g-2">
-             <div class="col-12">
-               <input 
-                 type="text" 
-                 id="modal-discount-code" 
-                 class="form-control form-control-sm"
-                 data-i18n-placeholder="cars.discount_code_placeholder" 
-                 placeholder="Enter discount code">
-               
-               <div 
-                 id="coupon-error-message" 
-                 class="field-error" 
-                 style="display: none; margin-top: 8px;">
-               </div>
-             </div>
-           </div>
-         </div>
+        <!-- Coupon Code Section -->
+        <div class="calculator-section">
+          <h5><i class="fa fa-ticket"></i> <span data-i18n="price_calculator.discount_code">Discount Code</span></h5>
+          <div class="row g-2">
+            <div class="col-12">
+              <input type="text" id="modal-discount-code" class="form-control form-control-sm"
+                data-i18n-placeholder="cars.discount_code_placeholder" placeholder="Enter discount code">
+            </div>
+          </div>
+        </div>
 
+
+        <!-- Price Summary -->
         <div class="modal-price-summary">
           <h5><i class="fa fa-euro"></i> <span data-i18n="price_calculator.price_breakdown">Price Breakdown</span></h5>
           <div class="modal-price-item">
@@ -4011,7 +2972,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="modal-price-item">
             <span data-i18n="price_calculator.duration">Duration:</span>
-            <span id="modal-rental-duration"><span id="modal-duration-number">0</span> <span data-i18n="price_calculator.days">days</span></span>
+            <span id="modal-rental-duration">0 <span data-i18n="price_calculator.days">days</span></span>
           </div>
           <div class="modal-price-item">
             <span data-i18n="price_calculator.location_fees">Location Fees:</span>
@@ -4027,6 +2988,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         </div>
 
+        <!-- Modal Actions -->
         <div class="modal-actions">
           <button type="button" class="btn-calculate" onclick="applyModalCalculation()">
             <i class="fa fa-check"></i> <span data-i18n="price_calculator.apply_to_booking">Apply to Booking</span>
@@ -4039,6 +3001,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
+  <!-- Price calculator functions are defined in validation-booking.js -->
+
+  <!-- Contact Pop-up Module -->
   <div id="contactPopup" class="contact-popup-overlay">
     <div class="contact-popup">
       <div class="contact-popup-header">
@@ -4092,11 +3057,13 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
+  <!-- Floating Contact Button -->
   <div class="floating-contact-btn" onclick="openContactPopup()">
     <i class="fa fa-comments"></i>
   </div>
 
   <script>
+    // Contact pop-up functionality
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
     }
@@ -4121,202 +3088,172 @@ document.addEventListener('DOMContentLoaded', function() {
       window.location.href = 'tel:+37360000500';
     }
 
+    // Close popup when clicking outside
     document.getElementById('contactPopup').addEventListener('click', function (e) {
       if (e.target === this) {
         closeContactPopup();
       }
     });
-
-// 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ с публичным endpoint
-document.addEventListener('DOMContentLoaded', function() {
-  
-    
-    async function loadTariffFees() {
-        try {
-            // ✅ Используем правильный путь к fee-settings
-            const response = await fetch(window.API_BASE_URL + '/api/fee-settings/tariffs', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const settings = await response.json();
-            
-            // Извлекаем значения тарифов
-            const outsideHoursFee = settings.outside_working_hours_fee || '15';
-            const chisinauAirportFee = settings.chisinau_airport_pickup || '25';
-            const iasiAirportFee = settings.iasi_airport_pickup || '35';
-            
-            // Обновляем Outside Hours Fee
-            const outsideHoursEl = document.getElementById('index-outside-hours-fee');
-            if (outsideHoursEl) {
-                outsideHoursEl.textContent = '€' + outsideHoursFee;
-            }
-            
-            // Обновляем Airport Fees
-            const chisinauFeeEl = document.getElementById('chisinau-fee');
-            const iasiFeeEl = document.getElementById('iasi-fee');
-            
-            if (chisinauFeeEl) {
-                chisinauFeeEl.textContent = chisinauAirportFee;
-            }
-            
-            if (iasiFeeEl) {
-                iasiFeeEl.textContent = iasiAirportFee;
-            }
-            
-            
-            // Сохраняем глобально для использования в калькуляторе
-            window.TARIFF_FEES = {
-                outsideHours: parseInt(outsideHoursFee),
-                chisinauAirport: parseInt(chisinauAirportFee),
-                iasiAirport: parseInt(iasiAirportFee)
-            };
-            
-        } catch (error) {
-            
-            // Используем значения по умолчанию при ошибке
-            window.TARIFF_FEES = {
-                outsideHours: 15,
-                chisinauAirport: 25,
-                iasiAirport: 35
-            };
-            
-            // Устанавливаем значения по умолчанию в интерфейсе
-            const outsideHoursEl = document.getElementById('index-outside-hours-fee');
-            const chisinauFeeEl = document.getElementById('chisinau-fee');
-            const iasiFeeEl = document.getElementById('iasi-fee');
-            
-            if (outsideHoursEl) outsideHoursEl.textContent = '€15';
-            if (chisinauFeeEl) chisinauFeeEl.textContent = '25';
-            if (iasiFeeEl) iasiFeeEl.textContent = '35';
-        }
-    }
-    
-    // ✅ Загружаем тарифы сразу
-    loadTariffFees();
-    
-    // ✅ Перезагружаем при смене языка
-    window.addEventListener('languageChanged', function() {
-    });
-});
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      function syncVehicleDataToModal() {
-        const vehicleImage = document.getElementById('vehicle-image');
-        const vehicleName = document.getElementById('vehicle-name');
-        const vehicleDetails = document.getElementById('vehicle-details');
-        
-        const modalImage = document.getElementById('modal-vehicle-image');
-        const modalName = document.getElementById('modal-vehicle-name');
-        const modalDetails = document.getElementById('modal-vehicle-details');
-        const modalYear = document.getElementById('modal-vehicle-year');
-        
-        if (vehicleImage && modalImage && vehicleImage.src && vehicleImage.src !== window.location.href) {
-          modalImage.src = vehicleImage.src;
-        }
-        
-        if (vehicleName && modalName && vehicleName.textContent.trim()) {
-          modalName.textContent = vehicleName.textContent.trim();
-        }
-        
-        if (vehicleDetails && modalDetails && vehicleDetails.textContent.trim()) {
-          modalDetails.textContent = vehicleDetails.textContent.trim();
-        }
-        
-        const vehicleSelect = document.getElementById('vehicle_type');
-        if (vehicleSelect && vehicleSelect.value && modalYear) {
-          const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
-          const year = selectedOption.dataset.year || '-';
-          modalYear.textContent = year;
-        }
-        
-        const pickupChecked = document.querySelector('input[name="pickup_location"]:checked');
-        const dropoffChecked = document.querySelector('input[name="destination"]:checked');
-        
-        if (pickupChecked) {
-          const pickupLabel = pickupChecked.closest('.radio-option')?.querySelector('span:not(.radio-custom)')?.textContent;
-          const modalPickup = document.getElementById('modal-pickup-location');
-          if (modalPickup && pickupLabel) {
-            modalPickup.textContent = pickupLabel.trim();
-          }
-        }
-        
-        if (dropoffChecked) {
-          const dropoffLabel = dropoffChecked.closest('.radio-option')?.querySelector('span:not(.radio-custom)')?.textContent;
-          const modalDropoff = document.getElementById('modal-dropoff-location');
-          if (modalDropoff && dropoffLabel) {
-            modalDropoff.textContent = dropoffLabel.trim();
-          }
-        }
-      }
-      
-      const originalOpenCalculator = window.openPriceCalculator;
-      
-      window.openPriceCalculator = function() {
-        
-        const vehicleSelect = document.getElementById('vehicle_type');
-        if (!vehicleSelect || !vehicleSelect.value) {
-          if (typeof window.showError === 'function') {
-            window.showError('Please select a vehicle first');
-          } else {
-            alert('Please select a vehicle first');
-          }
-          return;
-        }
-        
-        if (originalOpenCalculator && typeof originalOpenCalculator === 'function') {
-          originalOpenCalculator.call(this);
-        } else {
-          const modal = document.getElementById('price-calculator-modal');
-          if (modal) {
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-          }
-        }
-        
-        syncVehicleDataToModal();
-        setTimeout(syncVehicleDataToModal, 100);
-        setTimeout(syncVehicleDataToModal, 300);
-      };
-      
-      const vehicleSelect = document.getElementById('vehicle_type');
-      if (vehicleSelect) {
-        vehicleSelect.addEventListener('change', function() {
-          setTimeout(function() {
-            const vehicleImage = document.getElementById('vehicle-image');
-            const vehicleName = document.getElementById('vehicle-name');
-            const vehicleDetails = document.getElementById('vehicle-details');
-            const vehiclePrice = document.getElementById('vehicle-price');
-            
-            if (vehicleImage && vehicleImage.src) {
-              vehicleSelect.dataset.lastImage = vehicleImage.src;
-            }
-            if (vehicleName && vehicleName.textContent) {
-              vehicleSelect.dataset.lastName = vehicleName.textContent;
-            }
-            if (vehicleDetails && vehicleDetails.textContent) {
-              vehicleSelect.dataset.lastDetails = vehicleDetails.textContent;
-            }
-            if (vehiclePrice && vehiclePrice.textContent) {
-              vehicleSelect.dataset.lastPrice = vehiclePrice.textContent;
-            }
-          }, 600);
-        });
-      }
-      
-    });
   </script>
 
+  <!-- API Fallback Configuration -->
+  <script>
+    // Ensure API_BASE_URL is always available
+    if (typeof window.API_BASE_URL === 'undefined') {
+
+      window.API_BASE_URL = '';
+    }
+
+    // Log final API configuration
+
+    // Test API configuration
+    setTimeout(() => {
+
+      // Test a simple API call
+      const testUrl = window.API_BASE_URL + '/api/health';
+
+    }, 1000);
+  </script>
+
+  <!-- Spinning Wheel Modal Trigger -->
+  <script>
+    // Load and update dynamic fee displays
+    async function updateIndexFeeDisplays() {
+      try {
+        // Ensure API configuration is available
+        window.ensureApiConfig();
+
+        const response = await fetch(`${window.API_BASE_URL}/api/fee-settings/public`);
+        if (response.ok) {
+          const fees = await response.json();
+
+          // Update outside hours fee displays
+          const outsideHoursFeeElements = [
+            document.getElementById('index-outside-hours-fee'),
+
+          ];
+          outsideHoursFeeElements.forEach(element => {
+            if (element && fees.outside_hours_fee !== undefined) {
+              element.textContent = `€${fees.outside_hours_fee}`;
+            }
+          });
+
+          // Update airport fee displays (using dropoff fees for display as they're typically higher)
+          const chisinauFeeElement = document.getElementById('index-chisinau-fee');
+          if (chisinauFeeElement && fees.chisinau_airport_dropoff !== undefined) {
+            chisinauFeeElement.textContent = `€${fees.chisinau_airport_dropoff}`;
+          }
+
+          const iasiFeeElement = document.getElementById('index-iasi-fee');
+          if (iasiFeeElement && fees.iasi_airport_dropoff !== undefined) {
+            iasiFeeElement.textContent = `€${fees.iasi_airport_dropoff}`;
+          }
+
+        } else {
+
+        }
+      } catch (error) {
+
+      }
+    }
+
+    // Load fees when page is ready
+    document.addEventListener('DOMContentLoaded', function () {
+      // Wait a bit for API_BASE_URL to be initialized
+      setTimeout(updateIndexFeeDisplays, 500);
+    });
+
+    // Error display function for index page (similar to car-single)
+    window.showError = function (message) {
+
+      // Hide success notification if it's showing
+      const successNotification = document.getElementById('booking-success-notification');
+      if (successNotification) {
+        successNotification.style.display = 'none';
+      }
+
+      // Show error message
+      const errorMessage = document.getElementById('error_message');
+
+      if (errorMessage) {
+
+        errorMessage.innerHTML = message;
+        errorMessage.style.display = 'block';
+
+        // Scroll to error message
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          errorMessage.style.display = 'none';
+        }, 5000);
+      } else {
+
+        // Fallback to alert if error elements not found
+        alert(message);
+      }
+    };
+
+    // Mobile Date Picker Fixes
+    document.addEventListener('DOMContentLoaded', function () {
+      // Fix for iOS date picker issues
+      const dateInputs = document.querySelectorAll('.mobile-date-input');
+
+      dateInputs.forEach(input => {
+        // Prevent zoom on iOS by setting font-size to 16px or larger
+        input.addEventListener('focus', function () {
+          // Ensure proper positioning for iOS date picker
+          this.style.position = 'relative';
+          this.style.zIndex = '9999';
+
+          // Force viewport to handle iOS date picker properly
+          // if (window.innerWidth <= 768) {
+          //   // Add a small delay to ensure the date picker opens properly
+          //   setTimeout(() => {
+          //     this.blur();
+          //     this.focus();
+          //   }, 100);
+          // }
+        });
+
+        // Reset positioning after date picker closes
+        input.addEventListener('blur', function () {
+          this.style.position = '';
+          this.style.zIndex = '';
+        });
+
+        // Handle iOS date picker change event
+        input.addEventListener('change', function () {
+          // Ensure the value is properly set
+          if (this.value) {
+
+            // Trigger any necessary validation or updates
+            this.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      });
+    });
+  </script>
+  <!-- Universal Spinning Wheel -->
   <script src="js/universal-include.js"></script>
+
+  <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.js"></script>
-  <div id="toast-container"></div>
+
+  <!-- Universal Error Popup -->
+  <div id="universal-error-popup" class="universal-error-popup" style="display: none;">
+    <div class="universal-error-content">
+      <div class="universal-error-icon">
+        <i class="fa fa-exclamation-triangle"></i>
+      </div>
+      <div class="universal-error-text">
+        <span id="universal-error-message"></span>
+      </div>
+      <button type="button" class="universal-error-close" onclick="hideUniversalError()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+  </div>
 </body>
+
 </html>
