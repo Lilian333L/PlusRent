@@ -50,9 +50,6 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     
-    <!-- i18n Support -->
-    <script src="js/master-include.js"></script>
-    
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -828,100 +825,17 @@
         <!-- footer close -->
     </div>
     
-    <!-- Javascript Files
-    ================================================== -->
+    <!-- Javascript Files - ПРАВИЛЬНЫЙ ПОРЯДОК! -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
-    <!-- Google Maps API removed to prevent errors -->
-    <!-- i18next CDN -->
+    
+    <!-- СНАЧАЛА библиотеки i18next -->
     <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
+    
+    <!-- ПОТОМ ваш i18n-init.js -->
     <script src="js/i18n-init.js"></script>
     
-    <script>
-        // Language switcher functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const langPickerBtn = document.getElementById('langPickerBtn');
-            const langDropdown = document.getElementById('langDropdown');
-            const langGlobe = document.getElementById('langGlobe');
-            const langFlag = document.getElementById('langFlag');
-            const langCode = document.getElementById('langCode');
-            
-            // Function to update the language picker display
-            function updateLanguageDisplay(lang) {
-                const option = document.querySelector(`[data-lang="${lang}"]`);
-                if (option) {
-                    const flagImg = option.querySelector('.lang-flag img');
-                    const code = option.querySelector('.lang-code').textContent;
-                    
-                    // Clear and update flag
-                    if (flagImg) {
-                        langFlag.innerHTML = flagImg.outerHTML;
-                    }
-                    langCode.textContent = code;
-                    
-                    // Update selected state
-                    document.querySelectorAll('.lang-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    option.classList.add('selected');
-                }
-            }
-            
-            // Toggle dropdown
-            langPickerBtn.addEventListener('click', function() {
-                const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                this.setAttribute('aria-expanded', !isExpanded);
-                langDropdown.classList.toggle('open');
-            });
-            
-            // Handle language selection
-            document.querySelectorAll('.lang-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    const currentLang = localStorage.getItem('lang') || 'ro';
-                    
-                    // Only proceed if language is actually changing
-                    if (lang !== currentLang) {
-                        // Store the new language preference
-                        localStorage.setItem('lang', lang);
-                        
-                        // Reload the page to apply new language
-                        window.location.reload();
-                    } else {
-                        // Just close dropdown if same language selected
-                        langDropdown.classList.remove('open');
-                        langPickerBtn.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!langPickerBtn.contains(event.target) && !langDropdown.contains(event.target)) {
-                    langDropdown.classList.remove('open');
-                    langPickerBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
-            
-            // Wait for i18next to be initialized before updating display
-            function initLanguageDisplay() {
-                const savedLang = localStorage.getItem('lang') || 'ro';
-                updateLanguageDisplay(savedLang);
-            }
-            
-            // If i18next is already initialized, update display immediately
-            if (window.i18next && window.i18next.isInitialized) {
-                initLanguageDisplay();
-            } else {
-                // Otherwise, wait for the i18next:initialized event
-                window.addEventListener('i18nextInitialized', initLanguageDisplay);
-                
-                // Fallback: try after a short delay
-                setTimeout(initLanguageDisplay, 100);
-            }
-        });
-    </script>
 </body>
 </html>
