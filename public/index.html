@@ -3773,66 +3773,90 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const apiUrl = window.API_BASE_URL + '/api/cars';
 
-      fetch(apiUrl)
-        .then(res => {
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then(cars => {
-          if (!cars.length) {
-            grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
-            return;
-          }
+fetch(apiUrl)
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    return res.json();
+  })
+  .then(cars => {
+    if (!cars.length) {
+      grid.innerHTML = '<div data-i18n="cars.no_cars">No cars available.</div>';
+      return;
+    }
 
-          const carsHtml = cars.map(car => {
-            const isPremium = car.is_premium === 1 || car.is_premium === true;
-            const rentNowUrl = `car-single?id=${car.id}`;
+    const carsHtml = cars.map(car => {
+      const isPremium = car.is_premium === 1 || car.is_premium === true;
+      const rentNowUrl = `car-single?id=${car.id}`;
 
-            let lowestPrice = '';
-            if (car.price_policy) {
-              const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
-              const prices = Object.values(pricePolicy).map(price => parseInt(price));
-              lowestPrice = Math.min(...prices).toString();
-            }
- 
-            return `
-                <div class=\"col-xl-4 col-lg-4 col-md-6\">
-                  <div class=\"de-item mb30${isPremium ? ' premium' : ''}\">
-                    <div class=\"d-img\">
-                      <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">
-                      ${isPremium ? '<div class=\"premium-badge\">HOT</div>' : ''}
-                    </div>
-                    <div class=\"d-info\">
-                      <div class=\"d-text\">
-                        <h4>${formatDisplayText(car.make_name)}</h4>
-                        <p>${formatDisplayText(car.model_name)}</p>
-                        <div class=\"d-item_like\">
-                          <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
-                        </div>
-                        <div class=\"d-atr-group\">
-                          <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span ></span> ${car.num_passengers || '-'}</span>
-                <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span ></span> ${car.luggage || '-'}</span>
-                <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${ car.num_doors|| '-'}</span>
-                <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span ></span> ${car.car_type || '-'}</span>
-                        </div>
-                        <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span></div>
-                        <a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>
-                      </div>
-                    </div>
-                  </div>
+      let lowestPrice = '';
+      if (car.price_policy) {
+        const pricePolicy = typeof car.price_policy === 'string' ? JSON.parse(car.price_policy) : car.price_policy;
+        const prices = Object.values(pricePolicy).map(price => parseInt(price));
+        lowestPrice = Math.min(...prices).toString();
+      }
+
+      return `
+        <div class=\"col-xl-4 col-lg-4 col-md-6\">
+          <div class=\"de-item mb30${isPremium ? ' premium' : ''}\">
+            <div class=\"d-img\">
+              <img src=\"${car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png')}\" class=\"img-fluid\" alt=\"\">
+              ${isPremium ? '<div class=\"premium-badge\">HOT</div>' : ''}
+            </div>
+            <div class=\"d-info\">
+              <div class=\"d-text\">
+                <h4>${formatDisplayText(car.make_name)}</h4>
+                <p>${formatDisplayText(car.model_name)}</p>
+                <div class=\"d-item_like\">
+                  <i class=\"fa fa-heart\"></i><span>${car.likes || 0}</span>
                 </div>
-              `;
-          }).join('');
-          
-          grid.innerHTML = carsHtml;
+                <div class=\"d-atr-group\">
+                  <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span></span> ${car.num_passengers || '-'}</span>
+                  <span class="d-atr"><img src="images/icons/2-green.svg" alt=""><span></span> ${car.luggage || '-'}</span>
+                  <span class="d-atr"><img src="images/icons/3-green.svg" alt="">${car.num_doors || '-'}</span>
+                  <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span></span> ${car.car_type || '-'}</span>
+                </div>
+                <div class=\"d-price\" data-i18n=\"cars.daily_rate\">Daily rate from <span>${lowestPrice ? lowestPrice + '€' : 'N/A'}</span></div>
+                <a class=\"btn-main\" href=\"${rentNowUrl}\" data-i18n=\"cars.rent_now\">Rent Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    grid.innerHTML = carsHtml;
 
-        })
-        .catch((error) => {
-          grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
-        });
-    });
+    // ✅ КРИТИЧНО: Применяем переводы к динамически загруженным элементам
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      const elementsToTranslate = grid.querySelectorAll('[data-i18n]');
+      elementsToTranslate.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (key) {
+          element.textContent = i18next.t(key);
+        }
+      });
+      console.log('✅ Translations applied to car cards');
+    } else {
+      console.warn('⚠️ i18next not ready, waiting...');
+      setTimeout(() => {
+        if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+          const elementsToTranslate = grid.querySelectorAll('[data-i18n]');
+          elementsToTranslate.forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (key) {
+              element.textContent = i18next.t(key);
+            }
+          });
+          console.log('✅ Translations applied to car cards (delayed)');
+        }
+      }, 500);
+    }
+  })
+  .catch((error) => {
+    grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+  });
   </script>
 
 <script>
