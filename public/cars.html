@@ -26,7 +26,7 @@
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Mașini de închiriat în Chișinău și Moldova – PlusRent">
+ <meta property="og:title" content="Închiriere Auto Chișinău | Mașini de închiriat Moldova – PlusRent">
   <meta property="og:description" content="Vezi flota completă de mașini disponibile la PlusRent. Închirieri rapide și sigure, cu livrare gratuită în Chișinău și la Aeroport.">
   <meta property="og:image" content="https://plusrent.md/images/LOGO-5-demo.png">
   <meta property="og:url" content="https://plusrent.md/cars">
@@ -36,7 +36,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mașini de închiriat în Chișinău – PlusRent">
+  <meta name="twitter:title" content="Închiriere Auto Chișinău | Mașini de închiriat Moldova – PlusRent">
   <meta name="twitter:description" content="Explorează gama completă de mașini disponibile pentru închiriere la PlusRent.">
   <meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
 
@@ -119,127 +119,40 @@
   }
   </script>
   <!-- 🔒 ЗАЩИТА ОТ DEBUGGING -->
-  <script>
-    (function() {
-      'use strict';
-      
-      // ===== 1. ОТКЛЮЧАЕМ CONSOLE =====
-      const noop = function() {};
-      const consoleProps = ['log', 'warn', 'error', 'info', 'debug', 'trace', 'dir', 'dirxml', 
-                           'group', 'groupEnd', 'groupCollapsed', 'time', 'timeEnd', 'timeLog',
-                           'assert', 'clear', 'count', 'countReset', 'profile', 'profileEnd', 
-                           'table'];
-      
-      consoleProps.forEach(prop => {
-        try {
-          console[prop] = noop;
-        } catch(e) {}
-      });
-      
-      // Делаем console неизменяемым
-      try {
-        Object.freeze(console);
-      } catch(e) {}
-      
-      // ===== 2. БЛОКИРУЕМ ПРАВЫЙ КЛИК =====
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      
-      // ===== 3. БЛОКИРУЕМ ГОРЯЧИЕ КЛАВИШИ =====
-      document.addEventListener('keydown', function(e) {
-        // F12
-        if (e.keyCode === 123) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+I (DevTools)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+J (Console)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+C (Inspect)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+U (View Source)
-        if (e.ctrlKey && e.keyCode === 85) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+S (Save Page)
-        if (e.ctrlKey && e.keyCode === 83) {
-          e.preventDefault();
-          return false;
-        }
-        // F12 на Mac
-        if (e.metaKey && e.altKey && e.keyCode === 73) {
-          e.preventDefault();
-          return false;
-        }
-      }, false);
-      
-      // ===== 4. ДЕТЕКТ DEVTOOLS (опционально) =====
-      let devtoolsOpen = false;
-      const threshold = 160;
-      
-      const checkDevTools = function() {
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-        
-        if (widthThreshold || heightThreshold) {
-          if (!devtoolsOpen) {
-            devtoolsOpen = true;
-            // Можно перенаправить или показать предупреждение
-            // document.body.innerHTML = '<h1>Access Denied</h1>';
-            // window.location.href = '/';
-          }
-        } else {
-          devtoolsOpen = false;
-        }
-      };
-      
-      // Проверяем каждые 500ms
-      setInterval(checkDevTools, 500);
-      
-      // ===== 5. БЛОКИРУЕМ DRAG & DROP (копирование изображений) =====
-      document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      
-      // ===== 6. БЛОКИРУЕМ ВЫДЕЛЕНИЕ ТЕКСТА (опционально) =====
-      // Раскомментируйте если нужно:
-      /*
-      document.addEventListener('selectstart', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      */
-      
-      // ===== 7. БЛОКИРУЕМ КОПИРОВАНИЕ (опционально) =====
-      // Раскомментируйте если нужно:
-      /*
-      document.addEventListener('copy', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      */
-      
-      // ===== 8. ЗАЩИТА ОТ IFRAME =====
-      if (window.top !== window.self) {
-        window.top.location = window.self.location;
+<script>
+// Защита title от изменений
+(function() {
+  const correctTitle = 'Închiriere Auto Chișinău | Mașini de închiriat Moldova – PlusRent';
+  
+  // Устанавливаем правильный title
+  if (document.title !== correctTitle) {
+    document.title = correctTitle;
+  }
+  
+  // Защита через MutationObserver
+  const titleElement = document.querySelector('title');
+  if (titleElement) {
+    const observer = new MutationObserver(function() {
+      if (document.title !== correctTitle) {
+        document.title = correctTitle;
       }
-      
-    })();
-  </script>
+    });
+    
+    observer.observe(titleElement, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+  }
+  
+  // Дополнительная защита
+  setInterval(function() {
+    if (document.title !== correctTitle) {
+      document.title = correctTitle;
+    }
+  }, 2000);
+})();
+</script>
   <style>
     /* Language Picker Styles */
     .lang-picker-wrapper { 
