@@ -59,172 +59,89 @@
     <!-- JS Config -->
     <script src="js/config.js"></script>
 
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "PlusRent",
-      "image": "https://plusrent.md/images/LOGO-5-demo.png",
-      "logo": "https://plusrent.md/images/icon.png",
-      "@id": "https://plusrent.md",
-      "url": "https://plusrent.md",
-      "telephone": "+373-60-000-500",
-      "email": "info@plusrent.md",
-      "priceRange": "$$",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "str. Meșterul Manole 20",
-        "addressLocality": "Chișinău",
-        "addressCountry": "MD"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 47.0105,
-        "longitude": 28.8638
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "00:00",
-        "closes": "23:59"
-      },
-      "sameAs": [
-        "https://www.instagram.com/plusrent.md",
-        "https://t.me/plusrent",
-        "https://www.tiktok.com/@plusrent"
-      ]
+<!-- Structured Data: ContactPage + LocalBusiness -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["ContactPage", "LocalBusiness"],
+  "name": "Contact PlusRent",
+  "description": "Contactează echipa PlusRent pentru închirieri auto rapide și sigure în Chișinău și toată Moldova. Oferim suport 24/7.",
+  "url": "https://plusrent.md/contact",
+  "mainEntity": {
+    "@type": "LocalBusiness",
+    "name": "PlusRent - Închirieri Auto Chișinău",
+    "image": "https://plusrent.md/images/LOGO-5-demo.png",
+    "logo": "https://plusrent.md/images/icon.png",
+    "@id": "https://plusrent.md",
+    "url": "https://plusrent.md",
+    "telephone": "+373-60-000-500",
+    "email": "contact@plusrent.md",
+    "priceRange": "€25-€120",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "str. Meșterul Manole 20",
+      "addressLocality": "Chișinău",
+      "postalCode": "MD-2001",
+      "addressCountry": "MD"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 47.0105,
+      "longitude": 28.8638
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "opens": "00:00",
+      "closes": "23:59"
+    },
+    "sameAs": [
+      "https://www.instagram.com/plusrent.md",
+      "https://t.me/plusrent",
+      "https://www.tiktok.com/@plusrent"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "PlusRent",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://plusrent.md/images/icon.png"
     }
-    </script>
-  <script>
-    (function() {
-      'use strict';
-      
-      // ===== 1. ОТКЛЮЧАЕМ CONSOLE =====
-      const noop = function() {};
-      const consoleProps = ['log', 'warn', 'error', 'info', 'debug', 'trace', 'dir', 'dirxml', 
-                           'group', 'groupEnd', 'groupCollapsed', 'time', 'timeEnd', 'timeLog',
-                           'assert', 'clear', 'count', 'countReset', 'profile', 'profileEnd', 
-                           'table'];
-      
-      consoleProps.forEach(prop => {
-        try {
-          console[prop] = noop;
-        } catch(e) {}
-      });
-      
-      // Делаем console неизменяемым
-      try {
-        Object.freeze(console);
-      } catch(e) {}
-      
-      // ===== 2. БЛОКИРУЕМ ПРАВЫЙ КЛИК =====
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      
-      // ===== 3. БЛОКИРУЕМ ГОРЯЧИЕ КЛАВИШИ =====
-      document.addEventListener('keydown', function(e) {
-        // F12
-        if (e.keyCode === 123) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+I (DevTools)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+J (Console)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+Shift+C (Inspect)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+U (View Source)
-        if (e.ctrlKey && e.keyCode === 85) {
-          e.preventDefault();
-          return false;
-        }
-        // Ctrl+S (Save Page)
-        if (e.ctrlKey && e.keyCode === 83) {
-          e.preventDefault();
-          return false;
-        }
-        // F12 на Mac
-        if (e.metaKey && e.altKey && e.keyCode === 73) {
-          e.preventDefault();
-          return false;
-        }
-      }, false);
-      
-      // ===== 4. ДЕТЕКТ DEVTOOLS (опционально) =====
-      let devtoolsOpen = false;
-      const threshold = 160;
-      
-      const checkDevTools = function() {
-        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-        
-        if (widthThreshold || heightThreshold) {
-          if (!devtoolsOpen) {
-            devtoolsOpen = true;
-            // Можно перенаправить или показать предупреждение
-            // document.body.innerHTML = '<h1>Access Denied</h1>';
-            // window.location.href = '/';
-          }
-        } else {
-          devtoolsOpen = false;
-        }
-      };
-      
-      // Проверяем каждые 500ms
-      setInterval(checkDevTools, 500);
-      
-      // ===== 5. БЛОКИРУЕМ DRAG & DROP (копирование изображений) =====
-      document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      
-      // ===== 6. БЛОКИРУЕМ ВЫДЕЛЕНИЕ ТЕКСТА (опционально) =====
-      // Раскомментируйте если нужно:
-      /*
-      document.addEventListener('selectstart', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      */
-      
-      // ===== 7. БЛОКИРУЕМ КОПИРОВАНИЕ (опционально) =====
-      // Раскомментируйте если нужно:
-      /*
-      document.addEventListener('copy', function(e) {
-        e.preventDefault();
-        return false;
-      }, false);
-      */
-      
-      // ===== 8. ЗАЩИТА ОТ IFRAME =====
-      if (window.top !== window.self) {
-        window.top.location = window.self.location;
-      }
-      
-    })();
-  </script>
+  },
+  "inLanguage": "ro"
+}
+</script>
+
+<!-- Breadcrumbs для /contact -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PlusRent",
+      "item": "https://plusrent.md"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Contact",
+      "item": "https://plusrent.md/contact"
+    }
+  ]
+}
+</script>
 	
     <!-- Custom Language Picker Styles -->
     <style>
@@ -987,6 +904,7 @@
 
 
 </html>
+
 
 
 
