@@ -1731,58 +1731,56 @@
   <div id="back-to-top"><i class="fa fa-angle-up"></i></div>
 
   <!-- Scripts -->
-  <script src="js/jquery.min.js"></script>
-  <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/designesia.js"></script>
-  <script src="js/components.js"></script>
   <script src="js/i18n-init.js"></script>
 
-<!-- Counter Animation (Pure JS) -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    let animated = false;
-    
-    function animateCounters() {
-      if (animated) return;
+  <!-- Counter Animation (Pure JS) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let animated = false;
       
-      const counters = document.querySelectorAll('.timer');
-      const statsSection = document.querySelector('.stats-section');
-      
-      if (!statsSection) return;
-      
-      const rect = statsSection.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
-      
-      if (isVisible) {
-        animated = true;
+      function animateCounters() {
+        if (animated) return;
         
-        counters.forEach(counter => {
-          const target = parseInt(counter.getAttribute('data-to'));
-          const speed = parseInt(counter.getAttribute('data-speed')) || 2000;
-          const increment = target / (speed / 16);
-          let current = 0;
+        const counters = document.querySelectorAll('.timer');
+        const statsSection = document.querySelector('.stats-section');
+        
+        if (!statsSection) return;
+        
+        const rect = statsSection.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+        
+        if (isVisible) {
+          animated = true;
           
-          const updateCounter = () => {
-            current += increment;
-            if (current < target) {
-              counter.textContent = Math.floor(current);
-              requestAnimationFrame(updateCounter);
-            } else {
-              counter.textContent = target;
-            }
-          };
-          
-          updateCounter();
-        });
+          counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-to'));
+            const speed = parseInt(counter.getAttribute('data-speed')) || 2000;
+            const increment = target / (speed / 16);
+            let current = 0;
+            
+            const updateCounter = () => {
+              current += increment;
+              if (current < target) {
+                counter.textContent = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+              } else {
+                counter.textContent = target;
+              }
+            };
+            
+            updateCounter();
+          });
+        }
       }
-    }
-    
-    window.addEventListener('scroll', animateCounters);
-    animateCounters(); // Check on load
-  });
-</script>
+      
+      window.addEventListener('scroll', animateCounters);
+      animateCounters(); // Check on load
+    });
+  </script>
 
 </body>
 </html>
+
 
