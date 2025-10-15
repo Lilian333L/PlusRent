@@ -1172,7 +1172,8 @@
         </div>
         <div class="col-lg-6">
           <div class="about-hero-image">
-            <img src="images/about-hero.jpg" alt="PlusRent Office" class="img-fluid rounded shadow features-car-image">
+            <img src="images/background/3-copy.jpg" alt="PlusRent Fleet" class="img-fluid rounded shadow features-car-image">
+
           </div>
         </div>
       </div>
@@ -1362,7 +1363,9 @@
             Perfect pentru cei care doresc să economisească bani! Primești reduceri de la 5% până la 25% pentru următoarea ta închiriere.
           </p>
           
-          <img src="images/wheel-discount.png" alt="Discount Wheel" class="wheel-preview-large">
+          <div class="wheel-preview-large" style="background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem; font-weight: 900;">
+            🎯
+          </div>
           
           <div class="wheel-prizes-list">
             <span class="prize-badge">5% OFF</span>
@@ -1384,7 +1387,9 @@
             Pentru cei care vor să călătorească mai mult! Primești între 1 și 3 zile gratuite adăugate la următoarea ta rezervare.
           </p>
           
-          <img src="images/wheel-freedays.png" alt="Free Days Wheel" class="wheel-preview-large">
+          <div class="wheel-preview-large" style="background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem; font-weight: 900;">
+            🎁
+          </div>
           
           <div class="wheel-prizes-list">
             <span class="prize-badge">+1 ZI</span>
@@ -1733,70 +1738,51 @@
   <script src="js/components.js"></script>
   <script src="js/i18n-init.js"></script>
 
-  <!-- Counter Animation -->
-  <script>
-    $(document).ready(function() {
-      // Animate counters when visible
-      let animated = false;
+<!-- Counter Animation (Pure JS) -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let animated = false;
+    
+    function animateCounters() {
+      if (animated) return;
       
-      $(window).on('scroll', function() {
-        if (!animated) {
-          $('.de_count').each(function() {
-            const offset = $(this).offset().top;
-            const scrollTop = $(window).scrollTop();
-            const windowHeight = $(window).height();
-            
-            if (scrollTop + windowHeight > offset + 100) {
-              animated = true;
-              
-              $('.timer').each(function () {
-                const $this = $(this);
-                const countTo = $this.attr('data-to');
-                const countSpeed = parseInt($this.attr('data-speed')) || 2000;
-                
-                $({ countNum: $this.text() }).animate({
-                  countNum: countTo
-                }, {
-                  duration: countSpeed,
-                  easing: 'swing',
-                  step: function () {
-                    $this.text(Math.floor(this.countNum));
-                  },
-                  complete: function () {
-                    $this.text(this.countNum);
-                  }
-                });
-              });
+      const counters = document.querySelectorAll('.timer');
+      const statsSection = document.querySelector('.stats-section');
+      
+      if (!statsSection) return;
+      
+      const rect = statsSection.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+      
+      if (isVisible) {
+        animated = true;
+        
+        counters.forEach(counter => {
+          const target = parseInt(counter.getAttribute('data-to'));
+          const speed = parseInt(counter.getAttribute('data-speed')) || 2000;
+          const increment = target / (speed / 16);
+          let current = 0;
+          
+          const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+              counter.textContent = Math.floor(current);
+              requestAnimationFrame(updateCounter);
+            } else {
+              counter.textContent = target;
             }
-          });
-        }
-      });
-
-      // Trigger check on load
-      $(window).trigger('scroll');
-
-      // Smooth scroll for CTA buttons
-      $('a[href^="#"]').on('click', function(e) {
-        e.preventDefault();
-        const target = $(this.hash);
-        if (target.length) {
-          $('html, body').animate({
-            scrollTop: target.offset().top - 100
-          }, 800);
-        }
-      });
-
-      // Add hover effects to buttons
-      $('.btn-main').hover(
-        function() {
-          $(this).css('transform', 'translateY(-3px)');
-        },
-        function() {
-          $(this).css('transform', 'translateY(0)');
-        }
-      );
-    });
-  </script>
+          };
+          
+          updateCounter();
+        });
+      }
+    }
+    
+    window.addEventListener('scroll', animateCounters);
+    animateCounters(); // Check on load
+  });
+</script>
 
 </body>
 </html>
+
