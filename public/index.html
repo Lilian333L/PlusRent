@@ -3004,8 +3004,13 @@
         display: none !important;
     }
     
-    /* Белый текст меню на мобильных (закрытое состояние) */
-    #mainmenu a {
+    /* ========== БЕЛЫЙ ТЕКСТ ВЕЗДЕ НА МОБИЛЬНЫХ ========== */
+    
+    /* Закрытое меню */
+    header #mainmenu a,
+    header #mainmenu li a,
+    #mainmenu a,
+    #mainmenu li a {
         color: #ffffff !important;
     }
     
@@ -3013,68 +3018,96 @@
         color: #1ccfc9 !important;
     }
     
-    /* ========== ОТКРЫТОЕ БУРГЕР-МЕНЮ ========== */
+    /* ========== ОТКРЫТОЕ БУРГЕР-МЕНЮ - МАКСИМАЛЬНАЯ АГРЕССИЯ ========== */
     
-    /* Тёмный фон мобильного sidebar меню */
+    /* Тёмный фон */
     #de-sidebar,
-    .de-menu-profile {
+    .de-menu-profile,
+    body.de-menu-open #de-sidebar,
+    body.de-menu-open .de-menu-profile {
         background: rgba(0, 0, 0, 0.98) !important;
     }
     
-    /* Белый текст для всех ссылок в открытом меню */
+    /* БЕЛЫЙ ТЕКСТ - ВСЕ ВОЗМОЖНЫЕ ВАРИАНТЫ */
+    #de-sidebar a,
+    #de-sidebar li a,
     #de-sidebar #mainmenu a,
-    .de-menu-profile #mainmenu a,
     #de-sidebar #mainmenu li a,
-    .de-menu-profile #mainmenu li a {
+    #de-sidebar #mainmenu > li > a,
+    #de-sidebar nav a,
+    #de-sidebar nav li a,
+    .de-menu-profile a,
+    .de-menu-profile li a,
+    .de-menu-profile #mainmenu a,
+    .de-menu-profile #mainmenu li a,
+    body.de-menu-open a,
+    body.de-menu-open li a,
+    body.de-menu-open #mainmenu a,
+    body.de-menu-open #mainmenu li a,
+    body.de-menu-open nav a,
+    body.de-menu-open nav li a {
         color: #ffffff !important;
         text-shadow: none !important;
     }
     
-    /* Белый текст при hover в открытом меню */
+    /* Hover состояние */
+    #de-sidebar a:hover,
+    #de-sidebar li a:hover,
     #de-sidebar #mainmenu a:hover,
-    .de-menu-profile #mainmenu a:hover {
+    .de-menu-profile a:hover,
+    .de-menu-profile #mainmenu a:hover,
+    body.de-menu-open a:hover,
+    body.de-menu-open #mainmenu a:hover {
         color: #1ccfc9 !important;
     }
     
-    /* Белый текст для submenu */
+    /* Submenu */
+    #de-sidebar ul li a,
     #de-sidebar #mainmenu ul li a,
-    .de-menu-profile #mainmenu ul li a {
+    .de-menu-profile ul li a,
+    .de-menu-profile #mainmenu ul li a,
+    body.de-menu-open ul li a,
+    body.de-menu-open #mainmenu ul li a {
         color: #ffffff !important;
     }
     
-    /* Белая иконка закрытия меню */
-    .de-click-menu-close {
-        color: #ffffff !important;
-    }
-    
-    /* Белые полоски иконки бургера */
-    #menu-btn span {
-        background: #ffffff !important;
-    }
-    
-    /* Белый текст в топбаре мобильного меню */
-    #de-sidebar .social-icons a,
-    .de-menu-profile .social-icons a,
-    #de-sidebar a,
-    .de-menu-profile a {
-        color: #ffffff !important;
-    }
-    
-    /* Светлые границы между пунктами меню */
-    #de-sidebar #mainmenu li,
-    .de-menu-profile #mainmenu li {
-        border-color: rgba(255, 255, 255, 0.1) !important;
-    }
-}
-
-/* Дополнительная защита для открытого меню */
-@media (max-width: 991px) {
-    body.de-menu-open #mainmenu a,
-    body.de-menu-open #mainmenu li a,
+    /* Span элементы внутри ссылок */
+    #de-sidebar a span,
+    #de-sidebar li span,
+    #de-sidebar #mainmenu span,
+    .de-menu-profile a span,
+    .de-menu-profile li span,
+    body.de-menu-open a span,
+    body.de-menu-open li span,
     body.de-menu-open #mainmenu span {
         color: #ffffff !important;
     }
     
+    /* Иконка закрытия */
+    .de-click-menu-close,
+    #de-sidebar .de-click-menu-close,
+    .de-menu-profile .de-click-menu-close {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Иконка бургера */
+    #menu-btn span {
+        background: #ffffff !important;
+    }
+    
+    /* Social icons */
+    #de-sidebar .social-icons a,
+    .de-menu-profile .social-icons a {
+        color: #ffffff !important;
+    }
+    
+    /* Границы */
+    #de-sidebar li,
+    #de-sidebar #mainmenu li,
+    .de-menu-profile li,
+    .de-menu-profile #mainmenu li,
+    body.de-menu-open li,
     body.de-menu-open #mainmenu li {
         border-color: rgba(255, 255, 255, 0.1) !important;
     }
@@ -3137,6 +3170,25 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     font-weight: 500;
     transition: all 0.3s ease;
+}
+
+/* ========== КРИТИЧЕСКАЯ ЗАЩИТА - ПЕРЕБИВАЕМ ВСЁ ========== */
+@media (max-width: 991px) {
+    /* Если ничего не помогло - применяем к АБСОЛЮТНО ВСЕМ элементам */
+    #de-sidebar *,
+    .de-menu-profile *,
+    body.de-menu-open nav *,
+    body.de-menu-open #mainmenu * {
+        color: #ffffff !important;
+    }
+    
+    /* Исключения для иконок и изображений */
+    #de-sidebar img,
+    #de-sidebar i,
+    .de-menu-profile img,
+    .de-menu-profile i {
+        color: inherit !important;
+    }
 }
 </style>
 </head>
