@@ -551,6 +551,31 @@
         display: block;
       }
       
+      .calc-input {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #667eea;
+        border: none;
+        background: transparent;
+        text-align: center;
+        width: 120px;
+        padding: 5px;
+        border-bottom: 3px solid #667eea;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+      
+      .calc-input:focus {
+        border-bottom-color: #764ba2;
+        transform: scale(1.05);
+      }
+      
+      .calc-input::-webkit-inner-spin-button,
+      .calc-input::-webkit-outer-spin-button {
+        opacity: 1;
+        height: 40px;
+      }
+      
       .calc-label {
         font-size: 0.9rem;
         color: #718096;
@@ -863,7 +888,7 @@
       }
       
       /* Mobile Responsive */
-      @media (max-width: 768px) {
+              @media (max-width: 768px) {
         .terms-container {
           padding: 40px 15px;
         }
@@ -919,6 +944,11 @@
         
         .calc-number {
           font-size: 2rem;
+        }
+        
+        .calc-input {
+          font-size: 2rem;
+          width: 100px;
         }
         
         .calculation-visual {
@@ -1302,36 +1332,36 @@
                                 <div class="mileage-info-card">
                                     <p class="mileage-description" data-i18n="terms.international_info">International travel is permitted with prior notification. Some destinations may have additional requirements or restrictions.</p>
                                     
-                                    <p class="mileage-description" data-i18n="terms.mileage_limit_desc">Each rental includes a daily mileage limit of 300 km. This means you can drive up to 300 kilometers per day included in your rental price.</p>
+                                    <p class="mileage-description" data-i18n="terms.mileage_limit_desc">Each rental includes a daily mileage limit of 200 km. This means you can drive up to 200 kilometers per day included in your rental price.</p>
                                     
                                     <div class="mileage-example">
-                                        <span class="example-label" data-i18n="terms.example_label">Example Calculation</span>
-                                        <p class="example-text" data-i18n="terms.mileage_limit_example">If you rent a car for 5 days, your total included mileage will be calculated as follows:</p>
+                                        <span class="example-label" data-i18n="terms.example_label">Calculate Your Allowance</span>
+                                        <p class="example-text" data-i18n="terms.mileage_limit_example">Enter the number of rental days to see your total included mileage:</p>
                                         
                                         <div class="calculation-visual">
                                             <div class="calc-item">
-                                                <span class="calc-number">5</span>
+                                                <input type="number" id="daysInput" class="calc-input" value="5" min="1" max="365">
                                                 <span class="calc-label" data-i18n="terms.days">Days</span>
                                             </div>
                                             
                                             <div class="calc-operator">×</div>
                                             
                                             <div class="calc-item">
-                                                <span class="calc-number">300</span>
+                                                <span class="calc-number">200</span>
                                                 <span class="calc-label" data-i18n="terms.km_per_day">KM/Day</span>
                                             </div>
                                             
                                             <div class="calc-operator">=</div>
                                             
                                             <div class="calc-item">
-                                                <span class="calc-number">1500</span>
+                                                <span class="calc-number" id="totalKm">1000</span>
                                                 <span class="calc-label" data-i18n="terms.total_km">Total KM</span>
                                             </div>
                                         </div>
                                         
                                         <div class="result-highlight">
                                             <div class="result-label" data-i18n="terms.your_allowance">Your Mileage Allowance</div>
-                                            <div class="result-value">1,500 KM</div>
+                                            <div class="result-value" id="resultValue">1,000 KM</div>
                                         </div>
                                     </div>
                                     
@@ -1449,6 +1479,50 @@
     
     <!-- i18n Init -->
     <script src="js/i18n-init.js"></script>
+    
+    <!-- Mileage Calculator Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const daysInput = document.getElementById('daysInput');
+            const totalKm = document.getElementById('totalKm');
+            const resultValue = document.getElementById('resultValue');
+            const kmPerDay = 200;
+            
+            function calculateMileage() {
+                const days = parseInt(daysInput.value) || 1;
+                const total = days * kmPerDay;
+                
+                // Format with comma separator
+                const formattedTotal = total.toLocaleString('en-US');
+                
+                totalKm.textContent = formattedTotal;
+                resultValue.textContent = formattedTotal + ' KM';
+                
+                // Add animation effect
+                totalKm.style.transform = 'scale(1.1)';
+                resultValue.style.transform = 'scale(1.05)';
+                
+                setTimeout(() => {
+                    totalKm.style.transform = 'scale(1)';
+                    resultValue.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            // Calculate on input
+            daysInput.addEventListener('input', calculateMileage);
+            
+            // Validate min/max
+            daysInput.addEventListener('change', function() {
+                if (this.value < 1) this.value = 1;
+                if (this.value > 365) this.value = 365;
+                calculateMileage();
+            });
+            
+            // Add smooth transition
+            totalKm.style.transition = 'transform 0.2s ease';
+            resultValue.style.transition = 'transform 0.2s ease';
+        });
+    </script>
     
 </body>
 </html>
