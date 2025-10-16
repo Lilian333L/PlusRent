@@ -3560,7 +3560,6 @@ setTimeout(function() {
             };
           }
         } catch (error) {
-          console.error('Error loading price filter settings:', error);
           priceFilterSettings = {
             economy: { min: 0, max: 30 },
             standard: { min: 31, max: 60 },
@@ -3572,11 +3571,9 @@ setTimeout(function() {
       // Load occupied dates for ALL cars at once
       async function loadAllOccupiedDates() {
         try {
-          console.log('📅 Loading occupied dates for ALL cars...');
           const response = await fetch(`${window.API_BASE_URL}/api/bookings/occupied-dates`);
           if (response.ok) {
             const data = await response.json();
-            console.log('✅ Occupied dates loaded:', data);
             
             if (data.occupied_dates_by_car) {
               Object.keys(data.occupied_dates_by_car).forEach(carId => {
@@ -3587,7 +3584,6 @@ setTimeout(function() {
             return allOccupiedDatesCache;
           }
         } catch (error) {
-          console.error('❌ Error loading all occupied dates:', error);
         }
         
         return {};
@@ -3783,14 +3779,12 @@ setTimeout(function() {
           let cars = await res.json();
           
           if (dateFrom && dateTo) {
-            console.log(`🔍 Filtering cars for date range: ${dateFrom} to ${dateTo}`);
             
             const availableCars = [];
             
             for (let car of cars) {
               const occupiedDates = getOccupiedDatesForCar(car.id);
               
-              console.log(`Car ${car.id} (${car.make_name} ${car.model_name}):`, {
                 occupiedDates: occupiedDates,
                 isAvailable: isCarAvailableInDateRange(occupiedDates, dateFrom, dateTo)
               });
@@ -3801,7 +3795,6 @@ setTimeout(function() {
             }
             
             cars = availableCars;
-            console.log(`✅ Found ${cars.length} available cars for the selected date range`);
           }
           
           cars = sortCars(cars, sortOption);
@@ -3870,7 +3863,6 @@ setTimeout(function() {
             updateContent();
           }
         } catch (error) {
-          console.error('❌ Error fetching cars:', error);
           carListDiv.innerHTML = '<div class="col-12 text-center"><p style="font-size: 1.2rem; color: #ff6b6b; padding: 3rem;">Error loading cars. Please try again later.</p></div>';
         }
       }
@@ -4189,24 +4181,18 @@ function initializeDatePickers() {
 
       // Initialize everything
       document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🚀 Initializing cars page...');
         
         await loadPriceFilterSettings();
-        console.log('✅ Price filter settings loaded');
         
         await loadAllOccupiedDates();
-        console.log('✅ All occupied dates loaded and cached');
         
         initializeDatePickers();
-        console.log('✅ Date pickers initialized');
         
         try {
           const res = await fetch(`${window.API_BASE_URL}/api/cars`);
           allCarsFullCache = await res.json();
-          console.log(`✅ Loaded ${allCarsFullCache.length} cars for filters`);
           renderSidebarOptions(allCarsFullCache);
         } catch (error) {
-          console.error('❌ Error loading cars for filters:', error);
         }
         
         await fetchAndRenderCars();
@@ -4271,7 +4257,6 @@ function initializeDatePickers() {
           }, 200);
         }
         
-        console.log('✅ Cars page initialization complete');
       });
 
       window.addEventListener('popstate', fetchAndRenderCars);
