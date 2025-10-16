@@ -3172,31 +3172,20 @@
     transition: all 0.3s ease;
 }
 
-/* ========== 🔥 ЯДЕРНЫЙ ВАРИАНТ - ПЕРЕБИВАЕМ АБСОЛЮТНО ВСЁ 🔥 ========== */
+/* ========== МАКСИМАЛЬНЫЙ ПРИОРИТЕТ - ТОЛЬКО МОБИЛЬНЫЕ ========== */
 @media (max-width: 991px) {
-    /* Применяем ко ВСЕМ элементам внутри меню */
-    header *,
-    #mainmenu *,
-    #de-sidebar *,
-    .de-menu-profile *,
-    body.de-menu-open nav *,
-    body.de-menu-open #mainmenu *,
-    nav * {
+    header a:not(#logo a):not(.lang-picker-wrapper a):not(.call-now-btn a),
+    header li:not(#logo li):not(.lang-picker-wrapper li),
+    #mainmenu a,
+    #mainmenu li,
+    #de-sidebar a,
+    #de-sidebar li,
+    .de-menu-profile a,
+    .de-menu-profile li,
+    nav a,
+    nav li {
         color: #ffffff !important;
-    }
-    
-    /* Исключения для элементов, которые не должны быть белыми */
-    #de-sidebar img,
-    #de-sidebar i.fa,
-    #de-sidebar i.fab,
-    .de-menu-profile img,
-    .de-menu-profile i.fa,
-    .de-menu-profile i.fab,
-    header img,
-    #logo *,
-    .lang-picker-wrapper *,
-    .call-now-btn * {
-        color: inherit !important;
+        -webkit-text-fill-color: #ffffff !important;
     }
 }
 </style>
@@ -4580,5 +4569,80 @@ document.addEventListener('DOMContentLoaded', function() {
   <script src="js/universal-include.js"></script>
   <script src="js/auto-apply-coupon.js"></script>
   <div id="toast-container"></div>
+  <script>
+// ========== ПРИНУДИТЕЛЬНЫЙ БЕЛЫЙ ТЕКСТ В МОБИЛЬНОМ МЕНЮ ==========
+(function() {
+    // Проверяем, что это мобильное устройство
+    if (window.innerWidth <= 991) {
+        
+        // Функция для принудительной установки белого цвета
+        function forceWhiteText() {
+            // Все ссылки в меню
+            const selectors = [
+                'header a',
+                'header li',
+                '#mainmenu a',
+                '#mainmenu li',
+                '#mainmenu span',
+                '#de-sidebar a',
+                '#de-sidebar li',
+                '#de-sidebar span',
+                '.de-menu-profile a',
+                '.de-menu-profile li',
+                '.de-menu-profile span',
+                'nav a',
+                'nav li',
+                'nav span'
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    // Исключаем логотип, переключатель языка и кнопку звонка
+                    if (!el.closest('#logo') && 
+                        !el.closest('.lang-picker-wrapper') && 
+                        !el.closest('.call-now-btn')) {
+                        el.style.setProperty('color', '#ffffff', 'important');
+                    }
+                });
+            });
+        }
+        
+        // Применяем сразу при загрузке
+        forceWhiteText();
+        
+        // Применяем через 100ms (на случай задержки)
+        setTimeout(forceWhiteText, 100);
+        
+        // Применяем через 500ms (для полной уверенности)
+        setTimeout(forceWhiteText, 500);
+        
+        // Следим за открытием меню
+        const menuBtn = document.getElementById('menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', function() {
+                setTimeout(forceWhiteText, 50);
+                setTimeout(forceWhiteText, 200);
+            });
+        }
+        
+        // Следим за изменениями в DOM
+        const observer = new MutationObserver(function(mutations) {
+            forceWhiteText();
+        });
+        
+        // Наблюдаем за изменениями в body
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style']
+        });
+        
+        // Применяем при изменении размера окна
+        window.addEventListener('resize', forceWhiteText);
+    }
+})();
+</script>
 </body>
 </html>
