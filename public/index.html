@@ -2987,45 +2987,6 @@
     }
 }
 
-/* ========== МОБИЛЬНЫЕ УСТРОЙСТВА ========== */
-@media (max-width: 991px) {
-    /* Тёмный фон header */
-    header {
-        background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 100%) !important;
-    }
-    
-    /* Светлый логотип на мобильных */
-    .logo-1 {
-        display: block !important;
-    }
-    .logo-2 {
-        display: none !important;
-    }
-    
-    /* ✅ КРИТИЧНО: Белый текст только для DESKTOP меню в header */
-    header #mainmenu a {
-        color: #ffffff !important;
-    }
-    
-    header #mainmenu a:hover {
-        color: #1ccfc9 !important;
-    }
-    
-    /* ✅ НО для выдвижного мобильного меню - свои стили */
-    #mainmenu.show a {
-        color: #ffffff !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    #mainmenu.show a:hover {
-        color: #ffffff !important;
-        background: rgba(255, 255, 255, 0.15) !important;
-        border-color: rgba(255, 255, 255, 0.25) !important;
-    }
-}
-
 /* ========== ДЕСКТОП ========== */
 @media (min-width: 992px) {
     header.transparent {
@@ -3084,7 +3045,80 @@
 }
 </style>
 <style>
-/* ========== УЛУЧШЕННАЯ ИКОНКА БУРГЕРА ========== */
+/* ========== HEADER STYLES - MOBILE & DESKTOP ========== */
+
+/* Скрыть topbar на мобильных */
+@media (max-width: 991px) {
+    #topbar {
+        display: none !important;
+    }
+    
+    /* Тёмный фон header */
+    header {
+        background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 100%) !important;
+    }
+    
+    /* Светлый логотип на мобильных */
+    .logo-1 {
+        display: block !important;
+    }
+    .logo-2 {
+        display: none !important;
+    }
+}
+
+/* ДЕСКТОП */
+@media (min-width: 992px) {
+    header.transparent {
+        background: transparent;
+    }
+    
+    header.transparent #mainmenu a {
+        color: #ffffff !important;
+    }
+    
+    header.transparent .logo-1 {
+        display: block !important;
+    }
+    header.transparent .logo-2 {
+        display: none !important;
+    }
+    
+    header.scroll-light {
+        background: rgba(0, 0, 0, 0.92) !important;
+        backdrop-filter: blur(8px);
+        transition: background 0.3s ease;
+    }
+    
+    header.scroll-light #mainmenu a {
+        color: #ffffff !important;
+        transition: color 0.3s ease;
+    }
+    
+    header.scroll-light #mainmenu a:hover {
+        color: #1ccfc9 !important;
+    }
+    
+    header.scroll-light .logo-1 {
+        display: block !important;
+    }
+    header.scroll-light .logo-2 {
+        display: none !important;
+    }
+    
+    #mainmenu a {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+}
+
+#logo img {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+    transition: filter 0.3s ease;
+}
+
+/* ========== BURGER ICON - ENHANCED ========== */
 #menu-btn {
   width: 50px;
   height: 50px;
@@ -3093,41 +3127,40 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
   position: relative;
   z-index: 10001;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 #menu-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.08);
 }
 
 #menu-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
-/* Белые линии бургера - ТОЛЩЕ И ЯРЧЕ */
 #menu-btn span {
   display: block;
   width: 26px;
-  height: 3px;
+  height: 3.5px;
   background: #ffffff;
   border-radius: 3px;
   margin: 3px 0;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Анимация X */
 #menu-btn.active span:nth-child(1) {
-  transform: translateY(9px) rotate(45deg);
+  transform: translateY(10px) rotate(45deg);
 }
 
 #menu-btn.active span:nth-child(2) {
@@ -3136,179 +3169,174 @@
 }
 
 #menu-btn.active span:nth-child(3) {
-  transform: translateY(-9px) rotate(-45deg);
+  transform: translateY(-10px) rotate(-45deg);
 }
 
-/* Показываем кнопку только на мобильных */
 @media (max-width: 991px) {
     #menu-btn {
         display: flex;
     }
 }
 
-/* ========== МОБИЛЬНОЕ МЕНЮ - МАКСИМАЛЬНАЯ ЧИТАБЕЛЬНОСТЬ ========== */
+/* ========== MOBILE MENU - PERFECT READABILITY ========== */
 @media (max-width: 991px) {
-    /* БОЛЕЕ ТЁМНЫЙ ФОН для контраста */
     #mainmenu {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 85%;
-        max-width: 400px;
-        height: 100vh;
+        position: fixed !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 85% !important;
+        max-width: 400px !important;
+        height: 100vh !important;
         background: linear-gradient(180deg, 
-            rgba(10, 15, 30, 0.98) 0%, 
-            rgba(20, 25, 40, 0.98) 100%);
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        z-index: 9998;
-        padding: 100px 25px 40px;
-        overflow-y: auto;
-        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        box-shadow: 4px 0 50px rgba(0, 0, 0, 0.6);
-        border-right: 1px solid rgba(255, 255, 255, 0.15);
+            rgba(8, 12, 25, 0.98) 0%, 
+            rgba(15, 20, 35, 0.98) 100%) !important;
+        backdrop-filter: blur(30px) !important;
+        -webkit-backdrop-filter: blur(30px) !important;
+        z-index: 9998 !important;
+        padding: 100px 25px 40px !important;
+        overflow-y: auto !important;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+        box-shadow: 4px 0 60px rgba(0, 0, 0, 0.7) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
     }
 
     #mainmenu.show {
-        left: 0;
+        left: 0 !important;
     }
 
-    /* Затемнение фона */
     #mainmenu::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 100%;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0);
-        transition: background 0.5s ease;
-        pointer-events: none;
-        z-index: -1;
+        content: '' !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 100% !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0) !important;
+        transition: background 0.5s ease !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
     }
 
     #mainmenu.show::before {
-        background: rgba(0, 0, 0, 0.75);
-        pointer-events: auto;
+        background: rgba(0, 0, 0, 0.8) !important;
+        pointer-events: auto !important;
     }
 
-    /* Стили пунктов меню */
     #mainmenu li {
-        list-style: none;
-        margin: 0 0 12px 0;
-        padding: 0;
-        opacity: 0;
-        transform: translateX(-40px);
-        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        list-style: none !important;
+        margin: 0 0 12px 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+        transform: translateX(-40px) !important;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
     }
 
     #mainmenu.show li {
-        opacity: 1;
-        transform: translateX(0);
+        opacity: 1 !important;
+        transform: translateX(0) !important;
     }
 
-    /* Задержка анимации */
-    #mainmenu.show li:nth-child(1) { transition-delay: 0.1s; }
-    #mainmenu.show li:nth-child(2) { transition-delay: 0.15s; }
-    #mainmenu.show li:nth-child(3) { transition-delay: 0.2s; }
-    #mainmenu.show li:nth-child(4) { transition-delay: 0.25s; }
-    #mainmenu.show li:nth-child(5) { transition-delay: 0.3s; }
+    #mainmenu.show li:nth-child(1) { transition-delay: 0.1s !important; }
+    #mainmenu.show li:nth-child(2) { transition-delay: 0.15s !important; }
+    #mainmenu.show li:nth-child(3) { transition-delay: 0.2s !important; }
+    #mainmenu.show li:nth-child(4) { transition-delay: 0.25s !important; }
+    #mainmenu.show li:nth-child(5) { transition-delay: 0.3s !important; }
 
-    /* ✅ ИДЕАЛЬНАЯ ЧИТАБЕЛЬНОСТЬ ТЕКСТА */
-    #mainmenu a {
+    /* ✅ МАКСИМАЛЬНАЯ ЧИТАБЕЛЬНОСТЬ - ЯРЧАЙШИЙ ТЕКСТ */
+    #mainmenu a,
+    #mainmenu.show a,
+    #mainmenu a:link,
+    #mainmenu a:visited {
         color: #FFFFFF !important;
-        font-size: 20px;
-        font-weight: 700;
-        padding: 18px 24px;
-        display: block;
-        border-radius: 14px;
-        text-decoration: none;
-        background: rgba(255, 255, 255, 0.08);
-        border: 2px solid rgba(255, 255, 255, 0.15);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.5px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        padding: 18px 24px !important;
+        display: block !important;
+        border-radius: 14px !important;
+        text-decoration: none !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+        letter-spacing: 0.5px !important;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+        line-height: 1.4 !important;
     }
 
-    /* Светящийся эффект */
     #mainmenu a::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 100% !important;
+        height: 100% !important;
         background: linear-gradient(90deg, 
             transparent, 
             rgba(255, 255, 255, 0.15), 
-            transparent);
-        transition: left 0.6s ease;
+            transparent) !important;
+        transition: left 0.6s ease !important;
     }
 
     #mainmenu a:hover::before {
-        left: 100%;
+        left: 100% !important;
     }
 
-    /* Hover состояние - ЕЩЁ ЯРЧЕ */
     #mainmenu a:hover,
-    #mainmenu a:active {
+    #mainmenu a:active,
+    #mainmenu.show a:hover {
         color: #FFFFFF !important;
         background: linear-gradient(135deg, 
-            rgba(102, 126, 234, 0.4) 0%, 
-            rgba(118, 75, 162, 0.4) 100%);
-        border-color: rgba(255, 255, 255, 0.35);
-        transform: translateX(10px);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            rgba(102, 126, 234, 0.5) 0%, 
+            rgba(118, 75, 162, 0.5) 100%) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        transform: translateX(10px) !important;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
     }
 
-    /* Стрелка справа */
     #mainmenu a::after {
-        content: '→';
-        position: absolute;
-        right: 24px;
-        top: 50%;
-        transform: translateY(-50%);
-        opacity: 0;
-        transition: all 0.3s ease;
-        color: #ffffff;
-        font-size: 22px;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        content: '→' !important;
+        position: absolute !important;
+        right: 24px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        opacity: 0 !important;
+        transition: all 0.3s ease !important;
+        color: #ffffff !important;
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
     }
 
     #mainmenu a:hover::after {
-        opacity: 1;
-        right: 18px;
+        opacity: 1 !important;
+        right: 18px !important;
     }
 
-    /* Блокируем прокрутку body */
     body.menu-open {
-        overflow: hidden;
+        overflow: hidden !important;
     }
 
-    /* Scrollbar */
     #mainmenu::-webkit-scrollbar {
-        width: 8px;
+        width: 8px !important;
     }
 
     #mainmenu::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-radius: 4px !important;
     }
 
     #mainmenu::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.25);
-        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.25) !important;
+        border-radius: 4px !important;
     }
 
     #mainmenu::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.35) !important;
     }
 }
 
-/* ========== DESKTOP - НЕ ТРОГАЕМ ========== */
+/* ========== DESKTOP MENU ========== */
 @media (min-width: 992px) {
     #mainmenu {
         display: flex !important;
@@ -3325,13 +3353,15 @@
     #mainmenu li {
         opacity: 1 !important;
         transform: none !important;
-        display: inline-block;
+        display: inline-block !important;
     }
 
     #mainmenu a {
         background: none !important;
         border: none !important;
         padding: 0 15px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
     }
 
     #mainmenu a::after {
@@ -3339,27 +3369,27 @@
     }
 }
 
-/* ========== МОБИЛЬНАЯ ОПТИМИЗАЦИЯ ========== */
+/* ========== SMALL MOBILE DEVICES ========== */
 @media (max-width: 480px) {
     #mainmenu {
-        width: 90%;
-        max-width: 90%;
-        padding: 90px 20px 30px;
+        width: 90% !important;
+        max-width: 90% !important;
+        padding: 90px 20px 30px !important;
     }
 
     #mainmenu a {
-        font-size: 18px;
-        padding: 16px 20px;
+        font-size: 18px !important;
+        padding: 16px 20px !important;
     }
 
     #menu-btn {
-        width: 46px;
-        height: 46px;
+        width: 46px !important;
+        height: 46px !important;
     }
 
     #menu-btn span {
-        width: 24px;
-        height: 2.5px;
+        width: 24px !important;
+        height: 3px !important;
     }
 }
 </style>
