@@ -184,98 +184,303 @@
   })();
   </script>
   <style>
-    /* ========== LANGUAGE PICKER STYLES ========== */
-    .lang-picker-wrapper { 
-      position: relative; 
-      display: inline-block; 
-      vertical-align: middle; 
+  .lang-picker-wrapper { 
+    position: relative; 
+    display: inline-block; 
+    vertical-align: middle; 
+  }
+  
+  /* Основная кнопка - glassmorphism стиль */
+  .lang-picker-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    min-width: 80px;
+    height: 36px;
+    line-height: 1.2;
+    transition: all 0.3s ease;
+    color: #ffffff;
+    margin-left: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .lang-picker-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .lang-picker-btn:focus, 
+  .lang-picker-btn[aria-expanded="true"] {
+    outline: none;
+    border-color: rgba(28, 207, 201, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 12px rgba(28, 207, 201, 0.3);
+  }
+  
+  /* Белый цвет для текста кнопки */
+  .lang-picker-btn #langCode {
+    color: #ffffff;
+    font-weight: 600;
+    margin: 0 2px 0 2px;
+  }
+  
+  /* Стрелка dropdown */
+  .lang-picker-btn svg path {
+    stroke: rgba(255, 255, 255, 0.7);
+    transition: stroke 0.3s ease;
+  }
+  
+  .lang-picker-btn:hover svg path {
+    stroke: rgba(255, 255, 255, 0.9);
+  }
+  
+  /* Иконка глобуса */
+  .lang-globe {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+  }
+  
+  .lang-globe svg circle,
+  .lang-globe svg ellipse,
+  .lang-globe svg path {
+    stroke: rgba(255, 255, 255, 0.8);
+    transition: stroke 0.3s ease;
+  }
+  
+  .lang-picker-btn:hover .lang-globe svg circle,
+  .lang-picker-btn:hover .lang-globe svg ellipse,
+  .lang-picker-btn:hover .lang-globe svg path {
+    stroke: rgba(28, 207, 201, 0.9);
+  }
+  
+  /* Dropdown меню */
+  .lang-picker-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    z-index: 1000;
+    background: rgba(3, 27, 78, 0.98);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 4px 0;
+    margin: 0;
+    min-width: 120px;
+    list-style: none;
+    animation: fadeInDown 0.2s ease;
+  }
+  
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .lang-picker-dropdown.open { 
+    display: block; 
+  }
+  
+  /* Опции языков */
+  .lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    background: none;
+    border: none;
+    transition: all 0.2s ease;
+    height: 40px;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.9);
+    width: 100%;
+    text-align: left;
+  }
+  
+  .lang-option:hover,
+  .lang-option:focus {
+    background: rgba(28, 207, 201, 0.15);
+    color: #1ccfc9;
+    outline: none;
+  }
+  
+  .lang-option.selected {
+    background: rgba(28, 207, 201, 0.25);
+    color: #1ccfc9;
+    font-weight: 600;
+  }
+  
+  .lang-option .lang-code {
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Флаги */
+  .lang-flag {
+    font-size: 18px;
+    width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .lang-flag img {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* ========== АДАПТАЦИЯ ПОД СОСТОЯНИЯ HEADER ========== */
+  
+  /* Десктоп - прозрачный header */
+  @media (min-width: 992px) {
+    header.transparent .lang-picker-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
     }
     
+    header.transparent .lang-picker-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+  
+  /* Десктоп - скролл с тёмным фоном */
+  @media (min-width: 992px) {
+    header.scroll-light .lang-picker-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    header.scroll-light .lang-picker-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+  }
+  
+  /* ========== МОБИЛЬНЫЕ УСТРОЙСТВА ========== */
+  @media (max-width: 991px) {
     .lang-picker-btn {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 4px 12px;
-      border-radius: 4px;
-      border: 1px solid #e0e0e0;
-      background: #f6f6f6;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 14px;
-      min-width: 80px;
-      height: 36px;
-      line-height: 1.2;
-      transition: border 0.2s, box-shadow 0.2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-      margin-left: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      font-size: 13px;
+      padding: 4px 10px;
+      min-width: 70px;
+      height: 34px;
     }
     
-    .lang-picker-btn:focus, 
-    .lang-picker-btn[aria-expanded="true"] {
-      outline: none;
-      border-color: #f0c040;
-      box-shadow: 0 2px 12px rgba(240,192,64,0.08);
+    .lang-picker-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
     }
     
     .lang-picker-dropdown {
-      display: none;
-      position: absolute;
-      top: 110%;
-      left: 0;
-      z-index: 1000;
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      padding: 0;
-      margin: 0;
-      min-width: 120px;
-      list-style: none;
-    }
-    
-    .lang-picker-dropdown.open { 
-      display: block; 
+      min-width: 110px;
     }
     
     .lang-option {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 14px;
-      cursor: pointer;
-      font-size: 14px;
-      background: none;
-      border: none;
-      transition: background 0.15s, color 0.15s;
+      font-size: 13px;
+      padding: 9px 12px;
+      height: 36px;
+      gap: 8px;
+    }
+    
+    .lang-flag img {
+      width: 18px;
+      height: 13px;
+    }
+  }
+  
+  /* Очень маленькие экраны */
+  @media (max-width: 600px) {
+    .lang-picker-btn { 
+      font-size: 12px; 
+      padding: 3px 8px; 
+      min-width: 65px; 
       height: 32px;
-      line-height: 1.2;
+      gap: 5px;
     }
     
-    .lang-option:focus, 
-    .lang-option:hover {
-      background: #f0c04022;
-      color: #031B4E;
-      outline: none;
+    .lang-picker-dropdown { 
+      min-width: 100px; 
     }
     
-    .lang-option.selected {
-      background: #f0c04044;
-      color: #031B4E;
-      font-weight: 600;
+    .lang-option { 
+      font-size: 12px; 
+      padding: 8px 10px; 
+      height: 34px;
+      gap: 6px;
     }
     
-    .lang-flag {
-      font-size: 18px;
-      width: 20px;
-      display: inline-block;
-      text-align: center;
+    .lang-flag { 
+      font-size: 15px; 
+      width: 16px; 
+    }
+    
+    .lang-flag img {
+      width: 16px;
+      height: 12px;
     }
     
     .lang-globe {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      width: 16px;
+      height: 16px;
     }
+    
+    .lang-globe svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  
+  /* ========== ACCESSIBILITY ========== */
+  
+  /* Focus visible для клавиатурной навигации */
+  .lang-picker-btn:focus-visible {
+    outline: 2px solid #1ccfc9;
+    outline-offset: 2px;
+  }
+  
+  .lang-option:focus-visible {
+    outline: 2px solid #1ccfc9;
+    outline-offset: -2px;
+  }
+  
+  /* Disabled состояние */
+  .lang-picker-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .lang-picker-btn:disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: none;
+  }
 
     /* ========== PREMIUM CAR HIGHLIGHTING ========== */
     .de-item.premium {
