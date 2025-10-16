@@ -3044,81 +3044,73 @@
     }
 }
 </style>
-<style>
-/* ========== HEADER STYLES - MOBILE & DESKTOP ========== */
+  <style>
+/* ========== КРИТИЧНО: БЕЛЫЙ ТЕКСТ В МОБИЛЬНОМ МЕНЮ ========== */
+/* Максимальный приоритет для всех состояний */
 
-/* Скрыть topbar на мобильных */
 @media (max-width: 991px) {
-    #topbar {
-        display: none !important;
-    }
-    
-    /* Тёмный фон header */
-    header {
-        background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 100%) !important;
-    }
-    
-    /* Светлый логотип на мобильных */
-    .logo-1 {
+    /* ✅ ВСЕ возможные селекторы для белого текста */
+    #mainmenu a,
+    #mainmenu li a,
+    #mainmenu.show a,
+    #mainmenu.show li a,
+    #mainmenu a:link,
+    #mainmenu a:visited,
+    #mainmenu a:active,
+    #mainmenu li a:link,
+    #mainmenu li a:visited,
+    #mainmenu li a:active,
+    ul#mainmenu a,
+    ul#mainmenu li a,
+    .de-flex-col #mainmenu a,
+    header #mainmenu a,
+    header ul#mainmenu a,
+    header .de-flex-col #mainmenu a,
+    #mainmenu .menu-item,
+    #mainmenu li .menu-item,
+    #mainmenu a.menu-item {
+        color: #FFFFFF !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        padding: 18px 24px !important;
         display: block !important;
+        border-radius: 14px !important;
+        text-decoration: none !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+        letter-spacing: 0.5px !important;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8) !important;
+        line-height: 1.4 !important;
     }
-    .logo-2 {
-        display: none !important;
+
+    /* ✅ Hover состояние */
+    #mainmenu a:hover,
+    #mainmenu li a:hover,
+    #mainmenu.show a:hover,
+    #mainmenu.show li a:hover,
+    ul#mainmenu a:hover,
+    header #mainmenu a:hover,
+    #mainmenu .menu-item:hover,
+    #mainmenu a.menu-item:hover {
+        color: #FFFFFF !important;
+        background: linear-gradient(135deg, 
+            rgba(102, 126, 234, 0.5) 0%, 
+            rgba(118, 75, 162, 0.5) 100%) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        transform: translateX(10px) !important;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    /* ✅ Убираем все возможные тёмные цвета */
+    #mainmenu *:not(.radio-custom):not(.radio-option) {
+        color: #FFFFFF !important;
     }
 }
 
-/* ДЕСКТОП */
-@media (min-width: 992px) {
-    header.transparent {
-        background: transparent;
-    }
-    
-    header.transparent #mainmenu a {
-        color: #ffffff !important;
-    }
-    
-    header.transparent .logo-1 {
-        display: block !important;
-    }
-    header.transparent .logo-2 {
-        display: none !important;
-    }
-    
-    header.scroll-light {
-        background: rgba(0, 0, 0, 0.92) !important;
-        backdrop-filter: blur(8px);
-        transition: background 0.3s ease;
-    }
-    
-    header.scroll-light #mainmenu a {
-        color: #ffffff !important;
-        transition: color 0.3s ease;
-    }
-    
-    header.scroll-light #mainmenu a:hover {
-        color: #1ccfc9 !important;
-    }
-    
-    header.scroll-light .logo-1 {
-        display: block !important;
-    }
-    header.scroll-light .logo-2 {
-        display: none !important;
-    }
-    
-    #mainmenu a {
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-}
-
-#logo img {
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
-    transition: filter 0.3s ease;
-}
-
-/* ========== BURGER ICON - ENHANCED ========== */
+/* ========== BURGER ICON ========== */
 #menu-btn {
   width: 50px;
   height: 50px;
@@ -3178,7 +3170,7 @@
     }
 }
 
-/* ========== MOBILE MENU - PERFECT READABILITY ========== */
+/* ========== MOBILE MENU CONTAINER ========== */
 @media (max-width: 991px) {
     #mainmenu {
         position: fixed !important;
@@ -3242,28 +3234,6 @@
     #mainmenu.show li:nth-child(4) { transition-delay: 0.25s !important; }
     #mainmenu.show li:nth-child(5) { transition-delay: 0.3s !important; }
 
-    /* ✅ МАКСИМАЛЬНАЯ ЧИТАБЕЛЬНОСТЬ - ЯРЧАЙШИЙ ТЕКСТ */
-    #mainmenu a,
-    #mainmenu.show a,
-    #mainmenu a:link,
-    #mainmenu a:visited {
-        color: #FFFFFF !important;
-        font-size: 20px !important;
-        font-weight: 700 !important;
-        padding: 18px 24px !important;
-        display: block !important;
-        border-radius: 14px !important;
-        text-decoration: none !important;
-        background: rgba(255, 255, 255, 0.12) !important;
-        border: 2px solid rgba(255, 255, 255, 0.2) !important;
-        transition: all 0.3s ease !important;
-        position: relative !important;
-        overflow: hidden !important;
-        letter-spacing: 0.5px !important;
-        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8) !important;
-        line-height: 1.4 !important;
-    }
-
     #mainmenu a::before {
         content: '' !important;
         position: absolute !important;
@@ -3280,18 +3250,6 @@
 
     #mainmenu a:hover::before {
         left: 100% !important;
-    }
-
-    #mainmenu a:hover,
-    #mainmenu a:active,
-    #mainmenu.show a:hover {
-        color: #FFFFFF !important;
-        background: linear-gradient(135deg, 
-            rgba(102, 126, 234, 0.5) 0%, 
-            rgba(118, 75, 162, 0.5) 100%) !important;
-        border-color: rgba(255, 255, 255, 0.4) !important;
-        transform: translateX(10px) !important;
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
     }
 
     #mainmenu a::after {
@@ -3369,7 +3327,7 @@
     }
 }
 
-/* ========== SMALL MOBILE DEVICES ========== */
+/* ========== SMALL DEVICES ========== */
 @media (max-width: 480px) {
     #mainmenu {
         width: 90% !important;
@@ -3391,6 +3349,74 @@
         width: 24px !important;
         height: 3px !important;
     }
+}
+
+/* ========== HEADER STYLES ========== */
+@media (max-width: 991px) {
+    #topbar {
+        display: none !important;
+    }
+    
+    header {
+        background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.9) 100%) !important;
+    }
+    
+    .logo-1 {
+        display: block !important;
+    }
+    .logo-2 {
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    header.transparent {
+        background: transparent;
+    }
+    
+    header.transparent #mainmenu a {
+        color: #ffffff !important;
+    }
+    
+    header.transparent .logo-1 {
+        display: block !important;
+    }
+    header.transparent .logo-2 {
+        display: none !important;
+    }
+    
+    header.scroll-light {
+        background: rgba(0, 0, 0, 0.92) !important;
+        backdrop-filter: blur(8px);
+        transition: background 0.3s ease;
+    }
+    
+    header.scroll-light #mainmenu a {
+        color: #ffffff !important;
+        transition: color 0.3s ease;
+    }
+    
+    header.scroll-light #mainmenu a:hover {
+        color: #1ccfc9 !important;
+    }
+    
+    header.scroll-light .logo-1 {
+        display: block !important;
+    }
+    header.scroll-light .logo-2 {
+        display: none !important;
+    }
+    
+    #mainmenu a {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+}
+
+#logo img {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+    transition: filter 0.3s ease;
 }
 </style>
 </head>
