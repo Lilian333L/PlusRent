@@ -50,6 +50,9 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -74,49 +77,80 @@
       "inLanguage": "ro"
     }
     </script>
-    <!-- Custom Language Picker Styles -->
+    
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Language Picker - Original Styles */
       .lang-picker-wrapper { position: relative; display: inline-block; vertical-align: middle; }
       
-      /* Ensure navigation is properly styled for mobile menu */
       @media only screen and (max-width: 992px) {
         #mainmenu {
           background: #f8f6f3 !important;
         }
       }
       
-      /* Hero section styling */
+      /* Hero Section - Enhanced Premium Design */
       #subheader {
         position: relative;
-        background: linear-gradient(135deg, #1E90FF, #187bcd);
-        min-height: 300px;
+        background: linear-gradient(135deg, #0f2557 0%, #1E90FF 50%, #187bcd 100%);
+        min-height: 400px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
         color: white;
+        overflow: hidden;
+      }
+      
+      #subheader::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(255,255,255,0.08) 0%, transparent 50%);
+        pointer-events: none;
       }
       
       #subheader h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        letter-spacing: -0.02em;
+        position: relative;
+        z-index: 1;
       }
       
       #subheader .lead {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         font-weight: 400;
-        opacity: 0.9;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        opacity: 0.95;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
       }
       
-      /* Topbar styling */
+      /* Topbar */
       #topbar {
         background: rgba(0, 0, 0, 0.9) !important;
       }
       
-      /* Language picker styling - exact copy from home page */
+      /* Language Picker Styles */
       .lang-picker-btn {
         display: flex;
         align-items: center;
@@ -135,11 +169,13 @@
         box-shadow: 0 1px 4px rgba(0,0,0,0.02);
         margin-left: 0;
       }
+      
       .lang-picker-btn:focus, .lang-picker-btn[aria-expanded="true"] {
         outline: none;
         border-color: #f0c040;
         box-shadow: 0 2px 12px rgba(240,192,64,0.08);
       }
+      
       .lang-picker-dropdown {
         display: none;
         position: absolute;
@@ -155,7 +191,9 @@
         min-width: 120px;
         list-style: none;
       }
+      
       .lang-picker-dropdown.open { display: block; }
+      
       .lang-option {
         display: flex;
         align-items: center;
@@ -169,22 +207,26 @@
         height: 32px;
         line-height: 1.2;
       }
+      
       .lang-option:focus, .lang-option:hover {
         background: #f0c04022;
         color: #031B4E;
         outline: none;
       }
+      
       .lang-option.selected {
         background: #f0c04044;
         color: #031B4E;
         font-weight: 600;
       }
+      
       .lang-flag {
         font-size: 18px;
         width: 20px;
         display: inline-block;
         text-align: center;
       }
+      
       .lang-globe {
         display: inline-flex;
         align-items: center;
@@ -193,287 +235,43 @@
         height: 20px;
         margin-right: 3px;
       }
+      
       .lang-code {
         font-weight: 600;
         margin: 0 2px 0 2px;
       }
-      @media (max-width: 600px) {
-        .lang-picker-btn { font-size: 12px; padding: 3px 7px; min-width: 60px; height: 30px; }
-        .lang-picker-dropdown { min-width: 80px; }
-        .lang-option { font-size: 12px; padding: 6px 8px; height: 26px; }
-        .lang-flag { font-size: 15px; width: 15px; }
+      
+      /* Premium Terms Content Design */
+      .terms-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 80px 20px;
+        background: #ffffff;
       }
       
-      
-      .contact-options {
-        padding: 80px 0;
-        background: #f8f9fa;
-      }
-      
-      .contact-card {
-        background: white;
-        border-radius: 15px;
-        padding: 40px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
+      .terms-intro {
         text-align: center;
+        max-width: 800px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
       }
       
-      .contact-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      .terms-intro p {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        color: #4a5568;
+        font-weight: 400;
       }
       
-      .contact-card h3 {
-        color: #1E90FF;
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-        font-weight: 600;
+      .terms-section {
+        margin-bottom: 70px;
+        animation: fadeInUp 0.6s ease-out;
       }
       
-      .contact-card p {
-        color: #666;
-        margin-bottom: 25px;
-        line-height: 1.6;
-      }
-      
-      .phone-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #1E90FF;
-        text-decoration: none;
-        display: block;
-        margin: 20px 0;
-        transition: color 0.3s ease;
-      }
-      
-      .phone-number:hover {
-        color: #0066CC;
-        text-decoration: none;
-      }
-      
-      .phone-icon {
-        font-size: 3rem;
-        color: #1E90FF;
-        margin-bottom: 20px;
-      }
-      
-      .callback-form {
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      }
-      
-      .callback-form input[type="tel"] {
-        width: 100%;
-        padding: 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        margin-bottom: 20px;
-        transition: border-color 0.3s ease;
-      }
-      
-      .callback-form input[type="tel"]:focus {
-        border-color: #1E90FF;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
-      }
-      
-      .btn-request-call {
-        background: #1E90FF;
-        color: white;
-        border: none;
-        padding: 15px 30px;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-      }
-      
-      .btn-request-call:hover {
-        background: #0066CC;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
-      }
-      @media (max-width: 768px) {
-        .contact-options {
-          padding: 20px 0;
-          margin-bottom: 0;
-        }
-        
-        .features-section {
-          padding: 30px 0;
-          margin-top: 0;
-        }
-        
-        /* Fix spacing between sections on mobile */
-        .contact-options + .features-section {
-          margin-top: 0;
-          padding-top: 20px;
-        }
-        
-        /* Add margin to column containers for proper section spacing */
-        .contact-options .col-lg-6,
-        .contact-options .col-md-6,
-        .contact-options .col-12 {
-          margin-bottom: 30px;
-        }
-        
-        .contact-card {
-          padding: 20px;
-        }
-        
-        .phone-icon {
-          font-size: 2.5rem;
-          margin-bottom: 15px;
-        }
-        
-        .contact-card h3 {
-          font-size: 1.5rem;
-          margin-bottom: 10px;
-        }
-        
-        .contact-card p {
-          font-size: 0.95rem;
-          margin-bottom: 15px;
-        }
-        
-        .phone-number {
-          font-size: 1.2rem;
-          padding: 12px 20px;
-        }
-        
-        .callback-form {
-          padding: 20px;
-        }
-        
-        .callback-form input[type="tel"] {
-          padding: 12px;
-          font-size: 16px;
-          margin-bottom: 15px;
-        }
-        
-        .btn-request-call {
-          padding: 12px 20px;
-          font-size: 16px;
-        }
-        
-        .features-section {
-          padding: 30px 0;
-        }
-        
-        .feature-item {
-          margin-bottom: 30px;
-          padding: 20px;
-        }
-        
-        .feature-icon {
-          font-size: 2.5rem;
-          margin-bottom: 15px;
-        }
-        
-        .feature-item h4 {
-          font-size: 1.3rem;
-          margin-bottom: 10px;
-        }
-        
-        .feature-item p {
-          font-size: 0.95rem;
-        }
-        
-        .success-modal-content {
-          margin: 10% auto;
-          padding: 30px 20px;
-          width: 95%;
-        }
-        
-        .success-title {
-          font-size: 1.5rem;
-        }
-        
-        .success-message {
-          font-size: 1rem;
-        }
-      }
-      
-      @media (max-width: 480px) {
-        .contact-card {
-          padding: 15px;
-        }
-        
-        .callback-form {
-          padding: 15px;
-        }
-        
-        .phone-number {
-          font-size: 1.1rem;
-          padding: 10px 15px;
-        }
-        
-        .btn-request-call {
-          padding: 10px 15px;
-          font-size: 15px;
-        }
-        
-        .feature-item {
-          padding: 15px;
-        }
-        
-        /* Additional mobile spacing fixes */
-        .contact-options {
-          padding: 15px 0;
-        }
-        
-        .features-section {
-          padding: 20px 0;
-        }
-        
-        .contact-options + .features-section {
-          padding-top: 15px;
-        }
-        
-        /* Consistent column spacing for small mobile */
-        .contact-options .col-lg-6,
-        .contact-options .col-md-6,
-        .contact-options .col-12 {
-          margin-bottom: 20px;
-        }
-      }
-      
-      .success-modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        backdrop-filter: blur(5px);
-      }
-      
-      .success-modal-content {
-        background-color: white;
-        margin: 15% auto;
-        padding: 40px;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        animation: modalSlideIn 0.3s ease;
-      }
-      
-      @keyframes modalSlideIn {
+      @keyframes fadeInUp {
         from {
           opacity: 0;
-          transform: translateY(-50px);
+          transform: translateY(30px);
         }
         to {
           opacity: 1;
@@ -481,90 +279,720 @@
         }
       }
       
-      .success-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
+      .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #1E90FF;
+        display: inline-block;
+        letter-spacing: -0.01em;
       }
       
-      .success-title {
-        color: #28a745;
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-      }
-      
-      .success-message {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-      }
-      
-      .btn-close-modal {
-        background: #1E90FF;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 6px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      
-      .btn-close-modal:hover {
-        background: #0066CC;
-      }
-      
-      .features-section {
-        padding: 80px 0;
-        background: white;
-      }
-      
-      .feature-item {
-        text-align: center;
+      .terms-definitions {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: 20px;
+        padding: 40px;
         margin-bottom: 40px;
+        border: 1px solid #e2e8f0;
       }
       
-      .feature-icon {
-        font-size: 3rem;
+      .definition-item {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
+      }
+      
+      .definition-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 4px 16px rgba(30, 144, 255, 0.1);
+      }
+      
+      .definition-item:last-child {
+        margin-bottom: 0;
+      }
+      
+      .definition-term {
+        font-size: 1.1rem;
+        font-weight: 700;
         color: #1E90FF;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .definition-term::before {
+        content: '●';
+        font-size: 0.6rem;
+      }
+      
+      .definition-desc {
+        font-size: 1rem;
+        color: #4a5568;
+        line-height: 1.7;
+        margin-left: 20px;
+      }
+      
+      .requirements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+      
+      .requirement-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 30px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .requirement-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #1E90FF, #187bcd);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+      
+      .requirement-card:hover::before {
+        transform: scaleX(1);
+      }
+      
+      .requirement-card:hover {
+        border-color: #1E90FF;
+        box-shadow: 0 10px 30px rgba(30, 144, 255, 0.15);
+        transform: translateY(-5px);
+      }
+      
+      .requirement-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #1E90FF, #187bcd);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 20px;
+        font-size: 1.5rem;
+        color: white;
       }
       
-      .feature-item h4 {
-        color: #333;
-        font-size: 1.4rem;
-        margin-bottom: 15px;
+      .requirement-title {
+        font-size: 1.1rem;
         font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 12px;
       }
       
-      .feature-item p {
-        color: #666;
+      .requirement-text {
+        font-size: 0.95rem;
+        color: #4a5568;
         line-height: 1.6;
       }
       
+      /* PREMIUM MILEAGE LIMIT SECTION */
+      .mileage-limit-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px;
+        padding: 60px;
+        margin: 60px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+      }
+      
+      .mileage-limit-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      
+      .mileage-limit-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      
+      .mileage-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .mileage-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+      }
+      
+      .mileage-icon-wrapper i {
+        font-size: 2.5rem;
+        color: white;
+      }
+      
+      .mileage-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+        letter-spacing: -0.02em;
+      }
+      
+      .mileage-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255,255,255,0.9);
+        font-weight: 400;
+      }
+      
+      .mileage-content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .mileage-info-card {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      }
+      
+      .mileage-description {
+        font-size: 1.15rem;
+        color: #2d3748;
+        line-height: 1.8;
+        margin-bottom: 35px;
+      }
+      
+      .mileage-example {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-left: 5px solid #667eea;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 30px 0;
+      }
+      
+      .example-label {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 15px;
+      }
+      
+      .example-text {
+        font-size: 1.05rem;
+        color: #2d3748;
+        line-height: 1.7;
+        font-weight: 500;
+      }
+      
+      .calculation-visual {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 35px 0;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      
+      .calc-item {
+        text-align: center;
+        flex: 1;
+        min-width: 150px;
+      }
+      
+      .calc-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 8px;
+        display: block;
+      }
+      
+      .calc-label {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .calc-operator {
+        font-size: 2rem;
+        color: #cbd5e0;
+        font-weight: 300;
+      }
+      
+      .result-highlight {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 16px;
+        text-align: center;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+      }
+      
+      .result-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      
+      .result-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      }
+      
+      .return-process {
+        background: white;
+        border-radius: 16px;
+        padding: 35px;
+        margin-top: 30px;
+        border: 2px solid #e2e8f0;
+      }
+      
+      .return-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .return-title i {
+        color: #667eea;
+      }
+      
+      .return-text {
+        font-size: 1.05rem;
+        color: #4a5568;
+        line-height: 1.7;
+      }
+      
+      /* Obligation List with Icons */
+      .obligations-list {
+        list-style: none;
+        padding: 0;
+        margin: 30px 0;
+      }
+      
+      .obligation-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        background: white;
+        border-radius: 14px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+      }
+      
+      .obligation-item:hover {
+        border-color: #1E90FF;
+        box-shadow: 0 8px 24px rgba(30, 144, 255, 0.1);
+        transform: translateX(5px);
+      }
+      
+      .obligation-icon {
+        min-width: 45px;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #1E90FF, #187bcd);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+      }
+      
+      .obligation-text {
+        flex: 1;
+        font-size: 1.05rem;
+        color: #2d3748;
+        line-height: 1.7;
+      }
+      
+      /* Guarantee Cards */
+      .guarantee-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 40px 0;
+      }
+      
+      .guarantee-card {
+        background: white;
+        border-radius: 18px;
+        padding: 35px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .guarantee-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #48bb78, #38a169);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+      
+      .guarantee-card:hover::before {
+        transform: scaleX(1);
+      }
+      
+      .guarantee-card:hover {
+        border-color: #48bb78;
+        box-shadow: 0 12px 35px rgba(72, 187, 120, 0.15);
+        transform: translateY(-8px);
+      }
+      
+      .guarantee-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+      }
+      
+      .guarantee-text {
+        font-size: 1.05rem;
+        color: #2d3748;
+        line-height: 1.7;
+      }
+      
+      /* Emergency Steps */
+      .emergency-steps {
+        background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        border-radius: 20px;
+        padding: 50px;
+        margin: 40px 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(245, 101, 101, 0.3);
+      }
+      
+      .emergency-steps::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+      
+      .emergency-header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .emergency-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+      }
+      
+      .emergency-icon i {
+        font-size: 2.2rem;
+        color: white;
+      }
+      
+      .emergency-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+      }
+      
+      .emergency-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.95;
+      }
+      
+      .emergency-step {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      
+      .step-number {
+        min-width: 50px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #fc8181, #f56565);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        box-shadow: 0 4px 12px rgba(252, 129, 129, 0.4);
+      }
+      
+      .step-text {
+        flex: 1;
+        color: #2d3748;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        font-weight: 500;
+      }
+      
+      /* Warning Box */
+      .warning-box {
+        background: #fffbeb;
+        border-left: 5px solid #f59e0b;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 35px 0;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      
+      .warning-icon {
+        min-width: 45px;
+        width: 45px;
+        height: 45px;
+        background: #f59e0b;
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+      }
+      
+      .warning-content {
+        flex: 1;
+      }
+      
+      .warning-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #92400e;
+        margin-bottom: 10px;
+      }
+      
+      .warning-text {
+        font-size: 1rem;
+        color: #78350f;
+        line-height: 1.7;
+      }
+      
+      /* Mobile Responsive */
       @media (max-width: 768px) {
+        .terms-container {
+          padding: 40px 15px;
+        }
         
-        .phone-number {
+        .terms-intro {
+          margin-bottom: 50px;
+        }
+        
+        .terms-intro p {
+          font-size: 1.1rem;
+        }
+        
+        #subheader h1 {
+          font-size: 2.2rem;
+        }
+        
+        #subheader .lead {
+          font-size: 1.1rem;
+        }
+        
+        .section-title {
+          font-size: 1.6rem;
+        }
+        
+        .terms-definitions {
+          padding: 25px;
+        }
+        
+        .definition-item {
+          padding: 15px;
+        }
+        
+        .mileage-limit-section {
+          padding: 35px 25px;
+          margin: 40px 0;
+        }
+        
+        .mileage-title {
+          font-size: 1.8rem;
+        }
+        
+        .mileage-subtitle {
+          font-size: 1rem;
+        }
+        
+        .mileage-info-card {
+          padding: 25px;
+        }
+        
+        .mileage-description {
+          font-size: 1rem;
+        }
+        
+        .calc-number {
           font-size: 2rem;
         }
         
-        .contact-card {
+        .calculation-visual {
+          flex-direction: column;
+        }
+        
+        .calc-operator {
+          transform: rotate(90deg);
+          margin: 10px 0;
+        }
+        
+        .emergency-steps {
           padding: 30px 20px;
+        }
+        
+        .emergency-title {
+          font-size: 1.7rem;
+        }
+        
+        .emergency-step {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .requirement-card {
+          padding: 25px 20px;
+        }
+        
+        .obligation-item {
+          flex-direction: column;
+          text-align: center;
+          padding: 20px;
+        }
+        
+        .warning-box {
+          flex-direction: column;
+          padding: 20px;
         }
       }
       
-      /* Call Now Button styles are now in global CSS */
+      @media (max-width: 600px) {
+        .lang-picker-btn { 
+          font-size: 12px; 
+          padding: 3px 7px; 
+          min-width: 60px; 
+          height: 30px; 
+        }
+        
+        .lang-picker-dropdown { 
+          min-width: 80px; 
+        }
+        
+        .lang-option { 
+          font-size: 12px; 
+          padding: 6px 8px; 
+          height: 26px; 
+        }
+        
+        .lang-flag { 
+          font-size: 15px; 
+          width: 15px; 
+        }
+      }
     </style>
 </head>
 
-<body >
+<body>
     <div id="wrapper">
         
         <!-- page preloader begin -->
         <div id="de-preloader"></div>
         <!-- page preloader close -->
 
-                        <!-- header begin -->
+        <!-- header begin -->
         <header class="transparent scroll-light has-topbar">
             <div id="topbar" class="topbar-dark text-light">
                 <div class="container">
@@ -594,8 +1022,8 @@
                                     <!-- logo begin -->
                                     <div id="logo">
                                         <a href="index">
-                                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
-                <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
+                                            <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
+                                            <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
                                         </a>
                                     </div>
                                     <!-- logo close -->
@@ -603,7 +1031,7 @@
                             </div>
                             
                             <div class="de-flex-col">
-                                <!-- Main Menu - Now inside the flexbox for proper desktop alignment -->
+                                <!-- Main Menu -->
                                 <ul id="mainmenu">
                                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
@@ -614,22 +1042,22 @@
                             </div>
                             
                             <div class="de-flex-col">
-                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
+                                <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
                                     <!-- Call Now Button -->
                                     <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                                        <a href="tel:+37360000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
+                                        <a href="tel:+37360000500" class="call-now-btn" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);">
                                             <i class="fa fa-phone" style="font-size: 12px;"></i>
                                             <span data-i18n="call_now">Call Now</span>
                                         </a>
                                     </div>
                                     <!-- Language Picker -->
                                     <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
-                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
-                                        <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                                      <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="lang-globe" id="langGlobe">
                                           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="#1ccfc9" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#1ccfc9" stroke-width="2"/><path d="M1 10h18" stroke="#1ccfc9" stroke-width="2"/><path d="M3 4.5h14" stroke="#1ccfc9" stroke-width="1.2"/><path d="M3 15.5h14" stroke="#1ccfc9" stroke-width="1.2"/></svg>
                                         </span>
                                         <span class="lang-flag" id="langFlag"></span>
-                                        <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RO</span>
+                                        <span id="langCode" class="lang-code">RO</span>
                                         <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                                       </button>
                                       <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
@@ -645,119 +1073,302 @@
                               <span></span>
                               <span></span>
                               <span></span>
-                          </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </header><!-- header close -->
+        </header>
+        <!-- header close -->
         
         <!-- content begin -->
         <div class="no-bottom no-top" id="content">
             <div id="top"></div>
             
-             <!-- Hero Section -->
-             <section id="subheader" class="jarallax text-light">
-                 <img src="images/background/2.jpg" class="jarallax-img" alt="">
-                 <div class="center-y relative text-center">
-                     <div class="container">
-                         <div class="row">
-                             <div class="col-md-12 text-center">
-                                 <h1 data-i18n="terms.title">Terms and Conditions</h1>
-                             </div>
-                             <div class="clearfix"></div>
-                         </div>
-                     </div>
-                 </div>
-             </section>
-             <!-- Hero Section close -->
-             
-             <!-- Terms Content Section -->
-             <section class="no-top no-bottom">
-                 <div class="container">
-                     <div class="row">
-                         <div class="col-md-12">
-                             <div class="terms-content" style="padding: 60px 0; background: white;">
-                                 <div class="container">
-                                     <div class="row">
-                                         <div class="col-md-10 col-md-offset-1">
-                                             <div class="terms-text" style="line-height: 1.8; color: #333; font-size: 16px;">
-                                                 
-                                                 <p style="margin-bottom: 30px; font-size: 18px; color: #333; font-weight: 600;" data-i18n="terms.introduction"></p>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.terms_used"></h3>
-                                                 
-                                                 <p><strong data-i18n="terms.owner"></strong> – <span data-i18n="terms.owner_desc"></span></p>
-                                                 <p><strong data-i18n="terms.client"></strong> – <span data-i18n="terms.client_desc"></span></p>
-                                                 <p><strong data-i18n="terms.contract"></strong> – <span data-i18n="terms.contract_desc"></span></p>
-                                                 <p><strong data-i18n="terms.guarantee"></strong> – <span data-i18n="terms.guarantee_desc"></span></p>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.required_documents"></h3>
-                                                 
-                                                 <p>• <span data-i18n="terms.id_document"></span></p>
-                                                 <p>• <span data-i18n="terms.driver_license"></span></p>
-                                                 
-                                                 <p><strong data-i18n="terms.age_flexibility"></strong></p>
-                                                 
-                                                 <p><strong data-i18n="terms.experience_evaluation"></strong></p>
-                                                 
-                                                 <p><strong data-i18n="terms.flexibility"></strong></p>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.about_guarantee"></h3>
-                                                 
-                                                 <p data-i18n="terms.guarantee_info"></p>
-                                                 <ul style="margin-left: 20px; margin-bottom: 20px;">
-                                                     <li data-i18n="terms.guarantee_condition1"></li>
-                                                     <li data-i18n="terms.guarantee_condition2"></li>
-                                                     <li data-i18n="terms.guarantee_condition3"></li>
-                                                 </ul>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.in_case_of_accident"></h3>
-                                                 
-                                                 <p>• <span data-i18n="terms.call_112"></span></p>
-                                                 <p>• <span data-i18n="terms.dont_leave"></span></p>
-                                                 <p>• <span data-i18n="terms.inform_team"></span></p>
-                                                 <p>• <span data-i18n="terms.accident_insurance"></span></p>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.client_obligations"></h3>
-                                                 
-                                                 <p data-i18n="terms.client_commits"></p>
-                                                 <ul style="margin-left: 20px; margin-bottom: 20px;">
-                                                     <li data-i18n="terms.obligation1"></li>
-                                                     <li data-i18n="terms.obligation2"></li>
-                                                     <li data-i18n="terms.obligation3"></li>
-                                                     <li data-i18n="terms.obligation4"></li>
-                                                     <li data-i18n="terms.obligation5"></li>
-                                                     <li data-i18n="terms.obligation6"></li>
-                                                     <li data-i18n="terms.obligation7"></li>
-                                                 </ul>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.international_travel"></h3>
-                                                 
-                                                 <p data-i18n="terms.international_info"></p>
-                                                 <p style="margin-top: 20px;"><strong data-i18n="terms.mileage_limit_title"></strong></p>
-                                                 <p data-i18n="terms.mileage_limit_desc"></p>
-                                                 <p data-i18n="terms.mileage_limit_example"></p>
-                                                 <p data-i18n="terms.return_process"></p>
-                                                 
-                                                 <h3 style="color: #1E90FF; margin-top: 40px; margin-bottom: 20px; font-size: 24px;" data-i18n="terms.refusal_situations"></h3>
-                                                 
-                                                 <p data-i18n="terms.refusal_info"></p>
-                                                 
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </section>
-             <!-- Terms Content Section close -->
+            <!-- Hero Section -->
+            <section id="subheader" class="jarallax text-light">
+                <img src="images/background/2.jpg" class="jarallax-img" alt="">
+                <div class="center-y relative text-center">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <h1 data-i18n="terms.title">Terms and Conditions</h1>
+                                <p class="lead" data-i18n="terms.hero_subtitle">Everything you need to know about renting with PlusRent</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Hero Section close -->
+            
+            <!-- Premium Terms Content -->
+            <section class="no-top no-bottom">
+                <div class="terms-container">
+                    
+                    <!-- Introduction -->
+                    <div class="terms-intro">
+                        <p data-i18n="terms.introduction">By using PlusRent services, you agree to comply with these terms and conditions. We recommend reading them carefully to understand your rights and obligations.</p>
+                    </div>
+                    
+                    <!-- Definitions Section -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.terms_used">Terms Used</h2>
+                        <div class="terms-definitions">
+                            <div class="definition-item">
+                                <div class="definition-term" data-i18n="terms.owner">Owner</div>
+                                <div class="definition-desc" data-i18n="terms.owner_desc">PlusRent company and its authorized representatives</div>
+                            </div>
+                            
+                            <div class="definition-item">
+                                <div class="definition-term" data-i18n="terms.client">Client</div>
+                                <div class="definition-desc" data-i18n="terms.client_desc">The person who signs the rental contract and takes responsibility for the vehicle</div>
+                            </div>
+                            
+                            <div class="definition-item">
+                                <div class="definition-term" data-i18n="terms.contract">Contract</div>
+                                <div class="definition-desc" data-i18n="terms.contract_desc">The car rental agreement signed between Owner and Client</div>
+                            </div>
+                            
+                            <div class="definition-item">
+                                <div class="definition-term" data-i18n="terms.guarantee">Guarantee</div>
+                                <div class="definition-desc" data-i18n="terms.guarantee_desc">The security deposit held during the rental period</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Required Documents -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.required_documents">Required Documents</h2>
+                        <div class="requirements-grid">
+                            <div class="requirement-card">
+                                <div class="requirement-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="requirement-title" data-i18n="terms.id_card_title">Identity Document</div>
+                                <div class="requirement-text" data-i18n="terms.id_document">Valid ID card or passport for identification</div>
+                            </div>
+                            
+                            <div class="requirement-card">
+                                <div class="requirement-icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <div class="requirement-title" data-i18n="terms.license_title">Driver's License</div>
+                                <div class="requirement-text" data-i18n="terms.driver_license">Valid driver's license (minimum age and experience requirements apply)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <div class="warning-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="warning-content">
+                                <div class="warning-title" data-i18n="terms.age_flexibility">Age & Experience Flexibility</div>
+                                <div class="warning-text">
+                                    <p data-i18n="terms.experience_evaluation">Each case is evaluated individually. Experience is more important than age.</p>
+                                    <p data-i18n="terms.flexibility" style="margin-top: 10px;">We understand that every driver is unique and may have exceptions based on driving history and needs.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Guarantee Section -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.about_guarantee">About the Guarantee</h2>
+                        <p data-i18n="terms.guarantee_info" style="font-size: 1.1rem; color: #4a5568; margin-bottom: 30px;">The guarantee is a refundable security deposit that ensures the vehicle's safe return. It will be fully refunded if:</p>
+                        
+                        <div class="guarantee-cards">
+                            <div class="guarantee-card">
+                                <div class="guarantee-number">1</div>
+                                <div class="guarantee-text" data-i18n="terms.guarantee_condition1">The vehicle is returned without damage</div>
+                            </div>
+                            
+                            <div class="guarantee-card">
+                                <div class="guarantee-number">2</div>
+                                <div class="guarantee-text" data-i18n="terms.guarantee_condition2">All traffic violations are settled</div>
+                            </div>
+                            
+                            <div class="guarantee-card">
+                                <div class="guarantee-number">3</div>
+                                <div class="guarantee-text" data-i18n="terms.guarantee_condition3">The vehicle is returned on time with proper fuel level</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Emergency Section -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.in_case_of_accident">In Case of Accident</h2>
+                        <div class="emergency-steps">
+                            <div class="emergency-header">
+                                <div class="emergency-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="emergency-title" data-i18n="terms.emergency_title">Emergency Protocol</div>
+                                <div class="emergency-subtitle" data-i18n="terms.emergency_subtitle">Follow these steps immediately</div>
+                            </div>
+                            
+                            <div class="emergency-step">
+                                <div class="step-number">1</div>
+                                <div class="step-text" data-i18n="terms.call_112">Call 112 immediately for emergency services</div>
+                            </div>
+                            
+                            <div class="emergency-step">
+                                <div class="step-number">2</div>
+                                <div class="step-text" data-i18n="terms.dont_leave">Do not leave the accident scene until authorities arrive</div>
+                            </div>
+                            
+                            <div class="emergency-step">
+                                <div class="step-number">3</div>
+                                <div class="step-text" data-i18n="terms.inform_team">Inform our team at +373 60 000 500 as soon as possible</div>
+                            </div>
+                            
+                            <div class="emergency-step">
+                                <div class="step-number">4</div>
+                                <div class="step-text" data-i18n="terms.accident_insurance">All vehicles are fully insured (RCA + CASCO)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Client Obligations -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.client_obligations">Client Obligations</h2>
+                        <p data-i18n="terms.client_commits" style="font-size: 1.1rem; color: #4a5568; margin-bottom: 30px;">By signing the rental contract, the client commits to:</p>
+                        
+                        <ul class="obligations-list">
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation1">Use the vehicle responsibly and according to traffic laws</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation2">Not use the vehicle for illegal purposes or racing</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-users-slash"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation3">Not sublease the vehicle to third parties</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation4">Perform regular maintenance checks during the rental period</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation5">Return the vehicle on time as specified in the contract</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-gas-pump"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation6">Return the vehicle with the same fuel level as at pickup</div>
+                            </li>
+                            
+                            <li class="obligation-item">
+                                <div class="obligation-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="obligation-text" data-i18n="terms.obligation7">Pay all fines and violations during the rental period</div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- PREMIUM MILEAGE LIMIT SECTION -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.international_travel">International Travel & Mileage</h2>
+                        
+                        <div class="mileage-limit-section">
+                            <div class="mileage-header">
+                                <div class="mileage-icon-wrapper">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                </div>
+                                <h3 class="mileage-title" data-i18n="terms.mileage_limit_title">Mileage Limit</h3>
+                                <p class="mileage-subtitle" data-i18n="terms.mileage_subtitle">Understanding Your Kilometer Allowance</p>
+                            </div>
+                            
+                            <div class="mileage-content">
+                                <div class="mileage-info-card">
+                                    <p class="mileage-description" data-i18n="terms.international_info">International travel is permitted with prior notification. Some destinations may have additional requirements or restrictions.</p>
+                                    
+                                    <p class="mileage-description" data-i18n="terms.mileage_limit_desc">Each rental includes a daily mileage limit of 300 km. This means you can drive up to 300 kilometers per day included in your rental price.</p>
+                                    
+                                    <div class="mileage-example">
+                                        <span class="example-label" data-i18n="terms.example_label">Example Calculation</span>
+                                        <p class="example-text" data-i18n="terms.mileage_limit_example">If you rent a car for 5 days, your total included mileage will be calculated as follows:</p>
+                                        
+                                        <div class="calculation-visual">
+                                            <div class="calc-item">
+                                                <span class="calc-number">5</span>
+                                                <span class="calc-label" data-i18n="terms.days">Days</span>
+                                            </div>
+                                            
+                                            <div class="calc-operator">×</div>
+                                            
+                                            <div class="calc-item">
+                                                <span class="calc-number">300</span>
+                                                <span class="calc-label" data-i18n="terms.km_per_day">KM/Day</span>
+                                            </div>
+                                            
+                                            <div class="calc-operator">=</div>
+                                            
+                                            <div class="calc-item">
+                                                <span class="calc-number">1500</span>
+                                                <span class="calc-label" data-i18n="terms.total_km">Total KM</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="result-highlight">
+                                            <div class="result-label" data-i18n="terms.your_allowance">Your Mileage Allowance</div>
+                                            <div class="result-value">1,500 KM</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="return-process">
+                                        <h4 class="return-title">
+                                            <i class="fas fa-redo-alt"></i>
+                                            <span data-i18n="terms.return_title">Return Process</span>
+                                        </h4>
+                                        <p class="return-text" data-i18n="terms.return_process">When you return the vehicle, we'll check the odometer. If you've exceeded your included mileage, additional charges will apply per extra kilometer. Plan your trips accordingly to avoid unexpected costs!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Refusal Situations -->
+                    <div class="terms-section">
+                        <h2 class="section-title" data-i18n="terms.refusal_situations">Right to Refuse Service</h2>
+                        <div class="warning-box" style="border-left-color: #fc8181; background: #fff5f5;">
+                            <div class="warning-icon" style="background: #fc8181;">
+                                <i class="fas fa-ban"></i>
+                            </div>
+                            <div class="warning-content">
+                                <div class="warning-title" style="color: #742a2a;" data-i18n="terms.refusal_title">Important Notice</div>
+                                <div class="warning-text" style="color: #742a2a;" data-i18n="terms.refusal_info">PlusRent reserves the right to refuse service to clients who do not meet requirements, have outstanding violations, or demonstrate unsafe behavior. Safety is our priority.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+            <!-- Premium Terms Content close -->
         </div>
         <!-- content close -->
         
         <a href="#" id="back-to-top"></a>
+        
         <!-- footer begin -->
         <footer class="text-light">
             <div class="container">
@@ -823,21 +1434,20 @@
                     </div>
                 </div>
             </div>
-
         </footer>
         <!-- footer close -->
     </div>
     
-    <!-- Javascript Files - ПРАВИЛЬНЫЙ ПОРЯДОК! -->
+    <!-- Javascript Files -->
     <script src="js/plugins.js"></script>
     <script src="js/designesia.js"></script>
     <script src="js/config.js"></script>
     
-    <!-- СНАЧАЛА библиотеки i18next -->
+    <!-- i18next Libraries -->
     <script src="https://unpkg.com/i18next@21.6.14/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
     
-    <!-- ПОТОМ ваш i18n-init.js -->
+    <!-- i18n Init -->
     <script src="js/i18n-init.js"></script>
     
 </body>
