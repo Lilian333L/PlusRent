@@ -384,8 +384,21 @@ class DatePickerManager {
 const hidePastDates = function(date) {
   const checkDate = new Date(date);
   checkDate.setHours(0, 0, 0, 0);
-  // Скрываем всё что раньше сегодняшнего дня
-  return checkDate < today;
+  
+  // Проверяем, является ли дата занятой
+  const year = checkDate.getFullYear();
+  const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+  const day = String(checkDate.getDate()).padStart(2, '0');
+  const formattedDate = `${day}-${month}-${year}`;
+  const isOccupied = convertedUnavailableDates.includes(formattedDate);
+  
+  // Показываем занятые даты начиная с СЕГОДНЯ
+  // Скрываем только свободные прошлые даты
+  if (checkDate < today) {
+    return !isOccupied; // Если прошлая дата занята - показываем, иначе скрываем
+  }
+  
+  return false; // Все будущие даты показываем
 };
       // Disable function for occupied dates with styling
       const disableOccupiedDates = function(date) {
