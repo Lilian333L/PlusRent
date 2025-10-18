@@ -2525,7 +2525,7 @@
   letter-spacing: 0.3px;
   position: relative;
   z-index: 1;
-  gap: 6px !important;
+  gap: 8px !important;
   flex-wrap: nowrap;
   overflow: visible;
 }
@@ -2534,12 +2534,12 @@
 .flatpickr-current-month .flatpickr-monthDropdown-months {
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
-  color: white;
+  color: white !important;
   font-weight: 700;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
-  padding: 4px 8px !important;
-  font-size: 15px !important;
+  padding: 4px 10px !important;       /* ✅ ИЗМЕНИ с "4px 8px" на "4px 10px" */
+  font-size: 14px !important;         /* ✅ ИЗМЕНИ с 15px на 14px */
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   appearance: none;
@@ -2549,8 +2549,24 @@
   height: auto !important;            /* ✅ ДОБАВЬ ЭТО */
   line-height: normal !important;     /* ✅ ДОБАВЬ ЭТО */
   vertical-align: middle;             /* ✅ ДОБАВЬ ЭТО */
+  max-width: 110px !important;        /* ✅ ДОБАВЬ ЭТО - ограничь ширину */
+}
+/* 2.1️⃣ ДОБАВЬ ЭТО - БЕЛЫЙ ТЕКСТ В ВЫПАДАЮЩЕМ СПИСКЕ МЕСЯЦЕВ */
+.flatpickr-current-month .flatpickr-monthDropdown-months option {
+  background-color: #667eea !important;
+  color: white !important;
+  padding: 10px !important;
+  font-weight: 600 !important;
 }
 
+.flatpickr-current-month select.flatpickr-monthDropdown-months option:hover {
+  background-color: #764ba2 !important;
+}
+
+.flatpickr-current-month select.flatpickr-monthDropdown-months option:checked {
+  background-color: #5a67d8 !important;
+  font-weight: 700 !important;
+}
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
   background: rgba(255, 255, 255, 0.35);
   border-color: rgba(255, 255, 255, 0.5);
@@ -2598,6 +2614,7 @@
   align-items: center !important;     /* ✅ ДОБАВЬ ЭТО */
   vertical-align: middle !important;  /* ✅ ДОБАВЬ ЭТО */
   height: auto !important;            /* ✅ ДОБАВЬ ЭТО */
+  max-width: 65px !important;         /* ✅ ДОБАВЬ ЭТО - ограничь ширину wrapper */
 }
 
 .flatpickr-current-month .flatpickr-year-dropdown {
@@ -2607,9 +2624,9 @@
   font-weight: 700 !important;
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 10px !important;
-  padding: 4px 6px !important;
-  padding-right: 20px !important;
-  font-size: 15px !important; /* ✅ КРИТИЧНО: 16px против zoom */
+  padding: 4px 8px !important;        /* ✅ ИЗМЕНИ с "4px 6px" на "4px 8px" */
+  padding-right: 22px !important;     /* ✅ УВЕЛИЧЬ с 20px до 22px для стрелки */
+  font-size: 14px !important;         /* ✅ ИЗМЕНИ с 15px на 14px */
   cursor: pointer !important;
   outline: none !important;
   box-shadow: none !important;
@@ -2619,18 +2636,35 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
   margin: 0 !important;
-  min-width: 58px !important;
+  min-width: 62px !important;         /* ✅ УВЕЛИЧЬ с 58px до 62px */
   max-width: 65px !important;
   width: 65px !important;
-  height: auto !important;            /* ✅ ДОБАВЬ ЭТО */
-  line-height: normal !important;     /* ✅ ДОБАВЬ ЭТО */
+  height: auto !important;
+  line-height: normal !important;
   box-sizing: border-box !important;
   -webkit-tap-highlight-color: transparent !important;
-  vertical-align: middle !important;  /* ✅ ДОБАВЬ ЭТО */
+  vertical-align: middle !important;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
-  background-position: right 4px center !important;
+  background-position: right 5px center !important; /* ✅ ИЗМЕНИ с 4px на 5px */
   background-size: 10px !important;
+}
+
+/* 5️⃣ ДОБАВЬ ЭТО - БЕЛЫЙ ТЕКСТ В ВЫПАДАЮЩЕМ СПИСКЕ ГОДОВ */
+.flatpickr-current-month .flatpickr-year-dropdown option {
+  background-color: #667eea !important;
+  color: white !important;
+  padding: 8px !important;
+  font-weight: 600 !important;
+}
+
+.flatpickr-current-month .flatpickr-year-dropdown option:hover {
+  background-color: #764ba2 !important;
+}
+
+.flatpickr-current-month .flatpickr-year-dropdown option:checked {
+  background-color: #5a67d8 !important;
+  font-weight: 700 !important;
 }
 
 .flatpickr-current-month .flatpickr-year-dropdown:hover {
@@ -3210,4 +3244,5 @@
         -webkit-text-fill-color: #ffffff !important;
     }
 }
+
 
