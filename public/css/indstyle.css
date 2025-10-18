@@ -2816,8 +2816,8 @@
   visibility: hidden !important;
 }
 
-/* Скрываем старые даты текущего месяца если они disabled */
-.flatpickr-day.flatpickr-disabled:not(.nextMonthDay):not(.prevMonthDay) {
+/* ✅ ТОЛЬКО НЕзанятые прошлые даты */
+.flatpickr-day.flatpickr-disabled:not(.nextMonthDay):not(.prevMonthDay):not(.occupied) {
   opacity: 0.2 !important;
   pointer-events: none !important;
 }
@@ -2842,9 +2842,8 @@
   box-shadow: 0 0 0 1px #667eea inset !important;
 }
 
-/* Когда today выбрана ИЛИ выбрана другая дата - убираем обводку с today */
-.flatpickr-calendar.hasSelected .flatpickr-day.today:not(.selected),
-.flatpickr-day.today.selected {
+.flatpickr-calendar.hasSelected .flatpickr-day.today:not(.selected):not(.occupied),
+.flatpickr-day.today.selected:not(.occupied) {
   border: 2px solid transparent !important;
   box-shadow: none !important;
   background: transparent !important;
@@ -3302,6 +3301,7 @@
         -webkit-text-fill-color: #ffffff !important;
     }
 }
+
 
 
 
