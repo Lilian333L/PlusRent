@@ -395,7 +395,7 @@ const hidePastDates = function(date) {
   // Показываем занятые даты начиная с СЕГОДНЯ
   // Скрываем только свободные прошлые даты
   if (checkDate < today) {
-    return !isOccupied; // Если прошлая дата занята - показываем, иначе скрываем
+    return !isOccupied; // Если прошлая дата занята - показываем (return false), иначе скрываем (return true)
   }
   
   return false; // Все будущие даты показываем
