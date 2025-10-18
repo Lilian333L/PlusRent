@@ -600,7 +600,7 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   minDate: "today",
   maxDate: maxDate, // Ограничиваем максимальную дату
   defaultDate: firstAvailablePickupDate,
-  disable: [disableOccupiedDates, hidePastDates],
+  disable: [disableOccupiedDates],
   allowInput: false,
   static: this.isModal ? true : false,
   appendTo: document.body,
@@ -694,7 +694,7 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
         minDate: "today",
         maxDate: maxDate, // Ограничиваем максимальную дату
         defaultDate: firstAvailableReturnDate,
-        disable: [disableOccupiedDates, hidePastDates],
+        disable: [disableOccupiedDates],
         allowInput: false,
         static: this.isModal ? true : false,
         appendTo: document.body,
