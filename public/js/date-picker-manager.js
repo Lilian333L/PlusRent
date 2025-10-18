@@ -380,16 +380,12 @@ class DatePickerManager {
       returnInput.value = firstAvailableReturnDate;
       pickupInput.setAttribute("value", firstAvailablePickupDate);
       returnInput.setAttribute("value", firstAvailableReturnDate);
-// ✅ Скрываем даты старше недели назад
-const oneWeekAgo = new Date(today);
-oneWeekAgo.setDate(today.getDate() - 7);
-oneWeekAgo.setHours(0, 0, 0, 0);
 
 const hidePastDates = function(date) {
   const checkDate = new Date(date);
   checkDate.setHours(0, 0, 0, 0);
-  // Скрываем даты старше недели
-  return checkDate < oneWeekAgo;
+  // Скрываем всё что раньше сегодняшнего дня
+  return checkDate < today;
 };
       // Disable function for occupied dates with styling
       const disableOccupiedDates = function(date) {
