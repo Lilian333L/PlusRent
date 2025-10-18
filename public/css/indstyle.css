@@ -2810,18 +2810,30 @@
   transform: scale(1.05);
 }
 
-/* Today - красивая обводка */
+.flatpickr-day.flatpickr-disabled.prevMonthDay,
+.flatpickr-day.flatpickr-disabled.nextMonthDay {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Скрываем старые даты текущего месяца если они disabled */
+.flatpickr-day.flatpickr-disabled:not(.nextMonthDay):not(.prevMonthDay) {
+  opacity: 0.2 !important;
+  pointer-events: none !important;
+}
+/* Today - только обводка, БЕЗ цвета */
 .flatpickr-day.today {
   border: 2px solid #667eea !important;
   font-weight: 700;
   background: transparent !important;
-  color: #667eea !important;
+  color: #334155 !important; /* ✅ Обычный цвет текста, а не #667eea */
   box-shadow: 0 0 0 1px #667eea inset;
 }
 
 .flatpickr-day.today:not(.selected):hover {
   background: linear-gradient(135deg, #e0e7ff, #f5f3ff) !important;
   border: 2px solid #667eea !important;
+  color: #1e293b !important; /* ✅ Тёмный цвет при hover */
 }
 
 /* ✅ КРИТИЧНО: Убираем обводку с today когда выбрана ЛЮБАЯ дата */
@@ -3282,6 +3294,7 @@
         -webkit-text-fill-color: #ffffff !important;
     }
 }
+
 
 
 
