@@ -1065,91 +1065,6 @@
   <script src="js/i18n-init.js"></script>
 
 <script>
-// ✅ ОПТИМИЗИРОВАННЫЙ СКРИПТ: Показываем ВСЕ 7 дней на ВСЕХ устройствах
-document.addEventListener('DOMContentLoaded', function() {
-    const originalFlatpickr = flatpickr;
-    
-    window.flatpickr = function(selector, config) {
-        config = config || {};
-        
-        const originalOnReady = config.onReady;
-        
-        config.onReady = function(selectedDates, dateStr, instance) {
-            if (originalOnReady) {
-                originalOnReady(selectedDates, dateStr, instance);
-            }
-            fixCalendarDisplay(instance);
-            setTimeout(() => fixCalendarDisplay(instance), 50);
-            setTimeout(() => fixCalendarDisplay(instance), 200);
-        };
-        
-        const originalOnMonthChange = config.onMonthChange;
-        
-        config.onMonthChange = function(selectedDates, dateStr, instance) {
-            if (originalOnMonthChange) {
-                originalOnMonthChange(selectedDates, dateStr, instance);
-            }
-            setTimeout(() => fixCalendarDisplay(instance), 10);
-            setTimeout(() => fixCalendarDisplay(instance), 100);
-        };
-        
-        const originalOnOpen = config.onOpen;
-        
-        config.onOpen = function(selectedDates, dateStr, instance) {
-            if (originalOnOpen) {
-                originalOnOpen(selectedDates, dateStr, instance);
-            }
-            setTimeout(() => fixCalendarDisplay(instance), 10);
-            setTimeout(() => fixCalendarDisplay(instance), 100);
-        };
-        
-        return originalFlatpickr(selector, config);
-    };
-    
-    Object.keys(originalFlatpickr).forEach(key => {
-        window.flatpickr[key] = originalFlatpickr[key];
-    });
-    
-    function fixCalendarDisplay(instance) {
-        if (!instance || !instance.calendarContainer) return;
-        
-        const dayContainer = instance.calendarContainer.querySelector('.dayContainer');
-        if (!dayContainer) return;
-        
-        const allDays = dayContainer.querySelectorAll('.flatpickr-day, .prevMonthDay, .nextMonthDay, .flatpickr-disabled');
-        
-        allDays.forEach(day => {
-            day.style.display = 'inline-block !important';
-            day.style.visibility = 'visible !important';
-            day.style.opacity = day.classList.contains('prevMonthDay') || day.classList.contains('nextMonthDay') ? '0.3' : '1';
-            
-            if (day.style.display === 'none') {
-                day.style.display = 'inline-block';
-            }
-        });
-        
-        if (window.innerWidth <= 767) {
-            dayContainer.style.display = 'grid';
-            dayContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
-            dayContainer.style.width = '100%';
-        }
-    }
-    
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            document.querySelectorAll('.flatpickr-calendar').forEach(cal => {
-                const instance = cal._flatpickr;
-                if (instance) {
-                    fixCalendarDisplay(instance);
-                }
-            });
-        }, 250);
-    });
-});
-</script>
-<script>
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
       return rawKey
@@ -1256,47 +1171,6 @@ document.addEventListener('DOMContentLoaded', function() {
           grid.innerHTML = `<div style="color:red;text-align:center;">Failed to load cars: ${error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
         });
     });
-</script>
-
-<script>
-// ✅ ПРАВИЛЬНОЕ РЕШЕНИЕ: Event-based подход вместо setInterval
-document.addEventListener('DOMContentLoaded', function() {
-    function removeOutlines(target) {
-        const wrappers = target ? 
-            target.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *') :
-            document.querySelectorAll('.flatpickr-current-month .numInputWrapper, .flatpickr-current-month .numInputWrapper *');
-        
-        wrappers.forEach(el => {
-            el.style.outline = 'none';
-            el.style.boxShadow = 'none';
-            el.style.border = 'none';
-        });
-    }
-    
-    // Используем MutationObserver для отслеживания появления календаря
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1 && (node.classList?.contains('flatpickr-calendar') || node.querySelector?.('.flatpickr-calendar'))) {
-                    removeOutlines(node);
-                }
-            });
-        });
-    });
-    
-    // Наблюдаем только за body
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // Применяем сразу для уже существующих календарей
-    removeOutlines(document);
-    
-    // Убираем обводки при взаимодействии (один раз при клике, а не постоянно)
-    document.addEventListener('focusin', function(e) {
-        if (e.target.closest('.flatpickr-current-month')) {
-            removeOutlines(e.target.closest('.flatpickr-calendar'));
-        }
-    }, true);
-});
 </script>
 
    <!-- Price Calculator Modal -->
