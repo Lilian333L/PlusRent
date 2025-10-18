@@ -2528,7 +2528,11 @@
   border-radius: 20px 20px 0 0;
   pointer-events: none;
 }
-
+.flatpickr-day.today.occupied,
+.flatpickr-day.today.flatpickr-disabled.occupied {
+  border: 2px solid #ef4444 !important;
+  box-shadow: none !important;
+}
 /* Current Month Display */
 .flatpickr-current-month {
   color: white;
@@ -2836,8 +2840,7 @@
   color: #1e293b !important; /* ✅ Тёмный цвет при hover */
 }
 
-/* ✅ КРИТИЧНО: Убираем обводку с today когда выбрана ЛЮБАЯ дата */
-.flatpickr-day.today:not(.selected) {
+.flatpickr-day.today:not(.selected):not(.occupied) {
   border: 2px solid #667eea !important;
   box-shadow: 0 0 0 1px #667eea inset !important;
 }
@@ -2990,15 +2993,11 @@
   visibility: hidden !important;
 }
 
-  .flatpickr-day.today:not(.selected) {
-    border: 2px solid #667eea !important;
-    box-shadow: 0 0 0 1px #667eea inset !important;
-  }
+.flatpickr-day.today:not(.selected):not(.occupied) {
+  border: 2px solid #667eea !important;
+  box-shadow: 0 0 0 1px #667eea inset !important;
+}
 
-  .flatpickr-calendar.hasSelected .flatpickr-day.today:not(.selected) {
-    border: 2px solid transparent !important;
-    box-shadow: none !important;
-  }
   /* ✅ КОНТЕЙНЕР С ДНЯМИ - БЕЗ ПРОКРУТКИ */
   .flatpickr-days {
     padding: 10px 8px !important;
@@ -3301,6 +3300,7 @@
         -webkit-text-fill-color: #ffffff !important;
     }
 }
+
 
 
 
