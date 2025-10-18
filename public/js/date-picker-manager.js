@@ -573,86 +573,99 @@ class DatePickerManager {
       const currentYear = new Date().getFullYear();
       const maxDate = new Date(currentYear + 5, 11, 31); // 31 декабря через 5 лет
 
-      // Initialize pickup date picker
-      this.pickupFlatpickr = flatpickr(pickupInput, {
-        dateFormat: this.dateFormat,
-        altFormat: this.dateFormat,
-        altInput: false,
-        minDate: "today",
-        maxDate: maxDate, // Ограничиваем максимальную дату
-        defaultDate: firstAvailablePickupDate,
-        disable: [disableOccupiedDates],
-        allowInput: false,
-        static: this.isModal ? true : false,
-        appendTo: document.body,
-        position: this.isModal ? "above" : "below",
-        closeOnSelect: true,
-        disableMobile: true,
-        locale: {
-          months: {
-            shorthand: [
-              "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ],
-            longhand: [
-              "January", "February", "March", "April", "May", "June",
-              "July", "August", "September", "October", "November", "December"
-            ],
-          },
-          weekdays: {
-            shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            longhand: [
-              "Sunday", "Monday", "Tuesday", "Wednesday",
-              "Thursday", "Friday", "Saturday"
-            ],
-          },
-        },
-        onDayCreate: addOccupiedClass,
-        onOpen: (selectedDates, dateStr, instance) => {
-          this.convertYearToDropdown(instance);
-        },
-        onMonthChange: (selectedDates, dateStr, instance) => {
-          this.convertYearToDropdown(instance);
-        },
-        onChange: (selectedDates, dateStr, instance) => {
-          if (selectedDates.length > 0) {
-            const selectedDate = selectedDates[0];
-            const todayCheck = new Date();
-            todayCheck.setHours(0, 0, 0, 0);
-
-            // Prevent selecting past dates
-            const selectedDateOnly = new Date(
-              selectedDate.getFullYear(),
-              selectedDate.getMonth(),
-              selectedDate.getDate()
-            );
-
-            if (selectedDateOnly < todayCheck) {
-              instance.setDate(firstAvailablePickupDate);
-              alert("Please select today or a future date");
-              return;
-            }
-
-            // Update return date to same day initially
-            const sameDay = new Date(selectedDate);
-            const year = sameDay.getFullYear();
-            const month = String(sameDay.getMonth() + 1).padStart(2, "0");
-            const day = String(sameDay.getDate()).padStart(2, "0");
-            const formattedDate = `${day}-${month}-${year}`;
-
-            // Update return date picker
-            this.returnFlatpickr.set("minDate", sameDay);
-            this.returnFlatpickr.setDate(formattedDate);
-
-            // ✅ Обновляем доступное время после выбора даты
-            setTimeout(() => updateAvailableTime(), 50);
-          }
-        },
-        onReady: () => {
-          // ✅ Обновляем время при загрузке
-          setTimeout(() => updateAvailableTime(), 100);
-        },
-      });
+// Initialize pickup date picker
+this.pickupFlatpickr = flatpickr(pickupInput, {
+  dateFormat: this.dateFormat,
+  altFormat: this.dateFormat,
+  altInput: false,
+  minDate: "today",
+  maxDate: maxDate, // Ограничиваем максимальную дату
+  defaultDate: firstAvailablePickupDate,
+  disable: [disableOccupiedDates],
+  allowInput: false,
+  static: this.isModal ? true : false,
+  appendTo: document.body,
+  position: this.isModal ? "above" : "below",
+  closeOnSelect: true,
+  disableMobile: true,
+  locale: {
+    months: {
+      shorthand: [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ],
+      longhand: [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ],
+    },
+    weekdays: {
+      shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      longhand: [
+        "Sunday", "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday"
+      ],
+    },
+  },
+  onDayCreate: addOccupiedClass,
+  onOpen: (selectedDates, dateStr, instance) => {
+    this.convertYearToDropdown(instance);
+  },
+  onMonthChange: (selectedDates, dateStr, instance) => {
+    this.convertYearToDropdown(instance);
+  },
+  onChange: (selectedDates, dateStr, instance) => {
+    // ✅ Добавляем класс hasSelected при выборе даты
+    if (selectedDates.length > 0) {
+      instance.calendarContainer.classList.add('hasSelected');
+    } else {
+      instance.calendarContainer.classList.remove('hasSelected');
+    }
+    
+    // Существующий код
+    if (selectedDates.length > 0) {
+      const selectedDate = selectedDates[0];
+      const todayCheck = new Date();
+      todayCheck.setHours(0, 0, 0, 0);
+      
+      // Prevent selecting past dates
+      const selectedDateOnly = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate()
+      );
+      
+      if (selectedDateOnly < todayCheck) {
+        instance.setDate(firstAvailablePickupDate);
+        alert("Please select today or a future date");
+        return;
+      }
+      
+      // Update return date to same day initially
+      const sameDay = new Date(selectedDate);
+      const year = sameDay.getFullYear();
+      const month = String(sameDay.getMonth() + 1).padStart(2, "0");
+      const day = String(sameDay.getDate()).padStart(2, "0");
+      const formattedDate = `${day}-${month}-${year}`;
+      
+      // Update return date picker
+      this.returnFlatpickr.set("minDate", sameDay);
+      this.returnFlatpickr.setDate(formattedDate);
+      
+      // ✅ Обновляем доступное время после выбора даты
+      setTimeout(() => updateAvailableTime(), 50);
+    }
+  },
+  onReady: (selectedDates, dateStr, instance) => {
+    // ✅ Добавляем класс hasSelected если дата уже выбрана
+    if (selectedDates.length > 0) {
+      instance.calendarContainer.classList.add('hasSelected');
+    }
+    
+    // ✅ Обновляем время при загрузке
+    setTimeout(() => updateAvailableTime(), 100);
+  },
+});
 
       // Initialize return date picker
       this.returnFlatpickr = flatpickr(returnInput, {
@@ -688,54 +701,68 @@ class DatePickerManager {
             ],
           },
         },
-        onDayCreate: addOccupiedClass,
-        onOpen: (selectedDates, dateStr, instance) => {
-          this.convertYearToDropdown(instance);
-        },
-        onMonthChange: (selectedDates, dateStr, instance) => {
-          this.convertYearToDropdown(instance);
-        },
-        onChange: (selectedDates, dateStr, instance) => {
-          if (this.onDateChange) {
-            this.onDateChange();
-          }
-          // ✅ Обновляем время после выбора return даты
-          setTimeout(() => updateAvailableTime(), 50);
-        },
-        onReady: (selectedDates, dateStr, instance) => {
-          if (this.customClass) {
-            instance.calendarContainer.classList.add(this.customClass);
-          }
-          // ✅ Обновляем время при загрузке
-          setTimeout(() => updateAvailableTime(), 100);
-        },
-      });
+onDayCreate: addOccupiedClass,
+onOpen: (selectedDates, dateStr, instance) => {
+  this.convertYearToDropdown(instance);
+},
+onMonthChange: (selectedDates, dateStr, instance) => {
+  this.convertYearToDropdown(instance);
+},
+onChange: (selectedDates, dateStr, instance) => {
+  // ✅ Добавляем класс hasSelected при выборе даты
+  if (selectedDates.length > 0) {
+    instance.calendarContainer.classList.add('hasSelected');
+  } else {
+    instance.calendarContainer.classList.remove('hasSelected');
+  }
+  
+  // Существующий код
+  if (this.onDateChange) {
+    this.onDateChange();
+  }
+  // ✅ Обновляем время после выбора return даты
+  setTimeout(() => updateAvailableTime(), 50);
+},
+onReady: (selectedDates, dateStr, instance) => {
+  // ✅ Добавляем класс hasSelected если дата уже выбрана
+  if (selectedDates.length > 0) {
+    instance.calendarContainer.classList.add('hasSelected');
+  }
+  
+  // Существующий код
+  if (this.customClass) {
+    instance.calendarContainer.classList.add(this.customClass);
+  }
+  // ✅ Обновляем время при загрузке
+  setTimeout(() => updateAvailableTime(), 100);
+},
+});
 
-      // Add event listeners to time select elements
-      if (pickupTimeSelect) {
-        pickupTimeSelect.addEventListener("change", () => {
-          // ✅ Обновляем доступное время при изменении pickup time
-          updateAvailableTime();
-          
-          if (
-            window.priceCalculator &&
-            typeof window.priceCalculator.recalculatePrice === "function"
-          ) {
-            window.priceCalculator.recalculatePrice();
-          }
-        });
-      }
+// Add event listeners to time select elements
+if (pickupTimeSelect) {
+  pickupTimeSelect.addEventListener("change", () => {
+    // ✅ Обновляем доступное время при изменении pickup time
+    updateAvailableTime();
+    
+    if (
+      window.priceCalculator &&
+      typeof window.priceCalculator.recalculatePrice === "function"
+    ) {
+      window.priceCalculator.recalculatePrice();
+    }
+  });
+}
 
-      if (returnTimeSelect) {
-        returnTimeSelect.addEventListener("change", () => {
-          if (
-            window.priceCalculator &&
-            typeof window.priceCalculator.recalculatePrice === "function"
-          ) {
-            window.priceCalculator.recalculatePrice();
-          }
-        });
-      }
+if (returnTimeSelect) {
+  returnTimeSelect.addEventListener("change", () => {
+    if (
+      window.priceCalculator &&
+      typeof window.priceCalculator.recalculatePrice === "function"
+    ) {
+      window.priceCalculator.recalculatePrice();
+    }
+  });
+}
 
       // ✅ ОПТИМИЗАЦИЯ: Умная проверка времени с минимальной нагрузкой
       let lastUpdateHour = new Date().getHours();
