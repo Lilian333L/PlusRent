@@ -1184,89 +1184,121 @@ async function updateFiltersAndFetch() {
         }
       }
 
-      // Initialize date pickers
-      function initializeDatePickers() {
-        const today = new Date();
+// Initialize date pickers
+function initializeDatePickers() {
+  const today = new Date();
+  
+  const commonConfig = {
+    dateFormat: 'Y-m-d',
+    minDate: today,
+    disableMobile: true,
+    static: false,
+    appendTo: document.body,
+    clickOpens: true,
+    allowInput: false,
+    locale: {
+      firstDayOfWeek: 1 // Неделя начинается с понедельника
+    },
+    // ✅ ДОБАВЛЕНО: Преобразует год в dropdown
+    onReady: function(selectedDates, dateStr, instance) {
+      const yearElement = instance.currentYearElement;
+      
+      if (yearElement && yearElement.tagName === 'INPUT') {
+        // Создаем select вместо input
+        const yearSelect = document.createElement('select');
+        yearSelect.className = yearElement.className;
         
-        const commonConfig = {
-          dateFormat: 'Y-m-d',
-          minDate: today,
-          disableMobile: true,
-          static: false,
-          appendTo: document.body,
-          clickOpens: true,
-          allowInput: false,
-          locale: {
-            firstDayOfWeek: 1 // Неделя начинается с понедельника
+        // Генерируем годы (от текущего года до +10 лет)
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear; y <= currentYear + 10; y++) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          if (y === currentYear) {
+            opt.selected = true;
           }
-        };
-        // Desktop date pickers
-        dateFromPickerDesktop = flatpickr('#filter-date-from', {
-          ...commonConfig,
-          onChange: function(selectedDates, dateStr) {
-            if (dateToPickerDesktop) {
-              dateToPickerDesktop.set('minDate', dateStr);
-            }
-            updateFiltersAndFetch();
-          }
-        });
-        
-        dateToPickerDesktop = flatpickr('#filter-date-to', {
-          ...commonConfig,
-          onChange: function() {
-            updateFiltersAndFetch();
-          }
-        });
-        
-        // Mobile date pickers
-        mobileDateFromPicker = flatpickr('#mobile-filter-date-from', {
-          ...commonConfig,
-          onChange: function(selectedDates, dateStr) {
-            if (mobileDateToPicker) {
-              mobileDateToPicker.set('minDate', dateStr);
-            }
-          }
-        });
-        
-        mobileDateToPicker = flatpickr('#mobile-filter-date-to', {
-          ...commonConfig
-        });
-        
-        // Sync values with URL params
-        const params = new URLSearchParams(window.location.search);
-        const dateFrom = params.get('date_from');
-        const dateTo = params.get('date_to');
-        
-        if (dateFrom) {
-          dateFromPickerDesktop.setDate(dateFrom, false);
-          mobileDateFromPicker.setDate(dateFrom, false);
+          yearSelect.appendChild(opt);
         }
-        if (dateTo) {
-          dateToPickerDesktop.setDate(dateTo, false);
-          mobileDateToPicker.setDate(dateTo, false);
-        }
+        
+        // Заменяем input на select
+        yearElement.parentNode.replaceChild(yearSelect, yearElement);
+        instance.currentYearElement = yearSelect;
+        
+        // Обработчик изменения года
+        yearSelect.addEventListener('change', (e) => {
+          instance.changeYear(parseInt(e.target.value));
+        });
       }
-
-      // Mobile filter functions
-      function toggleMobileFilter() {
-        const overlay = document.getElementById('mobile-filter-overlay');
-        if (!overlay) return;
-        
-        if (overlay.classList.contains('active')) {
-          overlay.classList.remove('active');
-          document.body.style.overflow = '';
-        } else {
-          overlay.classList.add('active');
-          document.body.style.overflow = 'hidden';
-          setTimeout(() => renderMobileFilterOptions(), 50);
-        }
+    }
+  };
+  
+  // Desktop date pickers
+  dateFromPickerDesktop = flatpickr('#filter-date-from', {
+    ...commonConfig,
+    onChange: function(selectedDates, dateStr) {
+      if (dateToPickerDesktop) {
+        dateToPickerDesktop.set('minDate', dateStr);
       }
+      updateFiltersAndFetch();
+    }
+  });
+  
+  dateToPickerDesktop = flatpickr('#filter-date-to', {
+    ...commonConfig,
+    onChange: function() {
+      updateFiltersAndFetch();
+    }
+  });
+  
+  // Mobile date pickers
+  mobileDateFromPicker = flatpickr('#mobile-filter-date-from', {
+    ...commonConfig,
+    onChange: function(selectedDates, dateStr) {
+      if (mobileDateToPicker) {
+        mobileDateToPicker.set('minDate', dateStr);
+      }
+    }
+  });
+  
+  mobileDateToPicker = flatpickr('#mobile-filter-date-to', {
+    ...commonConfig
+  });
+  
+  // Sync values with URL params
+  const params = new URLSearchParams(window.location.search);
+  const dateFrom = params.get('date_from');
+  const dateTo = params.get('date_to');
+  
+  if (dateFrom) {
+    dateFromPickerDesktop.setDate(dateFrom, false);
+    mobileDateFromPicker.setDate(dateFrom, false);
+  }
+  if (dateTo) {
+    dateToPickerDesktop.setDate(dateTo, false);
+    mobileDateToPicker.setDate(dateTo, false);
+  }
+}
 
-      function renderMobileFilterOptions() {
-        const loadingEl = document.getElementById('mobile-filter-loading');
-        const optionsEl = document.getElementById('mobile-filter-options');
-        if (loadingEl) loadingEl.style.display = 'block';
-        if (optionsEl) optionsEl.style.display = 'none';
+// Mobile filter functions
+function toggleMobileFilter() {
+  const overlay = document.getElementById('mobile-filter-overlay');
+  if (!overlay) return;
+  
+  if (overlay.classList.contains('active')) {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  } else {
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => renderMobileFilterOptions(), 50);
+  }
+}
+
+function renderMobileFilterOptions() {
+  const loadingEl = document.getElementById('mobile-filter-loading');
+  const optionsEl = document.getElementById('mobile-filter-options');
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (optionsEl) optionsEl.style.display = 'none';
         
         const params = new URLSearchParams(window.location.search);
         const selectedMakes = params.get('make_name') ? params.get('make_name').split(',') : [];
