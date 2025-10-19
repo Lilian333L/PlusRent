@@ -1508,7 +1508,7 @@ window.showSuccess = function (bookingData) {
                     <div class="info-item">
                         <i class="fa fa-map-marker"></i>
                         <div>
-                            <span class="info-label" data-i18n="booking.pickup_location">Locations</span>
+                            <span class="info-label" data-i18n="booking.location_location">Locations</span>
                             <span class="info-value">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
                         </div>
                     </div>
