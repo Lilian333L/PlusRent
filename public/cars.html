@@ -3209,6 +3209,26 @@
         'manual': { 'ro': 'Manuală', 'ru': 'Механическая', 'en': 'Manual' }
       };
 
+      function translateCarSpec(value, type) {
+        if (!value) return '-';
+        const key = value.toLowerCase();
+        
+        if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+          // Пытаемся получить перевод из locales
+          const translationKey = `${type}.${key}`;
+          const translated = i18next.t(translationKey);
+          
+          // Если перевод найден (не равен ключу), возвращаем его
+          if (translated !== translationKey) {
+            return translated;
+          }
+        }
+        
+        // Fallback: форматируем вручную
+        return formatDisplayText(value);
+      }
+      // ✅ ДО СЮДА ↑↑↑
+
       // Format display text
       function formatDisplayText(rawKey) {
         if (!rawKey) return '';
@@ -3513,7 +3533,10 @@ async function updateFiltersAndFetch() {
             const isPremium = car.is_premium === 1 || car.is_premium === true;
             const rentNowUrl = `car-single.html?id=${car.id}`;
             const lowestPrice = getLowestPrice(car);
-            
+
+            const fuelType = translateCarSpec(car.fuel_type, 'fuel_types');
+            const gearType = translateCarSpec(car.gear_type, 'gear_types');
+            const carType = translateCarSpec(car.car_type, 'car_types');
             return `
               <div class="col-xl-4 col-lg-4 col-md-6 col-12">
                 <div class="de-item mb30${isPremium ? ' premium' : ''}" style="animation-delay: ${index * 0.05}s;">
@@ -3523,28 +3546,12 @@ async function updateFiltersAndFetch() {
                       ${isPremium ? '<div class="premium-badge">HOT</div>' : ''}
                     </a>
                   </div>
-                  <div class="d-info">
-                    <div class="d-text">
-                      <h4>${formatDisplayText(car.make_name)}</h4>
-                      <p>${formatDisplayText(car.model_name)}</p>
-                      <div class="d-atr-group">
-                        <span class="d-atr">
-                          <img src="images/icons/1-green.svg" alt="Passengers">
-                          <span>${car.num_passengers || '-'}</span>
-                        </span>
-                        <span class="d-atr">
-                          <img src="images/icons/2-green.svg" alt="Luggage">
-                          <span>${car.luggage || '-'}</span>
-                        </span>
-                        <span class="d-atr">
-                          <img src="images/icons/3-green.svg" alt="Doors">
-                          ${car.num_doors || '-'}
-                        </span>
-                        <span class="d-atr">
-                          <img src="images/icons/4-green.svg" alt="Type">
-                          <span>${translateCarType(car.car_type) || '-'}</span>
-                        </span>
-                      </div>
+                  <div class="d-atr-group">
+                    <span class="d-atr"><img src="images/icons/1-green.svg" alt=""><span></span> ${car.num_passengers || '-'}</span>
+                    <span class="d-atr"><img src="images/icons/fuel-green.svg" alt=""><span></span> ${fuelType}</span>
+                    <span class="d-atr"><img src="images/icons/transmission.svg" alt="">${gearType}</span>
+                    <span class="d-atr"><img src="images/icons/4-green.svg" alt=""><span></span> ${carType}</span>
+                  </div>
                       <div class="d-price">
                         <span data-i18n="cars.daily_rate">Daily rate from</span>
                         <span>${lowestPrice !== 999999 ? lowestPrice + '€' : 'N/A'}</span>
