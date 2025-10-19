@@ -1464,7 +1464,7 @@ window.showSuccess = function (bookingData) {
   // Get customer display name (name or phone)
   const customerDisplay = bookingData.customer_name || bookingData.customer_phone || '';
 
-  // Create compact success modal
+  // Create ultra-compact success modal
   const successModalHTML = `
     <div id="booking-success-modal" class="booking-success-modal">
         <div class="success-modal-content">
@@ -1475,59 +1475,40 @@ window.showSuccess = function (bookingData) {
                         <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                     </svg>
                 </div>
-                <h2 class="success-title" data-i18n="booking.success_title">Booking Confirmed!</h2>
-                <p class="success-subtitle" data-i18n="booking.success_message">We'll contact you soon</p>
+                <h2 class="success-title" data-i18n="booking.success_title">Бронирование Успешно Отправлено!</h2>
+                <p class="success-subtitle" data-i18n="booking.success_message">Спасибо за ваш запрос на бронирование. Мы свяжемся с вами в ближайшее время для подтверждения бронирования.</p>
             </div>
             
             <div class="success-modal-body">
-                <div class="info-grid">
-                    <div class="info-item">
+                <div class="info-compact">
+                    <div class="info-row">
                         <i class="fa fa-car"></i>
-                        <div>
-                            <span class="info-label" data-i18n="booking.vehicle">Vehicle</span>
-                            <span class="info-value">${$("#vehicle_type option:selected").text()}</span>
-                        </div>
+                        <span class="info-text">${$("#vehicle_type option:selected").text()}</span>
                     </div>
-                    
-                    <div class="info-item">
+                    <div class="info-row">
                         <i class="fa fa-user"></i>
-                        <div>
-                            <span class="info-label" data-i18n="booking.customer">Customer</span>
-                            <span class="info-value">${customerDisplay}</span>
-                        </div>
+                        <span class="info-text">${customerDisplay}</span>
                     </div>
-                    
-                    <div class="info-item">
+                    <div class="info-row">
                         <i class="fa fa-calendar"></i>
-                        <div>
-                            <span class="info-label" data-i18n="booking.dates">Dates</span>
-                            <span class="info-value">${bookingData.pickup_date} → ${bookingData.return_date}</span>
-                        </div>
+                        <span class="info-text">${bookingData.pickup_date} → ${bookingData.return_date}</span>
                     </div>
-                    
-                    <div class="info-item">
+                    <div class="info-row">
                         <i class="fa fa-map-marker"></i>
-                        <div>
-                            <span class="info-label" data-i18n="booking.locations">Locations</span>
-                            <span class="info-value">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
-                        </div>
+                        <span class="info-text">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
                     </div>
                 </div>
                 
                 <div class="price-total">
-                    <span data-i18n="booking.total_price">Total</span>
+                    <span data-i18n="booking.total_price">ОБЩАЯ ЦЕНА</span>
                     <span class="price-amount">€${bookingData.total_price}</span>
                 </div>
             </div>
             
             <div class="success-modal-footer">
-                <button class="btn-primary" onclick="closeSuccessModal()">
+                <button class="btn-full btn-primary" onclick="closeSuccessModal()">
                     <i class="fa fa-check"></i>
-                    <span data-i18n="booking.got_it">Got it</span>
-                </button>
-                <button class="btn-secondary" onclick="location.reload()">
-                    <i class="fa fa-plus"></i>
-                    <span data-i18n="booking.book_another">Book Another</span>
+                    <span data-i18n="booking.got_it">Я понял</span>
                 </button>
             </div>
         </div>
@@ -1536,19 +1517,19 @@ window.showSuccess = function (bookingData) {
 
   $("body").append(successModalHTML);
 
-  // Add compact CSS
+  // Add ultra-compact CSS
   const successModalCSS = `
 <style>
     .booking-success-modal {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.92);
+        backdrop-filter: blur(8px);
         z-index: 99999;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 16px;
+        padding: 12px;
         animation: fadeIn 0.3s;
     }
     
@@ -1559,21 +1540,19 @@ window.showSuccess = function (bookingData) {
     
     .success-modal-content {
         background: white;
-        border-radius: 20px;
-        max-width: 480px;
+        border-radius: 18px;
+        max-width: 420px;
         width: 100%;
-        max-height: 95vh;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-height: 96vh;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
         animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
     }
     
     @keyframes slideUp {
         from {
             opacity: 0;
-            transform: translateY(30px) scale(0.95);
+            transform: translateY(20px) scale(0.96);
         }
         to {
             opacity: 1;
@@ -1583,21 +1562,20 @@ window.showSuccess = function (bookingData) {
     
     .success-modal-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 28px 24px 20px;
+        padding: 20px 18px 16px;
         text-align: center;
         color: white;
-        flex-shrink: 0;
     }
     
     .success-checkmark {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 12px;
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 10px;
     }
     
     .success-checkmark svg {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
     }
     
     .success-checkmark circle {
@@ -1621,80 +1599,65 @@ window.showSuccess = function (bookingData) {
     }
     
     .success-title {
-        font-size: 22px;
+        font-size: 19px;
         font-weight: 700;
         margin: 0 0 6px;
+        line-height: 1.2;
     }
     
     .success-subtitle {
-        font-size: 14px;
+        font-size: 13px;
         opacity: 0.95;
         margin: 0;
+        line-height: 1.4;
     }
     
     .success-modal-body {
-        padding: 20px;
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
+        padding: 16px;
     }
     
-    .info-grid {
-        display: grid;
-        gap: 10px;
-        margin-bottom: 16px;
+    .info-compact {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
     }
     
-    .info-item {
+    .info-row {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
+        gap: 10px;
+        padding: 8px 10px;
         background: #f8fafc;
-        border-radius: 10px;
+        border-radius: 8px;
     }
     
-    .info-item i {
-        width: 36px;
-        height: 36px;
+    .info-row i {
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        border-radius: 8px;
-        font-size: 16px;
+        border-radius: 6px;
+        font-size: 13px;
         flex-shrink: 0;
     }
     
-    .info-item > div {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
-    }
-    
-    .info-label {
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        color: #64748b;
-        letter-spacing: 0.3px;
-    }
-    
-    .info-value {
-        font-size: 13px;
+    .info-text {
+        font-size: 12px;
         font-weight: 600;
         color: #1e293b;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        flex: 1;
     }
     
     .price-total {
         background: linear-gradient(135deg, #667eea, #764ba2);
-        padding: 14px 16px;
+        padding: 12px 14px;
         border-radius: 10px;
         display: flex;
         justify-content: space-between;
@@ -1704,27 +1667,24 @@ window.showSuccess = function (bookingData) {
     }
     
     .price-total > span:first-child {
-        font-size: 12px;
+        font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
     }
     
     .price-amount {
-        font-size: 24px;
+        font-size: 22px;
         letter-spacing: -0.5px;
     }
     
     .success-modal-footer {
-        padding: 16px 20px 20px;
-        display: flex;
-        gap: 10px;
-        flex-shrink: 0;
+        padding: 12px 16px 16px;
         border-top: 1px solid #f1f5f9;
     }
     
-    .success-modal-footer button {
-        flex: 1;
-        padding: 12px 16px;
+    .btn-full {
+        width: 100%;
+        padding: 12px 20px;
         border: none;
         border-radius: 10px;
         font-weight: 600;
@@ -1734,7 +1694,7 @@ window.showSuccess = function (bookingData) {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
     }
     
     .btn-primary {
@@ -1748,71 +1708,66 @@ window.showSuccess = function (bookingData) {
         box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
     }
     
-    .btn-secondary {
-        background: #f1f5f9;
-        color: #475569;
+    .btn-primary:active {
+        transform: translateY(0);
     }
     
-    .btn-secondary:hover {
-        background: #e2e8f0;
-    }
-    
-    /* Мобильная оптимизация */
-    @media (max-height: 700px) {
+    /* Экстра-компактный режим для маленьких экранов */
+    @media (max-height: 680px) {
         .success-modal-header {
-            padding: 20px 20px 16px;
+            padding: 16px 16px 12px;
         }
         
         .success-checkmark {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 10px;
+            width: 42px;
+            height: 42px;
+            margin-bottom: 8px;
         }
         
         .success-checkmark svg {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
         }
         
         .success-title {
-            font-size: 20px;
+            font-size: 17px;
             margin-bottom: 4px;
         }
         
         .success-subtitle {
-            font-size: 13px;
-        }
-        
-        .success-modal-body {
-            padding: 16px;
-        }
-        
-        .info-grid {
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .info-item {
-            padding: 8px 10px;
-            gap: 10px;
-        }
-        
-        .info-item i {
-            width: 32px;
-            height: 32px;
-            font-size: 14px;
-        }
-        
-        .info-label {
-            font-size: 9px;
-        }
-        
-        .info-value {
             font-size: 12px;
         }
         
+        .success-modal-body {
+            padding: 12px;
+        }
+        
+        .info-compact {
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .info-row {
+            padding: 6px 8px;
+            gap: 8px;
+        }
+        
+        .info-row i {
+            width: 26px;
+            height: 26px;
+            font-size: 12px;
+        }
+        
+        .info-text {
+            font-size: 11px;
+        }
+        
         .price-total {
-            padding: 12px 14px;
+            padding: 10px 12px;
+        }
+        
+        .price-total > span:first-child {
+            font-size: 10px;
         }
         
         .price-amount {
@@ -1820,46 +1775,28 @@ window.showSuccess = function (bookingData) {
         }
         
         .success-modal-footer {
-            padding: 12px 16px 16px;
+            padding: 10px 12px 12px;
         }
         
-        .success-modal-footer button {
-            padding: 10px 14px;
+        .btn-full {
+            padding: 11px 18px;
             font-size: 13px;
         }
     }
     
-    @media (max-width: 400px) {
+    /* Сверхмалые экраны */
+    @media (max-width: 360px) {
         .success-modal-content {
             border-radius: 16px;
         }
         
-        .info-value {
-            font-size: 12px;
+        .success-title {
+            font-size: 16px;
         }
         
-        .success-modal-footer {
-            flex-direction: column;
-            gap: 8px;
+        .info-text {
+            font-size: 10.5px;
         }
-        
-        .success-modal-footer button {
-            width: 100%;
-        }
-    }
-    
-    /* Scrollbar стили */
-    .success-modal-body::-webkit-scrollbar {
-        width: 4px;
-    }
-    
-    .success-modal-body::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .success-modal-body::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 2px;
     }
 </style>
   `;
