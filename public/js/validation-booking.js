@@ -1464,7 +1464,7 @@ window.showSuccess = function (bookingData) {
   // Get customer display name (name or phone)
   const customerDisplay = bookingData.customer_name || bookingData.customer_phone || '';
 
-  // Create modern success modal
+  // Create compact success modal
   const successModalHTML = `
     <div id="booking-success-modal" class="booking-success-modal">
         <div class="success-modal-content">
@@ -1476,7 +1476,7 @@ window.showSuccess = function (bookingData) {
                     </svg>
                 </div>
                 <h2 class="success-title" data-i18n="booking.success_title">Booking Confirmed!</h2>
-                <p class="success-subtitle" data-i18n="booking.success_message">We'll contact you within 24 hours</p>
+                <p class="success-subtitle" data-i18n="booking.success_message">We'll contact you soon</p>
             </div>
             
             <div class="success-modal-body">
@@ -1515,7 +1515,7 @@ window.showSuccess = function (bookingData) {
                 </div>
                 
                 <div class="price-total">
-                    <span data-i18n="booking.total_price">Total Price</span>
+                    <span data-i18n="booking.total_price">Total</span>
                     <span class="price-amount">€${bookingData.total_price}</span>
                 </div>
             </div>
@@ -1536,7 +1536,7 @@ window.showSuccess = function (bookingData) {
 
   $("body").append(successModalHTML);
 
-  // Add premium CSS
+  // Add compact CSS
   const successModalCSS = `
 <style>
     .booking-success-modal {
@@ -1548,7 +1548,7 @@ window.showSuccess = function (bookingData) {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        padding: 16px;
         animation: fadeIn 0.3s;
     }
     
@@ -1562,9 +1562,12 @@ window.showSuccess = function (bookingData) {
         border-radius: 20px;
         max-width: 480px;
         width: 100%;
+        max-height: 95vh;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
     
     @keyframes slideUp {
@@ -1580,21 +1583,21 @@ window.showSuccess = function (bookingData) {
     
     .success-modal-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 40px 30px;
+        padding: 28px 24px 20px;
         text-align: center;
         color: white;
-        position: relative;
+        flex-shrink: 0;
     }
     
     .success-checkmark {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px;
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 12px;
     }
     
     .success-checkmark svg {
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
     }
     
     .success-checkmark circle {
@@ -1614,58 +1617,53 @@ window.showSuccess = function (bookingData) {
     }
     
     @keyframes stroke {
-        to {
-            stroke-dashoffset: 0;
-        }
+        to { stroke-dashoffset: 0; }
     }
     
     .success-title {
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 700;
-        margin: 0 0 10px;
+        margin: 0 0 6px;
     }
     
     .success-subtitle {
-        font-size: 15px;
+        font-size: 14px;
         opacity: 0.95;
         margin: 0;
     }
     
     .success-modal-body {
-        padding: 30px;
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
     
     .info-grid {
         display: grid;
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 10px;
+        margin-bottom: 16px;
     }
     
     .info-item {
         display: flex;
         align-items: center;
-        gap: 14px;
-        padding: 14px;
+        gap: 12px;
+        padding: 10px 12px;
         background: #f8fafc;
-        border-radius: 12px;
-        transition: all 0.3s;
-    }
-    
-    .info-item:hover {
-        background: #f1f5f9;
-        transform: translateX(4px);
+        border-radius: 10px;
     }
     
     .info-item i {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        border-radius: 10px;
-        font-size: 18px;
+        border-radius: 8px;
+        font-size: 16px;
         flex-shrink: 0;
     }
     
@@ -1673,27 +1671,31 @@ window.showSuccess = function (bookingData) {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 2px;
+        min-width: 0;
     }
     
     .info-label {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
         text-transform: uppercase;
         color: #64748b;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
     }
     
     .info-value {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: #1e293b;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .price-total {
         background: linear-gradient(135deg, #667eea, #764ba2);
-        padding: 18px 20px;
-        border-radius: 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -1702,26 +1704,27 @@ window.showSuccess = function (bookingData) {
     }
     
     .price-total > span:first-child {
-        font-size: 13px;
+        font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        opacity: 0.95;
     }
     
     .price-amount {
-        font-size: 26px;
+        font-size: 24px;
         letter-spacing: -0.5px;
     }
     
     .success-modal-footer {
-        padding: 20px 30px 30px;
+        padding: 16px 20px 20px;
         display: flex;
-        gap: 12px;
+        gap: 10px;
+        flex-shrink: 0;
+        border-top: 1px solid #f1f5f9;
     }
     
     .success-modal-footer button {
         flex: 1;
-        padding: 14px 20px;
+        padding: 12px 16px;
         border: none;
         border-radius: 10px;
         font-weight: 600;
@@ -1731,18 +1734,18 @@ window.showSuccess = function (bookingData) {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 6px;
     }
     
     .btn-primary {
         background: linear-gradient(135deg, #10b981, #059669);
         color: white;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
     
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
     }
     
     .btn-secondary {
@@ -1752,75 +1755,111 @@ window.showSuccess = function (bookingData) {
     
     .btn-secondary:hover {
         background: #e2e8f0;
-        transform: translateY(-2px);
     }
     
-    @media (max-width: 640px) {
-        .success-modal-content {
-            max-width: 100%;
-            border-radius: 16px;
-        }
-        
+    /* Мобильная оптимизация */
+    @media (max-height: 700px) {
         .success-modal-header {
-            padding: 32px 24px;
+            padding: 20px 20px 16px;
         }
         
         .success-checkmark {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
         }
         
         .success-checkmark svg {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
         }
         
         .success-title {
-            font-size: 22px;
+            font-size: 20px;
+            margin-bottom: 4px;
         }
         
         .success-subtitle {
-            font-size: 14px;
-        }
-        
-        .success-modal-body {
-            padding: 24px 20px;
-        }
-        
-        .info-item {
-            padding: 12px;
-        }
-        
-        .info-item i {
-            width: 36px;
-            height: 36px;
-            font-size: 16px;
-        }
-        
-        .info-label {
-            font-size: 10px;
-        }
-        
-        .info-value {
             font-size: 13px;
         }
         
+        .success-modal-body {
+            padding: 16px;
+        }
+        
+        .info-grid {
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .info-item {
+            padding: 8px 10px;
+            gap: 10px;
+        }
+        
+        .info-item i {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            font-size: 9px;
+        }
+        
+        .info-value {
+            font-size: 12px;
+        }
+        
         .price-total {
-            padding: 16px 18px;
+            padding: 12px 14px;
         }
         
         .price-amount {
-            font-size: 22px;
+            font-size: 20px;
         }
         
         .success-modal-footer {
-            padding: 16px 20px 24px;
+            padding: 12px 16px 16px;
+        }
+        
+        .success-modal-footer button {
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .success-modal-content {
+            border-radius: 16px;
+        }
+        
+        .info-value {
+            font-size: 12px;
+        }
+        
+        .success-modal-footer {
             flex-direction: column;
+            gap: 8px;
         }
         
         .success-modal-footer button {
             width: 100%;
         }
+    }
+    
+    /* Scrollbar стили */
+    .success-modal-body::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .success-modal-body::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .success-modal-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
     }
 </style>
   `;
