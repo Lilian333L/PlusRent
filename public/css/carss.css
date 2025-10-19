@@ -1941,6 +1941,11 @@
   outline: none !important;
   box-shadow: none !important;
   min-width: auto !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 10px !important;
+  padding-right: 28px !important;
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
@@ -1976,7 +1981,9 @@
   color: white !important;
 }
 
-/* YEAR INPUT - ПОЛНОЕ ИСПРАВЛЕНИЕ */
+/* ========== YEAR DROPDOWN - ПОЛНОЕ ИСПРАВЛЕНИЕ ========== */
+
+/* Скрываем numInputWrapper полностью если это не select */
 .flatpickr-current-month .numInputWrapper {
   background: transparent !important;
   border: none !important;
@@ -1987,19 +1994,19 @@
   flex: 0 0 auto !important;
   width: auto !important;
   min-width: auto !important;
+  position: relative !important;
 }
 
 /* Скрываем стрелки у года */
-.flatpickr-current-month .numInputWrapper span {
-  display: none !important;
-}
-
 .flatpickr-current-month .numInputWrapper span.arrowUp,
 .flatpickr-current-month .numInputWrapper span.arrowDown {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
-/* Стилизация input года */
+/* КРИТИЧНО: Делаем input года похожим на dropdown */
 .flatpickr-current-month input.cur-year {
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px) !important;
@@ -2008,6 +2015,7 @@
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 10px !important;
   padding: 4px 8px !important;
+  padding-right: 28px !important;
   font-size: 15px !important;
   cursor: pointer !important;
   outline: none !important;
@@ -2015,12 +2023,19 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
   margin: 0 !important;
-  min-width: 60px !important;
-  width: 60px !important;
+  min-width: 70px !important;
+  width: 70px !important;
   box-sizing: border-box !important;
   -webkit-appearance: none !important;
   -moz-appearance: textfield !important;
   appearance: none !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 10px !important;
 }
 
 .flatpickr-current-month input.cur-year:hover {
@@ -2043,8 +2058,23 @@
   display: none !important;
 }
 
-/* Альтернативный вариант для dropdown года */
-.flatpickr-current-month .flatpickr-year-dropdown {
+/* Убираем возможность выделения текста */
+.flatpickr-current-month input.cur-year::selection {
+  background: transparent !important;
+}
+
+.flatpickr-current-month input.cur-year::-moz-selection {
+  background: transparent !important;
+}
+
+/* Скрываем курсор */
+.flatpickr-current-month input.cur-year {
+  caret-color: transparent !important;
+}
+
+/* Если Flatpickr создаст настоящий select для года */
+.flatpickr-current-month select.cur-year,
+.flatpickr-current-month .numInputWrapper select {
   background: rgba(255, 255, 255, 0.25) !important;
   backdrop-filter: blur(10px) !important;
   color: white !important;
@@ -2052,6 +2082,7 @@
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 10px !important;
   padding: 4px 8px !important;
+  padding-right: 28px !important;
   font-size: 15px !important;
   cursor: pointer !important;
   outline: none !important;
@@ -2062,20 +2093,28 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
   text-align: center !important;
   margin: 0 !important;
-  min-width: 60px !important;
-  width: 60px !important;
+  min-width: 70px !important;
+  width: 70px !important;
   box-sizing: border-box !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 10px !important;
 }
 
-.flatpickr-current-month .flatpickr-year-dropdown:hover {
-  background-color: rgba(255, 255, 255, 0.35) !important;
+.flatpickr-current-month select.cur-year:hover,
+.flatpickr-current-month .numInputWrapper select:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
   transform: translateY(-1px) !important;
 }
 
-.flatpickr-current-month .flatpickr-year-dropdown:focus,
-.flatpickr-current-month .flatpickr-year-dropdown:active {
-  outline: none !important;
-  box-shadow: none !important;
+.flatpickr-current-month select.cur-year option,
+.flatpickr-current-month .numInputWrapper select option {
+  background-color: #667eea !important;
+  color: white !important;
+  padding: 10px !important;
+  font-weight: 600 !important;
 }
 
 .flatpickr-prev-month,
@@ -2378,14 +2417,17 @@
   .flatpickr-current-month .flatpickr-monthDropdown-months {
     font-size: 13px !important;
     padding: 3px 8px !important;
+    padding-right: 24px !important;
   }
   
   .flatpickr-current-month input.cur-year,
-  .flatpickr-current-month .flatpickr-year-dropdown {
+  .flatpickr-current-month select.cur-year,
+  .flatpickr-current-month .numInputWrapper select {
     font-size: 13px !important;
     padding: 3px 6px !important;
-    min-width: 55px !important;
-    width: 55px !important;
+    padding-right: 24px !important;
+    min-width: 60px !important;
+    width: 60px !important;
   }
 
   .flatpickr-prev-month,
@@ -3329,4 +3371,5 @@
 }
 
 /* ========== END OF UNIFIED STYLES ========== */
+
 
