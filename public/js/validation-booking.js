@@ -1462,174 +1462,120 @@ window.showSuccess = function (bookingData) {
   localStorage.removeItem("autoApplyCoupon");
   localStorage.removeItem("spinningWheelWinningCoupon");
 
-// Create a clean, modern success modal
-const successModalHTML = `
-    <div id="booking-success-modal" class="booking-success-modal">
-        <div class="success-modal-content">
-            <div class="success-modal-header">
-                <div class="success-icon">
-                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                        <circle cx="32" cy="32" r="30" fill="url(#successGradient)"/>
-                        <path d="M20 32L28 40L44 24" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                        <defs>
-                            <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#10b981"/>
-                                <stop offset="100%" stop-color="#059669"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
+  // Create a clean, modern success modal
+  const successModalHTML = `
+        <div id="booking-success-modal" class="booking-success-modal">
+            <div class="success-modal-content">
+                <div class="success-modal-header">
+                    <div class="success-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="24" fill="#28a745"/>
+                            <path d="M20 32L14 26L15.4 24.6L20 29.2L32.6 16.6L34 18L20 32Z" fill="white"/>
+                        </svg>
+                    </div>
+                    <h2 class="success-title" data-i18n="booking.success_title"></h2>
+                    <p class="success-subtitle" data-i18n="booking.success_subtitle"></p>
                 </div>
-                <h2 class="success-title" data-i18n="booking.success_title">Booking Confirmed!</h2>
-                <p class="success-subtitle" data-i18n="booking.success_subtitle">Your reservation has been successfully submitted</p>
-            </div>
-            
-            <div class="success-modal-body">
-                <div class="booking-summary-card">
-                    <div class="summary-row">
-                        <div class="summary-icon">
-                            <i class="fa fa-car"></i>
-                        </div>
-                        <div class="summary-details">
-                            <span class="summary-label" data-i18n="booking.vehicle">Vehicle</span>
-                            <span class="summary-value">${$("#vehicle_type option:selected").text()}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="summary-row">
-                        <div class="summary-icon">
-                            <i class="fa fa-user"></i>
-                        </div>
-                        <div class="summary-details">
-                            <span class="summary-label" data-i18n="booking.customer_name">Customer</span>
-                            <span class="summary-value">${bookingData.customer_name}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="summary-row">
-                        <div class="summary-icon">
-                            <i class="fa fa-calendar"></i>
-                        </div>
-                        <div class="summary-details">
-                            <span class="summary-label" data-i18n="booking.rental_period">Rental Period</span>
-                            <span class="summary-value">${bookingData.pickup_date} - ${bookingData.return_date}</span>
-                            <span class="summary-time">${bookingData.pickup_time} - ${bookingData.return_time}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="summary-row">
-                        <div class="summary-icon">
-                            <i class="fa fa-map-marker"></i>
-                        </div>
-                        <div class="summary-details">
-                            <span class="summary-label" data-i18n="booking.locations">Locations</span>
-                            <span class="summary-value">${bookingData.pickup_location} → ${bookingData.dropoff_location}</span>
+                
+                <div class="success-modal-body">
+                    <div class="booking-summary-card">
+                        <div class="summary-compact">
+                            <div class="summary-main">
+                                <div class="vehicle-info">
+                                    <span class="vehicle-name">${$(
+                                      "#vehicle_type option:selected"
+                                    ).text()}</span>
+                                    <span class="customer-name">${
+                                      bookingData.customer_name
+                                    }</span>
+                                </div>
+                                <div class="booking-dates">
+                                    <span class="date-range">${
+                                      bookingData.pickup_date
+                                    } - ${bookingData.return_date}</span>
+                                    <span class="time-range">${
+                                      bookingData.pickup_time
+                                    } - ${bookingData.return_time}</span>
+                                </div>
+                                <div class="location-info">
+                                    <span class="location-text">${
+                                      bookingData.pickup_location
+                                    } → ${bookingData.dropoff_location}</span>
+                                </div>
+                            </div>
+                            <div class="price-highlight">
+                                <span class="price-label" data-i18n="booking.total_price"></span>
+                                <span class="price-value">€${
+                                  bookingData.total_price
+                                }</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="summary-row price-row">
-                        <div class="summary-icon">
-                            <i class="fa fa-euro"></i>
-                        </div>
-                        <div class="summary-details">
-                            <span class="summary-label" data-i18n="booking.total_price">Total Price</span>
-                            <span class="summary-value price-value">€${bookingData.total_price}</span>
+                    <div class="next-steps-compact">
+                        <div class="steps-icon">📞</div>
+                        <div class="steps-content" >
+                            <h5 data-i18n="booking.next_steps"></h5>
+                            <p data-i18n="booking.confirmation_timeline"></p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="next-steps-card">
-                    <div class="steps-icon">
-                        <i class="fa fa-phone"></i>
-                    </div>
-                    <div class="steps-content">
-                        <h5 data-i18n="booking.next_steps">What's Next?</h5>
-                        <p data-i18n="booking.confirmation_timeline">Our team will contact you within 24 hours to confirm your reservation and provide additional details.</p>
-                    </div>
+                <div class="success-modal-footer">
+                    <button class="btn-success-primary" data-i18n="booking.got_it" data-i18n-processed="true" onclick="closeSuccessModal()">
+                    </button>
+                    <button class="btn-success-secondary" data-i18n="booking.book_another" data-i18n-processed="true" onclick="location.reload()">
+                    </button>
                 </div>
             </div>
-            
-            <div class="success-modal-footer">
-                <button class="btn-success-primary" data-i18n="booking.got_it" onclick="closeSuccessModal()">
-                    <i class="fa fa-check"></i>
-                    <span>Got it</span>
-                </button>
-                <button class="btn-success-secondary" data-i18n="booking.book_another" onclick="location.reload()">
-                    <i class="fa fa-refresh"></i>
-                    <span>Book Another</span>
-                </button>
-            </div>
         </div>
-    </div>
-`;
+    `;
 
-// Add the modal to the page
-$("body").append(successModalHTML);
+  // Add the modal to the page
+  $("body").append(successModalHTML);
 
-// Add CSS for the success modal
-const successModalCSS = `
+  // Add CSS for the clean success modal
+  const successModalCSS = `
 <style>
-    /* ========== SUCCESS MODAL - MODERN DESIGN ========== */
-    
     .booking-success-modal {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        z-index: 99999;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
         display: flex;
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.3s ease-out;
+        animation: fadeIn 0.4s ease-out;
         padding: 20px;
     }
     
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
     .success-modal-content {
-        background: linear-gradient(145deg, 
-            rgba(255, 255, 255, 0.98) 0%, 
-            rgba(248, 250, 252, 0.98) 100%);
+        background: #ffffff;
         border-radius: 24px;
-        box-shadow: 
-            0 25px 50px -12px rgba(0, 0, 0, 0.25),
-            0 0 0 1px rgba(255, 255, 255, 0.1);
-        max-width: 560px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+        max-width: 520px;
         width: 100%;
         max-height: 90vh;
         overflow-y: auto;
-        animation: slideInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         position: relative;
     }
     
-    @keyframes slideInScale {
-        from {
-            opacity: 0;
-            transform: translateY(-30px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-    
-    /* ========== HEADER ========== */
     .success-modal-header {
         text-align: center;
-        padding: 40px 32px 32px;
-        background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+        padding: 40px 30px 30px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         border-radius: 24px 24px 0 0;
         position: relative;
         overflow: hidden;
     }
     
+    /* Декоративные элементы в заголовке */
     .success-modal-header::before {
         content: '';
         position: absolute;
@@ -1637,7 +1583,7 @@ const successModalCSS = `
         right: -20%;
         width: 200px;
         height: 200px;
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 50%;
     }
     
@@ -1648,41 +1594,25 @@ const successModalCSS = `
         left: -10%;
         width: 150px;
         height: 150px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 50%;
     }
     
     .success-icon {
         margin-bottom: 20px;
-        animation: successBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: iconBounce 0.8s ease-out;
         position: relative;
         z-index: 1;
-        display: inline-block;
-    }
-    
-    @keyframes successBounce {
-        0% { 
-            transform: scale(0);
-            opacity: 0;
-        }
-        50% { 
-            transform: scale(1.15);
-        }
-        70% {
-            transform: scale(0.95);
-        }
-        100% { 
-            transform: scale(1);
-            opacity: 1;
-        }
     }
     
     .success-icon svg {
-        filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+        width: 64px;
+        height: 64px;
     }
     
     .success-title {
-        font-size: 28px;
+        font-size: 2rem;
         font-weight: 800;
         margin: 0 0 12px;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -1692,7 +1622,7 @@ const successModalCSS = `
     }
     
     .success-subtitle {
-        font-size: 16px;
+        font-size: 1rem;
         margin: 0;
         opacity: 0.95;
         font-weight: 400;
@@ -1701,169 +1631,187 @@ const successModalCSS = `
         z-index: 1;
     }
     
-    /* ========== BODY ========== */
     .success-modal-body {
-        padding: 32px;
+        padding: 30px;
     }
     
     .booking-summary-card {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         border-radius: 16px;
-        padding: 8px;
+        padding: 24px;
         margin-bottom: 24px;
         border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     
-    .summary-row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: white;
-        border-radius: 12px;
-        margin-bottom: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .summary-row:last-child {
-        margin-bottom: 0;
-    }
-    
-    .summary-row:hover {
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-    
-    .summary-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 18px;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-    
-    .summary-details {
-        flex: 1;
+    .summary-compact {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 20px;
     }
     
-    .summary-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .summary-main {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
     
-    .summary-value {
-        font-size: 15px;
-        font-weight: 600;
+    .vehicle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .vehicle-name {
+        font-size: 1.2rem;
+        font-weight: 700;
         color: #1e293b;
-        line-height: 1.4;
+        letter-spacing: -0.3px;
     }
     
-    .summary-time {
-        font-size: 13px;
+    .customer-name {
+        font-size: 1rem;
         color: #64748b;
         font-weight: 500;
     }
     
-    .price-row {
-        background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
-        border: none;
+    .booking-dates {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #10b981;
     }
     
-    .price-row .summary-icon {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    .date-range {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    .price-row .summary-label,
-    .price-row .summary-value {
+    .date-range::before {
+        content: '📅';
+        font-size: 1.1rem;
+    }
+    
+    .time-range {
+        font-size: 0.9rem;
+        color: #64748b;
+        padding-left: 28px;
+    }
+    
+    .location-info {
+        margin-top: 8px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 10px;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .location-text {
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .location-text::before {
+        content: '📍';
+        font-size: 1.1rem;
+    }
+    
+    .price-highlight {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
     
-    .price-row .price-value {
-        font-size: 24px;
+    .price-label {
+        font-size: 0.95rem;
+        opacity: 0.95;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .price-value {
+        font-size: 1.5rem;
         font-weight: 800;
         letter-spacing: -0.5px;
     }
     
-    /* ========== NEXT STEPS ========== */
-    .next-steps-card {
+    .next-steps-compact {
         background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 20px;
+        border-left: 4px solid #3b82f6;
         display: flex;
         align-items: flex-start;
         gap: 16px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
     }
     
     .steps-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 18px;
+        font-size: 1.8rem;
         flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        line-height: 1;
     }
     
     .steps-content h5 {
         color: #1e40af;
         margin: 0 0 8px 0;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 1rem;
     }
     
     .steps-content p {
         margin: 0;
         color: #475569;
-        font-size: 14px;
+        font-size: 0.9rem;
         line-height: 1.6;
     }
     
-    /* ========== FOOTER ========== */
     .success-modal-footer {
-        padding: 24px 32px 32px;
+        padding: 24px 30px 30px;
+        text-align: center;
         display: flex;
         gap: 12px;
         justify-content: center;
+        flex-wrap: wrap;
         background: #fafafa;
         border-radius: 0 0 24px 24px;
     }
     
-    .btn-success-primary,
-    .btn-success-secondary {
-        flex: 1;
-        padding: 14px 24px;
+    .btn-success-primary, .btn-success-secondary {
+        padding: 14px 28px;
         border: none;
         border-radius: 12px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
+        text-decoration: none;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
         letter-spacing: 0.3px;
         position: relative;
         overflow: hidden;
-        min-width: 140px;
     }
     
     .btn-success-primary::before,
@@ -1889,33 +1837,78 @@ const successModalCSS = `
     .btn-success-primary {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
-        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        flex: 1;
+        min-width: 180px;
     }
     
     .btn-success-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+    }
+    
+    .btn-success-primary:active {
+        transform: translateY(-1px);
     }
     
     .btn-success-secondary {
         background: linear-gradient(135deg, #64748b 0%, #475569 100%);
         color: white;
-        box-shadow: 0 4px 16px rgba(100, 116, 139, 0.25);
+        box-shadow: 0 4px 16px rgba(100, 116, 139, 0.3);
+        flex: 1;
+        min-width: 180px;
     }
     
     .btn-success-secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(100, 116, 139, 0.35);
+        background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(100, 116, 139, 0.4);
     }
     
-    .btn-success-primary:active,
     .btn-success-secondary:active {
-        transform: translateY(0);
+        transform: translateY(-1px);
     }
     
-    /* ========== SCROLLBAR ========== */
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+        }
+        to { 
+            opacity: 1; 
+        }
+    }
+    
+    @keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translateY(-40px) scale(0.9);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    @keyframes iconBounce {
+        0% { 
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% { 
+            transform: scale(1.15);
+        }
+        70% {
+            transform: scale(0.95);
+        }
+        100% { 
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    /* Улучшенная прокрутка */
     .success-modal-content::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
     
     .success-modal-content::-webkit-scrollbar-track {
@@ -1925,41 +1918,40 @@ const successModalCSS = `
     
     .success-modal-content::-webkit-scrollbar-thumb {
         background: #cbd5e1;
-        border-radius: 3px;
+        border-radius: 4px;
     }
     
     .success-modal-content::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
     
-    /* ========== MOBILE RESPONSIVE ========== */
     @media (max-width: 768px) {
         .booking-success-modal {
-            padding: 16px;
+            padding: 10px;
         }
         
         .success-modal-content {
-            max-width: 100%;
-            max-height: 92vh;
+            width: 100%;
+            max-height: 95vh;
             border-radius: 20px;
         }
         
         .success-modal-header {
-            padding: 32px 24px 28px;
+            padding: 30px 20px 24px;
             border-radius: 20px 20px 0 0;
         }
         
         .success-icon svg {
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
         }
         
         .success-title {
-            font-size: 24px;
+            font-size: 1.6rem;
         }
         
         .success-subtitle {
-            font-size: 15px;
+            font-size: 0.95rem;
         }
         
         .success-modal-body {
@@ -1967,65 +1959,67 @@ const successModalCSS = `
         }
         
         .booking-summary-card {
-            padding: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
         
-        .summary-row {
-            padding: 14px;
-            gap: 12px;
+        .vehicle-name {
+            font-size: 1.1rem;
         }
         
-        .summary-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 16px;
+        .customer-name {
+            font-size: 0.95rem;
         }
         
-        .summary-label {
-            font-size: 11px;
+        .date-range {
+            font-size: 0.95rem;
         }
         
-        .summary-value {
-            font-size: 14px;
+        .time-range {
+            font-size: 0.85rem;
         }
         
-        .summary-time {
-            font-size: 12px;
+        .location-text {
+            font-size: 0.9rem;
         }
         
-        .price-row .price-value {
-            font-size: 20px;
+        .price-highlight {
+            padding: 18px;
         }
         
-        .next-steps-card {
+        .price-value {
+            font-size: 1.3rem;
+        }
+        
+        .next-steps-compact {
             padding: 16px;
             gap: 12px;
         }
         
         .steps-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 16px;
+            font-size: 1.5rem;
         }
         
         .steps-content h5 {
-            font-size: 15px;
+            font-size: 0.95rem;
         }
         
         .steps-content p {
-            font-size: 13px;
+            font-size: 0.85rem;
         }
         
         .success-modal-footer {
             padding: 20px;
             flex-direction: column;
+            gap: 12px;
         }
         
-        .btn-success-primary,
-        .btn-success-secondary {
+        .btn-success-primary, .btn-success-secondary {
             width: 100%;
             min-width: auto;
+            justify-content: center;
             padding: 16px 24px;
+            font-size: 0.95rem;
         }
     }
     
@@ -2035,95 +2029,55 @@ const successModalCSS = `
         }
         
         .success-modal-header {
-            padding: 28px 20px 24px;
+            padding: 24px 16px 20px;
             border-radius: 16px 16px 0 0;
         }
         
-        .success-icon svg {
-            width: 52px;
-            height: 52px;
-        }
-        
         .success-title {
-            font-size: 22px;
+            font-size: 1.4rem;
         }
         
         .success-subtitle {
-            font-size: 14px;
+            font-size: 0.9rem;
         }
         
         .success-modal-body {
             padding: 20px 16px;
         }
         
-        .summary-row {
-            padding: 12px;
+        .booking-summary-card {
+            padding: 16px;
         }
         
-        .price-row .price-value {
-            font-size: 18px;
-        }
-    }
-    
-    /* ========== LANDSCAPE MODE ========== */
-    @media (max-width: 768px) and (orientation: landscape) {
-        .success-modal-content {
-            max-height: 96vh;
+        .vehicle-name {
+            font-size: 1rem;
         }
         
-        .success-modal-header {
-            padding: 20px 24px 16px;
-        }
-        
-        .success-icon svg {
-            width: 48px;
-            height: 48px;
-        }
-        
-        .success-title {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-        
-        .success-subtitle {
-            font-size: 13px;
-        }
-        
-        .success-modal-body {
-            padding: 16px 20px;
-        }
-        
-        .summary-row {
-            padding: 10px 12px;
-        }
-        
-        .next-steps-card {
-            padding: 12px;
-        }
-        
-        .success-modal-footer {
-            padding: 16px 20px;
-            flex-direction: row;
+        .price-value {
+            font-size: 1.2rem;
         }
     }
 </style>
-`;
+    `;
 
-// Add CSS to head if not already present
-if (!$("#success-modal-styles").length) {
+  // Add CSS to head if not already present
+  if (!$("#success-modal-styles").length) {
     $("head").append(successModalCSS);
-}
+  }
 
-// Show the modal with animation
-$("#booking-success-modal").fadeIn(300);
+  // Show the modal with animation
+  $("#booking-success-modal").fadeIn(300);
 
-// Update i18n content if available
-if (typeof updateContent === "function") {
-    document.querySelectorAll("[data-i18n]:not([data-i18n-processed])").forEach(function (element) {
+  // Update i18n content if available
+  if (typeof updateContent === "function") {
+    document
+      .querySelectorAll("[data-i18n]:not([data-i18n-processed])")
+      .forEach(function (element) {
         updateContent();
         element.setAttribute("data-i18n-processed", "true");
-    });
-}
+      });
+  }
+};
 
 // Universal Error Popup System
 function showUniversalError(message) {
@@ -3191,5 +3145,3 @@ window.showWarningToast = showWarningToast;
 window.showInfoToast = showInfoToast;
 window.showError = showError;
 window.showSuccess = showSuccess;
-
-
