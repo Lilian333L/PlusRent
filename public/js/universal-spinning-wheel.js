@@ -22,17 +22,16 @@
         iframe: null,
         timer: null,
         isInitialized: false,
-        userClosedModal: false, // ✅ ДОБАВЛЕНО
-        modalCheckInterval: null // ✅ ДОБАВЛЕНО
+        userClosedModal: false,
+        modalCheckInterval: null
     };
 
-    // ✅ НОВАЯ ФУНКЦИЯ: Проверка открытых модалов
+    // Check if any modal is open
     function isAnyModalOpen() {
-        // Проверяем популярные селекторы модалов
         const modalSelectors = [
-            '.modal.show',                    // Bootstrap модалы
-            '.modal.active',                  // Кастомные модалы
-            '.modal[style*="display: block"]',// Inline style модалы
+            '.modal.show',
+            '.modal.active',
+            '.modal[style*="display: block"]',
             '.modal[style*="display:block"]',
             '[role="dialog"][style*="display: block"]',
             '[role="dialog"][style*="display:block"]',
@@ -40,15 +39,13 @@
             '.popup.active',
             '.lightbox.open',
             '.lightbox.active',
-            '#imageLightbox[style*="display: block"]', // Ваш lightbox
+            '#imageLightbox[style*="display: block"]',
             '#imageLightbox[style*="display:block"]'
         ];
 
-        // Проверяем каждый селектор
         for (const selector of modalSelectors) {
             const elements = document.querySelectorAll(selector);
             if (elements.length > 0) {
-                // Проверяем, что элемент видим
                 for (const element of elements) {
                     if (element.offsetParent !== null || 
                         window.getComputedStyle(element).display !== 'none') {
@@ -58,20 +55,13 @@
             }
         }
 
-        // Проверяем body классы (часто добавляются при открытии модала)
-        const bodyClasses = [
-            'modal-open',
-            'no-scroll',
-            'overflow-hidden'
-        ];
-
+        const bodyClasses = ['modal-open', 'no-scroll', 'overflow-hidden'];
         for (const className of bodyClasses) {
             if (document.body.classList.contains(className)) {
                 return true;
             }
         }
 
-        // Проверяем overflow: hidden на body
         if (document.body.style.overflow === 'hidden') {
             return true;
         }
@@ -214,7 +204,9 @@
             <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
-                    <div class="spinning-wheel-modal-header">
+                    
+                    <!-- ЗАГОЛОВОК ПОКАЗЫВАЕТСЯ ТОЛЬКО НА ЭТАПЕ ВВОДА ТЕЛЕФОНА -->
+                    <div class="spinning-wheel-modal-header" id="universalModalHeader">
                         <div class="header-decoration"></div>
                         <div class="header-gift-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -350,8 +342,9 @@
                 transform: rotate(90deg);
             }
 
+            /* ОРАНЖЕВЫЙ ЗАГОЛОВОК */
             .spinning-wheel-modal-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 padding: 32px 24px;
                 text-align: center;
@@ -441,16 +434,17 @@
                 text-align: center;
             }
 
+            /* ОРАНЖЕВАЯ ИКОНКА */
             .phone-icon-circle {
                 width: 72px;
                 height: 72px;
                 margin: 0 auto 24px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
             }
 
             .phone-icon-circle svg {
@@ -507,8 +501,8 @@
 
             .phone-input:focus {
                 outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
             }
 
             .phone-input::placeholder {
@@ -528,10 +522,11 @@
                 padding-left: 4px;
             }
 
+            /* ОРАНЖЕВАЯ КНОПКА */
             .phone-submit-btn {
                 width: 100%;
                 padding: 16px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 border: none;
                 border-radius: 12px;
@@ -544,12 +539,12 @@
                 justify-content: center;
                 gap: 8px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
             }
 
             .phone-submit-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
             }
 
             .phone-submit-btn:active {
@@ -806,34 +801,30 @@
         if (privacyText) privacyText.textContent = t('privacyText');
     }
 
-    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Show modal с проверкой других модалов
+    // Show modal с проверкой других модалов
     function showModal(options = {}) {
         if (!state.modal) return;
         
-        // ✅ ПРОВЕРЯЕМ, НЕ ЗАКРЫЛ ЛИ ПОЛЬЗОВАТЕЛЬ МОДАЛ ВРУЧНУЮ
         if (state.userClosedModal) {
             console.log('⏸️ User manually closed modal, not showing again');
             return;
         }
         
-        // ✅ ПРОВЕРЯЕМ, НЕ ОТКРЫТ ЛИ ДРУГОЙ МОДАЛ
         if (isAnyModalOpen()) {
             console.log('⏳ Another modal is open, delaying spinning wheel...');
             
-            // Останавливаем предыдущий интервал если есть
             if (state.modalCheckInterval) {
                 clearInterval(state.modalCheckInterval);
             }
             
-            // ✅ ИСПОЛЬЗУЕМ ИНТЕРВАЛ ВМЕСТО setTimeout
             state.modalCheckInterval = setInterval(() => {
                 if (!isAnyModalOpen() && !state.userClosedModal) {
                     console.log('✅ Other modals closed, showing spinning wheel now');
                     clearInterval(state.modalCheckInterval);
                     state.modalCheckInterval = null;
-                    showModal(options); // Рекурсивно вызываем без задержки
+                    showModal(options);
                 }
-            }, 1000); // Проверяем каждую секунду
+            }, 1000);
             
             return;
         }
@@ -852,6 +843,7 @@
         }
         
         const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
+        const modalHeader = document.getElementById('universalModalHeader');
         
         if (skipPhoneStep) {
             const phoneStep = document.getElementById('universalPhoneStep');
@@ -860,6 +852,11 @@
             if (phoneStep && wheelStep) {
                 phoneStep.style.display = 'none';
                 wheelStep.style.display = 'flex';
+                
+                // СКРЫВАЕМ ЗАГОЛОВОК
+                if (modalHeader) {
+                    modalHeader.style.display = 'none';
+                }
                 
                 if (modalContent) {
                     modalContent.classList.remove('phone-step');
@@ -890,6 +887,11 @@
                 phoneStep.style.display = 'flex';
                 wheelStep.style.display = 'none';
                 
+                // ПОКАЗЫВАЕМ ЗАГОЛОВОК
+                if (modalHeader) {
+                    modalHeader.style.display = 'block';
+                }
+                
                 if (modalContent) {
                     modalContent.classList.remove('wheel-step');
                     modalContent.classList.add('phone-step');
@@ -907,15 +909,13 @@
         console.log('🎡 Spinning wheel modal shown');
     }
 
-    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Close modal
+    // Close modal
     function closeModal() {
         if (!state.modal) return;
         
-        // ✅ ПОМЕЧАЕМ, ЧТО ПОЛЬЗОВАТЕЛЬ ЗАКРЫЛ МОДАЛ
         state.userClosedModal = true;
         console.log('❌ User closed modal manually');
         
-        // Останавливаем проверку других модалов
         if (state.modalCheckInterval) {
             clearInterval(state.modalCheckInterval);
             state.modalCheckInterval = null;
@@ -928,14 +928,13 @@
         }, 300);
     }
 
-    // ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Cleanup
+    // Cleanup
     function cleanup() {
         if (state.timer) {
             clearTimeout(state.timer);
             state.timer = null;
         }
         
-        // ✅ ДОБАВЛЕНО: Очистка интервала проверки модалов
         if (state.modalCheckInterval) {
             clearInterval(state.modalCheckInterval);
             state.modalCheckInterval = null;
@@ -1066,6 +1065,12 @@
             }).catch(err => {});
         } catch (err) {}
 
+        // СКРЫВАЕМ ЗАГОЛОВОК ПРИ ПЕРЕХОДЕ К КОЛЕСУ
+        const modalHeader = document.getElementById('universalModalHeader');
+        if (modalHeader) {
+            modalHeader.style.display = 'none';
+        }
+
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'flex';
 
@@ -1122,8 +1127,7 @@
             showCouponAppliedNotification(couponCode);
         } catch (error) {}
     }
-
-    // Show coupon notification
+// Show coupon notification - ОПТИМИЗИРОВАННОЕ С ОРАНЖЕВЫМИ ЦВЕТАМИ
     function showCouponAppliedNotification(couponCode) {
         const currentLang = getCurrentLanguage();
         
@@ -1151,9 +1155,10 @@
         notification.id = 'coupon-applied-notification';
         notification.className = 'coupon-notification-container';
         
-        const confettiColors = ['#FFD700', '#FF69B4', '#00CED1', '#FF6347', '#9370DB', '#32CD32'];
+        // Оранжевое конфетти
+        const confettiColors = ['#f59e0b', '#fb923c', '#fdba74', '#fbbf24', '#d97706', '#ea580c'];
         let confettiHTML = '';
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 8; i++) {
             const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
             const left = Math.random() * 100;
             const delay = Math.random() * 0.5;
@@ -1203,20 +1208,21 @@
             style.textContent = `
                 .coupon-notification-container {
                     position: fixed;
-                    top: 80px;
+                    top: 20px;
                     right: 20px;
                     z-index: 10000;
-                    animation: slideInNotification 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    animation: slideInNotification 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
                 }
                 
                 .coupon-notification-card {
                     position: relative;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 16px;
-                    padding: 20px;
-                    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
-                    max-width: 320px;
+                    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                    border-radius: 20px;
+                    padding: 24px;
+                    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.5);
+                    max-width: 380px;
                     overflow: hidden;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
                 }
                 
                 .coupon-shine {
@@ -1228,7 +1234,7 @@
                     background: linear-gradient(
                         45deg,
                         transparent 30%,
-                        rgba(255, 255, 255, 0.3) 50%,
+                        rgba(255, 255, 255, 0.4) 50%,
                         transparent 70%
                     );
                     transform: rotate(45deg);
@@ -1236,21 +1242,23 @@
                 }
                 
                 .coupon-gift-icon {
-                    width: 48px;
-                    height: 48px;
-                    margin: 0 auto 12px;
-                    background: rgba(255, 255, 255, 0.2);
+                    width: 56px;
+                    height: 56px;
+                    margin: 0 auto 16px;
+                    background: rgba(255, 255, 255, 0.25);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    animation: bounceIcon 1s infinite;
+                    animation: bounceIcon 1.2s infinite;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 }
                 
                 .coupon-gift-icon svg {
-                    width: 24px;
-                    height: 24px;
+                    width: 28px;
+                    height: 28px;
                     color: white;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
                 }
                 
                 .coupon-notification-content {
@@ -1261,68 +1269,72 @@
                 }
                 
                 .coupon-title {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    margin-bottom: 12px;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    font-size: 1.4rem;
+                    font-weight: 800;
+                    margin-bottom: 14px;
+                    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 8px;
+                    gap: 10px;
+                    line-height: 1.3;
                 }
                 
                 .sparkle {
                     display: inline-block;
                     animation: sparkleAnimation 1.5s infinite;
-                    font-size: 1rem;
+                    font-size: 1.1rem;
                 }
                 
                 .coupon-code-container {
-                    background: rgba(255, 255, 255, 0.2);
-                    border: 2px dashed rgba(255, 255, 255, 0.5);
-                    border-radius: 12px;
-                    padding: 12px;
-                    margin: 12px 0;
-                    backdrop-filter: blur(10px);
+                    background: rgba(255, 255, 255, 0.95);
+                    border: 2px solid rgba(255, 255, 255, 1);
+                    border-radius: 14px;
+                    padding: 16px 14px;
+                    margin: 14px 0;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 }
                 
                 .coupon-label {
                     display: block;
-                    font-size: 0.75rem;
-                    opacity: 0.9;
-                    margin-bottom: 4px;
+                    font-size: 0.8rem;
+                    color: #d97706;
+                    margin-bottom: 6px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 1.2px;
+                    font-weight: 700;
                 }
                 
                 .coupon-code {
                     display: block;
-                    font-size: 1.5rem;
-                    font-weight: 800;
-                    letter-spacing: 2px;
+                    font-size: 1.65rem;
+                    font-weight: 900;
+                    letter-spacing: 2.5px;
                     font-family: 'Courier New', monospace;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                    color: #f59e0b;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
                 
                 .coupon-message {
-                    font-size: 0.875rem;
-                    opacity: 0.95;
+                    font-size: 0.95rem;
                     line-height: 1.5;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 6px;
+                    gap: 8px;
+                    opacity: 0.98;
+                    font-weight: 500;
                 }
                 
                 .check-icon {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    width: 18px;
-                    height: 18px;
+                    width: 22px;
+                    height: 22px;
                     background: rgba(255, 255, 255, 0.3);
                     border-radius: 50%;
-                    font-size: 12px;
+                    font-size: 14px;
                     font-weight: bold;
                 }
                 
@@ -1339,19 +1351,20 @@
                 .confetti {
                     position: absolute;
                     top: -10px;
-                    width: 8px;
-                    height: 8px;
+                    width: 10px;
+                    height: 10px;
                     opacity: 0;
-                    animation: confettiFall 2s ease-in-out forwards;
+                    animation: confettiFall 2.5s ease-in-out forwards;
+                    border-radius: 2px;
                 }
                 
                 @keyframes slideInNotification {
                     0% {
-                        transform: translateX(400px) scale(0.5);
+                        transform: translateX(450px) scale(0.6);
                         opacity: 0;
                     }
                     60% {
-                        transform: translateX(-20px) scale(1.05);
+                        transform: translateX(-25px) scale(1.05);
                         opacity: 1;
                     }
                     80% {
@@ -1377,7 +1390,7 @@
                         transform: translateY(0) scale(1);
                     }
                     50% {
-                        transform: translateY(-8px) scale(1.1);
+                        transform: translateY(-10px) scale(1.1);
                     }
                 }
                 
@@ -1387,7 +1400,7 @@
                         opacity: 1;
                     }
                     50% {
-                        transform: scale(1.3) rotate(180deg);
+                        transform: scale(1.4) rotate(180deg);
                         opacity: 0.7;
                     }
                 }
@@ -1398,14 +1411,42 @@
                         opacity: 1;
                     }
                     100% {
-                        transform: translateY(400px) rotate(720deg);
+                        transform: translateY(500px) rotate(720deg);
                         opacity: 0;
                     }
                 }
                 
+                /* АДАПТИВНЫЕ СТИЛИ ДЛЯ ПЛАНШЕТОВ */
+                @media (max-width: 1024px) and (min-width: 769px) {
+                    .coupon-notification-container {
+                        top: 18px;
+                        right: 18px;
+                    }
+                    
+                    .coupon-notification-card {
+                        max-width: 360px;
+                        padding: 22px;
+                    }
+                    
+                    .coupon-gift-icon {
+                        width: 52px;
+                        height: 52px;
+                    }
+                    
+                    .coupon-title {
+                        font-size: 1.3rem;
+                    }
+                    
+                    .coupon-code {
+                        font-size: 1.55rem;
+                        letter-spacing: 2.2px;
+                    }
+                }
+                
+                /* АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ */
                 @media (max-width: 768px) {
                     .coupon-notification-container {
-                        top: 70px;
+                        top: 16px;
                         right: 16px;
                         left: 16px;
                         max-width: calc(100% - 32px);
@@ -1413,17 +1454,79 @@
                     
                     .coupon-notification-card {
                         max-width: 100%;
-                        padding: 16px;
+                        padding: 20px 18px;
+                        border-radius: 18px;
                     }
                     
                     .coupon-gift-icon {
-                        width: 40px;
-                        height: 40px;
+                        width: 48px;
+                        height: 48px;
+                        margin-bottom: 14px;
                     }
                     
                     .coupon-gift-icon svg {
+                        width: 24px;
+                        height: 24px;
+                    }
+                    
+                    .coupon-title {
+                        font-size: 1.2rem;
+                        gap: 8px;
+                        margin-bottom: 12px;
+                    }
+                    
+                    .sparkle {
+                        font-size: 1rem;
+                    }
+                    
+                    .coupon-code-container {
+                        padding: 14px 12px;
+                        margin: 12px 0;
+                    }
+                    
+                    .coupon-label {
+                        font-size: 0.75rem;
+                        margin-bottom: 5px;
+                    }
+                    
+                    .coupon-code {
+                        font-size: 1.4rem;
+                        letter-spacing: 2px;
+                    }
+                    
+                    .coupon-message {
+                        font-size: 0.875rem;
+                    }
+                    
+                    .check-icon {
                         width: 20px;
                         height: 20px;
+                        font-size: 13px;
+                    }
+                }
+                
+                /* СТИЛИ ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
+                @media (max-width: 480px) {
+                    .coupon-notification-container {
+                        top: 12px;
+                        right: 12px;
+                        left: 12px;
+                    }
+                    
+                    .coupon-notification-card {
+                        padding: 18px 16px;
+                        border-radius: 16px;
+                    }
+                    
+                    .coupon-gift-icon {
+                        width: 44px;
+                        height: 44px;
+                        margin-bottom: 12px;
+                    }
+                    
+                    .coupon-gift-icon svg {
+                        width: 22px;
+                        height: 22px;
                     }
                     
                     .coupon-title {
@@ -1432,7 +1535,15 @@
                     }
                     
                     .sparkle {
-                        font-size: 0.875rem;
+                        font-size: 0.9rem;
+                    }
+                    
+                    .coupon-code-container {
+                        padding: 12px 10px;
+                    }
+                    
+                    .coupon-label {
+                        font-size: 0.7rem;
                     }
                     
                     .coupon-code {
@@ -1445,11 +1556,21 @@
                     }
                 }
                 
-                @media (max-width: 400px) {
+                /* СТИЛИ ДЛЯ ЭКСТРА МАЛЕНЬКИХ ЭКРАНОВ */
+                @media (max-width: 360px) {
                     .coupon-notification-container {
-                        top: 60px;
-                        right: 12px;
-                        left: 12px;
+                        top: 10px;
+                        right: 10px;
+                        left: 10px;
+                    }
+                    
+                    .coupon-notification-card {
+                        padding: 16px 14px;
+                    }
+                    
+                    .coupon-gift-icon {
+                        width: 40px;
+                        height: 40px;
                     }
                     
                     .coupon-title {
@@ -1457,7 +1578,12 @@
                     }
                     
                     .coupon-code {
-                        font-size: 1.1rem;
+                        font-size: 1.15rem;
+                        letter-spacing: 1.2px;
+                    }
+                    
+                    .coupon-message {
+                        font-size: 0.75rem;
                     }
                 }
             `;
@@ -1468,15 +1594,15 @@
         
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.style.animation = 'slideInNotification 0.4s ease-out reverse';
+                notification.style.animation = 'slideInNotification 0.5s ease-out reverse';
                 notification.style.opacity = '0';
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
                     }
-                }, 400);
+                }, 500);
             }
-        }, 5000);
+        }, 6000);
     }
 
     function handleOutsideClick(event) {
@@ -1634,6 +1760,10 @@
         
         const existingPhone = localStorage.getItem('spinningWheelPhone');
         if (existingPhone) {
+            const modalHeader = document.getElementById('universalModalHeader');
+            if (modalHeader) {
+                modalHeader.style.display = 'none';
+            }
             document.getElementById('universalPhoneStep').style.display = 'none';
             document.getElementById('universalWheelStep').style.display = 'flex';
         }
