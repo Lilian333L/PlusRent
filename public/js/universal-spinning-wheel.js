@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal - WORLD-CLASS DESIGN V6
- * ИДЕАЛЬНЫЙ ДИЗАЙН: Всё видно сразу, никакого скролла, мировой уровень!
+ * Universal Spinning Wheel Modal - INTERPLANETARY LEVEL DESIGN V7
+ * Лучший дизайн мира для спин-колеса с нуля!
  */
 
 (function() {
@@ -25,7 +25,8 @@
         modalCheckInterval: null,
         originalBodyOverflow: '',
         originalBodyPosition: '',
-        scrollPosition: 0
+        scrollPosition: 0,
+        showInstructions: false
     };
 
     // Check if any modal is open
@@ -130,55 +131,61 @@
     // All translations
     const translations = {
         en: {
-            title: 'Try Your Luck!',
-            subtitle: 'Spin the wheel and win amazing discounts!',
+            title: 'Spin & Win!',
+            subtitle: 'Try your luck for amazing discounts',
             enterPhoneTitle: 'Enter Your Number',
-            phoneDescription: 'We\'ll send you exclusive offers and your lucky discount code!',
+            phoneDescription: 'Get exclusive offers sent to you',
             phonePlaceholder: '+373 XX XXX XXX',
-            continueButton: 'Continue',
+            continueButton: 'Continue to Spin',
             privacyText: 'Your data is secure',
             emptyPhone: 'Please enter a phone number',
-            invalidPhone: 'Please enter a valid phone number (7-15 digits)',
-            hasCoupons: 'You have already received a reward for this phone number.',
+            invalidPhone: 'Please enter a valid phone number',
+            hasCoupons: 'You already have an active reward',
             howToPlay: 'How to Play',
-            step1: 'Click the button in the center of the wheel',
-            step2: 'Watch the wheel spin and stop on your prize',
-            step3: 'Copy your discount code',
-            step4: 'Use it on your next booking'
+            step1: 'Tap the center button',
+            step2: 'Watch it spin',
+            step3: 'Get your prize',
+            step4: 'Use the code',
+            showInstructions: 'How to Play?',
+            hideInstructions: 'Close'
         },
         ru: {
-            title: 'Испытай свою удачу!',
-            subtitle: 'Крути колесо и выигрывай удивительные скидки!',
-            enterPhoneTitle: 'Введите Ваш Номер',
-            phoneDescription: 'Мы отправим вам эксклюзивные предложения и ваш счастливый код скидки!',
+            title: 'Крути и Выигрывай!',
+            subtitle: 'Испытай удачу и получи скидку',
+            enterPhoneTitle: 'Введи Номер',
+            phoneDescription: 'Получи эксклюзивные предложения',
             phonePlaceholder: '+373 XX XXX XXX',
-            continueButton: 'Продолжить',
-            privacyText: 'Ваши данные защищены',
-            emptyPhone: 'Пожалуйста, введите номер телефона',
-            invalidPhone: 'Пожалуйста, введите корректный номер (7-15 цифр)',
-            hasCoupons: 'Вы уже получили награду за этот номер телефона.',
+            continueButton: 'Крутить Колесо',
+            privacyText: 'Данные защищены',
+            emptyPhone: 'Введите номер телефона',
+            invalidPhone: 'Введите корректный номер',
+            hasCoupons: 'У вас уже есть активная награда',
             howToPlay: 'Как играть',
-            step1: 'Нажми кнопку в центре колеса',
-            step2: 'Следи за вращением колеса и остановкой на твоем призе',
-            step3: 'Скопируй свой код скидки',
-            step4: 'Используй его при следующем бронировании'
+            step1: 'Нажми на кнопку',
+            step2: 'Следи за вращением',
+            step3: 'Получи приз',
+            step4: 'Используй код',
+            showInstructions: 'Как играть?',
+            hideInstructions: 'Закрыть'
         },
         ro: {
-            title: 'Încearcă-ți norocul!',
-            subtitle: 'Rotește roata și câștigă reduceri uimitoare!',
-            enterPhoneTitle: 'Introdu Numărul Tău',
-            phoneDescription: 'Îți vom trimite oferte exclusive și codul tău de reducere norocos!',
+            title: 'Rotește și Câștigă!',
+            subtitle: 'Încearcă norocul pentru reduceri',
+            enterPhoneTitle: 'Introdu Numărul',
+            phoneDescription: 'Primește oferte exclusive',
             phonePlaceholder: '+373 XX XXX XXX',
-            continueButton: 'Continuă',
-            privacyText: 'Datele tale sunt securizate',
-            emptyPhone: 'Vă rugăm introduceți numărul de telefon',
-            invalidPhone: 'Vă rugăm introduceți un număr valid (7-15 cifre)',
-            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.',
+            continueButton: 'Rotește Roata',
+            privacyText: 'Datele sunt securizate',
+            emptyPhone: 'Introdu numărul de telefon',
+            invalidPhone: 'Introdu un număr valid',
+            hasCoupons: 'Ai deja o recompensă activă',
             howToPlay: 'Cum să joci',
-            step1: 'Apasă butonul din centrul roții',
-            step2: 'Urmărește rotirea roții și oprirea pe premiul tău',
-            step3: 'Copiază codul tău de reducere',
-            step4: 'Folosește-l la următoarea rezervare'
+            step1: 'Apasă butonul',
+            step2: 'Urmărește rotirea',
+            step3: 'Primește premiul',
+            step4: 'Folosește codul',
+            showInstructions: 'Cum să joci?',
+            hideInstructions: 'Închide'
         }
     };
 
@@ -236,6 +243,36 @@
         localStorage.removeItem('websiteTotalTime');
     }
 
+    // Toggle instructions
+    function toggleInstructions() {
+        state.showInstructions = !state.showInstructions;
+        const instructionsPanel = document.getElementById('instructionsPanel');
+        const toggleBtn = document.getElementById('toggleInstructionsBtn');
+        
+        if (instructionsPanel && toggleBtn) {
+            if (state.showInstructions) {
+                instructionsPanel.classList.add('show');
+                toggleBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>${t('hideInstructions')}</span>
+                `;
+            } else {
+                instructionsPanel.classList.remove('show');
+                toggleBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>${t('showInstructions')}</span>
+                `;
+            }
+        }
+    }
+
     // Create modal HTML
     function createModalHTML() {
         return `
@@ -243,55 +280,51 @@
                 <div class="spinning-wheel-modal-backdrop"></div>
                 <div class="spinning-wheel-modal-container">
                     <button class="spinning-wheel-modal-close" aria-label="Close">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </button>
                     
                     <div class="spinning-wheel-modal-content">
+                        <!-- HEADER -->
                         <div class="spinning-wheel-modal-header" id="universalModalHeader">
-                            <div class="header-gift-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 12v10H4V12"></path>
-                                    <path d="M22 7H2v5h20V7z"></path>
-                                    <path d="M12 22V7"></path>
-                                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                                </svg>
+                            <div class="header-content">
+                                <div class="header-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 6v6l4 2"></path>
+                                    </svg>
+                                </div>
+                                <h2 class="header-title">${t('title')}</h2>
+                                <p class="header-subtitle">${t('subtitle')}</p>
                             </div>
-                            <h2 class="spinning-wheel-modal-title">${t('title')}</h2>
-                            <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
                         </div>
                         
-                        <div class="spinning-wheel-content-wrapper">
+                        <!-- MAIN CONTENT -->
+                        <div class="spinning-wheel-body">
                             <!-- PHONE STEP -->
-                            <div class="spinning-wheel-phone-step" id="universalPhoneStep">
-                                <div class="phone-input-card">
-                                    <div class="phone-icon-wrapper">
+                            <div class="phone-step" id="universalPhoneStep">
+                                <div class="phone-card">
+                                    <div class="phone-icon">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                         </svg>
                                     </div>
-                                    <h3 class="phone-step-title">${t('enterPhoneTitle')}</h3>
-                                    <p class="phone-description">${t('phoneDescription')}</p>
+                                    <h3 class="phone-title">${t('enterPhoneTitle')}</h3>
+                                    <p class="phone-desc">${t('phoneDescription')}</p>
                                     <form class="phone-form" id="universalPhoneForm">
-                                        <div class="input-group">
-                                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                            </svg>
+                                        <div class="form-group">
                                             <input type="tel" class="phone-input" id="universalPhoneInput" 
                                                    placeholder="${t('phonePlaceholder')}" required>
                                         </div>
-                                        <button type="submit" class="phone-submit-btn">
+                                        <button type="submit" class="phone-btn">
                                             <span>${t('continueButton')}</span>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                                <path d="M5 12h14M12 5l7 7-7 7"></path>
                                             </svg>
                                         </button>
-                                        <div class="privacy-badge">
+                                        <div class="privacy-note">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                             </svg>
@@ -302,32 +335,73 @@
                             </div>
                             
                             <!-- WHEEL STEP -->
-                            <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
-                                <div class="wheel-container">
-                                    <iframe id="universalSpinningWheelIframe" 
-                                            src="${CONFIG.iframeSrc}" 
-                                            frameborder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                                    </iframe>
+                            <div class="wheel-step" id="universalWheelStep" style="display: none;">
+                                <div class="wheel-main">
+                                    <div class="wheel-frame">
+                                        <iframe id="universalSpinningWheelIframe" 
+                                                src="${CONFIG.iframeSrc}" 
+                                                frameborder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                        </iframe>
+                                    </div>
+                                    
+                                    <!-- Mobile Instructions Toggle -->
+                                    <button class="instructions-toggle" id="toggleInstructionsBtn" onclick="window.UniversalSpinningWheel.toggleInstructions()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        <span>${t('showInstructions')}</span>
+                                    </button>
                                 </div>
-                                <div class="wheel-sidebar" id="wheelSidebar">
-                                    <div class="wheel-instructions">
-                                        <h3 class="instructions-title">${t('howToPlay')}</h3>
-                                        <div class="instruction-item">
-                                            <div class="instruction-number">1</div>
-                                            <p>${t('step1')}</p>
+                                
+                                <!-- Desktop Sidebar -->
+                                <div class="wheel-sidebar">
+                                    <div class="sidebar-content">
+                                        <h3 class="sidebar-title">${t('howToPlay')}</h3>
+                                        <div class="steps">
+                                            <div class="step-item">
+                                                <div class="step-num">1</div>
+                                                <p>${t('step1')}</p>
+                                            </div>
+                                            <div class="step-item">
+                                                <div class="step-num">2</div>
+                                                <p>${t('step2')}</p>
+                                            </div>
+                                            <div class="step-item">
+                                                <div class="step-num">3</div>
+                                                <p>${t('step3')}</p>
+                                            </div>
+                                            <div class="step-item">
+                                                <div class="step-num">4</div>
+                                                <p>${t('step4')}</p>
+                                            </div>
                                         </div>
-                                        <div class="instruction-item">
-                                            <div class="instruction-number">2</div>
-                                            <p>${t('step2')}</p>
-                                        </div>
-                                        <div class="instruction-item">
-                                            <div class="instruction-number">3</div>
-                                            <p>${t('step3')}</p>
-                                        </div>
-                                        <div class="instruction-item">
-                                            <div class="instruction-number">4</div>
-                                            <p>${t('step4')}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Mobile Instructions Panel -->
+                                <div class="instructions-panel" id="instructionsPanel">
+                                    <div class="panel-content">
+                                        <h3 class="panel-title">${t('howToPlay')}</h3>
+                                        <div class="panel-steps">
+                                            <div class="panel-step">
+                                                <div class="panel-num">1</div>
+                                                <p>${t('step1')}</p>
+                                            </div>
+                                            <div class="panel-step">
+                                                <div class="panel-num">2</div>
+                                                <p>${t('step2')}</p>
+                                            </div>
+                                            <div class="panel-step">
+                                                <div class="panel-num">3</div>
+                                                <p>${t('step3')}</p>
+                                            </div>
+                                            <div class="panel-step">
+                                                <div class="panel-num">4</div>
+                                                <p>${t('step4')}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -343,25 +417,24 @@
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== WORLD-CLASS DESIGN V6 - ИДЕАЛЬНЫЙ ===== */
+            /* ===== INTERPLANETARY LEVEL DESIGN V7 ===== */
             
             * {
                 box-sizing: border-box;
+                margin: 0;
+                padding: 0;
             }
             
             .spinning-wheel-modal {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                inset: 0;
                 z-index: ${CONFIG.zIndex};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 opacity: 0;
                 visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
+                transition: opacity 0.25s ease, visibility 0.25s ease;
             }
 
             .spinning-wheel-modal.show {
@@ -369,270 +442,220 @@
                 visibility: visible;
             }
 
-            /* ✨ BACKDROP */
+            /* Backdrop */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.65);
-                backdrop-filter: blur(12px) saturate(120%);
-                -webkit-backdrop-filter: blur(12px) saturate(120%);
+                inset: 0;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(16px) saturate(180%);
+                -webkit-backdrop-filter: blur(16px) saturate(180%);
                 z-index: 1;
-                animation: fadeIn 0.3s ease;
             }
 
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    backdrop-filter: blur(0px);
-                }
-                to {
-                    opacity: 1;
-                    backdrop-filter: blur(12px) saturate(120%);
-                }
-            }
-
-            /* ✨ CONTAINER */
+            /* Container */
             .spinning-wheel-modal-container {
                 position: relative;
                 z-index: 2;
                 width: 100%;
-                max-width: 1150px;
-                max-height: 90vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                transform: scale(0.92);
-                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+                max-width: 1200px;
+                max-height: 92vh;
+                margin: 0 auto;
+                padding: 16px;
+                transform: scale(0.94);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-container {
                 transform: scale(1);
             }
 
-            /* ✨ CLOSE BUTTON */
+            /* Close Button */
             .spinning-wheel-modal-close {
                 position: absolute;
-                top: -52px;
+                top: -48px;
                 right: 0;
-                width: 44px;
-                height: 44px;
-                background: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(10px);
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.95);
+                border: none;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                transition: all 0.25s ease;
-                padding: 0;
-                z-index: 10;
+                transition: all 0.2s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 
             .spinning-wheel-modal-close svg {
-                width: 22px;
-                height: 22px;
-                color: white;
-                stroke-width: 3;
+                width: 18px;
+                height: 18px;
+                color: #1f2937;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(0, 0, 0, 0.75);
+                background: white;
                 transform: rotate(90deg) scale(1.1);
-                border-color: rgba(255, 255, 255, 0.5);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
             }
 
-            /* ✨ MAIN CONTENT */
+            /* Main Content */
             .spinning-wheel-modal-content {
                 background: white;
-                border-radius: 24px;
-                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.1);
+                border-radius: 20px;
                 overflow: hidden;
-                width: 100%;
-                max-height: 90vh;
+                box-shadow: 
+                    0 20px 60px rgba(0, 0, 0, 0.3),
+                    0 0 0 1px rgba(0, 0, 0, 0.05);
                 display: flex;
                 flex-direction: column;
+                max-height: 92vh;
             }
 
-            /* ✨ HEADER */
+            /* Header */
             .spinning-wheel-modal-header {
-                padding: 26px 32px 20px;
-                text-align: center;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                padding: 24px;
                 position: relative;
                 overflow: hidden;
-                flex-shrink: 0;
             }
 
             .spinning-wheel-modal-header::before {
                 content: '';
                 position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
-                animation: rotate 20s linear infinite;
+                inset: -50%;
+                background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                animation: headerRotate 15s linear infinite;
             }
 
-            @keyframes rotate {
-                from { transform: rotate(0deg); }
+            @keyframes headerRotate {
                 to { transform: rotate(360deg); }
             }
 
-            .header-gift-icon {
-                width: 54px;
-                height: 54px;
-                margin: 0 auto 13px;
-                background: rgba(255, 255, 255, 0.22);
-                backdrop-filter: blur(10px);
+            .header-content {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+            }
+
+            .header-icon {
+                width: 48px;
+                height: 48px;
+                margin: 0 auto 12px;
+                background: rgba(255, 255, 255, 0.25);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 2px solid rgba(255, 255, 255, 0.35);
-                animation: float 3s ease-in-out infinite;
-                position: relative;
-                z-index: 1;
+                animation: iconFloat 3s ease-in-out infinite;
             }
 
-            @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-7px); }
+            @keyframes iconFloat {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-6px); }
             }
 
-            .header-gift-icon svg {
-                width: 27px;
-                height: 27px;
+            .header-icon svg {
+                width: 24px;
+                height: 24px;
                 color: white;
-                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
             }
 
-            .spinning-wheel-modal-title {
-                font-size: 1.7rem;
+            .header-title {
+                font-size: 1.75rem;
                 font-weight: 800;
                 color: white;
-                margin: 0 0 6px;
-                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.22);
-                letter-spacing: -0.5px;
-                position: relative;
-                z-index: 1;
+                margin-bottom: 6px;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             }
 
-            .spinning-wheel-modal-subtitle {
-                font-size: 0.94rem;
-                color: rgba(255, 255, 255, 0.96);
-                margin: 0;
-                text-shadow: 0 1px 10px rgba(0, 0, 0, 0.12);
-                position: relative;
-                z-index: 1;
+            .header-subtitle {
+                font-size: 0.9375rem;
+                color: rgba(255, 255, 255, 0.95);
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
             }
 
-            /* ✨ CONTENT WRAPPER */
-            .spinning-wheel-content-wrapper {
-                padding: 30px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+            /* Body */
+            .spinning-wheel-body {
                 flex: 1;
+                padding: 28px;
                 min-height: 0;
+                overflow: hidden;
             }
 
-            .spinning-wheel-phone-step {
-                width: 100%;
+            /* Phone Step */
+            .phone-step {
+                height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
 
-            /* ✨ PHONE INPUT */
-            .phone-input-card {
+            .phone-card {
                 width: 100%;
-                max-width: 420px;
+                max-width: 400px;
                 text-align: center;
             }
 
-            .phone-icon-wrapper {
-                width: 54px;
-                height: 54px;
-                margin: 0 auto 17px;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                border-radius: 14px;
+            .phone-icon {
+                width: 56px;
+                height: 56px;
+                margin: 0 auto 16px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                border-radius: 16px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 8px 32px rgba(245, 158, 11, 0.32);
+                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
             }
 
-            .phone-icon-wrapper svg {
-                width: 27px;
-                height: 27px;
+            .phone-icon svg {
+                width: 28px;
+                height: 28px;
                 color: white;
             }
 
-            .phone-step-title {
-                font-size: 1.38rem;
+            .phone-title {
+                font-size: 1.5rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 6px;
-                letter-spacing: -0.5px;
+                margin-bottom: 8px;
             }
 
-            .phone-description {
-                font-size: 0.94rem;
+            .phone-desc {
+                font-size: 0.9375rem;
                 color: #6b7280;
-                margin: 0 0 19px;
-                line-height: 1.55;
+                margin-bottom: 24px;
             }
 
             .phone-form {
                 width: 100%;
             }
 
-            .input-group {
-                position: relative;
-                margin-bottom: 13px;
-            }
-
-            .input-icon {
-                position: absolute;
-                left: 14px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 20px;
-                height: 20px;
-                color: #9ca3af;
-                pointer-events: none;
+            .form-group {
+                margin-bottom: 16px;
             }
 
             .phone-input {
                 width: 100%;
-                padding: 13px 14px 13px 44px;
+                padding: 14px 16px;
                 border: 2px solid #e5e7eb;
                 border-radius: 12px;
                 font-size: 1rem;
                 color: #111827;
-                transition: all 0.2s ease;
+                transition: all 0.2s;
                 background: white;
             }
 
             .phone-input:focus {
                 outline: none;
                 border-color: #f59e0b;
-                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
             }
 
-            .phone-input::placeholder {
-                color: #d1d5db;
-            }
-
-            .phone-input-error {
-                border-color: #ef4444 !important;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+            .phone-input.error {
+                border-color: #ef4444;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
             }
 
             .phone-error-message {
@@ -640,336 +663,354 @@
                 font-size: 0.875rem;
                 margin-top: 8px;
                 text-align: left;
-                padding-left: 4px;
-                font-weight: 500;
             }
 
-            .phone-submit-btn {
+            .phone-btn {
                 width: 100%;
-                padding: 13px 18px;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                padding: 14px 20px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
                 color: white;
                 border: none;
                 border-radius: 12px;
                 font-size: 1rem;
                 font-weight: 700;
                 cursor: pointer;
-                transition: all 0.22s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                box-shadow: 0 4px 18px rgba(245, 158, 11, 0.32);
+                transition: all 0.2s;
+                box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
             }
 
-            .phone-submit-btn:hover {
+            .phone-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 26px rgba(245, 158, 11, 0.42);
+                box-shadow: 0 6px 24px rgba(245, 158, 11, 0.4);
             }
 
-            .phone-submit-btn svg {
+            .phone-btn svg {
                 width: 20px;
                 height: 20px;
-                transition: transform 0.22s ease;
             }
 
-            .phone-submit-btn:hover svg {
-                transform: translateX(4px);
-            }
-
-            .privacy-badge {
+            .privacy-note {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                margin-top: 13px;
-                color: #6b7280;
+                gap: 6px;
+                margin-top: 12px;
                 font-size: 0.875rem;
+                color: #6b7280;
             }
 
-            .privacy-badge svg {
-                width: 16px;
-                height: 16px;
+            .privacy-note svg {
+                width: 14px;
+                height: 14px;
                 color: #10b981;
             }
 
-            /* ✨ WHEEL STEP - TWO COLUMNS ON DESKTOP */
-            .spinning-wheel-wheel-step {
-                width: 100%;
+            /* Wheel Step */
+            .wheel-step {
                 height: 100%;
                 display: grid;
-                grid-template-columns: 1.5fr 1fr;
-                gap: 30px;
-                align-items: stretch;
+                grid-template-columns: 1fr 320px;
+                gap: 24px;
+                position: relative;
             }
 
-            .wheel-container {
-                width: 100%;
-                height: 100%;
+            .wheel-main {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 480px;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .wheel-frame {
+                flex: 1;
+                border-radius: 16px;
+                overflow: hidden;
+                background: #fafafa;
+                min-height: 450px;
             }
 
             #universalSpinningWheelIframe {
                 width: 100%;
                 height: 100%;
                 border: none;
-                border-radius: 12px;
             }
 
+            /* Desktop Sidebar */
             .wheel-sidebar {
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                background: #f9fafb;
+                border-radius: 16px;
+                padding: 24px;
             }
 
-            .wheel-instructions {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                animation: slideInRight 0.5s ease;
+            .sidebar-content {
+                flex: 1;
             }
 
-            @keyframes slideInRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(25px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-
-            .instructions-title {
-                font-size: 1.44rem;
+            .sidebar-title {
+                font-size: 1.25rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 8px;
-                letter-spacing: -0.5px;
+                margin-bottom: 16px;
             }
 
-            .instruction-item {
+            .steps {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .step-item {
                 display: flex;
                 align-items: flex-start;
-                gap: 13px;
-                padding: 15px;
-                border-radius: 12px;
-                background: #f9fafb;
-                transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+                gap: 12px;
+                padding: 12px;
+                background: white;
+                border-radius: 10px;
+                transition: all 0.2s;
                 cursor: pointer;
-                animation: fadeInUp 0.48s ease backwards;
             }
 
-            .instruction-item:nth-child(2) { animation-delay: 0.08s; }
-            .instruction-item:nth-child(3) { animation-delay: 0.16s; }
-            .instruction-item:nth-child(4) { animation-delay: 0.24s; }
-            .instruction-item:nth-child(5) { animation-delay: 0.32s; }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(18px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .instruction-item:hover {
+            .step-item:hover {
                 background: #fff;
-                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.09);
-                transform: translateY(-2px);
+                transform: translateX(4px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             }
 
-            .instruction-number {
-                width: 35px;
-                height: 35px;
+            .step-num {
+                width: 32px;
+                height: 32px;
                 flex-shrink: 0;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                background: linear-gradient(135deg, #f59e0b, #d97706);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: white;
                 font-weight: 800;
-                font-size: 0.94rem;
-                box-shadow: 0 4px 13px rgba(245, 158, 11, 0.32);
-                transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+                font-size: 0.875rem;
+                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
             }
 
-            .instruction-item:hover .instruction-number {
-                transform: scale(1.12) rotate(360deg);
-            }
-
-            .instruction-item p {
-                margin: 0;
+            .step-item p {
+                flex: 1;
                 color: #4b5563;
-                font-size: 0.94rem;
-                line-height: 1.58;
-                padding-top: 5px;
+                font-size: 0.9375rem;
+                line-height: 1.5;
+                padding-top: 4px;
             }
 
-            /* ===== RESPONSIVE DESIGN ===== */
+            /* Mobile Instructions Toggle */
+            .instructions-toggle {
+                display: none;
+                width: 100%;
+                padding: 12px 16px;
+                background: white;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                color: #374151;
+                font-size: 0.9375rem;
+                font-weight: 600;
+                cursor: pointer;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.2s;
+            }
+
+            .instructions-toggle svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .instructions-toggle:hover {
+                background: #f9fafb;
+                border-color: #d1d5db;
+            }
+
+            /* Mobile Instructions Panel */
+            .instructions-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-radius: 20px 20px 0 0;
+                padding: 24px;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                z-index: 10;
+                max-height: 60vh;
+                overflow-y: auto;
+                display: none;
+            }
+
+            .instructions-panel.show {
+                transform: translateY(0);
+            }
+
+            .panel-content {
+                width: 100%;
+            }
+
+            .panel-title {
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: #111827;
+                margin-bottom: 16px;
+                text-align: center;
+            }
+
+            .panel-steps {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .panel-step {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px;
+                background: #f9fafb;
+                border-radius: 10px;
+            }
+
+            .panel-num {
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 800;
+                font-size: 0.875rem;
+            }
+
+            .panel-step p {
+                flex: 1;
+                color: #4b5563;
+                font-size: 0.9375rem;
+                line-height: 1.5;
+                padding-top: 4px;
+            }
+
+            /* ===== RESPONSIVE ===== */
 
             /* Desktop Large */
-            @media (min-width: 1200px) {
+            @media (min-width: 1280px) {
                 .spinning-wheel-modal-container {
-                    max-width: 1200px;
+                    max-width: 1280px;
                 }
 
-                .spinning-wheel-content-wrapper {
-                    padding: 36px;
+                .wheel-step {
+                    grid-template-columns: 1fr 360px;
                 }
 
-                .wheel-container {
-                    min-height: 520px;
-                }
-            }
-
-            /* Desktop Medium */
-            @media (min-width: 1024px) and (max-width: 1199px) {
-                .spinning-wheel-modal-container {
-                    max-width: 1050px;
-                }
-
-                .wheel-container {
-                    min-height: 460px;
+                .wheel-frame {
+                    min-height: 500px;
                 }
             }
 
             /* Tablet */
             @media (max-width: 1023px) {
-                .spinning-wheel-wheel-step {
+                .wheel-step {
                     grid-template-columns: 1fr;
-                    gap: 22px;
-                }
-
-                .wheel-container {
-                    order: 1;
-                    min-height: 420px;
                 }
 
                 .wheel-sidebar {
-                    order: 2;
+                    display: none;
                 }
 
-                .spinning-wheel-modal-container {
-                    max-width: 720px;
-                    max-height: 88vh;
+                .instructions-toggle {
+                    display: flex;
                 }
 
-                .spinning-wheel-modal-close {
-                    top: -46px;
+                .instructions-panel {
+                    display: block;
                 }
 
-                .spinning-wheel-content-wrapper {
-                    padding: 26px;
+                .wheel-frame {
+                    min-height: 400px;
                 }
             }
 
             /* Mobile */
             @media (max-width: 767px) {
                 .spinning-wheel-modal-container {
-                    max-width: calc(100% - 24px);
-                    max-height: 92vh;
                     padding: 12px;
+                    max-height: 95vh;
                 }
 
                 .spinning-wheel-modal-close {
-                    top: -42px;
-                    width: 42px;
-                    height: 42px;
-                    background: rgba(0, 0, 0, 0.62);
+                    top: -44px;
+                    width: 38px;
+                    height: 38px;
                 }
 
                 .spinning-wheel-modal-content {
-                    border-radius: 22px;
+                    border-radius: 18px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 22px 20px 18px;
+                    padding: 20px;
                 }
 
-                .header-gift-icon {
-                    width: 50px;
-                    height: 50px;
+                .header-icon {
+                    width: 44px;
+                    height: 44px;
                 }
 
-                .spinning-wheel-modal-title {
-                    font-size: 1.42rem;
+                .header-title {
+                    font-size: 1.5rem;
                 }
 
-                .spinning-wheel-modal-subtitle {
-                    font-size: 0.88rem;
+                .header-subtitle {
+                    font-size: 0.875rem;
                 }
 
-                .spinning-wheel-content-wrapper {
-                    padding: 22px 18px;
+                .spinning-wheel-body {
+                    padding: 20px;
                 }
 
-                .spinning-wheel-wheel-step {
-                    gap: 18px;
+                .phone-icon {
+                    width: 52px;
+                    height: 52px;
                 }
 
-                .wheel-container {
-                    min-height: 360px;
+                .phone-title {
+                    font-size: 1.375rem;
                 }
 
-                .instructions-title {
-                    font-size: 1.2rem;
-                    text-align: center;
+                .phone-desc {
+                    font-size: 0.875rem;
                 }
 
-                .instruction-item {
-                    padding: 13px;
-                    gap: 11px;
+                .wheel-frame {
+                    min-height: 340px;
                 }
 
-                .instruction-number {
-                    width: 32px;
-                    height: 32px;
-                    font-size: 0.88rem;
-                }
-
-                .instruction-item p {
-                    font-size: 0.88rem;
-                    padding-top: 3px;
-                }
-
-                .phone-icon-wrapper {
-                    width: 50px;
-                    height: 50px;
-                }
-
-                .phone-step-title {
-                    font-size: 1.28rem;
-                }
-
-                .phone-description {
-                    font-size: 0.88rem;
+                .instructions-panel {
+                    padding: 20px;
                 }
             }
 
             /* Small Mobile */
             @media (max-width: 480px) {
-                .wheel-container {
-                    min-height: 320px;
+                .wheel-frame {
+                    min-height: 300px;
                 }
 
-                .spinning-wheel-modal-title {
-                    font-size: 1.28rem;
-                }
-
-                .instructions-title {
-                    font-size: 1.12rem;
-                }
-
-                .instruction-item {
-                    padding: 11px;
+                .header-title {
+                    font-size: 1.375rem;
                 }
             }
         `;
@@ -980,37 +1021,30 @@
     function updateModalTranslations() {
         if (!state.modal) return;
         
-        const titleElement = state.modal.querySelector('.spinning-wheel-modal-title');
-        if (titleElement) titleElement.textContent = t('title');
-        
-        const subtitleElement = state.modal.querySelector('.spinning-wheel-modal-subtitle');
-        if (subtitleElement) subtitleElement.textContent = t('subtitle');
-        
-        const phoneTitleElement = state.modal.querySelector('.phone-step-title');
-        if (phoneTitleElement) phoneTitleElement.textContent = t('enterPhoneTitle');
-        
-        const phoneDescElement = state.modal.querySelector('.phone-description');
-        if (phoneDescElement) phoneDescElement.textContent = t('phoneDescription');
-        
-        const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
-        if (phoneInputElement) phoneInputElement.placeholder = t('phonePlaceholder');
-        
-        const phoneBtnText = state.modal.querySelector('.phone-submit-btn span');
-        if (phoneBtnText) phoneBtnText.textContent = t('continueButton');
-        
-        const privacyText = state.modal.querySelector('.privacy-badge span');
-        if (privacyText) privacyText.textContent = t('privacyText');
+        const elements = {
+            '.header-title': t('title'),
+            '.header-subtitle': t('subtitle'),
+            '.phone-title': t('enterPhoneTitle'),
+            '.phone-desc': t('phoneDescription'),
+            '.phone-btn span': t('continueButton'),
+            '.privacy-note span': t('privacyText'),
+            '.sidebar-title': t('howToPlay'),
+            '.panel-title': t('howToPlay')
+        };
 
-        const instructionsTitle = state.modal.querySelector('.instructions-title');
-        if (instructionsTitle) instructionsTitle.textContent = t('howToPlay');
+        Object.entries(elements).forEach(([selector, text]) => {
+            const el = state.modal.querySelector(selector);
+            if (el) el.textContent = text;
+        });
 
-        const instructionItems = state.modal.querySelectorAll('.instruction-item p');
-        if (instructionItems.length >= 4) {
-            instructionItems[0].textContent = t('step1');
-            instructionItems[1].textContent = t('step2');
-            instructionItems[2].textContent = t('step3');
-            instructionItems[3].textContent = t('step4');
-        }
+        const phoneInput = state.modal.querySelector('#universalPhoneInput');
+        if (phoneInput) phoneInput.placeholder = t('phonePlaceholder');
+
+        const stepItems = state.modal.querySelectorAll('.step-item p, .panel-step p');
+        const steps = [t('step1'), t('step2'), t('step3'), t('step4')];
+        stepItems.forEach((el, i) => {
+            if (steps[i]) el.textContent = steps[i];
+        });
     }
 
     // Show modal
@@ -1018,12 +1052,12 @@
         if (!state.modal) return;
         
         if (state.userClosedModal) {
-            console.log('⏸️ User manually closed modal');
+            console.log('⏸️ User closed modal');
             return;
         }
         
         if (isAnyModalOpen()) {
-            console.log('⏳ Another modal is open, delaying...');
+            console.log('⏳ Another modal open, waiting...');
             
             if (state.modalCheckInterval) {
                 clearInterval(state.modalCheckInterval);
@@ -1031,7 +1065,7 @@
             
             state.modalCheckInterval = setInterval(() => {
                 if (!isAnyModalOpen() && !state.userClosedModal) {
-                    console.log('✅ Showing spinning wheel now');
+                    console.log('✅ Showing wheel');
                     clearInterval(state.modalCheckInterval);
                     state.modalCheckInterval = null;
                     showModal(options);
@@ -1049,53 +1083,39 @@
             const iframe = document.getElementById('universalSpinningWheelIframe');
             if (iframe) {
                 const baseSrc = CONFIG.iframeSrc;
-                const separator = baseSrc.includes('?') ? '&' : '?';
-                iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
+                const sep = baseSrc.includes('?') ? '&' : '?';
+                iframe.src = `${baseSrc}${sep}wheel=${options.wheelId}`;
             }
         }
         
         const modalHeader = document.getElementById('universalModalHeader');
+        const phoneStep = document.getElementById('universalPhoneStep');
+        const wheelStep = document.getElementById('universalWheelStep');
         
         if (skipPhoneStep) {
-            const phoneStep = document.getElementById('universalPhoneStep');
-            const wheelStep = document.getElementById('universalWheelStep');
+            if (phoneStep) phoneStep.style.display = 'none';
+            if (wheelStep) wheelStep.style.display = 'grid';
+            if (modalHeader) modalHeader.style.display = 'none';
             
-            if (phoneStep && wheelStep) {
-                phoneStep.style.display = 'none';
-                wheelStep.style.display = 'grid';
+            if (phoneNumber) {
+                localStorage.setItem('spinningWheelPhone', phoneNumber);
+                localStorage.setItem('spinningWheelPhoneEntered', 'true');
                 
-                if (modalHeader) {
-                    modalHeader.style.display = 'none';
-                }
-                
-                if (phoneNumber) {
-                    localStorage.setItem('spinningWheelPhone', phoneNumber);
-                    localStorage.setItem('spinningWheelPhoneEntered', 'true');
-                    
-                    setTimeout(() => {
-                        const iframe = document.getElementById('universalSpinningWheelIframe');
-                        if (iframe && iframe.contentWindow) {
-                            iframe.contentWindow.postMessage({
-                                type: 'phoneNumberEntered',
-                                phoneNumber: phoneNumber,
-                                wheelType: wheelType
-                            }, '*');
-                        }
-                    }, 500);
-                }
+                setTimeout(() => {
+                    const iframe = document.getElementById('universalSpinningWheelIframe');
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                            type: 'phoneNumberEntered',
+                            phoneNumber: phoneNumber,
+                            wheelType: wheelType
+                        }, '*');
+                    }
+                }, 500);
             }
         } else {
-            const phoneStep = document.getElementById('universalPhoneStep');
-            const wheelStep = document.getElementById('universalWheelStep');
-            
-            if (phoneStep && wheelStep) {
-                phoneStep.style.display = 'flex';
-                wheelStep.style.display = 'none';
-                
-                if (modalHeader) {
-                    modalHeader.style.display = 'block';
-                }
-            }
+            if (phoneStep) phoneStep.style.display = 'flex';
+            if (wheelStep) wheelStep.style.display = 'none';
+            if (modalHeader) modalHeader.style.display = 'block';
         }
         
         disableBodyScroll();
@@ -1105,7 +1125,7 @@
             state.modal.classList.add('show');
         });
         
-        console.log('🎡 Spinning wheel modal shown');
+        console.log('🎡 Wheel shown');
     }
 
     // Close modal
@@ -1113,7 +1133,6 @@
         if (!state.modal) return;
         
         state.userClosedModal = true;
-        console.log('❌ User closed modal');
         
         if (state.modalCheckInterval) {
             clearInterval(state.modalCheckInterval);
@@ -1152,76 +1171,58 @@
         enableBodyScroll();
     }
 
-    // Validate phone number
+    // Validate phone
     function validatePhoneNumber(phoneNumber) {
         const cleaned = phoneNumber.replace(/[^\d+]/g, '');
         
         if (cleaned.startsWith('+')) {
             const digits = cleaned.substring(1);
             return digits.length >= 7 && digits.length <= 15 && /^\d+$/.test(digits);
-        } else {
-            return cleaned.length >= 7 && cleaned.length <= 15 && /^\d+$/.test(cleaned);
         }
+        return cleaned.length >= 7 && cleaned.length <= 15 && /^\d+$/.test(cleaned);
     }
 
-    // Format phone number
+    // Format phone
     function formatPhoneNumber(phoneNumber) {
         const cleaned = phoneNumber.replace(/[^\d+]/g, '');
-        
-        if (cleaned.startsWith('+')) {
-            return cleaned;
-        } else {
-            const digits = cleaned;
-            if (digits.length >= 10) {
-                return digits.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-            }
-            return digits;
-        }
+        return cleaned.startsWith('+') ? cleaned : cleaned;
     }
 
     // Handle phone input
     function handlePhoneInput(event) {
         const input = event.target;
-        let value = input.value;
+        let value = input.value.replace(/[^\d+\-\(\)\s]/g, '');
         
-        value = value.replace(/[^\d+\-\(\)\s]/g, '');
-        
-        if (value.length > 20) {
-            value = value.substring(0, 20);
-        }
+        if (value.length > 20) value = value.substring(0, 20);
         
         input.value = value;
-        input.classList.remove('phone-input-error');
+        input.classList.remove('error');
         
-        const existingError = input.parentNode.parentNode.querySelector('.phone-error-message');
-        if (existingError) {
-            existingError.remove();
-        }
+        const error = input.parentNode.querySelector('.phone-error-message');
+        if (error) error.remove();
     }
 
     function showPhoneError(input, message) {
-        input.classList.add('phone-input-error');
-    
-        const existingError = input.parentNode.parentNode.querySelector('.phone-error-message');
-        if (existingError) {
-            existingError.remove();
-        }
-    
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'phone-error-message';
-        errorDiv.textContent = message;
-        input.parentNode.parentNode.insertBefore(errorDiv, input.parentNode.nextSibling);
+        input.classList.add('error');
+        
+        let error = input.parentNode.querySelector('.phone-error-message');
+        if (error) error.remove();
+        
+        error = document.createElement('div');
+        error.className = 'phone-error-message';
+        error.textContent = message;
+        input.parentNode.appendChild(error);
     }
 
-    // Handle phone form submission
+    // Handle phone submit
     async function handlePhoneSubmit(event) {
         event.preventDefault();
 
         const phoneInput = document.getElementById('universalPhoneInput');
         const phoneNumber = phoneInput.value.trim();
 
-        phoneInput.classList.remove('phone-input-error');
-        const existingError = phoneInput.parentNode.parentNode.querySelector('.phone-error-message');
+        phoneInput.classList.remove('error');
+        const existingError = phoneInput.parentNode.querySelector('.phone-error-message');
         if (existingError) existingError.remove();
 
         if (!phoneNumber) {
@@ -1262,13 +1263,11 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phoneNumber: formattedPhone })
-            }).catch(err => {});
+            }).catch(() => {});
         } catch (err) {}
 
         const modalHeader = document.getElementById('universalModalHeader');
-        if (modalHeader) {
-            modalHeader.style.display = 'none';
-        }
+        if (modalHeader) modalHeader.style.display = 'none';
 
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'grid';
@@ -1296,25 +1295,21 @@
         }
     }
 
-    // Auto-apply winning coupon
+    // Auto-apply coupon
     function autoApplyWinningCoupon() {
         try {
-            const savedCouponCode = localStorage.getItem('spinningWheelWinningCoupon');
-            if (savedCouponCode) {
-                handleAutoApplyCoupon(savedCouponCode);
-            }
+            const savedCoupon = localStorage.getItem('spinningWheelWinningCoupon');
+            if (savedCoupon) handleAutoApplyCoupon(savedCoupon);
         } catch (error) {}
     }
 
-    // Handle auto-apply coupon
+    // Handle auto-apply
     function handleAutoApplyCoupon(couponCode) {
         try {
             localStorage.setItem('autoApplyCoupon', couponCode);
             
             if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
-                setTimeout(() => {
-                    window.AutoApplyCoupon.autoApply();
-                }, 100);
+                setTimeout(() => window.AutoApplyCoupon.autoApply(), 100);
             }
             
             showCouponAppliedNotification(couponCode);
@@ -1329,17 +1324,17 @@
             en: {
                 title: 'Coupon Applied!',
                 codeLabel: 'Code:',
-                readyMessage: 'Ready to use on your next booking!'
+                readyMessage: 'Ready for your next booking!'
             },
             ru: {
                 title: 'Купон Применён!',
                 codeLabel: 'Код:',
-                readyMessage: 'Готов к использованию при следующем бронировании!'
+                readyMessage: 'Готов к использованию!'
             },
             ro: {
                 title: 'Cupon Aplicat!',
                 codeLabel: 'Cod:',
-                readyMessage: 'Gata de utilizare la următoarea rezervare!'
+                readyMessage: 'Gata de utilizare!'
             }
         };
         
@@ -1383,22 +1378,21 @@
                     top: 20px;
                     right: 20px;
                     z-index: 10000;
-                    animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
                 }
                 
                 .coupon-notification-card {
                     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                     border-radius: 16px;
-                    padding: 24px;
-                    box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
-                    max-width: 360px;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: 20px;
+                    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+                    max-width: 340px;
                 }
                 
                 .coupon-gift-icon {
-                    width: 48px;
-                    height: 48px;
-                    margin: 0 auto 16px;
+                    width: 44px;
+                    height: 44px;
+                    margin: 0 auto 14px;
                     background: rgba(255, 255, 255, 0.2);
                     border-radius: 50%;
                     display: flex;
@@ -1407,8 +1401,8 @@
                 }
                 
                 .coupon-gift-icon svg {
-                    width: 24px;
-                    height: 24px;
+                    width: 22px;
+                    height: 22px;
                     color: white;
                 }
                 
@@ -1418,21 +1412,21 @@
                 }
                 
                 .coupon-title {
-                    font-size: 1.25rem;
+                    font-size: 1.2rem;
                     font-weight: 800;
                     margin-bottom: 12px;
                 }
                 
                 .coupon-code-container {
                     background: rgba(255, 255, 255, 0.95);
-                    border-radius: 12px;
-                    padding: 14px;
-                    margin: 12px 0;
+                    border-radius: 10px;
+                    padding: 12px;
+                    margin: 10px 0;
                 }
                 
                 .coupon-label {
                     display: block;
-                    font-size: 0.75rem;
+                    font-size: 0.7rem;
                     color: #d97706;
                     margin-bottom: 4px;
                     text-transform: uppercase;
@@ -1442,7 +1436,7 @@
                 
                 .coupon-code {
                     display: block;
-                    font-size: 1.5rem;
+                    font-size: 1.4rem;
                     font-weight: 900;
                     letter-spacing: 2px;
                     font-family: 'Courier New', monospace;
@@ -1461,11 +1455,11 @@
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    width: 18px;
-                    height: 18px;
+                    width: 16px;
+                    height: 16px;
                     background: rgba(255, 255, 255, 0.3);
                     border-radius: 50%;
-                    font-size: 12px;
+                    font-size: 11px;
                     font-weight: bold;
                 }
                 
@@ -1547,36 +1541,24 @@
             const API_BASE_URL = window.API_BASE_URL || '';
             const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/enabled-configs`);
             
-            if (!response.ok) {
-                return null;
-            }
+            if (!response.ok) return null;
             
             const wheelConfigs = await response.json();
-            const nonPremiumWheels = wheelConfigs.filter(wheel => !wheel.is_premium);
+            const nonPremium = wheelConfigs.filter(w => !w.is_premium);
             
-            if (nonPremiumWheels.length === 0) {
-                if (wheelConfigs.length > 0) {
-                    return wheelConfigs[0];
-                }
-                return null;
+            if (nonPremium.length === 0) {
+                return wheelConfigs.length > 0 ? wheelConfigs[0] : null;
             }
             
-            if (nonPremiumWheels.length === 1) {
-                return nonPremiumWheels[0];
-            }
+            if (nonPremium.length === 1) return nonPremium[0];
             
-            const percentWheels = nonPremiumWheels.filter(wheel => wheel.type === 'percent');
-            if (percentWheels.length > 0) {
-                return percentWheels[0];
-            }
+            const percent = nonPremium.filter(w => w.type === 'percent');
+            if (percent.length > 0) return percent[0];
             
-            const freeDaysWheels = nonPremiumWheels.filter(wheel => wheel.type === 'free-days');
-            if (freeDaysWheels.length > 0) {
-                return freeDaysWheels[0];
-            }
+            const freeDays = nonPremium.filter(w => w.type === 'free-days');
+            if (freeDays.length > 0) return freeDays[0];
             
-            return nonPremiumWheels[0];
-            
+            return nonPremium[0];
         } catch (error) {
             return null;
         }
@@ -1613,9 +1595,7 @@
     function init() {
         if (state.isInitialized) return;
         
-        if (window.location.pathname.includes('spinning-wheel')) {
-            return;
-        }
+        if (window.location.pathname.includes('spinning-wheel')) return;
 
         const modalHTML = createModalHTML();
         const modalCSS = createModalCSS();
@@ -1663,15 +1643,13 @@
         const existingPhone = localStorage.getItem('spinningWheelPhone');
         if (existingPhone) {
             const modalHeader = document.getElementById('universalModalHeader');
-            if (modalHeader) {
-                modalHeader.style.display = 'none';
-            }
+            if (modalHeader) modalHeader.style.display = 'none';
+            
             document.getElementById('universalPhoneStep').style.display = 'none';
             document.getElementById('universalWheelStep').style.display = 'grid';
         }
         
         state.isInitialized = true;
-        
         startTimer();
     }
 
@@ -1686,9 +1664,7 @@
             const API_BASE_URL = window.API_BASE_URL || '';
             const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/by-type/${wheelType}`);
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
             const wheelData = await response.json();
             return wheelData.id;
@@ -1701,6 +1677,7 @@
         show: showModal,
         close: closeModal,
         init: init,
+        toggleInstructions: toggleInstructions,
         fetchWheelIdByType: fetchWheelIdByType
     };
 
