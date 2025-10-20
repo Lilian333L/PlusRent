@@ -92,32 +92,6 @@
             }
         }
 
-        /* Компактный заголовок для мобильных */
-        .header {
-            text-align: center;
-            color: white;
-            padding: 10px 10px 5px;
-            width: 100%;
-        }
-
-        .header h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 4px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header p {
-            font-size: 0.85rem;
-            opacity: 0.95;
-        }
-
-        @media (min-width: 768px) {
-            .header {
-                display: none;
-            }
-        }
-
         .wheel-section {
             display: flex;
             flex-direction: column;
@@ -131,7 +105,6 @@
             position: relative;
             width: 280px;
             height: 280px;
-            /* КРИТИЧНО для производительности */
             will-change: transform;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
@@ -197,7 +170,6 @@
             border-radius: 50%;
             overflow: hidden;
             cursor: pointer;
-            /* Оптимизация для плавного вращения */
             transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
             will-change: transform;
             transform: translateZ(0);
@@ -213,7 +185,6 @@
             width: calc(100% + 4px);
             height: calc(100% + 4px);
             transform-origin: center;
-            /* Оптимизация сегментов */
             will-change: auto;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
@@ -299,7 +270,6 @@
             box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
             transition: all 0.2s ease;
             z-index: 20;
-            /* Оптимизация */
             will-change: transform;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
@@ -717,11 +687,6 @@
 <body>
     <div class="spinning-wheel-container">
         <div class="wheel-content">
-            <div class="header">
-                <h1 id="mainTitle">Испытай свою удачу!</h1>
-                <p id="mainSubtitle">Крути колесо и выигрывай скидки!</p>
-            </div>
-
             <div class="wheel-section">
                 <div class="wheel-container">
                     <div class="wheel-glow">
@@ -773,7 +738,6 @@
     </div>
 
     <script>
-        // ===== ВСЯ ОРИГИНАЛЬНАЯ ЛОГИКА СОХРАНЕНА =====
         let currentLanguage = 'en';
         let translations = {};
 
@@ -863,11 +827,6 @@
 
         function updateTexts() {
             const wheel = translations.wheel || {};
-            
-            const mainTitle = document.getElementById('mainTitle');
-            const mainSubtitle = document.getElementById('mainSubtitle');
-            if (mainTitle) mainTitle.textContent = wheel.main_title || "Try your luck!";
-            if (mainSubtitle) mainSubtitle.textContent = wheel.main_subtitle || "Spin the wheel and win discounts!";
             
             document.getElementById('howToPlayTitle').textContent = wheel.how_to_play || "How to Play";
             document.getElementById('step1Text').textContent = wheel.step1 || "Press the button in the center of the wheel";
@@ -999,35 +958,49 @@
             }
         }
 
+        // НОВАЯ ФУНКЦИЯ: определение цвета сегмента на основе процента
+        function getSegmentColor(value, type) {
+            if (type === 'free_days') {
+                // Для бесплатных дней: от серого к красному
+                if (value <= 1) return 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'; // Серый
+                if (value === 2) return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'; // Желтый
+                if (value === 3) return 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)'; // Оранжевый
+                if (value >= 4) return 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)'; // Красный
+            } else {
+                // Для процентов: от серого к красному
+                if (value <= 5) return 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'; // Серый
+                if (value <= 7) return 'linear-gradient(135deg, #a8a29e 0%, #78716c 100%)'; // Тепло-серый
+                if (value <= 10) return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'; // Желтый
+                if (value <= 14) return 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)'; // Оранжевый
+                if (value <= 20) return 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)'; // Розово-красный
+                return 'linear-gradient(135deg, #f87171 0%, #dc2626 100%)'; // Ярко-красный
+            }
+        }
+
         function getWheelSegments() {
             if (availableCoupons.length === 0) {
                 cachedWheelSegments = [
-                    { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', coupon: null },
-                    { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', coupon: null },
-                    { id: 3, text: '20%', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', coupon: null },
-                    { id: 4, text: '25%', gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', coupon: null }
+                    { id: 1, text: '5%', gradient: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)', coupon: null },
+                    { id: 2, text: '10%', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', coupon: null },
+                    { id: 3, text: '15%', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', coupon: null },
+                    { id: 4, text: '20%', gradient: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', coupon: null }
                 ];
                 return cachedWheelSegments;
             }
 
             const segments = [];
-            const numCoupons = availableCoupons.length;
             
             availableCoupons.forEach((coupon, arrayIndex) => {
                 const visualPosition = arrayIndex;
-                const colorIndex = arrayIndex % 3;
-                let gradient;
                 
-                switch(colorIndex) {
-                    case 0:
-                        gradient = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
-                        break;
-                    case 1:
-                        gradient = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-                        break;
-                    case 2:
-                        gradient = 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)';
-                        break;
+                // Определяем цвет на основе значения
+                let gradient;
+                if (coupon.type === 'percentage') {
+                    gradient = getSegmentColor(coupon.discount_percentage, 'percentage');
+                } else if (coupon.type === 'free_days') {
+                    gradient = getSegmentColor(coupon.free_days, 'free_days');
+                } else {
+                    gradient = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
                 }
                 
                 let segmentText;
@@ -1246,7 +1219,6 @@
 
             randomWinningIndex = await getRandomWinningIndex();
             
-            // ОПТИМИЗИРОВАННАЯ анимация для мобильных
             wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
 
             const wheelSegments = getWheelSegments();
