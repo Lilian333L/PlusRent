@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V2
- * Профессиональный дизайн БЕЗ скролла на десктопе + правильное размытие на мобиле
+ * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V3
+ * ИСПРАВЛЕНО: Рулетка видна на десктопе + компактная модалка на мобиле с размытием
  */
 
 (function() {
@@ -298,11 +298,11 @@
             </div>
         `;
     }
-    // Create modal CSS - FIXED VERSION БЕЗ СКРОЛЛА
+    // Create modal CSS - FIXED: Рулетка видна на десктопе + компактная модалка на мобиле
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ULTRA PROFESSIONAL SAAS DESIGN - FIXED ===== */
+            /* ===== ULTRA PROFESSIONAL SAAS DESIGN - FIXED V3 ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -325,7 +325,7 @@
                 visibility: visible;
             }
 
-            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА - РАБОТАЕТ НА ВСЕХ УСТРОЙСТВАХ */
+            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА - ВЕЗДЕ */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
@@ -352,12 +352,13 @@
                 }
             }
 
-            /* ✨ КОНТЕЙНЕР МОДАЛКИ - ПО ЦЕНТРУ БЕЗ СКРОЛЛА */
+            /* ✨ КОНТЕЙНЕР - КОМПАКТНЫЙ НА ВСЕХ УСТРОЙСТВАХ */
             .spinning-wheel-modal-container {
                 position: relative;
                 z-index: 2;
                 width: 100%;
-                height: 100%;
+                max-width: 900px;
+                max-height: 85vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -371,11 +372,11 @@
                 transform: scale(1);
             }
 
-            /* ✨ КНОПКА ЗАКРЫТИЯ - ХОРОШО ВИДНА ВЕЗДЕ */
+            /* ✨ КНОПКА ЗАКРЫТИЯ - ХОРОШО ВИДНА */
             .spinning-wheel-modal-close {
-                position: fixed;
-                top: 20px;
-                right: 20px;
+                position: absolute;
+                top: -50px;
+                right: 0;
                 width: 44px;
                 height: 44px;
                 background: rgba(0, 0, 0, 0.5);
@@ -405,7 +406,7 @@
                 border-color: rgba(255, 255, 255, 0.5);
             }
 
-            /* ✨ ОСНОВНОЙ КОНТЕНТ - ЦЕНТРИРОВАННЫЙ БЕЗ СКРОЛЛА */
+            /* ✨ ОСНОВНОЙ КОНТЕНТ - ПРАВИЛЬНЫЕ ПРОПОРЦИИ */
             .spinning-wheel-modal-content {
                 background: white;
                 border-radius: 24px;
@@ -414,15 +415,14 @@
                     0 0 0 1px rgba(0, 0, 0, 0.05);
                 overflow: hidden;
                 width: 100%;
-                max-width: 500px;
-                max-height: 90vh;
+                max-height: 85vh;
                 display: flex;
                 flex-direction: column;
             }
 
             /* ✨ ЗАГОЛОВОК - КОМПАКТНЫЙ */
             .spinning-wheel-modal-header {
-                padding: 36px 32px 28px;
+                padding: 32px 32px 24px;
                 text-align: center;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 position: relative;
@@ -447,9 +447,9 @@
             }
 
             .header-gift-icon {
-                width: 64px;
-                height: 64px;
-                margin: 0 auto 20px;
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 16px;
                 background: rgba(255, 255, 255, 0.2);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -469,17 +469,17 @@
             }
 
             .header-gift-icon svg {
-                width: 32px;
-                height: 32px;
+                width: 30px;
+                height: 30px;
                 color: white;
                 filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
             }
 
             .spinning-wheel-modal-title {
-                font-size: 2rem;
+                font-size: 1.875rem;
                 font-weight: 800;
                 color: white;
-                margin: 0 0 10px;
+                margin: 0 0 8px;
                 text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
                 letter-spacing: -0.5px;
                 position: relative;
@@ -495,14 +495,15 @@
                 z-index: 1;
             }
 
-            /* ✨ КОНТЕНТ С ТЕЛЕФОНОМ И КОЛЕСОМ - БЕЗ СКРОЛЛА */
+            /* ✨ КОНТЕНТ - АДАПТИВНАЯ ВЫСОТА ДЛЯ КОЛЕСА */
             .spinning-wheel-content-wrapper {
-                padding: 36px 32px;
+                padding: 32px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex: 1;
                 overflow: hidden;
+                min-height: 400px;
             }
 
             .spinning-wheel-phone-step {
@@ -512,7 +513,7 @@
                 justify-content: center;
             }
 
-            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА - КОМПАКТНАЯ */
+            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА */
             .phone-input-card {
                 width: 100%;
                 max-width: 420px;
@@ -520,11 +521,11 @@
             }
 
             .phone-icon-wrapper {
-                width: 64px;
-                height: 64px;
-                margin: 0 auto 24px;
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 20px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                border-radius: 18px;
+                border-radius: 16px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -532,23 +533,23 @@
             }
 
             .phone-icon-wrapper svg {
-                width: 32px;
-                height: 32px;
+                width: 30px;
+                height: 30px;
                 color: white;
             }
 
             .phone-step-title {
-                font-size: 1.625rem;
+                font-size: 1.5rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 10px;
+                margin: 0 0 8px;
                 letter-spacing: -0.5px;
             }
 
             .phone-description {
                 font-size: 0.9375rem;
                 color: #6b7280;
-                margin: 0 0 28px;
+                margin: 0 0 24px;
                 line-height: 1.5;
             }
 
@@ -558,12 +559,12 @@
 
             .input-group {
                 position: relative;
-                margin-bottom: 18px;
+                margin-bottom: 16px;
             }
 
             .input-icon {
                 position: absolute;
-                left: 18px;
+                left: 16px;
                 top: 50%;
                 transform: translateY(-50%);
                 width: 20px;
@@ -574,7 +575,7 @@
 
             .phone-input {
                 width: 100%;
-                padding: 15px 18px 15px 50px;
+                padding: 14px 16px 14px 48px;
                 border: 2px solid #e5e7eb;
                 border-radius: 12px;
                 font-size: 1rem;
@@ -610,7 +611,7 @@
 
             .phone-submit-btn {
                 width: 100%;
-                padding: 15px 24px;
+                padding: 14px 20px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 border: none;
@@ -650,7 +651,7 @@
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                margin-top: 18px;
+                margin-top: 16px;
                 color: #6b7280;
                 font-size: 0.875rem;
             }
@@ -661,7 +662,7 @@
                 color: #10b981;
             }
 
-            /* ✨ КОЛЕСО - ЗАПОЛНЯЕТ ДОСТУПНОЕ ПРОСТРАНСТВО */
+            /* ✨ КОЛЕСО - ЗАПОЛНЯЕТ ВСЁ ПРОСТРАНСТВО */
             .spinning-wheel-wheel-step {
                 width: 100%;
                 height: 100%;
@@ -679,67 +680,71 @@
 
             /* ===== АДАПТИВНОСТЬ ===== */
             
-            /* Large Desktop */
+            /* Large Desktop - ШИРОКАЯ МОДАЛКА ДЛЯ КОЛЕСА */
             @media (min-width: 1200px) {
-                .spinning-wheel-modal-content {
-                    max-width: 550px;
+                .spinning-wheel-modal-container {
+                    max-width: 950px;
+                    max-height: 90vh;
+                }
+
+                .spinning-wheel-content-wrapper {
+                    min-height: 500px;
+                    padding: 40px;
                 }
             }
 
             /* Desktop */
             @media (min-width: 1024px) and (max-width: 1199px) {
-                .spinning-wheel-modal-content {
-                    max-width: 520px;
+                .spinning-wheel-modal-container {
+                    max-width: 850px;
+                    max-height: 85vh;
+                }
+
+                .spinning-wheel-content-wrapper {
+                    min-height: 450px;
+                    padding: 36px;
                 }
             }
 
             /* Tablet */
             @media (max-width: 1023px) and (min-width: 768px) {
                 .spinning-wheel-modal-container {
+                    max-width: 700px;
+                    max-height: 80vh;
                     padding: 16px;
                 }
 
-                .spinning-wheel-modal-content {
-                    max-width: 480px;
-                }
-
                 .spinning-wheel-modal-close {
-                    top: 16px;
-                    right: 16px;
+                    top: -45px;
                     width: 42px;
                     height: 42px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 32px 28px 24px;
+                    padding: 28px 28px 20px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.875rem;
+                    font-size: 1.75rem;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 32px 28px;
+                    padding: 28px;
+                    min-height: 380px;
                 }
             }
 
-            /* Mobile - ПОЛНОЭКРАННЫЙ РЕЖИМ С РАЗМЫТИЕМ */
+            /* Mobile - КОМПАКТНАЯ МОДАЛКА С РАЗМЫТЫМ ФОНОМ */
             @media (max-width: 767px) {
                 .spinning-wheel-modal-container {
-                    padding: 0;
-                    align-items: stretch;
-                }
-
-                .spinning-wheel-modal-content {
-                    border-radius: 0;
-                    max-width: 100%;
-                    max-height: 100%;
-                    height: 100%;
+                    max-width: calc(100% - 24px);
+                    max-height: 85vh;
+                    padding: 12px;
                 }
 
                 .spinning-wheel-modal-close {
-                    top: 12px;
-                    right: 12px;
+                    top: -40px;
+                    right: 0;
                     width: 40px;
                     height: 40px;
                     background: rgba(0, 0, 0, 0.6);
@@ -751,24 +756,28 @@
                     height: 20px;
                 }
 
+                .spinning-wheel-modal-content {
+                    border-radius: 20px;
+                }
+
                 .spinning-wheel-modal-header {
-                    padding: 28px 24px 20px;
-                    padding-top: 56px;
+                    padding: 24px 20px 18px;
                 }
 
                 .header-gift-icon {
-                    width: 56px;
-                    height: 56px;
-                    margin-bottom: 16px;
+                    width: 52px;
+                    height: 52px;
+                    margin-bottom: 14px;
                 }
 
                 .header-gift-icon svg {
-                    width: 28px;
-                    height: 28px;
+                    width: 26px;
+                    height: 26px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.75rem;
+                    font-size: 1.5rem;
+                    margin-bottom: 6px;
                 }
 
                 .spinning-wheel-modal-subtitle {
@@ -776,40 +785,40 @@
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 28px 24px;
-                    flex: 1;
+                    padding: 24px 20px;
+                    min-height: 350px;
                 }
 
                 .phone-icon-wrapper {
-                    width: 56px;
-                    height: 56px;
-                    margin-bottom: 20px;
+                    width: 52px;
+                    height: 52px;
+                    margin-bottom: 16px;
                 }
 
                 .phone-icon-wrapper svg {
-                    width: 28px;
-                    height: 28px;
+                    width: 26px;
+                    height: 26px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.5rem;
+                    font-size: 1.375rem;
                 }
 
                 .phone-description {
                     font-size: 0.875rem;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                 }
 
                 .phone-input {
-                    padding: 14px 16px 14px 46px;
+                    padding: 13px 14px 13px 44px;
                 }
 
                 .input-icon {
-                    left: 16px;
+                    left: 14px;
                 }
 
                 .phone-submit-btn {
-                    padding: 14px 20px;
+                    padding: 13px 18px;
                 }
 
                 .spinning-wheel-wheel-step {
@@ -819,18 +828,22 @@
 
             /* Small Mobile */
             @media (max-width: 480px) {
+                .spinning-wheel-modal-container {
+                    max-width: calc(100% - 20px);
+                    max-height: 80vh;
+                }
+
                 .spinning-wheel-modal-header {
-                    padding: 24px 20px 18px;
-                    padding-top: 52px;
+                    padding: 20px 18px 16px;
                 }
 
                 .header-gift-icon {
-                    width: 52px;
-                    height: 52px;
+                    width: 48px;
+                    height: 48px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.5rem;
+                    font-size: 1.375rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
@@ -838,11 +851,12 @@
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 24px 20px;
+                    padding: 20px 18px;
+                    min-height: 320px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.375rem;
+                    font-size: 1.25rem;
                 }
 
                 .phone-description {
@@ -1376,7 +1390,7 @@
 
     function handleOutsideClick(event) {
         if (event.target === state.modal) {
-            // Клик по backdrop - ничего не делаем
+            // Клик по backdrop
         }
     }
     
@@ -1389,7 +1403,7 @@
     }
     
     function handleResize() {
-        // Resize handling if needed
+        // Resize handling
     }
 
     function handleVisibilityChange() {
