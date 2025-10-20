@@ -273,6 +273,7 @@
                 width: 100%;
                 height: 100%;
                 background: rgba(0, 0, 0, 0.65);
+                -webkit-backdrop-filter: blur(8px);
                 backdrop-filter: blur(8px);
                 z-index: ${CONFIG.zIndex};
                 display: flex;
@@ -281,6 +282,12 @@
                 opacity: 0;
                 transition: opacity 0.3s ease;
                 padding: 20px;
+            }
+            
+            @supports not (backdrop-filter: blur(8px)) {
+                .spinning-wheel-modal {
+                    background: rgba(0, 0, 0, 0.85);
+                }
             }
 
             .spinning-wheel-modal.show {
@@ -629,8 +636,15 @@
             @media (max-width: 767px) {
                 .spinning-wheel-modal {
                     padding: 12px;
-                    background: rgba(0, 0, 0, 0.4);
-                    backdrop-filter: blur(6px);
+                    background: rgba(0, 0, 0, 0.5);
+                    -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(8px);
+                }
+                
+                @supports not (backdrop-filter: blur(8px)) {
+                    .spinning-wheel-modal {
+                        background: rgba(0, 0, 0, 0.75);
+                    }
                 }
 
                 .spinning-wheel-modal-content {
@@ -722,8 +736,15 @@
             @media (max-width: 400px) {
                 .spinning-wheel-modal {
                     padding: 8px;
-                    background: rgba(0, 0, 0, 0.35);
-                    backdrop-filter: blur(4px);
+                    background: rgba(0, 0, 0, 0.5);
+                    -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(8px);
+                }
+                
+                @supports not (backdrop-filter: blur(8px)) {
+                    .spinning-wheel-modal {
+                        background: rgba(0, 0, 0, 0.75);
+                    }
                 }
                 
                 .spinning-wheel-modal-content {
