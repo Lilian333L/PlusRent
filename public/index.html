@@ -1479,7 +1479,39 @@
   <div class="floating-contact-btn" onclick="openContactPopup()">
     <i class="fa fa-comments"></i>
   </div>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ждем появления меню (так как оно создается динамически)
+    const observer = new MutationObserver(function(mutations) {
+        const menu = document.querySelector('.select2-dropdown');
+        
+        if (menu) {
+            // Запрет touchmove - предотвращает горизонтальное перемещение
+            menu.addEventListener('touchmove', function(e) {
+                // Разрешаем скролл только внутри списка результатов
+                const scrollableArea = e.target.closest('.select2-results__options');
+                if (!scrollableArea) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // Запрет перетаскивания всего меню
+            menu.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+            }, { passive: false });
+            
+            // Отключаем наблюдатель после нахождения меню
+            observer.disconnect();
+        }
+    });
+    
+    // Наблюдаем за появлением меню
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
   <script>
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
