@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V5
- * ИДЕАЛЬНЫЙ ДИЗАЙН: ПК - рулетка слева + инструкция справа | Мобайл - анимации
+ * Universal Spinning Wheel Modal - WORLD-CLASS DESIGN V6
+ * ИДЕАЛЬНЫЙ ДИЗАЙН: Всё видно сразу, никакого скролла, мировой уровень!
  */
 
 (function() {
@@ -265,6 +265,7 @@
                         </div>
                         
                         <div class="spinning-wheel-content-wrapper">
+                            <!-- PHONE STEP -->
                             <div class="spinning-wheel-phone-step" id="universalPhoneStep">
                                 <div class="phone-input-card">
                                     <div class="phone-icon-wrapper">
@@ -300,6 +301,7 @@
                                 </div>
                             </div>
                             
+                            <!-- WHEEL STEP -->
                             <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
                                 <div class="wheel-container">
                                     <iframe id="universalSpinningWheelIframe" 
@@ -308,23 +310,25 @@
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
                                     </iframe>
                                 </div>
-                                <div class="wheel-instructions">
-                                    <h3 class="instructions-title">${t('howToPlay')}</h3>
-                                    <div class="instruction-item">
-                                        <div class="instruction-number">1</div>
-                                        <p>${t('step1')}</p>
-                                    </div>
-                                    <div class="instruction-item">
-                                        <div class="instruction-number">2</div>
-                                        <p>${t('step2')}</p>
-                                    </div>
-                                    <div class="instruction-item">
-                                        <div class="instruction-number">3</div>
-                                        <p>${t('step3')}</p>
-                                    </div>
-                                    <div class="instruction-item">
-                                        <div class="instruction-number">4</div>
-                                        <p>${t('step4')}</p>
+                                <div class="wheel-sidebar" id="wheelSidebar">
+                                    <div class="wheel-instructions">
+                                        <h3 class="instructions-title">${t('howToPlay')}</h3>
+                                        <div class="instruction-item">
+                                            <div class="instruction-number">1</div>
+                                            <p>${t('step1')}</p>
+                                        </div>
+                                        <div class="instruction-item">
+                                            <div class="instruction-number">2</div>
+                                            <p>${t('step2')}</p>
+                                        </div>
+                                        <div class="instruction-item">
+                                            <div class="instruction-number">3</div>
+                                            <p>${t('step3')}</p>
+                                        </div>
+                                        <div class="instruction-item">
+                                            <div class="instruction-number">4</div>
+                                            <p>${t('step4')}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -339,7 +343,11 @@
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ULTRA PROFESSIONAL SAAS DESIGN V5 - ИДЕАЛЬНЫЙ ===== */
+            /* ===== WORLD-CLASS DESIGN V6 - ИДЕАЛЬНЫЙ ===== */
+            
+            * {
+                box-sizing: border-box;
+            }
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -354,7 +362,6 @@
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.3s ease, visibility 0.3s ease;
-                overflow: hidden;
             }
 
             .spinning-wheel-modal.show {
@@ -362,14 +369,14 @@
                 visibility: visible;
             }
 
-            /* ✨ РАЗМЫТИЕ ФОНА */
+            /* ✨ BACKDROP */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.6);
+                background: rgba(0, 0, 0, 0.65);
                 backdrop-filter: blur(12px) saturate(120%);
                 -webkit-backdrop-filter: blur(12px) saturate(120%);
                 z-index: 1;
@@ -387,30 +394,29 @@
                 }
             }
 
-            /* ✨ КОНТЕЙНЕР */
+            /* ✨ CONTAINER */
             .spinning-wheel-modal-container {
                 position: relative;
                 z-index: 2;
                 width: 100%;
-                max-width: 1100px;
+                max-width: 1150px;
                 max-height: 90vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
-                box-sizing: border-box;
-                transform: scale(0.9);
-                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                transform: scale(0.92);
+                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-container {
                 transform: scale(1);
             }
 
-            /* ✨ КНОПКА ЗАКРЫТИЯ */
+            /* ✨ CLOSE BUTTON */
             .spinning-wheel-modal-close {
                 position: absolute;
-                top: -50px;
+                top: -52px;
                 right: 0;
                 width: 44px;
                 height: 44px;
@@ -422,7 +428,7 @@
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                transition: all 0.2s ease;
+                transition: all 0.25s ease;
                 padding: 0;
                 z-index: 10;
             }
@@ -435,15 +441,16 @@
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(0, 0, 0, 0.7);
+                background: rgba(0, 0, 0, 0.75);
                 transform: rotate(90deg) scale(1.1);
+                border-color: rgba(255, 255, 255, 0.5);
             }
 
-            /* ✨ ОСНОВНОЙ КОНТЕНТ */
+            /* ✨ MAIN CONTENT */
             .spinning-wheel-modal-content {
                 background: white;
                 border-radius: 24px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.1);
                 overflow: hidden;
                 width: 100%;
                 max-height: 90vh;
@@ -451,9 +458,9 @@
                 flex-direction: column;
             }
 
-            /* ✨ ЗАГОЛОВОК */
+            /* ✨ HEADER */
             .spinning-wheel-modal-header {
-                padding: 28px 32px 22px;
+                padding: 26px 32px 20px;
                 text-align: center;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 position: relative;
@@ -468,7 +475,7 @@
                 left: -50%;
                 width: 200%;
                 height: 200%;
-                background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+                background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
                 animation: rotate 20s linear infinite;
             }
 
@@ -478,16 +485,16 @@
             }
 
             .header-gift-icon {
-                width: 56px;
-                height: 56px;
-                margin: 0 auto 14px;
-                background: rgba(255, 255, 255, 0.2);
+                width: 54px;
+                height: 54px;
+                margin: 0 auto 13px;
+                background: rgba(255, 255, 255, 0.22);
                 backdrop-filter: blur(10px);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.35);
                 animation: float 3s ease-in-out infinite;
                 position: relative;
                 z-index: 1;
@@ -495,44 +502,44 @@
 
             @keyframes float {
                 0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-8px); }
+                50% { transform: translateY(-7px); }
             }
 
             .header-gift-icon svg {
-                width: 28px;
-                height: 28px;
+                width: 27px;
+                height: 27px;
                 color: white;
                 filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
             }
 
             .spinning-wheel-modal-title {
-                font-size: 1.75rem;
+                font-size: 1.7rem;
                 font-weight: 800;
                 color: white;
                 margin: 0 0 6px;
-                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.22);
                 letter-spacing: -0.5px;
                 position: relative;
                 z-index: 1;
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 0.9375rem;
-                color: rgba(255, 255, 255, 0.95);
+                font-size: 0.94rem;
+                color: rgba(255, 255, 255, 0.96);
                 margin: 0;
-                text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+                text-shadow: 0 1px 10px rgba(0, 0, 0, 0.12);
                 position: relative;
                 z-index: 1;
             }
 
-            /* ✨ КОНТЕНТ - БЕЗ СКРОЛЛА */
+            /* ✨ CONTENT WRAPPER */
             .spinning-wheel-content-wrapper {
-                padding: 32px;
+                padding: 30px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex: 1;
-                overflow: hidden;
+                min-height: 0;
             }
 
             .spinning-wheel-phone-step {
@@ -542,7 +549,7 @@
                 justify-content: center;
             }
 
-            /* ✨ ВВОД ТЕЛЕФОНА */
+            /* ✨ PHONE INPUT */
             .phone-input-card {
                 width: 100%;
                 max-width: 420px;
@@ -550,25 +557,25 @@
             }
 
             .phone-icon-wrapper {
-                width: 56px;
-                height: 56px;
-                margin: 0 auto 18px;
+                width: 54px;
+                height: 54px;
+                margin: 0 auto 17px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 border-radius: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 8px 32px rgba(245, 158, 11, 0.32);
             }
 
             .phone-icon-wrapper svg {
-                width: 28px;
-                height: 28px;
+                width: 27px;
+                height: 27px;
                 color: white;
             }
 
             .phone-step-title {
-                font-size: 1.4rem;
+                font-size: 1.38rem;
                 font-weight: 800;
                 color: #111827;
                 margin: 0 0 6px;
@@ -576,10 +583,10 @@
             }
 
             .phone-description {
-                font-size: 0.9375rem;
+                font-size: 0.94rem;
                 color: #6b7280;
-                margin: 0 0 20px;
-                line-height: 1.5;
+                margin: 0 0 19px;
+                line-height: 1.55;
             }
 
             .phone-form {
@@ -588,7 +595,7 @@
 
             .input-group {
                 position: relative;
-                margin-bottom: 14px;
+                margin-bottom: 13px;
             }
 
             .input-icon {
@@ -610,14 +617,13 @@
                 font-size: 1rem;
                 color: #111827;
                 transition: all 0.2s ease;
-                box-sizing: border-box;
                 background: white;
             }
 
             .phone-input:focus {
                 outline: none;
                 border-color: #f59e0b;
-                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
             }
 
             .phone-input::placeholder {
@@ -626,7 +632,7 @@
 
             .phone-input-error {
                 border-color: #ef4444 !important;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
             }
 
             .phone-error-message {
@@ -648,23 +654,23 @@
                 font-size: 1rem;
                 font-weight: 700;
                 cursor: pointer;
-                transition: all 0.2s ease;
+                transition: all 0.22s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 4px 18px rgba(245, 158, 11, 0.32);
             }
 
             .phone-submit-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+                box-shadow: 0 8px 26px rgba(245, 158, 11, 0.42);
             }
 
             .phone-submit-btn svg {
                 width: 20px;
                 height: 20px;
-                transition: transform 0.2s ease;
+                transition: transform 0.22s ease;
             }
 
             .phone-submit-btn:hover svg {
@@ -676,7 +682,7 @@
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                margin-top: 14px;
+                margin-top: 13px;
                 color: #6b7280;
                 font-size: 0.875rem;
             }
@@ -687,14 +693,14 @@
                 color: #10b981;
             }
 
-            /* ✨ ПК: СЛЕВА РУЛЕТКА + СПРАВА ИНСТРУКЦИЯ */
+            /* ✨ WHEEL STEP - TWO COLUMNS ON DESKTOP */
             .spinning-wheel-wheel-step {
                 width: 100%;
                 height: 100%;
                 display: grid;
-                grid-template-columns: 1.4fr 1fr;
-                gap: 32px;
-                align-items: center;
+                grid-template-columns: 1.5fr 1fr;
+                gap: 30px;
+                align-items: stretch;
             }
 
             .wheel-container {
@@ -703,7 +709,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                min-height: 500px;
+                min-height: 480px;
             }
 
             #universalSpinningWheelIframe {
@@ -713,17 +719,23 @@
                 border-radius: 12px;
             }
 
+            .wheel-sidebar {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
             .wheel-instructions {
                 display: flex;
                 flex-direction: column;
-                gap: 18px;
+                gap: 16px;
                 animation: slideInRight 0.5s ease;
             }
 
             @keyframes slideInRight {
                 from {
                     opacity: 0;
-                    transform: translateX(30px);
+                    transform: translateX(25px);
                 }
                 to {
                     opacity: 1;
@@ -732,34 +744,34 @@
             }
 
             .instructions-title {
-                font-size: 1.5rem;
+                font-size: 1.44rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 10px;
+                margin: 0 0 8px;
                 letter-spacing: -0.5px;
             }
 
             .instruction-item {
                 display: flex;
                 align-items: flex-start;
-                gap: 14px;
-                padding: 16px;
+                gap: 13px;
+                padding: 15px;
                 border-radius: 12px;
                 background: #f9fafb;
-                transition: all 0.3s ease;
+                transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
                 cursor: pointer;
-                animation: fadeInUp 0.5s ease backwards;
+                animation: fadeInUp 0.48s ease backwards;
             }
 
-            .instruction-item:nth-child(2) { animation-delay: 0.1s; }
-            .instruction-item:nth-child(3) { animation-delay: 0.2s; }
-            .instruction-item:nth-child(4) { animation-delay: 0.3s; }
-            .instruction-item:nth-child(5) { animation-delay: 0.4s; }
+            .instruction-item:nth-child(2) { animation-delay: 0.08s; }
+            .instruction-item:nth-child(3) { animation-delay: 0.16s; }
+            .instruction-item:nth-child(4) { animation-delay: 0.24s; }
+            .instruction-item:nth-child(5) { animation-delay: 0.32s; }
 
             @keyframes fadeInUp {
                 from {
                     opacity: 0;
-                    transform: translateY(20px);
+                    transform: translateY(18px);
                 }
                 to {
                     opacity: 1;
@@ -769,13 +781,13 @@
 
             .instruction-item:hover {
                 background: #fff;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.09);
                 transform: translateY(-2px);
             }
 
             .instruction-number {
-                width: 36px;
-                height: 36px;
+                width: 35px;
+                height: 35px;
                 flex-shrink: 0;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 border-radius: 50%;
@@ -784,98 +796,98 @@
                 justify-content: center;
                 color: white;
                 font-weight: 800;
-                font-size: 0.9375rem;
-                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-                transition: transform 0.3s ease;
+                font-size: 0.94rem;
+                box-shadow: 0 4px 13px rgba(245, 158, 11, 0.32);
+                transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
             .instruction-item:hover .instruction-number {
-                transform: scale(1.1) rotate(360deg);
+                transform: scale(1.12) rotate(360deg);
             }
 
             .instruction-item p {
                 margin: 0;
                 color: #4b5563;
-                font-size: 0.9375rem;
-                line-height: 1.6;
-                padding-top: 6px;
+                font-size: 0.94rem;
+                line-height: 1.58;
+                padding-top: 5px;
             }
 
-            /* ===== АДАПТИВНОСТЬ ===== */
+            /* ===== RESPONSIVE DESIGN ===== */
 
-            /* Large Desktop */
+            /* Desktop Large */
             @media (min-width: 1200px) {
                 .spinning-wheel-modal-container {
                     max-width: 1200px;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 40px;
+                    padding: 36px;
                 }
 
                 .wheel-container {
-                    min-height: 550px;
+                    min-height: 520px;
                 }
             }
 
-            /* Desktop */
+            /* Desktop Medium */
             @media (min-width: 1024px) and (max-width: 1199px) {
                 .spinning-wheel-modal-container {
-                    max-width: 1000px;
+                    max-width: 1050px;
                 }
 
                 .wheel-container {
-                    min-height: 480px;
+                    min-height: 460px;
                 }
             }
 
-            /* Tablet - ОДНА КОЛОНКА */
+            /* Tablet */
             @media (max-width: 1023px) {
                 .spinning-wheel-wheel-step {
                     grid-template-columns: 1fr;
-                    gap: 24px;
+                    gap: 22px;
                 }
 
                 .wheel-container {
                     order: 1;
-                    min-height: 400px;
+                    min-height: 420px;
                 }
 
-                .wheel-instructions {
+                .wheel-sidebar {
                     order: 2;
                 }
 
                 .spinning-wheel-modal-container {
-                    max-width: 700px;
-                    max-height: 85vh;
+                    max-width: 720px;
+                    max-height: 88vh;
                 }
 
                 .spinning-wheel-modal-close {
-                    top: -45px;
+                    top: -46px;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 28px;
+                    padding: 26px;
                 }
             }
 
-            /* Mobile - КРАСИВЫЕ АНИМАЦИИ */
+            /* Mobile */
             @media (max-width: 767px) {
                 .spinning-wheel-modal-container {
                     max-width: calc(100% - 24px);
-                    max-height: 90vh;
+                    max-height: 92vh;
                     padding: 12px;
                 }
 
                 .spinning-wheel-modal-close {
-                    top: -40px;
-                    width: 40px;
-                    height: 40px;
-                    background: rgba(0, 0, 0, 0.6);
+                    top: -42px;
+                    width: 42px;
+                    height: 42px;
+                    background: rgba(0, 0, 0, 0.62);
                 }
 
                 .spinning-wheel-modal-content {
-                    border-radius: 20px;
+                    border-radius: 22px;
                 }
 
                 .spinning-wheel-modal-header {
@@ -883,81 +895,81 @@
                 }
 
                 .header-gift-icon {
-                    width: 48px;
-                    height: 48px;
+                    width: 50px;
+                    height: 50px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.4rem;
+                    font-size: 1.42rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.875rem;
+                    font-size: 0.88rem;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 24px 20px;
+                    padding: 22px 18px;
                 }
 
                 .spinning-wheel-wheel-step {
-                    gap: 20px;
+                    gap: 18px;
                 }
 
                 .wheel-container {
-                    min-height: 350px;
+                    min-height: 360px;
                 }
 
                 .instructions-title {
-                    font-size: 1.25rem;
+                    font-size: 1.2rem;
                     text-align: center;
                 }
 
                 .instruction-item {
-                    padding: 14px;
-                    gap: 12px;
+                    padding: 13px;
+                    gap: 11px;
                 }
 
                 .instruction-number {
                     width: 32px;
                     height: 32px;
-                    font-size: 0.875rem;
+                    font-size: 0.88rem;
                 }
 
                 .instruction-item p {
-                    font-size: 0.875rem;
-                    padding-top: 4px;
+                    font-size: 0.88rem;
+                    padding-top: 3px;
                 }
 
                 .phone-icon-wrapper {
-                    width: 48px;
-                    height: 48px;
+                    width: 50px;
+                    height: 50px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.25rem;
+                    font-size: 1.28rem;
                 }
 
                 .phone-description {
-                    font-size: 0.875rem;
+                    font-size: 0.88rem;
                 }
             }
 
             /* Small Mobile */
             @media (max-width: 480px) {
                 .wheel-container {
-                    min-height: 300px;
+                    min-height: 320px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.25rem;
+                    font-size: 1.28rem;
                 }
 
                 .instructions-title {
-                    font-size: 1.125rem;
+                    font-size: 1.12rem;
                 }
 
                 .instruction-item {
-                    padding: 12px;
+                    padding: 11px;
                 }
             }
         `;
