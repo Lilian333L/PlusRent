@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION
- * Профессиональный дизайн с размытием реального фона сайта
+ * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V2
+ * Профессиональный дизайн БЕЗ скролла на десктопе + правильное размытие на мобиле
  */
 
 (function() {
@@ -298,11 +298,11 @@
             </div>
         `;
     }
-    // Create modal CSS - ULTRA PROFESSIONAL SAAS DESIGN
+    // Create modal CSS - FIXED VERSION БЕЗ СКРОЛЛА
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ULTRA PROFESSIONAL SAAS DESIGN ===== */
+            /* ===== ULTRA PROFESSIONAL SAAS DESIGN - FIXED ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -317,6 +317,7 @@
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.3s ease, visibility 0.3s ease;
+                overflow: hidden;
             }
 
             .spinning-wheel-modal.show {
@@ -324,7 +325,7 @@
                 visibility: visible;
             }
 
-            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА */
+            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА - РАБОТАЕТ НА ВСЕХ УСТРОЙСТВАХ */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
@@ -351,16 +352,17 @@
                 }
             }
 
-            /* ✨ КОНТЕЙНЕР МОДАЛКИ - ПО ЦЕНТРУ */
+            /* ✨ КОНТЕЙНЕР МОДАЛКИ - ПО ЦЕНТРУ БЕЗ СКРОЛЛА */
             .spinning-wheel-modal-container {
                 position: relative;
                 z-index: 2;
-                max-width: 95%;
-                max-height: 95vh;
                 width: 100%;
+                height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
                 transform: scale(0.9);
                 transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
@@ -369,17 +371,17 @@
                 transform: scale(1);
             }
 
-            /* ✨ КНОПКА ЗАКРЫТИЯ - МИНИМАЛИСТИЧНАЯ */
+            /* ✨ КНОПКА ЗАКРЫТИЯ - ХОРОШО ВИДНА ВЕЗДЕ */
             .spinning-wheel-modal-close {
-                position: absolute;
-                top: -50px;
-                right: 0;
-                width: 40px;
-                height: 40px;
-                background: rgba(255, 255, 255, 0.1);
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+                background: rgba(0, 0, 0, 0.5);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                border: 2px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -391,17 +393,19 @@
             }
 
             .spinning-wheel-modal-close svg {
-                width: 20px;
-                height: 20px;
+                width: 22px;
+                height: 22px;
                 color: white;
+                stroke-width: 3;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(255, 255, 255, 0.2);
-                transform: rotate(90deg);
+                background: rgba(0, 0, 0, 0.7);
+                transform: rotate(90deg) scale(1.1);
+                border-color: rgba(255, 255, 255, 0.5);
             }
 
-            /* ✨ ОСНОВНОЙ КОНТЕНТ - ЦЕНТРИРОВАННЫЙ */
+            /* ✨ ОСНОВНОЙ КОНТЕНТ - ЦЕНТРИРОВАННЫЙ БЕЗ СКРОЛЛА */
             .spinning-wheel-modal-content {
                 background: white;
                 border-radius: 24px;
@@ -410,18 +414,20 @@
                     0 0 0 1px rgba(0, 0, 0, 0.05);
                 overflow: hidden;
                 width: 100%;
-                max-width: 900px;
+                max-width: 500px;
+                max-height: 90vh;
                 display: flex;
                 flex-direction: column;
             }
 
-            /* ✨ ЗАГОЛОВОК */
+            /* ✨ ЗАГОЛОВОК - КОМПАКТНЫЙ */
             .spinning-wheel-modal-header {
-                padding: 48px 40px 32px;
+                padding: 36px 32px 28px;
                 text-align: center;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 position: relative;
                 overflow: hidden;
+                flex-shrink: 0;
             }
 
             .spinning-wheel-modal-header::before {
@@ -441,9 +447,9 @@
             }
 
             .header-gift-icon {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 24px;
+                width: 64px;
+                height: 64px;
+                margin: 0 auto 20px;
                 background: rgba(255, 255, 255, 0.2);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
@@ -459,21 +465,21 @@
 
             @keyframes float {
                 0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
+                50% { transform: translateY(-8px); }
             }
 
             .header-gift-icon svg {
-                width: 40px;
-                height: 40px;
+                width: 32px;
+                height: 32px;
                 color: white;
                 filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
             }
 
             .spinning-wheel-modal-title {
-                font-size: 2.5rem;
+                font-size: 2rem;
                 font-weight: 800;
                 color: white;
-                margin: 0 0 12px;
+                margin: 0 0 10px;
                 text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
                 letter-spacing: -0.5px;
                 position: relative;
@@ -481,7 +487,7 @@
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1.125rem;
+                font-size: 1rem;
                 color: rgba(255, 255, 255, 0.95);
                 margin: 0;
                 text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
@@ -489,13 +495,14 @@
                 z-index: 1;
             }
 
-            /* ✨ КОНТЕНТ С ТЕЛЕФОНОМ И КОЛЕСОМ */
+            /* ✨ КОНТЕНТ С ТЕЛЕФОНОМ И КОЛЕСОМ - БЕЗ СКРОЛЛА */
             .spinning-wheel-content-wrapper {
-                padding: 48px;
-                min-height: 500px;
+                padding: 36px 32px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                flex: 1;
+                overflow: hidden;
             }
 
             .spinning-wheel-phone-step {
@@ -505,44 +512,44 @@
                 justify-content: center;
             }
 
-            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА */
+            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА - КОМПАКТНАЯ */
             .phone-input-card {
                 width: 100%;
-                max-width: 500px;
+                max-width: 420px;
                 text-align: center;
             }
 
             .phone-icon-wrapper {
-                width: 72px;
-                height: 72px;
-                margin: 0 auto 28px;
+                width: 64px;
+                height: 64px;
+                margin: 0 auto 24px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                border-radius: 20px;
+                border-radius: 18px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
             }
 
             .phone-icon-wrapper svg {
-                width: 36px;
-                height: 36px;
+                width: 32px;
+                height: 32px;
                 color: white;
             }
 
             .phone-step-title {
-                font-size: 1.875rem;
+                font-size: 1.625rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 12px;
+                margin: 0 0 10px;
                 letter-spacing: -0.5px;
             }
 
             .phone-description {
-                font-size: 1rem;
+                font-size: 0.9375rem;
                 color: #6b7280;
-                margin: 0 0 32px;
-                line-height: 1.6;
+                margin: 0 0 28px;
+                line-height: 1.5;
             }
 
             .phone-form {
@@ -551,12 +558,12 @@
 
             .input-group {
                 position: relative;
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
 
             .input-icon {
                 position: absolute;
-                left: 20px;
+                left: 18px;
                 top: 50%;
                 transform: translateY(-50%);
                 width: 20px;
@@ -567,7 +574,7 @@
 
             .phone-input {
                 width: 100%;
-                padding: 16px 20px 16px 52px;
+                padding: 15px 18px 15px 50px;
                 border: 2px solid #e5e7eb;
                 border-radius: 12px;
                 font-size: 1rem;
@@ -603,7 +610,7 @@
 
             .phone-submit-btn {
                 width: 100%;
-                padding: 16px 24px;
+                padding: 15px 24px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 border: none;
@@ -643,7 +650,7 @@
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                margin-top: 20px;
+                margin-top: 18px;
                 color: #6b7280;
                 font-size: 0.875rem;
             }
@@ -654,10 +661,10 @@
                 color: #10b981;
             }
 
-            /* ✨ КОЛЕСО - ПО ЦЕНТРУ ЭКРАНА */
+            /* ✨ КОЛЕСО - ЗАПОЛНЯЕТ ДОСТУПНОЕ ПРОСТРАНСТВО */
             .spinning-wheel-wheel-step {
                 width: 100%;
-                height: 500px;
+                height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -667,91 +674,121 @@
                 width: 100%;
                 height: 100%;
                 border: none;
-                border-radius: 12px;
+                border-radius: 0;
             }
 
             /* ===== АДАПТИВНОСТЬ ===== */
             
-            @media (max-width: 1024px) {
-                .spinning-wheel-modal-container {
-                    max-width: 90%;
-                }
-
+            /* Large Desktop */
+            @media (min-width: 1200px) {
                 .spinning-wheel-modal-content {
-                    max-width: 700px;
-                }
-
-                .spinning-wheel-modal-header {
-                    padding: 40px 32px 28px;
-                }
-
-                .spinning-wheel-modal-title {
-                    font-size: 2.25rem;
-                }
-
-                .spinning-wheel-content-wrapper {
-                    padding: 40px 32px;
+                    max-width: 550px;
                 }
             }
 
-            @media (max-width: 768px) {
+            /* Desktop */
+            @media (min-width: 1024px) and (max-width: 1199px) {
+                .spinning-wheel-modal-content {
+                    max-width: 520px;
+                }
+            }
+
+            /* Tablet */
+            @media (max-width: 1023px) and (min-width: 768px) {
                 .spinning-wheel-modal-container {
-                    max-width: 100%;
-                    max-height: 100vh;
-                    padding: 0;
+                    padding: 16px;
                 }
 
                 .spinning-wheel-modal-content {
-                    border-radius: 0;
-                    max-width: 100%;
-                    height: 100vh;
+                    max-width: 480px;
                 }
 
                 .spinning-wheel-modal-close {
                     top: 16px;
                     right: 16px;
-                    background: rgba(0, 0, 0, 0.3);
+                    width: 42px;
+                    height: 42px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 32px 24px 24px;
-                    padding-top: 60px;
-                }
-
-                .header-gift-icon {
-                    width: 64px;
-                    height: 64px;
-                    margin-bottom: 20px;
-                }
-
-                .header-gift-icon svg {
-                    width: 32px;
-                    height: 32px;
+                    padding: 32px 28px 24px;
                 }
 
                 .spinning-wheel-modal-title {
                     font-size: 1.875rem;
                 }
 
+                .spinning-wheel-content-wrapper {
+                    padding: 32px 28px;
+                }
+            }
+
+            /* Mobile - ПОЛНОЭКРАННЫЙ РЕЖИМ С РАЗМЫТИЕМ */
+            @media (max-width: 767px) {
+                .spinning-wheel-modal-container {
+                    padding: 0;
+                    align-items: stretch;
+                }
+
+                .spinning-wheel-modal-content {
+                    border-radius: 0;
+                    max-width: 100%;
+                    max-height: 100%;
+                    height: 100%;
+                }
+
+                .spinning-wheel-modal-close {
+                    top: 12px;
+                    right: 12px;
+                    width: 40px;
+                    height: 40px;
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 2px solid rgba(255, 255, 255, 0.4);
+                }
+
+                .spinning-wheel-modal-close svg {
+                    width: 20px;
+                    height: 20px;
+                }
+
+                .spinning-wheel-modal-header {
+                    padding: 28px 24px 20px;
+                    padding-top: 56px;
+                }
+
+                .header-gift-icon {
+                    width: 56px;
+                    height: 56px;
+                    margin-bottom: 16px;
+                }
+
+                .header-gift-icon svg {
+                    width: 28px;
+                    height: 28px;
+                }
+
+                .spinning-wheel-modal-title {
+                    font-size: 1.75rem;
+                }
+
                 .spinning-wheel-modal-subtitle {
-                    font-size: 1rem;
+                    font-size: 0.9375rem;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 32px 24px;
-                    min-height: auto;
+                    padding: 28px 24px;
                     flex: 1;
                 }
 
                 .phone-icon-wrapper {
-                    width: 60px;
-                    height: 60px;
+                    width: 56px;
+                    height: 56px;
                     margin-bottom: 20px;
                 }
 
                 .phone-icon-wrapper svg {
-                    width: 30px;
-                    height: 30px;
+                    width: 28px;
+                    height: 28px;
                 }
 
                 .phone-step-title {
@@ -759,12 +796,16 @@
                 }
 
                 .phone-description {
-                    font-size: 0.9375rem;
+                    font-size: 0.875rem;
                     margin-bottom: 24px;
                 }
 
                 .phone-input {
-                    padding: 14px 18px 14px 48px;
+                    padding: 14px 16px 14px 46px;
+                }
+
+                .input-icon {
+                    left: 16px;
                 }
 
                 .phone-submit-btn {
@@ -776,27 +817,28 @@
                 }
             }
 
+            /* Small Mobile */
             @media (max-width: 480px) {
                 .spinning-wheel-modal-header {
-                    padding: 28px 20px 20px;
-                    padding-top: 56px;
+                    padding: 24px 20px 18px;
+                    padding-top: 52px;
                 }
 
                 .header-gift-icon {
-                    width: 56px;
-                    height: 56px;
+                    width: 52px;
+                    height: 52px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.625rem;
+                    font-size: 1.5rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.9375rem;
+                    font-size: 0.875rem;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 28px 20px;
+                    padding: 24px 20px;
                 }
 
                 .phone-step-title {
@@ -804,13 +846,12 @@
                 }
 
                 .phone-description {
-                    font-size: 0.875rem;
+                    font-size: 0.8125rem;
                 }
             }
         `;
         return style;
     }
-
     // Update translations
     function updateModalTranslations() {
         if (!state.modal) return;
@@ -864,6 +905,7 @@
             
             return;
         }
+        
         updateModalTranslations();
         
         const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
@@ -1334,7 +1376,7 @@
 
     function handleOutsideClick(event) {
         if (event.target === state.modal) {
-            // Пользователь кликнул вне модального окна - ничего не делаем
+            // Клик по backdrop - ничего не делаем
         }
     }
     
@@ -1347,7 +1389,7 @@
     }
     
     function handleResize() {
-        // Обработка изменения размера окна при необходимости
+        // Resize handling if needed
     }
 
     function handleVisibilityChange() {
