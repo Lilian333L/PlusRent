@@ -629,6 +629,8 @@
             @media (max-width: 767px) {
                 .spinning-wheel-modal {
                     padding: 12px;
+                    background: rgba(0, 0, 0, 0.4);
+                    backdrop-filter: blur(6px);
                 }
 
                 .spinning-wheel-modal-content {
@@ -721,11 +723,13 @@
             @media (max-width: 400px) {
                 .spinning-wheel-modal {
                     padding: 8px;
+                    background: rgba(0, 0, 0, 0.35);
+                    backdrop-filter: blur(4px);
                 }
                 
                 .spinning-wheel-modal-content {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(15px);
+                    background: rgba(255, 255, 255, 0.96);
+                    backdrop-filter: blur(20px);
                 }
 
                 .spinning-wheel-modal-header {
