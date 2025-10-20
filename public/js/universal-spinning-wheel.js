@@ -1,6 +1,6 @@
 /**
  * Universal Spinning Wheel Modal Trigger - Orange Theme
- * Optimized for performance and modern design
+ * Optimized for performance with full functionality preserved
  */
 
 (function() {
@@ -198,6 +198,7 @@
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     <div class="spinning-wheel-modal-header">
+                        <div class="header-decoration"></div>
                         <div class="header-gift-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20 12v10H4V12"></path>
@@ -295,6 +296,8 @@
                 max-height: 90vh;
                 position: relative;
                 overflow: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
                 transform: scale(0.9);
                 transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
                 box-shadow: 0 20px 60px rgba(245, 158, 11, 0.25),
@@ -629,8 +632,13 @@
                 }
 
                 .spinning-wheel-modal-content {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(15px);
                     border-radius: 20px;
                     max-height: 92vh;
+                    overflow-y: auto;
+                    -webkit-overflow-scrolling: touch;
+                    overscroll-behavior: contain;
                 }
 
                 .spinning-wheel-modal-content.wheel-step {
@@ -714,6 +722,11 @@
                 .spinning-wheel-modal {
                     padding: 8px;
                 }
+                
+                .spinning-wheel-modal-content {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(15px);
+                }
 
                 .spinning-wheel-modal-header {
                     padding: 20px 16px;
@@ -742,6 +755,20 @@
 
                 .phone-description {
                     font-size: 0.8rem;
+                }
+            }
+
+            @keyframes slideInBounce {
+                0% {
+                    transform: translateY(-50px) scale(0.9);
+                    opacity: 0;
+                }
+                60% {
+                    transform: translateY(10px) scale(1.02);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(0) scale(1);
                 }
             }
         `;
@@ -799,6 +826,12 @@
             
             return;
         }
+        
+        // Block body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${window.scrollY}px`;
         
         updateModalTranslations();
         
@@ -884,6 +917,14 @@
         
         setTimeout(() => {
             state.modal.style.display = 'none';
+            
+            // Restore body scroll
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.overflow = '';
+            document.body.style.width = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
         }, 300);
     }
 
@@ -1362,6 +1403,50 @@
                         max-width: 100%;
                         padding: 16px;
                     }
+                    
+                    .coupon-gift-icon {
+                        width: 40px;
+                        height: 40px;
+                    }
+                    
+                    .coupon-gift-icon svg {
+                        width: 20px;
+                        height: 20px;
+                    }
+                    
+                    .coupon-title {
+                        font-size: 1.1rem;
+                        gap: 6px;
+                    }
+                    
+                    .sparkle {
+                        font-size: 0.875rem;
+                    }
+                    
+                    .coupon-code {
+                        font-size: 1.25rem;
+                        letter-spacing: 1.5px;
+                    }
+                    
+                    .coupon-message {
+                        font-size: 0.8rem;
+                    }
+                }
+                
+                @media (max-width: 400px) {
+                    .coupon-notification-container {
+                        top: 60px;
+                        right: 12px;
+                        left: 12px;
+                    }
+                    
+                    .coupon-title {
+                        font-size: 1rem;
+                    }
+                    
+                    .coupon-code {
+                        font-size: 1.1rem;
+                    }
                 }
             `;
             document.head.appendChild(style);
@@ -1518,7 +1603,7 @@
         state.modal.addEventListener('click', handleOutsideClick);
         document.addEventListener('keydown', handleKeydown);
         window.addEventListener('resize', handleResize);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('beforeunload', handleBeforeUnload);
         
         if (typeof i18next !== 'undefined') {
