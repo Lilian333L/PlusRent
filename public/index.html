@@ -1481,16 +1481,31 @@
   </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Ждем появления меню (так как оно создается динамически)
     const observer = new MutationObserver(function(mutations) {
         const menu = document.querySelector('.select2-dropdown');
         
         if (menu) {
-            // Запрет touchmove - предотвращает горизонтальное перемещение
+            // Запрет touchmove для самого меню
             menu.addEventListener('touchmove', function(e) {
-                // Разрешаем скролл только внутри списка результатов
                 const scrollableArea = e.target.closest('.select2-results__options');
-                if (!scrollableArea) {
+                
+                // Если касание внутри списка результатов
+                if (scrollableArea) {
+                    const target = e.target;
+                    
+                    // Проверяем, есть ли горизонтальный overflow у элемента
+                    const hasHorizontalScroll = target.scrollWidth > target.clientWidth;
+                    
+                    // Если есть горизонтальная прокрутка, разрешаем движение
+                    if (hasHorizontalScroll) {
+                        // Разрешаем и вертикальную, и горизонтальную прокрутку
+                        return true;
+                    }
+                    
+                    // Иначе разрешаем только вертикальную прокрутку
+                    return true;
+                } else {
+                    // Вне области прокрутки - блокируем всё
                     e.preventDefault();
                 }
             }, { passive: false });
@@ -1500,12 +1515,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
             }, { passive: false });
             
-            // Отключаем наблюдатель после нахождения меню
             observer.disconnect();
         }
     });
     
-    // Наблюдаем за появлением меню
     observer.observe(document.body, {
         childList: true,
         subtree: true
