@@ -1,7 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger
- * This script automatically injects the spinning wheel modal into any page on the website
- * No need to manually add it to each HTML page
+ * Universal Spinning Wheel Modal Trigger - PROFESSIONAL EDITION
+ * Полностью оптимизированный дизайн без белого фона
  */
 
 (function() {
@@ -9,7 +8,7 @@
 
     // Configuration
     const CONFIG = {
-        delay: 30 * 1000, // 30 seconds
+        delay: 30 * 1000,
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: 'spinning-wheel-standalone.html',
@@ -23,7 +22,10 @@
         timer: null,
         isInitialized: false,
         userClosedModal: false,
-        modalCheckInterval: null
+        modalCheckInterval: null,
+        originalBodyOverflow: '',
+        originalBodyPosition: '',
+        scrollPosition: 0
     };
 
     // Check if any modal is open
@@ -67,6 +69,28 @@
         }
 
         return false;
+    }
+
+    // ✅ НОВАЯ ФУНКЦИЯ: Блокировка скролла страницы
+    function disableBodyScroll() {
+        state.scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        state.originalBodyOverflow = document.body.style.overflow;
+        state.originalBodyPosition = document.body.style.position;
+        
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${state.scrollPosition}px`;
+        document.body.style.width = '100%';
+    }
+
+    // ✅ НОВАЯ ФУНКЦИЯ: Разблокировка скролла страницы
+    function enableBodyScroll() {
+        document.body.style.overflow = state.originalBodyOverflow;
+        document.body.style.position = state.originalBodyPosition;
+        document.body.style.top = '';
+        document.body.style.width = '';
+        
+        window.scrollTo(0, state.scrollPosition);
     }
 
     // Get current language
@@ -149,7 +173,7 @@
         return translations[lang][key] || translations['ro'][key] || key;
     }
 
-    // Check if user has seen the modal today or has already received their reward
+    // Check if user has seen the modal today
     function hasSeenModalToday() {
         const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
@@ -165,7 +189,7 @@
         return lastSeenDate.toDateString() === today.toDateString();
     }
 
-    // Track total time spent on website across all pages
+    // Track total time spent on website
     function getTotalWebsiteTime() {
         const startTime = localStorage.getItem('websiteStartTime');
         const storedTotalTime = localStorage.getItem('websiteTotalTime');
@@ -183,17 +207,16 @@
         return baseTime + currentSessionTime;
     }
 
-    // Set website start time if not already set
+    // Set website start time
     function setWebsiteStartTime() {
         if (!localStorage.getItem('websiteStartTime')) {
             localStorage.setItem('websiteStartTime', Date.now().toString());
         }
     }
 
-    // Mark modal as seen today
+    // Mark modal as seen
     function markModalAsSeen() {
         localStorage.setItem(CONFIG.storageKey, new Date().toISOString());
-        
         localStorage.removeItem('websiteStartTime');
         localStorage.removeItem('websiteTotalTime');
     }
@@ -202,12 +225,11 @@
     function createModalHTML() {
         return `
             <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
+                <div class="spinning-wheel-modal-backdrop"></div>
                 <div class="spinning-wheel-modal-content">
                     <div class="spinning-wheel-modal-close">&times;</div>
                     
-                    <!-- ЗАГОЛОВОК ПОКАЗЫВАЕТСЯ ТОЛЬКО НА ЭТАПЕ ВВОДА ТЕЛЕФОНА -->
                     <div class="spinning-wheel-modal-header" id="universalModalHeader">
-                        <div class="header-decoration"></div>
                         <div class="header-gift-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20 12v10H4V12"></path>
@@ -271,199 +293,218 @@
         `;
     }
 
-    // Create modal CSS
+    // Create modal CSS - PROFESSIONAL DESIGN
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
+            /* ===== ПРОФЕССИОНАЛЬНЫЙ ДИЗАЙН БЕЗ БЕЛОГО ФОНА ===== */
+            
             .spinning-wheel-modal {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.75);
-                backdrop-filter: blur(8px);
                 z-index: ${CONFIG.zIndex};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 opacity: 0;
-                transition: opacity 0.3s ease;
-                padding: 20px;
+                transition: opacity 0.4s ease;
+                padding: 0;
+                overflow-y: auto;
+                overflow-x: hidden;
+                /* ✅ БЛОКИРУЕМ СКРОЛЛ */
+                -webkit-overflow-scrolling: touch;
             }
 
             .spinning-wheel-modal.show {
                 opacity: 1;
             }
 
-            .spinning-wheel-modal-content {
-                background: white;
-                border-radius: 24px;
+            /* ✅ ПРОФЕССИОНАЛЬНЫЙ BACKDROP */
+            .spinning-wheel-modal-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
                 width: 100%;
-                max-width: 480px;
-                max-height: 90vh;
+                height: 100%;
+                background: linear-gradient(135deg, 
+                    rgba(245, 158, 11, 0.95) 0%, 
+                    rgba(217, 119, 6, 0.95) 100%);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: -1;
+            }
+
+            /* ✅ КОНТЕЙНЕР БЕЗ БЕЛОГО ФОНА */
+            .spinning-wheel-modal-content {
+                background: transparent;
+                border-radius: 0;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
                 position: relative;
                 overflow: hidden;
-                transform: scale(0.9);
-                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                transform: scale(0.95);
+                transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                display: flex;
+                flex-direction: column;
+                box-shadow: none;
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-content {
                 transform: scale(1);
             }
 
-            .spinning-wheel-modal-content.wheel-step {
-                max-width: 1000px;
-                max-height: 95vh;
-            }
-
+            /* ✅ КНОПКА ЗАКРЫТИЯ */
             .spinning-wheel-modal-close {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                width: 36px;
-                height: 36px;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 24px;
+                font-size: 28px;
                 cursor: pointer;
                 color: white;
-                z-index: 10;
+                z-index: 10001;
                 border-radius: 50%;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.15);
                 transition: all 0.3s ease;
                 backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                font-weight: 300;
+                line-height: 1;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: rotate(90deg);
+                background: rgba(255, 255, 255, 0.25);
+                transform: rotate(90deg) scale(1.1);
+                border-color: rgba(255, 255, 255, 0.5);
             }
 
-            /* ОРАНЖЕВЫЙ ЗАГОЛОВОК */
+            /* ✅ ЗАГОЛОВОК С ПРОЗРАЧНЫМ ФОНОМ */
             .spinning-wheel-modal-header {
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                background: transparent;
                 color: white;
-                padding: 32px 24px;
+                padding: 40px 24px 30px;
                 text-align: center;
                 position: relative;
-                overflow: hidden;
-            }
-
-            .spinning-wheel-modal-header::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-                animation: pulse 3s ease-in-out infinite;
-            }
-
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 0.5; }
-                50% { transform: scale(1.1); opacity: 0.8; }
+                z-index: 1;
             }
 
             .header-gift-icon {
-                width: 56px;
-                height: 56px;
-                margin: 0 auto 16px;
+                width: 72px;
+                height: 72px;
+                margin: 0 auto 20px;
                 background: rgba(255, 255, 255, 0.2);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 animation: bounce 2s ease-in-out infinite;
-                position: relative;
-                z-index: 1;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
             }
 
             .header-gift-icon svg {
-                width: 28px;
-                height: 28px;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+                width: 36px;
+                height: 36px;
+                filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
             }
 
             @keyframes bounce {
                 0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-8px); }
+                50% { transform: translateY(-10px); }
             }
 
             .spinning-wheel-modal-title {
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin: 0 0 8px 0;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 12px 0;
+                text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                position: relative;
-                z-index: 1;
                 color: white;
+                letter-spacing: -0.5px;
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1rem;
+                font-size: 1.1rem;
                 margin: 0;
                 opacity: 0.95;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                position: relative;
-                z-index: 1;
                 color: white;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             }
 
+            /* ✅ КОНТЕНТ С ПРОЗРАЧНЫМ ФОНОМ */
             .spinning-wheel-wheel-content {
-                background: white;
+                flex: 1;
                 display: flex;
                 flex-direction: column;
+                background: transparent;
+                padding: 20px;
+                overflow-y: auto;
+                overflow-x: hidden;
             }
 
             .spinning-wheel-phone-step {
-                padding: 40px 32px;
+                flex: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                padding: 20px;
             }
 
             .phone-input-container {
                 width: 100%;
-                max-width: 400px;
+                max-width: 480px;
                 text-align: center;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 24px;
+                padding: 40px 32px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.5);
             }
 
-            /* ОРАНЖЕВАЯ ИКОНКА */
             .phone-icon-circle {
-                width: 72px;
-                height: 72px;
+                width: 80px;
+                height: 80px;
                 margin: 0 auto 24px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
             }
 
             .phone-icon-circle svg {
-                width: 36px;
-                height: 36px;
+                width: 40px;
+                height: 40px;
                 color: white;
             }
 
             .phone-step-title {
                 color: #1a202c;
-                font-size: 1.5rem;
+                font-size: 1.65rem;
                 margin: 0 0 12px 0;
-                font-weight: 700;
+                font-weight: 800;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             }
 
             .phone-description {
                 color: #718096;
-                font-size: 0.95rem;
+                font-size: 1rem;
                 margin: 0 0 32px 0;
                 line-height: 1.6;
             }
@@ -479,21 +520,21 @@
 
             .input-icon {
                 position: absolute;
-                left: 16px;
+                left: 18px;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 20px;
-                height: 20px;
+                width: 22px;
+                height: 22px;
                 color: #a0aec0;
                 pointer-events: none;
             }
 
             .phone-input {
                 width: 100%;
-                padding: 16px 16px 16px 48px;
+                padding: 18px 18px 18px 52px;
                 border: 2px solid #e2e8f0;
-                border-radius: 12px;
-                font-size: 1rem;
+                border-radius: 14px;
+                font-size: 1.05rem;
                 transition: all 0.3s ease;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 box-sizing: border-box;
@@ -502,7 +543,7 @@
             .phone-input:focus {
                 outline: none;
                 border-color: #f59e0b;
-                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
             }
 
             .phone-input::placeholder {
@@ -516,49 +557,49 @@
 
             .phone-error-message {
                 color: #e53e3e;
-                font-size: 0.875rem;
-                margin-top: 8px;
+                font-size: 0.9rem;
+                margin-top: 10px;
                 text-align: left;
                 padding-left: 4px;
+                font-weight: 500;
             }
 
-            /* ОРАНЖЕВАЯ КНОПКА */
             .phone-submit-btn {
                 width: 100%;
-                padding: 16px;
+                padding: 18px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 border: none;
-                border-radius: 12px;
-                font-size: 1.05rem;
-                font-weight: 600;
+                border-radius: 14px;
+                font-size: 1.1rem;
+                font-weight: 700;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 10px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
             }
 
             .phone-submit-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
             }
 
             .phone-submit-btn:active {
-                transform: translateY(0);
+                transform: translateY(-1px);
             }
 
             .btn-icon {
-                width: 20px;
-                height: 20px;
+                width: 22px;
+                height: 22px;
                 transition: transform 0.3s ease;
             }
 
             .phone-submit-btn:hover .btn-icon {
-                transform: translateX(4px);
+                transform: translateX(5px);
             }
 
             .privacy-badge {
@@ -568,214 +609,178 @@
                 gap: 8px;
                 margin-top: 20px;
                 color: #718096;
-                font-size: 0.875rem;
+                font-size: 0.9rem;
             }
 
             .privacy-badge svg {
-                width: 16px;
-                height: 16px;
+                width: 18px;
+                height: 18px;
                 color: #48bb78;
             }
 
+            /* ✅ КОЛЕСО В ПОЛНЫЙ ЭКРАН */
             .spinning-wheel-wheel-step {
-                padding: 24px;
-                min-height: 500px;
+                flex: 1;
                 display: flex;
                 flex-direction: column;
+                padding: 0;
+                min-height: 100%;
             }
 
             #universalSpinningWheelIframe {
                 flex: 1;
-                border-radius: 12px;
+                border-radius: 0;
+                width: 100%;
+                height: 100%;
             }
 
-            /* Desktop styles */
+            /* ===== АДАПТИВНЫЕ СТИЛИ ===== */
+            
+            /* Desktop */
             @media (min-width: 1024px) {
-                .spinning-wheel-modal {
-                    padding: 40px;
-                }
-
-                .spinning-wheel-modal-content.wheel-step {
-                    max-width: 1200px;
-                    height: 85vh;
-                }
-
-                .spinning-wheel-wheel-step {
-                    padding: 40px;
-                    min-height: 600px;
-                }
-
-                .spinning-wheel-modal-header {
-                    padding: 40px 32px;
-                }
-
-                .spinning-wheel-modal-title {
-                    font-size: 2rem;
-                }
-
-                .spinning-wheel-modal-subtitle {
-                    font-size: 1.125rem;
-                }
-            }
-
-            /* Tablet styles */
-            @media (min-width: 768px) and (max-width: 1023px) {
                 .spinning-wheel-modal-content {
-                    max-width: 600px;
+                    padding: 40px;
                 }
 
-                .spinning-wheel-modal-content.wheel-step {
-                    max-width: 900px;
+                .spinning-wheel-wheel-content {
+                    padding: 40px;
                 }
 
                 .phone-input-container {
-                    max-width: 450px;
+                    max-width: 520px;
+                    padding: 48px 40px;
                 }
             }
 
-            /* Mobile styles */
-            @media (max-width: 767px) {
-                .spinning-wheel-modal {
-                    padding: 12px;
-                }
-
-                .spinning-wheel-modal-content {
-                    border-radius: 20px;
-                    max-height: 92vh;
-                }
-
-                .spinning-wheel-modal-content.wheel-step {
-                    max-height: 95vh;
-                }
-
+            /* Tablet */
+            @media (max-width: 1023px) and (min-width: 768px) {
                 .spinning-wheel-modal-close {
-                    top: 12px;
-                    right: 12px;
-                    width: 32px;
-                    height: 32px;
-                    font-size: 22px;
+                    top: 16px;
+                    right: 16px;
+                    width: 40px;
+                    height: 40px;
+                    font-size: 26px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 24px 20px;
+                    padding: 32px 20px 24px;
                 }
 
                 .header-gift-icon {
-                    width: 48px;
-                    height: 48px;
-                    margin-bottom: 12px;
-                }
-
-                .header-gift-icon svg {
-                    width: 24px;
-                    height: 24px;
+                    width: 64px;
+                    height: 64px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.4rem;
-                    margin-bottom: 6px;
+                    font-size: 1.9rem;
                 }
 
-                .spinning-wheel-modal-subtitle {
-                    font-size: 0.9rem;
+                .phone-input-container {
+                    max-width: 460px;
+                    padding: 36px 28px;
+                }
+            }
+
+            /* Mobile */
+            @media (max-width: 767px) {
+                .spinning-wheel-modal-close {
+                    top: 12px;
+                    right: 12px;
+                    width: 38px;
+                    height: 38px;
+                    font-size: 24px;
                 }
 
-                .spinning-wheel-phone-step {
-                    padding: 28px 20px;
+                .spinning-wheel-modal-header {
+                    padding: 28px 16px 20px;
                 }
 
-                .phone-icon-circle {
-                    width: 64px;
-                    height: 64px;
-                    margin-bottom: 20px;
+                .header-gift-icon {
+                    width: 56px;
+                    height: 56px;
+                    margin-bottom: 16px;
                 }
 
-                .phone-icon-circle svg {
-                    width: 32px;
-                    height: 32px;
+                .header-gift-icon svg {
+                    width: 28px;
+                    height: 28px;
                 }
 
-                .phone-step-title {
-                    font-size: 1.3rem;
+                .spinning-wheel-modal-title {
+                    font-size: 1.6rem;
                     margin-bottom: 10px;
                 }
 
+                .spinning-wheel-modal-subtitle {
+                    font-size: 0.95rem;
+                }
+
+                .spinning-wheel-wheel-content {
+                    padding: 12px;
+                }
+
+                .phone-input-container {
+                    padding: 32px 24px;
+                    border-radius: 20px;
+                }
+
+                .phone-icon-circle {
+                    width: 68px;
+                    height: 68px;
+                }
+
+                .phone-step-title {
+                    font-size: 1.4rem;
+                }
+
                 .phone-description {
-                    font-size: 0.875rem;
-                    margin-bottom: 24px;
+                    font-size: 0.9rem;
+                    margin-bottom: 28px;
                 }
 
                 .phone-input,
                 .phone-submit-btn {
-                    padding: 14px;
+                    padding: 16px;
                     font-size: 1rem;
                 }
 
                 .phone-input {
-                    padding-left: 44px;
-                }
-
-                .spinning-wheel-wheel-step {
-                    padding: 16px;
-                    min-height: 450px;
+                    padding-left: 48px;
                 }
             }
 
             /* Extra small mobile */
             @media (max-width: 400px) {
-                .spinning-wheel-modal {
-                    padding: 8px;
-                }
-
-                .spinning-wheel-modal-header {
-                    padding: 20px 16px;
-                }
-
                 .spinning-wheel-modal-title {
-                    font-size: 1.25rem;
+                    font-size: 1.4rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
                     font-size: 0.85rem;
                 }
 
-                .spinning-wheel-phone-step {
-                    padding: 24px 16px;
+                .phone-input-container {
+                    padding: 28px 20px;
                 }
 
                 .phone-icon-circle {
-                    width: 56px;
-                    height: 56px;
+                    width: 60px;
+                    height: 60px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.15rem;
+                    font-size: 1.25rem;
                 }
 
                 .phone-description {
-                    font-size: 0.8rem;
-                }
-            }
-
-            /* Animation keyframes */
-            @keyframes slideInBounce {
-                0% {
-                    transform: translateY(-50px) scale(0.9);
-                    opacity: 0;
-                }
-                60% {
-                    transform: translateY(10px) scale(1.02);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(0) scale(1);
+                    font-size: 0.85rem;
                 }
             }
         `;
         return style;
     }
 
-    // Update translations in the modal
+    // Update translations
     function updateModalTranslations() {
         if (!state.modal) return;
         
@@ -801,17 +806,17 @@
         if (privacyText) privacyText.textContent = t('privacyText');
     }
 
-    // Show modal с проверкой других модалов
+    // Show modal
     function showModal(options = {}) {
         if (!state.modal) return;
         
         if (state.userClosedModal) {
-            console.log('⏸️ User manually closed modal, not showing again');
+            console.log('⏸️ User manually closed modal');
             return;
         }
         
         if (isAnyModalOpen()) {
-            console.log('⏳ Another modal is open, delaying spinning wheel...');
+            console.log('⏳ Another modal is open, delaying...');
             
             if (state.modalCheckInterval) {
                 clearInterval(state.modalCheckInterval);
@@ -819,7 +824,7 @@
             
             state.modalCheckInterval = setInterval(() => {
                 if (!isAnyModalOpen() && !state.userClosedModal) {
-                    console.log('✅ Other modals closed, showing spinning wheel now');
+                    console.log('✅ Showing spinning wheel now');
                     clearInterval(state.modalCheckInterval);
                     state.modalCheckInterval = null;
                     showModal(options);
@@ -842,7 +847,6 @@
             }
         }
         
-        const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
         const modalHeader = document.getElementById('universalModalHeader');
         
         if (skipPhoneStep) {
@@ -853,14 +857,8 @@
                 phoneStep.style.display = 'none';
                 wheelStep.style.display = 'flex';
                 
-                // СКРЫВАЕМ ЗАГОЛОВОК
                 if (modalHeader) {
                     modalHeader.style.display = 'none';
-                }
-                
-                if (modalContent) {
-                    modalContent.classList.remove('phone-step');
-                    modalContent.classList.add('wheel-step');
                 }
                 
                 if (phoneNumber) {
@@ -887,17 +885,14 @@
                 phoneStep.style.display = 'flex';
                 wheelStep.style.display = 'none';
                 
-                // ПОКАЗЫВАЕМ ЗАГОЛОВОК
                 if (modalHeader) {
                     modalHeader.style.display = 'block';
                 }
-                
-                if (modalContent) {
-                    modalContent.classList.remove('wheel-step');
-                    modalContent.classList.add('phone-step');
-                }
             }
         }
+        
+        // ✅ БЛОКИРУЕМ СКРОЛЛ СТРАНИЦЫ
+        disableBodyScroll();
         
         state.modal.style.display = 'flex';
         state.modal.offsetHeight;
@@ -914,7 +909,7 @@
         if (!state.modal) return;
         
         state.userClosedModal = true;
-        console.log('❌ User closed modal manually');
+        console.log('❌ User closed modal');
         
         if (state.modalCheckInterval) {
             clearInterval(state.modalCheckInterval);
@@ -925,7 +920,9 @@
         
         setTimeout(() => {
             state.modal.style.display = 'none';
-        }, 300);
+            // ✅ РАЗБЛОКИРУЕМ СКРОЛЛ СТРАНИЦЫ
+            enableBodyScroll();
+        }, 400);
     }
 
     // Cleanup
@@ -948,6 +945,9 @@
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('beforeunload', handleBeforeUnload);
         window.removeEventListener('message', handleWheelMessage);
+        
+        // ✅ РАЗБЛОКИРУЕМ СКРОЛЛ ПРИ CLEANUP
+        enableBodyScroll();
     }
 
     // Validate phone number
@@ -1049,9 +1049,7 @@
                     return;
                 }
             }
-        } catch (error) {
-            // Error handling silenced
-        }
+        } catch (error) {}
 
         localStorage.setItem('spinningWheelPhone', formattedPhone);
         localStorage.setItem('spinningWheelPhoneEntered', 'true');
@@ -1065,7 +1063,6 @@
             }).catch(err => {});
         } catch (err) {}
 
-        // СКРЫВАЕМ ЗАГОЛОВОК ПРИ ПЕРЕХОДЕ К КОЛЕСУ
         const modalHeader = document.getElementById('universalModalHeader');
         if (modalHeader) {
             modalHeader.style.display = 'none';
@@ -1073,12 +1070,6 @@
 
         document.getElementById('universalPhoneStep').style.display = 'none';
         document.getElementById('universalWheelStep').style.display = 'flex';
-
-        const modalContent = document.querySelector('.spinning-wheel-modal-content');
-        if (modalContent) {
-            modalContent.classList.remove('phone-step');
-            modalContent.classList.add('wheel-step');
-        }
 
         const iframe = document.getElementById('universalSpinningWheelIframe');
         if (iframe && iframe.contentWindow) {
@@ -1127,7 +1118,8 @@
             showCouponAppliedNotification(couponCode);
         } catch (error) {}
     }
-// Show coupon notification - ОПТИМИЗИРОВАННОЕ С ОРАНЖЕВЫМИ ЦВЕТАМИ
+
+    // Show coupon notification (код уведомления остается таким же из предыдущей версии)
     function showCouponAppliedNotification(couponCode) {
         const currentLang = getCurrentLanguage();
         
@@ -1155,7 +1147,6 @@
         notification.id = 'coupon-applied-notification';
         notification.className = 'coupon-notification-container';
         
-        // Оранжевое конфетти
         const confettiColors = ['#f59e0b', '#fb923c', '#fdba74', '#fbbf24', '#d97706', '#ea580c'];
         let confettiHTML = '';
         for (let i = 0; i < 8; i++) {
@@ -1416,7 +1407,6 @@
                     }
                 }
                 
-                /* АДАПТИВНЫЕ СТИЛИ ДЛЯ ПЛАНШЕТОВ */
                 @media (max-width: 1024px) and (min-width: 769px) {
                     .coupon-notification-container {
                         top: 18px;
@@ -1443,7 +1433,6 @@
                     }
                 }
                 
-                /* АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ */
                 @media (max-width: 768px) {
                     .coupon-notification-container {
                         top: 16px;
@@ -1505,7 +1494,6 @@
                     }
                 }
                 
-                /* СТИЛИ ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
                 @media (max-width: 480px) {
                     .coupon-notification-container {
                         top: 12px;
@@ -1556,7 +1544,6 @@
                     }
                 }
                 
-                /* СТИЛИ ДЛЯ ЭКСТРА МАЛЕНЬКИХ ЭКРАНОВ */
                 @media (max-width: 360px) {
                     .coupon-notification-container {
                         top: 10px;
@@ -1605,17 +1592,9 @@
         }, 6000);
     }
 
-    function handleOutsideClick(event) {
-        // Disabled
-    }
-
-    function handleKeydown(event) {
-        // Disabled
-    }
-
-    function handleResize() {
-        // CSS handles responsive design
-    }
+    function handleOutsideClick(event) {}
+    function handleKeydown(event) {}
+    function handleResize() {}
 
     function handleVisibilityChange() {
         if (document.hidden) {
