@@ -31,54 +31,40 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 200% 200%;
-            animation: gradientMove 10s ease infinite;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-
-        @keyframes gradientMove {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .spinning-wheel-container {
             width: 100%;
             min-height: 100vh;
-            max-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 1rem;
+            justify-content: flex-start;
+            padding: 15px 10px;
             position: relative;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-        /* Floating particles background */
+        /* Floating particles background - ОПТИМИЗИРОВАНО */
         .spinning-wheel-container::before {
             content: '';
             position: absolute;
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
-                radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 50px 50px, 80px 80px;
-            background-position: 0 0, 40px 40px;
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0;
             animation: particlesFloat 20s linear infinite;
             pointer-events: none;
+            will-change: transform;
         }
 
         @keyframes particlesFloat {
@@ -86,18 +72,11 @@
             100% { transform: translateY(-100px); }
         }
 
-        @media (max-width: 1024px) {
-            .spinning-wheel-container {
-                align-items: flex-start;
-                padding-top: 30px;
-            }
-        }
-
         .wheel-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2.5rem;
+            gap: 20px;
             max-width: 1200px;
             width: 100%;
             position: relative;
@@ -109,6 +88,33 @@
                 flex-direction: row;
                 justify-content: center;
                 align-items: center;
+                gap: 40px;
+            }
+        }
+
+        /* Компактный заголовок для мобильных */
+        .header {
+            text-align: center;
+            color: white;
+            padding: 10px 10px 5px;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.95;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                display: none;
             }
         }
 
@@ -116,22 +122,40 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 0;
             position: relative;
         }
 
-        /* Premium Wheel Container - FIXED for iOS */
+        /* ОПТИМИЗИРОВАННЫЙ Wheel Container */
         .wheel-container {
             position: relative;
-            width: 420px;
-            height: 420px;
+            width: 280px;
+            height: 280px;
+            /* КРИТИЧНО для производительности */
             will-change: transform;
             transform: translateZ(0);
-            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.3));
-            /* Removed float animation for iOS stability */
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            perspective: 1000px;
+            -webkit-perspective: 1000px;
         }
 
-        /* Glowing effect with pulsing animation */
+        @media (min-width: 768px) {
+            .wheel-container {
+                width: 380px;
+                height: 380px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .wheel-container {
+                width: 420px;
+                height: 420px;
+            }
+        }
+
+        /* Упрощенный glow для производительности */
         .wheel-glow {
             position: absolute;
             top: 0;
@@ -139,20 +163,17 @@
             right: 0;
             bottom: 0;
             border-radius: 50%;
-            padding: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
-            background-size: 400% 400%;
-            animation: glowPulse 4s ease infinite;
+            padding: 8px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            animation: glowPulse 3s ease infinite;
         }
 
         @keyframes glowPulse {
             0%, 100% { 
-                background-position: 0% 50%;
-                box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
             }
             50% { 
-                background-position: 100% 50%;
-                box-shadow: 0 0 60px rgba(118, 75, 162, 0.8);
+                box-shadow: 0 0 45px rgba(245, 158, 11, 0.6);
             }
         }
 
@@ -164,11 +185,11 @@
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             padding: 0;
             box-shadow: 
-                0 0 40px rgba(102, 126, 234, 0.5),
-                inset 0 0 30px rgba(255, 255, 255, 0.9),
-                inset 0 5px 15px rgba(102, 126, 234, 0.2);
+                0 0 30px rgba(245, 158, 11, 0.3),
+                inset 0 0 20px rgba(255, 255, 255, 0.9);
         }
 
+        /* КРИТИЧНО ОПТИМИЗИРОВАННОЕ колесо */
         .wheel {
             position: relative;
             width: 100%;
@@ -176,9 +197,13 @@
             border-radius: 50%;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            /* Оптимизация для плавного вращения */
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
             will-change: transform;
             transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         .wheel-segment {
@@ -188,9 +213,12 @@
             width: calc(100% + 4px);
             height: calc(100% + 4px);
             transform-origin: center;
-            transition: all 0.3s ease;
-            will-change: transform;
+            /* Оптимизация сегментов */
+            will-change: auto;
             transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         .segment-border {
@@ -221,74 +249,72 @@
         }
 
         .segment-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.4));
+            font-size: 32px;
+            margin-bottom: 8px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
             display: block;
-            animation: iconBounce 2s ease-in-out infinite;
         }
 
-        @keyframes iconBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        @media (max-width: 480px) {
+            .segment-icon {
+                font-size: 24px;
+                margin-bottom: 4px;
+            }
         }
 
         .segment-text {
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1.2;
             font-weight: 800;
             text-align: center;
-            padding: 6px 10px;
+            padding: 5px 8px;
             white-space: nowrap;
             min-width: 40px;
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
             z-index: 10;
             background: rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
-        /* Premium center button with glow */
+        @media (max-width: 480px) {
+            .segment-text {
+                font-size: 15px;
+                padding: 4px 6px;
+            }
+        }
+
+        /* Оптимизированная центральная кнопка */
         .center-button {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90px;
-            height: 90px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             border: 4px solid white;
             cursor: pointer;
-            box-shadow: 
-                0 10px 30px rgba(102, 126, 234, 0.5),
-                inset 0 2px 8px rgba(255, 255, 255, 0.4),
-                0 0 0 0 rgba(102, 126, 234, 0.7);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            transition: all 0.2s ease;
             z-index: 20;
-            animation: buttonPulse 2s ease-in-out infinite;
+            /* Оптимизация */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
-        @keyframes buttonPulse {
-            0%, 100% {
-                box-shadow: 
-                    0 10px 30px rgba(102, 126, 234, 0.5),
-                    inset 0 2px 8px rgba(255, 255, 255, 0.4),
-                    0 0 0 0 rgba(102, 126, 234, 0.7);
-            }
-            50% {
-                box-shadow: 
-                    0 15px 40px rgba(102, 126, 234, 0.7),
-                    inset 0 2px 8px rgba(255, 255, 255, 0.4),
-                    0 0 0 15px rgba(102, 126, 234, 0);
+        @media (min-width: 768px) {
+            .center-button {
+                width: 85px;
+                height: 85px;
             }
         }
 
         .center-button:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 
-                0 15px 40px rgba(102, 126, 234, 0.7),
-                inset 0 2px 8px rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.6);
         }
 
         .center-button:active {
@@ -307,108 +333,78 @@
         }
 
         .center-icon {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: white;
             display: block;
             font-weight: 800;
             text-align: center;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             letter-spacing: 1px;
         }
 
-        /* Enhanced arrow pointer */
+        /* Упрощенная стрелка */
         .arrow-pointer {
             position: absolute;
-            top: -25px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
             animation: arrowBounce 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
         }
 
         @keyframes arrowBounce {
             0%, 100% { 
-                transform: translateX(-50%) translateY(0) scale(1);
+                transform: translateX(-50%) translateY(0);
             }
             50% { 
-                transform: translateX(-50%) translateY(-8px) scale(1.15);
+                transform: translateX(-50%) translateY(-6px);
             }
         }
 
         .arrow {
             width: 0;
             height: 0;
-            border-left: 22px solid transparent;
-            border-right: 22px solid transparent;
-            border-top: 35px solid white;
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 28px solid white;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
             position: relative;
         }
 
-        @media only screen and (max-width: 430px) {
+        @media (max-width: 480px) {
             .arrow-pointer {
-                top: -18px !important;
+                top: -16px;
             }
             .arrow {
-                border-left: 18px solid transparent;
-                border-right: 18px solid transparent;
-                border-top: 28px solid white;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-top: 24px solid white;
             }
         }
 
         .info-section {
             flex: 1;
             max-width: 520px;
-            min-height: 420px;
+            width: 100%;
             position: relative;
-            overflow-y: auto;
-            overflow-x: hidden;
         }
 
-        /* Premium scrollbar styling */
-        .spinning-wheel-container::-webkit-scrollbar,
-        .info-section::-webkit-scrollbar,
-        .instructions-card::-webkit-scrollbar,
-        .result-card::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .spinning-wheel-container::-webkit-scrollbar-track,
-        .info-section::-webkit-scrollbar-track,
-        .instructions-card::-webkit-scrollbar-track,
-        .result-card::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .spinning-wheel-container::-webkit-scrollbar-thumb,
-        .info-section::-webkit-scrollbar-thumb,
-        .instructions-card::-webkit-scrollbar-thumb,
-        .result-card::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.5));
-            border-radius: 10px;
-        }
-
-        .spinning-wheel-container::-webkit-scrollbar-thumb:hover,
-        .info-section::-webkit-scrollbar-thumb:hover,
-        .instructions-card::-webkit-scrollbar-thumb:hover,
-        .result-card::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.7));
-        }
-
-        /* Premium gradient card with glassmorphism */
+        /* Компактная карточка инструкций */
         .instructions-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 2.5rem;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
             position: relative;
             overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .instructions-card {
+                padding: 30px;
+            }
         }
 
         .instructions-card::before {
@@ -418,7 +414,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.08), transparent);
             animation: cardShimmer 3s infinite;
         }
 
@@ -428,23 +424,21 @@
         }
 
         .instructions-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 18px;
             position: relative;
         }
 
-        @media only screen and (max-width: 430px) {
+        @media (max-width: 480px) {
             .instructions-title {
-                font-size: 1.4rem;
-            }
-            .instruction-step {
-                padding: 0.3rem !important;
+                font-size: 1.3rem;
+                margin-bottom: 15px;
             }
         }
 
@@ -457,72 +451,91 @@
         .instruction-step {
             display: flex;
             align-items: flex-start;
-            gap: 1.2rem;
-            margin-bottom: 1.3rem;
-            padding: 0.8rem;
-            border-radius: 15px;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            background: rgba(102, 126, 234, 0.05);
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            background: rgba(245, 158, 11, 0.06);
         }
 
-        @media only screen and (max-width: 430px) {
+        @media (max-width: 480px) {
             .instruction-step {
-                margin-bottom: 0.5rem;
+                padding: 8px;
+                margin-bottom: 10px;
+                gap: 10px;
             }
         }
 
         .instruction-step:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-            transform: translateX(8px) scale(1.02);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.12));
+            transform: translateX(5px);
         }
 
         .step-number {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 0.95rem;
             flex-shrink: 0;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .step-number {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
         }
 
         .step-text {
             color: #2d3748;
-            font-size: 1rem;
+            font-size: 0.95rem;
             line-height: 1.5;
-            padding-top: 0.3rem;
+            padding-top: 0.25rem;
             font-weight: 500;
         }
 
-        /* Premium result card */
+        @media (max-width: 480px) {
+            .step-text {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Карточка результата */
         .result-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
             display: none;
             position: relative;
             overflow: hidden;
         }
 
+        @media (min-width: 768px) {
+            .result-card {
+                padding: 35px;
+            }
+        }
+
         .result-card::before {
             content: '🎉';
             position: absolute;
-            font-size: 100px;
-            opacity: 0.1;
-            top: -20px;
-            right: -20px;
+            font-size: 80px;
+            opacity: 0.08;
+            top: -15px;
+            right: -15px;
             animation: rotate 10s linear infinite;
         }
 
@@ -533,12 +546,12 @@
 
         .result-card.show {
             display: block;
-            animation: resultPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: resultPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
         @keyframes resultPop {
             0% {
-                transform: scale(0.5);
+                transform: scale(0.7);
                 opacity: 0;
             }
             100% {
@@ -548,9 +561,9 @@
         }
 
         .congratulations {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -558,38 +571,47 @@
             position: relative;
         }
 
+        @media (max-width: 480px) {
+            .congratulations {
+                font-size: 1.6rem;
+            }
+        }
+
         .you-won {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: #4a5568;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             font-weight: 600;
         }
 
-        .prize-display {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-size: 1.8rem;
-            font-weight: 900;
-            padding: 1.2rem 2.5rem;
-            border-radius: 60px;
-            margin-bottom: 1.5rem;
-            display: inline-block;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            animation: prizeGlow 2s ease-in-out infinite;
+        @media (max-width: 480px) {
+            .you-won {
+                font-size: 1rem;
+            }
         }
 
-        @keyframes prizeGlow {
-            0%, 100% {
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            }
-            50% {
-                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        .prize-display {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 900;
+            padding: 12px 30px;
+            border-radius: 50px;
+            margin-bottom: 1.2rem;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .prize-display {
+                font-size: 1.4rem;
+                padding: 10px 25px;
             }
         }
 
         .code-text {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
             color: #4a5568;
             font-weight: 500;
         }
@@ -597,28 +619,42 @@
         .discount-code {
             font-family: 'Courier New', monospace;
             font-weight: 900;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            color: #667eea;
-            padding: 0.7rem 1.5rem;
-            border-radius: 12px;
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            font-size: 1.3rem;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            color: #f59e0b;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            font-size: 1.2rem;
             letter-spacing: 2px;
         }
 
+        @media (max-width: 480px) {
+            .discount-code {
+                font-size: 1.1rem;
+                padding: 7px 14px;
+            }
+        }
+
         .book-now-button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             border: none;
-            padding: 1.2rem 2.5rem;
-            border-radius: 60px;
-            font-size: 1.1rem;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 1.05rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
             overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            .book-now-button {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
         }
 
         .book-now-button::before {
@@ -637,91 +673,55 @@
         }
 
         .book-now-button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
         }
 
         .book-now-button:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .spinning-wheel-container {
-                min-height: auto;
-                padding: 0.5rem;
-            }
-
-            .wheel-container {
-                width: 320px;
-                height: 320px;
-            }
-
-            .center-button {
-                width: 70px;
-                height: 70px;
-            }
-
-            .center-icon {
-                font-size: 0.9rem;
-            }
-
-            .instructions-card,
-            .result-card {
-                padding: 2rem;
-            }
-
-            .congratulations {
-                font-size: 2rem;
-            }
-
-            .prize-display {
-                font-size: 1.5rem;
-                padding: 1rem 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .spinning-wheel-container {
-                min-height: auto;
-                padding: 0.25rem;
-            }
-
-            .wheel-container {
-                width: 280px;
-                height: 280px;
-            }
-            
-            .segment-icon {
-                font-size: 28px;
-            }
-            
-            .segment-text {
-                font-size: 16px;
-            }
+            transform: translateY(0) scale(1);
         }
 
         /* SVG Icon sizing */
         .wheel-container svg {
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
         }
 
-        @media only screen and (max-width: 430px) {
+        @media (max-width: 480px) {
             .wheel-container svg {
-                width: 26px !important;
-                height: 26px !important;
+                width: 24px;
+                height: 24px;
             }
-            
-            .wheel-container .segment-text {
-                font-size: 16px !important;
-            }
+        }
+
+        /* Scrollbar styling */
+        .spinning-wheel-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .spinning-wheel-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .spinning-wheel-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .spinning-wheel-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 <body>
     <div class="spinning-wheel-container">
         <div class="wheel-content">
+            <div class="header">
+                <h1 id="mainTitle">Испытай свою удачу!</h1>
+                <p id="mainSubtitle">Крути колесо и выигрывай скидки!</p>
+            </div>
+
             <div class="wheel-section">
                 <div class="wheel-container">
                     <div class="wheel-glow">
@@ -826,12 +826,18 @@
                         updateTexts();
                     } else {
                         translations = {
-                            'wheel.title': 'Spin the Wheel',
-                            'wheel.spin': 'SPIN',
-                            'wheel.congratulations': 'Congratulations!',
-                            'wheel.you_won': 'You won:',
-                            'wheel.try_again': 'Try Again',
-                            'wheel.close': 'Close'
+                            wheel: {
+                                how_to_play: "How to Play",
+                                step1: "Press the button in the center of the wheel",
+                                step2: "Watch the wheel spin and stop on your prize",
+                                step3: "Copy your discount code",
+                                step4: "Use it when you make your next reservation",
+                                congratulations: "CONGRATULATIONS!",
+                                you_won: "You won",
+                                free_days: "FREE DAYS",
+                                use_code: "Use code:",
+                                book_now: "Book Now & Apply Bonus"
+                            }
                         };
                         updateTexts();
                     }
@@ -857,6 +863,11 @@
 
         function updateTexts() {
             const wheel = translations.wheel || {};
+            
+            const mainTitle = document.getElementById('mainTitle');
+            const mainSubtitle = document.getElementById('mainSubtitle');
+            if (mainTitle) mainTitle.textContent = wheel.main_title || "Try your luck!";
+            if (mainSubtitle) mainSubtitle.textContent = wheel.main_subtitle || "Spin the wheel and win discounts!";
             
             document.getElementById('howToPlayTitle').textContent = wheel.how_to_play || "How to Play";
             document.getElementById('step1Text').textContent = wheel.step1 || "Press the button in the center of the wheel";
@@ -901,7 +912,7 @@
             
             if (wheel) {
                 wheel.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #667eea; font-size: 16px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #f59e0b; font-size: 16px;">
                         <div style="margin-bottom: 10px;">
                             <svg width="40" height="40" viewBox="0 0 40 40" style="animation: spin 1s linear infinite;">
                                 <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="30 100" stroke-dashoffset="0"/>
@@ -991,10 +1002,10 @@
         function getWheelSegments() {
             if (availableCoupons.length === 0) {
                 cachedWheelSegments = [
-                    { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #a9d5ff 0%, #8bc4ff 100%)', coupon: null },
-                    { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #8bc4ff 0%, #6db3ff 100%)', coupon: null },
-                    { id: 3, text: '20%', gradient: 'linear-gradient(135deg, #6db3ff 0%, #4fa2ff 100%)', coupon: null },
-                    { id: 4, text: '25%', gradient: 'linear-gradient(135deg, #4fa2ff 0%, #1e90ff 100%)', coupon: null }
+                    { id: 1, text: '10%', gradient: 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)', coupon: null },
+                    { id: 2, text: '15%', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', coupon: null },
+                    { id: 3, text: '20%', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', coupon: null },
+                    { id: 4, text: '25%', gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', coupon: null }
                 ];
                 return cachedWheelSegments;
             }
@@ -1009,13 +1020,13 @@
                 
                 switch(colorIndex) {
                     case 0:
-                        gradient = 'linear-gradient(135deg, rgb(144, 195, 255) 0%, rgb(130, 185, 250) 100%)';
+                        gradient = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
                         break;
                     case 1:
-                        gradient = 'linear-gradient(135deg, rgb(167, 208, 255) 0%, rgb(150, 200, 250) 100%)';
+                        gradient = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
                         break;
                     case 2:
-                        gradient = 'linear-gradient(135deg, rgb(128, 183, 248) 0%, rgb(110, 175, 245) 100%)';
+                        gradient = 'linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%)';
                         break;
                 }
                 
@@ -1234,7 +1245,9 @@
             centerButton.querySelector('.center-icon').textContent = '🔄';
 
             randomWinningIndex = await getRandomWinningIndex();
-            wheel.style.transition = 'transform 5s cubic-bezier(0.23, 1, 0.32, 1)';
+            
+            // ОПТИМИЗИРОВАННАЯ анимация для мобильных
+            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
 
             const wheelSegments = getWheelSegments();
             const segmentAngle = 360 / wheelSegments.length;
@@ -1296,7 +1309,7 @@
 
                 instructionsCard.style.display = 'none';
                 resultCard.classList.add('show');
-            }, 5000);
+            }, 4000);
         }
 
         centerButton.addEventListener('click', spinWheel);
