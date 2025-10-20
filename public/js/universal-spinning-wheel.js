@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V3
- * ИСПРАВЛЕНО: Рулетка видна на десктопе + компактная модалка на мобиле с размытием
+ * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V4
+ * ИСПРАВЛЕНО: Рулетка ВСЕГДА полностью видна + двухколоночный layout на ПК
  */
 
 (function() {
@@ -139,7 +139,12 @@
             privacyText: 'Your data is secure',
             emptyPhone: 'Please enter a phone number',
             invalidPhone: 'Please enter a valid phone number (7-15 digits)',
-            hasCoupons: 'You have already received a reward for this phone number.'
+            hasCoupons: 'You have already received a reward for this phone number.',
+            howToPlay: 'How to Play',
+            step1: 'Click the button in the center of the wheel',
+            step2: 'Watch the wheel spin and stop on your prize',
+            step3: 'Copy your discount code',
+            step4: 'Use it on your next booking'
         },
         ru: {
             title: 'Испытай свою удачу!',
@@ -151,7 +156,12 @@
             privacyText: 'Ваши данные защищены',
             emptyPhone: 'Пожалуйста, введите номер телефона',
             invalidPhone: 'Пожалуйста, введите корректный номер (7-15 цифр)',
-            hasCoupons: 'Вы уже получили награду за этот номер телефона.'
+            hasCoupons: 'Вы уже получили награду за этот номер телефона.',
+            howToPlay: 'Как играть',
+            step1: 'Нажми кнопку в центре колеса',
+            step2: 'Следи за вращением колеса и остановкой на твоем призе',
+            step3: 'Скопируй свой код скидки',
+            step4: 'Используй его при следующем бронировании'
         },
         ro: {
             title: 'Încearcă-ți norocul!',
@@ -163,7 +173,12 @@
             privacyText: 'Datele tale sunt securizate',
             emptyPhone: 'Vă rugăm introduceți numărul de telefon',
             invalidPhone: 'Vă rugăm introduceți un număr valid (7-15 cifre)',
-            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.'
+            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.',
+            howToPlay: 'Cum să joci',
+            step1: 'Apasă butonul din centrul roții',
+            step2: 'Urmărește rotirea roții și oprirea pe premiul tău',
+            step3: 'Copiază codul tău de reducere',
+            step4: 'Folosește-l la următoarea rezervare'
         }
     };
 
@@ -286,11 +301,32 @@
                             </div>
                             
                             <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
-                                <iframe id="universalSpinningWheelIframe" 
-                                        src="${CONFIG.iframeSrc}" 
-                                        frameborder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                                </iframe>
+                                <div class="wheel-instructions">
+                                    <h3 class="instructions-title">${t('howToPlay')}</h3>
+                                    <div class="instruction-item">
+                                        <div class="instruction-number">1</div>
+                                        <p>${t('step1')}</p>
+                                    </div>
+                                    <div class="instruction-item">
+                                        <div class="instruction-number">2</div>
+                                        <p>${t('step2')}</p>
+                                    </div>
+                                    <div class="instruction-item">
+                                        <div class="instruction-number">3</div>
+                                        <p>${t('step3')}</p>
+                                    </div>
+                                    <div class="instruction-item">
+                                        <div class="instruction-number">4</div>
+                                        <p>${t('step4')}</p>
+                                    </div>
+                                </div>
+                                <div class="wheel-container">
+                                    <iframe id="universalSpinningWheelIframe" 
+                                            src="${CONFIG.iframeSrc}" 
+                                            frameborder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -298,11 +334,12 @@
             </div>
         `;
     }
-    // Create modal CSS - FIXED: Рулетка видна на десктопе + компактная модалка на мобиле
+
+    // Create modal CSS
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ULTRA PROFESSIONAL SAAS DESIGN - FIXED V3 ===== */
+            /* ===== ULTRA PROFESSIONAL SAAS DESIGN V4 - РУЛЕТКА ВСЕГДА ВИДНА ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -325,7 +362,7 @@
                 visibility: visible;
             }
 
-            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА - ВЕЗДЕ */
+            /* ✨ РАЗМЫТИЕ ФОНА */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
@@ -352,13 +389,13 @@
                 }
             }
 
-            /* ✨ КОНТЕЙНЕР - КОМПАКТНЫЙ НА ВСЕХ УСТРОЙСТВАХ */
+            /* ✨ КОНТЕЙНЕР */
             .spinning-wheel-modal-container {
                 position: relative;
                 z-index: 2;
                 width: 100%;
-                max-width: 900px;
-                max-height: 85vh;
+                max-width: 1100px;
+                max-height: 90vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -372,7 +409,7 @@
                 transform: scale(1);
             }
 
-            /* ✨ КНОПКА ЗАКРЫТИЯ - ХОРОШО ВИДНА */
+            /* ✨ КНОПКА ЗАКРЫТИЯ */
             .spinning-wheel-modal-close {
                 position: absolute;
                 top: -50px;
@@ -403,26 +440,23 @@
             .spinning-wheel-modal-close:hover {
                 background: rgba(0, 0, 0, 0.7);
                 transform: rotate(90deg) scale(1.1);
-                border-color: rgba(255, 255, 255, 0.5);
             }
 
-            /* ✨ ОСНОВНОЙ КОНТЕНТ - ПРАВИЛЬНЫЕ ПРОПОРЦИИ */
+            /* ✨ ОСНОВНОЙ КОНТЕНТ */
             .spinning-wheel-modal-content {
                 background: white;
                 border-radius: 24px;
-                box-shadow: 
-                    0 20px 60px rgba(0, 0, 0, 0.3),
-                    0 0 0 1px rgba(0, 0, 0, 0.05);
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
                 overflow: hidden;
                 width: 100%;
-                max-height: 85vh;
+                max-height: 90vh;
                 display: flex;
                 flex-direction: column;
             }
 
-            /* ✨ ЗАГОЛОВОК - КОМПАКТНЫЙ */
+            /* ✨ ЗАГОЛОВОК */
             .spinning-wheel-modal-header {
-                padding: 32px 32px 24px;
+                padding: 28px 32px 22px;
                 text-align: center;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 position: relative;
@@ -447,12 +481,11 @@
             }
 
             .header-gift-icon {
-                width: 60px;
-                height: 60px;
-                margin: 0 auto 16px;
+                width: 56px;
+                height: 56px;
+                margin: 0 auto 14px;
                 background: rgba(255, 255, 255, 0.2);
                 backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -469,17 +502,17 @@
             }
 
             .header-gift-icon svg {
-                width: 30px;
-                height: 30px;
+                width: 28px;
+                height: 28px;
                 color: white;
                 filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
             }
 
             .spinning-wheel-modal-title {
-                font-size: 1.875rem;
+                font-size: 1.75rem;
                 font-weight: 800;
                 color: white;
-                margin: 0 0 8px;
+                margin: 0 0 6px;
                 text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
                 letter-spacing: -0.5px;
                 position: relative;
@@ -487,7 +520,7 @@
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1rem;
+                font-size: 0.9375rem;
                 color: rgba(255, 255, 255, 0.95);
                 margin: 0;
                 text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
@@ -495,7 +528,7 @@
                 z-index: 1;
             }
 
-            /* ✨ КОНТЕНТ - АДАПТИВНАЯ ВЫСОТА ДЛЯ КОЛЕСА */
+            /* ✨ КОНТЕНТ - БЕЗ СКРОЛЛА */
             .spinning-wheel-content-wrapper {
                 padding: 32px;
                 display: flex;
@@ -503,7 +536,6 @@
                 justify-content: center;
                 flex: 1;
                 overflow: hidden;
-                min-height: 400px;
             }
 
             .spinning-wheel-phone-step {
@@ -513,7 +545,7 @@
                 justify-content: center;
             }
 
-            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА */
+            /* ✨ ВВОД ТЕЛЕФОНА */
             .phone-input-card {
                 width: 100%;
                 max-width: 420px;
@@ -521,11 +553,11 @@
             }
 
             .phone-icon-wrapper {
-                width: 60px;
-                height: 60px;
-                margin: 0 auto 20px;
+                width: 56px;
+                height: 56px;
+                margin: 0 auto 18px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                border-radius: 16px;
+                border-radius: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -533,23 +565,23 @@
             }
 
             .phone-icon-wrapper svg {
-                width: 30px;
-                height: 30px;
+                width: 28px;
+                height: 28px;
                 color: white;
             }
 
             .phone-step-title {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
                 font-weight: 800;
                 color: #111827;
-                margin: 0 0 8px;
+                margin: 0 0 6px;
                 letter-spacing: -0.5px;
             }
 
             .phone-description {
                 font-size: 0.9375rem;
                 color: #6b7280;
-                margin: 0 0 24px;
+                margin: 0 0 20px;
                 line-height: 1.5;
             }
 
@@ -559,12 +591,12 @@
 
             .input-group {
                 position: relative;
-                margin-bottom: 16px;
+                margin-bottom: 14px;
             }
 
             .input-icon {
                 position: absolute;
-                left: 16px;
+                left: 14px;
                 top: 50%;
                 transform: translateY(-50%);
                 width: 20px;
@@ -575,7 +607,7 @@
 
             .phone-input {
                 width: 100%;
-                padding: 14px 16px 14px 48px;
+                padding: 13px 14px 13px 44px;
                 border: 2px solid #e5e7eb;
                 border-radius: 12px;
                 font-size: 1rem;
@@ -611,12 +643,12 @@
 
             .phone-submit-btn {
                 width: 100%;
-                padding: 14px 20px;
+                padding: 13px 18px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
                 border: none;
                 border-radius: 12px;
-                font-size: 1.0625rem;
+                font-size: 1rem;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -630,10 +662,6 @@
             .phone-submit-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
-            }
-
-            .phone-submit-btn:active {
-                transform: translateY(0);
             }
 
             .phone-submit-btn svg {
@@ -651,7 +679,7 @@
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                margin-top: 16px;
+                margin-top: 14px;
                 color: #6b7280;
                 font-size: 0.875rem;
             }
@@ -662,8 +690,59 @@
                 color: #10b981;
             }
 
-            /* ✨ КОЛЕСО - ЗАПОЛНЯЕТ ВСЁ ПРОСТРАНСТВО */
+            /* ✨ КОЛЕСО + ИНСТРУКЦИЯ (ДВЕ КОЛОНКИ НА ПК) */
             .spinning-wheel-wheel-step {
+                width: 100%;
+                height: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1.5fr;
+                gap: 32px;
+                align-items: center;
+            }
+
+            .wheel-instructions {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .instructions-title {
+                font-size: 1.375rem;
+                font-weight: 800;
+                color: #111827;
+                margin: 0 0 8px;
+                letter-spacing: -0.5px;
+            }
+
+            .instruction-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .instruction-number {
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 800;
+                font-size: 0.875rem;
+            }
+
+            .instruction-item p {
+                margin: 0;
+                color: #4b5563;
+                font-size: 0.9375rem;
+                line-height: 1.6;
+                padding-top: 4px;
+            }
+
+            .wheel-container {
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -675,85 +754,77 @@
                 width: 100%;
                 height: 100%;
                 border: none;
-                border-radius: 0;
+                border-radius: 12px;
             }
 
             /* ===== АДАПТИВНОСТЬ ===== */
-            
-            /* Large Desktop - ШИРОКАЯ МОДАЛКА ДЛЯ КОЛЕСА */
+
+            /* Large Desktop */
             @media (min-width: 1200px) {
                 .spinning-wheel-modal-container {
-                    max-width: 950px;
-                    max-height: 90vh;
+                    max-width: 1200px;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    min-height: 500px;
                     padding: 40px;
+                    min-height: 550px;
                 }
             }
 
             /* Desktop */
             @media (min-width: 1024px) and (max-width: 1199px) {
                 .spinning-wheel-modal-container {
-                    max-width: 850px;
-                    max-height: 85vh;
+                    max-width: 1000px;
                 }
 
                 .spinning-wheel-content-wrapper {
-                    min-height: 450px;
-                    padding: 36px;
+                    min-height: 500px;
                 }
             }
 
-            /* Tablet */
-            @media (max-width: 1023px) and (min-width: 768px) {
+            /* Tablet - ОДНА КОЛОНКА */
+            @media (max-width: 1023px) {
+                .spinning-wheel-wheel-step {
+                    grid-template-columns: 1fr;
+                    gap: 24px;
+                }
+
+                .wheel-instructions {
+                    order: 2;
+                }
+
+                .wheel-container {
+                    order: 1;
+                    min-height: 400px;
+                }
+
                 .spinning-wheel-modal-container {
                     max-width: 700px;
-                    max-height: 80vh;
-                    padding: 16px;
+                    max-height: 85vh;
                 }
 
                 .spinning-wheel-modal-close {
                     top: -45px;
-                    width: 42px;
-                    height: 42px;
-                }
-
-                .spinning-wheel-modal-header {
-                    padding: 28px 28px 20px;
-                }
-
-                .spinning-wheel-modal-title {
-                    font-size: 1.75rem;
                 }
 
                 .spinning-wheel-content-wrapper {
                     padding: 28px;
-                    min-height: 380px;
                 }
             }
 
-            /* Mobile - КОМПАКТНАЯ МОДАЛКА С РАЗМЫТЫМ ФОНОМ */
+            /* Mobile - КОМПАКТНО */
             @media (max-width: 767px) {
                 .spinning-wheel-modal-container {
                     max-width: calc(100% - 24px);
-                    max-height: 85vh;
+                    max-height: 90vh;
                     padding: 12px;
                 }
 
                 .spinning-wheel-modal-close {
                     top: -40px;
-                    right: 0;
                     width: 40px;
                     height: 40px;
                     background: rgba(0, 0, 0, 0.6);
-                    border: 2px solid rgba(255, 255, 255, 0.4);
-                }
-
-                .spinning-wheel-modal-close svg {
-                    width: 20px;
-                    height: 20px;
                 }
 
                 .spinning-wheel-modal-content {
@@ -761,80 +832,7 @@
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 24px 20px 18px;
-                }
-
-                .header-gift-icon {
-                    width: 52px;
-                    height: 52px;
-                    margin-bottom: 14px;
-                }
-
-                .header-gift-icon svg {
-                    width: 26px;
-                    height: 26px;
-                }
-
-                .spinning-wheel-modal-title {
-                    font-size: 1.5rem;
-                    margin-bottom: 6px;
-                }
-
-                .spinning-wheel-modal-subtitle {
-                    font-size: 0.9375rem;
-                }
-
-                .spinning-wheel-content-wrapper {
-                    padding: 24px 20px;
-                    min-height: 350px;
-                }
-
-                .phone-icon-wrapper {
-                    width: 52px;
-                    height: 52px;
-                    margin-bottom: 16px;
-                }
-
-                .phone-icon-wrapper svg {
-                    width: 26px;
-                    height: 26px;
-                }
-
-                .phone-step-title {
-                    font-size: 1.375rem;
-                }
-
-                .phone-description {
-                    font-size: 0.875rem;
-                    margin-bottom: 20px;
-                }
-
-                .phone-input {
-                    padding: 13px 14px 13px 44px;
-                }
-
-                .input-icon {
-                    left: 14px;
-                }
-
-                .phone-submit-btn {
-                    padding: 13px 18px;
-                }
-
-                .spinning-wheel-wheel-step {
-                    height: 100%;
-                }
-            }
-
-            /* Small Mobile */
-            @media (max-width: 480px) {
-                .spinning-wheel-modal-container {
-                    max-width: calc(100% - 20px);
-                    max-height: 80vh;
-                }
-
-                .spinning-wheel-modal-header {
-                    padding: 20px 18px 16px;
+                    padding: 22px 20px 18px;
                 }
 
                 .header-gift-icon {
@@ -843,7 +841,7 @@
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.375rem;
+                    font-size: 1.4rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
@@ -851,8 +849,34 @@
                 }
 
                 .spinning-wheel-content-wrapper {
-                    padding: 20px 18px;
-                    min-height: 320px;
+                    padding: 24px 20px;
+                }
+
+                .spinning-wheel-wheel-step {
+                    gap: 20px;
+                }
+
+                .wheel-container {
+                    min-height: 350px;
+                }
+
+                .instructions-title {
+                    font-size: 1.125rem;
+                }
+
+                .instruction-number {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 0.8125rem;
+                }
+
+                .instruction-item p {
+                    font-size: 0.875rem;
+                }
+
+                .phone-icon-wrapper {
+                    width: 48px;
+                    height: 48px;
                 }
 
                 .phone-step-title {
@@ -860,12 +884,28 @@
                 }
 
                 .phone-description {
-                    font-size: 0.8125rem;
+                    font-size: 0.875rem;
+                }
+            }
+
+            /* Small Mobile */
+            @media (max-width: 480px) {
+                .wheel-container {
+                    min-height: 300px;
+                }
+
+                .spinning-wheel-modal-title {
+                    font-size: 1.25rem;
+                }
+
+                .instructions-title {
+                    font-size: 1rem;
                 }
             }
         `;
         return style;
     }
+
     // Update translations
     function updateModalTranslations() {
         if (!state.modal) return;
@@ -890,6 +930,17 @@
         
         const privacyText = state.modal.querySelector('.privacy-badge span');
         if (privacyText) privacyText.textContent = t('privacyText');
+
+        const instructionsTitle = state.modal.querySelector('.instructions-title');
+        if (instructionsTitle) instructionsTitle.textContent = t('howToPlay');
+
+        const instructionItems = state.modal.querySelectorAll('.instruction-item p');
+        if (instructionItems.length >= 4) {
+            instructionItems[0].textContent = t('step1');
+            instructionItems[1].textContent = t('step2');
+            instructionItems[2].textContent = t('step3');
+            instructionItems[3].textContent = t('step4');
+        }
     }
 
     // Show modal
@@ -941,7 +992,7 @@
             
             if (phoneStep && wheelStep) {
                 phoneStep.style.display = 'none';
-                wheelStep.style.display = 'flex';
+                wheelStep.style.display = 'grid';
                 
                 if (modalHeader) {
                     modalHeader.style.display = 'none';
@@ -1150,7 +1201,7 @@
         }
 
         document.getElementById('universalPhoneStep').style.display = 'none';
-        document.getElementById('universalWheelStep').style.display = 'flex';
+        document.getElementById('universalWheelStep').style.display = 'grid';
 
         const iframe = document.getElementById('universalSpinningWheelIframe');
         if (iframe && iframe.contentWindow) {
@@ -1388,12 +1439,7 @@
         }, 5000);
     }
 
-    function handleOutsideClick(event) {
-        if (event.target === state.modal) {
-            // Клик по backdrop
-        }
-    }
-    
+    function handleOutsideClick(event) {}
     function handleKeydown(event) {
         if (event.key === 'Escape' && state.modal && state.modal.classList.contains('show')) {
             autoApplyWinningCoupon();
@@ -1401,10 +1447,7 @@
             markModalAsSeen();
         }
     }
-    
-    function handleResize() {
-        // Resize handling
-    }
+    function handleResize() {}
 
     function handleVisibilityChange() {
         if (document.hidden) {
@@ -1554,7 +1597,7 @@
                 modalHeader.style.display = 'none';
             }
             document.getElementById('universalPhoneStep').style.display = 'none';
-            document.getElementById('universalWheelStep').style.display = 'flex';
+            document.getElementById('universalWheelStep').style.display = 'grid';
         }
         
         state.isInitialized = true;
