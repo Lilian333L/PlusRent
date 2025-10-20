@@ -958,23 +958,26 @@
             }
         }
 
-        // НОВАЯ ФУНКЦИЯ: определение цвета сегмента на основе процента
-        function getSegmentColor(value, type) {
-            if (type === 'free_days') {
-                // Для бесплатных дней: от серого к красному
-                if (value <= 1) return 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'; // Серый
-                if (value === 2) return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'; // Желтый
-                if (value === 3) return 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)'; // Оранжевый
-                if (value >= 4) return 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)'; // Красный
-            } else {
-                // Для процентов: от серого к красному
-                if (value <= 5) return 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'; // Серый
-                if (value <= 7) return 'linear-gradient(135deg, #a8a29e 0%, #78716c 100%)'; // Тепло-серый
-                if (value <= 10) return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)'; // Желтый
-                if (value <= 14) return 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)'; // Оранжевый
-                if (value <= 20) return 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)'; // Розово-красный
-                return 'linear-gradient(135deg, #f87171 0%, #dc2626 100%)'; // Ярко-красный
+        // Градиент цветов от серого к красному (по ИНДЕКСУ, а не по значению)
+        function getSegmentColorByIndex(index, totalSegments) {
+            const colorPalette = [
+                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',      // Серый
+                'linear-gradient(135deg, #a8a29e 0%, #78716c 100%)',      // Тепло-серый
+                'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',      // Желтый
+                'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',      // Оранжевый
+                'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',      // Розово-красный
+                'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',      // Красный
+                'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'       // Темно-красный
+            ];
+            
+            // Если сегментов меньше или равно количеству цветов, берем по порядку
+            if (totalSegments <= colorPalette.length) {
+                return colorPalette[index];
             }
+            
+            // Если сегментов больше, распределяем цвета равномерно
+            const colorIndex = Math.floor((index / totalSegments) * colorPalette.length);
+            return colorPalette[Math.min(colorIndex, colorPalette.length - 1)];
         }
 
         function getWheelSegments() {
@@ -989,19 +992,13 @@
             }
 
             const segments = [];
+            const totalSegments = availableCoupons.length;
             
             availableCoupons.forEach((coupon, arrayIndex) => {
                 const visualPosition = arrayIndex;
                 
-                // Определяем цвет на основе значения
-                let gradient;
-                if (coupon.type === 'percentage') {
-                    gradient = getSegmentColor(coupon.discount_percentage, 'percentage');
-                } else if (coupon.type === 'free_days') {
-                    gradient = getSegmentColor(coupon.free_days, 'free_days');
-                } else {
-                    gradient = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
-                }
+                // Получаем цвет по индексу (порядковому номеру)
+                const gradient = getSegmentColorByIndex(arrayIndex, totalSegments);
                 
                 let segmentText;
                 if (coupon.type === 'percentage') {
