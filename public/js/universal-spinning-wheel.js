@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - PROFESSIONAL EDITION
- * Полностью оптимизированный дизайн с glassmorphism эффектом
+ * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION
+ * Профессиональный дизайн с размытием реального фона сайта
  */
 
 (function() {
@@ -71,7 +71,7 @@
         return false;
     }
 
-    // ✅ НОВАЯ ФУНКЦИЯ: Блокировка скролла страницы
+    // Block page scroll
     function disableBodyScroll() {
         state.scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
         state.originalBodyOverflow = document.body.style.overflow;
@@ -83,7 +83,7 @@
         document.body.style.width = '100%';
     }
 
-    // ✅ НОВАЯ ФУНКЦИЯ: Разблокировка скролла страницы
+    // Unblock page scroll
     function enableBodyScroll() {
         document.body.style.overflow = state.originalBodyOverflow;
         document.body.style.position = state.originalBodyPosition;
@@ -226,78 +226,83 @@
         return `
             <div id="${CONFIG.modalId}" class="spinning-wheel-modal" style="display: none;">
                 <div class="spinning-wheel-modal-backdrop"></div>
-                <div class="spinning-wheel-modal-content">
-                    <div class="spinning-wheel-modal-close">&times;</div>
+                <div class="spinning-wheel-modal-container">
+                    <button class="spinning-wheel-modal-close" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                     
-                    <div class="spinning-wheel-modal-header" id="universalModalHeader">
-                        <div class="header-gift-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 12v10H4V12"></path>
-                                <path d="M22 7H2v5h20V7z"></path>
-                                <path d="M12 22V7"></path>
-                                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="spinning-wheel-modal-title">${t('title')}</h2>
-                        <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
-                    </div>
-                    
-                    <div class="spinning-wheel-wheel-content">
-                        <div class="spinning-wheel-phone-step" id="universalPhoneStep">
-                            <div class="phone-input-container">
-                                <div class="phone-icon-circle">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                                    </svg>
-                                </div>
-                                <h3 class="phone-step-title">${t('enterPhoneTitle')}</h3>
-                                <p class="phone-description">${t('phoneDescription')}</p>
-                                <form class="phone-form" id="universalPhoneForm">
-                                    <div class="input-wrapper">
-                                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                        </svg>
-                                        <input type="tel" class="phone-input" id="universalPhoneInput" 
-                                               placeholder="${t('phonePlaceholder')}" required>
-                                    </div>
-                                    <button type="submit" class="phone-submit-btn">
-                                        <span class="phone-btn-text">${t('continueButton')}</span>
-                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                                            <polyline points="12 5 19 12 12 19"></polyline>
-                                        </svg>
-                                    </button>
-                                    <div class="privacy-badge">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                        </svg>
-                                        <span class="privacy-text">${t('privacyText')}</span>
-                                    </div>
-                                </form>
+                    <div class="spinning-wheel-modal-content">
+                        <div class="spinning-wheel-modal-header" id="universalModalHeader">
+                            <div class="header-gift-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 12v10H4V12"></path>
+                                    <path d="M22 7H2v5h20V7z"></path>
+                                    <path d="M12 22V7"></path>
+                                    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                                    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+                                </svg>
                             </div>
+                            <h2 class="spinning-wheel-modal-title">${t('title')}</h2>
+                            <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
                         </div>
                         
-                        <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
-                            <iframe id="universalSpinningWheelIframe" 
-                                    src="${CONFIG.iframeSrc}" 
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    style="width: 100%; height: 100%; border: none; border-radius: 12px;">
-                            </iframe>
+                        <div class="spinning-wheel-content-wrapper">
+                            <div class="spinning-wheel-phone-step" id="universalPhoneStep">
+                                <div class="phone-input-card">
+                                    <div class="phone-icon-wrapper">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                        </svg>
+                                    </div>
+                                    <h3 class="phone-step-title">${t('enterPhoneTitle')}</h3>
+                                    <p class="phone-description">${t('phoneDescription')}</p>
+                                    <form class="phone-form" id="universalPhoneForm">
+                                        <div class="input-group">
+                                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                            </svg>
+                                            <input type="tel" class="phone-input" id="universalPhoneInput" 
+                                                   placeholder="${t('phonePlaceholder')}" required>
+                                        </div>
+                                        <button type="submit" class="phone-submit-btn">
+                                            <span>${t('continueButton')}</span>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </button>
+                                        <div class="privacy-badge">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                            </svg>
+                                            <span>${t('privacyText')}</span>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
+                                <iframe id="universalSpinningWheelIframe" 
+                                        src="${CONFIG.iframeSrc}" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                </iframe>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
     }
-
-    // Create modal CSS - PROFESSIONAL GLASSMORPHISM DESIGN
+    // Create modal CSS - ULTRA PROFESSIONAL SAAS DESIGN
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ПРОФЕССИОНАЛЬНЫЙ GLASSMORPHISM ДИЗАЙН ===== */
+            /* ===== ULTRA PROFESSIONAL SAAS DESIGN ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -310,568 +315,496 @@
                 align-items: center;
                 justify-content: center;
                 opacity: 0;
-                transition: opacity 0.4s ease;
-                padding: 0;
-                overflow-y: auto;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
             }
 
             .spinning-wheel-modal.show {
                 opacity: 1;
+                visibility: visible;
             }
 
-            /* ✅ ПРОФЕССИОНАЛЬНЫЙ GRADIENT BACKDROP */
+            /* ✨ РАЗМЫТИЕ РЕАЛЬНОГО ФОНА САЙТА */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(135deg, 
-                    rgba(245, 158, 11, 0.95) 0%, 
-                    rgba(217, 119, 6, 0.95) 100%);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                z-index: -1;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(12px) saturate(120%);
+                -webkit-backdrop-filter: blur(12px) saturate(120%);
+                z-index: 1;
+                animation: fadeIn 0.3s ease;
             }
 
-            /* ✅ КОНТЕЙНЕР БЕЗ БЕЛОГО ФОНА */
-            .spinning-wheel-modal-content {
-                background: transparent;
-                border-radius: 0;
-                width: 100%;
-                height: 100%;
-                max-width: 100%;
-                max-height: 100%;
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    backdrop-filter: blur(0px);
+                    -webkit-backdrop-filter: blur(0px);
+                }
+                to {
+                    opacity: 1;
+                    backdrop-filter: blur(12px) saturate(120%);
+                    -webkit-backdrop-filter: blur(12px) saturate(120%);
+                }
+            }
+
+            /* ✨ КОНТЕЙНЕР МОДАЛКИ - ПО ЦЕНТРУ */
+            .spinning-wheel-modal-container {
                 position: relative;
-                overflow: hidden;
-                transform: scale(0.95);
-                transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                display: flex;
-                flex-direction: column;
-                box-shadow: none;
-            }
-
-            .spinning-wheel-modal.show .spinning-wheel-modal-content {
-                transform: scale(1);
-            }
-
-            /* ✅ КНОПКА ЗАКРЫТИЯ */
-            .spinning-wheel-modal-close {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                width: 44px;
-                height: 44px;
+                z-index: 2;
+                max-width: 95%;
+                max-height: 95vh;
+                width: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 28px;
-                cursor: pointer;
-                color: white;
-                z-index: 10001;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.15);
-                transition: all 0.3s ease;
+                transform: scale(0.9);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .spinning-wheel-modal.show .spinning-wheel-modal-container {
+                transform: scale(1);
+            }
+
+            /* ✨ КНОПКА ЗАКРЫТИЯ - МИНИМАЛИСТИЧНАЯ */
+            .spinning-wheel-modal-close {
+                position: absolute;
+                top: -50px;
+                right: 0;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                font-weight: 300;
-                line-height: 1;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                padding: 0;
+                z-index: 10;
+            }
+
+            .spinning-wheel-modal-close svg {
+                width: 20px;
+                height: 20px;
+                color: white;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(255, 255, 255, 0.25);
-                transform: rotate(90deg) scale(1.1);
-                border-color: rgba(255, 255, 255, 0.5);
+                background: rgba(255, 255, 255, 0.2);
+                transform: rotate(90deg);
             }
 
-            /* ✅ ЗАГОЛОВОК С ПРОЗРАЧНЫМ ФОНОМ */
+            /* ✨ ОСНОВНОЙ КОНТЕНТ - ЦЕНТРИРОВАННЫЙ */
+            .spinning-wheel-modal-content {
+                background: white;
+                border-radius: 24px;
+                box-shadow: 
+                    0 20px 60px rgba(0, 0, 0, 0.3),
+                    0 0 0 1px rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+                width: 100%;
+                max-width: 900px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* ✨ ЗАГОЛОВОК */
             .spinning-wheel-modal-header {
-                background: transparent;
-                color: white;
-                padding: 40px 24px 30px;
+                padding: 48px 40px 32px;
                 text-align: center;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .spinning-wheel-modal-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+                animation: rotate 20s linear infinite;
+            }
+
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            .header-gift-icon {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 24px;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                animation: float 3s ease-in-out infinite;
                 position: relative;
                 z-index: 1;
             }
 
-            .header-gift-icon {
-                width: 72px;
-                height: 72px;
-                margin: 0 auto 20px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                animation: bounce 2s ease-in-out infinite;
-                border: 3px solid rgba(255, 255, 255, 0.3);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-            }
-
-            .header-gift-icon svg {
-                width: 36px;
-                height: 36px;
-                filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
-            }
-
-            @keyframes bounce {
-                0%, 100% { transform: translateY(0); }
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
                 50% { transform: translateY(-10px); }
             }
 
-            .spinning-wheel-modal-title {
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 12px 0;
-                text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                color: white;
-                letter-spacing: -0.5px;
-            }
-
-            .spinning-wheel-modal-subtitle {
-                font-size: 1.1rem;
-                margin: 0;
-                opacity: 0.95;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                color: white;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            }
-
-            /* ✅ КОНТЕНТ С ПРОЗРАЧНЫМ ФОНОМ */
-            .spinning-wheel-wheel-content {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                background: transparent;
-                padding: 20px;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-
-            .spinning-wheel-phone-step {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-
-            /* ✅ GLASSMORPHISM КОНТЕЙНЕР ДЛЯ ВВОДА ТЕЛЕФОНА */
-            .phone-input-container {
-                width: 100%;
-                max-width: 480px;
-                text-align: center;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(30px) saturate(180%);
-                -webkit-backdrop-filter: blur(30px) saturate(180%);
-                border-radius: 24px;
-                padding: 40px 32px;
-                box-shadow: 
-                    0 8px 32px 0 rgba(0, 0, 0, 0.37),
-                    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                position: relative;
-                overflow: hidden;
-            }
-
-            /* ✅ ДЕКОРАТИВНЫЙ БЛИК НА GLASSMORPHISM */
-            .phone-input-container::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -50%;
-                width: 200%;
-                height: 100%;
-                background: linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.1),
-                    transparent
-                );
-                animation: shine-glass 6s infinite;
-                pointer-events: none;
-            }
-
-            @keyframes shine-glass {
-                0% {
-                    transform: translateX(-100%);
-                }
-                50%, 100% {
-                    transform: translateX(100%);
-                }
-            }
-
-            .phone-icon-circle {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 24px;
-                background: rgba(255, 255, 255, 0.25);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 
-                    0 8px 24px rgba(0, 0, 0, 0.2),
-                    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-                border: 2px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .phone-icon-circle svg {
+            .header-gift-icon svg {
                 width: 40px;
                 height: 40px;
                 color: white;
-                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+            }
+
+            .spinning-wheel-modal-title {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: white;
+                margin: 0 0 12px;
+                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+                letter-spacing: -0.5px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .spinning-wheel-modal-subtitle {
+                font-size: 1.125rem;
+                color: rgba(255, 255, 255, 0.95);
+                margin: 0;
+                text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+                position: relative;
+                z-index: 1;
+            }
+
+            /* ✨ КОНТЕНТ С ТЕЛЕФОНОМ И КОЛЕСОМ */
+            .spinning-wheel-content-wrapper {
+                padding: 48px;
+                min-height: 500px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .spinning-wheel-phone-step {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* ✨ КАРТОЧКА ВВОДА ТЕЛЕФОНА */
+            .phone-input-card {
+                width: 100%;
+                max-width: 500px;
+                text-align: center;
+            }
+
+            .phone-icon-wrapper {
+                width: 72px;
+                height: 72px;
+                margin: 0 auto 28px;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+            }
+
+            .phone-icon-wrapper svg {
+                width: 36px;
+                height: 36px;
+                color: white;
             }
 
             .phone-step-title {
-                color: white;
-                font-size: 1.65rem;
-                margin: 0 0 12px 0;
+                font-size: 1.875rem;
                 font-weight: 800;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-                position: relative;
+                color: #111827;
+                margin: 0 0 12px;
+                letter-spacing: -0.5px;
             }
 
             .phone-description {
-                color: rgba(255, 255, 255, 0.9);
                 font-size: 1rem;
-                margin: 0 0 32px 0;
+                color: #6b7280;
+                margin: 0 0 32px;
                 line-height: 1.6;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-                position: relative;
             }
 
             .phone-form {
                 width: 100%;
-                position: relative;
             }
 
-            .input-wrapper {
+            .input-group {
                 position: relative;
                 margin-bottom: 20px;
             }
 
             .input-icon {
                 position: absolute;
-                left: 18px;
+                left: 20px;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 22px;
-                height: 22px;
-                color: rgba(255, 255, 255, 0.7);
+                width: 20px;
+                height: 20px;
+                color: #9ca3af;
                 pointer-events: none;
-                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
             }
 
-            /* ✅ GLASSMORPHISM INPUT */
             .phone-input {
                 width: 100%;
-                padding: 18px 18px 18px 52px;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                background: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border-radius: 14px;
-                font-size: 1.05rem;
-                transition: all 0.3s ease;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                padding: 16px 20px 16px 52px;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                font-size: 1rem;
+                color: #111827;
+                transition: all 0.2s ease;
                 box-sizing: border-box;
-                color: white;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                background: white;
             }
 
             .phone-input:focus {
                 outline: none;
-                border-color: rgba(255, 255, 255, 0.6);
-                background: rgba(255, 255, 255, 0.25);
-                box-shadow: 
-                    0 0 0 4px rgba(255, 255, 255, 0.15),
-                    0 8px 24px rgba(0, 0, 0, 0.2);
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
             }
 
             .phone-input::placeholder {
-                color: rgba(255, 255, 255, 0.6);
-                text-shadow: none;
+                color: #d1d5db;
             }
 
             .phone-input-error {
-                border-color: rgba(239, 68, 68, 0.8) !important;
-                background: rgba(239, 68, 68, 0.15) !important;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
+                border-color: #ef4444 !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
             }
 
             .phone-error-message {
-                color: #fecaca;
-                font-size: 0.9rem;
-                margin-top: 10px;
+                color: #ef4444;
+                font-size: 0.875rem;
+                margin-top: 8px;
                 text-align: left;
                 padding-left: 4px;
-                font-weight: 600;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                background: rgba(239, 68, 68, 0.2);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                padding: 10px 14px;
-                border-radius: 10px;
-                border: 1px solid rgba(239, 68, 68, 0.3);
+                font-weight: 500;
             }
 
-            /* ✅ GLASSMORPHISM BUTTON */
             .phone-submit-btn {
                 width: 100%;
-                padding: 18px;
-                background: rgba(255, 255, 255, 0.25);
-                backdrop-filter: blur(10px) saturate(180%);
-                -webkit-backdrop-filter: blur(10px) saturate(180%);
+                padding: 16px 24px;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
                 color: white;
-                border: 2px solid rgba(255, 255, 255, 0.4);
-                border-radius: 14px;
-                font-size: 1.1rem;
+                border: none;
+                border-radius: 12px;
+                font-size: 1.0625rem;
                 font-weight: 700;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.2s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                box-shadow: 
-                    0 8px 24px rgba(0, 0, 0, 0.2),
-                    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .phone-submit-btn::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: rgba(255, 255, 255, 0.1);
-                transition: left 0.5s ease;
+                gap: 8px;
+                box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
             }
 
             .phone-submit-btn:hover {
-                transform: translateY(-3px);
-                background: rgba(255, 255, 255, 0.35);
-                border-color: rgba(255, 255, 255, 0.6);
-                box-shadow: 
-                    0 12px 32px rgba(0, 0, 0, 0.3),
-                    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-            }
-
-            .phone-submit-btn:hover::before {
-                left: 100%;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
             }
 
             .phone-submit-btn:active {
-                transform: translateY(-1px);
+                transform: translateY(0);
             }
 
-            .btn-icon {
-                width: 22px;
-                height: 22px;
-                transition: transform 0.3s ease;
-                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+            .phone-submit-btn svg {
+                width: 20px;
+                height: 20px;
+                transition: transform 0.2s ease;
             }
 
-            .phone-submit-btn:hover .btn-icon {
-                transform: translateX(5px);
+            .phone-submit-btn:hover svg {
+                transform: translateX(4px);
             }
 
-            /* ✅ GLASSMORPHISM PRIVACY BADGE */
             .privacy-badge {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
                 margin-top: 20px;
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 0.9rem;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                padding: 10px 16px;
-                border-radius: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                color: #6b7280;
+                font-size: 0.875rem;
             }
 
             .privacy-badge svg {
-                width: 18px;
-                height: 18px;
-                color: #86efac;
-                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+                width: 16px;
+                height: 16px;
+                color: #10b981;
             }
 
-            /* ✅ КОЛЕСО В ПОЛНЫЙ ЭКРАН */
+            /* ✨ КОЛЕСО - ПО ЦЕНТРУ ЭКРАНА */
             .spinning-wheel-wheel-step {
-                flex: 1;
+                width: 100%;
+                height: 500px;
                 display: flex;
-                flex-direction: column;
-                padding: 0;
-                min-height: 100%;
+                align-items: center;
+                justify-content: center;
             }
 
             #universalSpinningWheelIframe {
-                flex: 1;
-                border-radius: 0;
                 width: 100%;
                 height: 100%;
+                border: none;
+                border-radius: 12px;
             }
 
-            /* ===== АДАПТИВНЫЕ СТИЛИ ===== */
+            /* ===== АДАПТИВНОСТЬ ===== */
             
-            /* Desktop */
-            @media (min-width: 1024px) {
+            @media (max-width: 1024px) {
+                .spinning-wheel-modal-container {
+                    max-width: 90%;
+                }
+
                 .spinning-wheel-modal-content {
-                    padding: 40px;
-                }
-
-                .spinning-wheel-wheel-content {
-                    padding: 40px;
-                }
-
-                .phone-input-container {
-                    max-width: 520px;
-                    padding: 48px 40px;
-                }
-            }
-
-            /* Tablet */
-            @media (max-width: 1023px) and (min-width: 768px) {
-                .spinning-wheel-modal-close {
-                    top: 16px;
-                    right: 16px;
-                    width: 40px;
-                    height: 40px;
-                    font-size: 26px;
+                    max-width: 700px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 32px 20px 24px;
+                    padding: 40px 32px 28px;
+                }
+
+                .spinning-wheel-modal-title {
+                    font-size: 2.25rem;
+                }
+
+                .spinning-wheel-content-wrapper {
+                    padding: 40px 32px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .spinning-wheel-modal-container {
+                    max-width: 100%;
+                    max-height: 100vh;
+                    padding: 0;
+                }
+
+                .spinning-wheel-modal-content {
+                    border-radius: 0;
+                    max-width: 100%;
+                    height: 100vh;
+                }
+
+                .spinning-wheel-modal-close {
+                    top: 16px;
+                    right: 16px;
+                    background: rgba(0, 0, 0, 0.3);
+                }
+
+                .spinning-wheel-modal-header {
+                    padding: 32px 24px 24px;
+                    padding-top: 60px;
                 }
 
                 .header-gift-icon {
                     width: 64px;
                     height: 64px;
+                    margin-bottom: 20px;
+                }
+
+                .header-gift-icon svg {
+                    width: 32px;
+                    height: 32px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.9rem;
+                    font-size: 1.875rem;
                 }
 
-                .phone-input-container {
-                    max-width: 460px;
-                    padding: 36px 28px;
+                .spinning-wheel-modal-subtitle {
+                    font-size: 1rem;
+                }
+
+                .spinning-wheel-content-wrapper {
+                    padding: 32px 24px;
+                    min-height: auto;
+                    flex: 1;
+                }
+
+                .phone-icon-wrapper {
+                    width: 60px;
+                    height: 60px;
+                    margin-bottom: 20px;
+                }
+
+                .phone-icon-wrapper svg {
+                    width: 30px;
+                    height: 30px;
+                }
+
+                .phone-step-title {
+                    font-size: 1.5rem;
+                }
+
+                .phone-description {
+                    font-size: 0.9375rem;
+                    margin-bottom: 24px;
+                }
+
+                .phone-input {
+                    padding: 14px 18px 14px 48px;
+                }
+
+                .phone-submit-btn {
+                    padding: 14px 20px;
+                }
+
+                .spinning-wheel-wheel-step {
+                    height: 100%;
                 }
             }
 
-            /* Mobile */
-            @media (max-width: 767px) {
-                .spinning-wheel-modal-close {
-                    top: 12px;
-                    right: 12px;
-                    width: 38px;
-                    height: 38px;
-                    font-size: 24px;
-                }
-
+            @media (max-width: 480px) {
                 .spinning-wheel-modal-header {
-                    padding: 28px 16px 20px;
+                    padding: 28px 20px 20px;
+                    padding-top: 56px;
                 }
 
                 .header-gift-icon {
                     width: 56px;
                     height: 56px;
-                    margin-bottom: 16px;
-                }
-
-                .header-gift-icon svg {
-                    width: 28px;
-                    height: 28px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.6rem;
-                    margin-bottom: 10px;
+                    font-size: 1.625rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.95rem;
+                    font-size: 0.9375rem;
                 }
 
-                .spinning-wheel-wheel-content {
-                    padding: 12px;
-                }
-
-                .phone-input-container {
-                    padding: 32px 24px;
-                    border-radius: 20px;
-                }
-
-                .phone-icon-circle {
-                    width: 68px;
-                    height: 68px;
-                }
-
-                .phone-step-title {
-                    font-size: 1.4rem;
-                }
-
-                .phone-description {
-                    font-size: 0.9rem;
-                    margin-bottom: 28px;
-                }
-
-                .phone-input,
-                .phone-submit-btn {
-                    padding: 16px;
-                    font-size: 1rem;
-                }
-
-                .phone-input {
-                    padding-left: 48px;
-                }
-            }
-
-            /* Extra small mobile */
-            @media (max-width: 400px) {
-                .spinning-wheel-modal-title {
-                    font-size: 1.4rem;
-                }
-
-                .spinning-wheel-modal-subtitle {
-                    font-size: 0.85rem;
-                }
-
-                .phone-input-container {
+                .spinning-wheel-content-wrapper {
                     padding: 28px 20px;
                 }
 
-                .phone-icon-circle {
-                    width: 60px;
-                    height: 60px;
-                }
-
                 .phone-step-title {
-                    font-size: 1.25rem;
+                    font-size: 1.375rem;
                 }
 
                 .phone-description {
-                    font-size: 0.85rem;
+                    font-size: 0.875rem;
                 }
             }
         `;
@@ -897,10 +830,10 @@
         const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
         if (phoneInputElement) phoneInputElement.placeholder = t('phonePlaceholder');
         
-        const phoneBtnText = state.modal.querySelector('.phone-btn-text');
+        const phoneBtnText = state.modal.querySelector('.phone-submit-btn span');
         if (phoneBtnText) phoneBtnText.textContent = t('continueButton');
         
-        const privacyText = state.modal.querySelector('.privacy-text');
+        const privacyText = state.modal.querySelector('.privacy-badge span');
         if (privacyText) privacyText.textContent = t('privacyText');
     }
 
@@ -931,7 +864,6 @@
             
             return;
         }
-        
         updateModalTranslations();
         
         const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
@@ -992,11 +924,9 @@
         disableBodyScroll();
         
         state.modal.style.display = 'flex';
-        state.modal.offsetHeight;
-        
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             state.modal.classList.add('show');
-        }, 10);
+        });
         
         console.log('🎡 Spinning wheel modal shown');
     }
@@ -1018,7 +948,7 @@
         setTimeout(() => {
             state.modal.style.display = 'none';
             enableBodyScroll();
-        }, 400);
+        }, 300);
     }
 
     // Cleanup
@@ -1242,23 +1172,7 @@
         notification.id = 'coupon-applied-notification';
         notification.className = 'coupon-notification-container';
         
-        const confettiColors = ['#f59e0b', '#fb923c', '#fdba74', '#fbbf24', '#d97706', '#ea580c'];
-        let confettiHTML = '';
-        for (let i = 0; i < 8; i++) {
-            const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
-            const left = Math.random() * 100;
-            const delay = Math.random() * 0.5;
-            const duration = 1 + Math.random() * 1;
-            confettiHTML += `<div class="confetti" style="
-                left: ${left}%;
-                background: ${color};
-                animation-delay: ${delay}s;
-                animation-duration: ${duration}s;
-            "></div>`;
-        }
-        
         notification.innerHTML = `
-            <div class="confetti-container">${confettiHTML}</div>
             <div class="coupon-notification-card">
                 <div class="coupon-gift-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1270,11 +1184,7 @@
                     </svg>
                 </div>
                 <div class="coupon-notification-content">
-                    <div class="coupon-title">
-                        <span class="sparkle">✨</span>
-                        ${nt.title}
-                        <span class="sparkle">✨</span>
-                    </div>
+                    <div class="coupon-title">✨ ${nt.title} ✨</div>
                     <div class="coupon-code-container">
                         <span class="coupon-label">${nt.codeLabel}</span>
                         <span class="coupon-code">${couponCode}</span>
@@ -1284,7 +1194,6 @@
                         ${nt.readyMessage}
                     </div>
                 </div>
-                <div class="coupon-shine"></div>
             </div>
         `;
         
@@ -1297,234 +1206,100 @@
                     top: 20px;
                     right: 20px;
                     z-index: 10000;
-                    animation: slideInNotification 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
                 }
                 
                 .coupon-notification-card {
-                    position: relative;
                     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                    border-radius: 20px;
+                    border-radius: 16px;
                     padding: 24px;
-                    box-shadow: 0 12px 40px rgba(245, 158, 11, 0.5);
-                    max-width: 380px;
-                    overflow: hidden;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
-                }
-                
-                .coupon-shine {
-                    position: absolute;
-                    top: -50%;
-                    left: -50%;
-                    width: 200%;
-                    height: 200%;
-                    background: linear-gradient(
-                        45deg,
-                        transparent 30%,
-                        rgba(255, 255, 255, 0.4) 50%,
-                        transparent 70%
-                    );
-                    transform: rotate(45deg);
-                    animation: shine 3s infinite;
+                    box-shadow: 0 10px 40px rgba(245, 158, 11, 0.4);
+                    max-width: 360px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                 }
                 
                 .coupon-gift-icon {
-                    width: 56px;
-                    height: 56px;
+                    width: 48px;
+                    height: 48px;
                     margin: 0 auto 16px;
-                    background: rgba(255, 255, 255, 0.25);
+                    background: rgba(255, 255, 255, 0.2);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    animation: bounceIcon 1.2s infinite;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 }
                 
                 .coupon-gift-icon svg {
-                    width: 28px;
-                    height: 28px;
+                    width: 24px;
+                    height: 24px;
                     color: white;
-                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
                 }
                 
                 .coupon-notification-content {
-                    position: relative;
-                    z-index: 1;
                     text-align: center;
                     color: white;
                 }
                 
                 .coupon-title {
-                    font-size: 1.4rem;
+                    font-size: 1.25rem;
                     font-weight: 800;
-                    margin-bottom: 14px;
-                    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    line-height: 1.3;
-                }
-                
-                .sparkle {
-                    display: inline-block;
-                    animation: sparkleAnimation 1.5s infinite;
-                    font-size: 1.1rem;
+                    margin-bottom: 12px;
                 }
                 
                 .coupon-code-container {
                     background: rgba(255, 255, 255, 0.95);
-                    border: 2px solid rgba(255, 255, 255, 1);
-                    border-radius: 14px;
-                    padding: 16px 14px;
-                    margin: 14px 0;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    border-radius: 12px;
+                    padding: 14px;
+                    margin: 12px 0;
                 }
                 
                 .coupon-label {
                     display: block;
-                    font-size: 0.8rem;
+                    font-size: 0.75rem;
                     color: #d97706;
-                    margin-bottom: 6px;
+                    margin-bottom: 4px;
                     text-transform: uppercase;
-                    letter-spacing: 1.2px;
+                    letter-spacing: 1px;
                     font-weight: 700;
                 }
                 
                 .coupon-code {
                     display: block;
-                    font-size: 1.65rem;
+                    font-size: 1.5rem;
                     font-weight: 900;
-                    letter-spacing: 2.5px;
+                    letter-spacing: 2px;
                     font-family: 'Courier New', monospace;
                     color: #f59e0b;
-                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
                 
                 .coupon-message {
-                    font-size: 0.95rem;
-                    line-height: 1.5;
+                    font-size: 0.875rem;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 8px;
-                    opacity: 0.98;
-                    font-weight: 500;
+                    gap: 6px;
                 }
                 
                 .check-icon {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
-                    width: 22px;
-                    height: 22px;
+                    width: 18px;
+                    height: 18px;
                     background: rgba(255, 255, 255, 0.3);
                     border-radius: 50%;
-                    font-size: 14px;
+                    font-size: 12px;
                     font-weight: bold;
                 }
                 
-                .confetti-container {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                    overflow: hidden;
-                }
-                
-                .confetti {
-                    position: absolute;
-                    top: -10px;
-                    width: 10px;
-                    height: 10px;
-                    opacity: 0;
-                    animation: confettiFall 2.5s ease-in-out forwards;
-                    border-radius: 2px;
-                }
-                
-                @keyframes slideInNotification {
-                    0% {
-                        transform: translateX(450px) scale(0.6);
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(400px);
                         opacity: 0;
                     }
-                    60% {
-                        transform: translateX(-25px) scale(1.05);
+                    to {
+                        transform: translateX(0);
                         opacity: 1;
-                    }
-                    80% {
-                        transform: translateX(10px) scale(0.98);
-                    }
-                    100% {
-                        transform: translateX(0) scale(1);
-                        opacity: 1;
-                    }
-                }
-                
-                @keyframes shine {
-                    0%, 100% {
-                        transform: translateX(-100%) translateY(-100%) rotate(45deg);
-                    }
-                    50% {
-                        transform: translateX(100%) translateY(100%) rotate(45deg);
-                    }
-                }
-                
-                @keyframes bounceIcon {
-                    0%, 100% {
-                        transform: translateY(0) scale(1);
-                    }
-                    50% {
-                        transform: translateY(-10px) scale(1.1);
-                    }
-                }
-                
-                @keyframes sparkleAnimation {
-                    0%, 100% {
-                        transform: scale(1) rotate(0deg);
-                        opacity: 1;
-                    }
-                    50% {
-                        transform: scale(1.4) rotate(180deg);
-                        opacity: 0.7;
-                    }
-                }
-                
-                @keyframes confettiFall {
-                    0% {
-                        transform: translateY(0) rotate(0deg);
-                        opacity: 1;
-                    }
-                    100% {
-                        transform: translateY(500px) rotate(720deg);
-                        opacity: 0;
-                    }
-                }
-                
-                @media (max-width: 1024px) and (min-width: 769px) {
-                    .coupon-notification-container {
-                        top: 18px;
-                        right: 18px;
-                    }
-                    
-                    .coupon-notification-card {
-                        max-width: 360px;
-                        padding: 22px;
-                    }
-                    
-                    .coupon-gift-icon {
-                        width: 52px;
-                        height: 52px;
-                    }
-                    
-                    .coupon-title {
-                        font-size: 1.3rem;
-                    }
-                    
-                    .coupon-code {
-                        font-size: 1.55rem;
-                        letter-spacing: 2.2px;
                     }
                 }
                 
@@ -1533,139 +1308,10 @@
                         top: 16px;
                         right: 16px;
                         left: 16px;
-                        max-width: calc(100% - 32px);
                     }
                     
                     .coupon-notification-card {
                         max-width: 100%;
-                        padding: 20px 18px;
-                        border-radius: 18px;
-                    }
-                    
-                    .coupon-gift-icon {
-                        width: 48px;
-                        height: 48px;
-                        margin-bottom: 14px;
-                    }
-                    
-                    .coupon-gift-icon svg {
-                        width: 24px;
-                        height: 24px;
-                    }
-                    
-                    .coupon-title {
-                        font-size: 1.2rem;
-                        gap: 8px;
-                        margin-bottom: 12px;
-                    }
-                    
-                    .sparkle {
-                        font-size: 1rem;
-                    }
-                    
-                    .coupon-code-container {
-                        padding: 14px 12px;
-                        margin: 12px 0;
-                    }
-                    
-                    .coupon-label {
-                        font-size: 0.75rem;
-                        margin-bottom: 5px;
-                    }
-                    
-                    .coupon-code {
-                        font-size: 1.4rem;
-                        letter-spacing: 2px;
-                    }
-                    
-                    .coupon-message {
-                        font-size: 0.875rem;
-                    }
-                    
-                    .check-icon {
-                        width: 20px;
-                        height: 20px;
-                        font-size: 13px;
-                    }
-                }
-                
-                @media (max-width: 480px) {
-                    .coupon-notification-container {
-                        top: 12px;
-                        right: 12px;
-                        left: 12px;
-                    }
-                    
-                    .coupon-notification-card {
-                        padding: 18px 16px;
-                        border-radius: 16px;
-                    }
-                    
-                    .coupon-gift-icon {
-                        width: 44px;
-                        height: 44px;
-                        margin-bottom: 12px;
-                    }
-                    
-                    .coupon-gift-icon svg {
-                        width: 22px;
-                        height: 22px;
-                    }
-                    
-                    .coupon-title {
-                        font-size: 1.1rem;
-                        gap: 6px;
-                    }
-                    
-                    .sparkle {
-                        font-size: 0.9rem;
-                    }
-                    
-                    .coupon-code-container {
-                        padding: 12px 10px;
-                    }
-                    
-                    .coupon-label {
-                        font-size: 0.7rem;
-                    }
-                    
-                    .coupon-code {
-                        font-size: 1.25rem;
-                        letter-spacing: 1.5px;
-                    }
-                    
-                    .coupon-message {
-                        font-size: 0.8rem;
-                    }
-                }
-                
-                @media (max-width: 360px) {
-                    .coupon-notification-container {
-                        top: 10px;
-                        right: 10px;
-                        left: 10px;
-                    }
-                    
-                    .coupon-notification-card {
-                        padding: 16px 14px;
-                    }
-                    
-                    .coupon-gift-icon {
-                        width: 40px;
-                        height: 40px;
-                    }
-                    
-                    .coupon-title {
-                        font-size: 1rem;
-                    }
-                    
-                    .coupon-code {
-                        font-size: 1.15rem;
-                        letter-spacing: 1.2px;
-                    }
-                    
-                    .coupon-message {
-                        font-size: 0.75rem;
                     }
                 }
             `;
@@ -1676,20 +1322,33 @@
         
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.style.animation = 'slideInNotification 0.5s ease-out reverse';
-                notification.style.opacity = '0';
+                notification.style.animation = 'slideIn 0.3s ease reverse';
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
                     }
-                }, 500);
+                }, 300);
             }
-        }, 6000);
+        }, 5000);
     }
 
-    function handleOutsideClick(event) {}
-    function handleKeydown(event) {}
-    function handleResize() {}
+    function handleOutsideClick(event) {
+        if (event.target === state.modal) {
+            // Пользователь кликнул вне модального окна - ничего не делаем
+        }
+    }
+    
+    function handleKeydown(event) {
+        if (event.key === 'Escape' && state.modal && state.modal.classList.contains('show')) {
+            autoApplyWinningCoupon();
+            closeModal();
+            markModalAsSeen();
+        }
+    }
+    
+    function handleResize() {
+        // Обработка изменения размера окна при необходимости
+    }
 
     function handleVisibilityChange() {
         if (document.hidden) {
