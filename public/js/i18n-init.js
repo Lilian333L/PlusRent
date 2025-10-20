@@ -83,13 +83,6 @@ function initI18n() {
 }
 
 function updateContent() {
-  // ✅ ИСПРАВЛЕНО: Более точный селектор для прелоадера
-  const preloaderText = document.querySelector('#de-preloader [data-i18n="common.loading"]');
-  if (preloaderText && typeof i18next !== 'undefined' && i18next.isInitialized) {
-    if (i18next.exists('common.loading')) {
-      preloaderText.textContent = i18next.t('common.loading');
-    }
-  }
   document.querySelectorAll('[data-i18n]').forEach(function(element) {
     const key = element.getAttribute('data-i18n');
     if (i18next.exists(key)) {
