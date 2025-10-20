@@ -1,6 +1,6 @@
 /**
- * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V4
- * ИСПРАВЛЕНО: Рулетка ВСЕГДА полностью видна + двухколоночный layout на ПК
+ * Universal Spinning Wheel Modal Trigger - ULTRA PROFESSIONAL SAAS EDITION V5
+ * ИДЕАЛЬНЫЙ ДИЗАЙН: ПК - рулетка слева + инструкция справа | Мобайл - анимации
  */
 
 (function() {
@@ -301,6 +301,13 @@
                             </div>
                             
                             <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
+                                <div class="wheel-container">
+                                    <iframe id="universalSpinningWheelIframe" 
+                                            src="${CONFIG.iframeSrc}" 
+                                            frameborder="0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                    </iframe>
+                                </div>
                                 <div class="wheel-instructions">
                                     <h3 class="instructions-title">${t('howToPlay')}</h3>
                                     <div class="instruction-item">
@@ -320,13 +327,6 @@
                                         <p>${t('step4')}</p>
                                     </div>
                                 </div>
-                                <div class="wheel-container">
-                                    <iframe id="universalSpinningWheelIframe" 
-                                            src="${CONFIG.iframeSrc}" 
-                                            frameborder="0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                                    </iframe>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -339,7 +339,7 @@
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ULTRA PROFESSIONAL SAAS DESIGN V4 - РУЛЕТКА ВСЕГДА ВИДНА ===== */
+            /* ===== ULTRA PROFESSIONAL SAAS DESIGN V5 - ИДЕАЛЬНЫЙ ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -380,12 +380,10 @@
                 from {
                     opacity: 0;
                     backdrop-filter: blur(0px);
-                    -webkit-backdrop-filter: blur(0px);
                 }
                 to {
                     opacity: 1;
                     backdrop-filter: blur(12px) saturate(120%);
-                    -webkit-backdrop-filter: blur(12px) saturate(120%);
                 }
             }
 
@@ -418,7 +416,6 @@
                 height: 44px;
                 background: rgba(0, 0, 0, 0.5);
                 backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
                 border: 2px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
                 display: flex;
@@ -690,56 +687,14 @@
                 color: #10b981;
             }
 
-            /* ✨ КОЛЕСО + ИНСТРУКЦИЯ (ДВЕ КОЛОНКИ НА ПК) */
+            /* ✨ ПК: СЛЕВА РУЛЕТКА + СПРАВА ИНСТРУКЦИЯ */
             .spinning-wheel-wheel-step {
                 width: 100%;
                 height: 100%;
                 display: grid;
-                grid-template-columns: 1fr 1.5fr;
+                grid-template-columns: 1.4fr 1fr;
                 gap: 32px;
                 align-items: center;
-            }
-
-            .wheel-instructions {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .instructions-title {
-                font-size: 1.375rem;
-                font-weight: 800;
-                color: #111827;
-                margin: 0 0 8px;
-                letter-spacing: -0.5px;
-            }
-
-            .instruction-item {
-                display: flex;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .instruction-number {
-                width: 32px;
-                height: 32px;
-                flex-shrink: 0;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 800;
-                font-size: 0.875rem;
-            }
-
-            .instruction-item p {
-                margin: 0;
-                color: #4b5563;
-                font-size: 0.9375rem;
-                line-height: 1.6;
-                padding-top: 4px;
             }
 
             .wheel-container {
@@ -748,6 +703,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                min-height: 500px;
             }
 
             #universalSpinningWheelIframe {
@@ -755,6 +711,94 @@
                 height: 100%;
                 border: none;
                 border-radius: 12px;
+            }
+
+            .wheel-instructions {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                animation: slideInRight 0.5s ease;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .instructions-title {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: #111827;
+                margin: 0 0 10px;
+                letter-spacing: -0.5px;
+            }
+
+            .instruction-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+                padding: 16px;
+                border-radius: 12px;
+                background: #f9fafb;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                animation: fadeInUp 0.5s ease backwards;
+            }
+
+            .instruction-item:nth-child(2) { animation-delay: 0.1s; }
+            .instruction-item:nth-child(3) { animation-delay: 0.2s; }
+            .instruction-item:nth-child(4) { animation-delay: 0.3s; }
+            .instruction-item:nth-child(5) { animation-delay: 0.4s; }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .instruction-item:hover {
+                background: #fff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                transform: translateY(-2px);
+            }
+
+            .instruction-number {
+                width: 36px;
+                height: 36px;
+                flex-shrink: 0;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 800;
+                font-size: 0.9375rem;
+                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+                transition: transform 0.3s ease;
+            }
+
+            .instruction-item:hover .instruction-number {
+                transform: scale(1.1) rotate(360deg);
+            }
+
+            .instruction-item p {
+                margin: 0;
+                color: #4b5563;
+                font-size: 0.9375rem;
+                line-height: 1.6;
+                padding-top: 6px;
             }
 
             /* ===== АДАПТИВНОСТЬ ===== */
@@ -767,6 +811,9 @@
 
                 .spinning-wheel-content-wrapper {
                     padding: 40px;
+                }
+
+                .wheel-container {
                     min-height: 550px;
                 }
             }
@@ -777,8 +824,8 @@
                     max-width: 1000px;
                 }
 
-                .spinning-wheel-content-wrapper {
-                    min-height: 500px;
+                .wheel-container {
+                    min-height: 480px;
                 }
             }
 
@@ -789,13 +836,13 @@
                     gap: 24px;
                 }
 
-                .wheel-instructions {
-                    order: 2;
-                }
-
                 .wheel-container {
                     order: 1;
                     min-height: 400px;
+                }
+
+                .wheel-instructions {
+                    order: 2;
                 }
 
                 .spinning-wheel-modal-container {
@@ -812,7 +859,7 @@
                 }
             }
 
-            /* Mobile - КОМПАКТНО */
+            /* Mobile - КРАСИВЫЕ АНИМАЦИИ */
             @media (max-width: 767px) {
                 .spinning-wheel-modal-container {
                     max-width: calc(100% - 24px);
@@ -861,17 +908,24 @@
                 }
 
                 .instructions-title {
-                    font-size: 1.125rem;
+                    font-size: 1.25rem;
+                    text-align: center;
+                }
+
+                .instruction-item {
+                    padding: 14px;
+                    gap: 12px;
                 }
 
                 .instruction-number {
-                    width: 28px;
-                    height: 28px;
-                    font-size: 0.8125rem;
+                    width: 32px;
+                    height: 32px;
+                    font-size: 0.875rem;
                 }
 
                 .instruction-item p {
                     font-size: 0.875rem;
+                    padding-top: 4px;
                 }
 
                 .phone-icon-wrapper {
@@ -899,7 +953,11 @@
                 }
 
                 .instructions-title {
-                    font-size: 1rem;
+                    font-size: 1.125rem;
+                }
+
+                .instruction-item {
+                    padding: 12px;
                 }
             }
         `;
