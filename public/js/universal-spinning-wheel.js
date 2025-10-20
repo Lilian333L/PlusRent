@@ -634,8 +634,7 @@
                 }
 
                 .spinning-wheel-modal-content {
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(15px);
+                    background: white;
                     border-radius: 20px;
                     max-height: 92vh;
                     overflow-y: auto;
@@ -728,8 +727,7 @@
                 }
                 
                 .spinning-wheel-modal-content {
-                    background: rgba(255, 255, 255, 0.96);
-                    backdrop-filter: blur(20px);
+                    background: white;
                 }
 
                 .spinning-wheel-modal-header {
