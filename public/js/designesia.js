@@ -4,7 +4,17 @@
      var rtl_mode = 'off'; // on - for enable RTL, off - for deactive RTL
      var preloader = 'on'; // on - for enable preloader, off - for disable preloader
      var preloader_custom_image = 'off'; // insert image url to enable custom image, off - for disable custom image
-     var loading_text = "Loading..."; // text for preloader. If you don't use text just leave it blank
+     // Получаем текущий язык
+     var currentLang = localStorage.getItem('selectedLanguage') || 'ro';
+
+     // Переводы для прелоадера
+    var loadingTranslations = {
+        ro: 'Se încarcă...',
+        ru: 'Загрузка...',
+        en: 'Loading...'
+    };
+
+var loading_text = loadingTranslations[currentLang];
      var loading_text_position = "0px"; // set position for loading text. Default value is 0px
 
      /* predefined vars begin */
@@ -2164,4 +2174,5 @@
         grid_gallery();
     });
     
+
  })(jQuery);
