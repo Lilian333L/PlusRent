@@ -1,6 +1,6 @@
 /**
  * Universal Spinning Wheel Modal Trigger - PROFESSIONAL EDITION
- * Полностью оптимизированный дизайн без белого фона
+ * Полностью оптимизированный дизайн с glassmorphism эффектом
  */
 
 (function() {
@@ -293,11 +293,11 @@
         `;
     }
 
-    // Create modal CSS - PROFESSIONAL DESIGN
+    // Create modal CSS - PROFESSIONAL GLASSMORPHISM DESIGN
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
-            /* ===== ПРОФЕССИОНАЛЬНЫЙ ДИЗАЙН БЕЗ БЕЛОГО ФОНА ===== */
+            /* ===== ПРОФЕССИОНАЛЬНЫЙ GLASSMORPHISM ДИЗАЙН ===== */
             
             .spinning-wheel-modal {
                 position: fixed;
@@ -314,7 +314,6 @@
                 padding: 0;
                 overflow-y: auto;
                 overflow-x: hidden;
-                /* ✅ БЛОКИРУЕМ СКРОЛЛ */
                 -webkit-overflow-scrolling: touch;
             }
 
@@ -322,7 +321,7 @@
                 opacity: 1;
             }
 
-            /* ✅ ПРОФЕССИОНАЛЬНЫЙ BACKDROP */
+            /* ✅ ПРОФЕССИОНАЛЬНЫЙ GRADIENT BACKDROP */
             .spinning-wheel-modal-backdrop {
                 position: fixed;
                 top: 0;
@@ -463,54 +462,97 @@
                 padding: 20px;
             }
 
+            /* ✅ GLASSMORPHISM КОНТЕЙНЕР ДЛЯ ВВОДА ТЕЛЕФОНА */
             .phone-input-container {
                 width: 100%;
                 max-width: 480px;
                 text-align: center;
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(30px) saturate(180%);
+                -webkit-backdrop-filter: blur(30px) saturate(180%);
                 border-radius: 24px;
                 padding: 40px 32px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                border: 2px solid rgba(255, 255, 255, 0.5);
+                box-shadow: 
+                    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* ✅ ДЕКОРАТИВНЫЙ БЛИК НА GLASSMORPHISM */
+            .phone-input-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -50%;
+                width: 200%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.1),
+                    transparent
+                );
+                animation: shine-glass 6s infinite;
+                pointer-events: none;
+            }
+
+            @keyframes shine-glass {
+                0% {
+                    transform: translateX(-100%);
+                }
+                50%, 100% {
+                    transform: translateX(100%);
+                }
             }
 
             .phone-icon-circle {
                 width: 80px;
                 height: 80px;
                 margin: 0 auto 24px;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
+                box-shadow: 
+                    0 8px 24px rgba(0, 0, 0, 0.2),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.3);
             }
 
             .phone-icon-circle svg {
                 width: 40px;
                 height: 40px;
                 color: white;
+                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
             }
 
             .phone-step-title {
-                color: #1a202c;
+                color: white;
                 font-size: 1.65rem;
                 margin: 0 0 12px 0;
                 font-weight: 800;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+                position: relative;
             }
 
             .phone-description {
-                color: #718096;
+                color: rgba(255, 255, 255, 0.9);
                 font-size: 1rem;
                 margin: 0 0 32px 0;
                 line-height: 1.6;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                position: relative;
             }
 
             .phone-form {
                 width: 100%;
+                position: relative;
             }
 
             .input-wrapper {
@@ -525,51 +567,73 @@
                 transform: translateY(-50%);
                 width: 22px;
                 height: 22px;
-                color: #a0aec0;
+                color: rgba(255, 255, 255, 0.7);
                 pointer-events: none;
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
             }
 
+            /* ✅ GLASSMORPHISM INPUT */
             .phone-input {
                 width: 100%;
                 padding: 18px 18px 18px 52px;
-                border: 2px solid #e2e8f0;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
                 border-radius: 14px;
                 font-size: 1.05rem;
                 transition: all 0.3s ease;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 box-sizing: border-box;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
 
             .phone-input:focus {
                 outline: none;
-                border-color: #f59e0b;
-                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+                border-color: rgba(255, 255, 255, 0.6);
+                background: rgba(255, 255, 255, 0.25);
+                box-shadow: 
+                    0 0 0 4px rgba(255, 255, 255, 0.15),
+                    0 8px 24px rgba(0, 0, 0, 0.2);
             }
 
             .phone-input::placeholder {
-                color: #cbd5e0;
+                color: rgba(255, 255, 255, 0.6);
+                text-shadow: none;
             }
 
             .phone-input-error {
-                border-color: #fc8181 !important;
-                box-shadow: 0 0 0 4px rgba(252, 129, 129, 0.1) !important;
+                border-color: rgba(239, 68, 68, 0.8) !important;
+                background: rgba(239, 68, 68, 0.15) !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
             }
 
             .phone-error-message {
-                color: #e53e3e;
+                color: #fecaca;
                 font-size: 0.9rem;
                 margin-top: 10px;
                 text-align: left;
                 padding-left: 4px;
-                font-weight: 500;
+                font-weight: 600;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                background: rgba(239, 68, 68, 0.2);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 10px 14px;
+                border-radius: 10px;
+                border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
+            /* ✅ GLASSMORPHISM BUTTON */
             .phone-submit-btn {
                 width: 100%;
                 padding: 18px;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px) saturate(180%);
+                -webkit-backdrop-filter: blur(10px) saturate(180%);
                 color: white;
-                border: none;
+                border: 2px solid rgba(255, 255, 255, 0.4);
                 border-radius: 14px;
                 font-size: 1.1rem;
                 font-weight: 700;
@@ -580,12 +644,36 @@
                 justify-content: center;
                 gap: 10px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+                box-shadow: 
+                    0 8px 24px rgba(0, 0, 0, 0.2),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .phone-submit-btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.1);
+                transition: left 0.5s ease;
             }
 
             .phone-submit-btn:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+                background: rgba(255, 255, 255, 0.35);
+                border-color: rgba(255, 255, 255, 0.6);
+                box-shadow: 
+                    0 12px 32px rgba(0, 0, 0, 0.3),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+            }
+
+            .phone-submit-btn:hover::before {
+                left: 100%;
             }
 
             .phone-submit-btn:active {
@@ -596,26 +684,36 @@
                 width: 22px;
                 height: 22px;
                 transition: transform 0.3s ease;
+                filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
             }
 
             .phone-submit-btn:hover .btn-icon {
                 transform: translateX(5px);
             }
 
+            /* ✅ GLASSMORPHISM PRIVACY BADGE */
             .privacy-badge {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
                 margin-top: 20px;
-                color: #718096;
+                color: rgba(255, 255, 255, 0.9);
                 font-size: 0.9rem;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                padding: 10px 16px;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
             }
 
             .privacy-badge svg {
                 width: 18px;
                 height: 18px;
-                color: #48bb78;
+                color: #86efac;
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
             }
 
             /* ✅ КОЛЕСО В ПОЛНЫЙ ЭКРАН */
@@ -891,7 +989,6 @@
             }
         }
         
-        // ✅ БЛОКИРУЕМ СКРОЛЛ СТРАНИЦЫ
         disableBodyScroll();
         
         state.modal.style.display = 'flex';
@@ -920,7 +1017,6 @@
         
         setTimeout(() => {
             state.modal.style.display = 'none';
-            // ✅ РАЗБЛОКИРУЕМ СКРОЛЛ СТРАНИЦЫ
             enableBodyScroll();
         }, 400);
     }
@@ -946,7 +1042,6 @@
         window.removeEventListener('beforeunload', handleBeforeUnload);
         window.removeEventListener('message', handleWheelMessage);
         
-        // ✅ РАЗБЛОКИРУЕМ СКРОЛЛ ПРИ CLEANUP
         enableBodyScroll();
     }
 
@@ -1119,7 +1214,7 @@
         } catch (error) {}
     }
 
-    // Show coupon notification (код уведомления остается таким же из предыдущей версии)
+    // Show coupon notification
     function showCouponAppliedNotification(couponCode) {
         const currentLang = getCurrentLanguage();
         
