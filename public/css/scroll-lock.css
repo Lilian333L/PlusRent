@@ -1,0 +1,230 @@
+/* ========== БЛОКИРОВКА СКРОЛЛА - УНИВЕРСАЛЬНОЕ РЕШЕНИЕ ========== */
+
+/* Когда body имеет overflow: hidden и position: fixed */
+body.modal-open,
+body.de-menu-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+    touch-action: none !important;
+    -webkit-overflow-scrolling: auto !important;
+}
+
+/* Дополнительно для iOS */
+html.modal-open,
+html.menu-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+}
+
+/* ========== CONTACT POPUP ========== */
+.contact-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    overscroll-behavior: contain;
+    touch-action: none;
+    -webkit-overflow-scrolling: auto;
+}
+
+.contact-popup-overlay.open {
+    display: flex;
+}
+
+/* Контент popup должен иметь свой скролл */
+.contact-popup {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    position: relative;
+}
+
+.contact-popup-body {
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ========== PRICE CALCULATOR MODAL ========== */
+.price-calculator-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overscroll-behavior: contain;
+    touch-action: none;
+    -webkit-overflow-scrolling: auto;
+}
+
+.price-calculator-modal.open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Контент модала должен иметь свой скролл */
+.price-calculator-content {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    position: relative;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ========== BURGER MENU ========== */
+#de-sidebar {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Когда меню открыто, блокируем фон */
+body.de-menu-open #wrapper {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* ========== iOS СПЕЦИФИЧЕСКИЕ ФИКСЫ ========== */
+
+/* Предотвращаем резиновую прокрутку на iOS */
+@supports (-webkit-touch-callout: none) {
+    body.modal-open,
+    body.de-menu-open {
+        position: fixed !important;
+        overflow: hidden !important;
+        width: 100% !important;
+        height: 100vh !important;
+    }
+    
+    .contact-popup-overlay,
+    .price-calculator-modal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+}
+
+/* ========== МОБИЛЬНЫЕ УСТРОЙСТВА ========== */
+@media (max-width: 991px) {
+    /* Усиливаем блокировку на мобильных */
+    body.modal-open,
+    body.de-menu-open {
+        position: fixed !important;
+        overflow: hidden !important;
+        touch-action: none !important;
+        -webkit-overflow-scrolling: auto !important;
+    }
+    
+    /* Wrapper также фиксируем */
+    body.modal-open #wrapper,
+    body.de-menu-open #wrapper {
+        position: fixed !important;
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    /* Overlay на всю высоту */
+    .contact-popup-overlay,
+    .price-calculator-modal {
+        height: 100dvh !important; /* Dynamic viewport height для мобильных */
+        min-height: -webkit-fill-available !important;
+    }
+}
+
+/* ========== LANDSCAPE РЕЖИМ ========== */
+@media (max-width: 991px) and (orientation: landscape) {
+    .price-calculator-content {
+        max-height: 95vh;
+    }
+    
+    .modal-body {
+        max-height: calc(95vh - 140px);
+    }
+}
+
+/* ========== TABLET УСТРОЙСТВА ========== */
+@media (min-width: 768px) and (max-width: 991px) {
+    body.modal-open,
+    body.de-menu-open {
+        position: fixed !important;
+        overflow: hidden !important;
+    }
+}
+
+/* ========== ОБЩИЕ ПРАВИЛА ========== */
+
+/* Скрываем скроллбар у body когда модал открыт */
+body.modal-open::-webkit-scrollbar,
+body.de-menu-open::-webkit-scrollbar {
+    display: none;
+}
+
+/* Предотвращаем масштабирование на iOS при двойном тапе */
+.contact-popup *,
+.price-calculator-content *,
+#de-sidebar * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Оптимизация производительности */
+.contact-popup-overlay,
+.price-calculator-modal,
+#de-sidebar {
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+/* Для пользователей с клавиатурой */
+.contact-popup-overlay:focus,
+.price-calculator-modal:focus {
+    outline: none;
+}
+
+/* Улучшенная видимость фокуса внутри модалов */
+.contact-popup button:focus,
+.price-calculator-content button:focus,
+.contact-popup input:focus,
+.price-calculator-content input:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
