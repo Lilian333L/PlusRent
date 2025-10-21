@@ -1,0 +1,217 @@
+/* ========== БЛОКИРОВКА СКРОЛЛА ДЛЯ БУРГЕР МЕНЮ ========== */
+
+/* КРИТИЧНО: Блокируем body с максимальным приоритетом */
+body.de-menu-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+    touch-action: none !important;
+    -webkit-overflow-scrolling: auto !important;
+    overscroll-behavior: none !important;
+    pointer-events: none !important;
+}
+
+/* Разрешаем взаимодействие только с sidebar */
+body.de-menu-open #de-sidebar,
+body.de-menu-open #de-sidebar *,
+body.de-menu-open #menu-btn,
+body.de-menu-open .de-click-menu-close {
+    pointer-events: auto !important;
+}
+
+/* КРИТИЧНО: Блокируем wrapper */
+body.de-menu-open #wrapper {
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+    pointer-events: none !important;
+}
+
+/* КРИТИЧНО: Блокируем все элементы внутри wrapper */
+body.de-menu-open #wrapper * {
+    touch-action: none !important;
+    pointer-events: none !important;
+}
+
+/* Блокируем content */
+body.de-menu-open #content,
+body.de-menu-open #content *,
+body.de-menu-open main,
+body.de-menu-open main *,
+body.de-menu-open section,
+body.de-menu-open section * {
+    touch-action: none !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+
+/* Блокируем header */
+body.de-menu-open header:not(#de-sidebar header),
+body.de-menu-open header:not(#de-sidebar header) * {
+    touch-action: none !important;
+    pointer-events: none !important;
+}
+
+/* Блокируем footer */
+body.de-menu-open footer,
+body.de-menu-open footer * {
+    touch-action: none !important;
+    pointer-events: none !important;
+}
+
+/* Блокируем html */
+html:has(body.de-menu-open) {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100vh !important;
+    touch-action: none !important;
+}
+
+/* Затемнение фона */
+body.de-menu-open::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    pointer-events: none;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Sidebar выше всего */
+body.de-menu-open #de-sidebar {
+    z-index: 999 !important;
+    position: fixed !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    pointer-events: auto !important;
+}
+
+/* Все элементы внутри sidebar могут скроллиться */
+body.de-menu-open #de-sidebar * {
+    touch-action: auto !important;
+    pointer-events: auto !important;
+}
+
+/* ========== iOS СПЕЦИФИЧЕСКИЕ ФИКСЫ ========== */
+@supports (-webkit-touch-callout: none) {
+    body.de-menu-open {
+        position: fixed !important;
+        overflow: hidden !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        -webkit-overflow-scrolling: auto !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+    
+    body.de-menu-open #wrapper {
+        position: fixed !important;
+        overflow: hidden !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+}
+
+/* ========== МОБИЛЬНЫЕ УСТРОЙСТВА ========== */
+@media (max-width: 991px) {
+    body.de-menu-open {
+        position: fixed !important;
+        overflow: hidden !important;
+        touch-action: none !important;
+        -webkit-overflow-scrolling: auto !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: -webkit-fill-available !important;
+    }
+    
+    body.de-menu-open #wrapper {
+        position: fixed !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: -webkit-fill-available !important;
+        overflow: hidden !important;
+        touch-action: none !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+    
+    #de-sidebar {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
+        max-height: 100vh !important;
+        max-height: -webkit-fill-available !important;
+    }
+}
+
+/* ========== СКРЫТИЕ СКРОЛЛБАРОВ ========== */
+body.de-menu-open::-webkit-scrollbar,
+body.de-menu-open #wrapper::-webkit-scrollbar,
+body.de-menu-open #content::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+body.de-menu-open,
+body.de-menu-open #wrapper,
+body.de-menu-open #content {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+/* ========== ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ========== */
+
+/* Блокируем все возможные интерактивные элементы */
+body.de-menu-open a:not(#de-sidebar a),
+body.de-menu-open button:not(#de-sidebar button):not(#menu-btn):not(.de-click-menu-close),
+body.de-menu-open input:not(#de-sidebar input),
+body.de-menu-open select:not(#de-sidebar select),
+body.de-menu-open textarea:not(#de-sidebar textarea) {
+    pointer-events: none !important;
+    touch-action: none !important;
+}
+
+/* ========== АНИМАЦИЯ ========== */
+body.de-menu-open::after {
+    animation: fadeInOverlay 0.3s ease-out;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ========== LANDSCAPE ========== */
+@media (max-width: 991px) and (orientation: landscape) {
+    #de-sidebar {
+        max-height: 100vh !important;
+        max-height: -webkit-fill-available !important;
+    }
+}
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+    body.de-menu-open::after {
+        animation: none;
+    }
+}
