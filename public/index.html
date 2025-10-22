@@ -1844,14 +1844,17 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.style.display = 'none';
     }
     
-    // Восстанавливаем скролл
-    const scrollY = document.body.dataset.scrollY || '0';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    window.scrollTo(0, parseInt(scrollY));
+    // Восстанавливаем скролл - с задержкой для надежности
+    setTimeout(function() {
+      const scrollY = document.body.dataset.scrollY || '0';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, parseInt(scrollY));
+    }, 50);
   }
   
   // Закрытие при клике вне модала
@@ -1863,6 +1866,20 @@ document.addEventListener('DOMContentLoaded', function() {
           closePriceCalculator();
         }
       });
+      
+      // АГРЕССИВНАЯ БЛОКИРОВКА ТАЧ-СОБЫТИЙ на overlay
+      modal.addEventListener('touchmove', function(e) {
+        const modalBody = modal.querySelector('.modal-body');
+        const priceContent = modal.querySelector('.price-calculator-content');
+        
+        // Разрешаем скролл только внутри modal-body
+        if (modalBody && modalBody.contains(e.target)) {
+          return; // Разрешаем
+        }
+        
+        // Блокируем все остальное
+        e.preventDefault();
+      }, { passive: false });
     }
   });
 </script>
