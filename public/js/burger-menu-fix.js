@@ -29,7 +29,6 @@
   }
   
   function preventScroll(e) {
-    // Расширенный список всех скроллируемых контейнеров
     const scrollableContainers = [
       // Бургер меню
       document.getElementById('de-sidebar'),
@@ -39,34 +38,21 @@
       document.querySelector('.mobile-filter-content'),
       document.getElementById('mobile-filter-overlay'),
       
-      // Contact popup - все возможные варианты
-      document.getElementById('contact-popup'),
+      // Contact popup - ПРАВИЛЬНЫЕ ID
+      document.getElementById('contactPopup'),
       document.querySelector('.contact-popup'),
-      document.querySelector('.contact-popup-content'),
-      document.querySelector('#contact-popup .popup-content'),
-      document.querySelector('#contact-popup .modal-content'),
+      document.querySelector('.contact-popup-body'),
       
-      // Price calculator - все возможные варианты
+      // Price calculator - скроллируемая часть
       document.getElementById('price-calculator-modal'),
-      document.querySelector('.price-calculator-modal'),
       document.querySelector('.price-calculator-content'),
-      document.querySelector('#price-calculator-modal .modal-content'),
-      document.querySelector('#price-calculator-modal .popup-content'),
-      
-      // Общие классы модалок
-      document.querySelector('.modal-body'),
-      document.querySelector('.popup-content'),
-      document.querySelector('.modal-content')
+      document.querySelector('#price-calculator-modal .modal-body'),
+      document.querySelector('.modal-body')
     ];
     
-    // Проверяем, находится ли элемент внутри разрешенного контейнера
     for (let container of scrollableContainers) {
       if (container && container.contains(e.target)) {
-        // Проверяем, является ли контейнер скроллируемым
-        const hasScroll = container.scrollHeight > container.clientHeight;
-        if (hasScroll) {
-          return; // Разрешаем скролл
-        }
+        return; // Разрешаем скролл
       }
     }
     
@@ -123,15 +109,16 @@
     filterObserver.observe(mobileFilterOverlay, { attributes: true });
   }
   
-  // ========== CONTACT POPUP ==========
-  const contactPopup = document.getElementById('contact-popup');
+  // ========== CONTACT POPUP - ПРАВИЛЬНЫЙ ID ==========
+  const contactPopup = document.getElementById('contactPopup');
   if (contactPopup) {
     let contactWasVisible = false;
     
     const contactObserver = new MutationObserver(function(mutations) {
       const isVisible = contactPopup.classList.contains('active') || 
                        contactPopup.style.display === 'flex' ||
-                       contactPopup.style.display === 'block';
+                       contactPopup.style.display === 'block' ||
+                       window.getComputedStyle(contactPopup).display !== 'none';
       
       if (isVisible !== contactWasVisible) {
         contactWasVisible = isVisible;
@@ -158,7 +145,8 @@
       const isVisible = priceModal.classList.contains('active') || 
                        priceModal.classList.contains('show') ||
                        priceModal.style.display === 'flex' ||
-                       priceModal.style.display === 'block';
+                       priceModal.style.display === 'block' ||
+                       window.getComputedStyle(priceModal).display !== 'none';
       
       if (isVisible !== priceWasVisible) {
         priceWasVisible = isVisible;
