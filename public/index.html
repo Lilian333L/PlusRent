@@ -1714,7 +1714,14 @@ document.addEventListener('DOMContentLoaded', function() {
           const modal = document.getElementById('price-calculator-modal');
           if (modal) {
             modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            // БЛОКИРУЕМ СКРОЛЛ ФОНА
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.dataset.scrollY = scrollY;
           }
         }
         
@@ -1749,7 +1756,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
     });
-  </script>
+</script>
 
   <script src="js/universal-include.js"></script>
   <script src="js/auto-apply-coupon.js"></script>
@@ -1828,6 +1835,36 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('resize', forceWhiteText);
     }
 })();
+</script>
+<script>
+  // Функция закрытия Price Calculator
+  function closePriceCalculator() {
+    const modal = document.getElementById('price-calculator-modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+    
+    // Восстанавливаем скролл
+    const scrollY = document.body.dataset.scrollY || '0';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, parseInt(scrollY));
+  }
+  
+  // Закрытие при клике вне модала
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('price-calculator-modal');
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closePriceCalculator();
+        }
+      });
+    }
+  });
 </script>
 </body>
 </html>
