@@ -30,14 +30,21 @@ body.mobile-filter-open {
   overflow: hidden !important;
   position: fixed !important;
   width: 100% !important;
-  height: 100% !important;
+  height: 100vh !important;
+  touch-action: none;
 }
 
-/* Для iOS - дополнительная фиксация */
-body.mobile-filter-open #wrapper {
-  position: fixed !important;
-  width: 100% !important;
-  overflow: hidden !important;
+/* Разрешаем скролл ТОЛЬКО внутри overlay */
+#mobile-filter-overlay {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+#mobile-filter-overlay .mobile-filter-content {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
 }
 
 /* Modal Container */
