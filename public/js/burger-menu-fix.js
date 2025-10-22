@@ -1,170 +1,180 @@
-// ========== УНИВЕРСАЛЬНАЯ БЛОКИРОВКА СКРОЛЛА ДЛЯ ВСЕХ МОДАЛОК ==========
+// ========== АГРЕССИВНАЯ БЛОКИРОВКА СКРОЛЛА ДЛЯ ВСЕХ МОДАЛОК ==========
 (function() {
   'use strict';
   
   let scrollY = 0;
-  let activeModals = 0;
+  let touchStartY = 0;
   
+  // Блокировка скролла
   function lockScroll() {
-    if (activeModals === 0) {
-      scrollY = window.scrollY;
-      document.body.dataset.scrollY = scrollY;
-      document.body.style.top = `-${scrollY}px`;
-      document.body.classList.add('scroll-locked');
-      document.body.addEventListener('touchmove', preventScroll, { passive: false });
-    }
-    activeModals++;
-  }
-  
-  function unlockScroll() {
-    activeModals--;
-    if (activeModals <= 0) {
-      activeModals = 0;
-      document.body.removeEventListener('touchmove', preventScroll);
-      const savedScrollY = document.body.dataset.scrollY || '0';
-      document.body.classList.remove('scroll-locked');
-      document.body.style.top = '';
-      window.scrollTo(0, parseInt(savedScrollY));
-    }
-  }
-  
-  function preventScroll(e) {
-    const scrollableContainers = [
-      // Бургер меню
-      document.getElementById('de-sidebar'),
-      document.getElementById('mainmenu'),
-      
-      // Мобильный фильтр
-      document.querySelector('.mobile-filter-content'),
-      document.getElementById('mobile-filter-overlay'),
-      
-      // Contact popup - ПРАВИЛЬНЫЕ ID
-      document.getElementById('contactPopup'),
-      document.querySelector('.contact-popup'),
-      document.querySelector('.contact-popup-body'),
-      
-      // Price calculator - скроллируемая часть
-      document.getElementById('price-calculator-modal'),
-      document.querySelector('.price-calculator-content'),
-      document.querySelector('#price-calculator-modal .modal-body'),
-      document.querySelector('.modal-body')
-    ];
+    scrollY = window.scrollY;
+    document.body.dataset.scrollY = scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
     
-    for (let container of scrollableContainers) {
-      if (container && container.contains(e.target)) {
-        return; // Разрешаем скролл
+    // Добавляем слушатели для блокировки тач-событий
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('wheel', handleWheel, { passive: false });
+  }
+  
+  // Разблокировка скролла
+  function unlockScroll() {
+    const savedScrollY = document.body.dataset.scrollY || '0';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    window.scrollTo(0, parseInt(savedScrollY));
+    
+    // Убираем слушатели
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('wheel', handleWheel);
+  }
+  
+  function handleTouchStart(e) {
+    touchStartY = e.touches[0].clientY;
+  }
+  
+  function handleTouchMove(e) {
+    // Проверяем, находится ли событие внутри разрешенного контейнера
+    if (isInsideScrollableContainer(e.target)) {
+      const container = getScrollableContainer(e.target);
+      if (container) {
+        const touchY = e.touches[0].clientY;
+        const touchDelta = touchStartY - touchY;
+        
+        // Проверяем границы скролла контейнера
+        const isAtTop = container.scrollTop === 0;
+        const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight;
+        
+        // Блокируем только если пытаемся скроллить за границы
+        if ((isAtTop && touchDelta < 0) || (isAtBottom && touchDelta > 0)) {
+          e.preventDefault();
+        }
+        return;
       }
     }
     
+    // Блокируем все остальное
     e.preventDefault();
   }
   
-  // ========== БУРГЕР-МЕНЮ ==========
-  const menuBtn = document.getElementById('menu-btn');
-  const header = document.querySelector('header');
+  function handleWheel(e) {
+    if (!isInsideScrollableContainer(e.target)) {
+      e.preventDefault();
+    }
+  }
   
-  if (menuBtn && header) {
+  function isInsideScrollableContainer(element) {
+    const containers = [
+      '.contact-popup-body',
+      '.modal-body',
+      '.price-calculator-content',
+      '#de-sidebar',
+      '#mainmenu',
+      '.mobile-filter-content'
+    ];
+    
+    for (let selector of containers) {
+      const container = element.closest(selector);
+      if (container) return true;
+    }
+    return false;
+  }
+  
+  function getScrollableContainer(element) {
+    const containers = [
+      '.contact-popup-body',
+      '.modal-body',
+      '.price-calculator-content',
+      '#de-sidebar',
+      '#mainmenu',
+      '.mobile-filter-content'
+    ];
+    
+    for (let selector of containers) {
+      const container = element.closest(selector);
+      if (container) return container;
+    }
+    return null;
+  }
+  
+  // ========== БУРГЕР-МЕНЮ ==========
+  const header = document.querySelector('header');
+  if (header) {
     let isMenuOpen = false;
     
-    const observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (mutation.attributeName === 'class') {
-          const menuOpen = header.classList.contains('menu-open');
-          if (menuOpen !== isMenuOpen) {
-            isMenuOpen = menuOpen;
-            if (isMenuOpen) {
-              lockScroll();
-            } else {
-              unlockScroll();
-            }
-          }
-        }
-      });
+    const observer = new MutationObserver(function() {
+      const menuOpen = header.classList.contains('menu-open');
+      if (menuOpen !== isMenuOpen) {
+        isMenuOpen = menuOpen;
+        isMenuOpen ? lockScroll() : unlockScroll();
+      }
     });
     
-    observer.observe(header, { attributes: true });
+    observer.observe(header, { attributes: true, attributeFilter: ['class'] });
   }
   
   // ========== МОБИЛЬНЫЙ ФИЛЬТР ==========
-  const mobileFilterOverlay = document.getElementById('mobile-filter-overlay');
-  if (mobileFilterOverlay) {
-    let filterWasActive = false;
+  const mobileFilter = document.getElementById('mobile-filter-overlay');
+  if (mobileFilter) {
+    let isFilterActive = false;
     
-    const filterObserver = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (mutation.attributeName === 'class') {
-          const isActive = mobileFilterOverlay.classList.contains('active');
-          if (isActive !== filterWasActive) {
-            filterWasActive = isActive;
-            if (isActive) {
-              lockScroll();
-            } else {
-              unlockScroll();
-            }
-          }
-        }
-      });
+    const filterObserver = new MutationObserver(function() {
+      const isActive = mobileFilter.classList.contains('active');
+      if (isActive !== isFilterActive) {
+        isFilterActive = isActive;
+        isActive ? lockScroll() : unlockScroll();
+      }
     });
     
-    filterObserver.observe(mobileFilterOverlay, { attributes: true });
+    filterObserver.observe(mobileFilter, { attributes: true, attributeFilter: ['class'] });
   }
   
-  // ========== CONTACT POPUP - ПРАВИЛЬНЫЙ ID ==========
+  // ========== CONTACT POPUP ==========
   const contactPopup = document.getElementById('contactPopup');
   if (contactPopup) {
-    let contactWasVisible = false;
+    let isContactVisible = false;
     
-    const contactObserver = new MutationObserver(function(mutations) {
-      const isVisible = contactPopup.classList.contains('active') || 
-                       contactPopup.style.display === 'flex' ||
-                       contactPopup.style.display === 'block' ||
-                       window.getComputedStyle(contactPopup).display !== 'none';
-      
-      if (isVisible !== contactWasVisible) {
-        contactWasVisible = isVisible;
-        if (isVisible) {
-          lockScroll();
-        } else {
-          unlockScroll();
-        }
+    const contactObserver = new MutationObserver(function() {
+      const isVisible = window.getComputedStyle(contactPopup).display !== 'none';
+      if (isVisible !== isContactVisible) {
+        isContactVisible = isVisible;
+        isVisible ? lockScroll() : unlockScroll();
       }
     });
     
     contactObserver.observe(contactPopup, { 
-      attributes: true,
-      attributeFilter: ['class', 'style']
+      attributes: true, 
+      attributeFilter: ['style', 'class'] 
     });
   }
   
-  // ========== PRICE CALCULATOR MODAL ==========
+  // ========== PRICE CALCULATOR ==========
   const priceModal = document.getElementById('price-calculator-modal');
   if (priceModal) {
-    let priceWasVisible = false;
+    let isPriceVisible = false;
     
-    const priceObserver = new MutationObserver(function(mutations) {
-      const isVisible = priceModal.classList.contains('active') || 
-                       priceModal.classList.contains('show') ||
-                       priceModal.style.display === 'flex' ||
-                       priceModal.style.display === 'block' ||
-                       window.getComputedStyle(priceModal).display !== 'none';
-      
-      if (isVisible !== priceWasVisible) {
-        priceWasVisible = isVisible;
-        if (isVisible) {
-          lockScroll();
-        } else {
-          unlockScroll();
-        }
+    const priceObserver = new MutationObserver(function() {
+      const isVisible = window.getComputedStyle(priceModal).display !== 'none';
+      if (isVisible !== isPriceVisible) {
+        isPriceVisible = isVisible;
+        isVisible ? lockScroll() : unlockScroll();
       }
     });
     
     priceObserver.observe(priceModal, { 
-      attributes: true,
-      attributeFilter: ['class', 'style']
+      attributes: true, 
+      attributeFilter: ['style', 'class'] 
     });
   }
-  
-  window.lockBodyScroll = lockScroll;
-  window.unlockBodyScroll = unlockScroll;
   
 })();
