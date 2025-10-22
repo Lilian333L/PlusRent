@@ -1513,36 +1513,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-  <script>
+<script>
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
+      
+      // Блокируем скролл фона
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.dataset.scrollY = scrollY;
     }
-
+    
     function closeContactPopup() {
       document.getElementById('contactPopup').style.display = 'none';
+      
+      // Восстанавливаем скролл
+      const scrollY = document.body.dataset.scrollY || '0';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, parseInt(scrollY));
     }
-
+    
     function openWhatsApp() {
       window.open('https://wa.me/+37360000500?text=Bună ziua! Am nevoie de ajutor cu închirierea unei mașini.', '_blank');
     }
-
+    
     function openViber() {
       window.open('viber://chat?number=+37360000500', '_blank');
     }
-
+    
     function openTelegram() {
       window.open('https://t.me/plusrent', '_blank');
     }
-
+    
     function makeDirectCall() {
       window.location.href = 'tel:+37360000500';
     }
-
+    
     document.getElementById('contactPopup').addEventListener('click', function (e) {
       if (e.target === this) {
         closeContactPopup();
       }
     });
+</script>
 
 // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ с публичным endpoint
 document.addEventListener('DOMContentLoaded', function() {
