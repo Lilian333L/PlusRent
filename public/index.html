@@ -1718,23 +1718,47 @@ document.addEventListener('DOMContentLoaded', function() {
             // БЛОКИРУЕМ СКРОЛЛ ФОНА НА ВСЕХ УСТРОЙСТВАХ
             const scrollY = window.scrollY;
             
-            // Блокируем HTML элемент
-            document.documentElement.classList.add('modal-active');
-            document.documentElement.style.overflow = 'hidden';
-            document.documentElement.style.position = 'fixed';
-            document.documentElement.style.width = '100%';
-            document.documentElement.style.height = '100%';
+            // Вычисляем ширину скроллбара
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
             
-            // Блокируем BODY
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
-            document.body.style.width = '100%';
-            document.body.style.height = '100%';
-            document.body.style.left = '0';
-            document.body.style.right = '0';
-            document.body.style.overflow = 'hidden';
-            document.body.dataset.scrollY = scrollY;
-            document.body.classList.add('price-calculator-open');
+            // Блокируем HTML через cssText
+            const htmlEl = document.documentElement;
+            htmlEl.classList.add('modal-active');
+            htmlEl.style.cssText = `
+              overflow: hidden !important;
+              position: fixed !important;
+              width: 100% !important;
+              height: 100% !important;
+              top: 0 !important;
+              left: 0 !important;
+            `;
+            
+            // Блокируем BODY через cssText с компенсацией скроллбара
+            const bodyEl = document.body;
+            bodyEl.classList.add('price-calculator-open');
+            bodyEl.style.cssText = `
+              position: fixed !important;
+              top: -${scrollY}px !important;
+              width: 100% !important;
+              height: 100% !important;
+              left: 0 !important;
+              right: 0 !important;
+              overflow: hidden !important;
+              padding-right: ${scrollbarWidth}px !important;
+            `;
+            bodyEl.dataset.scrollY = scrollY;
+            
+            // Блокируем #wrapper если есть
+            const wrapper = document.getElementById('wrapper');
+            if (wrapper) {
+              wrapper.style.cssText = `
+                position: fixed !important;
+                width: 100% !important;
+                overflow: hidden !important;
+                top: 0 !important;
+                left: 0 !important;
+              `;
+            }
             
             // ГЛОБАЛЬНАЯ БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
             window.priceCalculatorWheelHandler = function(e) {
@@ -1748,7 +1772,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.addEventListener('wheel', window.priceCalculatorWheelHandler, { passive: false, capture: true });
             
-            // Блокируем клавиши прокрутки (стрелки, page up/down и т.д.)
+            // Блокируем клавиши прокрутки
             window.priceCalculatorKeyHandler = function(e) {
               const keys = [32, 33, 34, 35, 36, 37, 38, 39, 40];
               if (keys.includes(e.keyCode)) {
@@ -1886,11 +1910,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.remove('price-calculator-open');
     document.documentElement.classList.remove('modal-active');
     
-    // Восстанавливаем HTML элемент
-    document.documentElement.style.overflow = '';
-    document.documentElement.style.position = '';
-    document.documentElement.style.width = '';
-    document.documentElement.style.height = '';
+    // Очищаем все инлайн-стили через cssText
+    document.documentElement.style.cssText = '';
+    document.body.style.cssText = '';
+    
+    // Очищаем #wrapper
+    const wrapper = document.getElementById('wrapper');
+    if (wrapper) {
+      wrapper.style.cssText = '';
+    }
     
     // Удаляем обработчик колесика мыши
     if (window.priceCalculatorWheelHandler) {
@@ -1907,13 +1935,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Восстанавливаем скролл
     setTimeout(function() {
       const scrollY = document.body.dataset.scrollY || '0';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = '';
       window.scrollTo(0, parseInt(scrollY));
     }, 50);
   }
