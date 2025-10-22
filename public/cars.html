@@ -1284,13 +1284,27 @@ function toggleMobileFilter() {
   const overlay = document.getElementById('mobile-filter-overlay');
   if (!overlay) return;
   
-  if (overlay.classList.contains('active')) {
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  } else {
+  const isOpening = !overlay.classList.contains('active');
+  
+  if (isOpening) {
+    // Открываем фильтр
     overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    
+    // Сохраняем текущую позицию скролла
+    const scrollY = window.scrollY;
+    document.body.style.top = `-${scrollY}px`;
+    document.body.classList.add('mobile-filter-open');
+    
     setTimeout(() => renderMobileFilterOptions(), 50);
+  } else {
+    // Закрываем фильтр
+    overlay.classList.remove('active');
+    
+    // Восстанавливаем позицию скролла
+    const scrollY = document.body.style.top;
+    document.body.classList.remove('mobile-filter-open');
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
   }
 }
 
