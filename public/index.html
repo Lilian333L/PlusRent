@@ -1694,7 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       
-      // Убираем сохранение originalOpenCalculator - не нужно
+      const originalOpenCalculator = window.openPriceCalculator;
       
       window.openPriceCalculator = function() {
         
@@ -1708,10 +1708,18 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         
-        // УБИРАЕМ ПРОВЕРКУ originalOpenCalculator - выполняем код всегда
+        // СНАЧАЛА вызываем оригинальную функцию для инициализации
+        if (originalOpenCalculator && typeof originalOpenCalculator === 'function') {
+          originalOpenCalculator.call(this);
+        }
+        
+        // ПОТОМ применяем наши блокировки
         const modal = document.getElementById('price-calculator-modal');
         if (modal) {
-          modal.style.display = 'flex';
+          // Убеждаемся что модал открыт
+          if (modal.style.display !== 'flex') {
+            modal.style.display = 'flex';
+          }
           
           // БЛОКИРУЕМ СКРОЛЛ ФОНА НА ВСЕХ УСТРОЙСТВАХ
           const scrollY = window.scrollY;
