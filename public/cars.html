@@ -1279,7 +1279,6 @@ function initializeDatePickers() {
   }
 }
 
-// Mobile filter functions
 function toggleMobileFilter() {
   const overlay = document.getElementById('mobile-filter-overlay');
   if (!overlay) return;
@@ -1296,10 +1295,16 @@ function toggleMobileFilter() {
     document.body.style.top = `-${scrollY}px`;
     document.body.classList.add('mobile-filter-open');
     
+    // Предотвращаем скролл фона
+    document.body.addEventListener('touchmove', preventBodyScroll, { passive: false });
+    
     setTimeout(() => renderMobileFilterOptions(), 50);
   } else {
     // Закрываем фильтр
     overlay.classList.remove('active');
+    
+    // Убираем блокировку скролла фона
+    document.body.removeEventListener('touchmove', preventBodyScroll);
     
     // Восстанавливаем позицию скролла
     const scrollY = document.body.dataset.scrollY || '0';
@@ -1307,6 +1312,19 @@ function toggleMobileFilter() {
     document.body.style.top = '';
     window.scrollTo(0, parseInt(scrollY));
   }
+}
+
+// Функция для предотвращения скролла фона
+function preventBodyScroll(e) {
+  const overlay = document.getElementById('mobile-filter-overlay');
+  const filterContent = overlay?.querySelector('.mobile-filter-content');
+  
+  // Разрешаем скролл только внутри контента фильтра
+  if (filterContent && filterContent.contains(e.target)) {
+    return; // Разрешаем скролл
+  }
+  
+  e.preventDefault(); // Блокируем скролл фона
 }
 
 function renderMobileFilterOptions() {
