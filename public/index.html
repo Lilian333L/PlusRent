@@ -1717,17 +1717,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // БЛОКИРУЕМ СКРОЛЛ ФОНА НА ВСЕХ УСТРОЙСТВАХ
             const scrollY = window.scrollY;
+            
+            // Блокируем HTML элемент
+            document.documentElement.classList.add('modal-active');
+            document.documentElement.style.overflow = 'hidden';
+            document.documentElement.style.position = 'fixed';
+            document.documentElement.style.width = '100%';
+            document.documentElement.style.height = '100%';
+            
+            // Блокируем BODY
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollY}px`;
             document.body.style.width = '100%';
+            document.body.style.height = '100%';
             document.body.style.left = '0';
             document.body.style.right = '0';
             document.body.style.overflow = 'hidden';
             document.body.dataset.scrollY = scrollY;
-            
-            // ДОБАВЛЯЕМ КЛАСС ДЛЯ CSS БЛОКИРОВКИ
             document.body.classList.add('price-calculator-open');
-            document.documentElement.style.overflow = 'hidden';
             
             // ГЛОБАЛЬНАЯ БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
             window.priceCalculatorWheelHandler = function(e) {
@@ -1740,6 +1747,20 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             document.addEventListener('wheel', window.priceCalculatorWheelHandler, { passive: false, capture: true });
+            
+            // Блокируем клавиши прокрутки (стрелки, page up/down и т.д.)
+            window.priceCalculatorKeyHandler = function(e) {
+              const keys = [32, 33, 34, 35, 36, 37, 38, 39, 40];
+              if (keys.includes(e.keyCode)) {
+                const modalBody = document.querySelector('#price-calculator-modal .modal-body');
+                if (!modalBody || !modalBody.contains(document.activeElement)) {
+                  e.preventDefault();
+                  return false;
+                }
+              }
+            };
+            
+            document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
           }
         }
         
@@ -1861,14 +1882,26 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.style.display = 'none';
     }
     
-    // Удаляем класс блокировки
+    // Удаляем классы блокировки
     document.body.classList.remove('price-calculator-open');
+    document.documentElement.classList.remove('modal-active');
+    
+    // Восстанавливаем HTML элемент
     document.documentElement.style.overflow = '';
+    document.documentElement.style.position = '';
+    document.documentElement.style.width = '';
+    document.documentElement.style.height = '';
     
     // Удаляем обработчик колесика мыши
     if (window.priceCalculatorWheelHandler) {
       document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
       window.priceCalculatorWheelHandler = null;
+    }
+    
+    // Удаляем обработчик клавиатуры
+    if (window.priceCalculatorKeyHandler) {
+      document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
+      window.priceCalculatorKeyHandler = null;
     }
     
     // Восстанавливаем скролл
@@ -1877,6 +1910,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
+      document.body.style.height = '';
       document.body.style.left = '';
       document.body.style.right = '';
       document.body.style.overflow = '';
