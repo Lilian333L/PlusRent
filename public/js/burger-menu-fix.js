@@ -3,9 +3,8 @@
   'use strict';
   
   let scrollY = 0;
-  let activeModals = 0; // Счетчик открытых модалок
+  let activeModals = 0;
   
-  // Функция блокировки скролла
   function lockScroll() {
     if (activeModals === 0) {
       scrollY = window.scrollY;
@@ -17,7 +16,6 @@
     activeModals++;
   }
   
-  // Функция разблокировки скролла
   function unlockScroll() {
     activeModals--;
     if (activeModals <= 0) {
@@ -30,56 +28,78 @@
     }
   }
   
-  // Предотвращаем скролл фона, разрешаем внутри модалок
   function preventScroll(e) {
+    // Расширенный список всех скроллируемых контейнеров
     const scrollableContainers = [
+      // Бургер меню
       document.getElementById('de-sidebar'),
       document.getElementById('mainmenu'),
+      
+      // Мобильный фильтр
       document.querySelector('.mobile-filter-content'),
+      document.getElementById('mobile-filter-overlay'),
+      
+      // Contact popup - все возможные варианты
+      document.getElementById('contact-popup'),
+      document.querySelector('.contact-popup'),
       document.querySelector('.contact-popup-content'),
+      document.querySelector('#contact-popup .popup-content'),
+      document.querySelector('#contact-popup .modal-content'),
+      
+      // Price calculator - все возможные варианты
+      document.getElementById('price-calculator-modal'),
+      document.querySelector('.price-calculator-modal'),
+      document.querySelector('.price-calculator-content'),
+      document.querySelector('#price-calculator-modal .modal-content'),
+      document.querySelector('#price-calculator-modal .popup-content'),
+      
+      // Общие классы модалок
       document.querySelector('.modal-body'),
       document.querySelector('.popup-content'),
-      document.getElementById('mobile-filter-overlay')
+      document.querySelector('.modal-content')
     ];
     
+    // Проверяем, находится ли элемент внутри разрешенного контейнера
     for (let container of scrollableContainers) {
       if (container && container.contains(e.target)) {
-        return;
+        // Проверяем, является ли контейнер скроллируемым
+        const hasScroll = container.scrollHeight > container.clientHeight;
+        if (hasScroll) {
+          return; // Разрешаем скролл
+        }
       }
     }
     
     e.preventDefault();
   }
   
-  // ========== 1. БУРГЕР-МЕНЮ ==========
-  if (window.innerWidth <= 991) {
-    const menuBtn = document.getElementById('menu-btn');
-    const header = document.querySelector('header');
+  // ========== БУРГЕР-МЕНЮ ==========
+  const menuBtn = document.getElementById('menu-btn');
+  const header = document.querySelector('header');
+  
+  if (menuBtn && header) {
+    let isMenuOpen = false;
     
-    if (menuBtn && header) {
-      let isMenuOpen = false;
-      
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.attributeName === 'class') {
-            const menuOpen = header.classList.contains('menu-open');
-            if (menuOpen !== isMenuOpen) {
-              isMenuOpen = menuOpen;
-              if (isMenuOpen) {
-                lockScroll();
-              } else {
-                unlockScroll();
-              }
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          const menuOpen = header.classList.contains('menu-open');
+          if (menuOpen !== isMenuOpen) {
+            isMenuOpen = menuOpen;
+            if (isMenuOpen) {
+              lockScroll();
+            } else {
+              unlockScroll();
             }
           }
-        });
+        }
       });
-      
-      observer.observe(header, { attributes: true });
-    }
+    });
+    
+    observer.observe(header, { attributes: true });
   }
   
-  // ========== 2. МОБИЛЬНЫЙ ФИЛЬТР ==========
+  // ========== МОБИЛЬНЫЙ ФИЛЬТР ==========
   const mobileFilterOverlay = document.getElementById('mobile-filter-overlay');
   if (mobileFilterOverlay) {
     let filterWasActive = false;
@@ -103,7 +123,7 @@
     filterObserver.observe(mobileFilterOverlay, { attributes: true });
   }
   
-  // ========== 3. CONTACT POPUP ==========
+  // ========== CONTACT POPUP ==========
   const contactPopup = document.getElementById('contact-popup');
   if (contactPopup) {
     let contactWasVisible = false;
@@ -129,7 +149,7 @@
     });
   }
   
-  // ========== 4. PRICE CALCULATOR MODAL ==========
+  // ========== PRICE CALCULATOR MODAL ==========
   const priceModal = document.getElementById('price-calculator-modal');
   if (priceModal) {
     let priceWasVisible = false;
@@ -156,7 +176,6 @@
     });
   }
   
-  // Глобальные функции
   window.lockBodyScroll = lockScroll;
   window.unlockBodyScroll = unlockScroll;
   
