@@ -1725,13 +1725,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'hidden';
             document.body.dataset.scrollY = scrollY;
             
-            // БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
-            modal.addEventListener('wheel', function(e) {
-              const modalBody = modal.querySelector('.modal-body');
+            // ГЛОБАЛЬНАЯ БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
+            window.priceCalculatorWheelHandler = function(e) {
+              const modalBody = document.querySelector('#price-calculator-modal .modal-body');
               if (!modalBody || !modalBody.contains(e.target)) {
                 e.preventDefault();
+                e.stopPropagation();
+                return false;
               }
-            }, { passive: false });
+            };
+            
+            // Добавляем на document для перехвата ВСЕХ событий колесика
+            document.addEventListener('wheel', window.priceCalculatorWheelHandler, { passive: false, capture: true });
           }
         }
         
@@ -1854,6 +1859,12 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.style.display = 'none';
     }
     
+    // Удаляем обработчик колесика мыши
+    if (window.priceCalculatorWheelHandler) {
+      document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
+      window.priceCalculatorWheelHandler = null;
+    }
+    
     // Восстанавливаем скролл - с задержкой для надежности
     setTimeout(function() {
       const scrollY = document.body.dataset.scrollY || '0';
@@ -1877,10 +1888,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
       
-      // АГРЕССИВНАЯ БЛОКИРОВКА ТАЧ-СОБЫТИЙ на overlay
+      // АГРЕССИВНАЯ БЛОКИРОВКА ТАЧ-СОБЫТИЙ на overlay для мобильных
       modal.addEventListener('touchmove', function(e) {
         const modalBody = modal.querySelector('.modal-body');
-        const priceContent = modal.querySelector('.price-calculator-content');
         
         // Разрешаем скролл только внутри modal-body
         if (modalBody && modalBody.contains(e.target)) {
