@@ -1714,14 +1714,24 @@ document.addEventListener('DOMContentLoaded', function() {
           const modal = document.getElementById('price-calculator-modal');
           if (modal) {
             modal.style.display = 'flex';
-            // БЛОКИРУЕМ СКРОЛЛ ФОНА
+            
+            // БЛОКИРУЕМ СКРОЛЛ ФОНА НА ВСЕХ УСТРОЙСТВАХ
             const scrollY = window.scrollY;
             document.body.style.position = 'fixed';
             document.body.style.top = `-${scrollY}px`;
             document.body.style.width = '100%';
             document.body.style.left = '0';
             document.body.style.right = '0';
+            document.body.style.overflow = 'hidden';
             document.body.dataset.scrollY = scrollY;
+            
+            // БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
+            modal.addEventListener('wheel', function(e) {
+              const modalBody = modal.querySelector('.modal-body');
+              if (!modalBody || !modalBody.contains(e.target)) {
+                e.preventDefault();
+              }
+            }, { passive: false });
           }
         }
         
