@@ -1725,6 +1725,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = 'hidden';
             document.body.dataset.scrollY = scrollY;
             
+            // ДОБАВЛЯЕМ КЛАСС ДЛЯ CSS БЛОКИРОВКИ
+            document.body.classList.add('price-calculator-open');
+            document.documentElement.style.overflow = 'hidden';
+            
             // ГЛОБАЛЬНАЯ БЛОКИРОВКА КОЛЕСИКА МЫШИ НА ПК
             window.priceCalculatorWheelHandler = function(e) {
               const modalBody = document.querySelector('#price-calculator-modal .modal-body');
@@ -1735,7 +1739,6 @@ document.addEventListener('DOMContentLoaded', function() {
               }
             };
             
-            // Добавляем на document для перехвата ВСЕХ событий колесика
             document.addEventListener('wheel', window.priceCalculatorWheelHandler, { passive: false, capture: true });
           }
         }
@@ -1852,12 +1855,15 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 <script>
-  // Функция закрытия Price Calculator
   function closePriceCalculator() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) {
       modal.style.display = 'none';
     }
+    
+    // Удаляем класс блокировки
+    document.body.classList.remove('price-calculator-open');
+    document.documentElement.style.overflow = '';
     
     // Удаляем обработчик колесика мыши
     if (window.priceCalculatorWheelHandler) {
@@ -1865,7 +1871,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.priceCalculatorWheelHandler = null;
     }
     
-    // Восстанавливаем скролл - с задержкой для надежности
+    // Восстанавливаем скролл
     setTimeout(function() {
       const scrollY = document.body.dataset.scrollY || '0';
       document.body.style.position = '';
@@ -1878,7 +1884,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 50);
   }
   
-  // Закрытие при клике вне модала
   document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) {
@@ -1888,16 +1893,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
       
-      // АГРЕССИВНАЯ БЛОКИРОВКА ТАЧ-СОБЫТИЙ на overlay для мобильных
       modal.addEventListener('touchmove', function(e) {
         const modalBody = modal.querySelector('.modal-body');
-        
-        // Разрешаем скролл только внутри modal-body
         if (modalBody && modalBody.contains(e.target)) {
-          return; // Разрешаем
+          return;
         }
-        
-        // Блокируем все остальное
         e.preventDefault();
       }, { passive: false });
     }
