@@ -28,10 +28,10 @@ class CarsFilterModal {
     
     // Auto-open modal on page load (every time)
     // Add a small delay to ensure everything is ready
-    setTimeout(() => {
-      this.openModal();
-      this.hasShownOnLoad = true;
-    }, 200);
+    //setTimeout(() => {
+    //  this.openModal();
+    //  this.hasShownOnLoad = true;
+    //}, 200);
   }
 
   async loadPriceFilterSettings() {
