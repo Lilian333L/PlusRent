@@ -1,7 +1,7 @@
 /**
  * Auto-Apply Coupon Script with Phone Validation
  * Automatically applies saved coupon codes and validates them with phone numbers
- * Prevents duplicate error notifications
+ * Prevents duplicate error notifications with proper translations
  */
 
 (function () {
@@ -14,7 +14,7 @@
       '#modal-discount-code, #discountCode, input[name="discount_code"]',
     bookingFormSelector: "#booking_form",
     successModalSelector: "#booking-success-modal",
-    validationCooldown: 1000, // 1 second between validations
+    validationCooldown: 1000,
   };
 
   // Global state to prevent duplicate validations
@@ -24,6 +24,90 @@
     lastErrorMessage: null,
     lastErrorTime: 0,
   };
+
+  // Translations for error messages
+  const translations = {
+    en: {
+      phone_not_authorized: "Phone number not authorized for this coupon",
+      invalid_coupon: "Invalid coupon code",
+      validation_failed: "Failed to validate coupon. Please try again.",
+      coupon_expired: "This coupon has expired",
+      coupon_used: "This coupon has already been used",
+      coupon_limit_reached: "Coupon usage limit reached"
+    },
+    ru: {
+      phone_not_authorized: "Номер телефона не авторизован для этого купона",
+      invalid_coupon: "Неверный код купона",
+      validation_failed: "Не удалось проверить купон. Попробуйте еще раз.",
+      coupon_expired: "Срок действия купона истек",
+      coupon_used: "Этот купон уже использован",
+      coupon_limit_reached: "Достигнут лимит использования купона"
+    },
+    ro: {
+      phone_not_authorized: "Numărul de telefon nu este autorizat pentru acest cupon",
+      invalid_coupon: "Cod cupon invalid",
+      validation_failed: "Validarea cuponului a eșuat. Încercați din nou.",
+      coupon_expired: "Acest cupon a expirat",
+      coupon_used: "Acest cupon a fost deja folosit",
+      coupon_limit_reached: "Limita de utilizare a cuponului a fost atinsă"
+    }
+  };
+
+  // Get current language
+  function getCurrentLanguage() {
+    const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+    if (storedLang) {
+      const lang = storedLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) {
+        return lang;
+      }
+    }
+    
+    if (typeof i18next !== 'undefined' && i18next.language) {
+      const i18nextLang = i18next.language.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(i18nextLang)) {
+        return i18nextLang;
+      }
+    }
+    
+    const htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+      const lang = htmlLang.split('-')[0];
+      if (['en', 'ru', 'ro'].includes(lang)) {
+        return lang;
+      }
+    }
+    
+    return 'en';
+  }
+
+  // Translate error message
+  function translateErrorMessage(messageFromServer) {
+    const currentLang = getCurrentLanguage();
+    const t = translations[currentLang] || translations.en;
+    
+    // Match common error patterns from server
+    const lowerMessage = messageFromServer.toLowerCase();
+    
+    if (lowerMessage.includes('phone') && lowerMessage.includes('not authorized')) {
+      return t.phone_not_authorized;
+    }
+    if (lowerMessage.includes('invalid coupon')) {
+      return t.invalid_coupon;
+    }
+    if (lowerMessage.includes('expired')) {
+      return t.coupon_expired;
+    }
+    if (lowerMessage.includes('already used')) {
+      return t.coupon_used;
+    }
+    if (lowerMessage.includes('limit reached')) {
+      return t.coupon_limit_reached;
+    }
+    
+    // Default to invalid coupon if no match
+    return t.invalid_coupon;
+  }
 
   // Debounce utility
   function debounce(func, wait) {
@@ -38,20 +122,23 @@
     };
   }
 
-  // Show error message (with duplicate prevention)
-  function showCouponError(message) {
+  // Show error message (with duplicate prevention and translation)
+  function showCouponError(messageFromServer) {
     const now = Date.now();
+    
+    // Translate the message
+    const translatedMessage = translateErrorMessage(messageFromServer);
     
     // Prevent showing the same error multiple times within cooldown period
     if (
-      validationState.lastErrorMessage === message &&
+      validationState.lastErrorMessage === translatedMessage &&
       now - validationState.lastErrorTime < CONFIG.validationCooldown
     ) {
-      console.log('⏱️ Duplicate error prevented:', message);
+      console.log('⏱️ Duplicate error prevented:', translatedMessage);
       return;
     }
     
-    validationState.lastErrorMessage = message;
+    validationState.lastErrorMessage = translatedMessage;
     validationState.lastErrorTime = now;
     
     const errorContainer = document.getElementById('coupon-error-message');
@@ -62,21 +149,21 @@
       
       // Show new message after small delay for smoothness
       setTimeout(() => {
-        errorContainer.textContent = message;
+        errorContainer.textContent = translatedMessage;
         errorContainer.style.display = 'block';
         
         // Auto-hide after 5 seconds
         setTimeout(() => {
-          if (errorContainer.textContent === message) {
+          if (errorContainer.textContent === translatedMessage) {
             errorContainer.style.display = 'none';
           }
         }, 5000);
       }, 50);
     }
     
-    // Show toast notification (only once per message)
-    if (typeof window.showError === 'function') {
-      window.showError(message);
+    // Show toast notification ONLY ONCE (not duplicate with error container)
+    if (typeof window.showError === 'function' && !errorContainer) {
+      window.showError(translatedMessage);
     }
   }
 
@@ -142,7 +229,9 @@
       
     } catch (error) {
       console.error('❌ Coupon validation error:', error);
-      showCouponError('Failed to validate coupon. Please try again.');
+      const currentLang = getCurrentLanguage();
+      const t = translations[currentLang] || translations.en;
+      showCouponError(t.validation_failed);
       return null;
       
     } finally {
@@ -165,17 +254,20 @@
       return;
     }
     
-    // Remove existing listeners by cloning nodes
-    const newCouponInput = couponInput.cloneNode(true);
-    couponInput.parentNode.replaceChild(newCouponInput, couponInput);
+    // Check if already initialized
+    if (couponInput.dataset.validationInitialized === 'true') {
+      console.log('⚠️ Validation already initialized, skipping...');
+      return;
+    }
     
-    const newPhoneInput = phoneInput.cloneNode(true);
-    phoneInput.parentNode.replaceChild(newPhoneInput, phoneInput);
+    // Mark as initialized
+    couponInput.dataset.validationInitialized = 'true';
+    phoneInput.dataset.validationInitialized = 'true';
     
     // Add single input listener with debounce
-    newCouponInput.addEventListener('input', function() {
+    couponInput.addEventListener('input', function() {
       const code = this.value.trim();
-      const phone = newPhoneInput.value.trim();
+      const phone = phoneInput.value.trim();
       
       if (code && phone) {
         debouncedValidation(code, phone);
@@ -185,9 +277,9 @@
     });
     
     // Add phone input listener with debounce
-    newPhoneInput.addEventListener('input', function() {
+    phoneInput.addEventListener('input', function() {
       const phone = this.value.trim();
-      const code = newCouponInput.value.trim();
+      const code = couponInput.value.trim();
       
       if (code && phone) {
         debouncedValidation(code, phone);
@@ -200,7 +292,6 @@
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
     try {
-      // Don't auto-apply if already applied once or if form is being submitted
       if (
         window.__autoCouponAppliedOnce ||
         document.querySelector('form[data-submitting="true"]')
@@ -208,7 +299,6 @@
         return;
       }
 
-      // Check if there's a saved coupon
       let savedCoupon = localStorage.getItem(CONFIG.storageKey);
 
       if (!savedCoupon) {
@@ -219,7 +309,6 @@
         return;
       }
 
-      // Find the discount code input
       const selectors = CONFIG.discountCodeInputSelector.split(", ");
       let discountInput = null;
 
@@ -234,7 +323,6 @@
         return;
       }
 
-      // Only apply if field is empty and not focused
       if (discountInput.value && discountInput.value.trim().length > 0) {
         return;
       }
@@ -243,7 +331,6 @@
         return;
       }
 
-      // Apply the coupon code
       discountInput.value = savedCoupon;
       window.__autoCouponAppliedOnce = true;
 
@@ -253,13 +340,11 @@
       ) {
         window.priceCalculator.validateAndShowCoupon(savedCoupon);
       } else {
-        // Trigger blur event for validation (only once)
         setTimeout(() => {
           discountInput.dispatchEvent(new Event("blur", { bubbles: true }));
         }, 100);
       }
 
-      // Trigger change event (only once)
       setTimeout(() => {
         discountInput.dispatchEvent(new Event("change", { bubbles: true }));
       }, 150);
@@ -289,34 +374,6 @@
     }
   }
 
-  // Get current language
-  function getCurrentLanguage() {
-    const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
-    if (storedLang) {
-      const lang = storedLang.split('-')[0];
-      if (['en', 'ru', 'ro'].includes(lang)) {
-        return lang;
-      }
-    }
-    
-    if (typeof i18next !== 'undefined' && i18next.language) {
-      const i18nextLang = i18next.language.split('-')[0];
-      if (['en', 'ru', 'ro'].includes(i18nextLang)) {
-        return i18nextLang;
-      }
-    }
-    
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang) {
-      const lang = htmlLang.split('-')[0];
-      if (['en', 'ru', 'ro'].includes(lang)) {
-        return lang;
-      }
-    }
-    
-    return 'en';
-  }
-
   // Show coupon used notification
   function showCouponUsedNotification(couponCode) {
     try {
@@ -326,7 +383,7 @@
 
       const currentLang = getCurrentLanguage();
       
-      const translations = {
+      const notificationTranslations = {
         en: {
           title: 'Coupon Used!',
           message: 'Thank you for your booking!'
@@ -341,7 +398,7 @@
         }
       };
       
-      const t = translations[currentLang] || translations.en;
+      const t = notificationTranslations[currentLang] || notificationTranslations.en;
 
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
@@ -494,8 +551,8 @@
           mutation.addedNodes.forEach(function (node) {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const priceCalculator = node.querySelector
-                ? node.querySelector("#price-calculator-content")
-                : node.id === "price-calculator-content"
+                ? node.querySelector("#price-calculator-content, #price-calculator-modal")
+                : (node.id === "price-calculator-content" || node.id === "price-calculator-modal")
                 ? node
                 : null;
 
@@ -519,6 +576,7 @@
         ) {
           const target = mutation.target;
           if (
+            target.id === "price-calculator-modal" ||
             target.id === "price-calculator-content" ||
             target.classList.contains("price-calculator-content")
           ) {
@@ -547,7 +605,6 @@
     setupSpinningWheelListener();
     setupBookingSuccessListener();
     setupPriceCalculatorListener();
-    setupCouponValidation();
 
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => {
