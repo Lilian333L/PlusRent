@@ -958,140 +958,157 @@
             }
         }
 
-        // Градиент цветов от серого к красному (по ИНДЕКСУ, а не по значению)
-        function getSegmentColorByIndex(index, totalSegments) {
-            const colorPalette = [
-                'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',      // Серый
-                'linear-gradient(135deg, #a8a29e 0%, #78716c 100%)',      // Тепло-серый
-                'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',      // Желтый
-                'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',      // Оранжевый
-                'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',      // Розово-красный
-                'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',      // Красный
-                'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'       // Темно-красный
-            ];
-            
-            // Если сегментов меньше или равно количеству цветов, берем по порядку
-            if (totalSegments <= colorPalette.length) {
-                return colorPalette[index];
+// Автоматическое назначение цвета на основе ЗНАЧЕНИЯ процента/дней
+function getSegmentColorByIndex(coupon, allCoupons) {
+    // Извлекаем все значения для сортировки
+    const allValues = allCoupons.map(c => {
+        if (c.type === 'percentage') return c.discount_percentage;
+        if (c.type === 'free_days') return c.free_days;
+        return 0;
+    }).sort((a, b) => a - b); // Сортируем по возрастанию
+    
+    // Получаем текущее значение
+    const currentValue = coupon.type === 'percentage' 
+        ? coupon.discount_percentage 
+        : coupon.free_days;
+    
+    // Находим позицию текущего значения среди всех отсортированных
+    const position = allValues.indexOf(currentValue);
+    const totalSegments = allValues.length;
+    
+    // Палитра от серого к красному
+    const colorPalette = [
+        'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',      // Серый (минимальные)
+        'linear-gradient(135deg, #a8a29e 0%, #78716c 100%)',      // Тепло-серый
+        'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',      // Желтый
+        'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',      // Оранжевый
+        'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',      // Розово-красный
+        'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',      // Красный
+        'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'       // Темно-красный (максимальные)
+    ];
+    
+    // Если сегментов меньше или равно количеству цветов
+    if (totalSegments <= colorPalette.length) {
+        return colorPalette[position];
+    }
+    
+    // Если сегментов больше, распределяем цвета пропорционально
+    const colorIndex = Math.floor((position / (totalSegments - 1)) * (colorPalette.length - 1));
+    return colorPalette[colorIndex];
+}
+
+function getWheelSegments() {
+    if (availableCoupons.length === 0) {
+        cachedWheelSegments = [
+            { id: 1, text: '5%', gradient: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)', coupon: null },
+            { id: 2, text: '10%', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', coupon: null },
+            { id: 3, text: '15%', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', coupon: null },
+            { id: 4, text: '20%', gradient: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', coupon: null }
+        ];
+        return cachedWheelSegments;
+    }
+
+    const segments = [];
+    const totalSegments = availableCoupons.length;
+    
+    availableCoupons.forEach((coupon, arrayIndex) => {
+        const visualPosition = arrayIndex;
+        
+        // Получаем цвет по ЗНАЧЕНИЮ купона (не по индексу!)
+        const gradient = getSegmentColorByIndex(coupon, availableCoupons);
+        
+        let segmentText;
+        if (coupon.type === 'percentage') {
+            segmentText = `${coupon.discount_percentage}%`;
+        } else if (coupon.type === 'free_days') {
+            const wheelTranslations = translations.wheel?.wheel_segments || {};
+            if (coupon.free_days === 1 && wheelTranslations['1_day']) {
+                segmentText = wheelTranslations['1_day'];
+            } else if (coupon.free_days === 2 && wheelTranslations['2_days']) {
+                segmentText = wheelTranslations['2_days'];
+            } else if (coupon.free_days === 3 && wheelTranslations['3_days']) {
+                segmentText = wheelTranslations['3_days'];
+            } else if (coupon.free_days === 4 && wheelTranslations['4_days']) {
+                segmentText = wheelTranslations['4_days'];
+            } else if (coupon.free_days === 6 && wheelTranslations['6_days']) {
+                segmentText = wheelTranslations['6_days'];
+            } else {
+                segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
             }
-            
-            // Если сегментов больше, распределяем цвета равномерно
-            const colorIndex = Math.floor((index / totalSegments) * colorPalette.length);
-            return colorPalette[Math.min(colorIndex, colorPalette.length - 1)];
+        } else {
+            segmentText = `${coupon.discount_percentage}%`;
         }
+        
+        segments.push({
+            id: arrayIndex + 1,
+            visualPosition: visualPosition,
+            text: segmentText,
+            gradient: gradient,
+            coupon: coupon
+        });
+    });
 
-        function getWheelSegments() {
-            if (availableCoupons.length === 0) {
-                cachedWheelSegments = [
-                    { id: 1, text: '5%', gradient: 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)', coupon: null },
-                    { id: 2, text: '10%', gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', coupon: null },
-                    { id: 3, text: '15%', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', coupon: null },
-                    { id: 4, text: '20%', gradient: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', coupon: null }
-                ];
-                return cachedWheelSegments;
-            }
+    cachedWheelSegments = segments;
+    return cachedWheelSegments;
+}
 
-            const segments = [];
-            const totalSegments = availableCoupons.length;
-            
-            availableCoupons.forEach((coupon, arrayIndex) => {
-                const visualPosition = arrayIndex;
-                
-                // Получаем цвет по индексу (порядковому номеру)
-                const gradient = getSegmentColorByIndex(arrayIndex, totalSegments);
-                
-                let segmentText;
-                if (coupon.type === 'percentage') {
-                    segmentText = `${coupon.discount_percentage}%`;
-                } else if (coupon.type === 'free_days') {
-                    const wheelTranslations = translations.wheel?.wheel_segments || {};
-                    if (coupon.free_days === 1 && wheelTranslations['1_day']) {
-                        segmentText = wheelTranslations['1_day'];
-                    } else if (coupon.free_days === 2 && wheelTranslations['2_days']) {
-                        segmentText = wheelTranslations['2_days'];
-                    } else if (coupon.free_days === 3 && wheelTranslations['3_days']) {
-                        segmentText = wheelTranslations['3_days'];
-                    } else if (coupon.free_days === 4 && wheelTranslations['4_days']) {
-                        segmentText = wheelTranslations['4_days'];
-                    } else if (coupon.free_days === 6 && wheelTranslations['6_days']) {
-                        segmentText = wheelTranslations['6_days'];
-                    } else {
-                        segmentText = `${coupon.free_days} ${coupon.free_days === 1 ? 'DAY' : 'DAYS'}`;
-                    }
-                } else {
-                    segmentText = `${coupon.discount_percentage}%`;
-                }
-                
-                segments.push({
-                    id: arrayIndex + 1,
-                    visualPosition: visualPosition,
-                    text: segmentText,
-                    gradient: gradient,
-                    coupon: coupon
-                });
-            });
+let isSpinning = false;
+let hasSpun = false;
+let currentRotation = 0;
 
-            cachedWheelSegments = segments;
-            return cachedWheelSegments;
-        }
+const wheel = document.getElementById('wheel');
+const centerButton = document.getElementById('centerButton');
+const instructionsCard = document.getElementById('instructionsCard');
+const resultCard = document.getElementById('resultCard');
+const prizeDisplay = document.getElementById('prizeDisplay');
+const discountCode = document.getElementById('discountCode');
 
-        let isSpinning = false;
-        let hasSpun = false;
-        let currentRotation = 0;
+function createWheelSegments() {
+    const fragment = document.createDocumentFragment();
+    const wheelSegments = getWheelSegments();
+    const segmentAngle = 360 / wheelSegments.length;
 
-        const wheel = document.getElementById('wheel');
-        const centerButton = document.getElementById('centerButton');
-        const instructionsCard = document.getElementById('instructionsCard');
-        const resultCard = document.getElementById('resultCard');
-        const prizeDisplay = document.getElementById('prizeDisplay');
-        const discountCode = document.getElementById('discountCode');
+    wheelSegments.forEach((segment, index) => {
+        const segmentElement = document.createElement('div');
+        segmentElement.className = 'wheel-segment';
+        segmentElement.id = `segment-${segment.id}`;
+        segmentElement.style.background = segment.gradient;
+        
+        const startAngle = segment.visualPosition * segmentAngle;
+        const endAngle = (segment.visualPosition + 1) * segmentAngle;
+        const clipPath = generateClipPath(startAngle, endAngle);
+        segmentElement.style.clipPath = clipPath;
 
-        function createWheelSegments() {
-            const fragment = document.createDocumentFragment();
-            const wheelSegments = getWheelSegments();
-            const segmentAngle = 360 / wheelSegments.length;
+        const visualStartAngle = segment.visualPosition * segmentAngle;
+        const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
+        const middleAngle = (visualStartAngle + visualEndAngle) / 2;
+        const middleRad = (middleAngle - 90) * Math.PI / 180;
+        const textRadius = 35;
+        const textX = 50 + textRadius * Math.cos(middleRad);
+        const textY = 50 + textRadius * Math.sin(middleRad);
+        const textRotation = middleAngle;
+        
+        segmentElement.innerHTML = `
+            <div class="segment-content" style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textRotation}deg);">
+                <div class="segment-icon" style="margin-bottom: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 500 500" fill="none">
+                        <path d="M437.5 208.334L437.5 223.959C446.129 223.959 453.125 216.963 453.125 208.334H437.5ZM395.833 250L380.208 249.999V250H395.833ZM437.5 291.667H453.125C453.125 283.037 446.129 276.042 437.5 276.042L437.5 291.667ZM62.5 291.667V276.042C53.8706 276.042 46.875 283.037 46.875 291.667H62.5ZM104.167 250L119.792 250L119.792 249.999L104.167 250ZM63.5752 208.347L63.9708 192.727C63.9052 192.726 63.8395 192.724 63.7739 192.724L63.5752 208.347ZM62.5 208.334H46.875C46.875 216.886 53.7501 223.849 62.3013 223.957L62.5 208.334ZM395.833 104.167V119.792C410.215 119.792 421.875 131.451 421.875 145.834H437.5H453.125C453.125 114.192 427.474 88.5416 395.833 88.5416V104.167ZM437.5 145.834H421.875V208.334H437.5H453.125V145.834H437.5ZM437.5 208.334L437.5 192.709C405.859 192.709 380.208 218.358 380.208 249.999L395.833 250L411.458 250C411.458 235.618 423.117 223.959 437.5 223.959L437.5 208.334ZM395.833 250H380.208C380.208 281.641 405.859 307.292 437.5 307.292L437.5 291.667L437.5 276.042C423.118 276.042 411.458 264.382 411.458 250H395.833ZM437.5 291.667H421.875V354.167H437.5H453.125V291.667H437.5ZM437.5 354.167H421.875C421.875 368.549 410.215 380.209 395.833 380.209V395.834V411.459C427.474 411.459 453.125 385.808 453.125 354.167H437.5ZM395.833 395.834V380.209H104.167V395.834V411.459H395.833V395.834ZM104.167 395.834V380.209C89.7846 380.209 78.125 368.549 78.125 354.167H62.5H46.875C46.875 385.808 72.5257 411.459 104.167 411.459V395.834ZM62.5 354.167H78.125V291.667H62.5H46.875V354.167H62.5ZM62.5 291.667V307.292C94.1413 307.292 119.792 281.641 119.792 250H104.167H88.542C88.542 264.382 76.8824 276.042 62.5 276.042V291.667ZM104.167 250L119.792 249.999C119.792 218.85 94.9363 193.512 63.9708 192.727L63.5752 208.347L63.1795 223.967C77.2438 224.324 88.5419 235.845 88.542 250L104.167 250ZM63.5752 208.347L63.7739 192.724L62.6987 192.71L62.5 208.334L62.3013 223.957L63.3765 223.971L63.5752 208.347ZM62.5 208.334H78.125V145.834H62.5H46.875V208.334H62.5ZM62.5 145.834H78.125C78.125 131.451 89.7846 119.792 104.167 119.792V104.167V88.5416C72.5257 88.5416 46.875 114.192 46.875 145.834H62.5ZM104.167 104.167V119.792H395.833V104.167V88.5416H104.167V104.167Z" fill="white"/>
+                        <path d="M312.5 104.167V145.833" stroke="white" stroke-width="41.6667" stroke-linecap="round"/>
+                        <path d="M312.5 229.167V270.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M312.5 354.167V395.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="segment-text">${segment.text}</div>
+            </div>
+        `;
 
-            wheelSegments.forEach((segment, index) => {
-                const segmentElement = document.createElement('div');
-                segmentElement.className = 'wheel-segment';
-                segmentElement.id = `segment-${segment.id}`;
-                segmentElement.style.background = segment.gradient;
-                
-                const startAngle = segment.visualPosition * segmentAngle;
-                const endAngle = (segment.visualPosition + 1) * segmentAngle;
-                const clipPath = generateClipPath(startAngle, endAngle);
-                segmentElement.style.clipPath = clipPath;
-
-                const visualStartAngle = segment.visualPosition * segmentAngle;
-                const visualEndAngle = (segment.visualPosition + 1) * segmentAngle;
-                const middleAngle = (visualStartAngle + visualEndAngle) / 2;
-                const middleRad = (middleAngle - 90) * Math.PI / 180;
-                const textRadius = 35;
-                const textX = 50 + textRadius * Math.cos(middleRad);
-                const textY = 50 + textRadius * Math.sin(middleRad);
-                const textRotation = middleAngle;
-                
-                segmentElement.innerHTML = `
-                    <div class="segment-content" style="position: absolute; left: ${textX}%; top: ${textY}%; transform: translate(-50%, -50%) rotate(${textRotation}deg);">
-                        <div class="segment-icon" style="margin-bottom: 8px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 500 500" fill="none">
-                                <path d="M437.5 208.334L437.5 223.959C446.129 223.959 453.125 216.963 453.125 208.334H437.5ZM395.833 250L380.208 249.999V250H395.833ZM437.5 291.667H453.125C453.125 283.037 446.129 276.042 437.5 276.042L437.5 291.667ZM62.5 291.667V276.042C53.8706 276.042 46.875 283.037 46.875 291.667H62.5ZM104.167 250L119.792 250L119.792 249.999L104.167 250ZM63.5752 208.347L63.9708 192.727C63.9052 192.726 63.8395 192.724 63.7739 192.724L63.5752 208.347ZM62.5 208.334H46.875C46.875 216.886 53.7501 223.849 62.3013 223.957L62.5 208.334ZM395.833 104.167V119.792C410.215 119.792 421.875 131.451 421.875 145.834H437.5H453.125C453.125 114.192 427.474 88.5416 395.833 88.5416V104.167ZM437.5 145.834H421.875V208.334H437.5H453.125V145.834H437.5ZM437.5 208.334L437.5 192.709C405.859 192.709 380.208 218.358 380.208 249.999L395.833 250L411.458 250C411.458 235.618 423.117 223.959 437.5 223.959L437.5 208.334ZM395.833 250H380.208C380.208 281.641 405.859 307.292 437.5 307.292L437.5 291.667L437.5 276.042C423.118 276.042 411.458 264.382 411.458 250H395.833ZM437.5 291.667H421.875V354.167H437.5H453.125V291.667H437.5ZM437.5 354.167H421.875C421.875 368.549 410.215 380.209 395.833 380.209V395.834V411.459C427.474 411.459 453.125 385.808 453.125 354.167H437.5ZM395.833 395.834V380.209H104.167V395.834V411.459H395.833V395.834ZM104.167 395.834V380.209C89.7846 380.209 78.125 368.549 78.125 354.167H62.5H46.875C46.875 385.808 72.5257 411.459 104.167 411.459V395.834ZM62.5 354.167H78.125V291.667H62.5H46.875V354.167H62.5ZM62.5 291.667V307.292C94.1413 307.292 119.792 281.641 119.792 250H104.167H88.542C88.542 264.382 76.8824 276.042 62.5 276.042V291.667ZM104.167 250L119.792 249.999C119.792 218.85 94.9363 193.512 63.9708 192.727L63.5752 208.347L63.1795 223.967C77.2438 224.324 88.5419 235.845 88.542 250L104.167 250ZM63.5752 208.347L63.7739 192.724L62.6987 192.71L62.5 208.334L62.3013 223.957L63.3765 223.971L63.5752 208.347ZM62.5 208.334H78.125V145.834H62.5H46.875V208.334H62.5ZM62.5 145.834H78.125C78.125 131.451 89.7846 119.792 104.167 119.792V104.167V88.5416C72.5257 88.5416 46.875 114.192 46.875 145.834H62.5ZM104.167 104.167V119.792H395.833V104.167V88.5416H104.167V104.167Z" fill="white"/>
-                                <path d="M312.5 104.167V145.833" stroke="white" stroke-width="41.6667" stroke-linecap="round"/>
-                                <path d="M312.5 229.167V270.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M312.5 354.167V395.833" stroke="white" stroke-width="31.25" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <div class="segment-text">${segment.text}</div>
-                    </div>
-                `;
-
-                fragment.appendChild(segmentElement);
-            });
-            
-            wheel.innerHTML = '';
-            wheel.appendChild(fragment);
-            addSegmentBorders(wheelSegments.length);
-        }
+        fragment.appendChild(segmentElement);
+    });
+    
+    wheel.innerHTML = '';
+    wheel.appendChild(fragment);
+    addSegmentBorders(wheelSegments.length);
+}
 
         function generateClipPath(startAngle, endAngle) {
             const centerX = 50;
