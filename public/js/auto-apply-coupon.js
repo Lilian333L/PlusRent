@@ -1,10 +1,7 @@
 /**
- * Auto-Apply Coupon Script
- * Automatically applies saved coupon codes from localStorage to car single pages
- * and removes them after successful booking
- * 
- * NOTE: This script works together with universal-spinning-wheel-modal.js
- * It uses the notification system from that file to avoid duplicate notifications
+ * Auto-Apply Coupon Script with Phone Validation
+ * Automatically applies saved coupon codes and validates them with phone numbers
+ * Prevents duplicate error notifications
  */
 
 (function () {
@@ -17,7 +14,188 @@
       '#modal-discount-code, #discountCode, input[name="discount_code"]',
     bookingFormSelector: "#booking_form",
     successModalSelector: "#booking-success-modal",
+    validationCooldown: 1000, // 1 second between validations
   };
+
+  // Global state to prevent duplicate validations
+  let validationState = {
+    inProgress: false,
+    lastValidationTime: 0,
+    lastErrorMessage: null,
+    lastErrorTime: 0,
+  };
+
+  // Debounce utility
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // Show error message (with duplicate prevention)
+  function showCouponError(message) {
+    const now = Date.now();
+    
+    // Prevent showing the same error multiple times within cooldown period
+    if (
+      validationState.lastErrorMessage === message &&
+      now - validationState.lastErrorTime < CONFIG.validationCooldown
+    ) {
+      console.log('⏱️ Duplicate error prevented:', message);
+      return;
+    }
+    
+    validationState.lastErrorMessage = message;
+    validationState.lastErrorTime = now;
+    
+    const errorContainer = document.getElementById('coupon-error-message');
+    if (errorContainer) {
+      // Clear previous message
+      errorContainer.textContent = '';
+      errorContainer.style.display = 'none';
+      
+      // Show new message after small delay for smoothness
+      setTimeout(() => {
+        errorContainer.textContent = message;
+        errorContainer.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          if (errorContainer.textContent === message) {
+            errorContainer.style.display = 'none';
+          }
+        }, 5000);
+      }, 50);
+    }
+    
+    // Show toast notification (only once per message)
+    if (typeof window.showError === 'function') {
+      window.showError(message);
+    }
+  }
+
+  // Clear error message
+  function clearCouponError() {
+    validationState.lastErrorMessage = null;
+    validationState.lastErrorTime = 0;
+    
+    const errorContainer = document.getElementById('coupon-error-message');
+    if (errorContainer) {
+      errorContainer.textContent = '';
+      errorContainer.style.display = 'none';
+    }
+  }
+
+  // Validate coupon with phone number
+  async function validateCouponWithPhone(couponCode, phoneNumber) {
+    const now = Date.now();
+    
+    // Prevent duplicate validations
+    if (validationState.inProgress) {
+      console.log('⏳ Validation already in progress, skipping...');
+      return null;
+    }
+    
+    if (now - validationState.lastValidationTime < CONFIG.validationCooldown) {
+      console.log('⏱️ Validation cooldown active, skipping...');
+      return null;
+    }
+    
+    if (!couponCode || !phoneNumber) {
+      return null;
+    }
+    
+    validationState.inProgress = true;
+    validationState.lastValidationTime = now;
+    
+    try {
+      console.log('🔍 Validating coupon:', couponCode, 'for phone:', phoneNumber);
+      
+      const response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-with-phone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: couponCode,
+          phone: phoneNumber
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.valid) {
+        console.log('✅ Coupon valid:', data);
+        clearCouponError();
+        return data;
+      } else {
+        console.log('❌ Coupon invalid:', data.message);
+        showCouponError(data.message || 'Invalid coupon code');
+        return null;
+      }
+      
+    } catch (error) {
+      console.error('❌ Coupon validation error:', error);
+      showCouponError('Failed to validate coupon. Please try again.');
+      return null;
+      
+    } finally {
+      validationState.inProgress = false;
+    }
+  }
+
+  // Debounced validation (500ms delay)
+  const debouncedValidation = debounce(async function(couponCode, phoneNumber) {
+    await validateCouponWithPhone(couponCode, phoneNumber);
+  }, 500);
+
+  // Setup coupon validation listeners
+  function setupCouponValidation() {
+    const couponInput = document.getElementById('modal-discount-code');
+    const phoneInput = document.getElementById('phone');
+    
+    if (!couponInput || !phoneInput) {
+      console.log('⚠️ Coupon or phone input not found');
+      return;
+    }
+    
+    // Remove existing listeners by cloning nodes
+    const newCouponInput = couponInput.cloneNode(true);
+    couponInput.parentNode.replaceChild(newCouponInput, couponInput);
+    
+    const newPhoneInput = phoneInput.cloneNode(true);
+    phoneInput.parentNode.replaceChild(newPhoneInput, phoneInput);
+    
+    // Add single input listener with debounce
+    newCouponInput.addEventListener('input', function() {
+      const code = this.value.trim();
+      const phone = newPhoneInput.value.trim();
+      
+      if (code && phone) {
+        debouncedValidation(code, phone);
+      } else if (!code) {
+        clearCouponError();
+      }
+    });
+    
+    // Add phone input listener with debounce
+    newPhoneInput.addEventListener('input', function() {
+      const phone = this.value.trim();
+      const code = newCouponInput.value.trim();
+      
+      if (code && phone) {
+        debouncedValidation(code, phone);
+      }
+    });
+    
+    console.log('✅ Coupon validation setup complete');
+  }
 
   // Auto-apply coupon when page loads
   function autoApplyCoupon() {
@@ -30,10 +208,9 @@
         return;
       }
 
-      // Check if there's a saved coupon (check both keys)
+      // Check if there's a saved coupon
       let savedCoupon = localStorage.getItem(CONFIG.storageKey);
 
-      // If no coupon in autoApplyCoupon, check spinningWheelWinningCoupon
       if (!savedCoupon) {
         savedCoupon = localStorage.getItem("spinningWheelWinningCoupon");
       }
@@ -42,7 +219,7 @@
         return;
       }
 
-      // Find the discount code input (try multiple selectors)
+      // Find the discount code input
       const selectors = CONFIG.discountCodeInputSelector.split(", ");
       let discountInput = null;
 
@@ -59,16 +236,16 @@
 
       // Only apply if field is empty and not focused
       if (discountInput.value && discountInput.value.trim().length > 0) {
-        return; // Don't overwrite user input
+        return;
       }
 
       if (document.activeElement === discountInput) {
-        return; // Don't overwrite while user is typing
+        return;
       }
 
       // Apply the coupon code
       discountInput.value = savedCoupon;
-      window.__autoCouponAppliedOnce = true; // Mark as applied
+      window.__autoCouponAppliedOnce = true;
 
       if (
         window.priceCalculator &&
@@ -76,19 +253,17 @@
       ) {
         window.priceCalculator.validateAndShowCoupon(savedCoupon);
       } else {
-        // Fallback: trigger blur event for validation
+        // Trigger blur event for validation (only once)
         setTimeout(() => {
-          discountInput.dispatchEvent(new Event("blur"));
+          discountInput.dispatchEvent(new Event("blur", { bubbles: true }));
         }, 100);
       }
 
-      // Trigger change event to notify other scripts
-      const changeEvent = new Event("change", { bubbles: true });
-      discountInput.dispatchEvent(changeEvent);
+      // Trigger change event (only once)
+      setTimeout(() => {
+        discountInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }, 150);
 
-      // Also trigger input event
-      const inputEvent = new Event("input", { bubbles: true });
-      discountInput.dispatchEvent(inputEvent);
     } catch (error) {
       console.error("Error auto-applying coupon:", error);
     }
@@ -97,31 +272,25 @@
   // Remove coupon from localStorage after successful booking
   function removeCouponAfterBooking() {
     try {
-      // Check if there's a saved coupon
       const savedCoupon = localStorage.getItem(CONFIG.storageKey);
-      const spinningWheelCoupon = localStorage.getItem(
-        "spinningWheelWinningCoupon"
-      );
+      const spinningWheelCoupon = localStorage.getItem("spinningWheelWinningCoupon");
 
       if (!savedCoupon && !spinningWheelCoupon) {
         return;
       }
 
-      // Remove the coupon and reward received flag
       localStorage.removeItem(CONFIG.storageKey);
       localStorage.removeItem("spinningWheelWinningCoupon");
       localStorage.removeItem("spinningWheelRewardReceived");
       
-      // Show "coupon used" notification
       showCouponUsedNotification(savedCoupon || spinningWheelCoupon);
     } catch (error) {
       console.error("Error removing coupon:", error);
     }
   }
 
-  // Get current language from multiple sources
+  // Get current language
   function getCurrentLanguage() {
-    // 1. Check localStorage
     const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
     if (storedLang) {
       const lang = storedLang.split('-')[0];
@@ -130,7 +299,6 @@
       }
     }
     
-    // 2. Check i18next if available
     if (typeof i18next !== 'undefined' && i18next.language) {
       const i18nextLang = i18next.language.split('-')[0];
       if (['en', 'ru', 'ro'].includes(i18nextLang)) {
@@ -138,7 +306,6 @@
       }
     }
     
-    // 3. Check HTML lang attribute
     const htmlLang = document.documentElement.lang;
     if (htmlLang) {
       const lang = htmlLang.split('-')[0];
@@ -147,14 +314,12 @@
       }
     }
     
-    // 4. Default to English
     return 'en';
   }
 
-  // Show feedback that coupon was used (after booking completion)
+  // Show coupon used notification
   function showCouponUsedNotification(couponCode) {
     try {
-      // Check if notification already exists to prevent duplicates
       if (document.getElementById('coupon-used-notification')) {
         return;
       }
@@ -178,12 +343,10 @@
       
       const t = translations[currentLang] || translations.en;
 
-      // Create notification element
       const notification = document.createElement("div");
       notification.id = "coupon-used-notification";
       notification.className = 'coupon-notification-container';
       
-      // Create confetti elements (less confetti for "used" notification)
       const confettiColors = ['#FFD700', '#00CED1', '#32CD32'];
       let confettiHTML = '';
       for (let i = 0; i < 4; i++) {
@@ -226,10 +389,8 @@
         </div>
       `;
 
-      // Add to page
       document.body.appendChild(notification);
 
-      // Auto-remove after 5 seconds
       setTimeout(() => {
         if (notification.parentNode) {
           notification.style.animation = 'slideInBounce 0.4s ease-out reverse';
@@ -248,18 +409,15 @@
 
   // Monitor for successful booking completion
   function setupBookingSuccessListener() {
-    // Listen for booking success events
     document.addEventListener("bookingSuccess", function (event) {
       removeCouponAfterBooking();
     });
 
-    // Also monitor for success modal appearance
     const observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
         if (mutation.type === "childList") {
           mutation.addedNodes.forEach(function (node) {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              // Check if success modal was added
               if (
                 node.id === "booking-success-modal" ||
                 (node.querySelector &&
@@ -273,43 +431,15 @@
       });
     });
 
-    // Start observing
     observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
   }
 
-  // Initialize the auto-apply functionality
-  function init() {
-    // Setup spinning wheel submit button listener
-    setupSpinningWheelListener();
-
-    // Setup booking success monitoring
-    setupBookingSuccessListener();
-
-    // Setup price calculator modal listener
-    setupPriceCalculatorListener();
-
-    // Auto-apply on page load (for single car pages)
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-          autoApplyCoupon();
-        }, 500);
-      });
-    } else {
-      setTimeout(() => {
-        autoApplyCoupon();
-      }, 500);
-    }
-  }
-
   // Listen for spinning wheel submit button clicks
   function setupSpinningWheelListener() {
-    // Listen for clicks on booking form submit buttons
     document.addEventListener("click", function (event) {
-      // Check if it's a booking form submit button (not the spinning wheel phone form)
       if (
         event.target &&
         (event.target.textContent === "TRIMITE" ||
@@ -326,13 +456,11 @@
                 .closest("button")
                 .textContent.includes("Aplică la Rezervare"))))
       ) {
-        // Make sure it's not the spinning wheel phone form continue button
         const isSpinningWheelContinue =
           event.target.closest(".spinning-wheel-phone-step") ||
           event.target.closest("#universalPhoneStep");
 
         if (!isSpinningWheelContinue) {
-          // Small delay to ensure the form is ready
           setTimeout(() => {
             autoApplyCoupon();
           }, 500);
@@ -340,15 +468,11 @@
       }
     });
 
-    // Hook into the quickbook modal's applyModalCalculation function
-    // Wait for the function to be available
     const checkForApplyModalCalculation = () => {
       if (window.applyModalCalculation) {
         const originalApplyModalCalculation = window.applyModalCalculation;
         window.applyModalCalculation = function () {
-          // Call the original function first
           const result = originalApplyModalCalculation.apply(this, arguments);
-          // Then trigger auto-apply
           setTimeout(() => {
             autoApplyCoupon();
           }, 100);
@@ -359,19 +483,16 @@
       }
     };
 
-    // Start checking for the function
     checkForApplyModalCalculation();
   }
 
   // Listen for price calculator modal opening
   function setupPriceCalculatorListener() {
-    // Use MutationObserver to detect when the price calculator modal is opened
     const observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
         if (mutation.type === "childList") {
           mutation.addedNodes.forEach(function (node) {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              // Check if price calculator modal was added or made visible
               const priceCalculator = node.querySelector
                 ? node.querySelector("#price-calculator-content")
                 : node.id === "price-calculator-content"
@@ -383,16 +504,15 @@
                 (node.classList &&
                   node.classList.contains("price-calculator-content"))
               ) {
-                // Small delay to ensure the modal is fully rendered
                 setTimeout(() => {
                   autoApplyCoupon();
+                  setupCouponValidation();
                 }, 200);
               }
             }
           });
         }
 
-        // Also check for style changes that might show the modal
         if (
           mutation.type === "attributes" &&
           mutation.attributeName === "style"
@@ -406,6 +526,7 @@
             if (style === "block" || style === "flex" || !style) {
               setTimeout(() => {
                 autoApplyCoupon();
+                setupCouponValidation();
               }, 200);
             }
           }
@@ -413,7 +534,6 @@
       });
     });
 
-    // Start observing
     observer.observe(document.body, {
       childList: true,
       subtree: true,
@@ -422,12 +542,33 @@
     });
   }
 
-  // Initialize when script loads
+  // Initialize
+  function init() {
+    setupSpinningWheelListener();
+    setupBookingSuccessListener();
+    setupPriceCalculatorListener();
+    setupCouponValidation();
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          autoApplyCoupon();
+          setupCouponValidation();
+        }, 500);
+      });
+    } else {
+      setTimeout(() => {
+        autoApplyCoupon();
+        setupCouponValidation();
+      }, 500);
+    }
+  }
+
   init();
 
-  // Export for global access if needed
   window.AutoApplyCoupon = {
     autoApply: autoApplyCoupon,
     removeAfterBooking: removeCouponAfterBooking,
+    validateCoupon: validateCouponWithPhone,
   };
 })();
