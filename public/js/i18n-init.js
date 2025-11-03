@@ -28,7 +28,7 @@ function initI18n() {
     }
     
     // Default fallback if language not supported
-    return 'en';
+    return 'ro';
   }
   
 
@@ -47,7 +47,7 @@ function initI18n() {
       .use(i18nextHttpBackend)
       .init({
         lng: initialLang,
-        fallbackLng: 'en',
+        fallbackLng: 'ro',
         debug: false,
         backend: {
           loadPath: 'js/locales/{{lng}}.json'
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
     langOptions.forEach(function(opt) {
       opt.addEventListener('click', function(e) {
         var lang = opt.getAttribute('data-lang');
-        var currentLang = localStorage.getItem('lang') || 'en';
+        var currentLang = localStorage.getItem('lang') || 'ro';
         
         // Only proceed if language is actually changing
         if (lang !== currentLang) {
