@@ -563,28 +563,6 @@ $(document).ready(function () {
     $(this).siblings(".field-error").remove();
   });
 });
-
-async function markReturnGiftAsRedeemed(userId, giftId) {
-    try {
-        const response = await fetch('/api/spinning-wheels/mark-return-gift-redeemed', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId, giftId })
-        });
-        
-        if (!response.ok) {
-            console.error('API returned error:', response.status);
-            return false;
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Failed to mark return gift as redeemed:', error);
-        return false;
-    }
-}
 async function openPriceCalculator() {
   // Since we removed date/time fields from main form, we'll set default values
   const today = new Date();
@@ -2673,7 +2651,8 @@ async function loadReturningCustomerModal() {
   }
 }
 
-// Mark return gift as redeemed
+// Удалите обе старые функции и добавьте эту ОДНУ правильную функцию
+
 async function markReturnGiftAsRedeemed() {
   try {
     // Get the phone number from the form
@@ -2684,30 +2663,33 @@ async function markReturnGiftAsRedeemed() {
     const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
 
     if (!phoneNumber) {
+      console.log('⚠️ No phone number found');
       return;
     }
 
-    // Call the API to mark return gift as redeemed
+    console.log('📞 Marking return gift as redeemed for:', phoneNumber);
+
+    // ✅ ИСПРАВЛЕНО: Правильный URL и параметр
     const response = await fetch(
-      "/api/spinning-wheels/mark-return-gift-redeemed",
+      "/api/bookings/mark-return-gift-redeemed",  // ← ИСПРАВЛЕНО
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ phoneNumber: phoneNumber }),
+        body: JSON.stringify({ phone_number: phoneNumber }),  // ← ИСПРАВЛЕНО
       }
     );
 
     if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Return gift marked as redeemed:', result);
     } else {
-      console.error(
-        "Failed to mark return gift as redeemed:",
-        response.statusText
-      );
+      const errorData = await response.json();
+      console.error('❌ Failed to mark return gift:', errorData);
     }
   } catch (error) {
-    console.error("Error marking return gift as redeemed:", error);
+    console.error("❌ Error marking return gift as redeemed:", error);
   }
 }
 
