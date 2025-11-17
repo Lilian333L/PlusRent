@@ -894,9 +894,10 @@ function showBonusNotification() {
         gap: 8px;
     `;
     
+    // С ПЕРЕВОДАМИ
     notification.innerHTML = `
         <span style="font-size: 20px;">🎁</span>
-        <span>Your bonus is ready! Opening in <span id="bonus-countdown">4</span>s...</span>
+        <span>${getCurrentLanguage() === 'ru' ? 'Ваш бонус готов! Открытие через' : getCurrentLanguage() === 'ro' ? 'Bonusul tău este gata! Se deschide în' : 'Your bonus is ready! Opening in'} <span id="bonus-countdown">4</span>${getCurrentLanguage() === 'ru' ? ' сек...' : 's...'}</span>
     `;
     
     // Добавить CSS анимацию
