@@ -820,133 +820,219 @@
         if (privacyText) privacyText.textContent = t('privacyText');
     }
 
-    function showModal(options = {}) {
-        if (!state.modal) return;
-        
-        if (state.userClosedModal) {
-            console.log('⏸️ User manually closed modal, not showing again');
-            return;
-        }
-        
-        if (isAnyModalOpen()) {
-            console.log('⏳ Another modal is open, delaying spinning wheel...');
-            
-            if (state.modalCheckInterval) {
-                clearInterval(state.modalCheckInterval);
-            }
-            
-            state.modalCheckInterval = setInterval(() => {
-                if (!isAnyModalOpen() && !state.userClosedModal) {
-                    console.log('✅ Other modals closed, showing spinning wheel now');
-                    clearInterval(state.modalCheckInterval);
-                    state.modalCheckInterval = null;
-                    showModal(options);
-                }
-            }, 1000);
-            
-            return;
-        }
-        
-        // Block body scroll
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        document.body.style.top = `-${window.scrollY}px`;
-        
-        updateModalTranslations();
-        
-        const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
-        
-        if (options.wheelId) {
-            const iframe = document.getElementById('universalSpinningWheelIframe');
-            if (iframe) {
-                const baseSrc = CONFIG.iframeSrc;
-                const separator = baseSrc.includes('?') ? '&' : '?';
-                iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
-            }
-        }
-        
-        const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
-        
-        if (skipPhoneStep) {
-            const phoneStep = document.getElementById('universalPhoneStep');
-            const wheelStep = document.getElementById('universalWheelStep');
-            
-            if (phoneStep && wheelStep) {
-                phoneStep.style.display = 'none';
-                wheelStep.style.display = 'flex';
-                
-                if (modalContent) {
-                    modalContent.classList.remove('phone-step');
-                    modalContent.classList.add('wheel-step');
-                }
-                
-                if (phoneNumber) {
-                    localStorage.setItem('spinningWheelPhone', phoneNumber);
-                    localStorage.setItem('spinningWheelPhoneEntered', 'true');
-                    
-                    setTimeout(() => {
-                        const iframe = document.getElementById('universalSpinningWheelIframe');
-                        if (iframe && iframe.contentWindow) {
-                            iframe.contentWindow.postMessage({
-                                type: 'phoneNumberEntered',
-                                phoneNumber: phoneNumber,
-                                wheelType: wheelType
-                            }, '*');
-                        }
-                    }, 500);
-                }
-            }
-        } else {
-            const phoneStep = document.getElementById('universalPhoneStep');
-            const wheelStep = document.getElementById('universalWheelStep');
-            
-            if (phoneStep && wheelStep) {
-                phoneStep.style.display = 'flex';
-                wheelStep.style.display = 'none';
-                
-                if (modalContent) {
-                    modalContent.classList.remove('wheel-step');
-                    modalContent.classList.add('phone-step');
-                }
-            }
-        }
-        
-        state.modal.style.display = 'flex';
-        state.modal.offsetHeight;
-        
-        setTimeout(() => {
-            state.modal.classList.add('show');
-        }, 10);
-        
-        console.log('🎡 Spinning wheel modal shown');
+function showModal(options = {}) {
+    if (!state.modal) return;
+    
+    if (state.userClosedModal) {
+        console.log('⏸️ User manually closed modal, not showing again');
+        return;
     }
+    
+    // УМНАЯ ЛОГИКА: Даём время прочитать success модалку, потом показываем рулетку
+    if (isAnyModalOpen()) {
+        console.log('⏳ Another modal is open, will show spinning wheel in 4 seconds...');
+        
+        // Показать уведомление на success модалке
+        showBonusNotification();
+        
+        // Подождать 4 секунды, потом показать рулетку
+        setTimeout(() => {
+            if (!state.userClosedModal) {
+                console.log('✅ Showing spinning wheel now...');
+                
+                // Закрыть все открытые модалки
+                const openModals = document.querySelectorAll('.modal.show, .modal.active, [role="dialog"][style*="display: block"]');
+                openModals.forEach(modal => {
+                    modal.style.display = 'none';
+                    modal.classList.remove('show', 'active');
+                });
+                
+                // Убрать modal-open класс с body
+                document.body.classList.remove('modal-open', 'no-scroll', 'overflow-hidden');
+                
+                // Небольшая задержка для плавности
+                setTimeout(() => {
+                    showModalInternal(options);
+                }, 200);
+            }
+        }, 4000); // 4 секунды на чтение success модалки
+        
+        return;
+    }
+    
+    showModalInternal(options);
+}
 
-    function closeModal() {
-        if (!state.modal) return;
-        
-        state.userClosedModal = true;
-        console.log('❌ User closed modal manually');
-        
-        if (state.modalCheckInterval) {
-            clearInterval(state.modalCheckInterval);
-            state.modalCheckInterval = null;
-        }
-        
-        state.modal.classList.remove('show');
-        
-        setTimeout(() => {
-            state.modal.style.display = 'none';
-            
-            // Restore body scroll
-            const scrollY = document.body.style.top;
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.overflow = '';
-            document.body.style.width = '';
-            window.scrollTo(0, parseInt(scrollY || '0') * -1);
-        }, 300);
+// НОВАЯ функция - показать уведомление на success модалке
+function showBonusNotification() {
+    // Найти success модалку
+    const successModal = document.querySelector('.booking-success-modal, #booking-success-modal, .success-modal');
+    if (!successModal) return;
+    
+    // Проверить не добавлено ли уже уведомление
+    if (document.getElementById('bonus-notification')) return;
+    
+    // Создать уведомление
+    const notification = document.createElement('div');
+    notification.id = 'bonus-notification';
+    notification.style.cssText = `
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        z-index: 10000;
+        animation: bonusPulse 2s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    notification.innerHTML = `
+        <span style="font-size: 20px;">🎁</span>
+        <span>Your bonus is ready! Opening in <span id="bonus-countdown">4</span>s...</span>
+    `;
+    
+    // Добавить CSS анимацию
+    if (!document.getElementById('bonus-notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'bonus-notification-styles';
+        style.textContent = `
+            @keyframes bonusPulse {
+                0%, 100% { transform: translateX(-50%) scale(1); }
+                50% { transform: translateX(-50%) scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
     }
+    
+    successModal.appendChild(notification);
+    
+    // Countdown
+    let seconds = 4;
+    const countdownInterval = setInterval(() => {
+        seconds--;
+        const countdownEl = document.getElementById('bonus-countdown');
+        if (countdownEl) {
+            countdownEl.textContent = seconds;
+        }
+        if (seconds <= 0) {
+            clearInterval(countdownInterval);
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }
+    }, 1000);
+}
+
+// НОВАЯ функция - вынесли логику показа модалки
+function showModalInternal(options = {}) {
+    // Block body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = `-${window.scrollY}px`;
+    
+    updateModalTranslations();
+    
+    const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
+    
+    if (options.wheelId) {
+        const iframe = document.getElementById('universalSpinningWheelIframe');
+        if (iframe) {
+            const baseSrc = CONFIG.iframeSrc;
+            const separator = baseSrc.includes('?') ? '&' : '?';
+            iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
+        }
+    }
+    
+    const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
+    
+    if (skipPhoneStep) {
+        const phoneStep = document.getElementById('universalPhoneStep');
+        const wheelStep = document.getElementById('universalWheelStep');
+        
+        if (phoneStep && wheelStep) {
+            phoneStep.style.display = 'none';
+            wheelStep.style.display = 'flex';
+            
+            if (modalContent) {
+                modalContent.classList.remove('phone-step');
+                modalContent.classList.add('wheel-step');
+            }
+            
+            if (phoneNumber) {
+                localStorage.setItem('spinningWheelPhone', phoneNumber);
+                localStorage.setItem('spinningWheelPhoneEntered', 'true');
+                
+                setTimeout(() => {
+                    const iframe = document.getElementById('universalSpinningWheelIframe');
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                            type: 'phoneNumberEntered',
+                            phoneNumber: phoneNumber,
+                            wheelType: wheelType
+                        }, '*');
+                    }
+                }, 500);
+            }
+        }
+    } else {
+        const phoneStep = document.getElementById('universalPhoneStep');
+        const wheelStep = document.getElementById('universalWheelStep');
+        
+        if (phoneStep && wheelStep) {
+            phoneStep.style.display = 'flex';
+            wheelStep.style.display = 'none';
+            
+            if (modalContent) {
+                modalContent.classList.remove('wheel-step');
+                modalContent.classList.add('phone-step');
+            }
+        }
+    }
+    
+    state.modal.style.display = 'flex';
+    state.modal.offsetHeight;
+    
+    setTimeout(() => {
+        state.modal.classList.add('show');
+    }, 10);
+    
+    console.log('🎡 Spinning wheel modal shown');
+}
+
+function closeModal() {
+    if (!state.modal) return;
+    
+    state.userClosedModal = true;
+    console.log('❌ User closed modal manually');
+    
+    if (state.modalCheckInterval) {
+        clearInterval(state.modalCheckInterval);
+        state.modalCheckInterval = null;
+    }
+    
+    state.modal.classList.remove('show');
+    
+    setTimeout(() => {
+        state.modal.style.display = 'none';
+        
+        // Restore body scroll
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.overflow = '';
+        document.body.style.width = '';
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }, 300);
+}
 
     function cleanup() {
         if (state.timer) {
