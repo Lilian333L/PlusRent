@@ -1756,7 +1756,11 @@ function closeModal() {
         show: showModal,
         close: closeModal,
         init: init,
-        fetchWheelIdByType: fetchWheelIdByType
+        fetchWheelIdByType: fetchWheelIdByType,
+        resetClosedFlag: function() {
+            state.userClosedModal = false;
+            console.log('✅ Spinning wheel reset - can show again');
+        }
     };
 
 })();
