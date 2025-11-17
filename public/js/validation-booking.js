@@ -564,6 +564,27 @@ $(document).ready(function () {
   });
 });
 
+async function markReturnGiftAsRedeemed(userId, giftId) {
+    try {
+        const response = await fetch('/api/spinning-wheels/mark-return-gift-redeemed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, giftId })
+        });
+        
+        if (!response.ok) {
+            console.error('API returned error:', response.status);
+            return false;
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to mark return gift as redeemed:', error);
+        return false;
+    }
+}
 async function openPriceCalculator() {
   // Since we removed date/time fields from main form, we'll set default values
   const today = new Date();
