@@ -148,19 +148,16 @@
     }
 
     function hasSeenModalToday() {
+        // Проверяем получал ли пользователь награду КОГДА-ЛИБО
         const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
-            return true;
+            return true; // Не показывать, если уже получил награду
         }
-        
-        const lastSeen = localStorage.getItem(CONFIG.storageKey);
-        if (!lastSeen) return false;
-        
-        const lastSeenDate = new Date(lastSeen);
-        const today = new Date();
-        
-        return lastSeenDate.toDateString() === today.toDateString();
+
+        // Если награды не было - можно показывать
+        return false;
     }
+
 
     function getTotalWebsiteTime() {
         const startTime = localStorage.getItem('websiteStartTime');
