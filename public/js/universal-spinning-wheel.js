@@ -11,7 +11,7 @@
         delay: 30 * 1000,
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
-        iframeSrc: 'spinning-wheel-standalone.html',
+        iframeSrc: '/spinning-wheel-standalone.html',
         zIndex: 9999
     };
 
