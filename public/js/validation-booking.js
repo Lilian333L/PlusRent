@@ -2503,6 +2503,10 @@ async function loadReturningCustomerModal() {
 
         // Mark return gift as redeemed before opening the spinning wheel
         await markReturnGiftAsRedeemed();
+        // ✅ ДОБАВЬТЕ ЭТУ СТРОКУ - Сбросить флаг закрытия рулетки
+        if (window.UniversalSpinningWheel && window.UniversalSpinningWheel.resetClosedFlag) {
+          window.UniversalSpinningWheel.resetClosedFlag();
+        }
 
         // Close the modal
         const modal = document.getElementById("returningCustomerModal");
