@@ -194,6 +194,58 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
         .status(500)
         .json({ error: "Failed to create booking: " + error.message });
     }
+// ========== RETURN GIFT LOGIC - AWARD AT EVERY NTH BOOKING ==========
+try {
+  // Track phone number first
+  if (customer_phone) {
+    const { normalizePhoneNumber } = require("../lib/phoneNumberTracker");
+    const normalizedPhoneNumber = normalizePhoneNumber(customer_phone);
+    
+    // Get phone number record to check booking count
+    const { data: phoneRecord, error: phoneError } = await supabase
+      .from("phone_numbers")
+      .select("id, bookings_ids")
+      .eq("phone_number", normalizedPhoneNumber)
+      .single();
+    
+    if (phoneRecord && phoneRecord.bookings_ids) {
+      const totalBookings = phoneRecord.bookings_ids.length;
+      
+      // Get the trigger setting from global_settings (default to 2)
+      const { data: settings } = await supabase
+        .from("global_settings")
+        .select("setting_value")
+        .eq("setting_key", "returning_customer_booking_trigger")
+        .single();
+      
+      const triggerInterval = settings?.setting_value ? parseInt(settings.setting_value) : 2;
+      
+      // Check if this booking number is a multiple of the trigger interval
+      // Example: if trigger is 2, then award at 2nd, 4th, 6th, 8th... booking
+      if (totalBookings % triggerInterval === 0 && totalBookings > 0) {
+        console.log(`✅ Booking #${totalBookings} - Awarding return gift!`);
+        
+        // Update phone_numbers table to mark has_return_gift = true
+        await supabase
+          .from("phone_numbers")
+          .update({
+            has_return_gift: true,
+            return_gift_redeemed: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", phoneRecord.id);
+        
+        console.log(`🎁 Return gift awarded for booking #${newBooking.id} (customer's booking #${totalBookings})`);
+      } else {
+        console.log(`⏭️ Booking #${totalBookings} - No return gift (waiting for booking #${Math.ceil(totalBookings / triggerInterval) * triggerInterval})`);
+      }
+    }
+  }
+} catch (error) {
+  console.error("❌ Error awarding return gift:", error);
+  // Don't fail the booking if return gift logic fails
+}
+// ========== END RETURN GIFT LOGIC ==========
 
     // Send Telegram notification
     try {
