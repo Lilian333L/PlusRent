@@ -11,6 +11,22 @@
   gtag('js', new Date());
   gtag('config', 'AW-18051300821');
 </script>
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  };
+  gtag('event', 'conversion', {
+      'send_to': 'AW-18051300821/5Nv1CM2IspYcENX7w59D',
+      'value': 1.0,
+      'currency': 'USD',
+      'event_callback': callback
+  });
+  return false;
+}
+</script>
   <!-- ========== LANGUAGE & CHARSET ========== -->
   <meta charset="utf-8">
   <meta http-equiv="content-language" content="ro">
@@ -364,7 +380,7 @@
         <div class="container">
           <div class="topbar-left xs-hide">
             <div class="topbar-widget">
-              <div class="topbar-widget"><a href="tel:+37360000500"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
+              <div class="topbar-widget"><a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
               <div class="topbar-widget"><a href="mailto:contact@plusrent.md"><i class="fa fa-envelope"></i>contact@plusrent.md</a></div>
               <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
             </div>
@@ -408,7 +424,7 @@
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                    <a href="tel:+37360000500" class="call-now-btn"
+                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
                       style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
                       <i class="fa fa-phone" style="font-size: 12px;"></i>
                       <span data-i18n="call_now">Call Now</span>
@@ -496,7 +512,7 @@
                                 </div>
                                 <h3 data-i18n="sober_driver.direct_call">Apel Direct</h3>
                                 <p data-i18n="sober_driver.direct_call_desc">Sună-ne direct pentru asistență imediată. Șoferii noștri profesioniști sunt gata să te ajute să ajungi acasă în siguranță.</p>
-                                <a href="tel:+37360000500" class="phone-number">+373 60 000 500</a>
+                                <a href="tel:+37360000500" class="phone-number" onclick="gtag_report_conversion('tel:+37360000500')">+373 60 000 500</a>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-12">
@@ -667,7 +683,7 @@
         
         <div class="info-item">
             <strong data-i18n="sofer_treaz.info_phone">Telefon:</strong>
-            <span><a href="tel:+37360000500" style="color: #92400e; font-weight: 700;">+373 60 000 500</a></span>
+            <span><a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="color: #92400e; font-weight: 700;">+373 60 000 500</a></span>
         </div>
         
         <div class="info-item">
@@ -720,7 +736,7 @@
                             <h5 data-i18n="footer.contact_info">Informații de Contact</h5>
                             <address class="s1">
                                 <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-                                <a href="tel:+37360000500"> <i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500 </a>
+                                <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')"> <i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500 </a>
                                 <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:contact@plusrent.md">contact@plusrent.md</a></span>
                             </address>
                         </div>
@@ -952,6 +968,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 if (result.success) {
+                    gtag_report_conversion();
                     document.getElementById('successModal').style.display = 'block';
                     document.getElementById('callbackPhone').value = '';
                     updateDynamicTranslations();
