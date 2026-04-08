@@ -6,13 +6,25 @@
 (function() {
     'use strict';
 
+    // ========== SAFE STORAGE HELPERS ==========
+    function safeGetItem(storage, key) {
+        try { return storage.getItem(key); } catch(e) { return null; }
+    }
+    function safeSetItem(storage, key, value) {
+        try { storage.setItem(key, value); return true; } catch(e) { return false; }
+    }
+    function safeRemoveItem(storage, key) {
+        try { storage.removeItem(key); } catch(e) {}
+    }
+
     // Configuration
     const CONFIG = {
-        delay: 3 * 60 * 1000,  // 3 минуты
+        delay: 3 * 60 * 1000, // 3 минуты
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: '/spinning-wheel-standalone.html',
-        zIndex: 9999
+        zIndex: 9999,
+        phoneSubmitCooldown: 10000 // 10 секунд между отправками
     };
 
     // State management
@@ -22,7 +34,8 @@
         timer: null,
         isInitialized: false,
         userClosedModal: false,
-        modalCheckInterval: null
+        modalCheckInterval: null,
+        lastPhoneSubmitTime: 0 // rate limiting
     };
 
     // Check for open modals
@@ -70,7 +83,7 @@
 
     // Get current language
     function getCurrentLanguage() {
-        const storedLang = localStorage.getItem('lang') || localStorage.getItem('language') || localStorage.getItem('i18nextLng');
+        const storedLang = safeGetItem(localStorage, 'lang') || safeGetItem(localStorage, 'language') || safeGetItem(localStorage, 'i18nextLng');
         if (storedLang) {
             const lang = storedLang.split('-')[0];
             if (['en', 'ru', 'ro'].includes(lang)) {
@@ -114,7 +127,8 @@
             privacyText: 'Your data is secure',
             emptyPhone: 'Please enter a phone number',
             invalidPhone: 'Please enter a valid phone number (7-15 digits)',
-            hasCoupons: 'You have already received a reward for this phone number.'
+            hasCoupons: 'You have already received a reward for this phone number.',
+            tooFast: 'Please wait a few seconds before trying again.'
         },
         ru: {
             title: 'Испытай свою удачу!',
@@ -126,7 +140,8 @@
             privacyText: 'Ваши данные защищены',
             emptyPhone: 'Пожалуйста, введите номер телефона',
             invalidPhone: 'Пожалуйста, введите корректный номер (7-15 цифр)',
-            hasCoupons: 'Вы уже получили награду за этот номер телефона.'
+            hasCoupons: 'Вы уже получили награду за этот номер телефона.',
+            tooFast: 'Подождите несколько секунд перед повторной попыткой.'
         },
         ro: {
             title: 'Încearcă-ți norocul!',
@@ -138,7 +153,8 @@
             privacyText: 'Datele tale sunt securizate',
             emptyPhone: 'Vă rugăm introduceți numărul de telefon',
             invalidPhone: 'Vă rugăm introduceți un număr valid (7-15 cifre)',
-            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.'
+            hasCoupons: 'Ai primit deja o recompensă pentru acest număr de telefon.',
+            tooFast: 'Vă rugăm așteptați câteva secunde înainte de a încerca din nou.'
         }
     };
 
@@ -147,48 +163,43 @@
         return translations[lang][key] || translations['ro'][key] || key;
     }
 
+    // ========== IMPROVED: Проверка — показывать ли модалку ==========
     function hasSeenModalToday() {
-        const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
+        // Если получил награду — не показывать НИКОГДА
+        const rewardReceived = safeGetItem(localStorage, 'spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
             return true;
         }
 
-        const lastSeen = localStorage.getItem('spinningWheelLastSeen');
+        // Если уже видел модалку (закрыл/крутил) — не показывать НИКОГДА
+        const lastSeen = safeGetItem(localStorage, CONFIG.storageKey);
         if (lastSeen) {
-            return true; // Уже видел — больше никогда не показываем
+            return true;
         }
 
         return false;
     }
 
-
+    // ========== IMPROVED: sessionStorage для таймера ==========
     function getTotalWebsiteTime() {
-        const startTime = localStorage.getItem('websiteStartTime');
-        const storedTotalTime = localStorage.getItem('websiteTotalTime');
-        
+        const startTime = safeGetItem(sessionStorage, 'wheelTimerStart');
         if (!startTime) return 0;
-        
-        let baseTime = 0;
-        if (storedTotalTime) {
-            baseTime = parseInt(storedTotalTime);
-        }
-        
-        const now = Date.now();
-        const currentSessionTime = now - parseInt(startTime);
-        
-        return baseTime + currentSessionTime;
+        return Date.now() - parseInt(startTime);
     }
 
     function setWebsiteStartTime() {
-        if (!localStorage.getItem('websiteStartTime')) {
-            localStorage.setItem('websiteStartTime', Date.now().toString());
+        if (!safeGetItem(sessionStorage, 'wheelTimerStart')) {
+            safeSetItem(sessionStorage, 'wheelTimerStart', Date.now().toString());
         }
     }
 
+    function clearWebsiteTimer() {
+        safeRemoveItem(sessionStorage, 'wheelTimerStart');
+    }
+
     function markModalAsSeen() {
-        localStorage.setItem(CONFIG.storageKey, new Date().toISOString());
-        localStorage.removeItem('websiteStartTime');
-        localStorage.removeItem('websiteTotalTime');
+        safeSetItem(localStorage, CONFIG.storageKey, new Date().toISOString());
+        clearWebsiteTimer();
     }
 
     // Create modal HTML
@@ -250,7 +261,6 @@
                         
                         <div class="spinning-wheel-wheel-step" id="universalWheelStep" style="display: none;">
                             <iframe id="universalSpinningWheelIframe" 
-                                    src="${CONFIG.iframeSrc}" 
                                     frameborder="0" 
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     style="width: 100%; height: 100%; border: none; border-radius: 12px;">
@@ -552,6 +562,12 @@
                 transform: translateY(0);
             }
 
+            .phone-submit-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
             .btn-icon {
                 width: 20px;
                 height: 20px;
@@ -831,34 +847,28 @@ function showModal(options = {}) {
         return;
     }
     
-    // УМНАЯ ЛОГИКА: Даём время прочитать success модалку, потом показываем рулетку
     if (isAnyModalOpen()) {
         console.log('⏳ Another modal is open, will show spinning wheel in 4 seconds...');
         
-        // Показать уведомление на success модалке
         showBonusNotification();
         
-        // Подождать 4 секунды, потом показать рулетку
         setTimeout(() => {
             if (!state.userClosedModal) {
                 console.log('✅ Showing spinning wheel now...');
                 
-                // Закрыть все открытые модалки
                 const openModals = document.querySelectorAll('.modal.show, .modal.active, [role="dialog"][style*="display: block"]');
                 openModals.forEach(modal => {
                     modal.style.display = 'none';
                     modal.classList.remove('show', 'active');
                 });
                 
-                // Убрать modal-open класс с body
                 document.body.classList.remove('modal-open', 'no-scroll', 'overflow-hidden');
                 
-                // Небольшая задержка для плавности
                 setTimeout(() => {
                     showModalInternal(options);
                 }, 200);
             }
-        }, 4000); // 4 секунды на чтение success модалки
+        }, 4000);
         
         return;
     }
@@ -866,16 +876,12 @@ function showModal(options = {}) {
     showModalInternal(options);
 }
 
-// НОВАЯ функция - показать уведомление на success модалке
 function showBonusNotification() {
-    // Найти success модалку
     const successModal = document.querySelector('.booking-success-modal, #booking-success-modal, .success-modal');
     if (!successModal) return;
     
-    // Проверить не добавлено ли уже уведомление
     if (document.getElementById('bonus-notification')) return;
     
-    // Создать уведомление
     const notification = document.createElement('div');
     notification.id = 'bonus-notification';
     notification.style.cssText = `
@@ -897,13 +903,11 @@ function showBonusNotification() {
         gap: 8px;
     `;
     
-    // С ПЕРЕВОДАМИ
     notification.innerHTML = `
         <span style="font-size: 20px;">🎁</span>
         <span>${getCurrentLanguage() === 'ru' ? 'Ваш бонус готов! Открытие через' : getCurrentLanguage() === 'ro' ? 'Bonusul tău este gata! Se deschide în' : 'Your bonus is ready! Opening in'} <span id="bonus-countdown">4</span>${getCurrentLanguage() === 'ru' ? ' сек...' : 's...'}</span>
     `;
     
-    // Добавить CSS анимацию
     if (!document.getElementById('bonus-notification-styles')) {
         const style = document.createElement('style');
         style.id = 'bonus-notification-styles';
@@ -918,7 +922,6 @@ function showBonusNotification() {
     
     successModal.appendChild(notification);
     
-    // Countdown
     let seconds = 4;
     const countdownInterval = setInterval(() => {
         seconds--;
@@ -935,9 +938,7 @@ function showBonusNotification() {
     }, 1000);
 }
 
-// НОВАЯ функция - вынесли логику показа модалки
 function showModalInternal(options = {}) {
-    // Block body scroll
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
@@ -947,13 +948,20 @@ function showModalInternal(options = {}) {
     
     const { skipPhoneStep = false, phoneNumber = null, wheelType = 'percent' } = options;
     
-    if (options.wheelId) {
-        const iframe = document.getElementById('universalSpinningWheelIframe');
-        if (iframe) {
-            const baseSrc = CONFIG.iframeSrc;
+    // Загружаем iframe только при показе модалки
+    const iframe = document.getElementById('universalSpinningWheelIframe');
+    if (iframe && !iframe.src) {
+        const baseSrc = CONFIG.iframeSrc;
+        if (options.wheelId) {
             const separator = baseSrc.includes('?') ? '&' : '?';
             iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
+        } else {
+            iframe.src = baseSrc;
         }
+    } else if (iframe && options.wheelId) {
+        const baseSrc = CONFIG.iframeSrc;
+        const separator = baseSrc.includes('?') ? '&' : '?';
+        iframe.src = `${baseSrc}${separator}wheel=${options.wheelId}`;
     }
     
     const modalContent = state.modal.querySelector('.spinning-wheel-modal-content');
@@ -972,8 +980,8 @@ function showModalInternal(options = {}) {
             }
             
             if (phoneNumber) {
-                localStorage.setItem('spinningWheelPhone', phoneNumber);
-                localStorage.setItem('spinningWheelPhoneEntered', 'true');
+                safeSetItem(localStorage, 'spinningWheelPhone', phoneNumber);
+                safeSetItem(localStorage, 'spinningWheelPhoneEntered', 'true');
                 
                 setTimeout(() => {
                     const iframe = document.getElementById('universalSpinningWheelIframe');
@@ -1028,7 +1036,6 @@ function closeModal() {
     setTimeout(() => {
         state.modal.style.display = 'none';
         
-        // Restore body scroll
         const scrollY = document.body.style.top;
         document.body.style.position = '';
         document.body.style.top = '';
@@ -1120,6 +1127,14 @@ function closeModal() {
     async function handlePhoneSubmit(event) {
         event.preventDefault();
 
+        // ========== RATE LIMITING ==========
+        const now = Date.now();
+        if (now - state.lastPhoneSubmitTime < CONFIG.phoneSubmitCooldown) {
+            const phoneInput = document.getElementById('universalPhoneInput');
+            showPhoneError(phoneInput, t('tooFast'));
+            return;
+        }
+
         const phoneInput = document.getElementById('universalPhoneInput');
         const phoneNumber = phoneInput.value.trim();
 
@@ -1139,6 +1154,10 @@ function closeModal() {
 
         const formattedPhone = formatPhoneNumber(phoneNumber);
 
+        // Disable button during request
+        const submitBtn = document.querySelector('.phone-submit-btn');
+        if (submitBtn) submitBtn.disabled = true;
+
         try {
             const API_BASE_URL = window.location.origin;
             const response = await fetch(`${API_BASE_URL}/api/spinning-wheels/check-available-coupons`, {
@@ -1151,13 +1170,17 @@ function closeModal() {
                 const result = await response.json();
                 if (result.hasCoupons) {
                     showPhoneError(phoneInput, t('hasCoupons'));
+                    if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
             }
         } catch (error) {}
 
-        localStorage.setItem('spinningWheelPhone', formattedPhone);
-        localStorage.setItem('spinningWheelPhoneEntered', 'true');
+        // Mark submit time for rate limiting
+        state.lastPhoneSubmitTime = Date.now();
+
+        safeSetItem(localStorage, 'spinningWheelPhone', formattedPhone);
+        safeSetItem(localStorage, 'spinningWheelPhoneEntered', 'true');
 
         try {
             const API_BASE_URL = window.location.origin;
@@ -1184,6 +1207,8 @@ function closeModal() {
                 '*'
             );
         }
+
+        if (submitBtn) submitBtn.disabled = false;
     }
 
     function handleWheelMessage(event) {
@@ -1201,7 +1226,7 @@ function closeModal() {
 
     function autoApplyWinningCoupon() {
         try {
-            const savedCouponCode = localStorage.getItem('spinningWheelWinningCoupon');
+            const savedCouponCode = safeGetItem(localStorage, 'spinningWheelWinningCoupon');
             if (savedCouponCode) {
                 handleAutoApplyCoupon(savedCouponCode);
             }
@@ -1210,7 +1235,7 @@ function closeModal() {
 
     function handleAutoApplyCoupon(couponCode) {
         try {
-            localStorage.setItem('autoApplyCoupon', couponCode);
+            safeSetItem(localStorage, 'autoApplyCoupon', couponCode);
             
             if (window.AutoApplyCoupon && window.AutoApplyCoupon.autoApply) {
                 setTimeout(() => {
@@ -1594,14 +1619,9 @@ function closeModal() {
         }
     }
 
+    // ========== IMPROVED: больше не сохраняем в localStorage при закрытии вкладки ==========
     function handleBeforeUnload() {
-        const currentTime = Date.now();
-        const startTime = localStorage.getItem('websiteStartTime');
-        
-        if (startTime) {
-            const totalTime = currentTime - parseInt(startTime);
-            localStorage.setItem('websiteTotalTime', totalTime.toString());
-        }
+        // Ничего не сохраняем — sessionStorage очистится автоматически
     }
 
     async function fetchCorrectWheel() {
@@ -1679,6 +1699,10 @@ function closeModal() {
             return;
         }
 
+        // ========== IMPROVED: Очищаем старые ключи localStorage от предыдущей версии ==========
+        safeRemoveItem(localStorage, 'websiteStartTime');
+        safeRemoveItem(localStorage, 'websiteTotalTime');
+
         const modalHTML = createModalHTML();
         const modalCSS = createModalCSS();
         
@@ -1722,7 +1746,7 @@ function closeModal() {
         
         setTimeout(updateModalTranslations, 1000);
         
-        const existingPhone = localStorage.getItem('spinningWheelPhone');
+        const existingPhone = safeGetItem(localStorage, 'spinningWheelPhone');
         if (existingPhone) {
             document.getElementById('universalPhoneStep').style.display = 'none';
             document.getElementById('universalWheelStep').style.display = 'flex';
