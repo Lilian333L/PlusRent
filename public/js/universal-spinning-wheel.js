@@ -148,13 +148,16 @@
     }
 
     function hasSeenModalToday() {
-        // Проверяем получал ли пользователь награду КОГДА-ЛИБО
         const rewardReceived = localStorage.getItem('spinningWheelRewardReceived');
         if (rewardReceived === 'true') {
-            return true; // Не показывать, если уже получил награду
+            return true;
         }
 
-        // Если награды не было - можно показывать
+        const lastSeen = localStorage.getItem('spinningWheelLastSeen');
+        if (lastSeen) {
+            return true; // Уже видел — больше никогда не показываем
+        }
+
         return false;
     }
 
