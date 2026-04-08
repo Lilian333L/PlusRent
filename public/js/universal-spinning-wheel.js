@@ -8,7 +8,7 @@
 
     // Configuration
     const CONFIG = {
-        delay: 30 * 1000,
+        delay: 3 * 60 * 1000,  // 3 минуты
         storageKey: 'spinningWheelLastSeen',
         modalId: 'universal-spinning-wheel-modal',
         iframeSrc: '/spinning-wheel-standalone.html',
