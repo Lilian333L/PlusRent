@@ -7,62 +7,43 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-
 :root {
-  --bg: #0c0c0f;
-  --card: #16161a;
-  --border: #2a2a32;
-  --amber: #f59e0b;
-  --amber-dim: #b47308;
-  --amber-glow: rgba(245,158,11,0.15);
-  --text: #e4e4e7;
-  --text-dim: #71717a;
-  --green: #22c55e;
-  --red: #ef4444;
-  --blue: #3b82f6;
+  --bg: #0c0c0f; --card: #16161a; --border: #2a2a32;
+  --amber: #f59e0b; --amber-dim: #b47308; --amber-glow: rgba(245,158,11,0.15);
+  --text: #e4e4e7; --text-dim: #71717a; --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
 }
-
 body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 12px; -webkit-tap-highlight-color: transparent; }
 .container { max-width: 520px; margin: 0 auto; }
 .header { text-align: center; padding: 20px 0 14px; }
 .header h1 { font-family: 'Space Mono', monospace; font-size: 1.3rem; color: var(--amber); letter-spacing: 2px; text-transform: uppercase; }
 .header p { color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; }
-
 .constants { display: flex; gap: 6px; margin: 10px 0 16px; flex-wrap: wrap; }
 .constant-pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 0.7rem; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
 .constant-pill span { color: var(--amber); font-family: 'Space Mono', monospace; font-weight: 700; }
-
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 12px; }
 .card:focus-within { border-color: var(--amber); }
 .card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .card-title .icon { width: 26px; height: 26px; background: var(--amber-glow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
-
 .input-group { margin-bottom: 12px; }
 .input-group:last-child { margin-bottom: 0; }
 .input-group label { display: block; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 5px; }
 .input-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
 .input-group input:focus { border-color: var(--amber); }
 .input-group input::placeholder { color: #3f3f46; }
-
 .input-suffix { position: relative; }
 .input-suffix input { padding-right: 44px; font-family: 'Space Mono', monospace; font-size: 1.05rem; }
 .input-suffix .suffix { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.75rem; pointer-events: none; margin-top: 12px; }
-
 .address-row { display: flex; gap: 8px; align-items: flex-end; }
 .address-row .input-group { flex: 1; margin-bottom: 0; }
-
 .btn-icon { width: 42px; height: 42px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text-dim); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
 .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
 .btn-icon.saved { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
-
 .btn-calc { width: 100%; background: linear-gradient(135deg, var(--amber), var(--amber-dim)); border: none; border-radius: 12px; padding: 14px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 14px; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-calc:hover { opacity: 0.9; }
 .btn-calc:disabled { opacity: 0.5; cursor: not-allowed; }
-
 .status-msg { text-align: center; font-size: 0.78rem; padding: 8px; border-radius: 8px; margin-top: 10px; display: none; }
 .status-msg.error { display: block; background: rgba(239,68,68,0.1); color: var(--red); }
 .status-msg.success { display: block; background: rgba(34,197,94,0.08); color: var(--green); }
-
 .route-viz { display: flex; align-items: center; gap: 0; margin: 14px 0 6px; padding: 14px; background: var(--bg); border-radius: 12px; overflow-x: auto; }
 .route-point { display: flex; flex-direction: column; align-items: center; min-width: 55px; flex-shrink: 0; }
 .route-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--amber); }
@@ -71,7 +52,6 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .route-label { font-size: 0.6rem; color: var(--text-dim); margin-top: 5px; text-align: center; white-space: nowrap; }
 .route-line { flex: 1; height: 2px; background: var(--border); min-width: 24px; position: relative; }
 .route-line .dist { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--amber); white-space: nowrap; }
-
 .results { background: linear-gradient(135deg, #1a1708, #16161a); border: 1px solid var(--amber-dim); border-radius: 16px; padding: 20px; margin-top: 12px; }
 .result-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(245,158,11,0.1); }
 .result-row:last-child { border-bottom: none; }
@@ -80,28 +60,52 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .result-row.total { border-top: 2px solid var(--amber-dim); border-bottom: none; margin-top: 6px; padding-top: 14px; }
 .result-row.total .label { font-size: 0.95rem; font-weight: 700; color: var(--text); }
 .result-row.total .value { font-size: 1.4rem; color: var(--amber); font-weight: 700; }
-
 .price-input-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .price-input-section label { font-size: 0.78rem; color: var(--amber); font-weight: 600; }
 .price-input-section input { background: rgba(245,158,11,0.08); border-color: var(--amber-dim); color: var(--amber); font-size: 1.2rem; text-align: center; font-family: 'Space Mono', monospace; }
 .price-input-section input:focus { border-color: var(--amber); background: rgba(245,158,11,0.12); }
-
 .suggest-prices { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .suggest-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
 .suggest-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 .suggest-btn.recommended { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
-
 .result-row.profit .value { color: var(--green); }
 .result-row.margin { background: rgba(34,197,94,0.08); border-radius: 8px; padding: 8px 10px; margin-top: 4px; }
-
 .manual-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
 .toggle-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.78rem; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
 .toggle-btn.active { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
-
 .api-key-section { margin-top: 12px; }
 .api-key-section details { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
 .api-key-section summary { font-size: 0.75rem; color: var(--text-dim); cursor: pointer; }
 .btn-save-key { background: var(--green); border: none; border-radius: 8px; padding: 6px 14px; color: #000; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-top: 6px; }
+
+/* Save order button */
+.btn-save-order { width: 100%; background: var(--green); border: none; border-radius: 12px; padding: 12px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s; }
+.btn-save-order:hover { opacity: 0.9; }
+.btn-save-order:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* History */
+.history-section { margin-top: 16px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.history-header h3 { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
+.btn-clear-history { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; color: var(--red); font-size: 0.7rem; cursor: pointer; transition: all 0.15s; }
+.btn-clear-history:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
+
+.history-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+.history-item:hover { border-color: var(--amber); }
+.history-item.active { border-color: var(--green); background: rgba(34,197,94,0.05); }
+.history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.history-date { font-size: 0.7rem; color: var(--text-dim); }
+.history-price { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--amber); font-weight: 700; }
+.history-route { font-size: 0.75rem; color: var(--text-dim); line-height: 1.5; }
+.history-route .addr { color: var(--text); font-size: 0.78rem; }
+.history-stats { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.history-stat { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
+.history-stat span { color: var(--text); }
+.history-delete { background: none; border: none; color: var(--text-dim); font-size: 0.85rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+.history-delete:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+.history-empty { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 20px; }
+.history-profit-pos { color: var(--green); }
+.history-profit-neg { color: var(--red); }
 </style>
 </head>
 <body>
@@ -123,14 +127,11 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
     <button class="toggle-btn" id="toggle-manual" onclick="setMode('manual')">⌨️ Вручную</button>
   </div>
 
-  <!-- MAP MODE -->
   <div id="map-mode">
     <div class="card">
       <div class="card-title"><div class="icon">🏠</div> Наш адрес (сохраняется)</div>
       <div class="address-row">
-        <div class="input-group">
-          <input type="text" id="home-address" placeholder="ул. Мештерул Маноле 20, Кишинёв">
-        </div>
+        <div class="input-group"><input type="text" id="home-address" placeholder="ул. Мештерул Маноле 20, Кишинёв"></div>
         <button class="btn-icon" id="btn-save-home" onclick="saveHome()" title="Сохранить">💾</button>
       </div>
     </div>
@@ -151,7 +152,6 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
     <div class="status-msg" id="status"></div>
   </div>
 
-  <!-- MANUAL MODE -->
   <div id="manual-mode" style="display:none">
     <div class="card">
       <div class="card-title"><div class="icon">📍</div> Расстояния (вручную)</div>
@@ -201,17 +201,28 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
     <div class="result-row profit" style="margin-top:10px"><span class="label">📈 Прибыль</span><span class="value" id="r-profit">0 лей</span></div>
     <div class="result-row margin"><span class="label">Маржа</span><span class="value" id="r-margin">0%</span></div>
+
+    <button class="btn-save-order" id="btn-save-order" onclick="saveOrder()">💾 Сохранить в историю</button>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <div class="history-header">
+      <h3>📋 История заказов</h3>
+      <button class="btn-clear-history" onclick="clearHistory()">🗑 Очистить</button>
+    </div>
+    <div id="history-list"></div>
   </div>
 
   <div class="api-key-section">
     <details>
-      <summary>⚙️ Google Maps API Key (для авто-расчёта км)</summary>
+      <summary>⚙️ Google Maps API Key</summary>
       <div class="input-group" style="margin-top:8px">
         <input type="password" id="api-key-input" placeholder="AIzaSy...">
       </div>
       <button class="btn-save-key" onclick="saveApiKey()">Сохранить ключ</button>
       <div style="font-size:0.65rem; color:var(--text-dim); margin-top:6px;">
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--blue)">Google Cloud Console</a> → включить Distance Matrix API + Places API
+        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--blue)">Google Cloud Console</a> → Distance Matrix API + Places API
       </div>
     </details>
   </div>
@@ -220,6 +231,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 <script>
 const FUEL_PRICE = 35, CONSUMPTION = 13, ADS_COST = 75;
 let currentCost = ADS_COST;
+let lastD1 = 0, lastD2 = 0, lastD3 = 0;
 
 function setMode(m) {
   document.getElementById('map-mode').style.display = m === 'map' ? 'block' : 'none';
@@ -239,7 +251,6 @@ function saveApiKey() {
 }
 
 let googleLoaded = false;
-
 function loadGoogleMaps(key) {
   if (!key || googleLoaded) return;
   const s = document.createElement('script');
@@ -265,41 +276,29 @@ async function calculateRoute() {
   const cl = document.getElementById('client-location').value.trim();
   const ch = document.getElementById('client-home').value.trim();
   if (!h || !cl || !ch) { showStatus('Заполни все 3 адреса', 'error'); return; }
-
   if (!googleLoaded || !window.google) {
-    const url = `https://www.google.com/maps/dir/${encodeURIComponent(h)}/${encodeURIComponent(cl)}/${encodeURIComponent(ch)}/${encodeURIComponent(h)}`;
-    window.open(url, '_blank');
-    showStatus('Нет API — открыл Google Maps', 'error');
-    return;
+    window.open(`https://www.google.com/maps/dir/${encodeURIComponent(h)}/${encodeURIComponent(cl)}/${encodeURIComponent(ch)}/${encodeURIComponent(h)}`, '_blank');
+    showStatus('Нет API — открыл Google Maps', 'error'); return;
   }
-
   const btn = document.getElementById('btn-calculate');
   btn.disabled = true;
   document.getElementById('calc-text').textContent = '⏳ Считаю...';
-
   try {
     const svc = new google.maps.DistanceMatrixService();
-    const get = (origins, destinations) => new Promise((res, rej) => {
-      svc.getDistanceMatrix({ origins, destinations, travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.METRIC },
+    const get = (o, d) => new Promise((res, rej) => {
+      svc.getDistanceMatrix({ origins: o, destinations: d, travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.METRIC },
         (r, s) => s === 'OK' ? res(r) : rej(new Error(s)));
     });
-
     const r1 = await get([h], [cl]);
     const r2 = await get([cl], [ch]);
     const r3 = await get([ch], [h]);
-
     const d1 = r1.rows[0].elements[0].distance.value / 1000;
     const d2 = r2.rows[0].elements[0].distance.value / 1000;
     const d3 = r3.rows[0].elements[0].distance.value / 1000;
-
     updateResults(d1, d2, d3);
     showStatus('✅ Готово', 'success');
-  } catch (e) {
-    showStatus('Ошибка: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    document.getElementById('calc-text').textContent = '📐 Рассчитать расстояния';
-  }
+  } catch (e) { showStatus('Ошибка: ' + e.message, 'error'); }
+  finally { btn.disabled = false; document.getElementById('calc-text').textContent = '📐 Рассчитать расстояния'; }
 }
 
 function calcManual() {
@@ -311,11 +310,11 @@ function calcManual() {
 }
 
 function updateResults(d1, d2, d3) {
+  lastD1 = d1; lastD2 = d2; lastD3 = d3;
   const km = d1 + d2 + d3;
   const fuel = (km * CONSUMPTION) / 100;
   const fuelCost = fuel * FUEL_PRICE;
   currentCost = Math.ceil(fuelCost) + ADS_COST;
-
   document.getElementById('viz-d1').textContent = d1 ? d1.toFixed(1) + ' км' : '—';
   document.getElementById('viz-d2').textContent = d2 ? d2.toFixed(1) + ' км' : '—';
   document.getElementById('viz-d3').textContent = d3 ? d3.toFixed(1) + ' км' : '—';
@@ -323,13 +322,11 @@ function updateResults(d1, d2, d3) {
   document.getElementById('r-fuel').textContent = fuel.toFixed(1) + ' л';
   document.getElementById('r-fuel-cost').textContent = Math.round(fuelCost) + ' лей';
   document.getElementById('r-cost').textContent = currentCost + ' лей';
-
   const sg = document.getElementById('suggestions');
   if (currentCost > ADS_COST) {
     const p = [1.5, 2, 2.5, 3].map(m => Math.ceil(currentCost * m / 50) * 50);
     sg.innerHTML = p.map((v, i) => `<button class="suggest-btn${i===1?' recommended':''}" onclick="setPrice(${v})">${i===1?'✓ ':''}${v}</button>`).join('');
   } else sg.innerHTML = '';
-
   updateProfit();
 }
 
@@ -349,12 +346,109 @@ function setPrice(v) { document.getElementById('client-price').value = v; update
 function showStatus(m, t) { const e = document.getElementById('status'); e.textContent = m; e.className = 'status-msg ' + t; }
 function hideStatus() { document.getElementById('status').className = 'status-msg'; }
 
+// ===== HISTORY =====
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('pr_history') || '[]'); } catch { return []; }
+}
+
+function saveHistory(h) {
+  localStorage.setItem('pr_history', JSON.stringify(h));
+}
+
+function saveOrder() {
+  const price = parseFloat(document.getElementById('client-price').value) || 0;
+  const home = document.getElementById('home-address').value.trim();
+  const clientLoc = document.getElementById('client-location').value.trim();
+  const clientHome = document.getElementById('client-home').value.trim();
+
+  if (currentCost <= ADS_COST && lastD1 === 0) { showStatus('Сначала рассчитай расстояние', 'error'); return; }
+
+  const order = {
+    id: Date.now(),
+    date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    home: home || '—',
+    clientLocation: clientLoc || '—',
+    clientHome: clientHome || '—',
+    d1: lastD1, d2: lastD2, d3: lastD3,
+    totalKm: (lastD1 + lastD2 + lastD3).toFixed(1),
+    cost: currentCost,
+    price: price,
+    profit: price - currentCost
+  };
+
+  const history = getHistory();
+  history.unshift(order);
+  if (history.length > 50) history.pop();
+  saveHistory(history);
+  renderHistory();
+  showStatus('✅ Сохранено в историю', 'success');
+  setTimeout(hideStatus, 2000);
+}
+
+function deleteOrder(id) {
+  const history = getHistory().filter(o => o.id !== id);
+  saveHistory(history);
+  renderHistory();
+}
+
+function loadOrder(id) {
+  const order = getHistory().find(o => o.id === id);
+  if (!order) return;
+  document.getElementById('home-address').value = order.home;
+  document.getElementById('client-location').value = order.clientLocation;
+  document.getElementById('client-home').value = order.clientHome;
+  document.getElementById('client-price').value = order.price || '';
+  updateResults(order.d1, order.d2, order.d3);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearHistory() {
+  if (confirm('Удалить всю историю?')) {
+    localStorage.removeItem('pr_history');
+    renderHistory();
+  }
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const history = getHistory();
+  if (!history.length) {
+    list.innerHTML = '<div class="history-empty">Нет сохранённых заказов</div>';
+    return;
+  }
+  list.innerHTML = history.map(o => `
+    <div class="history-item" onclick="loadOrder(${o.id})">
+      <div class="history-top">
+        <span class="history-date">${o.date}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="history-price">${o.price} лей</span>
+          <button class="history-delete" onclick="event.stopPropagation();deleteOrder(${o.id})" title="Удалить">✕</button>
+        </div>
+      </div>
+      <div class="history-route">
+        📍 <span class="addr">${truncate(o.clientLocation)}</span> → <span class="addr">${truncate(o.clientHome)}</span>
+      </div>
+      <div class="history-stats">
+        <span class="history-stat">🛣 <span>${o.totalKm} км</span></span>
+        <span class="history-stat">💰 <span>${o.cost} лей</span></span>
+        <span class="history-stat ${o.profit >= 0 ? 'history-profit-pos' : 'history-profit-neg'}">📈 <span>${o.profit >= 0 ? '+' : ''}${o.profit} лей</span></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function truncate(s, max = 30) {
+  if (!s || s === '—') return '—';
+  return s.length > max ? s.substring(0, max) + '...' : s;
+}
+
 // Init
 const sh = localStorage.getItem('pr_home');
 if (sh) { document.getElementById('home-address').value = sh; document.getElementById('btn-save-home').className = 'btn-icon saved'; }
 const sk = localStorage.getItem('pr_gkey');
 if (sk) { document.getElementById('api-key-input').value = '••••••••'; loadGoogleMaps(sk); }
 updateResults(0, 0, 0);
+renderHistory();
 </script>
 </body>
 </html>
