@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlusRent — Скрипт Șofer Treaz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0d;--card:#111116;--card2:#18181f;--border:#252530;
+  --amber:#f59e0b;--amber-dim:#b47308;--amber-glow:rgba(245,158,11,.12);
+  --green:#22c55e;--green-glow:rgba(34,197,94,.1);
+  --red:#ef4444;--red-glow:rgba(239,68,68,.1);
+  --blue:#3b82f6;--blue-glow:rgba(59,130,246,.1);
+  --purple:#a855f7;--purple-glow:rgba(168,85,247,.1);
+  --text:#e4e4e7;--text-dim:#71717a;--text-muted:#52525b;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:16px;line-height:1.6}
+.container{max-width:680px;margin:0 auto}
+
+/* Header */
+.header{text-align:center;padding:32px 0 24px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.header h1{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--amber);margin-bottom:6px;letter-spacing:1px}
+.header p{color:var(--text-dim);font-size:.85rem}
+
+/* Phase cards */
+.phase{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden;transition:border-color .2s}
+.phase:hover{border-color:var(--amber)}
+.phase::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.phase.greeting::before{background:var(--green)}
+.phase.location::before{background:var(--blue)}
+.phase.price::before{background:var(--amber)}
+.phase.closing::before{background:var(--purple)}
+.phase.objection::before{background:var(--red)}
+.phase.tips::before{background:var(--text-dim)}
+
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.phase-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:.9rem;flex-shrink:0}
+.greeting .phase-num{background:var(--green-glow);color:var(--green)}
+.location .phase-num{background:var(--blue-glow);color:var(--blue)}
+.price .phase-num{background:var(--amber-glow);color:var(--amber)}
+.closing .phase-num{background:var(--purple-glow);color:var(--purple)}
+.objection .phase-num{background:var(--red-glow);color:var(--red)}
+.tips .phase-num{background:rgba(113,113,122,.15);color:var(--text-dim)}
+
+.phase-title{font-size:1.05rem;font-weight:700;color:var(--text)}
+.phase-subtitle{font-size:.75rem;color:var(--text-dim);margin-top:2px}
+
+/* Speech bubbles */
+.speech{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin:10px 0;position:relative;font-size:.92rem;line-height:1.7}
+.speech.you{border-left:3px solid var(--amber);margin-left:12px}
+.speech.you::before{content:'🎙️ Ты:';display:block;font-size:.7rem;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.speech.client{border-left:3px solid var(--text-dim);margin-left:12px;opacity:.7}
+.speech.client::before{content:'👤 Клиент:';display:block;font-size:.7rem;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+
+/* Highlight */
+.hl{color:var(--amber);font-weight:600}
+.hl-green{color:var(--green);font-weight:600}
+.hl-blue{color:var(--blue);font-weight:600}
+.hl-red{color:var(--red);font-weight:600}
+
+/* Tips */
+.tip{background:var(--amber-glow);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.85rem;color:var(--text)}
+.tip::before{content:'💡';margin-right:8px}
+.tip.warning{background:var(--red-glow);border-color:rgba(239,68,68,.2)}
+.tip.warning::before{content:'⚠️'}
+.tip.success{background:var(--green-glow);border-color:rgba(34,197,94,.2)}
+.tip.success::before{content:'✅'}
+
+/* Price table */
+.price-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85rem}
+.price-table th{background:var(--card2);color:var(--amber);padding:10px 14px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.price-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+.price-table tr:last-child td{border-bottom:none}
+.price-table .price-val{font-family:'Space Mono',monospace;color:var(--amber);font-weight:700}
+
+/* Flow arrow */
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0;color:var(--text-muted);font-size:.75rem}
+.flow .arrow{color:var(--amber);font-size:1rem}
+
+/* Variants */
+.variant{background:var(--card2);border-radius:10px;padding:14px;margin:8px 0;border:1px solid var(--border)}
+.variant-label{font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px;font-weight:600}
+.variant-text{font-size:.92rem;line-height:1.7}
+
+/* Section divider */
+.divider{text-align:center;margin:28px 0;color:var(--text-muted);font-size:.7rem;text-transform:uppercase;letter-spacing:3px;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:calc(50% - 60px);height:1px;background:var(--border)}
+.divider::before{left:0}
+.divider::after{right:0}
+
+/* Psychology note */
+.psych{background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(59,130,246,.08));border:1px solid rgba(168,85,247,.15);border-radius:10px;padding:14px 16px;margin:10px 0;font-size:.82rem}
+.psych::before{content:'🧠 Психология:';display:block;font-size:.7rem;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+
+/* Responsive */
+@media(max-width:480px){
+  body{padding:10px}
+  .phase{padding:18px 14px}
+  .header h1{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>📞 Скрипт Șofer Treaz</h1>
+  <p>Как правильно общаться с клиентом, называть цену и закрывать сделку</p>
+</div>
+
+<!-- PHASE 1: GREETING -->
+<div class="phase greeting">
+  <div class="phase-header">
+    <div class="phase-num">01</div>
+    <div>
+      <div class="phase-title">Приветствие</div>
+      <div class="phase-subtitle">Первые 5 секунд решают всё</div>
+    </div>
+  </div>
+
+  <div class="speech you">
+    Bună seara! PlusRent, serviciu de șofer treaz. Cu ce vă putem ajuta?
+  </div>
+
+  <div class="speech you">
+    Добрый вечер! PlusRent, служба трезвого водителя. Чем можем помочь?
+  </div>
+
+  <div class="psych">
+    Голос должен быть <span class="hl">спокойным, уверенным и дружелюбным</span>. Клиент часто звонит в нетрезвом состоянии — ему важно почувствовать что его вопрос решат быстро и без осуждения.
+  </div>
+</div>
+
+<!-- PHASE 2: LOCATION -->
+<div class="phase location">
+  <div class="phase-header">
+    <div class="phase-num">02</div>
+    <div>
+      <div class="phase-title">Уточняем маршрут</div>
+      <div class="phase-subtitle">Где клиент и куда ему нужно</div>
+    </div>
+  </div>
+
+  <div class="speech you">
+    Spuneți-mi vă rog, unde vă aflați acum și unde trebuie să ajungeți?
+  </div>
+
+  <div class="speech you">
+    Подскажите, где вы сейчас находитесь и куда вам нужно?
+  </div>
+
+  <div class="speech client">
+    Я в центре, возле Малл Дова. Мне домой, в Ботанику, улица Дачия.
+  </div>
+
+  <div class="tip">Если клиент не может точно назвать адрес — попроси отправить геолокацию в WhatsApp/Telegram: <span class="hl">"Отправьте нам геолокацию в WhatsApp на 060 000 500, так мы быстрее вас найдём"</span></div>
+</div>
+
+<!-- PHASE 3: PRICE -->
+<div class="phase price">
+  <div class="phase-header">
+    <div class="phase-num">03</div>
+    <div>
+      <div class="phase-title">Называем цену</div>
+      <div class="phase-subtitle">Ключевой момент — как подать цену</div>
+    </div>
+  </div>
+
+  <div class="psych">
+    <strong>Никогда не называй цену первой фразой.</strong> Сначала подтверди что понял маршрут, потом назови цену с привязкой к ценности: "безопасно доберётесь домой на своей машине". Клиент платит не за километры — он платит за решение проблемы.
+  </div>
+
+  <table class="price-table">
+    <tr><th>Маршрут</th><th>Расстояние</th><th>Цена</th></tr>
+    <tr><td>Центр → Ботаника</td><td>3-5 км</td><td class="price-val">150-200 лей</td></tr>
+    <tr><td>Центр → Чеканы</td><td>5-8 км</td><td class="price-val">200-250 лей</td></tr>
+    <tr><td>Центр → Буюканы</td><td>4-7 км</td><td class="price-val">180-220 лей</td></tr>
+    <tr><td>Центр → Телецентр</td><td>3-5 км</td><td class="price-val">150-200 лей</td></tr>
+    <tr><td>Центр → Рышкановка</td><td>4-6 км</td><td class="price-val">170-210 лей</td></tr>
+    <tr><td>Центр → Аэропорт</td><td>12-15 км</td><td class="price-val">300-400 лей</td></tr>
+    <tr><td>Центр → Стаучены/Думбрава</td><td>15-20 км</td><td class="price-val">350-500 лей</td></tr>
+  </table>
+
+  <div class="divider">Как правильно назвать</div>
+
+  <div class="variant">
+    <div class="variant-label">✅ Правильно — с якорем ценности</div>
+    <div class="variant-text">
+      <em>"Хорошо, от Малл Дова до Ботаники — маршрут нам знакомый. <span class="hl">Вас и вашу машину доставим безопасно домой за 200 лей</span>. Водитель будет у вас через 15 минут. Удобно?"</em>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">✅ На румынском</div>
+    <div class="variant-text">
+      <em>"Perfect, de la Mall Dova până în Botanica — <span class="hl">vă ducem acasă în siguranță cu mașina dvs. pentru 200 lei</span>. Șoferul ajunge în 15 minute. E bine?"</em>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">❌ Неправильно — сухо и без ценности</div>
+    <div class="variant-text">
+      <em>"200 лей."</em> — клиент начнёт сравнивать с такси за 60 лей
+    </div>
+  </div>
+
+  <div class="psych">
+    <strong>Техника "цена + ценность + действие":</strong><br>
+    1. Называешь маршрут (показываешь что понял)<br>
+    2. Называешь цену <span class="hl">внутри фразы про безопасность</span><br>
+    3. Говоришь время приезда (конкретика)<br>
+    4. Спрашиваешь "Удобно?" (не "Хотите?" — это психологически легче)
+  </div>
+
+  <div class="tip warning">Если расстояние далёкое и цена высокая — используй якорь: <span class="hl">"Штраф за пьяную езду в Молдове — от 12,000 лей + лишение прав. А мы доставим вас домой безопасно всего за 400 лей."</span></div>
+</div>
+
+<!-- PHASE 4: CLOSING -->
+<div class="phase closing">
+  <div class="phase-header">
+    <div class="phase-num">04</div>
+    <div>
+      <div class="phase-title">Закрытие сделки</div>
+      <div class="phase-subtitle">Клиент согласился — фиксируем</div>
+    </div>
+  </div>
+
+  <div class="speech you">
+    Отлично! Записываю: от Малл Дова до Ботаники, ул. Дачия. Водитель будет через <span class="hl">15 минут</span>. Пожалуйста, оставайтесь на связи — водитель позвонит когда подъедет.
+  </div>
+
+  <div class="speech you">
+    Perfect! Notez: de la Mall Dova până în Botanica, str. Dacia. Șoferul va fi la dvs. în <span class="hl">15 minute</span>. Rămâneți disponibil — șoferul vă va suna când ajunge.
+  </div>
+
+  <div class="tip success">Всегда повтори маршрут и время — это даёт клиенту уверенность что всё под контролем.</div>
+</div>
+
+<!-- PHASE 5: OBJECTIONS -->
+<div class="phase objection">
+  <div class="phase-header">
+    <div class="phase-num">05</div>
+    <div>
+      <div class="phase-title">Работа с возражениями</div>
+      <div class="phase-subtitle">Если клиент сомневается или торгуется</div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">💬 "Дорого, такси дешевле"</div>
+    <div class="variant-text">
+      <em>"Понимаю! Но с такси вы приедете домой, а ваша машина останется у клуба до утра. А может и эвакуатор вызовут. <span class="hl">Мы привозим и вас, и вашу машину домой</span> — утром просыпаетесь, машина уже во дворе."</em>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">💬 "Я подумаю / перезвоню"</div>
+    <div class="variant-text">
+      <em>"Конечно! Мы работаем всю ночь, <span class="hl">звоните в любое время</span>. Только учтите — ближе к 2-3 ночи водители заняты и ждать придётся дольше. Сейчас мы можем приехать за 15 минут."</em>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">💬 "А скидку можно?"</div>
+    <div class="variant-text">
+      <em>"Цена уже оптимальная для этого маршрута. Но если будете пользоваться нашими услугами регулярно — <span class="hl">второй раз дадим скидку</span>. Отправляем водителя?"</em>
+    </div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-label">💬 Клиент не перезвонил</div>
+    <div class="variant-text">
+      Если клиент сказал "перезвоню" и не перезвонил через 10-15 минут — <span class="hl-red">не звони ему</span>. Он или нашёл другой вариант, или передумал. Навязчивость отталкивает.
+    </div>
+  </div>
+
+  <div class="psych">
+    <strong>Создание ощущения срочности</strong> — фраза "сейчас водитель свободен, через час может быть занят" работает лучше чем давление. Клиент сам принимает решение, но с пониманием что сейчас — лучший момент.
+  </div>
+</div>
+
+<!-- PHASE 6: TIPS -->
+<div class="phase tips">
+  <div class="phase-header">
+    <div class="phase-num">💎</div>
+    <div>
+      <div class="phase-title">Золотые правила</div>
+      <div class="phase-subtitle">Всегда помни об этом</div>
+    </div>
+  </div>
+
+  <div class="tip success"><strong>Никогда не осуждай</strong> — клиент и так чувствует себя неловко. Твоя задача — решить его проблему, не читать мораль.</div>
+
+  <div class="tip success"><strong>Называй конкретное время</strong> — "15 минут" звучит надёжнее чем "скоро". Если не уверен — говори 20 минут, лучше приехать раньше.</div>
+
+  <div class="tip success"><strong>Подтверди оплату</strong> — "Оплата наличными водителю по приезду" снимает тревогу о мошенничестве.</div>
+
+  <div class="tip success"><strong>Язык клиента</strong> — если клиент говорит по-румынски, отвечай по-румынски. По-русски — по-русски. Не переключайся без причины.</div>
+
+  <div class="tip warning"><strong>Пьяный клиент путает адреса</strong> — попроси геолокацию в WhatsApp. Не спорь если он уверен в адресе — водитель разберётся на месте.</div>
+
+  <div class="tip warning"><strong>Если клиент агрессивен</strong> — будь спокоен, говори тихо и медленно. "Я вас понимаю, давайте просто решим вопрос с доставкой, хорошо?"</div>
+</div>
+
+</div>
+</body>
+</html>
