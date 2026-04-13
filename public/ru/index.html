@@ -765,7 +765,39 @@
   <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
   <script src="/js/i18n-init.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
+  // Определяем язык из URL (/ru/, /en/, /ro/)
+  var pathLang = window.location.pathname.split('/')[1];
+  var langs = {
+    ro: { flag: '/images/flags/romania.png', code: 'RO', alt: 'Română' },
+    ru: { flag: '/images/flags/russia.png', code: 'RU', alt: 'Русский' },
+    en: { flag: '/images/flags/united-kingdom.png', code: 'EN', alt: 'English' }
+  };
+
+  // Обновляем кнопку языка согласно URL
+  if (langs[pathLang]) {
+    var l = langs[pathLang];
+    var langFlag = document.getElementById('langFlag');
+    var langCode = document.getElementById('langCode');
+    if (langFlag) langFlag.innerHTML = '<img src="' + l.flag + '" alt="' + l.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+    if (langCode) langCode.textContent = l.code;
+  }
+
+  // Перехватываем клики на lang-option — capture:true срабатывает ДО i18n-init.js
+  document.querySelectorAll('.lang-option').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopImmediatePropagation(); // блокируем все остальные обработчики
+      var lang = this.getAttribute('data-lang');
+      document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
+      localStorage.setItem('i18nextLng', lang);
+      window.location.href = '/' + lang + '/';
+    }, true); // capture phase — важно!
+  });
+
+});
+</script>
 <script>
     // ✅ ФУНКЦИЯ ДЛЯ ФОРМАТИРОВАНИЯ ТЕКСТА
     function formatDisplayText(rawKey) {
@@ -1664,15 +1696,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }, { passive: false });
     }
   });
-</script>
-<script>
-document.querySelectorAll('.lang-option').forEach(function(el) {
-  el.addEventListener('click', function() {
-    var lang = this.getAttribute('data-lang');
-    document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
-    window.location.href = '/' + lang + '/';
-  });
-});
 </script>
 </body>
 </html>
