@@ -770,7 +770,25 @@
   <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js"></script>
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js"></script>
   <script src="/js/i18n-init.js"></script>
+<script>
+// Принудительно переключаем язык по URL после инициализации i18next
+(function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var validLangs = ['ro', 'ru', 'en'];
+  if (!validLangs.includes(pathLang)) return;
 
+  function forceLang() {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      if (i18next.language !== pathLang) {
+        i18next.changeLanguage(pathLang);
+      }
+    } else {
+      setTimeout(forceLang, 50);
+    }
+  }
+  forceLang();
+})();
+</script>
 <script>
     // ✅ ФУНКЦИЯ ДЛЯ ФОРМАТИРОВАНИЯ ТЕКСТА
     function formatDisplayText(rawKey) {
