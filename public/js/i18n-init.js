@@ -180,10 +180,10 @@ function updateLangPickerUI() {
     localStorage.setItem('lang', 'ro');
   }
   
-  // Flag images mapping - using images/flags/ path
-  var flagImg = 'images/flags/romania.png', code = 'RO';
-  if (lang === 'en') { flagImg = 'images/flags/united-kingdom.png'; code = 'EN'; }
-  if (lang === 'ru') { flagImg = 'images/flags/russia.png'; code = 'RU'; }
+  // Flag images mapping - using /images/flags/ path
+  var flagImg = '/images/flags/romania.png', code = 'RO';
+  if (lang === 'en') { flagImg = '/images/flags/united-kingdom.png'; code = 'EN'; }
+  if (lang === 'ru') { flagImg = '/images/flags/russia.png'; code = 'RU'; }
   
   var flagEl = document.getElementById('langFlag');
   var codeEl = document.getElementById('langCode');
