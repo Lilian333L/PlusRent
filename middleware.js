@@ -1,37 +1,27 @@
-export const config = {
-  matcher: ['/', '/sofer-treaz', '/cars', '/about', '/contact'],
-};
-
 export default function middleware(request) {
-  const url = new URL(request.url);
-  const pathname = url.pathname;
-
-  // Уже на языковом пути — пропускаем
-  if (/^\/(ro|ru|en)(\/|$)/.test(pathname)) return;
-
-  // Читаем cookie
-  const cookies = request.headers.get('cookie') || '';
-  const cookieMatch = cookies.match(/(?:^|;\s*)lang=([a-z]{2})/);
-  const cookieLang = cookieMatch ? cookieMatch[1] : null;
-
-  let lang = 'ro';
-  if (cookieLang && ['ro', 'ru', 'en'].includes(cookieLang)) {
-    lang = cookieLang;
-  } else {
-    const al = (request.headers.get('accept-language') || '').toLowerCase();
-    if (al.startsWith('ru')) lang = 'ru';
-    else if (al.startsWith('en')) lang = 'en';
+  const pathname = request.nextUrl.pathname;
+  
+  // Для ботов и кроулеров — всегда /ro/ (x-default)
+  const userAgent = request.headers.get('user-agent') || '';
+  const isBot = /googlebot|bingbot|yandex|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot/i.test(userAgent);
+  
+  if (isBot) {
+    return Response.redirect(new URL('/ro/', request.url), 302);
   }
 
-  const suffix = pathname === '/' ? '' : pathname;
-  const dest = `${url.origin}/${lang}${suffix}`;
+  // Для людей — читаем cookie lang=
+  const cookieLang = request.cookies.get('lang')?.value;
+  const validLangs = ['ro', 'ru', 'en'];
+  
+  if (cookieLang && validLangs.includes(cookieLang)) {
+    return Response.redirect(new URL('/' + cookieLang + '/', request.url), 302);
+  }
 
-  // Создаём redirect с cookie в одном объекте
-  return new Response(null, {
-    status: 302,
-    headers: {
-      'Location': dest,
-      'Set-Cookie': `lang=${lang}; Path=/; Max-Age=2592000; SameSite=Lax`,
-    },
-  });
+  // Fallback — Accept-Language
+  const acceptLang = request.headers.get('accept-language') || '';
+  let lang = 'ro';
+  if (acceptLang.includes('ru')) lang = 'ru';
+  else if (acceptLang.includes('en')) lang = 'en';
+
+  return Response.redirect(new URL('/' + lang + '/', request.url), 302);
 }
