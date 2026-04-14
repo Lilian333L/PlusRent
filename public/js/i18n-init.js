@@ -50,7 +50,7 @@ function initI18n() {
         fallbackLng: 'ro',
         debug: false,
         backend: {
-          loadPath: 'js/locales/{{lng}}.json'
+          loadPath: '/js/locales/{{lng}}.json'
         },
         interpolation: {
           escapeValue: false // allow HTML in translations
