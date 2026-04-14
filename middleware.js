@@ -1,5 +1,5 @@
 export const config = {
-  matcher: ['/', '/sofer-treaz', '/cars', '/about', '/contact']
+  matcher: ['/', '/sofer-treaz']
 };
 
 export default function middleware(request) {
