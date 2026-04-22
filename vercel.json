@@ -19,52 +19,78 @@
       "source": "/index.html",
       "destination": "/",
       "permanent": true
-    }
+    },
+    { "source": "/ro", "destination": "/ro/", "permanent": true },
+    { "source": "/ru", "destination": "/ru/", "permanent": true },
+    { "source": "/en", "destination": "/en/", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-
-    { "source": "/ro/",             "destination": "/ro/index.html" },
-    { "source": "/ru/",             "destination": "/ru/index.html" },
-    { "source": "/en/",             "destination": "/en/index.html" },
-    { "source": "/ro",              "destination": "/ro/index.html" },
-    { "source": "/ru",              "destination": "/ru/index.html" },
-    { "source": "/en",              "destination": "/en/index.html" },
-
-    { "source": "/ro/sofer-treaz",  "destination": "/ro/sofer-treaz.html" },
-    { "source": "/ru/sofer-treaz",  "destination": "/ru/sofer-treaz.html" },
-    { "source": "/en/sofer-treaz",  "destination": "/en/sofer-treaz.html" },
-
-    { "source": "/ro/cars",         "destination": "/ro/cars.html" },
-    { "source": "/ru/cars",         "destination": "/ru/cars.html" },
-    { "source": "/en/cars",         "destination": "/en/cars.html" },
-
-    { "source": "/ro/about",        "destination": "/ro/about.html" },
-    { "source": "/ru/about",        "destination": "/ro/about.html" },
-    { "source": "/en/about",        "destination": "/en/about.html" },
-
-    { "source": "/ro/contact",      "destination": "/ro/contact.html" },
-    { "source": "/ru/contact",      "destination": "/ru/contact.html" },
-    { "source": "/en/contact",      "destination": "/en/contact.html" },
-
-    { "source": "/cars",            "destination": "/cars.html" },
-    { "source": "/car-single",      "destination": "/car-single.html" },
-    { "source": "/login",           "destination": "/login.html" },
-    { "source": "/account-dashboard","destination": "/account-dashboard.html" },
-    { "source": "/about",           "destination": "/about.html" },
-    { "source": "/contact",         "destination": "/contact.html" },
-    { "source": "/sofer-treaz",     "destination": "/sofer-treaz.html" },
-    { "source": "/all-codes",       "destination": "/all-codes.html" },
-    { "source": "/terms",           "destination": "/terms.html" },
+    { "source": "/api/(.*)",              "destination": "/api/index.js" },
+    { "source": "/ro/",                   "destination": "/ro/index.html" },
+    { "source": "/ru/",                   "destination": "/ru/index.html" },
+    { "source": "/en/",                   "destination": "/en/index.html" },
+    { "source": "/ro/sofer-treaz",        "destination": "/ro/sofer-treaz.html" },
+    { "source": "/ru/sofer-treaz",        "destination": "/ru/sofer-treaz.html" },
+    { "source": "/en/sofer-treaz",        "destination": "/en/sofer-treaz.html" },
+    { "source": "/ro/cars",               "destination": "/ro/cars.html" },
+    { "source": "/ru/cars",               "destination": "/ru/cars.html" },
+    { "source": "/en/cars",               "destination": "/en/cars.html" },
+    { "source": "/ro/about",              "destination": "/ro/about.html" },
+    { "source": "/ru/about",              "destination": "/ru/about.html" },
+    { "source": "/en/about",              "destination": "/en/about.html" },
+    { "source": "/ro/contact",            "destination": "/ro/contact.html" },
+    { "source": "/ru/contact",            "destination": "/ru/contact.html" },
+    { "source": "/en/contact",            "destination": "/en/contact.html" },
+    { "source": "/cars",                  "destination": "/cars.html" },
+    { "source": "/car-single",            "destination": "/car-single.html" },
+    { "source": "/login",                 "destination": "/login.html" },
+    { "source": "/account-dashboard",     "destination": "/account-dashboard.html" },
+    { "source": "/about",                 "destination": "/about.html" },
+    { "source": "/contact",               "destination": "/contact.html" },
+    { "source": "/sofer-treaz",           "destination": "/sofer-treaz.html" },
+    { "source": "/all-codes",             "destination": "/all-codes.html" },
+    { "source": "/terms",                 "destination": "/terms.html" },
     { "source": "/spinning-wheel-standalone.html", "destination": "/spinning-wheel-standalone.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        { "key": "X-Content-Type-Options",  "value": "nosniff" },
+        { "key": "X-XSS-Protection",        "value": "1; mode=block" },
+        { "key": "Referrer-Policy",          "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        { "key": "Content-Type",  "value": "application/xml; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        { "key": "Content-Type",  "value": "text/plain; charset=utf-8" }
       ]
     }
   ],
