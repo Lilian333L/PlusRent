@@ -1861,30 +1861,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modal) {
           modal.style.display = 'flex';
 
-          // ── NO-JUMP SCROLL LOCK ──────────────────────────────────
-          // Translate #wrapper UP by current scroll amount.
-          // Actual scroll position is NOT changed → no jump on close.
-          // Modal lives outside #wrapper so it stays in place.
+          // ── iOS SCROLL LOCK: body position:fixed only (proven pattern) ──
           const scrollY = window.scrollY || window.pageYOffset;
-          const wrapper = document.getElementById('wrapper');
-          if (wrapper) {
-            wrapper.style.transform = 'translateY(-' + scrollY + 'px)';
-          }
-          // Prevent background overflow on desktop
-          document.documentElement.style.overflow = 'hidden';
-          document.body.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.top      = '-' + scrollY + 'px';
+          document.body.style.left     = '0';
+          document.body.style.right    = '0';
+          document.body.style.width    = '100%';
+          // Store for restore
+          document.body.dataset.scrollY = String(scrollY);
 
-          // Prevent touch-scroll on background (iOS)
-          window._modalTouchLock = function(e) {
-            const mb = document.querySelector('#price-calculator-modal .modal-body');
-            if (!mb || !mb.contains(e.target)) e.preventDefault();
-          };
-          document.addEventListener('touchmove', window._modalTouchLock, { passive: false });
-
-          // Wheel + keyboard lock for desktop
+          // Wheel/keyboard block for desktop
           window.priceCalculatorWheelHandler = function(e) {
-            const mb = document.querySelector('#price-calculator-modal .modal-body');
-            if (!mb || !mb.contains(e.target)) {
+            const modalBody = document.querySelector('#price-calculator-modal .modal-body');
+            if (!modalBody || !modalBody.contains(e.target)) {
               e.preventDefault();
               e.stopPropagation();
             }
@@ -1894,8 +1884,10 @@ document.addEventListener('DOMContentLoaded', function() {
           window.priceCalculatorKeyHandler = function(e) {
             const keys = [32,33,34,35,36,37,38,39,40];
             if (keys.includes(e.keyCode)) {
-              const mb = document.querySelector('#price-calculator-modal .modal-body');
-              if (!mb || !mb.contains(document.activeElement)) e.preventDefault();
+              const modalBody = document.querySelector('#price-calculator-modal .modal-body');
+              if (!modalBody || !modalBody.contains(document.activeElement)) {
+                e.preventDefault();
+              }
             }
           };
           document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
@@ -2003,19 +1995,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) modal.style.display = 'none';
 
-    // ── NO-JUMP RESTORE ──────────────────────────────────────
-    // Just remove the transform — actual scroll position was never changed.
-    const wrapper = document.getElementById('wrapper');
-    if (wrapper) wrapper.style.transform = '';
+    // ── RESTORE SCROLL: read top BEFORE clearing ──
+    const rawTop = document.body.style.top;           // "-500px"
+    const scrollY = rawTop ? Math.abs(parseInt(rawTop, 10)) : 0;
 
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
+    // Clear body lock — only properties we set
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.left     = '';
+    document.body.style.right    = '';
+    document.body.style.width    = '';
 
     // Remove event listeners
-    if (window._modalTouchLock) {
-      document.removeEventListener('touchmove', window._modalTouchLock);
-      window._modalTouchLock = null;
-    }
     if (window.priceCalculatorWheelHandler) {
       document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
       window.priceCalculatorWheelHandler = null;
@@ -2024,7 +2015,9 @@ document.addEventListener('DOMContentLoaded', function() {
       document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
       window.priceCalculatorKeyHandler = null;
     }
-    // NO scrollTo — scroll position was never changed!
+
+    // ── RESTORE SCROLL SYNCHRONOUSLY ──
+    window.scrollTo(0, scrollY);
   }
   
   document.addEventListener('DOMContentLoaded', function() {
