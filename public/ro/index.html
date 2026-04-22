@@ -114,27 +114,36 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
-<!-- iOS fix: prevent zoom on input focus while keeping pinch-to-zoom for a11y -->
+<!-- iOS nuclear zoom fix -->
 <style>
-  @media screen and (max-width: 991px) {
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="number"],
-    input[type="password"],
-    input[type="search"],
-    input[type="url"],
-    input[type="date"],
-    select,
-    textarea,
-    .form-control,
-    .form-control-sm,
-    .form-control-lg,
+  /* ── iOS auto-zoom prevention ── */
+  /* iOS zooms when font-size < 16px on any focusable element */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    input, input[type], select, textarea,
+    .form-control, .form-control-sm, .form-control-lg,
+    .select2-search__field,
     .price-calculator-modal input,
     .price-calculator-modal select,
-    .price-calculator-modal textarea {
+    .price-calculator-modal textarea,
+    .booking_form input,
+    .booking_form select,
+    .booking_form textarea {
       font-size: 16px !important;
     }
+  }
+
+  /* ── Prevent double-tap zoom on all interactive elements ── */
+  a, button, input, select, textarea, label,
+  [role="button"], [onclick], .btn, .btn-main,
+  .contact-option, .radio-option, .lang-option,
+  .close-modal, .floating-contact-btn {
+    touch-action: manipulation;
+  }
+
+  /* ── Prevent text size adjustment on orientation change ── */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 </style>
 
@@ -2129,6 +2138,52 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   ob.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
+<script>
+/* ios-zoom-reset-js */
+(function() {
+  // Only run on iOS Safari
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (!isIOS) return;
+
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+
+  var NORMAL   = 'width=device-width, initial-scale=1.0';
+  var NOZOOM   = 'width=device-width, initial-scale=1.0, maximum-scale=1.0';
+
+  // Reset viewport (snaps zoom back to 1x)
+  function resetZoom() {
+    viewport.setAttribute('content', NOZOOM);
+    setTimeout(function() {
+      viewport.setAttribute('content', NORMAL);
+    }, 300);
+  }
+
+  // Listen to ALL input focus events — reset after typing done
+  document.addEventListener('focusin', function(e) {
+    var tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+      // Already 16px via CSS, but reset zoom if it fired anyway
+      resetZoom();
+    }
+  }, true);
+
+  document.addEventListener('focusout', function(e) {
+    var tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+      // After keyboard closes, snap zoom back
+      setTimeout(resetZoom, 100);
+    }
+  }, true);
+
+  // Also reset on modal open/close
+  window.addEventListener('price-calculator-opened', resetZoom);
+  window.addEventListener('price-calculator-closed', resetZoom);
+  window.addEventListener('contact-popup-opened', resetZoom);
+  window.addEventListener('contact-popup-closed', resetZoom);
 })();
 </script>
 </body>
