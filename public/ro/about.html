@@ -447,23 +447,6 @@
         </div>
       </section>
 
-      <!-- Breadcrumbs -->
-      <nav aria-label="Breadcrumb" style="background:#f8fafc; padding:12px 0; border-bottom:1px solid #e5e7eb;">
-        <div class="container">
-          <ol style="list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:8px; font-size:0.9rem;">
-            <li>
-              <a href="/ro/" style="color:#64748b; text-decoration:none;">
-                <i class="fa fa-home"></i> Acasă
-              </a>
-            </li>
-            <li style="color:#cbd5e1;">/</li>
-            <li style="color:#1e293b; font-weight:600;" aria-current="page">
-              Despre Noi
-            </li>
-          </ol>
-        </div>
-      </nav>
-
       <!-- Hero Description -->
       <section class="about-hero-section">
         <div class="container">
@@ -687,6 +670,52 @@
       </section>
 
       <!-- MAP SECTION -->
+      <style>
+        /* Map responsive styles */
+        .map-container {
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .map-container #about-map {
+          width: 100%;
+          height: 400px;
+          border-radius: 12px;
+        }
+        .map-overlay-card {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: #fff;
+          padding: 18px 22px;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+          max-width: 280px;
+          z-index: 1000;
+        }
+        /* Mobile: overlay becomes a block below the map */
+        @media (max-width: 768px) {
+          .map-container {
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+          }
+          .map-container #about-map {
+            height: 300px;
+            border-radius: 12px 12px 0 0;
+          }
+          .map-overlay-card {
+            position: static;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 0 0 12px 12px;
+            box-shadow: none;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            padding: 20px;
+          }
+        }
+      </style>
       <section class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
         <div class="container">
           <div class="col-lg-10 offset-lg-1">
@@ -698,10 +727,10 @@
               Biroul PlusRent — str. Meșterul Manole 20, Chișinău. Deservim și Aeroport Chișinău și Aeroport Iași.
             </p>
 
-            <div style="position:relative; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-              <div id="about-map" style="width:100%; height:400px; border-radius:12px;"></div>
+            <div class="map-container">
+              <div id="about-map"></div>
 
-              <div style="position:absolute; top:20px; right:20px; background:#fff; padding:18px 22px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.15); max-width:280px; z-index:1000;">
+              <div class="map-overlay-card">
                 <h4 style="color:#1e293b; font-size:1.05rem; margin:0 0 8px 0; font-weight:700;">
                   <i class="fa fa-building" style="color:#f59e0b; margin-right:6px;"></i>
                   Biroul PlusRent
