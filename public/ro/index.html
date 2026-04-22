@@ -1859,20 +1859,16 @@ document.addEventListener('DOMContentLoaded', function() {
           htmlEl.classList.add('modal-active');
           htmlEl.style.overflow = 'hidden';
           
-          // Блокируем BODY через cssText с компенсацией скроллбара
+          // Lock body scroll — individual properties, NO !important, cleanly reversible
           const bodyEl = document.body;
-          bodyEl.classList.remove('modal-open'); // Удаляем старый класс если есть
+          bodyEl.classList.remove('modal-open');
           bodyEl.classList.add('price-calculator-open');
-          bodyEl.style.cssText = `
-            position: fixed !important;
-            top: -${scrollY}px !important;
-            width: 100% !important;
-            height: 100% !important;
-            left: 0 !important;
-            right: 0 !important;
-            overflow: hidden !important;
-            padding-right: ${scrollbarWidth}px !important;
-          `;
+          bodyEl.style.position = 'fixed';
+          bodyEl.style.top = '-' + scrollY + 'px';
+          bodyEl.style.left = '0';
+          bodyEl.style.right = '0';
+          bodyEl.style.width = '100%';
+          bodyEl.style.overflow = 'hidden';
           bodyEl.dataset.scrollY = scrollY;
           
           // Блокируем #wrapper если есть
@@ -2063,47 +2059,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) modal.style.display = 'none';
 
-    // ── STEP 1: Read scrollY from body.style.top BEFORE touching any styles ──
-    // body.style.top was set to "-Npx" by openPriceCalculator
-    const _bodyTop = document.body.style.top;
-    const _scrollY = _bodyTop
-      ? Math.abs(parseInt(_bodyTop))
-      : parseInt(document.body.dataset.scrollY || '0');
+    // Read scrollY from body.style.top (most reliable — set as "-500px")
+    const topVal = document.body.style.top;
+    const scrollY = topVal ? Math.abs(parseInt(topVal, 10)) : 0;
 
-    // ── STEP 2: Remove classes ──
+    // Remove classes
     document.body.classList.remove('price-calculator-open');
     document.documentElement.classList.remove('modal-active');
 
-    // ── STEP 3: Clear styles INDIVIDUALLY (cssText='' is unreliable on iOS) ──
+    // Clear body lock — same properties that were set, no cssText
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.left     = '';
+    document.body.style.right    = '';
+    document.body.style.width    = '';
+    document.body.style.overflow = '';
+
+    // Clear html lock
     document.documentElement.style.overflow = '';
-    document.documentElement.style.position = '';
-    document.documentElement.style.width    = '';
-    document.documentElement.style.height   = '';
-    document.documentElement.style.top      = '';
-    document.documentElement.style.left     = '';
 
-    document.body.style.position    = '';
-    document.body.style.top         = '';
-    document.body.style.width       = '';
-    document.body.style.height      = '';
-    document.body.style.left        = '';
-    document.body.style.right       = '';
-    document.body.style.overflow    = '';
-    document.body.style.paddingRight = '';
-
-    const _wrapper = document.getElementById('wrapper');
-    if (_wrapper) {
-      _wrapper.style.position = '';
-      _wrapper.style.width    = '';
-      _wrapper.style.overflow = '';
-      _wrapper.style.top      = '';
-      _wrapper.style.left     = '';
+    // Clear wrapper
+    const wrapper = document.getElementById('wrapper');
+    if (wrapper) {
+      wrapper.style.position = '';
+      wrapper.style.width    = '';
+      wrapper.style.overflow = '';
+      wrapper.style.top      = '';
+      wrapper.style.left     = '';
     }
 
-    // ── STEP 4: Restore scroll SYNCHRONOUSLY ──
-    window.scrollTo(0, _scrollY);
-
-    // ── STEP 5: Remove event listeners ──
+    // Remove event listeners
     if (window.priceCalculatorWheelHandler) {
       document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
       window.priceCalculatorWheelHandler = null;
@@ -2112,6 +2097,9 @@ document.addEventListener('DOMContentLoaded', function() {
       document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
       window.priceCalculatorKeyHandler = null;
     }
+
+    // Restore scroll position synchronously
+    window.scrollTo(0, scrollY);
   }
   
   document.addEventListener('DOMContentLoaded', function() {
@@ -2151,66 +2139,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
-<!-- DEBUG OVERLAY — REMOVE AFTER TESTING -->
-<style>
-  #debug-overlay {
-    position: fixed !important;
-    bottom: 80px !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 999999 !important;
-    background: rgba(0,0,0,0.85) !important;
-    color: #0f0 !important;
-    font-size: 11px !important;
-    font-family: monospace !important;
-    padding: 8px !important;
-    pointer-events: none !important;
-  }
-</style>
-<div id="debug-overlay">DEBUG: loading...</div>
-<script>
-(function() {
-  var d = document.getElementById('debug-overlay');
-  function log(msg) {
-    d.innerHTML = msg;
-  }
-
-  // Track scrollTo calls
-  var origScrollTo = window.scrollTo;
-  window.scrollTo = function(x, y) {
-    log('scrollTo(' + x + ', ' + y + ')<br>' +
-        'body.top: ' + document.body.style.top + '<br>' +
-        'body.pos: ' + document.body.style.position + '<br>' +
-        'dataset.scrollY: ' + (document.body.dataset.scrollY || 'none') + '<br>' +
-        'window.scrollY: ' + window.scrollY
-    );
-    return origScrollTo.apply(this, arguments);
-  };
-
-  // Update overlay every 300ms
-  setInterval(function() {
-    d.innerHTML =
-      'window.scrollY: ' + window.scrollY + '<br>' +
-      'body.pos: ' + (document.body.style.position || 'normal') + '<br>' +
-      'body.top: ' + (document.body.style.top || 'none') + '<br>' +
-      'html.pos: ' + (document.documentElement.style.position || 'normal') + '<br>' +
-      'dataset.scrollY: ' + (document.body.dataset.scrollY || 'none') + '<br>' +
-      'modal: ' + (document.getElementById('price-calculator-modal') ? document.getElementById('price-calculator-modal').style.display || 'none' : 'N/A');
-  }, 300);
-
-  // Log before close
-  document.addEventListener('click', function(e) {
-    if (e.target.closest('.close-modal') || e.target.closest('.btn-close-calc')) {
-      log('=== CLOSING MODAL ===<br>' +
-          'body.top BEFORE: ' + document.body.style.top + '<br>' +
-          'body.pos BEFORE: ' + document.body.style.position + '<br>' +
-          'dataset.scrollY: ' + document.body.dataset.scrollY + '<br>' +
-          'window.scrollY: ' + window.scrollY
-      );
-    }
-  }, true);
-})();
-</script>
-<!-- END DEBUG OVERLAY -->
 </body>
 </html>
