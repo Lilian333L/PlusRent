@@ -38,6 +38,17 @@
   }
   </script>
 
+  
+<script>/* ios-dynamic-viewport */
+(function(){
+  var vp = document.querySelector('meta[name="viewport"]');
+  if (!vp) return;
+  var N = 'width=device-width, initial-scale=1.0';
+  var L = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+  window.__lockVP   = function(){ vp.content = L; };
+  window.__unlockVP = function(){ vp.content = N; };
+})();
+</script>
   <meta charset="UTF-8">
 
   <!-- ===== PRECONNECT — PageSpeed optimization ===== -->
@@ -114,36 +125,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
-<!-- iOS nuclear zoom fix -->
+<!-- iOS zoom: font-size + touch-action -->
 <style>
-  /* ── iOS auto-zoom prevention ── */
-  /* iOS zooms when font-size < 16px on any focusable element */
   @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    input, input[type], select, textarea,
-    .form-control, .form-control-sm, .form-control-lg,
-    .select2-search__field,
-    .price-calculator-modal input,
-    .price-calculator-modal select,
-    .price-calculator-modal textarea,
-    .booking_form input,
-    .booking_form select,
-    .booking_form textarea {
+    input, select, textarea,
+    .form-control, .form-control-sm {
       font-size: 16px !important;
     }
   }
-
-  /* ── Prevent double-tap zoom on all interactive elements ── */
-  a, button, input, select, textarea, label,
-  [role="button"], [onclick], .btn, .btn-main,
-  .contact-option, .radio-option, .lang-option,
-  .close-modal, .floating-contact-btn {
+  a, button, input, select, textarea,
+  [role="button"], .btn-main, .contact-option {
     touch-action: manipulation;
-  }
-
-  /* ── Prevent text size adjustment on orientation change ── */
-  body {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
   }
 </style>
 
@@ -1643,6 +1635,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
+      if(window.__lockVP) window.__lockVP();
       
       // Блокируем скролл фона
       const scrollY = window.scrollY;
@@ -1656,6 +1649,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function closeContactPopup() {
       document.getElementById('contactPopup').style.display = 'none';
+      if(window.__unlockVP) window.__unlockVP();
       
       // Восстанавливаем скролл
       const scrollY = document.body.dataset.scrollY || '0';
@@ -2070,6 +2064,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) {
       modal.style.display = 'none';
+    if(window.__unlockVP) window.__unlockVP();
     }
     
     // Удаляем классы блокировки
@@ -2141,50 +2136,5 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
-<script>
-/* ios-zoom-reset-js */
-(function() {
-  // Only run on iOS Safari
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (!isIOS) return;
-
-  var viewport = document.querySelector('meta[name="viewport"]');
-  if (!viewport) return;
-
-  var NORMAL   = 'width=device-width, initial-scale=1.0';
-  var NOZOOM   = 'width=device-width, initial-scale=1.0, maximum-scale=1.0';
-
-  // Reset viewport (snaps zoom back to 1x)
-  function resetZoom() {
-    viewport.setAttribute('content', NOZOOM);
-    setTimeout(function() {
-      viewport.setAttribute('content', NORMAL);
-    }, 300);
-  }
-
-  // Listen to ALL input focus events — reset after typing done
-  document.addEventListener('focusin', function(e) {
-    var tag = e.target.tagName;
-    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
-      // Already 16px via CSS, but reset zoom if it fired anyway
-      resetZoom();
-    }
-  }, true);
-
-  document.addEventListener('focusout', function(e) {
-    var tag = e.target.tagName;
-    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
-      // After keyboard closes, snap zoom back
-      setTimeout(resetZoom, 100);
-    }
-  }, true);
-
-  // Also reset on modal open/close
-  window.addEventListener('price-calculator-opened', resetZoom);
-  window.addEventListener('price-calculator-closed', resetZoom);
-  window.addEventListener('contact-popup-opened', resetZoom);
-  window.addEventListener('contact-popup-closed', resetZoom);
-})();
-</script>
 </body>
 </html>
