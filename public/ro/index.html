@@ -2067,40 +2067,32 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
   function closePriceCalculator() {
-    // ── FIX: read scrollY FIRST before any style changes ──
-    const scrollY = parseInt(document.body.dataset.scrollY || '0');
     const modal = document.getElementById('price-calculator-modal');
     if (modal) modal.style.display = 'none';
-    
-    // Удаляем классы блокировки
+
     document.body.classList.remove('price-calculator-open');
     document.documentElement.classList.remove('modal-active');
-    
-    // Очищаем все инлайн-стили через cssText
+
+    // ── FIX: read BEFORE clearing ──
+    const _sy = parseInt(document.body.dataset.scrollY || '0');
+
     document.documentElement.style.cssText = '';
     document.body.style.cssText = '';
-    
-    // Очищаем #wrapper
+
     const wrapper = document.getElementById('wrapper');
-    if (wrapper) {
-      wrapper.style.cssText = '';
-    }
-    
-    // Удаляем обработчик колесика мыши
+    if (wrapper) wrapper.style.cssText = '';
+
     if (window.priceCalculatorWheelHandler) {
       document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
       window.priceCalculatorWheelHandler = null;
     }
-    
-    // Удаляем обработчик клавиатуры
     if (window.priceCalculatorKeyHandler) {
       document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
       window.priceCalculatorKeyHandler = null;
     }
-    
-    // ── FIX: read scrollY BEFORE cssText clear happens above ──
-    // scrollY already read at top of function — restore synchronously
-    window.scrollTo(0, scrollY);
+
+    // ── FIX: synchronous, not setTimeout ──
+    window.scrollTo(0, _sy);
   }
   
   document.addEventListener('DOMContentLoaded', function() {
