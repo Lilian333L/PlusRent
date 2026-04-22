@@ -39,16 +39,6 @@
   </script>
 
   
-<script>/* ios-dynamic-viewport */
-(function(){
-  var vp = document.querySelector('meta[name="viewport"]');
-  if (!vp) return;
-  var N = 'width=device-width, initial-scale=1.0';
-  var L = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-  window.__lockVP   = function(){ vp.content = L; };
-  window.__unlockVP = function(){ vp.content = N; };
-})();
-</script>
   <meta charset="UTF-8">
 
   <!-- ===== PRECONNECT — PageSpeed optimization ===== -->
@@ -60,7 +50,7 @@
   <!-- ===== END PRECONNECT ===== -->
     <link rel="preload" as="image" href="/images/background/3-copy.webp" fetchpriority="high" type="image/webp">
   <meta http-equiv="content-language" content="ro">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Chirie Auto Chișinău 24/7 | Livrare Aeroport – PlusRent</title>
 
@@ -125,14 +115,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
-<!-- iOS zoom: font-size + touch-action -->
+<!-- touch-action: prevent double-tap zoom -->
 <style>
-  @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    input, select, textarea,
-    .form-control, .form-control-sm {
-      font-size: 16px !important;
-    }
-  }
   a, button, input, select, textarea,
   [role="button"], .btn-main, .contact-option {
     touch-action: manipulation;
@@ -1635,7 +1619,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
     function openContactPopup() {
       document.getElementById('contactPopup').style.display = 'flex';
-      if(window.__lockVP) window.__lockVP();
       
       // Блокируем скролл фона
       const scrollY = window.scrollY;
@@ -1649,7 +1632,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function closeContactPopup() {
       document.getElementById('contactPopup').style.display = 'none';
-      if(window.__unlockVP) window.__unlockVP();
       
       // Восстанавливаем скролл
       const scrollY = document.body.dataset.scrollY || '0';
@@ -2064,7 +2046,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) {
       modal.style.display = 'none';
-    if(window.__unlockVP) window.__unlockVP();
     }
     
     // Удаляем классы блокировки
