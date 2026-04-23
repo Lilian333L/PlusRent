@@ -1,139 +1,348 @@
 # ==========================================================
 # plusrent.md — robots.txt
-# Posture: maximum AI visibility + standard search access
-# Last updated: 2026-04-22
+# Posture: Maximum AI visibility + proper security + SEO
+# Last updated: 2026-04-23
+# Docs: https://plusrent.md/llms.txt
 # ==========================================================
 
-# ---------- Default: all crawlers ----------
+# ==========================================================
+# DEFAULT RULES — apply to ALL crawlers (including AI bots)
+# AI bots inherit these rules when they have no explicit block
+# Explicit AI bot blocks below override ONLY where needed
+# ==========================================================
 User-agent: *
 Allow: /
+
+# Security: prevent indexing of private areas
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /register
+Disallow: /account-dashboard
+Disallow: /account/
+Disallow: /profile/
+Disallow: /all-codes
+Disallow: /coupon-management
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-confirmation
+Disallow: /booking-confirmation
+
+# Security: prevent sensitive URL parameters
+Disallow: /*?token=
+Disallow: /*?session=
+Disallow: /*?auth=
+Disallow: /*?api_key=
+Disallow: /*?password=
+Disallow: /*?email=
+Disallow: /*?phone=
+
+# SEO: prevent duplicate content from URL parameters
+Disallow: /*?search=
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*?page=
+Disallow: /*?utm_
+Disallow: /*?gclid=
+Disallow: /*?fbclid=
+Disallow: /*?ref=
+Disallow: /*?source=
+
+# Don't index technical pages
+Disallow: /404
+Disallow: /500
+Disallow: /_next/
+Disallow: /*.json$
+Disallow: /*.xml$
+Allow: /sitemap.xml
+Allow: /sitemap-*.xml
+
+# ==========================================================
+# AI CRAWLERS — all follow default rules above
+# (no override needed unless we want different behavior)
+# Listed explicitly for transparency and llms.txt linking
+# ==========================================================
+
+# ---------- OpenAI ----------
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
 Disallow: /api/
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
 Disallow: /account-dashboard
-Disallow: /all-codes
-Disallow: /coupon-management
-Disallow: /*?search=
 Disallow: /*?token=
 Disallow: /*?session=
 
-# ---------- OpenAI ----------
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
 # ---------- Anthropic ----------
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: anthropic-ai
-Allow: /
-
 User-agent: Claude-Web
-Allow: /
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
-# ---------- Google ----------
+# ---------- Google (Search + AI) ----------
 User-agent: Googlebot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
 User-agent: Googlebot-Image
-Allow: /
-
 User-agent: Googlebot-News
-Allow: /
+User-agent: Googlebot-Video
+User-agent: Googlebot-Mobile
+User-agent: AdsBot-Google
+User-agent: AdsBot-Google-Mobile
+User-agent: Google-Extended
+User-agent: GoogleOther
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- Microsoft / Bing / Copilot ----------
 User-agent: Bingbot
-Allow: /
-
 User-agent: msnbot
-Allow: /
+User-agent: BingPreview
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
+
+# ---------- Yandex (Russian + CIS market) ----------
+User-agent: YandexBot
+User-agent: YandexImages
+User-agent: YandexMedia
+User-agent: YandexMobileBot
+User-agent: YandexDirect
+User-agent: YandexMetrika
+User-agent: YandexMarket
+User-agent: YandexNews
+User-agent: YandexBlogs
+User-agent: YandexCalendar
+User-agent: YandexAccessibilityBot
+User-agent: YandexOntoDBAPI
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
+# Yandex-specific: clean tracking parameters
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term
+Clean-param: gclid&fbclid&yclid&ref&source
 
 # ---------- Perplexity ----------
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: Perplexity-User
-Allow: /
-
-# ---------- Cohere ----------
-User-agent: cohere-ai
-Allow: /
-
-User-agent: cohere-training-data-crawler
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- Apple Intelligence ----------
 User-agent: Applebot
-Allow: /
-
 User-agent: Applebot-Extended
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
-# ---------- Meta / Llama ----------
+# ---------- Meta / Facebook / Llama ----------
 User-agent: Meta-ExternalAgent
-Allow: /
-
 User-agent: Meta-ExternalFetcher
-Allow: /
-
 User-agent: FacebookBot
-Allow: /
+User-agent: facebookexternalhit
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
+
+# ---------- Cohere ----------
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- ByteDance / TikTok AI ----------
 User-agent: Bytespider
-Allow: /
+User-agent: ByteDance
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- Common Crawl ----------
 User-agent: CCBot
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- DuckDuckGo ----------
-User-agent: DuckAssistBot
-Allow: /
-
 User-agent: DuckDuckBot
-Allow: /
+User-agent: DuckAssistBot
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
-# ---------- Mistral ----------
+# ---------- Mistral AI ----------
 User-agent: MistralAI-User
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- Amazon ----------
 User-agent: Amazonbot
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- xAI / Grok ----------
 User-agent: xAI-Bot
-Allow: /
-
 User-agent: Grok
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- You.com ----------
 User-agent: YouBot
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
 # ---------- Brave AI ----------
 User-agent: BraveBot
-Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
-# ---------- Yandex (Russian market) ----------
-User-agent: YandexBot
-Allow: /
+# ---------- Archive.org (historical SEO) ----------
+User-agent: ia_archiver
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+Disallow: /*?token=
+Disallow: /*?session=
 
-# ---------- Sitemaps ----------
+# ==========================================================
+# AGGRESSIVE SEO / SCRAPER BOTS — crawl-delay to prevent abuse
+# Keep allowed for backlink analysis and monitoring
+# ==========================================================
+
+User-agent: AhrefsBot
+Crawl-delay: 10
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+
+User-agent: SemrushBot
+Crawl-delay: 10
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+
+User-agent: MJ12bot
+Crawl-delay: 10
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+
+User-agent: DotBot
+Crawl-delay: 10
+Disallow: /api/
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /account-dashboard
+
+# ==========================================================
+# BLOCKED: Known bad scrapers / content thieves
+# ==========================================================
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: SeekportBot
+Disallow: /
+
+User-agent: MegaIndex
+Disallow: /
+
+# ==========================================================
+# SITEMAPS
+# ==========================================================
+
 Sitemap: https://plusrent.md/sitemap.xml
 
-# ---------- AI machine-readable summary ----------
-# PlusRent publishes a comprehensive llms.txt for AI systems:
+# ==========================================================
+# AI MACHINE-READABLE DOCUMENTATION
+# PlusRent provides a comprehensive llms.txt for AI systems:
 # https://plusrent.md/llms.txt
+# ==========================================================
