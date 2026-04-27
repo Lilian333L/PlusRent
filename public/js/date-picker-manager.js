@@ -607,22 +607,23 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   position: this.isModal ? "above" : "below",
   closeOnSelect: true,
   disableMobile: true,
-  locale: {
+  locale: { 
+    firstDayOfWeek: 1,
     months: {
       shorthand: [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
+        "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"
       ],
       longhand: [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+        "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
       ],
     },
     weekdays: {
-      shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      shorthand: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
       longhand: [
-        "Sunday", "Monday", "Tuesday", "Wednesday",
-        "Thursday", "Friday", "Saturday"
+        "Duminică", "Luni", "Marți", "Miercuri",
+        "Joi", "Vineri", "Sâmbătă"
       ],
     },
   },
@@ -702,21 +703,22 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
         disableMobile: true,
         closeOnSelect: true,
         locale: {
+          firstDayOfWeek: 1,
           months: {
             shorthand: [
-              "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+              "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
+              "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"
             ],
             longhand: [
-              "January", "February", "March", "April", "May", "June",
-              "July", "August", "September", "October", "November", "December"
+              "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
+              "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
             ],
           },
           weekdays: {
-            shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            shorthand: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
             longhand: [
-              "Sunday", "Monday", "Tuesday", "Wednesday",
-              "Thursday", "Friday", "Saturday"
+              "Duminică", "Luni", "Marți", "Miercuri",
+              "Joi", "Vineri", "Sâmbătă"
             ],
           },
         },
