@@ -680,31 +680,130 @@ async function openPriceCalculator() {
 
   // Add event listeners for real-time price updates
   $(
+// ============================================
+  // Time validation: блокирует прошедшее время
+  // и гарантирует минимум 1 час между pickup и return
+  // ============================================
+  const MIN_HOURS_GAP = 1; // минимум 1 час между получением и возвратом в один день
+
+  function updateTimeOptions() {
+    const pickupDateStr = $("#modal-pickup-date").val();
+    const returnDateStr = $("#modal-return-date").val();
+    const pickupTimeSelect = document.getElementById("modal-pickup-time");
+    const returnTimeSelect = document.getElementById("modal-return-time");
+
+    if (!pickupTimeSelect || !returnTimeSelect) return;
+
+    // Парсим даты в формате d-m-Y
+    const parseDate = (str) => {
+      if (!str) return null;
+      const parts = str.split("-");
+      if (parts.length !== 3) return null;
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    };
+
+    const pickupDate = parseDate(pickupDateStr);
+    const returnDate = parseDate(returnDateStr);
+    if (!pickupDate || !returnDate) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
+
+    pickupDate.setHours(0, 0, 0, 0);
+    returnDate.setHours(0, 0, 0, 0);
+
+    const isPickupToday = pickupDate.getTime() === today.getTime();
+    const isSameDay = pickupDate.getTime() === returnDate.getTime();
+
+    // ===== 1. Pickup time: блокируем прошедшие часы если pickup = сегодня =====
+    let firstAvailablePickupHour = 0;
+    Array.from(pickupTimeSelect.options).forEach((option) => {
+      const hour = parseInt(option.value.split(":")[0]);
+      let blocked = false;
+
+      if (isPickupToday) {
+        // Блокируем час, который уже наступил (с любыми минутами)
+        if (hour <= currentHour) blocked = true;
+      }
+
+      option.disabled = blocked;
+      option.style.color = blocked ? "#ccc" : "";
+      if (!blocked && firstAvailablePickupHour === 0) firstAvailablePickupHour = hour;
+    });
+
+    // Если выбранное pickup-время заблокировано — переключить на ближайшее доступное
+    const currentPickupHour = parseInt(pickupTimeSelect.value.split(":")[0]);
+    const currentPickupOption = Array.from(pickupTimeSelect.options).find(
+      (o) => parseInt(o.value.split(":")[0]) === currentPickupHour
+    );
+    if (currentPickupOption && currentPickupOption.disabled) {
+      const firstOk = Array.from(pickupTimeSelect.options).find((o) => !o.disabled);
+      if (firstOk) {
+        pickupTimeSelect.value = firstOk.value;
+      }
+    }
+
+    // ===== 2. Return time: блокируем по правилам =====
+    const pickupHour = parseInt(pickupTimeSelect.value.split(":")[0]);
+
+    Array.from(returnTimeSelect.options).forEach((option) => {
+      const hour = parseInt(option.value.split(":")[0]);
+      let blocked = false;
+
+      if (isSameDay) {
+        // В один день — return должен быть минимум на MIN_HOURS_GAP часа позже pickup
+        if (hour < pickupHour + MIN_HOURS_GAP) blocked = true;
+      } else if (returnDate.getTime() === today.getTime()) {
+        // Return в сегодня (но не в тот же день что pickup — невозможный кейс при minDate=today, но на всякий случай)
+        if (hour <= currentHour) blocked = true;
+      }
+
+      option.disabled = blocked;
+      option.style.color = blocked ? "#ccc" : "";
+    });
+
+    // Если выбранное return-время заблокировано — переключить на ближайшее доступное
+    const currentReturnHour = parseInt(returnTimeSelect.value.split(":")[0]);
+    const currentReturnOption = Array.from(returnTimeSelect.options).find(
+      (o) => parseInt(o.value.split(":")[0]) === currentReturnHour
+    );
+    if (currentReturnOption && currentReturnOption.disabled) {
+      const firstOk = Array.from(returnTimeSelect.options).find((o) => !o.disabled);
+      if (firstOk) {
+        returnTimeSelect.value = firstOk.value;
+      } else {
+        // Если в этот день вообще нет доступного времени (например все часы прошли) —
+        // переключим return на завтра
+        const tomorrow = new Date(returnDate);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dd = String(tomorrow.getDate()).padStart(2, "0");
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, "0");
+        const yyyy = tomorrow.getFullYear();
+        $("#modal-return-date").val(`${dd}-${mm}-${yyyy}`);
+        // и разблокируем все опции
+        Array.from(returnTimeSelect.options).forEach((o) => {
+          o.disabled = false;
+          o.style.color = "";
+        });
+      }
+    }
+  }
+
+  // Слушатель изменений
+  $(
     "#modal-pickup-date, #modal-return-date, #modal-pickup-time, #modal-return-time"
   )
     .off("change")
     .on("change", function () {
-      // Validate dates
-      const pickupDate = $("#modal-pickup-date").val();
-      const returnDate = $("#modal-return-date").val();
-
-      if (pickupDate && returnDate) {
-        const pickup = new Date(pickupDate);
-        const return_dt = new Date(returnDate);
-
-        // if (return_dt <= pickup) {
-        //   if (window.showError && typeof window.showError === "function") {
-        //     window.showError(i18next.t('errors.return_date_after_pickup'));
-        //   } else {
-        //     alert(i18next.t('errors.return_date_after_pickup'));
-        //   }
-        //   return;
-        // }
-      }
-
+      updateTimeOptions();
       calculateModalPrice();
       updateVehiclePriceDisplay();
     });
+
+  // Применить сразу при открытии модалки
+  setTimeout(updateTimeOptions, 100);
 
   // Show modal
   $("#price-calculator-modal").fadeIn(300);
