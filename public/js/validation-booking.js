@@ -1463,21 +1463,27 @@ window.showSuccess = function (bookingData) {
   // Get customer display name (name or phone)
   const customerDisplay = bookingData.customer_name || bookingData.customer_phone || '';
 
-  // Create adaptive success modal
+  // Create premium success modal — PlusRent brand colors (amber/gold)
   const successModalHTML = `
     <div id="booking-success-modal" class="booking-success-modal">
         <div class="success-modal-content">
+            <!-- Decorative gradient accent bar -->
+            <div class="success-accent-bar"></div>
+
             <div class="success-modal-header">
-                <div class="success-checkmark">
-                    <svg viewBox="0 0 52 52">
-                        <circle cx="26" cy="26" r="25" fill="none"/>
-                        <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                    </svg>
+                <div class="success-checkmark-wrap">
+                    <div class="success-checkmark-glow"></div>
+                    <div class="success-checkmark">
+                        <svg viewBox="0 0 52 52">
+                            <circle cx="26" cy="26" r="25" fill="none"/>
+                            <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
                 </div>
                 <h2 class="success-title" data-i18n="booking.success_title">Booking Confirmed!</h2>
                 <p class="success-subtitle" data-i18n="booking.success_message">We'll contact you soon</p>
             </div>
-            
+
             <div class="success-modal-body">
                 <div class="info-grid">
                     <div class="info-item">
@@ -1487,7 +1493,7 @@ window.showSuccess = function (bookingData) {
                             <span class="info-value">${$("#vehicle_type option:selected").text()}</span>
                         </div>
                     </div>
-                    
+
                     <div class="info-item">
                         <i class="fa fa-user"></i>
                         <div>
@@ -1495,7 +1501,7 @@ window.showSuccess = function (bookingData) {
                             <span class="info-value">${customerDisplay}</span>
                         </div>
                     </div>
-                    
+
                     <div class="info-item">
                         <i class="fa fa-calendar"></i>
                         <div>
@@ -1503,7 +1509,7 @@ window.showSuccess = function (bookingData) {
                             <span class="info-value">${bookingData.pickup_date} → ${bookingData.return_date}</span>
                         </div>
                     </div>
-                    
+
                     <div class="info-item">
                         <i class="fa fa-map-marker"></i>
                         <div>
@@ -1512,13 +1518,14 @@ window.showSuccess = function (bookingData) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="price-total">
+                    <div class="price-total-shine"></div>
                     <span data-i18n="booking.total_price">Total</span>
                     <span class="price-amount">€${bookingData.total_price}</span>
                 </div>
             </div>
-            
+
             <div class="success-modal-footer">
                 <button class="btn-primary" onclick="closeSuccessModal()">
                     <i class="fa fa-check"></i>
@@ -1535,429 +1542,524 @@ window.showSuccess = function (bookingData) {
 
   $("body").append(successModalHTML);
 
-  // Add adaptive CSS with proper media queries
+  // Premium PlusRent-branded CSS (amber/gold palette matching site)
   const successModalCSS = `
-<style>
-    /* ========== BASE STYLES (DESKTOP) ========== */
+<style id="success-modal-styles">
+    /* ========== BACKDROP ========== */
     .booking-success-modal {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
+        background: radial-gradient(ellipse at center, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         z-index: 99999;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 20px;
-        animation: fadeIn 0.3s;
+        animation: brmFadeIn 0.4s ease-out;
     }
-    
-    @keyframes fadeIn {
+
+    @keyframes brmFadeIn {
         from { opacity: 0; }
-        to { opacity: 1; }
+        to   { opacity: 1; }
     }
-    
+
+    /* ========== MODAL CARD ========== */
     .success-modal-content {
-        background: white;
-        border-radius: 20px;
+        position: relative;
+        background: #ffffff;
+        border-radius: 24px;
         max-width: 480px;
         width: 100%;
-        max-height: 90vh;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-height: 92vh;
+        box-shadow:
+            0 25px 80px -10px rgba(217, 119, 6, 0.25),
+            0 10px 40px -5px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(245, 158, 11, 0.08);
+        animation: brmSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
         display: flex;
         flex-direction: column;
     }
-    
-    @keyframes slideUp {
+
+    @keyframes brmSlideUp {
         from {
             opacity: 0;
-            transform: translateY(30px) scale(0.95);
+            transform: translateY(40px) scale(0.92);
         }
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
         }
     }
-    
-    /* ========== HEADER (DESKTOP) ========== */
+
+    /* Top decorative accent bar */
+    .success-accent-bar {
+        height: 4px;
+        background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%);
+        background-size: 200% 100%;
+        animation: brmShine 3s ease-in-out infinite;
+    }
+
+    @keyframes brmShine {
+        0%, 100% { background-position: 0% 50%; }
+        50%      { background-position: 100% 50%; }
+    }
+
+    /* ========== HEADER ========== */
     .success-modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 28px 24px 20px;
+        position: relative;
+        background:
+            radial-gradient(circle at 20% 0%, rgba(251, 191, 36, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 80% 100%, rgba(217, 119, 6, 0.3) 0%, transparent 50%),
+            linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+        padding: 32px 24px 24px;
         text-align: center;
         color: white;
         flex-shrink: 0;
+        overflow: hidden;
     }
-    
+
+    .success-modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .success-modal-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* Checkmark with glow */
+    .success-checkmark-wrap {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .success-checkmark-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 65%);
+        border-radius: 50%;
+        animation: brmPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes brmPulse {
+        0%, 100% { transform: scale(1);   opacity: 0.6; }
+        50%      { transform: scale(1.15); opacity: 0.9; }
+    }
+
     .success-checkmark {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 12px;
+        position: relative;
+        width: 64px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(180, 83, 9, 0.3);
     }
-    
+
     .success-checkmark svg {
-        width: 60px;
-        height: 60px;
+        width: 44px;
+        height: 44px;
     }
-    
+
     .success-checkmark circle {
-        stroke: white;
-        stroke-width: 2;
+        stroke: #d97706;
+        stroke-width: 2.5;
         stroke-dasharray: 166;
         stroke-dashoffset: 166;
-        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        animation: brmStroke 0.7s cubic-bezier(0.65, 0, 0.45, 1) forwards;
     }
-    
+
     .success-checkmark path {
-        stroke: white;
-        stroke-width: 3;
+        stroke: #d97706;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
         stroke-dasharray: 48;
         stroke-dashoffset: 48;
-        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        animation: brmStroke 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
     }
-    
-    @keyframes stroke {
+
+    @keyframes brmStroke {
         to { stroke-dashoffset: 0; }
     }
-    
+
     .success-title {
-        font-size: 22px;
+        position: relative;
+        font-size: 24px;
         font-weight: 700;
         margin: 0 0 6px;
+        letter-spacing: -0.3px;
+        text-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
     }
-    
+
     .success-subtitle {
+        position: relative;
         font-size: 14px;
         opacity: 0.95;
         margin: 0;
+        font-weight: 500;
     }
-    
-    /* ========== BODY (DESKTOP) ========== */
+
+    /* ========== BODY ========== */
     .success-modal-body {
-        padding: 20px;
+        padding: 22px;
         flex: 1;
         overflow-y: auto;
         min-height: 0;
+        background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
     }
-    
+
     .info-grid {
         display: grid;
         gap: 10px;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
     }
-    
+
     .info-item {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 10px 12px;
-        background: #f8fafc;
-        border-radius: 10px;
+        padding: 12px 14px;
+        background: #ffffff;
+        border: 1px solid #fef3c7;
+        border-radius: 12px;
+        transition: all 0.25s ease;
+        box-shadow: 0 1px 3px rgba(217, 119, 6, 0.04);
     }
-    
+
+    .info-item:hover {
+        border-color: #fde68a;
+        transform: translateX(2px);
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);
+    }
+
     .info-item i {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #ffffff;
+        border-radius: 10px;
         font-size: 16px;
         flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
     }
-    
+
     .info-item > div {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 3px;
         min-width: 0;
     }
-    
+
     .info-label {
         font-size: 10px;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        color: #64748b;
-        letter-spacing: 0.3px;
+        color: #92400e;
+        letter-spacing: 0.6px;
     }
-    
+
     .info-value {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 600;
         color: #1e293b;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
+
+    /* Price total — highlight block */
     .price-total {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        padding: 14px 16px;
-        border-radius: 10px;
+        position: relative;
+        background:
+            radial-gradient(circle at 80% 50%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
+            linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        padding: 16px 20px;
+        border-radius: 14px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: white;
         font-weight: 700;
+        box-shadow:
+            0 8px 20px rgba(217, 119, 6, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        overflow: hidden;
     }
-    
+
+    .price-total-shine {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        animation: brmSlideShine 2.5s ease-in-out infinite;
+    }
+
+    @keyframes brmSlideShine {
+        0%, 100% { left: -100%; }
+        50%      { left: 200%; }
+    }
+
     .price-total > span:first-child {
+        position: relative;
         font-size: 12px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
+        opacity: 0.95;
     }
-    
+
     .price-amount {
-        font-size: 24px;
-        letter-spacing: -0.5px;
+        position: relative;
+        font-size: 26px;
+        letter-spacing: -0.8px;
+        text-shadow: 0 2px 6px rgba(120, 53, 15, 0.3);
     }
-    
-    /* ========== FOOTER (DESKTOP) ========== */
+
+    /* ========== FOOTER ========== */
     .success-modal-footer {
-        padding: 16px 20px 20px;
+        padding: 18px 22px 22px;
         display: flex;
         gap: 10px;
         flex-shrink: 0;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid #fef3c7;
+        background: #ffffff;
     }
-    
+
     .success-modal-footer button {
         flex: 1;
-        padding: 12px 16px;
+        padding: 13px 18px;
         border: none;
-        border-radius: 10px;
-        font-weight: 600;
+        border-radius: 12px;
+        font-weight: 700;
         font-size: 14px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
+        font-family: inherit;
     }
-    
+
     .btn-primary {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: white;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        box-shadow:
+            0 4px 14px rgba(217, 119, 6, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
-    
+
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        box-shadow:
+            0 8px 22px rgba(217, 119, 6, 0.45),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
     }
-    
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
     .btn-secondary {
-        background: #f1f5f9;
-        color: #475569;
+        background: #fffbeb;
+        color: #92400e;
+        border: 1.5px solid #fde68a;
     }
-    
+
     .btn-secondary:hover {
-        background: #e2e8f0;
+        background: #fef3c7;
+        border-color: #f59e0b;
+        color: #78350f;
+        transform: translateY(-1px);
     }
-    
-    /* ========== MOBILE OPTIMIZATION ========== */
+
+    /* ========== MOBILE (≤768px) ========== */
     @media (max-width: 768px) {
-        .booking-success-modal {
-            padding: 12px;
-        }
-        
+        .booking-success-modal { padding: 12px; }
+
         .success-modal-content {
             max-height: 96vh;
-            border-radius: 18px;
+            border-radius: 20px;
         }
-        
+
         .success-modal-header {
-            padding: 20px 18px 16px;
+            padding: 24px 20px 18px;
         }
-        
-        .success-checkmark {
-            width: 50px;
-            height: 50px;
+
+        .success-checkmark-wrap {
+            width: 60px;
+            height: 60px;
             margin-bottom: 10px;
         }
-        
-        .success-checkmark svg {
-            width: 50px;
-            height: 50px;
+
+        .success-checkmark {
+            width: 54px;
+            height: 54px;
         }
-        
+
+        .success-checkmark svg {
+            width: 36px;
+            height: 36px;
+        }
+
         .success-title {
-            font-size: 19px;
+            font-size: 20px;
             line-height: 1.2;
         }
-        
+
         .success-subtitle {
             font-size: 13px;
             line-height: 1.4;
         }
-        
+
         .success-modal-body {
-            padding: 16px;
+            padding: 18px;
         }
-        
+
         .info-grid {
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
-        
+
         .info-item {
-            padding: 8px 10px;
+            padding: 10px 12px;
             gap: 10px;
         }
-        
+
         .info-item i {
-            width: 28px;
-            height: 28px;
-            font-size: 13px;
-            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            border-radius: 8px;
         }
-        
-        .info-label {
-            font-size: 9px;
-        }
-        
-        .info-value {
-            font-size: 12px;
-        }
-        
+
+        .info-label  { font-size: 9px; }
+        .info-value  { font-size: 12.5px; }
+
         .price-total {
-            padding: 12px 14px;
+            padding: 14px 16px;
         }
-        
+
         .price-total > span:first-child {
             font-size: 11px;
-            letter-spacing: 0.4px;
         }
-        
+
         .price-amount {
-            font-size: 22px;
+            font-size: 23px;
         }
-        
+
         .success-modal-footer {
-            padding: 12px 16px 16px;
+            padding: 14px 18px 18px;
         }
-        
+
         .success-modal-footer button {
-            padding: 11px 14px;
+            padding: 12px 14px;
             font-size: 13px;
         }
     }
-    
-    /* ========== SMALL MOBILE (LOW HEIGHT) ========== */
+
+    /* ========== SHORT VIEWPORT (≤680px height) ========== */
     @media (max-height: 680px) {
-        .success-modal-header {
-            padding: 16px 16px 12px;
-        }
-        
-        .success-checkmark {
-            width: 42px;
-            height: 42px;
+        .success-modal-header { padding: 18px 18px 14px; }
+
+        .success-checkmark-wrap {
+            width: 50px;
+            height: 50px;
             margin-bottom: 8px;
         }
-        
+
+        .success-checkmark {
+            width: 44px;
+            height: 44px;
+        }
+
         .success-checkmark svg {
-            width: 42px;
-            height: 42px;
+            width: 30px;
+            height: 30px;
         }
-        
-        .success-title {
-            font-size: 17px;
-            margin-bottom: 4px;
-        }
-        
-        .success-subtitle {
-            font-size: 12px;
-        }
-        
-        .success-modal-body {
-            padding: 12px;
-        }
-        
-        .info-grid {
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        
-        .info-item {
-            padding: 6px 8px;
-            gap: 8px;
-        }
-        
-        .info-item i {
-            width: 26px;
-            height: 26px;
-            font-size: 12px;
-        }
-        
-        .info-text {
-            font-size: 11px;
-        }
-        
-        .price-total {
-            padding: 10px 12px;
-        }
-        
-        .price-total > span:first-child {
-            font-size: 10px;
-        }
-        
-        .price-amount {
-            font-size: 20px;
-        }
-        
-        .success-modal-footer {
-            padding: 10px 12px 12px;
-        }
-        
-        .success-modal-footer button {
-            padding: 10px 12px;
-            font-size: 12px;
-        }
+
+        .success-title    { font-size: 18px; margin-bottom: 4px; }
+        .success-subtitle { font-size: 12px; }
+
+        .success-modal-body { padding: 14px; }
+
+        .info-grid    { gap: 7px; margin-bottom: 12px; }
+        .info-item    { padding: 8px 10px; gap: 9px; }
+        .info-item i  { width: 28px; height: 28px; font-size: 12px; }
+        .info-value   { font-size: 12px; }
+
+        .price-total  { padding: 11px 14px; }
+        .price-amount { font-size: 21px; }
+
+        .success-modal-footer { padding: 12px 14px 14px; }
+        .success-modal-footer button { padding: 11px 13px; font-size: 12.5px; }
     }
-    
-    /* ========== VERY SMALL SCREENS ========== */
+
+    /* ========== TINY SCREENS (≤400px) ========== */
     @media (max-width: 400px) {
-        .success-modal-content {
-            border-radius: 16px;
-        }
-        
+        .success-modal-content { border-radius: 18px; }
+
         .success-modal-footer {
             flex-direction: column;
             gap: 8px;
         }
-        
-        .success-modal-footer button {
-            width: 100%;
-        }
+
+        .success-modal-footer button { width: 100%; }
     }
-    
+
     @media (max-width: 360px) {
-        .success-title {
-            font-size: 16px;
-        }
-        
-        .info-value {
-            font-size: 11px;
-        }
+        .success-title { font-size: 17px; }
+        .info-value    { font-size: 11.5px; }
     }
-    
+
     /* ========== SCROLLBAR ========== */
     .success-modal-body::-webkit-scrollbar {
-        width: 4px;
+        width: 5px;
     }
-    
+
     .success-modal-body::-webkit-scrollbar-track {
         background: transparent;
     }
-    
+
     .success-modal-body::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 2px;
+        background: #fde68a;
+        border-radius: 3px;
+    }
+
+    .success-modal-body::-webkit-scrollbar-thumb:hover {
+        background: #f59e0b;
     }
 </style>
   `;
