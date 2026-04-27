@@ -2968,11 +2968,30 @@
   .flatpickr-prev-month::after,
   .flatpickr-next-month::after { font-size: 17px !important; }
 
-  .flatpickr-day.flatpickr-disabled,
+/* Скрываем только дни СОСЕДНИХ месяцев — прошлые дни текущего месяца оставляем зачёркнутыми */
   .flatpickr-day.prevMonthDay,
   .flatpickr-day.nextMonthDay {
     display: none !important;
     visibility: hidden !important;
+  }
+
+  /* Прошлые отключённые дни — показываем зачёркнутыми, как на десктопе */
+  .flatpickr-day.flatpickr-disabled:not(.prevMonthDay):not(.nextMonthDay):not(.occupied) {
+    display: inline-flex !important;
+    visibility: visible !important;
+    color: #cbd5e1 !important;
+    background: transparent !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    text-decoration: line-through !important;
+    text-decoration-color: #e2e8f0 !important;
+    opacity: 1 !important;
+  }
+
+  /* Занятые прошлые даты — красные с зачёркиванием */
+  .flatpickr-day.flatpickr-disabled.occupied {
+    display: inline-flex !important;
+    visibility: visible !important;
   }
 
   /* Past dates still shown but greyed */
