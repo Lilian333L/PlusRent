@@ -1549,7 +1549,7 @@ window.showSuccess = function (bookingData) {
     .booking-success-modal {
         position: fixed;
         inset: 0;
-        background: radial-gradient(ellipse at center, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+        background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.85) 0%, rgba(2, 44, 34, 0.92) 100%);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         z-index: 99999;
@@ -1574,9 +1574,9 @@ window.showSuccess = function (bookingData) {
         width: 100%;
         max-height: 92vh;
         box-shadow:
-            0 25px 80px -10px rgba(217, 119, 6, 0.25),
+            0 25px 80px -10px rgba(16, 185, 129, 0.3),
             0 10px 40px -5px rgba(0, 0, 0, 0.3),
-            0 0 0 1px rgba(245, 158, 11, 0.08);
+            0 0 0 1px rgba(16, 185, 129, 0.08);
         animation: brmSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
         display: flex;
@@ -1584,20 +1584,14 @@ window.showSuccess = function (bookingData) {
     }
 
     @keyframes brmSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(40px) scale(0.92);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+        from { opacity: 0; transform: translateY(40px) scale(0.92); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Top decorative accent bar */
+    /* Top decorative accent bar — green success */
     .success-accent-bar {
         height: 4px;
-        background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #f59e0b 75%, #fbbf24 100%);
+        background: linear-gradient(90deg, #34d399 0%, #10b981 25%, #059669 50%, #10b981 75%, #34d399 100%);
         background-size: 200% 100%;
         animation: brmShine 3s ease-in-out infinite;
     }
@@ -1607,13 +1601,13 @@ window.showSuccess = function (bookingData) {
         50%      { background-position: 100% 50%; }
     }
 
-    /* ========== HEADER ========== */
+    /* ========== HEADER — green success gradient ========== */
     .success-modal-header {
         position: relative;
         background:
-            radial-gradient(circle at 20% 0%, rgba(251, 191, 36, 0.4) 0%, transparent 50%),
-            radial-gradient(circle at 80% 100%, rgba(217, 119, 6, 0.3) 0%, transparent 50%),
-            linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+            radial-gradient(circle at 20% 0%, rgba(52, 211, 153, 0.45) 0%, transparent 50%),
+            radial-gradient(circle at 80% 100%, rgba(5, 150, 105, 0.35) 0%, transparent 50%),
+            linear-gradient(135deg, #10b981 0%, #059669 60%, #047857 100%);
         padding: 32px 24px 24px;
         text-align: center;
         color: white;
@@ -1628,7 +1622,7 @@ window.showSuccess = function (bookingData) {
         right: -20%;
         width: 200px;
         height: 200px;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
@@ -1640,12 +1634,12 @@ window.showSuccess = function (bookingData) {
         left: -10%;
         width: 150px;
         height: 150px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
         border-radius: 50%;
         pointer-events: none;
     }
 
-    /* Checkmark with glow */
+    /* Checkmark with green glow */
     .success-checkmark-wrap {
         position: relative;
         width: 72px;
@@ -1659,26 +1653,26 @@ window.showSuccess = function (bookingData) {
     .success-checkmark-glow {
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 65%);
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, transparent 65%);
         border-radius: 50%;
         animation: brmPulse 2s ease-in-out infinite;
     }
 
     @keyframes brmPulse {
-        0%, 100% { transform: scale(1);   opacity: 0.6; }
-        50%      { transform: scale(1.15); opacity: 0.9; }
+        0%, 100% { transform: scale(1);    opacity: 0.6; }
+        50%      { transform: scale(1.15); opacity: 0.95; }
     }
 
     .success-checkmark {
         position: relative;
         width: 64px;
         height: 64px;
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.97);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 24px rgba(180, 83, 9, 0.3);
+        box-shadow: 0 8px 24px rgba(4, 120, 87, 0.35);
     }
 
     .success-checkmark svg {
@@ -1687,7 +1681,7 @@ window.showSuccess = function (bookingData) {
     }
 
     .success-checkmark circle {
-        stroke: #d97706;
+        stroke: #059669;
         stroke-width: 2.5;
         stroke-dasharray: 166;
         stroke-dashoffset: 166;
@@ -1695,7 +1689,7 @@ window.showSuccess = function (bookingData) {
     }
 
     .success-checkmark path {
-        stroke: #d97706;
+        stroke: #059669;
         stroke-width: 4;
         stroke-linecap: round;
         stroke-linejoin: round;
@@ -1714,7 +1708,7 @@ window.showSuccess = function (bookingData) {
         font-weight: 700;
         margin: 0 0 6px;
         letter-spacing: -0.3px;
-        text-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
+        text-shadow: 0 2px 8px rgba(4, 120, 87, 0.3);
     }
 
     .success-subtitle {
@@ -1731,7 +1725,7 @@ window.showSuccess = function (bookingData) {
         flex: 1;
         overflow-y: auto;
         min-height: 0;
-        background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+        background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
     }
 
     .info-grid {
@@ -1746,16 +1740,16 @@ window.showSuccess = function (bookingData) {
         gap: 12px;
         padding: 12px 14px;
         background: #ffffff;
-        border: 1px solid #fef3c7;
+        border: 1px solid #d1fae5;
         border-radius: 12px;
         transition: all 0.25s ease;
-        box-shadow: 0 1px 3px rgba(217, 119, 6, 0.04);
+        box-shadow: 0 1px 3px rgba(16, 185, 129, 0.05);
     }
 
     .info-item:hover {
-        border-color: #fde68a;
+        border-color: #6ee7b7;
         transform: translateX(2px);
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
     }
 
     .info-item i {
@@ -1764,12 +1758,12 @@ window.showSuccess = function (bookingData) {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
         color: #ffffff;
         border-radius: 10px;
         font-size: 16px;
         flex-shrink: 0;
-        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.28);
     }
 
     .info-item > div {
@@ -1784,7 +1778,7 @@ window.showSuccess = function (bookingData) {
         font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;
-        color: #92400e;
+        color: #047857;
         letter-spacing: 0.6px;
     }
 
@@ -1797,7 +1791,7 @@ window.showSuccess = function (bookingData) {
         white-space: nowrap;
     }
 
-    /* Price total — highlight block */
+    /* ========== PRICE TOTAL — keep brand amber for money ========== */
     .price-total {
         position: relative;
         background:
@@ -1852,7 +1846,7 @@ window.showSuccess = function (bookingData) {
         display: flex;
         gap: 10px;
         flex-shrink: 0;
-        border-top: 1px solid #fef3c7;
+        border-top: 1px solid #d1fae5;
         background: #ffffff;
     }
 
@@ -1872,26 +1866,28 @@ window.showSuccess = function (bookingData) {
         font-family: inherit;
     }
 
+    /* PRIMARY — green confirmation */
     .btn-primary {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         box-shadow:
-            0 4px 14px rgba(217, 119, 6, 0.35),
+            0 4px 14px rgba(5, 150, 105, 0.4),
             inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow:
-            0 8px 22px rgba(217, 119, 6, 0.45),
+            0 8px 22px rgba(5, 150, 105, 0.5),
             inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        background: linear-gradient(135deg, #34d399 0%, #059669 100%);
     }
 
     .btn-primary:active {
         transform: translateY(0);
     }
 
+    /* SECONDARY — soft brand amber, ties to site */
     .btn-secondary {
         background: #fffbeb;
         color: #92400e;
@@ -1914,111 +1910,51 @@ window.showSuccess = function (bookingData) {
             border-radius: 20px;
         }
 
-        .success-modal-header {
-            padding: 24px 20px 18px;
-        }
+        .success-modal-header { padding: 24px 20px 18px; }
 
         .success-checkmark-wrap {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
+            width: 60px; height: 60px; margin-bottom: 10px;
         }
+        .success-checkmark { width: 54px; height: 54px; }
+        .success-checkmark svg { width: 36px; height: 36px; }
 
-        .success-checkmark {
-            width: 54px;
-            height: 54px;
-        }
+        .success-title    { font-size: 20px; line-height: 1.2; }
+        .success-subtitle { font-size: 13px; line-height: 1.4; }
 
-        .success-checkmark svg {
-            width: 36px;
-            height: 36px;
-        }
+        .success-modal-body { padding: 18px; }
 
-        .success-title {
-            font-size: 20px;
-            line-height: 1.2;
-        }
+        .info-grid { gap: 8px; margin-bottom: 14px; }
+        .info-item { padding: 10px 12px; gap: 10px; }
+        .info-item i { width: 32px; height: 32px; font-size: 14px; border-radius: 8px; }
 
-        .success-subtitle {
-            font-size: 13px;
-            line-height: 1.4;
-        }
+        .info-label { font-size: 9px; }
+        .info-value { font-size: 12.5px; }
 
-        .success-modal-body {
-            padding: 18px;
-        }
+        .price-total { padding: 14px 16px; }
+        .price-total > span:first-child { font-size: 11px; }
+        .price-amount { font-size: 23px; }
 
-        .info-grid {
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-
-        .info-item {
-            padding: 10px 12px;
-            gap: 10px;
-        }
-
-        .info-item i {
-            width: 32px;
-            height: 32px;
-            font-size: 14px;
-            border-radius: 8px;
-        }
-
-        .info-label  { font-size: 9px; }
-        .info-value  { font-size: 12.5px; }
-
-        .price-total {
-            padding: 14px 16px;
-        }
-
-        .price-total > span:first-child {
-            font-size: 11px;
-        }
-
-        .price-amount {
-            font-size: 23px;
-        }
-
-        .success-modal-footer {
-            padding: 14px 18px 18px;
-        }
-
-        .success-modal-footer button {
-            padding: 12px 14px;
-            font-size: 13px;
-        }
+        .success-modal-footer { padding: 14px 18px 18px; }
+        .success-modal-footer button { padding: 12px 14px; font-size: 13px; }
     }
 
     /* ========== SHORT VIEWPORT (≤680px height) ========== */
     @media (max-height: 680px) {
         .success-modal-header { padding: 18px 18px 14px; }
 
-        .success-checkmark-wrap {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 8px;
-        }
-
-        .success-checkmark {
-            width: 44px;
-            height: 44px;
-        }
-
-        .success-checkmark svg {
-            width: 30px;
-            height: 30px;
-        }
+        .success-checkmark-wrap { width: 50px; height: 50px; margin-bottom: 8px; }
+        .success-checkmark { width: 44px; height: 44px; }
+        .success-checkmark svg { width: 30px; height: 30px; }
 
         .success-title    { font-size: 18px; margin-bottom: 4px; }
         .success-subtitle { font-size: 12px; }
 
         .success-modal-body { padding: 14px; }
 
-        .info-grid    { gap: 7px; margin-bottom: 12px; }
-        .info-item    { padding: 8px 10px; gap: 9px; }
-        .info-item i  { width: 28px; height: 28px; font-size: 12px; }
-        .info-value   { font-size: 12px; }
+        .info-grid { gap: 7px; margin-bottom: 12px; }
+        .info-item { padding: 8px 10px; gap: 9px; }
+        .info-item i { width: 28px; height: 28px; font-size: 12px; }
+        .info-value { font-size: 12px; }
 
         .price-total  { padding: 11px 14px; }
         .price-amount { font-size: 21px; }
@@ -2030,12 +1966,7 @@ window.showSuccess = function (bookingData) {
     /* ========== TINY SCREENS (≤400px) ========== */
     @media (max-width: 400px) {
         .success-modal-content { border-radius: 18px; }
-
-        .success-modal-footer {
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        .success-modal-footer { flex-direction: column; gap: 8px; }
         .success-modal-footer button { width: 100%; }
     }
 
@@ -2045,22 +1976,13 @@ window.showSuccess = function (bookingData) {
     }
 
     /* ========== SCROLLBAR ========== */
-    .success-modal-body::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .success-modal-body::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
+    .success-modal-body::-webkit-scrollbar { width: 5px; }
+    .success-modal-body::-webkit-scrollbar-track { background: transparent; }
     .success-modal-body::-webkit-scrollbar-thumb {
-        background: #fde68a;
+        background: #a7f3d0;
         border-radius: 3px;
     }
-
-    .success-modal-body::-webkit-scrollbar-thumb:hover {
-        background: #f59e0b;
-    }
+    .success-modal-body::-webkit-scrollbar-thumb:hover { background: #10b981; }
 </style>
   `;
 
