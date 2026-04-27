@@ -621,6 +621,10 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   disableMobile: true,
   locale: { 
     firstDayOfWeek: 1,
+    rangeSeparator: " - ",
+    weekAbbreviation: "Săp",
+    scrollTitle: "Derulează pentru a schimba",
+    toggleTitle: "Click pentru a schimba",
     months: {
       shorthand: [
         "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
@@ -716,6 +720,10 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
         closeOnSelect: true,
         locale: {
           firstDayOfWeek: 1,
+          rangeSeparator: " - ",
+          weekAbbreviation: "Săp",
+          scrollTitle: "Derulează pentru a schimba",
+          toggleTitle: "Click pentru a schimba",
           months: {
             shorthand: [
               "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
