@@ -2853,8 +2853,12 @@
 .flatpickr-day.flatpickr-disabled.nextMonthDay,
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay {
-  display: none !important;
+  
+  
+
   visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 /* Past disabled (non-occupied) dates */
@@ -2971,9 +2975,13 @@
 /* Скрываем только дни СОСЕДНИХ месяцев — прошлые дни текущего месяца оставляем зачёркнутыми */
   .flatpickr-day.prevMonthDay,
   .flatpickr-day.nextMonthDay {
-    display: none !important;
-    visibility: hidden !important;
-  }
+    
+    
+  
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
 
   /* Прошлые отключённые дни — показываем зачёркнутыми, как на десктопе */
   .flatpickr-day.flatpickr-disabled:not(.prevMonthDay):not(.nextMonthDay):not(.occupied) {
@@ -3502,3 +3510,54 @@ html.modal-active body::-webkit-scrollbar {
 #section-call-to-action .btn-main:hover {
   background: linear-gradient(135deg, #d97706, #b45309) !important;
 }
+
+
+/* === FLATPICKR-GRID-PATCH-V1 === */
+/* Гарантируем, что prev/next month days занимают место в сетке.
+   Без этого 1 апреля съезжает в первую колонку и день недели не совпадает. */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay,
+.flatpickr-day.flatpickr-disabled.prevMonthDay,
+.flatpickr-day.flatpickr-disabled.nextMonthDay {
+  display: inline-flex !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Прошлые даты текущего месяца — зачёркнутые серые (как у Airbnb/Booking) */
+.flatpickr-day.flatpickr-disabled:not(.prevMonthDay):not(.nextMonthDay):not(.occupied) {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #cbd5e1 !important;
+  background: transparent !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  text-decoration: line-through !important;
+  text-decoration-color: #e2e8f0 !important;
+}
+
+/* Занятые даты (даже прошлые) — красноватые с зачёркиванием */
+.flatpickr-day.flatpickr-disabled.occupied,
+.flatpickr-day.occupied {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 0.85 !important;
+}
+
+/* Мобильная сетка использует grid — pre/next должны оставаться невидимыми, но в потоке */
+@media (pointer: coarse), (max-width: 767px) {
+  .flatpickr-day.prevMonthDay,
+  .flatpickr-day.nextMonthDay {
+    display: inline-flex !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  .flatpickr-day.flatpickr-disabled:not(.prevMonthDay):not(.nextMonthDay):not(.occupied) {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+/* === END FLATPICKR-GRID-PATCH-V1 === */
