@@ -268,6 +268,18 @@ class DatePickerManager {
 
   // Initialize Flatpickr with unavailable dates
   async initializeFlatpickrWithUnavailableDates(unavailableDates = []) {
+  // ✅ ФИКС: первый день недели = понедельник на уровне всего Flatpickr
+  if (typeof flatpickr !== 'undefined' && flatpickr.l10ns) {
+    if (flatpickr.l10ns.default) {
+      flatpickr.l10ns.default.firstDayOfWeek = 1;
+    }
+    // на случай если подключены другие локали
+    Object.keys(flatpickr.l10ns).forEach(key => {
+      if (flatpickr.l10ns[key] && typeof flatpickr.l10ns[key] === 'object') {
+        flatpickr.l10ns[key].firstDayOfWeek = 1;
+      }
+    });
+  }
     // Prevent multiple initializations
     if (this.pickupFlatpickr || this.returnFlatpickr) {
       // Apply unavailable dates to existing instances
