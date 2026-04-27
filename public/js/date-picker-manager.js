@@ -692,19 +692,31 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
       setTimeout(() => updateAvailableTime(), 50);
     }
   },
-  onReady: (selectedDates, dateStr, instance) => {
-    // ✅ Принудительно прыгаем на сегодняшнюю дату и редравим сетку
-    const today = new Date();
-    instance.jumpToDate(today);
-    setTimeout(() => instance.redraw(), 0);
-    // ✅ Добавляем класс hasSelected если дата уже выбрана
-    if (selectedDates.length > 0) {
-      instance.calendarContainer.classList.add('hasSelected');
-    }
-    
-    // ✅ Обновляем время при загрузке
-    setTimeout(() => updateAvailableTime(), 100);
-  },
+onReady: (selectedDates, dateStr, instance) => {
+  // ✅ Принудительная синхронизация: нативной датой, без парсинга строк
+  const realToday = new Date();
+  realToday.setHours(0, 0, 0, 0);
+  
+  // Если ещё ничего не выбрано — установить сегодня
+  if (!selectedDates || selectedDates.length === 0) {
+    instance.setDate(realToday, false);
+  }
+  
+  // Заставить календарь прыгнуть на текущий месяц
+  instance.jumpToDate(instance.selectedDates[0] || realToday);
+  
+  // Двойной редрав через requestAnimationFrame — гарантирует, что DOM обновится
+  requestAnimationFrame(() => {
+    instance.redraw();
+    requestAnimationFrame(() => instance.redraw());
+  });
+  
+  if (instance.selectedDates.length > 0) {
+    instance.calendarContainer.classList.add('hasSelected');
+  }
+  
+  setTimeout(() => updateAvailableTime(), 100);
+},
 });
 
       // Initialize return date picker
@@ -769,20 +781,28 @@ onChange: (selectedDates, dateStr, instance) => {
   setTimeout(() => updateAvailableTime(), 50);
 },
 onReady: (selectedDates, dateStr, instance) => {
-  // ✅ Принудительно прыгаем на сегодняшнюю дату и редравим сетку
-  const today = new Date();
-  instance.jumpToDate(today);
-  setTimeout(() => instance.redraw(), 0);
-  // ✅ Добавляем класс hasSelected если дата уже выбрана
-  if (selectedDates.length > 0) {
+  // ✅ Принудительная синхронизация: нативной датой, без парсинга строк
+  const realToday = new Date();
+  realToday.setHours(0, 0, 0, 0);
+  
+  // Если ещё ничего не выбрано — установить сегодня
+  if (!selectedDates || selectedDates.length === 0) {
+    instance.setDate(realToday, false);
+  }
+  
+  // Заставить календарь прыгнуть на текущий месяц
+  instance.jumpToDate(instance.selectedDates[0] || realToday);
+  
+  // Двойной редрав через requestAnimationFrame — гарантирует, что DOM обновится
+  requestAnimationFrame(() => {
+    instance.redraw();
+    requestAnimationFrame(() => instance.redraw());
+  });
+  
+  if (instance.selectedDates.length > 0) {
     instance.calendarContainer.classList.add('hasSelected');
   }
   
-  // Существующий код
-  if (this.customClass) {
-    instance.calendarContainer.classList.add(this.customClass);
-  }
-  // ✅ Обновляем время при загрузке
   setTimeout(() => updateAvailableTime(), 100);
 },
 });
