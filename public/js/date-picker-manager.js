@@ -645,10 +645,10 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   },
   onDayCreate: addOccupiedClass,
   onOpen: (selectedDates, dateStr, instance) => {
-    this.convertYearToDropdown(instance);
+    setTimeout(() => instance.redraw(), 0);
   },
   onMonthChange: (selectedDates, dateStr, instance) => {
-    this.convertYearToDropdown(instance);
+    setTimeout(() => instance.redraw(), 0);
   },
   onChange: (selectedDates, dateStr, instance) => {
     // ✅ Добавляем класс hasSelected при выборе даты
@@ -693,6 +693,10 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
     }
   },
   onReady: (selectedDates, dateStr, instance) => {
+    // ✅ Принудительно прыгаем на сегодняшнюю дату и редравим сетку
+    const today = new Date();
+    instance.jumpToDate(today);
+    setTimeout(() => instance.redraw(), 0);
     // ✅ Добавляем класс hasSelected если дата уже выбрана
     if (selectedDates.length > 0) {
       instance.calendarContainer.classList.add('hasSelected');
@@ -744,10 +748,10 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
         },
 onDayCreate: addOccupiedClass,
 onOpen: (selectedDates, dateStr, instance) => {
-  this.convertYearToDropdown(instance);
+  setTimeout(() => instance.redraw(), 0);
 },
 onMonthChange: (selectedDates, dateStr, instance) => {
-  this.convertYearToDropdown(instance);
+  setTimeout(() => instance.redraw(), 0);
 },
 onChange: (selectedDates, dateStr, instance) => {
   // ✅ Добавляем класс hasSelected при выборе даты
@@ -765,6 +769,10 @@ onChange: (selectedDates, dateStr, instance) => {
   setTimeout(() => updateAvailableTime(), 50);
 },
 onReady: (selectedDates, dateStr, instance) => {
+  // ✅ Принудительно прыгаем на сегодняшнюю дату и редравим сетку
+  const today = new Date();
+  instance.jumpToDate(today);
+  setTimeout(() => instance.redraw(), 0);
   // ✅ Добавляем класс hasSelected если дата уже выбрана
   if (selectedDates.length > 0) {
     instance.calendarContainer.classList.add('hasSelected');
