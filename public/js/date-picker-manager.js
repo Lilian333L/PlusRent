@@ -615,8 +615,8 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   disable: [disableOccupiedDates, hidePastDates],
   allowInput: false,
   static: this.isModal ? true : false,
-  appendTo: document.body,
-  position: this.isModal ? "above" : "below",
+  appendTo: this.isModal ? null : document.body,
+  position: this.isModal ? "auto" : "below",
   closeOnSelect: true,
   disableMobile: true,
   locale: { 
@@ -718,8 +718,8 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
         disable: [disableOccupiedDates, hidePastDates],
         allowInput: false,
         static: this.isModal ? true : false,
-        appendTo: document.body,
-        position: this.isModal ? "above" : "below",
+        appendTo: this.isModal ? null : document.body,
+        position: this.isModal ? "auto" : "below",
         disableMobile: true,
         closeOnSelect: true,
         locale: {
