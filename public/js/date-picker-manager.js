@@ -3,6 +3,33 @@
  * Usage: new DatePickerManager(options)
  */
 
+// === FLATPICKR-INPUTS-HARDEN-V5 START ===
+  // Защита инпутов от iOS-автозаполнения, софт-клавиатуры,
+  // менеджеров паролей. Применяется к каждому Flatpickr-инпуту.
+  function _hardenFlatpickrInputs() {
+    const selector = 'input.flatpickr-input, input.flatpickr-mobile, input[id*="-date"]:not([data-fp-hardened])';
+    document.querySelectorAll(selector).forEach(function(input) {
+      if (input.dataset.fpHardened === '1') return;
+      input.dataset.fpHardened = '1';
+      input.setAttribute('readonly', 'readonly');
+      input.setAttribute('inputmode', 'none');
+      input.setAttribute('autocomplete', 'off');
+      input.setAttribute('autocorrect', 'off');
+      input.setAttribute('autocapitalize', 'off');
+      input.setAttribute('spellcheck', 'false');
+      input.setAttribute('data-form-type', 'other');
+      input.setAttribute('data-lpignore', 'true');
+      input.setAttribute('data-1p-ignore', 'true');
+      // 16px — чтобы iOS не зумил при фокусе (даже с readonly safety)
+      if (!input.style.fontSize) input.style.fontSize = '16px';
+      // Снимаем фокус при tap, чтобы iOS не показывал autofill bar
+      input.addEventListener('focus', function(e) {
+        setTimeout(function() { e.target.blur(); }, 0);
+      });
+    });
+  }
+// === FLATPICKR-INPUTS-HARDEN-V5 END ===
+
 class DatePickerManager {
   constructor(options = {}) {
     this.pickupInputId = options.pickupInputId || "date-picker";
@@ -710,6 +737,7 @@ onReady: (selectedDates, dateStr, instance) => {
     instance.redraw();
     requestAnimationFrame(() => instance.redraw());
   });
+      _hardenFlatpickrInputs();
   
   if (instance.selectedDates.length > 0) {
     instance.calendarContainer.classList.add('hasSelected');
@@ -798,6 +826,7 @@ onReady: (selectedDates, dateStr, instance) => {
     instance.redraw();
     requestAnimationFrame(() => instance.redraw());
   });
+      _hardenFlatpickrInputs();
   
   if (instance.selectedDates.length > 0) {
     instance.calendarContainer.classList.add('hasSelected');
@@ -933,6 +962,7 @@ if (returnTimeSelect) {
   }
 
   async initialize() {
+    setTimeout(_hardenFlatpickrInputs, 100); // FP-V5 init-hook
     try {
       if (this.carId) {
         const unavailableDates = await this.loadUnavailableDates(this.carId);
