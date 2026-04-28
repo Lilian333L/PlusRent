@@ -1210,6 +1210,9 @@
         });
       }
 
+      // I18N-FOUC: wait for translations
+      if (typeof window.waitForI18nReady === 'function') { await window.waitForI18nReady(); }
+
       const getCarTypeTranslation = (carType) => {
         const translations = {
           'Sedan': i18next.t('cars.types.sedan', 'Sedan'),
@@ -1645,5 +1648,164 @@
     }
 })();
 </script>
+<!-- I18N-FOUC-FIX-V1 START -->
+<style id="i18n-fouc-fix-styles">
+  /* Скрывает элементы которые показывают сырой ключ перевода */
+  .i18n-key-fallback { visibility: hidden !important; }
+</style>
+<script>
+(function () {
+  'use strict';
+
+  // Является ли строка ключом перевода (типа "cars.fuel.gasoline")
+  function isTranslationKey(text) {
+    if (!text) return false;
+    text = String(text).trim();
+    if (!text || text.length > 80) return false;
+    if (/\s/.test(text)) return false; // ключи без пробелов
+    return /^[a-z][a-zA-Z0-9_]*(\.[a-zA-Z0-9_]+)+$/.test(text);
+  }
+
+  // Скрыть все элементы которые в этот момент содержат сырой ключ
+  function hideRawKeysNow() {
+    var nodes = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var t = (nodes[i].textContent || '').trim();
+      if (isTranslationKey(t)) nodes[i].classList.add('i18n-key-fallback');
+    }
+  }
+
+  // Перевести все [data-i18n] и [data-i18n-placeholder] которые ещё в виде ключей
+  function fixUntranslatedKeys() {
+    if (typeof i18next === 'undefined' || !i18next.isInitialized) return;
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n');
+      var text = (el.textContent || '').trim();
+
+      // Если текст пуст ИЛИ совпадает с ключом ИЛИ выглядит как ключ
+      if (!text || text === key || isTranslationKey(text)) {
+        var translated = i18next.t(key);
+        if (translated && translated !== key) {
+          el.textContent = translated;
+        }
+      }
+      el.classList.remove('i18n-key-fallback');
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var ph = el.getAttribute('placeholder') || '';
+      if (!ph || ph === key || isTranslationKey(ph)) {
+        var translated = i18next.t(key);
+        if (translated && translated !== key) {
+          el.setAttribute('placeholder', translated);
+        }
+      }
+    });
+
+    // Атрибуты title/aria-label если используются
+    document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-title');
+      var translated = i18next.t(key);
+      if (translated && translated !== key) el.setAttribute('title', translated);
+    });
+
+    document.documentElement.classList.add('i18n-ready');
+  }
+
+  // Throttled wrapper
+  var fixThrottle = null;
+  function fixSoon(delay) {
+    clearTimeout(fixThrottle);
+    fixThrottle = setTimeout(fixUntranslatedKeys, delay || 30);
+  }
+
+  // Глобальный helper — Promise который резолвится когда i18next готов
+  window.waitForI18nReady = function () {
+    return new Promise(function (resolve) {
+      if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+        resolve();
+        return;
+      }
+      var resolved = false;
+      function done() {
+        if (resolved) return;
+        resolved = true;
+        resolve();
+      }
+      function tick() {
+        if (typeof i18next !== 'undefined') {
+          if (i18next.isInitialized) { done(); return; }
+          try { i18next.on('initialized', done); } catch (e) {}
+          try { i18next.on('loaded', done); } catch (e) {}
+        } else {
+          setTimeout(tick, 50);
+        }
+      }
+      tick();
+      // Hard timeout — никогда не зависаем (3 сек)
+      setTimeout(done, 3000);
+    });
+  };
+
+  // Подписка на события i18next
+  function bindI18next() {
+    if (typeof i18next === 'undefined') {
+      setTimeout(bindI18next, 50);
+      return;
+    }
+    if (i18next.isInitialized) fixUntranslatedKeys();
+    try { i18next.on('initialized', fixUntranslatedKeys); } catch (e) {}
+    try { i18next.on('loaded', fixUntranslatedKeys); } catch (e) {}
+    try { i18next.on('languageChanged', fixUntranslatedKeys); } catch (e) {}
+
+    // Safety-net timeouts на случай race conditions
+    setTimeout(fixUntranslatedKeys, 300);
+    setTimeout(fixUntranslatedKeys, 1000);
+    setTimeout(fixUntranslatedKeys, 3000);
+
+    // MutationObserver — ловит динамически добавленные элементы
+    // (compactSpecsHTML, priceTiers и т.п.)
+    if (typeof MutationObserver !== 'undefined') {
+      var obs = new MutationObserver(function (mutations) {
+        var touched = false;
+        for (var i = 0; i < mutations.length && !touched; i++) {
+          var m = mutations[i];
+          for (var j = 0; j < m.addedNodes.length && !touched; j++) {
+            var node = m.addedNodes[j];
+            if (node.nodeType !== 1) continue;
+            if (node.matches && node.matches('[data-i18n], [data-i18n-placeholder]')) {
+              touched = true; break;
+            }
+            if (node.querySelector && node.querySelector('[data-i18n], [data-i18n-placeholder]')) {
+              touched = true; break;
+            }
+            // Текст узла похож на ключ?
+            var t = (node.textContent || '').trim();
+            if (t && t.length < 80 && isTranslationKey(t)) {
+              touched = true; break;
+            }
+          }
+        }
+        if (touched) fixSoon(50);
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
+  // Старт
+  function start() {
+    hideRawKeysNow();
+    bindI18next();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+</script>
+<!-- I18N-FOUC-FIX-V1 END -->
 </body>
 </html>
