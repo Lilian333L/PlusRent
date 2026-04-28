@@ -731,7 +731,7 @@ onReady: (selectedDates, dateStr, instance) => {
         allowInput: false,
         static: this.isModal ? true : false,
         ...(this.isModal ? {} : { appendTo: document.body }),
-        position: this.isModal ? "auto" : "below",
+        position: this.isModal ? "auto right" : "below",
         disableMobile: true,
         closeOnSelect: true,
         locale: {
