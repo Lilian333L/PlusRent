@@ -3,10 +3,272 @@
 
 <head>
 <style>
-body { font-display: swap; }
+body { font-display: swap; scroll-behavior: smooth; }
 #subheader .center-y { background: rgba(0,0,0,0.5) !important; }
 
-/* ===== TIER CARDS ===== */
+/* ============================================================
+   SCROLL PROGRESS INDICATOR
+   ============================================================ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, #1E90FF 0%, #f59e0b 100%);
+  z-index: 10001;
+  transition: width 0.1s ease;
+  box-shadow: 0 1px 4px rgba(30, 144, 255, 0.4);
+}
+
+/* ============================================================
+   STICKY HEADER ON SCROLL
+   ============================================================ */
+header.sticky-active {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  animation: slideDownHeader 0.4s ease;
+}
+header.sticky-active #topbar {
+  display: none !important;
+}
+header.sticky-active #mainmenu li a {
+  color: #1e293b !important;
+}
+header.sticky-active .logo-1 { display: none !important; }
+header.sticky-active .logo-2 { display: inline-block !important; }
+
+@keyframes slideDownHeader {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+body.sticky-padding { padding-top: 90px; }
+
+/* ============================================================
+   LIVE STATUS BADGE
+   ============================================================ */
+.live-status-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(22, 163, 74, 0.2);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  border: 1.5px solid rgba(34, 197, 94, 0.5);
+  backdrop-filter: blur(8px);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.live-dot-hero {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulseLive 2s infinite;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+}
+@keyframes pulseLive {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* Trust Bar in Hero */
+.hero-trust-bar {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.hero-trust-item i { color: #fbbf24; }
+@media (max-width: 768px) {
+  .hero-trust-bar { gap: 12px; padding: 12px 16px; }
+  .hero-trust-item { font-size: 0.78rem; }
+}
+
+/* ============================================================
+   FLEET SECTION (API Cars)
+   ============================================================ */
+.fleet-section {
+  padding: 70px 0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 35px;
+}
+.fleet-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+.fleet-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: #1E90FF;
+}
+.fleet-image {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  position: relative;
+  overflow: hidden;
+}
+.fleet-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.fleet-card:hover .fleet-image img {
+  transform: scale(1.05);
+}
+.fleet-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #94a3b8;
+  font-size: 4rem;
+}
+.fleet-tier-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #1E90FF;
+}
+.fleet-tier-badge.business { color: #d97706; }
+.fleet-tier-badge.vip { color: #1e3a8a; }
+.fleet-content {
+  padding: 22px 22px 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.fleet-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+.fleet-year {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+.fleet-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fleet-features li {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.fleet-cta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: #1E90FF;
+  border: 2px solid #1E90FF;
+  padding: 10px 18px;
+  border-radius: 24px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.fleet-cta:hover {
+  background: #1E90FF;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.fleet-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+}
+.fleet-loading-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #1E90FF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 15px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fleet-error {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+/* ============================================================
+   TIER CARDS
+   ============================================================ */
 .tier-card { border: 2px solid #e5e7eb; border-radius: 16px; padding: 30px 25px; background: #fff; transition: all 0.3s ease; position: relative; height: 100%; display: flex; flex-direction: column; }
 .tier-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
 .tier-card.popular { border-color: #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 100%); transform: scale(1.03); }
@@ -438,6 +700,10 @@ body { font-display: swap; }
 </head>
 
 <body>
+
+<!-- Scroll Progress Indicator -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
 <div id="wrapper">
 <div id="de-preloader"></div>
 
@@ -454,6 +720,7 @@ body { font-display: swap; }
       </div>
       <div class="topbar-right">
         <div class="social-icons">
+          <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
           <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
           <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram fa-lg"></i></a>
           <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp fa-lg"></i></a>
@@ -539,12 +806,22 @@ body { font-display: swap; }
     <div class="container">
       <div class="row">
         <div class="col-md-12 text-center">
+          <div class="live-status-hero">
+            <span class="live-dot-hero"></span>
+            <span>AVAILABLE NOW · Booking Open 24/7</span>
+          </div>
           <h1 style="text-shadow:0 2px 6px rgba(0,0,0,0.9); color:#fff;">Private Iași Airport Transfer to Chișinău</h1>
           <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff;">Premium vehicles, multilingual drivers, border assistance included. From €140 — available 24/7.</p>
           <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:25px;">
             <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:14px 30px; border-radius:50px; text-decoration:none; font-weight:800; font-size:1rem; box-shadow:0 8px 20px rgba(245,158,11,0.4); border:none; cursor:pointer;">
               <i class="fa fa-comments"></i> Contact Us — Reply in 3 min
             </button>
+          </div>
+          <div class="hero-trust-bar">
+            <div class="hero-trust-item"><i class="fa fa-star"></i><span>5.0 Google</span></div>
+            <div class="hero-trust-item"><i class="fa fa-check-circle"></i><span>439+ Orders</span></div>
+            <div class="hero-trust-item"><i class="fa fa-clock-o"></i><span>24/7 Service</span></div>
+            <div class="hero-trust-item"><i class="fa fa-shield"></i><span>3+ Years Experience</span></div>
           </div>
         </div>
       </div>
@@ -804,6 +1081,30 @@ body { font-display: swap; }
   </div>
 </section>
 
+<!-- ============ OUR FLEET (Real cars from API) ============ -->
+<section id="fleet" class="fleet-section">
+  <div class="container">
+    <div class="text-center" style="margin-bottom: 10px;">
+      <span style="display:inline-block; background:rgba(30,144,255,0.1); color:#1E90FF; padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">OUR PREMIUM FLEET</span>
+      <h2 style="font-size:1.9rem; color:#1e293b; margin-bottom:12px; font-weight:800;">Real Photos from Our Active Fleet</h2>
+      <p style="color:#64748b; font-size:1.05rem; max-width:700px; margin:0 auto;">All vehicles regularly maintained, equipped with WiFi, climate control, premium amenities. Photos updated automatically when fleet changes.</p>
+    </div>
+    
+    <div id="fleetGrid" class="fleet-grid">
+      <!-- Cars will be loaded dynamically from /api/cars -->
+      <div class="fleet-loading">
+        <div class="fleet-loading-spinner"></div>
+        <p>Loading our fleet from database...</p>
+      </div>
+    </div>
+    
+    <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:30px;">
+      <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+      All vehicles 6+1 seats standard configuration. For larger groups, <button onclick="openContactPopup()" style="background:none; border:none; color:#d97706; font-weight:700; cursor:pointer; text-decoration:underline; padding:0;">contact us</button> for custom multi-vehicle solutions.
+    </p>
+  </div>
+</section>
+
 <!-- Corporate Mobility -->
 <section class="pt60 pb60" style="background:linear-gradient(135deg,#1e293b,#334155); color:#fff;">
   <div class="container">
@@ -1004,6 +1305,7 @@ body { font-display: swap; }
         <div class="widget">
           <h2 class="h5">Social Networks</h2>
           <div class="social-icons">
+            <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook fa-lg"></i></a>
             <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
             <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram fa-lg"></i></a>
             <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp fa-lg"></i></a>
@@ -1241,6 +1543,266 @@ window.onclick = function(event) {
   const modal = document.getElementById('successModal');
   if (event.target === modal) modal.style.display = 'none';
 }
+</script>
+
+<!-- ============================================================
+     SCROLL PROGRESS + STICKY HEADER + SMOOTH SCROLL
+============================================================ -->
+<script>
+(function() {
+  const scrollProgress = document.getElementById('scrollProgress');
+  const header = document.querySelector('header.transparent');
+  const STICKY_THRESHOLD = 200;
+  let ticking = false;
+
+  function updateScrollEffects() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (scrollTop / scrollHeight) * 100;
+    
+    // Update progress bar
+    if (scrollProgress) {
+      scrollProgress.style.width = scrolled + '%';
+    }
+    
+    // Toggle sticky header
+    if (header) {
+      if (scrollTop > STICKY_THRESHOLD) {
+        header.classList.add('sticky-active');
+      } else {
+        header.classList.remove('sticky-active');
+      }
+    }
+    
+    ticking = false;
+  }
+
+  function requestTick() {
+    if (!ticking) {
+      window.requestAnimationFrame(updateScrollEffects);
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', requestTick, { passive: true });
+  
+  // Initialize
+  updateScrollEffects();
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href === '#' || href === '#top') return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const offsetTop = target.offsetTop - 80;
+        window.scrollTo({
+          top: offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+})();
+</script>
+
+<!-- ============================================================
+     FLEET API INTEGRATION — Load real cars from database
+============================================================ -->
+<script>
+(function() {
+  const fleetGrid = document.getElementById('fleetGrid');
+  if (!fleetGrid) return;
+  
+  // Tier classification based on make/model/year
+  // Customize this logic based on your inventory
+  function getTierForCar(car) {
+    const make = (car.make_name || '').toLowerCase();
+    const model = (car.model_name || '').toLowerCase();
+    const year = parseInt(car.production_year) || 0;
+    
+    // VIP: Mercedes E, BMW 5/7, newer Audi A6
+    if (make === 'mercedes' && (model.includes('e') || model.includes('s'))) return 'vip';
+    if (make === 'bmw' && (model.includes('5') || model.includes('7'))) return 'vip';
+    if (make === 'audi' && model.includes('a6') && year >= 2021) return 'vip';
+    
+    // Business: Audi A6, Lexus NX300h, newer premium
+    if (make === 'audi' && model.includes('a6')) return 'business';
+    if (make === 'lexus') return 'business';
+    if (make === 'bmw' && model.includes('3')) return 'business';
+    if (make === 'mercedes' && model.includes('c')) return 'business';
+    if (make === 'audi' && model.includes('a4') && year >= 2018) return 'business';
+    
+    // Standard: everything else (Toyota, older Audi, etc.)
+    return 'standard';
+  }
+  
+  function getTierLabel(tier) {
+    return { standard: 'STANDARD', business: 'BUSINESS', vip: 'VIP' }[tier] || 'STANDARD';
+  }
+  
+  function getCarFeatures(car, tier) {
+    const features = [];
+    
+    // Add tier-based features
+    if (tier === 'vip') {
+      features.push('Luxury', 'WiFi', 'Climate', 'VIP Driver');
+    } else if (tier === 'business') {
+      features.push('Premium', 'WiFi', 'Climate', 'Multilingual');
+    } else {
+      features.push('Comfort', 'WiFi', 'AC');
+    }
+    
+    // Add transmission if available
+    if (car.gearbox_name) {
+      features.push(car.gearbox_name);
+    }
+    
+    // Add fuel type
+    if (car.fuel_type_name) {
+      features.push(car.fuel_type_name);
+    }
+    
+    return features.slice(0, 4); // Max 4 features
+  }
+  
+  function renderFleetCard(car, tier) {
+    const tierLabel = getTierLabel(tier);
+    const tierClass = tier;
+    const features = getCarFeatures(car, tier);
+    const carName = `${car.make_name || ''} ${car.model_name || ''}`.trim();
+    const year = car.production_year || '';
+    const imageUrl = car.head_image || '';
+    
+    return `
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge ${tierClass}">${tierLabel}</span>
+          ${imageUrl 
+            ? `<img src="${imageUrl}" alt="${carName}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;fleet-tier-badge ${tierClass}&quot;>${tierLabel}</span><div class=&quot;fleet-fallback-icon&quot;><i class=&quot;fa fa-car&quot;></i></div>'">`
+            : `<div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>`
+          }
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">${carName}</div>
+          <div class="fleet-year">${year ? year + ' • ' : ''}6+1 seats configuration</div>
+          <ul class="fleet-features">
+            ${features.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+          <button onclick="openContactPopup('${tier}')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderFallback() {
+    fleetGrid.innerHTML = `
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge">STANDARD</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">Standard Comfort Vehicle</div>
+          <div class="fleet-year">6+1 seats configuration</div>
+          <ul class="fleet-features">
+            <li>Comfortable</li><li>WiFi</li><li>AC</li>
+          </ul>
+          <button onclick="openContactPopup('standard')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge business">BUSINESS</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">Premium Business Vehicle</div>
+          <div class="fleet-year">6+1 seats configuration</div>
+          <ul class="fleet-features">
+            <li>Premium</li><li>WiFi</li><li>Climate</li><li>Multilingual</li>
+          </ul>
+          <button onclick="openContactPopup('business')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge vip">VIP</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">VIP Executive Vehicle</div>
+          <div class="fleet-year">6+1 seats configuration</div>
+          <ul class="fleet-features">
+            <li>Luxury</li><li>WiFi</li><li>Climate</li><li>VIP Driver</li>
+          </ul>
+          <button onclick="openContactPopup('vip')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  async function loadFleet() {
+    try {
+      const apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+      const response = await fetch(`${apiBaseUrl}/api/cars`);
+      
+      if (!response.ok) throw new Error('API request failed');
+      
+      const cars = await response.json();
+      
+      if (!Array.isArray(cars) || cars.length === 0) {
+        renderFallback();
+        return;
+      }
+      
+      // Group cars by tier
+      const grouped = { vip: [], business: [], standard: [] };
+      cars.forEach(car => {
+        const tier = getTierForCar(car);
+        grouped[tier].push(car);
+      });
+      
+      // Display: 1 from each tier (or up to 6 cars total)
+      const display = [];
+      ['vip', 'business', 'standard'].forEach(tier => {
+        if (grouped[tier].length > 0) {
+          display.push({ car: grouped[tier][0], tier: tier });
+        }
+      });
+      
+      // Add more from each tier up to 6 total
+      ['business', 'standard', 'vip'].forEach(tier => {
+        if (display.length >= 6) return;
+        const additional = grouped[tier].slice(1, 3); // skip first (already shown), take up to 2 more
+        additional.forEach(car => {
+          if (display.length < 6) display.push({ car: car, tier: tier });
+        });
+      });
+      
+      if (display.length === 0) {
+        renderFallback();
+        return;
+      }
+      
+      // Render
+      fleetGrid.innerHTML = display.map(item => renderFleetCard(item.car, item.tier)).join('');
+      
+    } catch (error) {
+      console.warn('Fleet API error, showing fallback:', error);
+      renderFallback();
+    }
+  }
+  
+  // Load fleet on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadFleet);
+  } else {
+    loadFleet();
+  }
+})();
 </script>
 
 <script>
