@@ -5,6 +5,8 @@
 <style>
 body { font-display: swap; }
 #subheader .center-y { background: rgba(0,0,0,0.5) !important; }
+
+/* ===== TIER CARDS ===== */
 .tier-card { border: 2px solid #e5e7eb; border-radius: 16px; padding: 30px 25px; background: #fff; transition: all 0.3s ease; position: relative; height: 100%; display: flex; flex-direction: column; }
 .tier-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
 .tier-card.popular { border-color: #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 100%); transform: scale(1.03); }
@@ -16,10 +18,11 @@ body { font-display: swap; }
 .tier-features { list-style: none; padding: 0; margin: 18px 0; text-align: left; flex-grow: 1; }
 .tier-features li { padding: 8px 0 8px 28px; position: relative; color: #475569; font-size: 0.92rem; line-height: 1.5; }
 .tier-features li::before { content: "✓"; position: absolute; left: 0; color: #16a34a; font-weight: 800; font-size: 1.1rem; }
-.tier-cta { display: inline-block; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-top: 15px; transition: all 0.3s; text-align:center; }
-.tier-cta:hover { background: linear-gradient(135deg, #187bcd, #1565a8); transform: translateY(-2px); }
+.tier-cta { display: inline-block; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-top: 15px; transition: all 0.3s; text-align:center; cursor: pointer; border: none; }
+.tier-cta:hover { background: linear-gradient(135deg, #187bcd, #1565a8); transform: translateY(-2px); color:white; text-decoration: none;}
 .tier-card.popular .tier-cta { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .tier-card.popular .tier-cta:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+
 .concierge-banner { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border-radius: 16px; padding: 30px; margin: 40px 0; text-align: center; }
 .concierge-banner h3 { color: white; font-size: 1.6rem; margin-bottom: 10px; }
 .concierge-banner .price { font-size: 2.2rem; font-weight: 800; color: #fbbf24; margin: 10px 0; }
@@ -29,49 +32,237 @@ body { font-display: swap; }
 .route-table tr:hover { background: #fafafa; }
 .route-table .price-cell { font-weight: 700; color: #d97706; white-space: nowrap; }
 
-/* ===== CONTACT METHODS GRID ===== */
-.contact-methods-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 18px;
-}
-.contact-method-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 10px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.85rem;
-  transition: all 0.3s;
-  text-align: center;
-  color: white;
-}
-.contact-method-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); color: white; text-decoration: none; }
-.contact-method-btn .icon-circle {
-  width: 36px;
-  height: 36px;
+/* ============================================================
+   FLOATING CONTACT BUTTON & POPUP — World-Class Design
+   ============================================================ */
+
+.floating-contact-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
+  background: linear-gradient(135deg, #1E90FF 0%, #187bcd 100%);
+  color: white;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.2);
-  font-size: 1.1rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 0 rgba(30, 144, 255, 0.5);
+  z-index: 9998;
+  transition: all 0.3s ease;
+  animation: pulseRing 2.5s infinite;
 }
-.contact-method-btn.phone { background: linear-gradient(135deg, #1E90FF, #187bcd); }
-.contact-method-btn.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
-.contact-method-btn.telegram { background: linear-gradient(135deg, #0088cc, #006699); }
+
+.floating-contact-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(30, 144, 255, 0.6), 0 0 0 8px rgba(30, 144, 255, 0.15);
+  animation: none;
+}
+
+.floating-contact-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 0 rgba(30, 144, 255, 0.5); }
+  70% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 16px rgba(30, 144, 255, 0); }
+  100% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 0 rgba(30, 144, 255, 0); }
+}
+
+/* Popup Overlay */
+.contact-popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.contact-popup {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.contact-popup-header {
+  background: linear-gradient(135deg, #1E90FF 0%, #187bcd 100%);
+  color: white;
+  padding: 28px 24px;
+  position: relative;
+  text-align: center;
+}
+
+.contact-popup-header h3 {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.contact-popup-header p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.contact-popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.contact-popup-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg);
+}
+
+.contact-popup-body {
+  padding: 16px;
+}
+
+.contact-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+
+.contact-option:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  transform: translateX(4px);
+  text-decoration: none;
+}
+
+.contact-option:last-child { margin-bottom: 0; }
+
+.contact-option-icon {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3rem;
+}
+
+.contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+.contact-option.viber .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
+.contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
+.contact-option.phone .contact-option-icon { background: linear-gradient(135deg, #1E90FF, #187bcd); }
+
+.contact-option-content {
+  flex-grow: 1;
+}
+
+.contact-option-title {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.contact-option-subtitle {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.contact-option-arrow {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+}
+
+.contact-option:hover .contact-option-arrow {
+  color: #1E90FF;
+  transform: translateX(3px);
+}
 
 @media (max-width: 768px) {
+  .floating-contact-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+  }
+  .contact-popup { max-width: 100%; }
+  .contact-popup-header { padding: 22px 18px; }
+  .contact-popup-header h3 { font-size: 1.2rem; }
   .tier-card.popular { transform: none; }
   .route-table { font-size: 0.85rem; }
   .route-table th, .route-table td { padding: 10px 8px; }
-  .contact-methods-grid { grid-template-columns: 1fr; }
 }
 </style>
+
+<!-- Google Ads tracking -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18051300821"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18051300821', { 'allow_enhanced_conversions': true });
+</script>
+<script>
+  function gtag_report_conversion(url) {
+    var callback = function () { if (typeof(url) != 'undefined') { window.location = url; } };
+    if(typeof gtag==='function'){
+      gtag('event','conversion',{
+        'send_to':'AW-18051300821/5Nv1CM2IspYcENX7w59D',
+        'value':1.0,'currency':'USD','event_callback':callback
+      });
+      setTimeout(callback, 2000);
+    } else { if(url) window.location=url; }
+    return false;
+  }
+</script>
 
 <meta charset="utf-8">
 
@@ -108,7 +299,6 @@ body { font-display: swap; }
 <meta name="geo.placename" content="Chișinău">
 <meta name="geo.position" content="47.013737;28.886408">
 <meta name="ICBM" content="47.013737, 28.886408">
-<meta name="DC.language" content="en">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Iași Airport Transfer to Chișinău from €140 | PlusRent">
@@ -137,25 +327,21 @@ body { font-display: swap; }
 
 <script src="/js/config.js" defer></script>
 
-<!-- ============ SCHEMA.ORG ============ -->
-
-<!-- 1. Service Schema -->
+<!-- Schema.org -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "Iași Airport to Chișinău Transfer",
-  "alternateName": ["Iași Airport Transfer", "Private Transfer Iași Chișinău", "Transfer Iași Aeroport Chișinău"],
+  "alternateName": ["Iași Airport Transfer", "Private Transfer Iași Chișinău"],
   "description": "Private executive transfer service from Iași Airport to Chișinău and return. Premium vehicles with 6+1 seats standard configuration (larger groups discussed by phone). Border assistance included, multilingual drivers (RO/RU/EN), available 24/7. Price from €140.",
   "url": "https://plusrent.md/en/transfer-iasi",
   "serviceType": "Cross-Border Airport Transfer",
   "provider": {
     "@type": "AutoRental",
     "name": "PlusRent",
-    "alternateName": "PlusRent Moldova",
     "url": "https://plusrent.md",
-    "logo": { "@type": "ImageObject", "url": "https://plusrent.md/images/icon.png", "width": 60, "height": 60 },
-    "image": "https://plusrent.md/images/LOGO-5-demo.png",
+    "logo": { "@type": "ImageObject", "url": "https://plusrent.md/images/icon.png" },
     "telephone": "+373-60-000-500",
     "email": "support@plusrent.md",
     "address": {
@@ -189,100 +375,17 @@ body { font-display: swap; }
       "areaServed": ["MD", "RO"]
     }
   },
-  "areaServed": [
-    { "@type": "City", "name": "Iași" },
-    { "@type": "City", "name": "Chișinău" },
-    { "@type": "Country", "name": "Moldova" },
-    { "@type": "Country", "name": "Romania" }
-  ],
-  "availableChannel": {
-    "@type": "ServiceChannel",
-    "serviceUrl": "https://plusrent.md/en/transfer-iasi",
-    "availableLanguage": ["en", "ro", "ru"]
-  },
   "offers": {
     "@type": "AggregateOffer",
     "priceCurrency": "EUR",
     "lowPrice": "140",
     "highPrice": "400",
     "availability": "https://schema.org/InStock",
-    "offerCount": "4",
-    "priceSpecification": [
-      {
-        "@type": "UnitPriceSpecification",
-        "name": "Standard Private Transfer",
-        "priceCurrency": "EUR",
-        "price": "140",
-        "description": "One-way private transfer Iași Airport - Chișinău Center. Comfortable vehicle, professional driver, border assistance, WiFi, 30 min waiting."
-      },
-      {
-        "@type": "UnitPriceSpecification",
-        "name": "Business Comfort Transfer",
-        "priceCurrency": "EUR",
-        "price": "175",
-        "description": "One-way business transfer with premium vehicle. Premium snacks, priority booking, time flexibility."
-      },
-      {
-        "@type": "UnitPriceSpecification",
-        "name": "VIP Executive Transfer",
-        "priceCurrency": "EUR",
-        "price": "230",
-        "description": "VIP one-way transfer with luxury vehicle. Meet & greet at terminal, 60 min waiting, concierge support."
-      },
-      {
-        "@type": "UnitPriceSpecification",
-        "name": "Airport Concierge Package",
-        "priceCurrency": "EUR",
-        "price": "195",
-        "description": "Complete package with meet & greet, luggage assistance, premium snacks, 60 min waiting, border priority."
-      }
-    ]
+    "offerCount": "4"
   }
 }
 </script>
 
-<!-- 2. Organization Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "PlusRent",
-  "alternateName": "PlusRent Moldova",
-  "url": "https://plusrent.md",
-  "logo": "https://plusrent.md/images/LOGO-5-demo.png",
-  "description": "Premium car rental, sober driver and Iași-Chișinău transfer services. 3+ years experience, 439+ orders completed.",
-  "foundingDate": "2022",
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "telephone": "+373-60-000-500",
-    "contactType": "Customer Service",
-    "email": "support@plusrent.md",
-    "availableLanguage": ["English", "Romanian", "Russian"],
-    "areaServed": "MD"
-  },
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "str. Meșterul Manole 20",
-    "addressLocality": "Chișinău",
-    "postalCode": "MD-2044",
-    "addressCountry": "MD"
-  }
-}
-</script>
-
-<!-- 3. BreadcrumbList -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://plusrent.md/en/" },
-    { "@type": "ListItem", "position": 2, "name": "Iași Transfer", "item": "https://plusrent.md/en/transfer-iasi" }
-  ]
-}
-</script>
-
-<!-- 4. FAQPage Schema -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -293,7 +396,7 @@ body { font-display: swap; }
       "name": "How much does Iași Airport to Chișinău transfer cost?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "PlusRent offers 3 tiers of Iași - Chișinău transfers: Standard Private from €140, Business Comfort from €175 (most popular), and VIP Executive from €230. There's also an Airport Concierge Package at €195 with meet & greet included. All prices are all-inclusive: border crossing, WiFi, water, luggage assistance."
+        "text": "PlusRent offers 3 tiers: Standard Private from €140, Business Comfort from €175 (most popular), VIP Executive from €230. Plus Airport Concierge Package at €195. All prices all-inclusive: border, WiFi, water, luggage assistance."
       }
     },
     {
@@ -301,7 +404,7 @@ body { font-display: swap; }
       "name": "How long is the drive from Iași to Chișinău?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The distance Iași - Chișinău is approximately 130 km. The actual drive takes 2-2.5 hours, plus 30-60 minutes at Sculeni-Albița border crossing. Total journey: about 3-3.5 hours. Our experienced drivers know the optimal routes and handle customs formalities quickly."
+        "text": "Distance is approximately 130 km. Drive takes 2-2.5 hours plus 30-60 minutes at Sculeni-Albița border crossing. Total: about 3-3.5 hours."
       }
     },
     {
@@ -309,47 +412,15 @@ body { font-display: swap; }
       "name": "How many passengers can travel?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Our standard configuration is 6+1 seats (6 passengers + driver). Price is for the entire vehicle, not per person. For larger groups (more than 6 passengers), please call us at +373 60 000 500, WhatsApp or Telegram — we can arrange multi-vehicle transport. Luggage included, no limits."
+        "text": "Standard configuration: 6+1 seats (6 passengers + driver). Price is for entire vehicle. For larger groups, contact us via phone, WhatsApp or Telegram for custom multi-vehicle solutions."
       }
     },
     {
       "@type": "Question",
-      "name": "What about luggage and large groups?",
+      "name": "How do I pay?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Standard 6+1 vehicles accommodate up to 6 standard suitcases. For larger groups, oversized luggage, or special requirements (sports equipment, musical instruments), please contact us via phone, WhatsApp or Telegram. We provide custom solutions including multi-vehicle convoys and minivans."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How does border crossing work?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Main crossing point is Sculeni-Albița. Valid passport required. The process takes 30-60 minutes on average. Our experienced drivers assist you with formalities, explain the process, and help with documents if needed. Border assistance is included in the price."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I book a round-trip transfer?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. We offer round-trip transfers with 4-8 hour wait time. Iași Airport ↔ Chișinău round-trip: from €260 (Standard), €310 (Business), €400 (VIP). Round-trip gets a 10% discount — you save compared to two separate transfers."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Do I need to pay in advance?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No advance payment required for individual bookings. Pay the driver at the end of the trip — cash (EUR or MDL) or card. For corporate accounts and multi-day reservations, we offer monthly invoicing options."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What languages do drivers speak?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "All PlusRent drivers speak Romanian and Russian. English-speaking drivers are available on request — please mention this when booking. For VIP Executive transfers, multilingual drivers are included by default."
+        "text": "No advance payment for individual bookings. Pay driver at end — cash (EUR or MDL) or card. Corporate accounts available with monthly invoicing."
       }
     },
     {
@@ -357,69 +428,10 @@ body { font-display: swap; }
       "name": "How can I contact you?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Multiple ways: Phone +373 60 000 500 (24/7), WhatsApp at the same number, Telegram @plusrent, Email support@plusrent.md, or use the callback form on our website. Response time: 3-5 minutes during business hours."
+        "text": "Multiple channels: Phone +373 60 000 500 (24/7), WhatsApp at the same number, Telegram @plusrent, Email support@plusrent.md, or callback form. Response in 3-5 minutes."
       }
     }
   ]
-}
-</script>
-
-<!-- 5. HowTo Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  "name": "How to book an Iași - Chișinău transfer",
-  "description": "Book your transfer from Iași Airport to Chișinău in 4 simple steps.",
-  "totalTime": "PT5M",
-  "estimatedCost": { "@type": "MonetaryAmount", "currency": "EUR", "minValue": "140" },
-  "step": [
-    {
-      "@type": "HowToStep",
-      "position": 1,
-      "name": "Contact us",
-      "text": "Call +373 60 000 500, message us via WhatsApp or Telegram, or fill the callback form online.",
-      "url": "https://plusrent.md/en/transfer-iasi"
-    },
-    {
-      "@type": "HowToStep",
-      "position": 2,
-      "name": "Choose tier and confirm details",
-      "text": "Select the right tier (Standard / Business / VIP), confirm date, flight time and Chișinău destination."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 3,
-      "name": "Airport pickup",
-      "text": "The driver waits for you at arrivals. For Business+, includes meet & greet at terminal with name plate."
-    },
-    {
-      "@type": "HowToStep",
-      "position": 4,
-      "name": "Comfortable journey to Chișinău",
-      "text": "Premium vehicle, WiFi, border assistance included. Pay at destination — cash (EUR/MDL) or card."
-    }
-  ]
-}
-</script>
-
-<!-- 6. WebPage Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Iași Airport Transfer to Chișinău | PlusRent",
-  "dateModified": "2026-04-30",
-  "datePublished": "2026-04-30",
-  "description": "Private executive Iași - Chișinău transfer from €140. Premium vehicles, border assistance, 24/7.",
-  "url": "https://plusrent.md/en/transfer-iasi",
-  "inLanguage": "en",
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "PlusRent",
-    "url": "https://plusrent.md",
-    "inLanguage": ["en", "ro", "ru"]
-  }
 }
 </script>
 
@@ -430,24 +442,28 @@ body { font-display: swap; }
 <div id="de-preloader"></div>
 
 <header class="transparent scroll-light has-topbar">
+  <!-- TOPBAR — clean, no duplicate phone -->
   <div id="topbar" class="topbar-dark text-light">
     <div class="container">
       <div class="topbar-left xs-hide">
         <div class="topbar-widget">
-          <div class="topbar-widget"><a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
           <div class="topbar-widget"><a href="mailto:support@plusrent.md"><i class="fa fa-envelope"></i>support@plusrent.md</a></div>
-          <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
+          <div class="topbar-widget"><i class="fa fa-clock-o"></i>Available 24/7</div>
+          <div class="topbar-widget"><i class="fa fa-map-marker"></i>Meșterul Manole 20, Chișinău</div>
         </div>
       </div>
       <div class="topbar-right">
         <div class="social-icons">
-          <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram PlusRent"><i class="fab fa-instagram fa-lg"></i></a>
-          <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+          <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram fa-lg"></i></a>
+          <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp fa-lg"></i></a>
+          <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok fa-lg"></i></a>
         </div>
       </div>
       <div class="clearfix"></div>
     </div>
   </div>
+
   <div class="container">
     <div class="row">
       <div class="col-md-12">
@@ -473,12 +489,13 @@ body { font-display: swap; }
           </div>
           <div class="de-flex-col">
             <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+              <!-- "Contact Us" button (instead of Call Now duplicate) -->
               <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
-                <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
-                  style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px;">
-                  <i class="fa fa-phone" style="font-size: 12px;"></i>
-                  <span data-i18n="call_now">Call Now</span>
-                </a>
+                <button onclick="openContactPopup()" class="call-now-btn" aria-label="Contact PlusRent"
+                  style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 18px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);">
+                  <i class="fa fa-comments" style="font-size: 13px;"></i>
+                  <span data-i18n="contact_us">Contact Us</span>
+                </button>
               </div>
               <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                 <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
@@ -524,36 +541,37 @@ body { font-display: swap; }
         <div class="col-md-12 text-center">
           <h1 style="text-shadow:0 2px 6px rgba(0,0,0,0.9); color:#fff;">Private Iași Airport Transfer to Chișinău</h1>
           <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff;">Premium vehicles, multilingual drivers, border assistance included. From €140 — available 24/7.</p>
+          <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:25px;">
+            <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:14px 30px; border-radius:50px; text-decoration:none; font-weight:800; font-size:1rem; box-shadow:0 8px 20px rgba(245,158,11,0.4); border:none; cursor:pointer;">
+              <i class="fa fa-comments"></i> Contact Us — Reply in 3 min
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Contact Options with WhatsApp/Telegram -->
+<!-- Contact Section with Direct CTA -->
 <section class="contact-options">
   <div class="container">
     <div class="row">
       <div class="col-lg-6 col-md-6 col-12">
         <div class="contact-card">
-          <div class="phone-icon"><i class="fa fa-phone"></i></div>
-          <h2 class="h3">Contact Us Now</h2>
-          <p>Multiple ways to reach us — pick your favorite. We respond within minutes.</p>
-          <a href="tel:+37360000500" class="phone-number" onclick="gtag_report_conversion('tel:+37360000500')">+373 60 000 500</a>
-          
-          <div class="contact-methods-grid">
-            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="contact-method-btn phone">
-              <div class="icon-circle"><i class="fa fa-phone"></i></div>
-              <span>Call Now</span>
-            </a>
-            <a href="https://wa.me/37360000500?text=Hello%20PlusRent,%20I%20need%20a%20transfer%20Iași%20-%20Chișinău" target="_blank" rel="noopener noreferrer" class="contact-method-btn whatsapp">
-              <div class="icon-circle"><i class="fab fa-whatsapp"></i></div>
-              <span>WhatsApp</span>
-            </a>
-            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" class="contact-method-btn telegram">
-              <div class="icon-circle"><i class="fab fa-telegram"></i></div>
-              <span>Telegram</span>
-            </a>
+          <div class="phone-icon"><i class="fa fa-comments"></i></div>
+          <h2 class="h3">Quick Contact</h2>
+          <p>Choose your favorite way to reach us. We respond within 3-5 minutes during business hours.</p>
+          <button onclick="openContactPopup()" style="background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 14px 32px; border-radius: 30px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);">
+            <i class="fa fa-comments"></i> Choose Contact Method
+          </button>
+          <div style="margin-top:18px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <span style="font-size:0.85rem; color:#64748b;">📞 Phone</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">💬 WhatsApp</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">✈️ Telegram</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">📱 Viber</span>
           </div>
         </div>
       </div>
@@ -589,12 +607,10 @@ body { font-display: swap; }
   <div class="container">
     <div class="text-center mb40">
       <h2 style="font-size:1.9rem; color:#1e293b; margin-bottom:12px;">Choose Your Package</h2>
-      <p style="color:#64748b; font-size:1.05rem;">Iași Airport → Chișinău Center. All prices are all-inclusive (border + WiFi + water + luggage assistance).</p>
+      <p style="color:#64748b; font-size:1.05rem;">Iași Airport → Chișinău Center. All prices all-inclusive.</p>
     </div>
 
     <div class="row" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; align-items:stretch;">
-      
-      <!-- Standard -->
       <div class="col-lg-3 col-md-6" style="margin-top:20px;">
         <div class="tier-card">
           <div class="tier-name">Standard Private</div>
@@ -610,11 +626,10 @@ body { font-display: swap; }
             <li>30 min wait at airport</li>
             <li>Luggage assistance</li>
           </ul>
-          <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta">Book Standard</a>
+          <button onclick="openContactPopup()" class="tier-cta">Book Standard</button>
         </div>
       </div>
 
-      <!-- Business POPULAR -->
       <div class="col-lg-3 col-md-6" style="margin-top:20px;">
         <div class="tier-card popular">
           <div class="tier-name">Business Comfort</div>
@@ -631,11 +646,10 @@ body { font-display: swap; }
             <li>Pickup time flexibility</li>
             <li>USB-C / Lightning chargers</li>
           </ul>
-          <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta">Book Business</a>
+          <button onclick="openContactPopup()" class="tier-cta">Book Business</button>
         </div>
       </div>
 
-      <!-- VIP Executive -->
       <div class="col-lg-3 col-md-6" style="margin-top:20px;">
         <div class="tier-card">
           <div class="tier-name">VIP Executive</div>
@@ -652,12 +666,11 @@ body { font-display: swap; }
             <li>Custom routes</li>
             <li>Water, premium snacks, climate control</li>
           </ul>
-          <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta">Book VIP</a>
+          <button onclick="openContactPopup()" class="tier-cta">Book VIP</button>
         </div>
       </div>
     </div>
 
-    <!-- Concierge Banner -->
     <div class="concierge-banner">
       <h3>✈️ Airport Concierge Package</h3>
       <p style="font-size:1.05rem; margin-bottom:5px; opacity:0.95;">Complete premium solution for families, seniors and international travelers</p>
@@ -666,24 +679,23 @@ body { font-display: swap; }
         ✓ Meet & greet at terminal &nbsp;•&nbsp; ✓ Luggage assistance &nbsp;•&nbsp; ✓ Premium snacks + water <br>
         ✓ 60 min wait &nbsp;•&nbsp; ✓ Border priority &nbsp;•&nbsp; ✓ Flight coordination
       </p>
-      <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e3a8a; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; font-size:0.95rem;">
-        <i class="fa fa-phone"></i> Book Concierge Package
-      </a>
+      <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e3a8a; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; font-size:0.95rem; border:none; cursor:pointer;">
+        <i class="fa fa-comments"></i> Book Concierge Package
+      </button>
     </div>
 
     <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:25px;">
-      <i class="fa fa-info-circle"></i> Need a vehicle for more than 6 passengers? Call, WhatsApp or Telegram — we arrange custom multi-vehicle solutions.
+      <i class="fa fa-info-circle"></i> Need a vehicle for more than 6 passengers? Contact us — we arrange custom multi-vehicle solutions.
     </p>
   </div>
 </section>
 
-<!-- Route Pricing Tables -->
+<!-- Routes Tables -->
 <section class="pt60 pb60" style="background:#fff;">
   <div class="container">
     <div class="col-lg-10 offset-lg-1">
       <h2 style="text-align:center; font-size:1.7rem; color:#1e293b; margin-bottom:15px;">
-        <i class="fa fa-map-marker" style="color:#f59e0b; margin-right:8px;"></i>
-        All Routes & Prices
+        <i class="fa fa-map-marker" style="color:#f59e0b; margin-right:8px;"></i>All Routes & Prices
       </h2>
       <p style="text-align:center; color:#64748b; margin-bottom:30px;">Indicative one-way prices. Round-trip — 10% discount.</p>
 
@@ -701,9 +713,7 @@ body { font-display: swap; }
 
       <h3 style="font-size:1.2rem; color:#1e293b; margin:30px 0 15px;">Iași Airport → Other Moldovan Cities</h3>
       <table class="route-table">
-        <thead>
-          <tr><th>Destination</th><th>Standard</th><th>Business</th><th>VIP</th></tr>
-        </thead>
+        <thead><tr><th>Destination</th><th>Standard</th><th>Business</th><th>VIP</th></tr></thead>
         <tbody>
           <tr><td>Strășeni</td><td class="price-cell">€170</td><td class="price-cell">€200</td><td class="price-cell">€260</td></tr>
           <tr><td>Comrat</td><td class="price-cell">€180</td><td class="price-cell">€215</td><td class="price-cell">€280</td></tr>
@@ -715,9 +725,7 @@ body { font-display: swap; }
 
       <h3 style="font-size:1.2rem; color:#1e293b; margin:30px 0 15px;">Round-Trip with 4-8h Wait</h3>
       <table class="route-table">
-        <thead>
-          <tr><th>Route</th><th>Standard</th><th>Business</th><th>VIP</th></tr>
-        </thead>
+        <thead><tr><th>Route</th><th>Standard</th><th>Business</th><th>VIP</th></tr></thead>
         <tbody>
           <tr><td>Iași Airport ↔ Chișinău Center</td><td class="price-cell">€260</td><td class="price-cell">€310</td><td class="price-cell">€400</td></tr>
           <tr><td>Iași Airport ↔ Other Chișinău zones</td><td class="price-cell">€280</td><td class="price-cell">€330</td><td class="price-cell">€420</td></tr>
@@ -726,7 +734,7 @@ body { font-display: swap; }
 
       <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:20px;">
         <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
-        For special routes or larger distances, call <strong><a href="tel:+37360000500" style="color:#d97706;">+373 60 000 500</a></strong> for personalized quote.
+        For special routes or larger distances, <button onclick="openContactPopup()" style="background:none; border:none; color:#d97706; font-weight:700; cursor:pointer; text-decoration:underline; padding:0;">contact us</button> for personalized quote.
       </p>
     </div>
   </div>
@@ -740,12 +748,12 @@ body { font-display: swap; }
       <div class="step-card">
         <div class="step-number">1</div>
         <h3 class="h4">Contact Us</h3>
-        <p>Call +373 60 000 500, message via WhatsApp or Telegram, or fill the form. Response in 3-5 minutes.</p>
+        <p>Phone, WhatsApp, Telegram or Viber. Response in 3-5 minutes.</p>
       </div>
       <div class="step-card">
         <div class="step-number">2</div>
         <h3 class="h4">Confirm Details</h3>
-        <p>Choose tier, communicate flight date and time, final destination in Chișinău.</p>
+        <p>Choose tier, communicate flight date and time, final destination.</p>
       </div>
       <div class="step-card">
         <div class="step-number">3</div>
@@ -755,7 +763,7 @@ body { font-display: swap; }
       <div class="step-card">
         <div class="step-number">4</div>
         <h3 class="h4">Comfortable Journey</h3>
-        <p>3 hours of premium travel. Pay at destination — cash (EUR/MDL) or card.</p>
+        <p>3 hours of premium travel. Pay at destination — cash or card.</p>
       </div>
     </div>
   </div>
@@ -766,49 +774,30 @@ body { font-display: swap; }
   <div class="container">
     <div class="col-lg-10 offset-lg-1">
       <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:35px;">Why PlusRent for Iași Transfer?</h2>
-      
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:25px;">
-        
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>Premium 6+1 Vehicles
-          </h3>
-          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Spacious vehicles with 6+1 seats standard. Climate control, WiFi, chargers. For larger groups — call us, we arrange custom solutions.</p>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>Premium 6+1 Vehicles</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Spacious vehicles with 6+1 seats standard. Climate control, WiFi, chargers. Need more capacity? Contact us for custom solutions.</p>
         </div>
-
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-globe" style="color:#f59e0b; margin-right:8px;"></i>Border Assistance
-          </h3>
-          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Our drivers cross Sculeni-Albița daily. They know procedures, help with documents, handle customs formalities quickly.</p>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-globe" style="color:#f59e0b; margin-right:8px;"></i>Border Assistance</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Drivers cross Sculeni-Albița daily. They know procedures, help with documents, handle customs quickly.</p>
         </div>
-
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-language" style="color:#f59e0b; margin-right:8px;"></i>Multilingual Drivers
-          </h3>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-language" style="color:#f59e0b; margin-right:8px;"></i>Multilingual Drivers</h3>
           <p style="color:#475569; font-size:0.93rem; line-height:1.6;">All drivers speak Romanian and Russian. English available on request. For VIP — multilingual included.</p>
         </div>
-
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-clock-o" style="color:#f59e0b; margin-right:8px;"></i>Available 24/7
-          </h3>
-          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">We operate non-stop, including nights, weekends, holidays. Flight delayed? We wait — no extra fees in the included 30/60 min.</p>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-clock-o" style="color:#f59e0b; margin-right:8px;"></i>Available 24/7</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Non-stop operations including nights, weekends, holidays. Flight delayed? We wait — no extra fees.</p>
         </div>
-
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-tag" style="color:#f59e0b; margin-right:8px;"></i>All-Inclusive Price
-          </h3>
-          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Border, WiFi, water, assistance — all included. No hidden costs, no surprise charges. Pay at destination.</p>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-tag" style="color:#f59e0b; margin-right:8px;"></i>All-Inclusive Price</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Border, WiFi, water, assistance — all included. No hidden costs. Pay at destination.</p>
         </div>
-
         <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
-          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;">
-            <i class="fa fa-shield" style="color:#f59e0b; margin-right:8px;"></i>3+ Years Experience
-          </h3>
-          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">439+ orders completed. PlusRent is the trusted partner for Moldova-Romania transfers.</p>
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-shield" style="color:#f59e0b; margin-right:8px;"></i>3+ Years Experience</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">439+ orders completed. PlusRent — trusted partner for Moldova-Romania transfers.</p>
         </div>
       </div>
     </div>
@@ -819,13 +808,9 @@ body { font-display: swap; }
 <section class="pt60 pb60" style="background:linear-gradient(135deg,#1e293b,#334155); color:#fff;">
   <div class="container">
     <div class="col-lg-10 offset-lg-1 text-center">
-      <div style="display:inline-block; background:rgba(245,158,11,0.2); color:#fbbf24; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
-        FOR COMPANIES & EXECUTIVES
-      </div>
+      <div style="display:inline-block; background:rgba(245,158,11,0.2); color:#fbbf24; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">FOR COMPANIES & EXECUTIVES</div>
       <h2 style="color:#fff; font-size:1.8rem; margin-bottom:15px;">Corporate Mobility Retainer</h2>
-      <p style="color:#cbd5e1; font-size:1.05rem; max-width:700px; margin:0 auto 20px;">
-        Monthly transport solution for executives and teams. Fixed rates, monthly invoicing, dedicated support. Custom pricing based on transfer volume.
-      </p>
+      <p style="color:#cbd5e1; font-size:1.05rem; max-width:700px; margin:0 auto 20px;">Monthly transport solution for executives and teams. Fixed rates, monthly invoicing, dedicated support.</p>
       <ul style="display:inline-block; text-align:left; color:#cbd5e1; list-style:none; padding:0; margin:0 0 25px 0;">
         <li style="padding:5px 0;">✓ Priority booking on every request</li>
         <li style="padding:5px 0;">✓ Guaranteed fixed rates</li>
@@ -834,44 +819,36 @@ body { font-display: swap; }
         <li style="padding:5px 0;">✓ 24/7 support</li>
       </ul>
       <div>
-        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700;">
-          <i class="fa fa-phone"></i> Discuss Corporate Package
-        </a>
+        <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; border:none; cursor:pointer;">
+          <i class="fa fa-comments"></i> Discuss Corporate Package
+        </button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ Section -->
+<!-- FAQ -->
 <section id="faq" class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
   <div class="container">
     <div class="col-lg-10 offset-lg-1">
-      <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:15px;">
-        <i class="fa fa-question-circle" style="color:#3b82f6; margin-right:8px;"></i>
-        Frequently Asked Questions
-      </h2>
-      <p style="text-align:center; color:#64748b; margin-bottom:35px;">Quick answers to most asked questions.</p>
+      <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:15px;"><i class="fa fa-question-circle" style="color:#3b82f6; margin-right:8px;"></i>Frequently Asked Questions</h2>
+      <p style="text-align:center; color:#64748b; margin-bottom:35px;">Quick answers to common questions.</p>
 
       <div class="faq-list" style="display:flex; flex-direction:column; gap:12px;">
-
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
           <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
             <span><i class="fa fa-money" style="color:#f59e0b; margin-right:10px;"></i>How much does Iași - Chișinău transfer cost?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            We have 3 tiers: <strong>Standard €140</strong>, <strong>Business €175</strong> (most chosen), <strong>VIP €230</strong>. Plus the <strong>Concierge package €195</strong> with meet & greet included. All prices are all-inclusive — border, WiFi, water and luggage assistance included.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">3 tiers: <strong>Standard €140</strong>, <strong>Business €175</strong> (most chosen), <strong>VIP €230</strong>. Plus <strong>Concierge €195</strong>. All all-inclusive — border, WiFi, water, luggage included.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
           <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fa fa-clock-o" style="color:#f59e0b; margin-right:10px;"></i>How long is the journey Iași - Chișinău?</span>
+            <span><i class="fa fa-clock-o" style="color:#f59e0b; margin-right:10px;"></i>How long is the journey?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            Distance is <strong>130 km</strong>. The actual drive takes 2-2.5 hours. Plus <strong>30-60 minutes at Sculeni-Albița border</strong>. Total: about 3-3.5 hours. Our drivers know optimal routes and handle customs formalities quickly.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Distance is <strong>130 km</strong>. Drive: 2-2.5 hours. Plus <strong>30-60 minutes at Sculeni-Albița border</strong>. Total: about 3-3.5 hours.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
@@ -879,9 +856,7 @@ body { font-display: swap; }
             <span><i class="fa fa-users" style="color:#f59e0b; margin-right:10px;"></i>How many passengers can travel?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            Standard configuration: <strong>6+1 seats</strong> (6 passengers + driver). Price is for the entire vehicle, not per person. Whether you travel alone or with 6 — cost stays the same. <strong>For larger groups (more than 6 passengers), call us at +373 60 000 500, WhatsApp or Telegram</strong> — we arrange multi-vehicle solutions. Luggage included, no limits.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Standard: <strong>6+1 seats</strong>. Price for entire vehicle. <strong>For larger groups, contact us via phone, WhatsApp or Telegram</strong> — we arrange multi-vehicle solutions.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
@@ -889,9 +864,7 @@ body { font-display: swap; }
             <span><i class="fa fa-globe" style="color:#f59e0b; margin-right:10px;"></i>How does border crossing work?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            Main point is <strong>Sculeni-Albița</strong>. Valid passport required. Process takes 30-60 minutes on average. Our experienced drivers assist with formalities, explain process, help with documents if needed. Border assistance included in price.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Main point is <strong>Sculeni-Albița</strong>. Valid passport required. Process takes 30-60 minutes. Drivers help with formalities. Border assistance included.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
@@ -899,9 +872,7 @@ body { font-display: swap; }
             <span><i class="fa fa-refresh" style="color:#f59e0b; margin-right:10px;"></i>Can I book round-trip?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            Yes. We offer round-trip transfers with 4-8 hour wait. <strong>Iași Airport ↔ Chișinău round-trip:</strong> €260 (Standard), €310 (Business), €400 (VIP). Round-trip gets <strong>automatic 10% discount</strong>.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Yes. Round-trip with 4-8h wait: €260/€310/€400 by tier. <strong>Automatic 10% discount</strong>.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
@@ -909,19 +880,7 @@ body { font-display: swap; }
             <span><i class="fa fa-credit-card" style="color:#f59e0b; margin-right:10px;"></i>How do I pay?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            <strong>No advance payment</strong> for individual bookings. Pay the driver at trip end — <strong>cash (EUR or MDL)</strong> or <strong>card</strong>. For corporate and multiple bookings we offer monthly invoicing options.
-          </p>
-        </details>
-
-        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fa fa-language" style="color:#f59e0b; margin-right:10px;"></i>Do drivers speak English?</span>
-            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-          </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            All our drivers speak <strong>Romanian and Russian</strong>. <strong>English is available on request</strong> — please mention this when booking. For VIP Executive transfers, multilingual drivers are included by default.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;"><strong>No advance payment</strong>. Pay at end — cash (EUR/MDL) or card. Corporate accounts: monthly invoicing.</p>
         </details>
 
         <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
@@ -929,23 +888,18 @@ body { font-display: swap; }
             <span><i class="fa fa-comments" style="color:#f59e0b; margin-right:10px;"></i>How can I contact you?</span>
             <span style="color:#3b82f6; font-size:1.3rem;">+</span>
           </summary>
-          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-            Multiple ways: <strong>Phone +373 60 000 500</strong> (24/7), <strong>WhatsApp</strong> at the same number, <strong>Telegram</strong> @plusrent, <strong>Email</strong> support@plusrent.md, or use the callback form on our website. Response time: 3-5 minutes during business hours.
-          </p>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Multiple ways: <strong>Phone +373 60 000 500</strong>, <strong>WhatsApp</strong>, <strong>Telegram @plusrent</strong>, <strong>Viber</strong>, Email. Response: 3-5 minutes. Click the floating contact button (bottom right) anytime.</p>
         </details>
-
       </div>
     </div>
   </div>
 </section>
 
-<!-- Related Services - ALL services -->
+<!-- Related Services -->
 <section id="related" class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
   <div class="container">
     <div class="col-lg-10 offset-lg-1">
-      <h3 style="text-align:center; font-size:1.3rem; color:#1e293b; margin-bottom:25px;">
-        <i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>Other PlusRent Services
-      </h3>
+      <h3 style="text-align:center; font-size:1.3rem; color:#1e293b; margin-bottom:25px;"><i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>Other PlusRent Services</h3>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
         <a href="/en/transfer-chisinau" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
           <i class="fa fa-plane-arrival" style="color:#3b82f6; font-size:1.4rem;"></i>
@@ -958,7 +912,7 @@ body { font-display: swap; }
           <i class="fa fa-user-tie" style="color:#3b82f6; font-size:1.4rem;"></i>
           <div>
             <div style="font-weight:700; font-size:0.95rem;">Personal Driver</div>
-            <div style="color:#64748b; font-size:0.85rem;">Executive premium • from 2,000 MDL/day</div>
+            <div style="color:#64748b; font-size:0.85rem;">Executive • from 2,000 MDL/day</div>
           </div>
         </a>
         <a href="/en/sofer-treaz" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
@@ -995,7 +949,7 @@ body { font-display: swap; }
     <h3 class="success-title">Thank You!</h3>
     <p class="success-message">Your request has been sent successfully!</p>
     <div class="success-details">
-      <p><i class="fa fa-phone"></i> <span>We'll call you in <strong>3-5 minutes</strong> to confirm the transfer</span></p>
+      <p><i class="fa fa-phone"></i> <span>We'll call you in <strong>3-5 minutes</strong> to confirm</span></p>
       <p><i class="fa fa-shield"></i> <span><strong>Premium</strong> transport guaranteed</span></p>
     </div>
     <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">Keep your phone handy</p>
@@ -1009,14 +963,14 @@ body { font-display: swap; }
 
 <a href="#" id="back-to-top" aria-label="Back to top"></a>
 
-<!-- Footer with ALL quick links -->
+<!-- Footer -->
 <footer class="text-light">
   <div class="container">
     <div class="row g-custom-x">
       <div class="col-lg-3">
         <div class="widget">
           <h2 class="h5">About Us</h2>
-          <p>PlusRent offers premium car rental, sober driver and Iași-Chișinău transfer services in Moldova.</p>
+          <p>PlusRent — premium car rental, sober driver and Iași-Chișinău transfer services in Moldova.</p>
         </div>
       </div>
       <div class="col-lg-3">
@@ -1026,7 +980,7 @@ body { font-display: swap; }
             <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Moldova</span>
             <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="text-decoration:underline !important;"><i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500</a>
             <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important; display:block; margin-top:8px;"><i class="id-color fab fa-whatsapp fa-lg" style="margin-right:15px;"></i>WhatsApp</a>
-            <a href="https://t.me/+37360000500" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important; display:block; margin-top:8px;"><i class="id-color fab fa-telegram fa-lg" style="margin-right:15px;"></i>Telegram</a>
+            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important; display:block; margin-top:8px;"><i class="id-color fab fa-telegram fa-lg" style="margin-right:15px;"></i>Telegram @plusrent</a>
             <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:support@plusrent.md">support@plusrent.md</a></span>
           </address>
         </div>
@@ -1051,13 +1005,14 @@ body { font-display: swap; }
           <h2 class="h5">Social Networks</h2>
           <div class="social-icons">
             <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram fa-lg"></i></a>
+            <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp fa-lg"></i></a>
             <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
           </div>
         </div>    
       </div>
     </div>
   </div>
-  
   <div class="subfooter">
     <div class="container">
       <div class="row">
@@ -1073,6 +1028,65 @@ body { font-display: swap; }
     </div>
   </div>
 </footer>
+</div>
+
+<!-- ============ FLOATING CONTACT BUTTON & POPUP ============ -->
+
+<!-- Floating Contact Button (always visible) -->
+<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contact us">
+  <i class="fa fa-comments"></i>
+</button>
+
+<!-- Contact Popup Modal -->
+<div id="contactPopup" class="contact-popup-overlay">
+  <div class="contact-popup">
+    <div class="contact-popup-header">
+      <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Close">
+        <i class="fa fa-times"></i>
+      </button>
+      <h3>Contact Us 24/7</h3>
+      <p>Choose your preferred contact method</p>
+    </div>
+    <div class="contact-popup-body">
+      
+      <a href="javascript:void(0)" onclick="openWhatsApp()" class="contact-option whatsapp" aria-label="Contact via WhatsApp">
+        <div class="contact-option-icon"><i class="fab fa-whatsapp"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">WhatsApp</div>
+          <div class="contact-option-subtitle">Quick chat • Instant reply</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+
+      <a href="javascript:void(0)" onclick="openTelegram()" class="contact-option telegram" aria-label="Contact via Telegram">
+        <div class="contact-option-icon"><i class="fab fa-telegram"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Telegram</div>
+          <div class="contact-option-subtitle">@plusrent • Fast messaging</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+
+      <a href="javascript:void(0)" onclick="openViber()" class="contact-option viber" aria-label="Contact via Viber">
+        <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Viber</div>
+          <div class="contact-option-subtitle">Voice and messages</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+
+      <a href="javascript:void(0)" onclick="makeDirectCall()" class="contact-option phone" aria-label="Direct call">
+        <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Direct Call</div>
+          <div class="contact-option-subtitle">+373 60 000 500</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+
+    </div>
+  </div>
 </div>
 
 <script src="/js/plugins.js" defer></script>
@@ -1098,6 +1112,68 @@ body { font-display: swap; }
 
 <script src="/js/universal-include.js" defer></script>
 
+<!-- ============ CONTACT POPUP FUNCTIONS ============ -->
+<script>
+// Page-specific WhatsApp text — customize per page
+const WHATSAPP_TEXT = "Hello PlusRent! I'm interested in the Iași Airport to Chișinău transfer. Could you provide more details?";
+
+function openContactPopup() {
+  document.getElementById('contactPopup').style.display = 'flex';
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.dataset.scrollY = scrollY;
+}
+
+function closeContactPopup() {
+  document.getElementById('contactPopup').style.display = 'none';
+  const scrollY = parseInt(document.body.dataset.scrollY || '0');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo(0, scrollY);
+}
+
+function openWhatsApp() {
+  gtag_report_conversion();
+  const text = encodeURIComponent(WHATSAPP_TEXT);
+  window.open(`https://wa.me/37360000500?text=${text}`, '_blank');
+}
+
+function openViber() {
+  gtag_report_conversion();
+  window.open('viber://chat?number=+37360000500', '_blank');
+}
+
+function openTelegram() {
+  gtag_report_conversion();
+  window.open('https://t.me/plusrent', '_blank');
+}
+
+function makeDirectCall() {
+  gtag_report_conversion();
+  window.location.href = 'tel:+37360000500';
+}
+
+document.getElementById('contactPopup').addEventListener('click', function (e) {
+  if (e.target === this) closeContactPopup();
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeContactPopup();
+    const successModal = document.getElementById('successModal');
+    if (successModal) successModal.style.display = 'none';
+  }
+});
+</script>
+
+<!-- Callback Form -->
 <script>
 document.getElementById('callbackForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -1148,9 +1224,6 @@ window.onclick = function(event) {
   const modal = document.getElementById('successModal');
   if (event.target === modal) modal.style.display = 'none';
 }
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') document.getElementById('successModal').style.display = 'none';
-});
 </script>
 
 <script>
