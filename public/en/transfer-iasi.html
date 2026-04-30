@@ -55,58 +55,17 @@ header.sticky-active .logo-2 { display: none !important; }
 body.sticky-padding { padding-top: 90px; }
 
 /* ============================================================
-   LIVE STATUS BADGE — Always visible, mobile-friendly
+   LIVE DOT animation (used inline in hero badge)
    ============================================================ */
-.live-status-hero {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 8px;
-  background: #16a34a !important;
-  color: #ffffff !important;
-  padding: 8px 18px;
-  border-radius: 30px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.2);
-  white-space: nowrap;
-  position: relative;
-  z-index: 5;
-  line-height: 1.2;
-  vertical-align: middle;
-}
-.live-status-hero span:not(.live-dot-hero) {
-  color: #ffffff !important;
-  display: inline-block;
-}
-.live-dot-hero {
-  width: 9px;
-  height: 9px;
-  background: #ffffff !important;
-  border-radius: 50%;
-  animation: pulseLive 2s infinite;
-  flex-shrink: 0;
-  display: inline-block;
-}
-@keyframes pulseLive {
+@keyframes liveDot {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9);
     transform: scale(1);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
-    transform: scale(1.2);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    transform: scale(1.3);
   }
-}
-@media (max-width: 480px) {
-  .live-status-hero {
-    font-size: 0.72rem;
-    padding: 7px 14px;
-    letter-spacing: 0.2px;
-  }
-  .live-dot-hero { width: 8px; height: 8px; }
 }
 
 /* Trust Bar in Hero */
@@ -825,15 +784,16 @@ body.sticky-padding { padding-top: 90px; }
 <div id="top"></div>
 
 <!-- Hero -->
-<section id="subheader" class="jarallax text-light">
+<section id="subheader" class="jarallax text-light" style="padding-top: 100px; padding-bottom: 60px;">
   <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" fetchpriority="high" alt="Iași Airport Transfer Chișinău - PlusRent">
-  <div class="center-y relative text-center">
+  <div class="relative text-center" style="position: relative; z-index: 2;">
     <div class="container">
       <div class="row">
         <div class="col-md-12 text-center">
-          <div class="live-status-hero">
-            <span class="live-dot-hero"></span>
-            <span>AVAILABLE 24/7</span>
+          <div style="text-align:center; margin-bottom:20px;">
+            <span style="display:inline-block; background:#16a34a; color:#ffffff; padding:8px 20px; border-radius:30px; font-size:14px; font-weight:800; letter-spacing:0.5px; box-shadow:0 6px 20px rgba(22,163,74,0.5); white-space:nowrap; line-height:1;">
+              <span style="display:inline-block; width:8px; height:8px; background:#ffffff; border-radius:50%; margin-right:8px; vertical-align:middle; animation:liveDot 2s infinite;"></span><span style="vertical-align:middle; color:#ffffff;">AVAILABLE NOW · Booking Open 24/7</span>
+            </span>
           </div>
           <h1 style="text-shadow:0 2px 6px rgba(0,0,0,0.9); color:#fff;">Private Iași Airport Transfer to Chișinău</h1>
           <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff;">Premium vehicles, multilingual drivers, border assistance included. From €140 — available 24/7.</p>
