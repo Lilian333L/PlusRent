@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+<style>
+/* ============================================================
+   EXECUTIVE PREMIUM DESIGN - ЛИЧНЫЙ ВОДИТЕЛЬ
+   Время = Деньги • Статус • Продуктивность без стресса
+   ============================================================ */
+
+body { font-display: swap; }
+#subheader .center-y { background: rgba(0,0,0,0.6) !important; }
+
+/* ===== TRUST BAR ===== */
+.trust-bar {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 25px 0;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  margin-top: -2px;
+}
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  text-align: center;
+}
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 10px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+.trust-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(30, 144, 255, 0.1);
+  border-color: #1E90FF;
+}
+.trust-icon { font-size: 1.6rem; color: #f59e0b; }
+.trust-label { font-size: 0.95rem; font-weight: 700; color: #1e293b; line-height: 1.2; }
+.trust-sublabel { font-size: 0.78rem; color: #64748b; }
+@media (max-width: 768px) {
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== LIVE STATUS ===== */
+.live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(22, 163, 74, 0.15);
+  color: #16a34a;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  border: 1px solid rgba(22, 163, 74, 0.3);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #16a34a;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* ===== TIME IS MONEY HOOK ===== */
+.value-hook {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #fff;
+}
+.value-hook-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.value-quote {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fbbf24;
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.value-author {
+  color: #94a3b8;
+  font-size: 1rem;
+  margin-bottom: 35px;
+}
+.value-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 40px;
+}
+.value-stat {
+  padding: 25px 20px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.value-stat-num {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #fbbf24;
+  margin-bottom: 5px;
+}
+.value-stat-label {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+@media (max-width: 768px) {
+  .value-quote { font-size: 1.2rem; }
+  .value-stats { grid-template-columns: 1fr; gap: 15px; }
+  .value-stat-num { font-size: 1.8rem; }
+}
+
+/* ===== 2 VARIANTS ===== */
+.variants-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+.variants-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 1100px;
+  margin: 40px auto 0;
+}
+.variant-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 35px 30px;
+  border: 2px solid #e2e8f0;
+  position: relative;
+  transition: all 0.3s;
+}
+.variant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+.variant-card.option-a {
+  border-color: #1E90FF;
+  background: linear-gradient(180deg, #eff6ff 0%, #fff 60%);
+}
+.variant-card.option-b {
+  border-color: #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, #fff 60%);
+}
+.variant-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+.option-a .variant-badge { background: rgba(30,144,255,0.15); color: #1E90FF; }
+.option-b .variant-badge { background: rgba(245,158,11,0.15); color: #d97706; }
+.variant-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+.variant-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+.variant-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.variant-price-from {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+.variant-price {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #1e293b;
+  line-height: 1;
+  margin: 5px 0;
+}
+.variant-price small {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+.variant-description {
+  color: #475569;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  margin: 18px 0;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border-left: 3px solid #1E90FF;
+}
+.option-b .variant-description { border-left-color: #f59e0b; }
+.variant-features { list-style: none; padding: 0; margin: 0 0 25px; }
+.variant-features li {
+  padding: 7px 0 7px 26px;
+  position: relative;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.variant-features li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #16a34a;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.variant-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff;
+  color: #1E90FF;
+  border: 2px solid #1E90FF;
+  padding: 12px 24px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  width: 100%;
+}
+.variant-cta:hover { background: #1E90FF; color: white; transform: translateY(-2px); }
+.option-b .variant-cta { color: #d97706; border-color: #f59e0b; }
+.option-b .variant-cta:hover { background: #f59e0b; color: white; }
+@media (max-width: 768px) {
+  .variants-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== TIER CARDS ===== */
+.tiers-section {
+  padding: 70px 0;
+  background: #f8fafc;
+}
+.tiers-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+}
+.tier-tab {
+  padding: 12px 28px;
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 30px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+.tier-tab.active {
+  background: linear-gradient(135deg, #1E90FF, #187bcd);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(30,144,255,0.3);
+}
+.tier-tab:hover:not(.active) { border-color: #1E90FF; color: #1E90FF; }
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.tier-card-v3 {
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 35px 28px;
+  position: relative;
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+.tier-card-v3:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+.tier-card-v3.popular {
+  border-color: #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, #fff 70%);
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px rgba(245, 158, 11, 0.2);
+  z-index: 2;
+}
+.tier-card-v3.popular::before {
+  content: "⭐ ВЫБИРАЮТ ЧАЩЕ";
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 8px 22px;
+  border-radius: 25px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+}
+.tier-badge-v3 {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  background: rgba(30, 144, 255, 0.1);
+  color: #1E90FF;
+}
+.tier-card-v3.popular .tier-badge-v3 { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.tier-card-v3.vip-card .tier-badge-v3 { background: rgba(30, 58, 138, 0.1); color: #1e3a8a; }
+.tier-name-v3 { font-size: 1.55rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+.tier-tagline-v3 { color: #64748b; font-size: 0.92rem; margin-bottom: 18px; line-height: 1.5; min-height: 3em; }
+.tier-cars-list {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+  color: #475569;
+  border-left: 3px solid #1E90FF;
+}
+.tier-card-v3.popular .tier-cars-list { border-left-color: #f59e0b; }
+.tier-card-v3.vip-card .tier-cars-list { border-left-color: #1e3a8a; }
+.tier-cars-list strong { color: #1e293b; }
+.tier-price-v3 { font-size: 2.5rem; font-weight: 900; color: #1e293b; line-height: 1; }
+.tier-price-currency { font-size: 1.2rem; vertical-align: super; color: #64748b; }
+.tier-price-period-v3 { color: #64748b; font-size: 0.85rem; margin: 5px 0 22px; }
+.tier-features-v3 { list-style: none; padding: 0; margin: 0 0 25px; flex-grow: 1; }
+.tier-features-v3 li {
+  padding: 8px 0 8px 28px;
+  position: relative;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.tier-features-v3 li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  color: #16a34a;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+.tier-cta-v3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff;
+  color: #1E90FF;
+  border: 2px solid #1E90FF;
+  padding: 13px 24px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+.tier-cta-v3:hover { background: #1E90FF; color: white; transform: translateY(-2px); }
+.tier-card-v3.popular .tier-cta-v3 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border-color: transparent;
+}
+.tier-card-v3.popular .tier-cta-v3:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+.tier-card-v3.vip-card .tier-cta-v3 { color: #1e3a8a; border-color: #1e3a8a; }
+.tier-card-v3.vip-card .tier-cta-v3:hover { background: #1e3a8a; color: white; }
+@media (max-width: 992px) {
+  .tier-grid { grid-template-columns: 1fr; max-width: 480px; }
+  .tier-card-v3.popular { transform: none; }
+}
+
+/* ===== USE CASES ===== */
+.use-cases-section {
+  padding: 80px 0;
+  background: #fff;
+}
+.use-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-top: 40px;
+}
+.use-case-card {
+  padding: 30px 25px;
+  background: linear-gradient(180deg, #fff, #f8fafc);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s;
+  text-align: center;
+}
+.use-case-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  border-color: #f59e0b;
+}
+.use-case-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, rgba(30,144,255,0.1), rgba(245,158,11,0.1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: #f59e0b;
+}
+.use-case-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+.use-case-desc {
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .use-cases-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== INCLUDED FEATURES ===== */
+.included-section {
+  padding: 70px 0;
+  background: #f8fafc;
+}
+.included-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 35px;
+}
+.included-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: #fff;
+  border-radius: 12px;
+  border-left: 3px solid #1E90FF;
+}
+.included-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  background: rgba(30, 144, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1E90FF;
+  font-size: 1.1rem;
+}
+.included-text { flex-grow: 1; }
+.included-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; margin-bottom: 2px; }
+.included-desc { color: #64748b; font-size: 0.83rem; line-height: 1.4; }
+
+/* ===== HOW IT WORKS ===== */
+.how-section {
+  padding: 70px 0;
+  background: #fff;
+  position: relative;
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  margin-top: 50px;
+  position: relative;
+}
+.how-steps::before {
+  content: "";
+  position: absolute;
+  top: 35px;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #f59e0b 20%, #f59e0b 80%, transparent);
+  z-index: 0;
+}
+.how-step {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.how-step-num {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  background: #fff;
+  border: 3px solid #f59e0b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #d97706;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2);
+}
+.how-step-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.how-step-desc { color: #64748b; font-size: 0.9rem; line-height: 1.5; }
+@media (max-width: 768px) {
+  .how-steps { grid-template-columns: 1fr; gap: 30px; }
+  .how-steps::before { display: none; }
+}
+
+/* ===== CARS GALLERY ===== */
+.cars-section {
+  padding: 70px 0;
+  background: #f8fafc;
+}
+.cars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 35px;
+}
+.car-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 25px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  transition: all 0.3s;
+}
+.car-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  border-color: #1E90FF;
+}
+.car-tier-badge-v2 {
+  display: inline-block;
+  background: rgba(30,144,255,0.1);
+  color: #1E90FF;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+.car-tier-badge-v2.business { background: rgba(245,158,11,0.15); color: #d97706; }
+.car-tier-badge-v2.executive { background: rgba(30,58,138,0.15); color: #1e3a8a; }
+.car-icon { font-size: 2.8rem; color: #94a3b8; margin-bottom: 12px; }
+.car-name { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.car-features { color: #64748b; font-size: 0.85rem; line-height: 1.5; }
+@media (max-width: 768px) { .cars-grid { grid-template-columns: 1fr; } }
+
+/* ===== RISK REVERSAL ===== */
+.risk-reversal {
+  padding: 50px 0;
+  background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+  color: #fff;
+}
+.risk-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  text-align: center;
+}
+.risk-item { padding: 15px; }
+.risk-icon { font-size: 2rem; margin-bottom: 10px; color: #fff; opacity: 0.95; }
+.risk-title { font-weight: 800; color: #fff; font-size: 1rem; margin-bottom: 4px; }
+.risk-desc { color: rgba(255,255,255,0.85); font-size: 0.85rem; line-height: 1.4; }
+@media (max-width: 768px) {
+  .risk-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+
+/* ===== CORPORATE ===== */
+.corporate-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #fff;
+}
+
+/* ===== FAQ ===== */
+.faq-section-v2 {
+  padding: 70px 0;
+  background: #fff;
+}
+.faq-list-v2 {
+  max-width: 800px;
+  margin: 35px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item-v2 {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.faq-item-v2:hover { border-color: #1E90FF; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.faq-item-v2[open] { border-color: #1E90FF; box-shadow: 0 4px 12px rgba(30, 144, 255, 0.1); }
+.faq-summary {
+  padding: 18px 22px;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1rem;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-summary-icon {
+  background: rgba(30,144,255,0.1);
+  color: #1E90FF;
+  font-size: 1.3rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 15px;
+  transition: all 0.3s;
+}
+.faq-item-v2[open] .faq-summary-icon { background: #1E90FF; color: white; transform: rotate(45deg); }
+.faq-answer { padding: 0 22px 20px; color: #475569; line-height: 1.7; font-size: 0.95rem; }
+
+/* ===== FINAL CTA ===== */
+.final-cta {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #1E90FF 0%, #0f4c8a 100%);
+  color: #fff;
+  text-align: center;
+}
+.final-cta h2 { color: #fff; font-size: 2.2rem; margin-bottom: 15px; font-weight: 800; }
+.final-cta p { color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 30px; }
+.final-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 16px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 30px rgba(245,158,11,0.4);
+  transition: all 0.3s;
+}
+.final-cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(245,158,11,0.5);
+  color: white;
+}
+
+/* ===== MOBILE STICKY ===== */
+.mobile-sticky-cta {
+  display: none;
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #1E90FF, #187bcd);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(30,144,255,0.4);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+@media (max-width: 768px) { .mobile-sticky-cta { display: flex; } }
+
+/* ===== TITLES ===== */
+.section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.section-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 1.05rem;
+  margin-bottom: 30px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-eyebrow {
+  display: inline-block;
+  background: rgba(30,144,255,0.1);
+  color: #1E90FF;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.eyebrow-center { display: block; text-align: center; }
+@media (max-width: 768px) { .section-title { font-size: 1.6rem; } }
+</style>
+
+<!-- Google Ads tracking -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18051300821"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18051300821', { 'allow_enhanced_conversions': true });
+</script>
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () { if (typeof(url) != 'undefined') { window.location = url; } };
+  if(typeof gtag==='function'){
+    gtag('event','conversion',{
+      'send_to':'AW-18051300821/5Nv1CM2IspYcENX7w59D',
+      'value':1.0,'currency':'USD','event_callback':callback
+    });
+    setTimeout(callback, 2000);
+  } else { if(url) window.location=url; }
+  return false;
+}
+</script>
+
+<meta charset="utf-8">
+
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="preload" as="image" href="/images/background/2.webp" fetchpriority="high" type="image/webp">
+<meta http-equiv="content-language" content="ru">
+
+<title>Личный Водитель Кишинёв от 2,000 MDL/день | Премиум Executive 24/7 | PlusRent</title>
+
+<link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" type="image/png" href="/images/icon.png">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E90FF">
+
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+<meta name="description" content="Личный водитель в Кишинёве — премиум исполнительское решение. Audi A6 2022, Mercedes E, Lexus NX300h. От 2,000 MDL/день (ваше авто) или 3,500 MDL (наше авто). Многоязычный RO/RU/EN, 24/7. ☎ +373 60 000 500">
+<meta name="keywords" content="личный водитель кишинев, персональный водитель молдова, водитель на день кишинев, водитель на час кишинев, VIP транспорт кишинев, executive водитель молдова, корпоративный водитель кишинев, sofer personal chisinau, personal driver chisinau, executive chauffeur moldova, PlusRent">
+<meta name="author" content="PlusRent.md">
+
+<link rel="alternate" hreflang="ro-MD" href="https://plusrent.md/ro/sofer-personal" />
+<link rel="alternate" hreflang="ru-MD" href="https://plusrent.md/ru/sofer-personal" />
+<link rel="alternate" hreflang="en" href="https://plusrent.md/en/sofer-personal" />
+<link rel="alternate" hreflang="x-default" href="https://plusrent.md/ro/sofer-personal" />
+<link rel="canonical" href="https://plusrent.md/ru/sofer-personal">
+<meta name="geo.region" content="MD">
+<meta name="geo.placename" content="Кишинёв">
+<meta name="geo.position" content="47.013737;28.886408">
+<meta name="ICBM" content="47.013737, 28.886408">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Личный Водитель Кишинёв от 2,000 MDL/день | Премиум Executive | PlusRent">
+<meta property="og:description" content="Личный водитель премиум для директоров, экспатов и VIP клиентов. Audi A6, Mercedes E, Lexus NX300h. ☎ +373 60 000 500">
+<meta property="og:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+<meta property="og:url" content="https://plusrent.md/ru/sofer-personal">
+<meta property="og:site_name" content="PlusRent">
+<meta property="og:locale" content="ru_MD">
+<meta property="og:locale:alternate" content="ro_MD">
+<meta property="og:locale:alternate" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Личный Водитель Кишинёв | Премиум Executive | PlusRent">
+<meta name="twitter:description" content="Личный водитель премиум 24/7. Audi A6, Mercedes E, Lexus. ☎ +373 60 000 500">
+<meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+
+<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+<link href="/css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+<link href="/css/soferum.css" rel="stylesheet" type="text/css">
+<link href="/css/plugins.css" rel="stylesheet" type="text/css">
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<link href="/css/coloring.css" rel="stylesheet" type="text/css">
+<link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<script src="/js/config.js" defer></script>
+
+<!-- ============ SCHEMA.ORG ============ -->
+
+<!-- 1. Service Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Личный Водитель Кишинёв",
+  "alternateName": ["Personal Driver Chișinău", "Executive Chauffeur Moldova", "Șofer Personal"],
+  "description": "Премиум сервис личного водителя для директоров, экспатов и VIP клиентов в Кишинёве и Молдове. Доступны два варианта: на машине клиента или на наших премиум авто (Audi A6 2022, Lexus NX300h, Mercedes E-Class). Пакеты 8ч, 10ч, 12ч и 24/7. Цена от 2,000 MDL/день.",
+  "url": "https://plusrent.md/ru/sofer-personal",
+  "serviceType": "Executive Chauffeur Service",
+  "provider": {
+    "@type": "AutoRental",
+    "name": "PlusRent",
+    "alternateName": "PlusRent Moldova",
+    "url": "https://plusrent.md",
+    "logo": { "@type": "ImageObject", "url": "https://plusrent.md/images/icon.png", "width": 60, "height": 60 },
+    "image": "https://plusrent.md/images/LOGO-5-demo.png",
+    "telephone": "+373-60-000-500",
+    "email": "support@plusrent.md",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "ул. Meșterul Manole 20",
+      "addressLocality": "Кишинёв",
+      "postalCode": "MD-2044",
+      "addressCountry": "MD"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 47.013737, "longitude": 28.886408 },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "00:00", "closes": "23:59"
+    },
+    "sameAs": [
+      "https://www.instagram.com/plusrent.md",
+      "https://t.me/plusrent",
+      "https://www.tiktok.com/@plusrent",
+      "https://www.linkedin.com/company/plusrent",
+      "https://www.facebook.com/plusrent.md",
+      "https://www.trustpilot.com/review/plusrent.md"
+    ],
+    "priceRange": "от 2,000 MDL",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+373-60-000-500",
+      "contactType": "Customer Service",
+      "email": "support@plusrent.md",
+      "availableLanguage": ["Russian", "Romanian", "English"],
+      "areaServed": "MD"
+    }
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Кишинёв" },
+    { "@type": "Country", "name": "Молдова" }
+  ],
+  "availableChannel": {
+    "@type": "ServiceChannel",
+    "serviceUrl": "https://plusrent.md/ru/sofer-personal",
+    "availableLanguage": ["ru", "ro", "en"]
+  },
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "MDL",
+    "lowPrice": "2000",
+    "highPrice": "8500",
+    "availability": "https://schema.org/InStock",
+    "offerCount": "6",
+    "priceSpecification": [
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "Стандарт - Ваше авто (8ч)",
+        "priceCurrency": "MDL",
+        "price": "2000",
+        "description": "Профессиональный водитель на вашем авто, 8 часов/день. Для практичных клиентов которым нужен только водитель."
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "Бизнес - Ваше авто (10ч)",
+        "priceCurrency": "MDL",
+        "price": "2800",
+        "description": "Старший многоязычный водитель на вашем авто, 10 часов/день."
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "VIP - Ваше авто (12ч)",
+        "priceCurrency": "MDL",
+        "price": "4000",
+        "description": "VIP водитель в костюме на вашем авто, 12 часов/день."
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "Стандарт - Наше авто (8ч)",
+        "priceCurrency": "MDL",
+        "price": "3500",
+        "description": "Премиум авто (Toyota Auris/Audi A4) + водитель, all-inclusive 100км/день."
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "Бизнес - Наше авто (10ч)",
+        "priceCurrency": "MDL",
+        "price": "5500",
+        "description": "Премиум авто (Audi A6 2022/Lexus NX300h) + многоязычный водитель, all-inclusive."
+      },
+      {
+        "@type": "UnitPriceSpecification",
+        "name": "VIP Executive - Наше авто (12ч)",
+        "priceCurrency": "MDL",
+        "price": "8500",
+        "description": "VIP авто (Mercedes E/BMW 5/Audi A6) + VIP водитель в костюме, консьерж включён."
+      }
+    ]
+  }
+}
+</script>
+
+<!-- 2. Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "PlusRent",
+  "alternateName": "PlusRent Moldova",
+  "url": "https://plusrent.md",
+  "logo": "https://plusrent.md/images/LOGO-5-demo.png",
+  "description": "Премиум услуги личного водителя, аэропорт трансфер, прокат авто и трезвый водитель в Молдове.",
+  "foundingDate": "2022",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+373-60-000-500",
+    "contactType": "Customer Service",
+    "email": "support@plusrent.md",
+    "availableLanguage": ["Russian", "Romanian", "English"],
+    "areaServed": "MD"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "ул. Meșterul Manole 20",
+    "addressLocality": "Кишинёв",
+    "postalCode": "MD-2044",
+    "addressCountry": "MD"
+  }
+}
+</script>
+
+<!-- 3. Breadcrumbs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Главная", "item": "https://plusrent.md/ru/" },
+    { "@type": "ListItem", "position": 2, "name": "Личный Водитель", "item": "https://plusrent.md/ru/sofer-personal" }
+  ]
+}
+</script>
+
+<!-- 4. FAQPage Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Сколько стоит личный водитель в день в Кишинёве?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "У нас 2 варианта. На вашем авто: Стандарт 2,000 MDL/день (8ч), Бизнес 2,800 MDL/день (10ч), VIP 4,000 MDL/день (12ч). На наших авто (all-inclusive 100км): Стандарт 3,500 MDL (Audi A4/Toyota Auris), Бизнес 5,500 MDL (Audi A6 2022/Lexus NX300h), VIP Executive 8,500 MDL (Mercedes E/BMW 5)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "В чём разница между двумя вариантами?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Вариант А: привозим только водителя, водит ваше авто — идеально если у вас уже есть машина которую вы любите. Вариант Б: привозим премиум авто + водитель, all-inclusive (100км включены, снеки, вода) — идеально когда хотите статус наших авто Audi A6 2022 / Lexus NX300h / Mercedes E. Разница в цене отражает включение премиум авто."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Кто ваши водители?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Наши водители — проверенные профессионалы с минимум 5 лет опыта, в униформе (костюм для Бизнес+ и VIP), многоязычные (RO/RU/EN), деликатные, пунктуальные. Все имеют действительные права, чистую судимость, профессиональную страховку и подготовку в executive driving."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Можно ли иметь одного и того же водителя каждый раз?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Да, мы предлагаем опцию same driver для постоянных контрактов или личных предпочтений. По запросу водитель учит ваши обычные маршруты, музыкальные предпочтения, любимые пути. Для контрактов Corporate и VIP — same driver стандартно."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Есть ли минимум часов?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Минимум 4 часа = 1,200 MDL для коротких заказов. Стандартные пакеты 8ч, 10ч и 12ч. Для месячных или корпоративных заказов — без минимума, custom pricing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Есть ли скидки на длительные контракты?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Да. 5+ дней: -10%. 10+ дней: -15%. Месячный контракт: -20%. Corporate retainer: до -20% + бонусы (priority booking, выделенный аккаунт менеджер, ежемесячное счёт-фактура, бесплатные апгрейды по доступности)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Как оплачивать?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Для индивидуальных заказов — оплата в конце, наличные (MDL/EUR) или карта. Для месячных и корпоративных контрактов — ежемесячное счёт-фактура (B2B friendly). Без предоплаты для частных клиентов."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Можно ли водителя 24/7 по вызову?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Да, вариант VIP On-Call (24/7 доступность). Специальный пакет для директоров, дипломатов, экспатов которые путешествуют нерегулярно. Премиум тариф но максимальная гибкость. Звоните для деталей: +373 60 000 500."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "На каком языке говорят водители?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Все водители говорят на русском и румынском. Английский доступен по запросу — упомяните это при бронировании. Для уровней Бизнес и VIP — многоязычность включена по умолчанию."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Cât costă un șofer personal pe zi?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Avem 2 variante. Pe mașina ta: Standard 2,000 MDL/zi (8h), Business 2,800 MDL (10h), VIP 4,000 MDL (12h). Pe mașinile noastre (all-inclusive 100km): Standard 3,500 MDL, Business 5,500 MDL (Audi A6 2022/Lexus NX300h), VIP Executive 8,500 MDL (Mercedes E/BMW 5)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Care este diferența între cele 2 variante?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Varianta A: aducem doar șoferul, conduce mașina ta. Varianta B: aducem mașina premium + șofer, all-inclusive (100km incluse, snacks, apă). Diferența de preț reflectă includerea mașinii premium."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does a personal driver cost in Chișinău?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two options. On your car: Standard 2,000 MDL/day (8h), Business 2,800 MDL (10h), VIP 4,000 MDL (12h). On our premium cars (all-inclusive 100km): Standard 3,500 MDL, Business 5,500 MDL (Audi A6 2022/Lexus NX300h), VIP Executive 8,500 MDL (Mercedes E/BMW 5)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between the two options?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Option A: we bring only the driver, drives your car. Option B: we bring premium car + driver, all-inclusive (100km included, snacks, water). The price difference reflects including the premium vehicle."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who are your drivers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Professional verified drivers with minimum 5 years experience, in uniform (suit for Business+ and VIP), multilingual (RO/RU/EN), discreet, punctual. All have valid licenses, clean records, professional insurance, and executive driving training."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I have the same driver every time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, we offer same driver option for recurring contracts. The driver learns your usual routes, music preferences, favorite paths. For Corporate and VIP contracts — same driver is standard."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are there discounts for longer contracts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. 5+ days: -10%. 10+ days: -15%. Monthly contract: -20%. Corporate retainer: up to -20% + benefits (priority booking, dedicated account manager, monthly invoicing, free upgrades when available)."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- 5. HowTo -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Как заказать личного водителя в Кишинёве",
+  "alternateName": ["Cum să rezervi un șofer personal în Chișinău", "How to book a personal driver in Chișinău"],
+  "description": "Закажи своего премиум личного водителя в 4 простых шага. Доступно 24/7.",
+  "totalTime": "PT3M",
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": "MDL", "minValue": "2000" },
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Позвоните или заполните форму",
+      "text": "Позвоните +373 60 000 500 или заполните форму онлайн. Отвечаем за 3-5 минут.",
+      "url": "https://plusrent.md/ru/sofer-personal"
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Выберите вариант и уровень",
+      "text": "Ваша машина или наша? Стандарт, Бизнес или VIP? Обсудим ваши предпочтения."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Подтвердите программу",
+      "text": "Устанавливаем время старта, продолжительность, примерные локации. Получаете детали водителя через SMS."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "Путешествуйте расслабленно",
+      "text": "Водитель приезжает пунктуально. Вы работаете, спите или отдыхаете. Оплата в конце."
+    }
+  ]
+}
+</script>
+
+<!-- 6. WebPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Личный Водитель Кишинёв | PlusRent",
+  "dateModified": "2026-04-30",
+  "datePublished": "2026-04-30",
+  "description": "Премиум личный водитель в Кишинёве. 2 варианта: на вашем авто или на наших Audi A6, Mercedes E, Lexus. От 2,000 MDL/день.",
+  "url": "https://plusrent.md/ru/sofer-personal",
+  "inLanguage": "ru",
+  "isPartOf": { "@type": "WebSite", "name": "PlusRent", "url": "https://plusrent.md", "inLanguage": ["ru", "ro", "en"] }
+}
+</script>
+
+</head>
+
+<body>
+<div id="wrapper">
+<div id="de-preloader"></div>
+
+<header class="transparent scroll-light has-topbar">
+  <div id="topbar" class="topbar-dark text-light">
+    <div class="container">
+      <div class="topbar-left xs-hide">
+        <div class="topbar-widget">
+          <div class="topbar-widget"><a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
+          <div class="topbar-widget"><a href="mailto:support@plusrent.md"><i class="fa fa-envelope"></i>support@plusrent.md</a></div>
+          <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="social-icons">
+          <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+        </div>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="de-flex sm-pt10">
+          <div class="de-flex-col">
+            <div class="de-flex-col">
+              <div id="logo">
+                <a href="/ru/">
+                  <img class="logo-1" src="/images/LOGO-4-demo.png" alt="PlusRent Logo">
+                  <img class="logo-2" src="/images/LOGO-5-demo.png" alt="PlusRent Logo">
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="de-flex-col">
+            <ul id="mainmenu">
+              <li><a class="menu-item" href="/ru/" data-i18n="menu.home">Главная</a></li>
+              <li><a class="menu-item" href="/ru/cars" data-i18n="menu.cars">Автомобили</a></li>
+              <li><a class="menu-item" href="/ru/about" data-i18n="menu.about">О нас</a></li>
+              <li><a class="menu-item" href="/ru/contact" data-i18n="menu.contact">Контакты</a></li>
+              <li><a class="menu-item" href="/ru/sofer-treaz" data-i18n="menu.sober_driver">Трезвый Водитель</a></li>
+            </ul>
+          </div>
+          <div class="de-flex-col">
+            <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+              <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
+                  style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                  <i class="fa fa-phone" style="font-size: 12px;"></i>
+                  <span data-i18n="call_now">Позвонить</span>
+                </a>
+              </div>
+              <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                  <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="10" cy="10" r="9" stroke="#f59e0b" stroke-width="2" />
+                      <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#f59e0b" stroke-width="2" />
+                      <path d="M1 10h18" stroke="#f59e0b" stroke-width="2" />
+                    </svg>
+                  </span>
+                  <span class="lang-flag" id="langFlag"></span>
+                  <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RU</span>
+                  <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                    <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                  <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="/images/flags/romania.png" alt="Română" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
+                  <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="/images/flags/united-kingdom.png" alt="English" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
+                  <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="/images/flags/russia.png" alt="Русский" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div id="menu-btn" role="button" tabindex="0" aria-label="Открыть меню" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="no-bottom no-top" id="content">
+<div id="top"></div>
+
+<!-- ============ HERO ============ -->
+<section id="subheader" class="jarallax text-light">
+  <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" fetchpriority="high" alt="Личный Водитель Кишинёв - PlusRent">
+  <div class="center-y relative text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <div class="live-status">
+            <span class="live-dot"></span>
+            <span>Доступно сейчас • 24/7</span>
+          </div>
+          <h1 style="text-shadow:0 2px 8px rgba(0,0,0,0.9); color:#fff; font-size: 2.6rem; font-weight: 800; line-height:1.15; margin-bottom: 15px;">Личный Водитель Кишинёв</h1>
+          <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff; max-width: 720px; margin: 0 auto 25px; font-size:1.15rem;">
+            Премиум исполнительское решение для директоров, экспатов и VIP клиентов<br>
+            <strong style="color:#fbbf24;">На вашем авто от 2,000 MDL • На наших авто от 3,500 MDL</strong>
+          </p>
+          <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:20px;">
+            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:15px 32px; border-radius:50px; text-decoration:none; font-weight:800; font-size:1.05rem; box-shadow:0 10px 25px rgba(245,158,11,0.4);">
+              <i class="fa fa-phone"></i> Позвонить +373 60 000 500
+            </a>
+            <a href="#variants" style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); color:white; padding:15px 32px; border-radius:50px; text-decoration:none; font-weight:700; font-size:1.05rem; border:2px solid rgba(255,255,255,0.3);">
+              <i class="fa fa-tag"></i> Посмотреть Варианты
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST BAR ============ -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-user-tie"></i></div>
+        <div class="trust-label">Проверенные Водители</div>
+        <div class="trust-sublabel">5+ лет опыта</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-language"></i></div>
+        <div class="trust-label">Многоязычные</div>
+        <div class="trust-sublabel">RU • RO • EN</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-shield"></i></div>
+        <div class="trust-label">Оплата в Конце</div>
+        <div class="trust-sublabel">Без предоплаты</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-clock-o"></i></div>
+        <div class="trust-label">Доступно 24/7</div>
+        <div class="trust-sublabel">По вызову для VIP</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Contact Options ============ -->
+<section class="contact-options">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-phone"></i></div>
+          <h2 class="h3">Прямой Звонок</h2>
+          <p>Поговорите с консультантом и получите персональное предложение за несколько минут.</p>
+          <a href="tel:+37360000500" class="phone-number" onclick="gtag_report_conversion('tel:+37360000500')">+373 60 000 500</a>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-clock-o"></i></div>
+          <h2 class="h3">Заказать Звонок</h2>
+          <p>Оставьте свой номер — консультант перезвонит вам за 3-5 минут для деталей и бронирования.</p>
+          <form class="callback-form" id="callbackForm">
+            <input type="tel" id="callbackPhone" placeholder="Ваш номер телефона" required>
+            <button type="submit" class="btn-request-call">Заказать Звонок</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIME = MONEY HOOK ============ -->
+<section class="value-hook">
+  <div class="container">
+    <div class="value-hook-content">
+      <span class="section-eyebrow eyebrow-center" style="background:rgba(251,191,36,0.15); color:#fbbf24;">ЗАЧЕМ ЛИЧНЫЙ ВОДИТЕЛЬ?</span>
+      <p class="value-quote">"Ваше время дороже 2,000 MDL в день. Используйте его для бизнеса — пусть кто-то другой ведёт."</p>
+      
+      <div class="value-stats">
+        <div class="value-stat">
+          <div class="value-stat-num">2-3 часа</div>
+          <div class="value-stat-label">Возвращаете в загруженные дни</div>
+        </div>
+        <div class="value-stat">
+          <div class="value-stat-num">+30%</div>
+          <div class="value-stat-label">Продуктивность (работаете в авто)</div>
+        </div>
+        <div class="value-stat">
+          <div class="value-stat-num">0%</div>
+          <div class="value-stat-label">Стресс от трафика и парковки</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 VARIANTS ============ -->
+<section id="variants" class="variants-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">2 ВАРИАНТА</span>
+    <h2 class="section-title">Выберите Как Хотите Ехать</h2>
+    <p class="section-subtitle">Два гибких варианта — в зависимости от ваших предпочтений и бюджета</p>
+    
+    <div class="variants-grid">
+      
+      <!-- Option A -->
+      <div class="variant-card option-a">
+        <div class="variant-badge">Вариант А</div>
+        <div class="variant-icon">🚗</div>
+        <div class="variant-title">На Вашем Авто</div>
+        <div class="variant-subtitle">К вам приезжает только водитель. Ведёт ваше авто.</div>
+        <div class="variant-price-from">ОТ</div>
+        <div class="variant-price">2,000 <small>MDL/день</small></div>
+        <div class="variant-description">
+          <strong>Идеально если:</strong> у вас уже есть машина которую вы любите и нужен только профессиональный водитель который доставит вас куда угодно, в любое время.
+        </div>
+        <ul class="variant-features">
+          <li>Профессиональный многоязычный водитель</li>
+          <li>Пакеты: 8ч / 10ч / 12ч / 24ч по вызову</li>
+          <li>Платите только за водителя (ваше авто = ваше топливо)</li>
+          <li>Same driver доступен для контрактов</li>
+          <li>Скидки на длительные контракты</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="variant-cta">
+          Обсудить Вариант А <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+      
+      <!-- Option B -->
+      <div class="variant-card option-b">
+        <div class="variant-badge">Вариант Б</div>
+        <div class="variant-icon">🚙</div>
+        <div class="variant-title">На Наших Авто</div>
+        <div class="variant-subtitle">Премиум авто + водитель, всё включено.</div>
+        <div class="variant-price-from">ОТ</div>
+        <div class="variant-price">3,500 <small>MDL/день</small></div>
+        <div class="variant-description">
+          <strong>Идеально если:</strong> хотите статус премиум авто (Audi A6 2022, Lexus NX300h, Mercedes E) без забот собственника.
+        </div>
+        <ul class="variant-features">
+          <li>Audi A6 2022 / Lexus NX300h / Mercedes E</li>
+          <li>Водитель + премиум авто включены</li>
+          <li>All-inclusive 100км/день (extra 5 MDL/км)</li>
+          <li>WiFi, вода, снеки, зарядки</li>
+          <li>Климат dual-zone, кожаные сиденья</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="variant-cta">
+          Обсудить Вариант Б <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIER PRICING - Option A (Your Car) ============ -->
+<section class="tiers-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПРОЗРАЧНЫЕ ЦЕНЫ</span>
+    <h2 class="section-title">🚗 На Вашем Авто — 3 Пакета</h2>
+    <p class="section-subtitle">Привозим только водителя. Водит ваше авто. Платите за профессионализм.</p>
+    
+    <div class="tier-grid">
+      
+      <div class="tier-card-v3">
+        <div class="tier-badge-v3">Стандарт</div>
+        <div class="tier-name-v3">Стандарт 8ч</div>
+        <div class="tier-tagline-v3">Пакет на 8 часов для обычного бизнес-дня.</div>
+        <div class="tier-price-v3">2,000 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 8 часов • На вашем авто</div>
+        <ul class="tier-features-v3">
+          <li>Профессиональный водитель (RO/RU)</li>
+          <li>8 часов сервиса</li>
+          <li>Пунктуальность гарантирована</li>
+          <li>Помощь с багажом</li>
+          <li>Same driver опционально</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать Стандарт</a>
+      </div>
+      
+      <div class="tier-card-v3 popular">
+        <div class="tier-badge-v3">⭐ Sweet Spot</div>
+        <div class="tier-name-v3">Бизнес 10ч</div>
+        <div class="tier-tagline-v3">Самый выбираемый пакет — 10 часов для полных дней с встречами.</div>
+        <div class="tier-price-v3">2,800 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 10 часов • На вашем авто</div>
+        <ul class="tier-features-v3">
+          <li><strong>Старший многоязычный водитель (RO/RU/EN)</strong></li>
+          <li>10 часов сервиса</li>
+          <li>Деловой костюм</li>
+          <li>Гибкость в программе</li>
+          <li>Priority booking</li>
+          <li>Same driver включён</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать Бизнес</a>
+      </div>
+      
+      <div class="tier-card-v3 vip-card">
+        <div class="tier-badge-v3">VIP</div>
+        <div class="tier-name-v3">VIP 12ч / По вызову</div>
+        <div class="tier-tagline-v3">12 часов или 24/7 по вызову для директоров и экспатов.</div>
+        <div class="tier-price-v3">4,000 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 12ч или по вызову • На вашем авто</div>
+        <ul class="tier-features-v3">
+          <li><strong>VIP водитель в костюме</strong></li>
+          <li>12 часов или 24/7 по вызову</li>
+          <li>Абсолютная деликатность</li>
+          <li>Консьерж поддержка</li>
+          <li>Выделенный аккаунт менеджер</li>
+          <li>Same driver гарантирован</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать VIP</a>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIER PRICING - Option B (Our Car) ============ -->
+<section class="tiers-section" style="background:#fff;">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center" style="background:rgba(245,158,11,0.15); color:#d97706;">ALL-INCLUSIVE ПРЕМИУМ</span>
+    <h2 class="section-title">🚙 На Наших Авто — 3 Пакета</h2>
+    <p class="section-subtitle">Премиум авто + водитель + 100км включены + снеки. Всё подготовлено для вас.</p>
+    
+    <div class="tier-grid">
+      
+      <div class="tier-card-v3">
+        <div class="tier-badge-v3">Стандарт</div>
+        <div class="tier-name-v3">Стандарт 8ч</div>
+        <div class="tier-tagline-v3">Комфортное авто с профессиональным водителем.</div>
+        <div class="tier-cars-list">
+          <strong>Авто:</strong> Toyota Auris 2014 или Audi A4 2017
+        </div>
+        <div class="tier-price-v3">3,500 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 8 часов • All-inclusive 100км</div>
+        <ul class="tier-features-v3">
+          <li>Авто включено (Auris/A4)</li>
+          <li>Профессиональный водитель (RO/RU)</li>
+          <li>100 км включены (extra +5 MDL/км)</li>
+          <li>Топливо и страховка включены</li>
+          <li>WiFi, вода</li>
+          <li>8 часов сервиса</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать Стандарт</a>
+      </div>
+      
+      <div class="tier-card-v3 popular">
+        <div class="tier-badge-v3">⭐ Чаще Выбирают</div>
+        <div class="tier-name-v3">Бизнес 10ч</div>
+        <div class="tier-tagline-v3">Премиум статус для важных встреч и долгих дней.</div>
+        <div class="tier-cars-list">
+          <strong>Авто:</strong> Audi A6 2022 или Lexus NX300h
+        </div>
+        <div class="tier-price-v3">5,500 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 10 часов • All-inclusive 100км</div>
+        <ul class="tier-features-v3">
+          <li><strong>Audi A6 2022 / Lexus NX300h</strong></li>
+          <li>Многоязычный водитель (RO/RU/EN), business attire</li>
+          <li>100 км включены</li>
+          <li>WiFi, вода, премиум снеки</li>
+          <li>Климат dual-zone, USB зарядки</li>
+          <li>10 часов + гибкость</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать Бизнес</a>
+      </div>
+      
+      <div class="tier-card-v3 vip-card">
+        <div class="tier-badge-v3">VIP Executive</div>
+        <div class="tier-name-v3">VIP 12ч / По вызову</div>
+        <div class="tier-tagline-v3">Top-tier executive experience для директоров и экспатов.</div>
+        <div class="tier-cars-list">
+          <strong>Авто:</strong> Mercedes E / BMW 5 / Lexus NX300h / Audi A6
+        </div>
+        <div class="tier-price-v3">8,500 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v3">/день • 12ч или по вызову • All-inclusive</div>
+        <ul class="tier-features-v3">
+          <li><strong>Mercedes E / BMW 5 / Lexus / A6</strong></li>
+          <li>VIP водитель в костюме, многоязычный</li>
+          <li>Полный консьерж сервис</li>
+          <li>100 км включены + премиум снеки</li>
+          <li>Абсолютная деликатность</li>
+          <li>Выделенный аккаунт менеджер 24/7</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v3">Заказать VIP</a>
+      </div>
+      
+    </div>
+    
+    <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:30px;">
+      <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+      Скидки на длительные контракты: 5+ дней -10% • 10+ дней -15% • Месячный -20% • Corporate custom
+    </p>
+  </div>
+</section>
+
+<!-- ============ USE CASES ============ -->
+<section class="use-cases-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ИДЕАЛЬНО ДЛЯ</span>
+    <h2 class="section-title">Кто Использует Личного Водителя?</h2>
+    <p class="section-subtitle">Гибкое решение для людей с насыщенной программой</p>
+    
+    <div class="use-cases-grid">
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">💼</div>
+        <h3 class="use-case-title">Директора & Менеджеры</h3>
+        <p class="use-case-desc">Встречи весь день? Работаете в авто вместо вождения. Прибываете свежими на каждую встречу.</p>
+      </div>
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">✈️</div>
+        <h3 class="use-case-title">Экспаты & Иностранные Специалисты</h3>
+        <p class="use-case-desc">Не знаете дорог? Не говорите на языке? Ваш многоязычный водитель поможет ориентироваться в Молдове.</p>
+      </div>
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">🏢</div>
+        <h3 class="use-case-title">Компании & Корпорации</h3>
+        <p class="use-case-desc">Транспорт для VIP гостей, делегаций, конференций. Корпоративное решение с ежемесячным счёт-фактура.</p>
+      </div>
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">🎉</div>
+        <h3 class="use-case-title">Особые События</h3>
+        <p class="use-case-desc">Свадьба, банкет, событие с алкоголем? Ваш водитель доставит вас безопасно, сохраняя статус.</p>
+      </div>
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">🌍</div>
+        <h3 class="use-case-title">Премиум Туры</h3>
+        <p class="use-case-desc">Хотите открыть Молдову с комфортом? Ваш водитель доставит вас в винные погреба, монастыри, достопримечательности.</p>
+      </div>
+      
+      <div class="use-case-card">
+        <div class="use-case-icon">👨‍👩‍👧</div>
+        <h3 class="use-case-title">VIP Семьи</h3>
+        <p class="use-case-desc">Дети в школу, жена за покупками, вы в офис? Один водитель для всей семьи.</p>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ============ INCLUDED FEATURES ============ -->
+<section class="included-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ЧТО ПОЛУЧАЕТЕ</span>
+    <h2 class="section-title">Всё Что Нужно Включено</h2>
+    <p class="section-subtitle">Премиум сервис без сюрпризов. Никаких скрытых затрат.</p>
+    
+    <div class="included-grid">
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-user-tie"></i></div>
+        <div class="included-text">
+          <div class="included-name">Проверенный Водитель</div>
+          <div class="included-desc">5+ лет опыта, чистая судимость, страховка</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-language"></i></div>
+        <div class="included-text">
+          <div class="included-name">Многоязычный</div>
+          <div class="included-desc">Русский, Румынский, Английский по запросу</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-suit"></i></div>
+        <div class="included-text">
+          <div class="included-name">Деловая Униформа</div>
+          <div class="included-desc">Костюм для Бизнес+ и VIP</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-clock"></i></div>
+        <div class="included-text">
+          <div class="included-name">Пунктуальность</div>
+          <div class="included-desc">Гарантия времени или извинения</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-handshake"></i></div>
+        <div class="included-text">
+          <div class="included-name">Деликатность</div>
+          <div class="included-desc">Абсолютная конфиденциальность</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-redo"></i></div>
+        <div class="included-text">
+          <div class="included-name">Same Driver</div>
+          <div class="included-desc">Тот же водитель для контрактов</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-shield"></i></div>
+        <div class="included-text">
+          <div class="included-name">Страхование</div>
+          <div class="included-desc">Профессиональное на любой случай</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-headset"></i></div>
+        <div class="included-text">
+          <div class="included-name">Поддержка 24/7</div>
+          <div class="included-desc">Аккаунт менеджер для VIP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПРОЦЕСС</span>
+    <h2 class="section-title">Как Работает — 4 Шага</h2>
+    <p class="section-subtitle">От первой беседы до вашего водителя менее чем за 24 часа</p>
+    
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3 class="how-step-title">Позвоните или Напишите</h3>
+        <p class="how-step-desc">+373 60 000 500 или форма — обсудим ваши предпочтения</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3 class="how-step-title">Выберите Пакет</h3>
+        <p class="how-step-desc">Ваше авто или наше? Стандарт, Бизнес или VIP?</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3 class="how-step-title">Подтвердите Программу</h3>
+        <p class="how-step-desc">Установим время старта, продолжительность, получите детали через SMS</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">4</div>
+        <h3 class="how-step-title">Путешествуйте Расслабленно</h3>
+        <p class="how-step-desc">Вы работаете или отдыхаете. Оплата в конце — наличные или карта</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CARS GALLERY ============ -->
+<section class="cars-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">FLEET ПРЕМИУМ</span>
+    <h2 class="section-title">Авто Для Варианта Б</h2>
+    <p class="section-subtitle">Все с климат контролем, WiFi, ежедневной проверкой, кожаными сиденьями</p>
+    
+    <div class="cars-grid">
+      <div class="car-card">
+        <span class="car-tier-badge-v2">Стандарт</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Toyota Auris 2014 / Audi A4 2017</div>
+        <div class="car-features">Комфортные, надёжные, идеальны для практичных клиентов. AC, аудиосистема.</div>
+      </div>
+      <div class="car-card">
+        <span class="car-tier-badge-v2 business">Бизнес</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Audi A6 2022 / Lexus NX300h</div>
+        <div class="car-features">Премиум modern, гибридный eco, элегантный интерьер, снеки включены.</div>
+      </div>
+      <div class="car-card">
+        <span class="car-tier-badge-v2 executive">VIP</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Mercedes E / BMW 5 / Lexus / A6</div>
+        <div class="car-features">Luxury executive, массажные сиденья, панорамное стекло, премиум удобства.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RISK REVERSAL ============ -->
+<section class="risk-reversal">
+  <div class="container">
+    <div class="risk-grid">
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-credit-card"></i></div>
+        <div class="risk-title">Оплата в Конце</div>
+        <div class="risk-desc">Без предоплаты. Наличные или карта.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-handshake"></i></div>
+        <div class="risk-title">Абсолютная Деликатность</div>
+        <div class="risk-desc">Конфиденциальность гарантирована.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-clock"></i></div>
+        <div class="risk-title">Гарантия Времени</div>
+        <div class="risk-desc">Пунктуальность или извинения.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-shield"></i></div>
+        <div class="risk-title">Проверенный Водитель</div>
+        <div class="risk-desc">Чистая судимость + страховка.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CORPORATE MOBILITY ============ -->
+<section class="corporate-section">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 text-center">
+      <div style="display:inline-block; background:rgba(245,158,11,0.2); color:#fbbf24; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
+        ДЛЯ КОМПАНИЙ & ИСПОЛНИТЕЛЬНЫХ ДИРЕКТОРОВ
+      </div>
+      <h2 style="color:#fff; font-size:2rem; margin-bottom:15px; font-weight:800;">Corporate Mobility Retainer</h2>
+      <p style="color:#cbd5e1; font-size:1.05rem; max-width:700px; margin:0 auto 25px;">
+        Ежемесячное транспортное решение для директоров, экспатов и команд. Фиксированные тарифы, ежемесячное счёт-фактура, выделенная поддержка. Custom pricing в зависимости от объёма.
+      </p>
+      <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin:25px 0; color:#cbd5e1;">
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Priority booking</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Фиксированные тарифы</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Выделенный аккаунт менеджер</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Same driver постоянно</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Ежемесячное счёт-фактура</span>
+      </div>
+      <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:14px 32px; border-radius:30px; text-decoration:none; font-weight:700;">
+        <i class="fa fa-phone"></i> Обсудить Корпоративный Пакет
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq-section-v2">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ОТВЕТЫ</span>
+    <h2 class="section-title">Часто Задаваемые Вопросы</h2>
+    <p class="section-subtitle">Всё что нужно знать перед бронированием</p>
+    
+    <div class="faq-list-v2">
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Сколько стоит личный водитель в день?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          У нас 2 варианта. <strong>На вашем авто:</strong> Стандарт 2,000 MDL/день (8ч), Бизнес 2,800 MDL (10ч), VIP 4,000 MDL (12ч). <strong>На наших авто</strong> (all-inclusive 100км): Стандарт 3,500 MDL, Бизнес 5,500 MDL (Audi A6 2022/Lexus NX300h), VIP Executive 8,500 MDL (Mercedes E/BMW 5).
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>В чём разница между двумя вариантами?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Вариант А:</strong> привозим только водителя, водит ваше авто — идеально если у вас уже есть машина которую вы любите. <strong>Вариант Б:</strong> привозим премиум авто + водитель, all-inclusive (100км включены, снеки, вода) — идеально когда хотите статус наших авто Audi A6 2022 / Lexus NX300h / Mercedes E. Разница в цене отражает включение премиум авто.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Кто ваши водители?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          Наши водители — <strong>проверенные профессионалы</strong> с минимум 5 лет опыта, в униформе (костюм для Бизнес+ и VIP), <strong>многоязычные (RO/RU/EN)</strong>, деликатные, пунктуальные. Все имеют действительные права, чистую судимость, профессиональную страховку и подготовку в executive driving.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Можно ли иметь одного и того же водителя каждый раз?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Да</strong>, мы предлагаем опцию same driver для постоянных контрактов или личных предпочтений. По запросу водитель учит ваши обычные маршруты, музыкальные предпочтения, любимые пути. Для контрактов Corporate и VIP — same driver стандартно.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Есть ли минимум часов?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          Минимум <strong>4 часа = 1,200 MDL</strong> для коротких заказов. Стандартные пакеты 8ч, 10ч и 12ч. Для месячных или корпоративных заказов — без минимума, custom pricing.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Есть ли скидки на длительные контракты?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Да:</strong>
+          <ul style="margin-top:10px; padding-left:20px;">
+            <li><strong>5+ дней:</strong> -10%</li>
+            <li><strong>10+ дней:</strong> -15%</li>
+            <li><strong>Месячный контракт:</strong> -20%</li>
+            <li><strong>Corporate retainer:</strong> до -20% + бонусы (priority booking, выделенный аккаунт менеджер, ежемесячное счёт-фактура, бесплатные апгрейды)</li>
+          </ul>
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Как оплачивать?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          Для индивидуальных заказов — <strong>оплата в конце</strong>, наличные (MDL/EUR) или карта. Для месячных и корпоративных контрактов — ежемесячное счёт-фактура (B2B friendly). <strong>Без предоплаты</strong> для частных клиентов.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>Можно ли водителя 24/7 по вызову?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Да</strong>, вариант VIP On-Call (24/7 доступность). Специальный пакет для директоров, дипломатов, экспатов которые путешествуют нерегулярно. Премиум тариф но максимальная гибкость. Звоните для деталей: <strong>+373 60 000 500</strong>.
+        </div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary">
+          <span>На каком языке говорят водители?</span>
+          <span class="faq-summary-icon">+</span>
+        </summary>
+        <div class="faq-answer">
+          Все водители говорят на <strong>русском и румынском</strong>. <strong>Английский доступен по запросу</strong> — упомяните это при бронировании. Для уровней Бизнес и VIP — многоязычность включена по умолчанию.
+        </div>
+      </details>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta">
+  <div class="container">
+    <h2>Готовы Путешествовать Премиум?</h2>
+    <p>Поговорите с консультантом. Получите персональное предложение за несколько минут.</p>
+    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="final-cta-btn">
+      <i class="fa fa-phone"></i> Позвонить +373 60 000 500
+    </a>
+    <p style="margin-top:25px; color:rgba(255,255,255,0.85); font-size:0.95rem;">
+      <i class="fa fa-clock"></i> Доступно 24/7 • <i class="fa fa-bolt"></i> Ответ за 3 минуты • <i class="fa fa-user-tie"></i> Профессиональные водители
+    </p>
+  </div>
+</section>
+
+<!-- ============ Related Services ============ -->
+<section id="related" class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h3 style="text-align:center; font-size:1.3rem; color:#1e293b; margin-bottom:25px;">
+        <i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>Другие Услуги PlusRent
+      </h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
+        <a href="/ru/transfer-chisinau" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-plane-arrival" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Трансфер Аэропорт KIV</div>
+            <div style="color:#64748b; font-size:0.85rem;">Премиум private • от 800 MDL</div>
+          </div>
+        </a>
+        <a href="/ru/transfer-iasi" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-plane" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Трансфер Яссы</div>
+            <div style="color:#64748b; font-size:0.85rem;">Cross-border • от €140</div>
+          </div>
+        </a>
+        <a href="/ru/sofer-treaz" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-user" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Трезвый Водитель</div>
+            <div style="color:#64748b; font-size:0.85rem;">24/7 • от 150 MDL</div>
+          </div>
+        </a>
+        <a href="/ru/cars" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-car" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Прокат Авто</div>
+            <div style="color:#64748b; font-size:0.85rem;">От €15/день</div>
+          </div>
+        </a>
+      </div>
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:30px; flex-wrap:wrap;">
+        <a href="/ro/sofer-personal" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇷🇴 În română</a>
+        <span style="color:#cbd5e1;">•</span>
+        <a href="/en/sofer-personal" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇬🇧 In English</a>
+      </div>
+      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:25px;">
+        <i class="fa fa-calendar"></i> Последнее обновление: <time datetime="2026-04-30">30 апреля 2026</time>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Mobile Sticky CTA -->
+<a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="mobile-sticky-cta">
+  <i class="fa fa-phone"></i> Позвонить: +373 60 000 500
+</a>
+
+<!-- Success Modal -->
+<div id="successModal" class="success-modal">
+  <div class="success-modal-content">
+    <div class="success-icon-wrapper"><div class="success-icon">✓</div></div>
+    <h3 class="success-title">Спасибо!</h3>
+    <p class="success-message">Ваш запрос успешно отправлен!</p>
+    <div class="success-details">
+      <p><i class="fa fa-phone"></i> <span>Мы перезвоним за <strong>3-5 минут</strong> для деталей</span></p>
+      <p><i class="fa fa-shield"></i> <span><strong>Премиум</strong> услуги гарантированы</span></p>
+    </div>
+    <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">Держите телефон под рукой</p>
+    <button class="btn-close-modal" onclick="closeModal()">
+      <i class="fa fa-check" style="margin-right: 8px;"></i><span>Понятно</span>
+    </button>
+  </div>
+</div>
+
+</main>
+
+<a href="#" id="back-to-top" aria-label="Наверх"></a>
+
+<footer class="text-light">
+  <div class="container">
+    <div class="row g-custom-x">
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">О Нас</h2>
+          <p>PlusRent — премиум услуги личного водителя, аэропорт трансфер, прокат авто и трезвый водитель в Молдове.</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Контактная Информация</h2>
+          <address class="s1">
+            <span><i class="id-color fa fa-map-marker fa-lg"></i>ул. Meșterul Manole 20, Кишинёв</span>
+            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="text-decoration:underline !important;"><i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500</a>
+            <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:support@plusrent.md">support@plusrent.md</a></span>
+          </address>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h2 class="h5">Быстрые Ссылки</h2>
+        <div class="widget">
+          <ul>
+            <li><a href="/ru/">Главная</a></li>
+            <li><a href="/ru/cars">Автомобили</a></li>
+            <li><a href="/ru/sofer-personal">Личный Водитель</a></li>
+            <li><a href="/ru/transfer-chisinau">Трансфер KIV</a></li>
+            <li><a href="/ru/transfer-iasi">Трансфер Яссы</a></li>
+            <li><a href="/ru/sofer-treaz">Трезвый Водитель</a></li>
+            <li><a href="/ru/contact">Контакты</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Социальные Сети</h2>
+          <div class="social-icons">
+            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+          </div>
+        </div>    
+      </div>
+    </div>
+  </div>
+  <div class="subfooter">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="de-flex">
+            <div class="de-flex-col"><a href="/ru/">Copyright 2026 - PlusRent</a></div>
+            <ul class="menu-simple">
+              <li><a href="/terms">Условия</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script src="/js/plugins.js" defer></script>
+<script src="/js/burger-menu-fix.js" defer></script>
+<script src="/js/designesia.js" defer></script>
+<script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" defer></script>
+<script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
+<script src="/js/i18n-init.js" defer></script>
+
+<script>
+(function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var validLangs = ['ro', 'ru', 'en'];
+  if (!validLangs.includes(pathLang)) return;
+  function forceLang() {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      if (i18next.language !== pathLang) i18next.changeLanguage(pathLang);
+    } else { setTimeout(forceLang, 50); }
+  }
+  forceLang();
+})();
+</script>
+
+<script src="/js/universal-include.js" defer></script>
+
+<script>
+document.getElementById('callbackForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const phoneNumber = document.getElementById('callbackPhone').value;
+  if (phoneNumber.trim() === '') {
+    alert('Пожалуйста, введите действительный номер телефона');
+    return;
+  }
+  const submitButton = this.querySelector('.btn-request-call');
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Отправка...';
+  submitButton.disabled = true;
+  
+  try {
+    let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+    const response = await fetch(`${apiBaseUrl}/api/bookings/sofer-personal-callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone_number: phoneNumber,
+        service_type: 'sofer_personal',
+        customer_name: null,
+        customer_email: null,
+        special_instructions: null
+      })
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+
+    if (result.success) {
+      gtag_report_conversion();
+      document.getElementById('successModal').style.display = 'block';
+      document.getElementById('callbackPhone').value = '';
+    } else {
+      alert('Ошибка: ' + (result.error || 'Не удалось отправить запрос.'));
+    }
+  } catch (error) {
+    alert('Ошибка: Не удалось отправить запрос. Пожалуйста, попробуйте снова.');
+  } finally {
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+  }
+});
+
+function closeModal() { document.getElementById('successModal').style.display = 'none'; }
+window.onclick = function(event) {
+  const modal = document.getElementById('successModal');
+  if (event.target === modal) modal.style.display = 'none';
+}
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') document.getElementById('successModal').style.display = 'none';
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var langs = {
+    ro: { flag: '/images/flags/romania.png', code: 'RO', alt: 'Română' },
+    ru: { flag: '/images/flags/russia.png', code: 'RU', alt: 'Русский' },
+    en: { flag: '/images/flags/united-kingdom.png', code: 'EN', alt: 'English' }
+  };
+  if (langs[pathLang]) {
+    var l = langs[pathLang];
+    var langFlag = document.getElementById('langFlag');
+    var langCode = document.getElementById('langCode');
+    if (langFlag) langFlag.innerHTML = '<img src="' + l.flag + '" alt="' + l.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+    if (langCode) langCode.textContent = l.code;
+  }
+  document.querySelectorAll('.lang-option').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
+      var lang = this.getAttribute('data-lang');
+      document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
+      localStorage.setItem('i18nextLng', lang);
+      localStorage.setItem('lang', lang);
+      window.location.href = '/' + lang + '/sofer-personal';
+    }, true);
+  });
+});
+</script>
+</body>
+</html>
