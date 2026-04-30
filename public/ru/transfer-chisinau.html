@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+<style>
+body { font-display: swap; }
+#subheader .center-y { background: rgba(0,0,0,0.55) !important; }
+
+.trust-bar { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); padding: 25px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-top: -2px; }
+.trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; text-align: center; }
+.trust-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 10px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+.trust-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30, 144, 255, 0.1); border-color: #1E90FF; }
+.trust-icon { font-size: 1.6rem; color: #f59e0b; }
+.trust-label { font-size: 0.95rem; font-weight: 700; color: #1e293b; line-height: 1.2; }
+.trust-sublabel { font-size: 0.78rem; color: #64748b; }
+@media (max-width: 768px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.live-status { display: inline-flex; align-items: center; gap: 8px; background: rgba(22, 163, 74, 0.1); color: #16a34a; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; border: 1px solid rgba(22, 163, 74, 0.2); }
+.live-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
+
+.comparison-section { padding: 70px 0; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; max-width: 900px; margin: 0 auto; }
+.comparison-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 18px; padding: 30px 25px; position: relative; }
+.comparison-card.taxi { background: #fefefe; opacity: 0.85; }
+.comparison-card.plusrent { border-color: #1E90FF; background: linear-gradient(180deg, #eff6ff 0%, #fff 100%); box-shadow: 0 12px 35px rgba(30, 144, 255, 0.15); }
+.comparison-card.plusrent::before { content: "✓ УМНЫЙ ВЫБОР"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 6px 18px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+.comparison-title { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+.comparison-subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+.comparison-list { list-style: none; padding: 0; margin: 0; }
+.comparison-list li { padding: 10px 0 10px 30px; position: relative; color: #475569; font-size: 0.93rem; line-height: 1.5; border-bottom: 1px solid #f1f5f9; }
+.comparison-list li:last-child { border-bottom: none; }
+.comparison-list li.has-icon-x::before { content: "✗"; position: absolute; left: 0; color: #dc2626; font-weight: 800; font-size: 1.2rem; }
+.comparison-list li.has-icon-check::before { content: "✓"; position: absolute; left: 0; color: #16a34a; font-weight: 800; font-size: 1.2rem; }
+@media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+
+.tiers-section { padding: 80px 0 60px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; max-width: 1100px; margin: 40px auto 30px; }
+.tier-card-v2 { background: #fff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 35px 28px; position: relative; transition: all 0.4s ease; display: flex; flex-direction: column; }
+.tier-card-v2:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+.tier-card-v2.popular { border-color: #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 70%); transform: scale(1.05); box-shadow: 0 15px 40px rgba(245, 158, 11, 0.2); z-index: 2; }
+.tier-card-v2.popular::before { content: "⭐ САМЫЙ ПОПУЛЯРНЫЙ"; position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 8px 22px; border-radius: 25px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4); }
+.tier-badge { display: inline-block; background: rgba(30, 144, 255, 0.1); color: #1E90FF; padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase; }
+.tier-card-v2.popular .tier-badge { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.tier-name-v2 { font-size: 1.6rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+.tier-tagline-v2 { color: #64748b; font-size: 0.92rem; margin-bottom: 20px; line-height: 1.5; min-height: 3em; }
+.tier-price-v2 { font-size: 2.6rem; font-weight: 900; color: #1e293b; line-height: 1; }
+.tier-price-currency { font-size: 1.4rem; vertical-align: super; color: #64748b; }
+.tier-price-period-v2 { color: #64748b; font-size: 0.85rem; margin: 5px 0 22px; }
+.tier-features-v2 { list-style: none; padding: 0; margin: 0 0 25px; text-align: left; flex-grow: 1; }
+.tier-features-v2 li { padding: 9px 0 9px 30px; position: relative; color: #475569; font-size: 0.92rem; line-height: 1.5; }
+.tier-features-v2 li::before { content: "✓"; position: absolute; left: 0; top: 9px; color: #16a34a; font-weight: 800; font-size: 1.15rem; }
+.tier-cta-v2 { display: flex; align-items: center; justify-content: center; gap: 8px; background: #fff; color: #1E90FF; border: 2px solid #1E90FF; padding: 13px 24px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.3s; }
+.tier-cta-v2:hover { background: #1E90FF; color: white; transform: translateY(-2px); }
+.tier-card-v2.popular .tier-cta-v2 { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border-color: transparent; }
+.tier-card-v2.popular .tier-cta-v2:hover { background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 8px 20px rgba(245,158,11,0.4); }
+@media (max-width: 992px) { .tier-grid { grid-template-columns: 1fr; max-width: 480px; } .tier-card-v2.popular { transform: none; } }
+
+.routes-section { padding: 70px 0; background: #f8fafc; }
+.route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; margin-top: 30px; }
+.route-card { background: #fff; border-radius: 14px; padding: 22px 20px; border: 1px solid #e2e8f0; transition: all 0.3s; cursor: pointer; }
+.route-card:hover { border-color: #1E90FF; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(30, 144, 255, 0.12); }
+.route-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: linear-gradient(135deg, rgba(30,144,255,0.1), rgba(245,158,11,0.1)); border-radius: 12px; font-size: 1.3rem; margin-bottom: 12px; color: #1E90FF; }
+.route-name { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.route-distance { font-size: 0.8rem; color: #64748b; margin-bottom: 12px; }
+.route-price { font-size: 1.4rem; font-weight: 800; color: #d97706; }
+.route-price-from { font-size: 0.75rem; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.included-section { padding: 70px 0; background: #fff; }
+.included-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 35px; }
+.included-item { display: flex; gap: 14px; padding: 18px; background: #f8fafc; border-radius: 12px; border-left: 3px solid #1E90FF; }
+.included-icon { flex-shrink: 0; width: 38px; height: 38px; background: rgba(30, 144, 255, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1E90FF; font-size: 1.1rem; }
+.included-text { flex-grow: 1; }
+.included-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; margin-bottom: 2px; }
+.included-desc { color: #64748b; font-size: 0.83rem; line-height: 1.4; }
+
+.how-section { padding: 70px 0; background: #f8fafc; position: relative; }
+.how-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-top: 50px; position: relative; }
+.how-steps::before { content: ""; position: absolute; top: 35px; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #f59e0b 20%, #f59e0b 80%, transparent); z-index: 0; }
+.how-step { text-align: center; position: relative; z-index: 1; }
+.how-step-num { width: 70px; height: 70px; margin: 0 auto 20px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: #d97706; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2); }
+.how-step-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.how-step-desc { color: #64748b; font-size: 0.9rem; line-height: 1.5; }
+@media (max-width: 768px) { .how-steps { grid-template-columns: 1fr; gap: 30px; } .how-steps::before { display: none; } }
+
+.all-routes-section { padding: 70px 0; background: #f8fafc; }
+.routes-collapse { background: #fff; border-radius: 16px; padding: 30px; border: 1px solid #e2e8f0; }
+.route-table-v2 { width: 100%; border-collapse: collapse; margin: 15px 0; }
+.route-table-v2 th { background: #f8fafc; padding: 14px 16px; text-align: left; font-weight: 800; color: #1e293b; border-bottom: 2px solid #e2e8f0; font-size: 0.9rem; }
+.route-table-v2 td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; color: #475569; font-size: 0.93rem; }
+.route-table-v2 tr:hover { background: #fafbfc; }
+.route-table-v2 .price-cell { font-weight: 800; color: #d97706; white-space: nowrap; }
+.route-table-v2 .price-cell.business { color: #1E90FF; }
+.route-table-v2 .price-cell.executive { color: #1e3a8a; }
+.route-section-title { font-size: 1.15rem; font-weight: 800; color: #1e293b; margin: 25px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #f59e0b; display: inline-block; }
+@media (max-width: 768px) { .route-table-v2 { font-size: 0.83rem; } .route-table-v2 th, .route-table-v2 td { padding: 10px 8px; } }
+
+.cars-section { padding: 70px 0; background: #fff; }
+.cars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 35px; }
+.car-card { background: linear-gradient(180deg, #f8fafc, #ffffff); border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; text-align: center; transition: all 0.3s; }
+.car-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: #1E90FF; }
+.car-tier-badge { display: inline-block; background: rgba(30,144,255,0.1); color: #1E90FF; padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 15px; text-transform: uppercase; }
+.car-tier-badge.business { background: rgba(245,158,11,0.15); color: #d97706; }
+.car-tier-badge.executive { background: rgba(30,58,138,0.15); color: #1e3a8a; }
+.car-icon { font-size: 2.5rem; color: #94a3b8; margin-bottom: 12px; }
+.car-name { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+.car-features { color: #64748b; font-size: 0.85rem; line-height: 1.5; }
+@media (max-width: 768px) { .cars-grid { grid-template-columns: 1fr; } }
+
+.risk-reversal { padding: 50px 0; background: linear-gradient(135deg, #16a34a 0%, #059669 100%); color: #fff; }
+.risk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; text-align: center; }
+.risk-item { padding: 15px; }
+.risk-icon { font-size: 2rem; margin-bottom: 10px; color: #fff; opacity: 0.9; }
+.risk-title { font-weight: 800; color: #fff; font-size: 1rem; margin-bottom: 4px; }
+.risk-desc { color: rgba(255,255,255,0.85); font-size: 0.85rem; line-height: 1.4; }
+@media (max-width: 768px) { .risk-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+
+.corporate-section { padding: 80px 0; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff; }
+
+.faq-section-v2 { padding: 70px 0; background: #fff; }
+.faq-list-v2 { max-width: 800px; margin: 35px auto 0; display: flex; flex-direction: column; gap: 12px; }
+.faq-item-v2 { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; transition: all 0.3s; }
+.faq-item-v2:hover { border-color: #1E90FF; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.faq-item-v2[open] { border-color: #1E90FF; box-shadow: 0 4px 12px rgba(30, 144, 255, 0.1); }
+.faq-summary { padding: 18px 22px; font-weight: 700; color: #1e293b; font-size: 1rem; list-style: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-summary-icon { background: rgba(30,144,255,0.1); color: #1E90FF; font-size: 1.3rem; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 15px; transition: all 0.3s; }
+.faq-item-v2[open] .faq-summary-icon { background: #1E90FF; color: white; transform: rotate(45deg); }
+.faq-answer { padding: 0 22px 20px; color: #475569; line-height: 1.7; font-size: 0.95rem; }
+
+.final-cta { padding: 70px 0; background: linear-gradient(135deg, #1E90FF 0%, #0f4c8a 100%); color: #fff; text-align: center; }
+.final-cta h2 { color: #fff; font-size: 2.2rem; margin-bottom: 15px; font-weight: 800; }
+.final-cta p { color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 30px; }
+.final-cta-btn { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(245,158,11,0.4); transition: all 0.3s; }
+.final-cta-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(245,158,11,0.5); color: white; }
+
+.mobile-sticky-cta { display: none; position: fixed; bottom: 15px; left: 15px; right: 15px; z-index: 1000; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 14px 20px; border-radius: 50px; text-decoration: none; font-weight: 700; text-align: center; box-shadow: 0 8px 25px rgba(30,144,255,0.4); align-items: center; justify-content: center; gap: 10px; }
+@media (max-width: 768px) { .mobile-sticky-cta { display: flex; } }
+
+.section-title { font-size: 2rem; font-weight: 800; color: #1e293b; text-align: center; margin-bottom: 12px; line-height: 1.2; }
+.section-subtitle { text-align: center; color: #64748b; font-size: 1.05rem; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.section-eyebrow { display: inline-block; background: rgba(30,144,255,0.1); color: #1E90FF; padding: 6px 18px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+.eyebrow-center { display: block; text-align: center; }
+@media (max-width: 768px) { .section-title { font-size: 1.6rem; } }
+</style>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18051300821"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18051300821', { 'allow_enhanced_conversions': true });
+</script>
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () { if (typeof(url) != 'undefined') { window.location = url; } };
+  if(typeof gtag==='function'){
+    gtag('event','conversion',{
+      'send_to':'AW-18051300821/5Nv1CM2IspYcENX7w59D',
+      'value':1.0,'currency':'USD','event_callback':callback
+    });
+    setTimeout(callback, 2000);
+  } else { if(url) window.location=url; }
+  return false;
+}
+</script>
+
+<meta charset="utf-8">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="preload" as="image" href="/images/background/2.webp" fetchpriority="high" type="image/webp">
+<meta http-equiv="content-language" content="ru">
+
+<title>Трансфер Аэропорт Кишинёв (KIV) от 800 MDL | Премиум 24/7 | PlusRent</title>
+
+<link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="shortcut icon" type="image/png" href="/images/icon.png">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E90FF">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+<meta name="description" content="Трансфер аэропорт Кишинёв (KIV) — частный, премиум, 24/7. Audi A6 2022, Lexus NX300h, многоязычные водители. От 800 MDL/€40. Встреча в терминале включена. ☎ +373 60 000 500">
+<meta name="keywords" content="трансфер аэропорт кишинев, трансфер KIV, аэропорт кишинев такси, premium трансфер кишинев, частный трансфер кишинев, KIV airport transfer, шаттл аэропорт кишинев, трансфер бельцы кишинев, трансфер кагул кишинев, трансфер комрат аэропорт, transfer aeroport chisinau, PlusRent">
+<meta name="author" content="PlusRent.md">
+
+<link rel="alternate" hreflang="ro-MD" href="https://plusrent.md/ro/transfer-chisinau" />
+<link rel="alternate" hreflang="ru-MD" href="https://plusrent.md/ru/transfer-chisinau" />
+<link rel="alternate" hreflang="en" href="https://plusrent.md/en/transfer-chisinau" />
+<link rel="alternate" hreflang="x-default" href="https://plusrent.md/ro/transfer-chisinau" />
+<link rel="canonical" href="https://plusrent.md/ru/transfer-chisinau">
+<meta name="geo.region" content="MD">
+<meta name="geo.placename" content="Кишинёв">
+<meta name="geo.position" content="47.013737;28.886408">
+<meta name="ICBM" content="47.013737, 28.886408">
+<meta name="DC.language" content="ru">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Трансфер Аэропорт Кишинёв (KIV) от 800 MDL | PlusRent">
+<meta property="og:description" content="Премиум частный трансфер из аэропорта KIV - Кишинёв. Audi A6, Lexus, Mercedes. Встреча в терминале, 24/7. ☎ +373 60 000 500">
+<meta property="og:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+<meta property="og:url" content="https://plusrent.md/ru/transfer-chisinau">
+<meta property="og:site_name" content="PlusRent">
+<meta property="og:locale" content="ru_MD">
+<meta property="og:locale:alternate" content="ro_MD">
+<meta property="og:locale:alternate" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Трансфер Аэропорт Кишинёв (KIV) от 800 MDL | PlusRent">
+<meta name="twitter:description" content="Премиум частный трансфер 24/7 с Audi A6, Lexus NX300h. ☎ +373 60 000 500">
+<meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+
+<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+<link href="/css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+<link href="/css/soferum.css" rel="stylesheet" type="text/css">
+<link href="/css/plugins.css" rel="stylesheet" type="text/css">
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<link href="/css/coloring.css" rel="stylesheet" type="text/css">
+<link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<script src="/js/config.js" defer></script>
+
+<!-- Service Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Трансфер Аэропорт Кишинёв (KIV)",
+  "alternateName": ["KIV Airport Transfer", "Transfer Aeroport Chișinău", "Трансфер Аэропорт Кишинёв"],
+  "description": "Частный премиум трансфер из и в Международный Аэропорт Кишинёв (KIV). Премиум авто Audi A6 2022, Lexus NX300h, Mercedes E-Class. Многоязычные водители (RO/RU/EN), встреча в терминале включена, доступно 24/7. Покрытие всей Молдовы: Кишинёв, Бельцы, Кагул, Комрат, Сорока, Орхей. Цена от 800 MDL/€40.",
+  "url": "https://plusrent.md/ru/transfer-chisinau",
+  "serviceType": "Premium Airport Transfer",
+  "provider": {
+    "@type": "AutoRental",
+    "name": "PlusRent",
+    "alternateName": "PlusRent Молдова",
+    "url": "https://plusrent.md",
+    "logo": { "@type": "ImageObject", "url": "https://plusrent.md/images/icon.png", "width": 60, "height": 60 },
+    "image": "https://plusrent.md/images/LOGO-5-demo.png",
+    "telephone": "+373-60-000-500",
+    "email": "support@plusrent.md",
+    "address": { "@type": "PostalAddress", "streetAddress": "ул. Meșterul Manole 20", "addressLocality": "Кишинёв", "postalCode": "MD-2044", "addressCountry": "MD" },
+    "geo": { "@type": "GeoCoordinates", "latitude": 47.013737, "longitude": 28.886408 },
+    "openingHoursSpecification": { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59" },
+    "sameAs": [
+      "https://www.instagram.com/plusrent.md",
+      "https://t.me/plusrent",
+      "https://www.tiktok.com/@plusrent",
+      "https://www.linkedin.com/company/plusrent",
+      "https://www.facebook.com/plusrent.md",
+      "https://www.trustpilot.com/review/plusrent.md"
+    ],
+    "priceRange": "от 800 MDL",
+    "contactPoint": { "@type": "ContactPoint", "telephone": "+373-60-000-500", "contactType": "Customer Service", "email": "support@plusrent.md", "availableLanguage": ["Russian", "Romanian", "English"], "areaServed": "MD" }
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Кишинёв" },
+    { "@type": "City", "name": "Бельцы" },
+    { "@type": "City", "name": "Кагул" },
+    { "@type": "City", "name": "Комрат" },
+    { "@type": "City", "name": "Сорока" },
+    { "@type": "City", "name": "Орхей" },
+    { "@type": "Country", "name": "Молдова" }
+  ],
+  "availableChannel": { "@type": "ServiceChannel", "serviceUrl": "https://plusrent.md/ru/transfer-chisinau", "availableLanguage": ["ru", "ro", "en"] },
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "MDL",
+    "lowPrice": "700",
+    "highPrice": "3600",
+    "availability": "https://schema.org/InStock",
+    "offerCount": "12",
+    "priceSpecification": [
+      { "@type": "UnitPriceSpecification", "name": "City Transfer Standard", "priceCurrency": "MDL", "price": "700", "description": "Частный трансфер по Кишинёву, комфортное авто, профессиональный водитель." },
+      { "@type": "UnitPriceSpecification", "name": "KIV Airport Standard", "priceCurrency": "MDL", "price": "800", "description": "Трансфер KIV - Центр Кишинёва, авто Audi A4 / Toyota Auris, all-inclusive." },
+      { "@type": "UnitPriceSpecification", "name": "KIV Airport Business", "priceCurrency": "MDL", "price": "1000", "description": "Трансфер KIV - Центр с премиум авто Audi A6 2022 / Lexus NX300h, встреча в терминале." },
+      { "@type": "UnitPriceSpecification", "name": "KIV Airport Executive", "priceCurrency": "MDL", "price": "1400", "description": "VIP трансфер с Mercedes E / BMW 5, консьерж, 60 мин ожидания." }
+    ]
+  }
+}
+</script>
+
+<!-- Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "PlusRent",
+  "alternateName": "PlusRent Молдова",
+  "url": "https://plusrent.md",
+  "logo": "https://plusrent.md/images/LOGO-5-demo.png",
+  "description": "Премиум услуги трансфера, аренды авто и трезвого водителя в Молдове. 3+ года опыта, 439+ заказов, ★5.0 на Google.",
+  "foundingDate": "2022",
+  "contactPoint": { "@type": "ContactPoint", "telephone": "+373-60-000-500", "contactType": "Customer Service", "email": "support@plusrent.md", "availableLanguage": ["Russian", "Romanian", "English"], "areaServed": "MD" },
+  "address": { "@type": "PostalAddress", "streetAddress": "ул. Meșterul Manole 20", "addressLocality": "Кишинёв", "postalCode": "MD-2044", "addressCountry": "MD" },
+  "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5.0", "reviewCount": "27", "bestRating": "5", "worstRating": "1" }
+}
+</script>
+
+<!-- Breadcrumbs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Главная", "item": "https://plusrent.md/ru/" },
+    { "@type": "ListItem", "position": 2, "name": "Трансфер Кишинёв", "item": "https://plusrent.md/ru/transfer-chisinau" }
+  ]
+}
+</script>
+
+<!-- FAQPage Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Сколько стоит трансфер из аэропорта Кишинёв (KIV) в город?", "acceptedAnswer": { "@type": "Answer", "text": "Трансфер KIV - Кишинёв Центр: Standard 800 MDL (€40), Business Comfort 1,000 MDL (€50), VIP Executive 1,400 MDL (€70). Все цены all-inclusive — без скрытых расходов. Расстояние 13-15 км, время 25-30 минут." } },
+    { "@type": "Question", "name": "Что включено в цену трансфера?", "acceptedAnswer": { "@type": "Answer", "text": "Все трансферы включают: премиум авто, профессиональный водитель (RO/RU/EN), Wi-Fi, бутылочная вода, USB зарядки, помощь с багажом, 30 мин ожидания (60 для Executive). Без сюрпризов на оплате." } },
+    { "@type": "Question", "name": "За сколько времени нужно бронировать заранее?", "acceptedAnswer": { "@type": "Answer", "text": "Рекомендуем бронировать минимум за 4-6 часов. Для бронирований в последний момент (менее 2 часов) есть ограниченная доступность — звоните напрямую: +373 60 000 500. Доступно 24/7." } },
+    { "@type": "Question", "name": "Делаете ли трансферы из других городов Молдовы?", "acceptedAnswer": { "@type": "Answer", "text": "Да. Покрываем всю Молдову. Трансфер в KIV из: Бельцы (от 2,000 MDL), Кагул (от 2,400 MDL), Комрат (от 1,600 MDL), Сорока (от 2,200 MDL), Орхей (от 800 MDL). Для специальных маршрутов — звоните." } },
+    { "@type": "Question", "name": "Какие авто используются?", "acceptedAnswer": { "@type": "Answer", "text": "Standard: Audi A4 2017 / Toyota Auris (комфортные, надёжные). Business: Audi A6 2022 / Lexus NX300h (премиум, современные). VIP Executive: Mercedes E-Class / BMW 5 / Audi A8 (luxury). Все авто 4+1 мест, климат-контроль, WiFi." } },
+    { "@type": "Question", "name": "Сколько пассажиров может ехать?", "acceptedAnswer": { "@type": "Answer", "text": "Наши авто имеют 4+1 мест (4 пассажира + водитель). Цена за всю машину, не за человека. Едете один или с 6 людьми — стоимость одинаковая. Багаж включён, без ограничений." } },
+    { "@type": "Question", "name": "Как работает встреча в аэропорту?", "acceptedAnswer": { "@type": "Answer", "text": "Для Business и VIP включена встреча в терминале. Водитель встречает с табличкой с вашим именем, помогает с багажом и сопровождает до машины. Для Standard водитель ждёт на парковке (отправляет локацию по SMS)." } },
+    { "@type": "Question", "name": "Как оплачивать?", "acceptedAnswer": { "@type": "Answer", "text": "Без предоплаты для индивидуальных бронирований. Оплата водителю в конце поездки — наличные (MDL или EUR) или банковская карта. Для компаний и регулярных бронирований предлагаем варианты ежемесячного выставления счетов. Фиксированная цена гарантирована." } },
+    { "@type": "Question", "name": "Что если мой рейс задерживается?", "acceptedAnswer": { "@type": "Answer", "text": "Отслеживаем рейсы в реальном времени. Если ваш рейс задерживается, водитель ждёт без доплат — 30 мин включены для Standard, 60 мин для Business и VIP. После этого периода: 50 MDL за 15 минут." } },
+    { "@type": "Question", "name": "Cât costă transferul de la aeroportul Chișinău în oraș?", "acceptedAnswer": { "@type": "Answer", "text": "Transfer KIV - Chișinău Centru: Standard 800 MDL (€40), Business Comfort 1,000 MDL (€50), VIP Executive 1,400 MDL (€70). Toate prețurile sunt all-inclusive." } },
+    { "@type": "Question", "name": "Ce este inclus în prețul transferului?", "acceptedAnswer": { "@type": "Answer", "text": "Mașină premium, șofer multilingv (RO/RU/EN), Wi-Fi, apă, asistență cu bagajele, 30 min așteptare gratuită (60 pentru Executive)." } },
+    { "@type": "Question", "name": "How much is a transfer from Chișinău Airport (KIV) to the city?", "acceptedAnswer": { "@type": "Answer", "text": "KIV - Chișinău Center transfer: Standard 800 MDL (€40), Business Comfort 1,000 MDL (€50), VIP Executive 1,400 MDL (€70). All prices are all-inclusive. Distance 13-15 km, duration 25-30 minutes." } },
+    { "@type": "Question", "name": "What's included in the transfer price?", "acceptedAnswer": { "@type": "Answer", "text": "All transfers include: premium vehicle, professional multilingual driver (RO/RU/EN), Wi-Fi, bottled water, USB chargers, luggage assistance, 30 min free wait (60 min for Executive)." } },
+    { "@type": "Question", "name": "How far in advance should I book?", "acceptedAnswer": { "@type": "Answer", "text": "We recommend booking at least 4-6 hours in advance. For last-minute bookings (under 2 hours) we have limited availability — call directly: +373 60 000 500. Available 24/7." } },
+    { "@type": "Question", "name": "Do you offer transfers from other Moldovan cities?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We cover all of Moldova. Transfer to KIV from: Bălți (from 2,000 MDL/€100), Cahul (from 2,400 MDL/€120), Comrat (from 1,600 MDL/€80), Soroca (from 2,200 MDL/€110), Orhei (from 800 MDL/€40)." } }
+  ]
+}
+</script>
+
+<!-- HowTo -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Как заказать трансфер аэропорт Кишинёв",
+  "description": "Закажите трансфер из или в Аэропорт Кишинёв (KIV) за 4 простых шага.",
+  "totalTime": "PT3M",
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": "MDL", "minValue": "800" },
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Позвоните или заполните форму", "text": "Звоните +373 60 000 500 или заполните форму онлайн — отвечаем за 3-5 минут.", "url": "https://plusrent.md/ru/transfer-chisinau" },
+    { "@type": "HowToStep", "position": 2, "name": "Подтвердите тариф и детали", "text": "Выберите тариф (Standard, Business или Executive), сообщите дату, время и пункт назначения." },
+    { "@type": "HowToStep", "position": 3, "name": "Получите подтверждение", "text": "Получите детали водителя по SMS и возможность отслеживать машину онлайн." },
+    { "@type": "HowToStep", "position": 4, "name": "Премиум поездка", "text": "Водитель встречает вас вовремя. Оплата в конце — наличные или карта." }
+  ]
+}
+</script>
+
+<!-- WebPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Трансфер Аэропорт Кишинёв (KIV) | PlusRent",
+  "dateModified": "2026-04-30",
+  "datePublished": "2026-04-30",
+  "description": "Премиум частный трансфер аэропорт Кишинёв (KIV) от 800 MDL. Audi A6 2022, Lexus NX300h, встреча в терминале, 24/7.",
+  "url": "https://plusrent.md/ru/transfer-chisinau",
+  "inLanguage": "ru",
+  "isPartOf": { "@type": "WebSite", "name": "PlusRent", "url": "https://plusrent.md", "inLanguage": ["ro", "en", "ru"] }
+}
+</script>
+
+</head>
+
+<body>
+<div id="wrapper">
+<div id="de-preloader"></div>
+
+<header class="transparent scroll-light has-topbar">
+  <div id="topbar" class="topbar-dark text-light">
+    <div class="container">
+      <div class="topbar-left xs-hide">
+        <div class="topbar-widget">
+          <div class="topbar-widget"><a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')"><i class="fa fa-phone"></i>+373 60 000 500</a></div>
+          <div class="topbar-widget"><a href="mailto:support@plusrent.md"><i class="fa fa-envelope"></i>support@plusrent.md</a></div>
+          <div class="topbar-widget"><i class="fa fa-clock-o"></i>24/7</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="social-icons">
+          <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+        </div>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="de-flex sm-pt10">
+          <div class="de-flex-col">
+            <div class="de-flex-col">
+              <div id="logo">
+                <a href="/ru/">
+                  <img class="logo-1" src="/images/LOGO-4-demo.png" alt="PlusRent Logo">
+                  <img class="logo-2" src="/images/LOGO-5-demo.png" alt="PlusRent Logo">
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="de-flex-col">
+            <ul id="mainmenu">
+              <li><a class="menu-item" href="/ru/" data-i18n="menu.home">Главная</a></li>
+              <li><a class="menu-item" href="/ru/cars" data-i18n="menu.cars">Автомобили</a></li>
+              <li><a class="menu-item" href="/ru/about" data-i18n="menu.about">О нас</a></li>
+              <li><a class="menu-item" href="/ru/contact" data-i18n="menu.contact">Контакты</a></li>
+              <li><a class="menu-item" href="/ru/sofer-treaz" data-i18n="menu.sober_driver">Трезвый водитель</a></li>
+            </ul>
+          </div>
+          <div class="de-flex-col">
+            <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+              <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
+                  style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px;">
+                  <i class="fa fa-phone" style="font-size: 12px;"></i>
+                  <span data-i18n="call_now">Позвонить</span>
+                </a>
+              </div>
+              <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                  <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="10" cy="10" r="9" stroke="#f59e0b" stroke-width="2" />
+                      <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#f59e0b" stroke-width="2" />
+                      <path d="M1 10h18" stroke="#f59e0b" stroke-width="2" />
+                    </svg>
+                  </span>
+                  <span class="lang-flag" id="langFlag"></span>
+                  <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">RU</span>
+                  <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                    <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                  <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="/images/flags/romania.png" alt="Română" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
+                  <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="/images/flags/united-kingdom.png" alt="English" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
+                  <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="/images/flags/russia.png" alt="Русский" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div id="menu-btn" role="button" tabindex="0" aria-label="Открыть меню" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="no-bottom no-top" id="content">
+<div id="top"></div>
+
+<section id="subheader" class="jarallax text-light">
+  <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" fetchpriority="high" alt="Трансфер Аэропорт Кишинёв - PlusRent">
+  <div class="center-y relative text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <div class="live-status">
+            <span class="live-dot"></span>
+            <span>Доступно сейчас • 24/7</span>
+          </div>
+          <h1 style="text-shadow:0 2px 8px rgba(0,0,0,0.9); color:#fff; font-size: 2.6rem; font-weight: 800; line-height:1.15; margin-bottom: 15px;">Трансфер Аэропорт Кишинёв (KIV)</h1>
+          <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff; max-width: 700px; margin: 0 auto 25px; font-size:1.15rem;">
+            Премиум частные трансферы 24/7 • Audi A6 2022 • Lexus NX300h • Mercedes E-Class<br>
+            <strong style="color:#fbbf24;">От 800 MDL — встреча в терминале включена</strong>
+          </p>
+          <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:20px;">
+            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:15px 32px; border-radius:50px; text-decoration:none; font-weight:800; font-size:1.05rem; box-shadow:0 10px 25px rgba(245,158,11,0.4);">
+              <i class="fa fa-phone"></i> Позвонить +373 60 000 500
+            </a>
+            <a href="#tiers" style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); color:white; padding:15px 32px; border-radius:50px; text-decoration:none; font-weight:700; font-size:1.05rem; border:2px solid rgba(255,255,255,0.3);">
+              <i class="fa fa-tag"></i> Смотреть Цены
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon">⭐</div>
+        <div class="trust-label">★ 5.0 / 27 отзывов</div>
+        <div class="trust-sublabel">Google Reviews</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-check-circle"></i></div>
+        <div class="trust-label">439+ заказов</div>
+        <div class="trust-sublabel">3+ года опыта</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-shield"></i></div>
+        <div class="trust-label">Оплата в конце</div>
+        <div class="trust-sublabel">Без предоплаты</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><i class="fa fa-bolt"></i></div>
+        <div class="trust-label">Ответ за 3 мин</div>
+        <div class="trust-sublabel">Быстрое подтверждение</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-options">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-phone"></i></div>
+          <h2 class="h3">Прямой Звонок</h2>
+          <p>Мгновенное подтверждение. Звоните и забронируйте трансфер за 60 секунд.</p>
+          <a href="tel:+37360000500" class="phone-number" onclick="gtag_report_conversion('tel:+37360000500')">+373 60 000 500</a>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-clock-o"></i></div>
+          <h2 class="h3">Заказ Звонка</h2>
+          <p>Оставьте номер и дату рейса — перезвоним за 3-5 минут для подтверждения.</p>
+          <form class="callback-form" id="callbackForm">
+            <input type="tel" id="callbackPhone" placeholder="Ваш номер телефона" required>
+            <button type="submit" class="btn-request-call">Заказать Звонок</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="comparison-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПОЧЕМУ МЫ?</span>
+    <h2 class="section-title">Такси vs Премиум Трансфер PlusRent</h2>
+    <p class="section-subtitle">Реальная разница — качество, безопасность, профессионализм</p>
+    
+    <div class="comparison-grid">
+      <div class="comparison-card taxi">
+        <div class="comparison-title">🚕 Стандартное Такси</div>
+        <div class="comparison-subtitle">Что вы получаете с обычным такси</div>
+        <ul class="comparison-list">
+          <li class="has-icon-x">Старые, иногда изношенные авто</li>
+          <li class="has-icon-x">Незнакомые водители без формы</li>
+          <li class="has-icon-x">Неуверенная цена (счётчик или "цена" устно)</li>
+          <li class="has-icon-x">Без WiFi, воды или удобств</li>
+          <li class="has-icon-x">Багаж ограничен, без помощи</li>
+          <li class="has-icon-x">Только румынский (если повезёт)</li>
+          <li class="has-icon-x">Сюрпризы при оплате</li>
+        </ul>
+      </div>
+      
+      <div class="comparison-card plusrent">
+        <div class="comparison-title">⭐ PlusRent Премиум</div>
+        <div class="comparison-subtitle">Поездка, которую вы заслуживаете</div>
+        <ul class="comparison-list">
+          <li class="has-icon-check">Audi A6 2022 / Lexus NX300h / Mercedes</li>
+          <li class="has-icon-check">Профессиональные водители в костюме, многоязычные</li>
+          <li class="has-icon-check">Фиксированная цена — без сюрпризов</li>
+          <li class="has-icon-check">WiFi, вода, снеки, зарядки</li>
+          <li class="has-icon-check">4+1 мест, неограниченный багаж</li>
+          <li class="has-icon-check">RO / RU / EN — лёгкое общение</li>
+          <li class="has-icon-check">Online tracking + SMS подтверждение</li>
+        </ul>
+      </div>
+    </div>
+    
+    <p style="text-align:center; color:#475569; margin-top:30px; font-size:1rem; max-width:700px; margin-left:auto; margin-right:auto;">
+      <strong>Премиум — это не расход, это инвестиция в комфорт, время и безопасность.</strong><br>
+      <span style="color:#64748b;">Разница в 200-400 MDL гарантирует совершенно иной опыт.</span>
+    </p>
+  </div>
+</section>
+
+<!-- 3-TIER PRICING -->
+<section id="tiers" class="tiers-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПРОЗРАЧНЫЕ ЦЕНЫ</span>
+    <h2 class="section-title">Выберите Свой Пакет</h2>
+    <p class="section-subtitle">Фиксированные цены для маршрута KIV → Кишинёв Центр. Все all-inclusive.</p>
+    
+    <div class="tier-grid">
+      
+      <div class="tier-card-v2">
+        <div class="tier-badge">Базовый</div>
+        <div class="tier-name-v2">Standard</div>
+        <div class="tier-tagline-v2">Надёжный комфорт all-inclusive — для путешественников, которым нужен простой и надёжный трансфер.</div>
+        <div class="tier-price-v2">800 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v2">/€40 • В одну сторону • 4+1 мест</div>
+        <ul class="tier-features-v2">
+          <li>Audi A4 2017 / Toyota Auris</li>
+          <li>Профессиональный водитель (RO/RU)</li>
+          <li>WiFi в авто</li>
+          <li>Бутылочная вода</li>
+          <li>Помощь с багажом</li>
+          <li>30 мин ожидания бесплатно</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v2">Заказать Standard <i class="fa fa-arrow-right"></i></a>
+      </div>
+      
+      <div class="tier-card-v2 popular">
+        <div class="tier-badge">⭐ Идеальный Выбор</div>
+        <div class="tier-name-v2">Business Comfort</div>
+        <div class="tier-tagline-v2">Самый популярный. Премиум авто, многоязычный водитель, приоритет бронирования.</div>
+        <div class="tier-price-v2">1,000 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v2">/€50 • В одну сторону • 4+1 мест</div>
+        <ul class="tier-features-v2">
+          <li><strong>Audi A6 2022 / Lexus NX300h</strong></li>
+          <li>Многоязычный водитель (RO/RU/EN)</li>
+          <li>WiFi высокой скорости + Вода</li>
+          <li>Премиум снеки</li>
+          <li>Встреча в терминале</li>
+          <li>Приоритетная связь</li>
+          <li>Гибкость по времени pickup</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v2">Заказать Business <i class="fa fa-arrow-right"></i></a>
+      </div>
+      
+      <div class="tier-card-v2">
+        <div class="tier-badge">VIP</div>
+        <div class="tier-name-v2">VIP Executive</div>
+        <div class="tier-tagline-v2">Топ опыт для директоров, экспатов и VIP. Консьерж включён.</div>
+        <div class="tier-price-v2">1,400 <span class="tier-price-currency">MDL</span></div>
+        <div class="tier-price-period-v2">/€70 • В одну сторону • 4+1 мест</div>
+        <ul class="tier-features-v2">
+          <li><strong>Mercedes E / BMW 5 / Audi A8</strong></li>
+          <li>VIP водитель в костюме</li>
+          <li>Персональная встреча</li>
+          <li>60 мин ожидания включены</li>
+          <li>Выделенный консьерж</li>
+          <li>Премиум снеки + минералка</li>
+          <li>Персональные маршруты</li>
+        </ul>
+        <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="tier-cta-v2">Заказать VIP <i class="fa fa-arrow-right"></i></a>
+      </div>
+      
+    </div>
+    
+    <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:25px;">
+      <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+      Standard tier — ограниченная доступность с предварительным бронированием. Business и VIP — 24/7.
+    </p>
+  </div>
+</section>
+
+<!-- POPULAR ROUTES -->
+<section class="routes-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПОПУЛЯРНЫЕ МАРШРУТЫ</span>
+    <h2 class="section-title">От KIV в Любую Точку</h2>
+    <p class="section-subtitle">Покрываем всю Молдову. Цены Business tier — все варианты ниже.</p>
+    
+    <div class="route-grid">
+      <div class="route-card">
+        <div class="route-icon">🏛️</div>
+        <div class="route-name">KIV → Центр</div>
+        <div class="route-distance">15 км • 25 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">800 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🌳</div>
+        <div class="route-name">KIV → Ботаника</div>
+        <div class="route-distance">12 км • 20 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">850 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🏘️</div>
+        <div class="route-name">KIV → Рышкановка</div>
+        <div class="route-distance">17 км • 30 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">900 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🏨</div>
+        <div class="route-name">KIV → Буюканы</div>
+        <div class="route-distance">14 км • 25 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">850 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🍷</div>
+        <div class="route-name">KIV → Криково</div>
+        <div class="route-distance">25 км • 40 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">700 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🌊</div>
+        <div class="route-name">KIV → Орхей</div>
+        <div class="route-distance">45 км • 60 мин</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">800 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🍇</div>
+        <div class="route-name">KIV → Бельцы</div>
+        <div class="route-distance">140 км • 2ч</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">2,000 MDL</div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon">🌅</div>
+        <div class="route-name">KIV → Кагул</div>
+        <div class="route-distance">180 км • 2ч 30</div>
+        <div class="route-price-from">ОТ</div>
+        <div class="route-price">2,400 MDL</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INCLUDED -->
+<section class="included-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ВСЁ ВКЛЮЧЕНО</span>
+    <h2 class="section-title">Всё в Цене</h2>
+    <p class="section-subtitle">Никаких скрытых расходов. Никаких сюрпризов. Только премиум комфорт.</p>
+    
+    <div class="included-grid">
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-car"></i></div>
+        <div class="included-text">
+          <div class="included-name">Премиум Авто</div>
+          <div class="included-desc">Audi A6, Lexus NX300h, Mercedes — по тарифу</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-user-tie"></i></div>
+        <div class="included-text">
+          <div class="included-name">Профессиональный Водитель</div>
+          <div class="included-desc">Многоязычный (RO/RU/EN), в форме, опытный</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-wifi"></i></div>
+        <div class="included-text">
+          <div class="included-name">WiFi 4G Включён</div>
+          <div class="included-desc">Быстрый интернет всю дорогу</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-glass-water"></i></div>
+        <div class="included-text">
+          <div class="included-name">Вода и Снеки</div>
+          <div class="included-desc">Бутылочная вода бесплатно, снеки для Business+</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-suitcase"></i></div>
+        <div class="included-text">
+          <div class="included-name">Багаж Без Ограничений</div>
+          <div class="included-desc">4+1 мест, до 6 чемоданов</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-charging-station"></i></div>
+        <div class="included-text">
+          <div class="included-name">Зарядки</div>
+          <div class="included-desc">USB-C, Lightning — все устройства</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-clock"></i></div>
+        <div class="included-text">
+          <div class="included-name">Бесплатное Ожидание</div>
+          <div class="included-desc">30 мин Standard / 60 мин Business и VIP</div>
+        </div>
+      </div>
+      <div class="included-item">
+        <div class="included-icon"><i class="fa fa-handshake"></i></div>
+        <div class="included-text">
+          <div class="included-name">Встреча в Терминале</div>
+          <div class="included-desc">С табличкой (Business и VIP)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПРОЦЕСС</span>
+    <h2 class="section-title">Как Это Работает — 4 Шага</h2>
+    <p class="section-subtitle">От бронирования до пункта назначения максимум 3 минуты</p>
+    
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3 class="how-step-title">Звонок или Заказ</h3>
+        <p class="how-step-desc">+373 60 000 500 или форма онлайн — ответ за 3 минуты</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3 class="how-step-title">Подтверждение Деталей</h3>
+        <p class="how-step-desc">Тариф, дата, время рейса, пункт назначения — несколько вопросов</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3 class="how-step-title">Получите Детали</h3>
+        <p class="how-step-desc">Подтверждение по SMS с именем водителя и маркой авто</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">4</div>
+        <h3 class="how-step-title">Премиум Поездка</h3>
+        <p class="how-step-desc">Встречаем вовремя. Оплата в конце — наличные/карта</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALL ROUTES -->
+<section class="all-routes-section">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <span class="section-eyebrow eyebrow-center">ПОЛНАЯ ТАБЛИЦА</span>
+      <h2 class="section-title">Все Маршруты и Цены</h2>
+      <p class="section-subtitle">Ориентировочные цены в одну сторону. Round-trip — скидка 10%.</p>
+      
+      <div class="routes-collapse">
+        
+        <h3 class="route-section-title">Аэропорт KIV ↔ Кишинёв</h3>
+        <table class="route-table-v2">
+          <thead>
+            <tr><th>Назначение</th><th>Standard</th><th>Business</th><th>VIP</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Кишинёв Центр</td><td class="price-cell">800 MDL</td><td class="price-cell business">1,000 MDL</td><td class="price-cell executive">1,400 MDL</td></tr>
+            <tr><td>Ботаника / Буюканы</td><td class="price-cell">850 MDL</td><td class="price-cell business">1,050 MDL</td><td class="price-cell executive">1,450 MDL</td></tr>
+            <tr><td>Рышкановка / Чеканы</td><td class="price-cell">900 MDL</td><td class="price-cell business">1,100 MDL</td><td class="price-cell executive">1,500 MDL</td></tr>
+          </tbody>
+        </table>
+        
+        <h3 class="route-section-title">Пригород Кишинёва (до 30 км)</h3>
+        <table class="route-table-v2">
+          <thead><tr><th>Назначение</th><th>Standard</th><th>Business</th></tr></thead>
+          <tbody>
+            <tr><td>Кодру / Дамбрава</td><td class="price-cell">700 MDL</td><td class="price-cell business">900 MDL</td></tr>
+            <tr><td>Стэучень / Криково</td><td class="price-cell">800 MDL</td><td class="price-cell business">1,000 MDL</td></tr>
+            <tr><td>Яловены / Сынджера</td><td class="price-cell">850 MDL</td><td class="price-cell business">1,050 MDL</td></tr>
+            <tr><td>Стрэшень</td><td class="price-cell">1,000 MDL</td><td class="price-cell business">1,200 MDL</td></tr>
+          </tbody>
+        </table>
+        
+        <h3 class="route-section-title">Из Других Городов Молдовы ↔ KIV</h3>
+        <table class="route-table-v2">
+          <thead><tr><th>Город</th><th>Расст.</th><th>Standard</th><th>Business</th><th>VIP</th></tr></thead>
+          <tbody>
+            <tr><td>Орхей</td><td>45 км</td><td class="price-cell">800 MDL</td><td class="price-cell business">1,000 MDL</td><td class="price-cell executive">1,400 MDL</td></tr>
+            <tr><td>Хынчешты</td><td>35 км</td><td class="price-cell">800 MDL</td><td class="price-cell business">1,000 MDL</td><td class="price-cell executive">1,400 MDL</td></tr>
+            <tr><td>Комрат</td><td>110 км</td><td class="price-cell">1,600 MDL</td><td class="price-cell business">2,000 MDL</td><td class="price-cell executive">2,600 MDL</td></tr>
+            <tr><td>Бельцы</td><td>140 км</td><td class="price-cell">2,000 MDL</td><td class="price-cell business">2,400 MDL</td><td class="price-cell executive">3,200 MDL</td></tr>
+            <tr><td>Сорока</td><td>160 км</td><td class="price-cell">2,200 MDL</td><td class="price-cell business">2,600 MDL</td><td class="price-cell executive">3,400 MDL</td></tr>
+            <tr><td>Кагул</td><td>180 км</td><td class="price-cell">2,400 MDL</td><td class="price-cell business">2,800 MDL</td><td class="price-cell executive">3,600 MDL</td></tr>
+          </tbody>
+        </table>
+        
+        <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:25px;">
+          <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+          Для трансферов из специальных зон или дальних расстояний звоните <strong><a href="tel:+37360000500" style="color:#d97706;">+373 60 000 500</a></strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CARS -->
+<section class="cars-section">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ПРЕМИУМ АВТОПАРК</span>
+    <h2 class="section-title">Наши Авто</h2>
+    <p class="section-subtitle">Все 4+1 мест, климат-контроль, WiFi и ежедневная проверка</p>
+    
+    <div class="cars-grid">
+      <div class="car-card">
+        <span class="car-tier-badge">Standard</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Audi A4 / Toyota Auris</div>
+        <div class="car-features">Комфортные, надёжные, для практичных путешественников. AC, WiFi, 4-5 чемоданов.</div>
+      </div>
+      <div class="car-card">
+        <span class="car-tier-badge business">Business</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Audi A6 2022 / Lexus NX300h</div>
+        <div class="car-features">Премиум, современные, гибрид. Элегантный салон, dual-zone климат, снеки включены.</div>
+      </div>
+      <div class="car-card">
+        <span class="car-tier-badge executive">VIP</span>
+        <div class="car-icon"><i class="fa fa-car-side"></i></div>
+        <div class="car-name">Mercedes E / BMW 5</div>
+        <div class="car-features">Luxury executive, массажные сиденья, панорамная крыша, бар напитков.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISK REVERSAL -->
+<section class="risk-reversal">
+  <div class="container">
+    <div class="risk-grid">
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-credit-card"></i></div>
+        <div class="risk-title">Оплата в Конце</div>
+        <div class="risk-desc">Без предоплаты. Cash или карта.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-times-circle"></i></div>
+        <div class="risk-title">Бесплатная Отмена</div>
+        <div class="risk-desc">До 12 часов до — без штрафов.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-clock"></i></div>
+        <div class="risk-title">Гарантия Времени</div>
+        <div class="risk-desc">Пунктуальность или извинения.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon"><i class="fa fa-shield"></i></div>
+        <div class="risk-title">Премиум Авто</div>
+        <div class="risk-desc">Audi A6 или лучше гарантировано.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CORPORATE -->
+<section class="corporate-section">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 text-center">
+      <div style="display:inline-block; background:rgba(245,158,11,0.2); color:#fbbf24; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">
+        ДЛЯ КОМПАНИЙ И РУКОВОДИТЕЛЕЙ
+      </div>
+      <h2 style="color:#fff; font-size:2rem; margin-bottom:15px; font-weight:800;">Corporate Mobility Retainer</h2>
+      <p style="color:#cbd5e1; font-size:1.05rem; max-width:700px; margin:0 auto 25px;">
+        Ежемесячное транспортное решение для директоров, экспатов и команд. Фиксированные тарифы, ежемесячные счета, выделенная поддержка. Custom pricing в зависимости от объёма.
+      </p>
+      <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; margin:25px 0; color:#cbd5e1;">
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Приоритет бронирования</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Гарантированные тарифы</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Account manager</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Ежемесячные счета</span>
+        <span><i class="fa fa-check" style="color:#fbbf24; margin-right:6px;"></i>Поддержка 24/7</span>
+      </div>
+      <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:14px 32px; border-radius:30px; text-decoration:none; font-weight:700;">
+        <i class="fa fa-phone"></i> Обсудить Corporate Пакет
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section-v2">
+  <div class="container">
+    <span class="section-eyebrow eyebrow-center">ОТВЕТЫ</span>
+    <h2 class="section-title">Частые Вопросы</h2>
+    <p class="section-subtitle">Всё что нужно знать перед бронированием</p>
+    
+    <div class="faq-list-v2">
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Сколько стоит трансфер KIV - Кишинёв?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Трансфер KIV - Кишинёв Центр: <strong>Standard 800 MDL (€40)</strong>, <strong>Business Comfort 1,000 MDL (€50)</strong>, <strong>VIP Executive 1,400 MDL (€70)</strong>. Все цены all-inclusive — без скрытых расходов. Расстояние 13-15 км, время 25-30 минут.</div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Что включено в цену трансфера?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Все трансферы включают: премиум авто (Audi A6 / Lexus / Mercedes по тарифу), профессиональный многоязычный водитель (RO/RU/EN), Wi-Fi, бутылочная вода, USB зарядки, помощь с багажом, 30 мин ожидания (60 для Executive). <strong>Без сюрпризов на оплате.</strong></div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>За сколько времени нужно бронировать?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Рекомендуем бронировать минимум за <strong>4-6 часов</strong>. Для бронирований в последний момент (менее 2 часов) — ограниченная доступность, звоните: <strong>+373 60 000 500</strong>. Доступно 24/7.</div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Делаете ли трансферы из других городов Молдовы?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Да. Покрываем всю Молдову. Трансфер в KIV из: <strong>Бельцы</strong> (от 2,000 MDL), <strong>Кагул</strong> (от 2,400 MDL), <strong>Комрат</strong> (от 1,600 MDL), <strong>Сорока</strong> (от 2,200 MDL), <strong>Орхей</strong> (от 800 MDL). Для специальных маршрутов — звоните.</div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Сколько пассажиров может ехать?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Наши авто имеют <strong>4+1 мест</strong> (4 пассажира + водитель). Цена за всю машину, не за человека. Едете один или с 6 людьми — стоимость одинаковая. Багаж включён, без ограничений.</div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Как работает встреча в аэропорту?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer">Для <strong>Business и VIP</strong> включена встреча в терминале. Водитель встречает с табличкой с вашим именем, помогает с багажом и сопровождает до машины. Для Standard водитель ждёт на парковке (отправляет локацию по SMS).</div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Как оплачивать трансфер?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer"><strong>Без предоплаты</strong> для индивидуальных бронирований. Оплата водителю в конце поездки — <strong>наличные (MDL или EUR)</strong> или <strong>банковская карта</strong>. Для компаний — варианты ежемесячного выставления счетов. <strong>Фиксированная цена гарантирована — без сюрпризов.</strong></div>
+      </details>
+      
+      <details class="faq-item-v2">
+        <summary class="faq-summary"><span>Что если рейс задерживается?</span><span class="faq-summary-icon">+</span></summary>
+        <div class="faq-answer"><strong>Отслеживаем рейсы в реальном времени.</strong> Если ваш рейс задерживается, водитель ждёт без доплат — 30 мин включены для Standard, 60 мин для Business и VIP. После: 50 MDL за 15 минут.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="container">
+    <h2>Готовы К Премиум Поездке?</h2>
+    <p>Бронирование за 60 секунд. Мгновенное подтверждение. Оплата в конце.</p>
+    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="final-cta-btn">
+      <i class="fa fa-phone"></i> Позвонить +373 60 000 500
+    </a>
+    <p style="margin-top:25px; color:rgba(255,255,255,0.85); font-size:0.95rem;">
+      <i class="fa fa-clock"></i> Доступно 24/7 • <i class="fa fa-bolt"></i> Ответ за 3 мин • <i class="fa fa-check-circle"></i> 439+ заказов
+    </p>
+  </div>
+</section>
+
+<!-- Related -->
+<section id="related" class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h3 style="text-align:center; font-size:1.3rem; color:#1e293b; margin-bottom:25px;">
+        <i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>Другие Услуги PlusRent
+      </h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
+        <a href="/ru/transfer-iasi" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-plane" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Трансфер Яссы</div>
+            <div style="color:#64748b; font-size:0.85rem;">Граница MD-RO • от €140</div>
+          </div>
+        </a>
+        <a href="/ru/sofer-personal" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-user-tie" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Личный Водитель</div>
+            <div style="color:#64748b; font-size:0.85rem;">Премиум executive • от 2,000 MDL</div>
+          </div>
+        </a>
+        <a href="/ru/sofer-treaz" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-user" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Трезвый Водитель</div>
+            <div style="color:#64748b; font-size:0.85rem;">24/7 • от 150 MDL</div>
+          </div>
+        </a>
+        <a href="/ru/cars" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-car" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Аренда Авто</div>
+            <div style="color:#64748b; font-size:0.85rem;">От €15/день</div>
+          </div>
+        </a>
+      </div>
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:30px; flex-wrap:wrap;">
+        <a href="/ro/transfer-chisinau" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇷🇴 Pe românește</a>
+        <span style="color:#cbd5e1;">•</span>
+        <a href="/en/transfer-chisinau" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇬🇧 In English</a>
+      </div>
+      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:25px;">
+        <i class="fa fa-calendar"></i> Последнее обновление: <time datetime="2026-04-30">30 апреля 2026</time>
+      </p>
+    </div>
+  </div>
+</section>
+
+<a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="mobile-sticky-cta">
+  <i class="fa fa-phone"></i> Позвонить: +373 60 000 500
+</a>
+
+<div id="successModal" class="success-modal">
+  <div class="success-modal-content">
+    <div class="success-icon-wrapper"><div class="success-icon">✓</div></div>
+    <h3 class="success-title">Спасибо!</h3>
+    <p class="success-message">Ваш запрос успешно отправлен!</p>
+    <div class="success-details">
+      <p><i class="fa fa-phone"></i> <span>Перезвоним за <strong>3-5 минут</strong> для подтверждения трансфера</span></p>
+      <p><i class="fa fa-shield"></i> <span>Гарантированный <strong>премиум</strong> транспорт</span></p>
+    </div>
+    <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">Держите телефон под рукой</p>
+    <button class="btn-close-modal" onclick="closeModal()">
+      <i class="fa fa-check" style="margin-right: 8px;"></i><span>Понятно</span>
+    </button>
+  </div>
+</div>
+
+</main>
+
+<a href="#" id="back-to-top" aria-label="Наверх"></a>
+
+<footer class="text-light">
+  <div class="container">
+    <div class="row g-custom-x">
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">О нас</h2>
+          <p>PlusRent — премиум услуги трансфера, аренды авто и трезвого водителя в Молдове.</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Контактная Информация</h2>
+          <address class="s1">
+            <span><i class="id-color fa fa-map-marker fa-lg"></i>ул. Meșterul Manole 20, Кишинёв</span>
+            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="text-decoration:underline !important;"><i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500</a>
+            <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:support@plusrent.md">support@plusrent.md</a></span>
+          </address>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h2 class="h5">Быстрые Ссылки</h2>
+        <div class="widget">
+          <ul>
+            <li><a href="/ru/">Главная</a></li>
+            <li><a href="/ru/cars">Автомобили</a></li>
+            <li><a href="/ru/sofer-treaz">Трезвый водитель</a></li>
+            <li><a href="/ru/transfer-chisinau">Трансфер KIV</a></li>
+            <li><a href="/ru/transfer-iasi">Трансфер Яссы</a></li>
+            <li><a href="/ru/contact">Контакты</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Соцсети</h2>
+          <div class="social-icons">
+            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+          </div>
+        </div>    
+      </div>
+    </div>
+  </div>
+  <div class="subfooter">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="de-flex">
+            <div class="de-flex-col"><a href="/ru/">Copyright 2026 - PlusRent</a></div>
+            <ul class="menu-simple"><li><a href="/terms">Условия использования</a></li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script src="/js/plugins.js" defer></script>
+<script src="/js/burger-menu-fix.js" defer></script>
+<script src="/js/designesia.js" defer></script>
+<script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" defer></script>
+<script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
+<script src="/js/i18n-init.js" defer></script>
+
+<script>
+(function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var validLangs = ['ro', 'ru', 'en'];
+  if (!validLangs.includes(pathLang)) return;
+  function forceLang() {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      if (i18next.language !== pathLang) i18next.changeLanguage(pathLang);
+    } else { setTimeout(forceLang, 50); }
+  }
+  forceLang();
+})();
+</script>
+
+<script src="/js/universal-include.js" defer></script>
+
+<script>
+document.getElementById('callbackForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const phoneNumber = document.getElementById('callbackPhone').value;
+  if (phoneNumber.trim() === '') {
+    alert('Пожалуйста, введите действительный номер телефона');
+    return;
+  }
+  const submitButton = this.querySelector('.btn-request-call');
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Отправка...';
+  submitButton.disabled = true;
+  try {
+    let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+    const response = await fetch(`${apiBaseUrl}/api/bookings/transfer-chisinau-callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone_number: phoneNumber, service_type: 'transfer_chisinau', customer_name: null, customer_email: null, special_instructions: null })
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+    if (result.success) {
+      gtag_report_conversion();
+      document.getElementById('successModal').style.display = 'block';
+      document.getElementById('callbackPhone').value = '';
+    } else {
+      alert('Ошибка: ' + (result.error || 'Не удалось отправить запрос. Попробуйте снова.'));
+    }
+  } catch (error) {
+    alert('Ошибка: Не удалось отправить запрос. Попробуйте снова.');
+  } finally {
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+  }
+});
+
+function closeModal() { document.getElementById('successModal').style.display = 'none'; }
+window.onclick = function(event) {
+  const modal = document.getElementById('successModal');
+  if (event.target === modal) modal.style.display = 'none';
+}
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') document.getElementById('successModal').style.display = 'none';
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var langs = {
+    ro: { flag: '/images/flags/romania.png', code: 'RO', alt: 'Română' },
+    ru: { flag: '/images/flags/russia.png', code: 'RU', alt: 'Русский' },
+    en: { flag: '/images/flags/united-kingdom.png', code: 'EN', alt: 'English' }
+  };
+  if (langs[pathLang]) {
+    var l = langs[pathLang];
+    var langFlag = document.getElementById('langFlag');
+    var langCode = document.getElementById('langCode');
+    if (langFlag) langFlag.innerHTML = '<img src="' + l.flag + '" alt="' + l.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+    if (langCode) langCode.textContent = l.code;
+  }
+  document.querySelectorAll('.lang-option').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
+      var lang = this.getAttribute('data-lang');
+      document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
+      localStorage.setItem('i18nextLng', lang);
+      localStorage.setItem('lang', lang);
+      window.location.href = '/' + lang + '/transfer-chisinau';
+    }, true);
+  });
+});
+</script>
+</body>
+</html>
