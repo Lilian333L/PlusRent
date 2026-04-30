@@ -1282,5 +1282,246 @@ router.post("/mark-return-gift-redeemed", async (req, res) => {
     res.status(500).json({ error: "Database error: " + error.message });
   }
 });
-
+async function saveServiceCallback(serviceType, body) {
+  const { 
+    phone_number, 
+    customer_name, 
+    customer_email, 
+    special_instructions,
+    tier,
+    pickup_location,
+    destination,
+    pickup_date,
+    pickup_time
+  } = body;
+ 
+  if (!phone_number || phone_number.trim() === '') {
+    throw new Error('Phone number is required');
+  }
+ 
+  const { data, error } = await supabase
+    .from("service_callbacks")
+    .insert([
+      {
+        service_type: serviceType,
+        phone_number: phone_number.trim(),
+        customer_name: customer_name || null,
+        customer_email: customer_email || null,
+        special_instructions: special_instructions || null,
+        tier: tier || null,
+        pickup_location: pickup_location || null,
+        destination: destination || null,
+        pickup_date: pickup_date || null,
+        pickup_time: pickup_time || null,
+        status: 'pending'
+      },
+    ])
+    .select()
+    .single();
+ 
+  if (error) throw error;
+  return data;
+}
+ 
+// ============================================================
+// HELPER: Send Telegram notification for service callback
+// ============================================================
+async function sendServiceCallbackTelegram(serviceType, body) {
+  try {
+    const telegram = new TelegramNotifier();
+    
+    const serviceNames = {
+      'transfer_iasi': '🌍 Transfer Iași Aeroport',
+      'transfer_chisinau': '✈️ Transfer Chișinău',
+      'sofer_personal': '🚗 Șofer Personal'
+    };
+ 
+    const serviceName = serviceNames[serviceType] || serviceType;
+    
+    let message = `🆕 <b>${serviceName} — Callback Request</b>\n\n`;
+    message += `📞 <b>Telefon:</b> ${body.phone_number}\n`;
+    
+    if (body.customer_name) {
+      message += `👤 <b>Nume:</b> ${body.customer_name}\n`;
+    }
+    if (body.customer_email) {
+      message += `📧 <b>Email:</b> ${body.customer_email}\n`;
+    }
+    if (body.tier) {
+      message += `⭐ <b>Tier:</b> ${body.tier}\n`;
+    }
+    if (body.pickup_location) {
+      message += `📍 <b>Pickup:</b> ${body.pickup_location}\n`;
+    }
+    if (body.destination) {
+      message += `🎯 <b>Destinație:</b> ${body.destination}\n`;
+    }
+    if (body.pickup_date) {
+      message += `📅 <b>Data:</b> ${body.pickup_date}\n`;
+    }
+    if (body.pickup_time) {
+      message += `🕐 <b>Ora:</b> ${body.pickup_time}\n`;
+    }
+    if (body.special_instructions) {
+      message += `\n📝 <b>Note:</b>\n${body.special_instructions}\n`;
+    }
+    
+    message += `\n⏰ <i>${new Date().toLocaleString('ro-RO', { timeZone: 'Europe/Chisinau' })}</i>`;
+    
+    await telegram.sendMessage(message);
+  } catch (error) {
+    console.error('❌ Error sending Telegram notification:', error);
+    // Don't fail the callback if Telegram fails
+  }
+}
+ 
+// ============================================================
+// 1. TRANSFER IAȘI CALLBACK
+// POST /api/bookings/transfer-iasi-callback
+// ============================================================
+router.post("/transfer-iasi-callback", async (req, res) => {
+  try {
+    const data = await saveServiceCallback('transfer_iasi', req.body);
+    
+    // Send Telegram notification (async, don't await)
+    sendServiceCallbackTelegram('transfer_iasi', req.body);
+    
+    console.log(`✅ Transfer Iași callback saved: ${req.body.phone_number}`);
+    
+    res.json({
+      success: true,
+      callback_id: data?.id,
+      message: "Callback request submitted successfully! We will contact you shortly to confirm your transfer.",
+    });
+  } catch (err) {
+    console.error('❌ Transfer Iași callback error:', err);
+    res.status(err.message?.includes('required') ? 400 : 500).json({ 
+      success: false, 
+      error: err.message || 'Failed to save callback request' 
+    });
+  }
+});
+ 
+// ============================================================
+// 2. TRANSFER CHIȘINĂU CALLBACK
+// POST /api/bookings/transfer-chisinau-callback
+// ============================================================
+router.post("/transfer-chisinau-callback", async (req, res) => {
+  try {
+    const data = await saveServiceCallback('transfer_chisinau', req.body);
+    
+    sendServiceCallbackTelegram('transfer_chisinau', req.body);
+    
+    console.log(`✅ Transfer Chișinău callback saved: ${req.body.phone_number}`);
+    
+    res.json({
+      success: true,
+      callback_id: data?.id,
+      message: "Callback request submitted successfully! We will contact you shortly to confirm your transfer.",
+    });
+  } catch (err) {
+    console.error('❌ Transfer Chișinău callback error:', err);
+    res.status(err.message?.includes('required') ? 400 : 500).json({ 
+      success: false, 
+      error: err.message || 'Failed to save callback request' 
+    });
+  }
+});
+ 
+// ============================================================
+// 3. SOFER PERSONAL CALLBACK
+// POST /api/bookings/sofer-personal-callback
+// ============================================================
+router.post("/sofer-personal-callback", async (req, res) => {
+  try {
+    const data = await saveServiceCallback('sofer_personal', req.body);
+    
+    sendServiceCallbackTelegram('sofer_personal', req.body);
+    
+    console.log(`✅ Sofer Personal callback saved: ${req.body.phone_number}`);
+    
+    res.json({
+      success: true,
+      callback_id: data?.id,
+      message: "Callback request submitted successfully! We will contact you shortly to confirm your booking.",
+    });
+  } catch (err) {
+    console.error('❌ Sofer Personal callback error:', err);
+    res.status(err.message?.includes('required') ? 400 : 500).json({ 
+      success: false, 
+      error: err.message || 'Failed to save callback request' 
+    });
+  }
+});
+ 
+// ============================================================
+// 4. ADMIN: Get all service callbacks (для админки)
+// GET /api/bookings/service-callbacks
+// ============================================================
+router.get("/service-callbacks", authenticateToken, async (req, res) => {
+  try {
+    const { service_type, status, limit = 100 } = req.query;
+    
+    let query = supabase
+      .from("service_callbacks")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(parseInt(limit));
+    
+    if (service_type) {
+      query = query.eq("service_type", service_type);
+    }
+    if (status) {
+      query = query.eq("status", status);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error("❌ Error fetching callbacks:", error);
+      return res.status(500).json({ error: "Failed to fetch callbacks" });
+    }
+    
+    res.json({ success: true, callbacks: data });
+  } catch (err) {
+    console.error('❌ Error fetching callbacks:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+ 
+// ============================================================
+// 5. ADMIN: Update callback status
+// PUT /api/bookings/service-callbacks/:id/status
+// ============================================================
+router.put("/service-callbacks/:id/status", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, notes } = req.body;
+    
+    const validStatuses = ['pending', 'contacted', 'confirmed', 'completed', 'cancelled', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+    
+    const updateData = { status };
+    if (notes !== undefined) updateData.notes = notes;
+    
+    const { data, error } = await supabaseAdmin
+      .from("service_callbacks")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error("❌ Error updating callback:", error);
+      return res.status(500).json({ error: "Failed to update callback" });
+    }
+    
+    res.json({ success: true, callback: data });
+  } catch (err) {
+    console.error('❌ Error updating callback:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
 module.exports = router;
