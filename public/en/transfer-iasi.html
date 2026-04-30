@@ -626,7 +626,7 @@ body { font-display: swap; }
             <li>30 min wait at airport</li>
             <li>Luggage assistance</li>
           </ul>
-          <button onclick="openContactPopup()" class="tier-cta">Book Standard</button>
+          <button onclick="openContactPopup('standard')" class="tier-cta">Book Standard</button>
         </div>
       </div>
 
@@ -646,7 +646,7 @@ body { font-display: swap; }
             <li>Pickup time flexibility</li>
             <li>USB-C / Lightning chargers</li>
           </ul>
-          <button onclick="openContactPopup()" class="tier-cta">Book Business</button>
+          <button onclick="openContactPopup('business')" class="tier-cta">Book Business</button>
         </div>
       </div>
 
@@ -666,7 +666,7 @@ body { font-display: swap; }
             <li>Custom routes</li>
             <li>Water, premium snacks, climate control</li>
           </ul>
-          <button onclick="openContactPopup()" class="tier-cta">Book VIP</button>
+          <button onclick="openContactPopup('vip')" class="tier-cta">Book VIP</button>
         </div>
       </div>
     </div>
@@ -679,7 +679,7 @@ body { font-display: swap; }
         ✓ Meet & greet at terminal &nbsp;•&nbsp; ✓ Luggage assistance &nbsp;•&nbsp; ✓ Premium snacks + water <br>
         ✓ 60 min wait &nbsp;•&nbsp; ✓ Border priority &nbsp;•&nbsp; ✓ Flight coordination
       </p>
-      <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e3a8a; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; font-size:0.95rem; border:none; cursor:pointer;">
+      <button onclick="openContactPopup('concierge')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e3a8a; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; font-size:0.95rem; border:none; cursor:pointer;">
         <i class="fa fa-comments"></i> Book Concierge Package
       </button>
     </div>
@@ -819,7 +819,7 @@ body { font-display: swap; }
         <li style="padding:5px 0;">✓ 24/7 support</li>
       </ul>
       <div>
-        <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; border:none; cursor:pointer;">
+        <button onclick="openContactPopup('corporate')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; border:none; cursor:pointer;">
           <i class="fa fa-comments"></i> Discuss Corporate Package
         </button>
       </div>
@@ -1114,10 +1114,25 @@ body { font-display: swap; }
 
 <!-- ============ CONTACT POPUP FUNCTIONS ============ -->
 <script>
-// Page-specific WhatsApp text — customize per page
-const WHATSAPP_TEXT = "Hello PlusRent! I'm interested in the Iași Airport to Chișinău transfer. Could you provide more details?";
+// ============================================================
+// PAGE-SPECIFIC WHATSAPP TEXTS — context-aware messages
+// ============================================================
+const WHATSAPP_TEXTS = {
+  default:   "Hello PlusRent! I'm interested in the Iași Airport to Chișinău transfer. Could you provide more details?",
+  standard:  "Hello PlusRent! I'm interested in the Standard Private transfer (€140) — Iași Airport to Chișinău. Could you confirm availability and details?",
+  business:  "Hello PlusRent! I'm interested in the Business Comfort transfer (€175) — Iași Airport to Chișinău. Could you confirm availability and details?",
+  vip:       "Hello PlusRent! I'm interested in the VIP Executive transfer (€230) — Iași Airport to Chișinău. Could you confirm availability and details?",
+  concierge: "Hello PlusRent! I'm interested in the Airport Concierge Package (€195) — Iași Airport to Chișinău, with meet & greet. Could you provide more details?",
+  corporate: "Hello PlusRent! I'm interested in the Corporate Mobility Retainer for Iași transfers. Could you discuss B2B options and custom pricing?"
+};
 
-function openContactPopup() {
+// Track current context for WhatsApp message
+let currentWhatsAppContext = 'default';
+
+function openContactPopup(context) {
+  // Set context for WhatsApp text (default if not provided or invalid)
+  currentWhatsAppContext = (context && WHATSAPP_TEXTS[context]) ? context : 'default';
+  
   document.getElementById('contactPopup').style.display = 'flex';
   const scrollY = window.scrollY;
   document.body.style.position = 'fixed';
@@ -1137,11 +1152,13 @@ function closeContactPopup() {
   document.body.style.left = '';
   document.body.style.right = '';
   window.scrollTo(0, scrollY);
+  // Reset context after closing
+  currentWhatsAppContext = 'default';
 }
 
 function openWhatsApp() {
   gtag_report_conversion();
-  const text = encodeURIComponent(WHATSAPP_TEXT);
+  const text = encodeURIComponent(WHATSAPP_TEXTS[currentWhatsAppContext] || WHATSAPP_TEXTS.default);
   window.open(`https://wa.me/37360000500?text=${text}`, '_blank');
 }
 
