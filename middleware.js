@@ -12,6 +12,12 @@ export const config = {
     '/about/',
     '/contact',
     '/contact/',
+    '/transfer-iasi',
+    '/transfer-iasi/',
+    '/transfer-chisinau',
+    '/transfer-chisinau/',
+    '/sofer-personal',
+    '/sofer-personal/',
     '/ro/sofer-treaz/',
     '/ru/sofer-treaz/',
     '/en/sofer-treaz/',
@@ -24,6 +30,15 @@ export const config = {
     '/ro/contact/',
     '/ru/contact/',
     '/en/contact/',
+    '/ro/transfer-iasi/',
+    '/ru/transfer-iasi/',
+    '/en/transfer-iasi/',
+    '/ro/transfer-chisinau/',
+    '/ru/transfer-chisinau/',
+    '/en/transfer-chisinau/',
+    '/ro/sofer-personal/',
+    '/ru/sofer-personal/',
+    '/en/sofer-personal/',
     '/terms/'
   ]
 };
@@ -41,7 +56,6 @@ export default function middleware(request) {
   // ============================================================
   let normalizedPath = pathname;
   let needsRedirect = false;
-
   if (pathname.endsWith('/') && !keepSlashPaths.includes(pathname)) {
     normalizedPath = pathname.slice(0, -1);
     needsRedirect = true;
@@ -77,6 +91,21 @@ export default function middleware(request) {
       ro: '/ro/contact',
       ru: '/ru/contact',
       en: '/en/contact'
+    },
+    '/transfer-iasi': {
+      ro: '/ro/transfer-iasi',
+      ru: '/ru/transfer-iasi',
+      en: '/en/transfer-iasi'
+    },
+    '/transfer-chisinau': {
+      ro: '/ro/transfer-chisinau',
+      ru: '/ru/transfer-chisinau',
+      en: '/en/transfer-chisinau'
+    },
+    '/sofer-personal': {
+      ro: '/ro/sofer-personal',
+      ru: '/ru/sofer-personal',
+      en: '/en/sofer-personal'
     }
   };
 
@@ -88,8 +117,8 @@ export default function middleware(request) {
     // Determine target language from Accept-Language header
     // Default = 'ro' (Moldova → Romanian)
     let targetLang = 'ro';
-    const acceptLang = (request.headers.get('accept-language') || '').toLowerCase();
 
+    const acceptLang = (request.headers.get('accept-language') || '').toLowerCase();
     if (acceptLang) {
       const languages = acceptLang
         .split(',')
