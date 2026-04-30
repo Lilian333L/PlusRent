@@ -1299,7 +1299,7 @@ async function saveServiceCallback(serviceType, body) {
     throw new Error('Phone number is required');
   }
  
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("service_callbacks")
     .insert([
       {
