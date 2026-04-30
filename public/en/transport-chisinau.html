@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<style>
+body { font-display: swap; scroll-behavior: smooth; }
+#subheader .center-y { background: rgba(0,0,0,0.5) !important; }
+
+/* SCROLL PROGRESS */
+.scroll-progress {
+  position: fixed; top: 0; left: 0;
+  width: 0%; height: 4px;
+  background: linear-gradient(90deg, #1E90FF 0%, #f59e0b 100%);
+  z-index: 10001;
+  transition: width 0.1s ease-out;
+  box-shadow: 0 2px 8px rgba(30, 144, 255, 0.5);
+}
+
+/* STICKY HEADER */
+header.sticky-active {
+  position: fixed !important; top: 0; left: 0; right: 0;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  animation: slideDown 0.3s ease;
+  z-index: 9000;
+}
+header.sticky-active #topbar { display: none !important; }
+header.sticky-active #mainmenu li a { color: #1e293b !important; }
+header.sticky-active .logo-1 { display: none !important; }
+header.sticky-active .logo-2 { display: inline-block !important; }
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+/* LIVE BADGE */
+.live-status-hero {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(34, 197, 94, 0.2);
+  color: #ffffff;
+  padding: 8px 18px; border-radius: 30px;
+  font-size: 0.85rem; font-weight: 700;
+  margin-bottom: 18px;
+  border: 1.5px solid rgba(34, 197, 94, 0.5);
+  backdrop-filter: blur(8px);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.live-dot-hero {
+  width: 10px; height: 10px;
+  background: #22c55e; border-radius: 50%;
+  animation: livePulse 2s infinite;
+}
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* HERO TRUST BAR */
+.hero-trust-bar {
+  display: flex; justify-content: center;
+  gap: 20px; flex-wrap: wrap;
+  margin-top: 25px;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-trust-item {
+  display: flex; align-items: center; gap: 8px;
+  color: #fff; font-size: 0.88rem; font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.hero-trust-item i { color: #fbbf24; font-size: 1rem; }
+@media (max-width: 768px) {
+  .hero-trust-bar { padding: 10px 16px; gap: 12px; }
+  .hero-trust-item { font-size: 0.78rem; }
+}
+
+/* FLEET SECTION */
+.fleet-section {
+  padding: 70px 0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px; margin-top: 40px;
+}
+.fleet-card {
+  background: #fff; border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transition: all 0.4s ease;
+  display: flex; flex-direction: column;
+}
+.fleet-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  border-color: #1E90FF;
+}
+.fleet-image {
+  width: 100%; height: 200px;
+  background: #f1f5f9;
+  position: relative; overflow: hidden;
+}
+.fleet-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.fleet-card:hover .fleet-image img { transform: scale(1.08); }
+.fleet-tier-badge {
+  position: absolute; top: 14px; left: 14px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  color: #1e293b;
+  padding: 5px 14px; border-radius: 14px;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.fleet-tier-badge.business { background: rgba(245,158,11,0.95); color: white; }
+.fleet-tier-badge.vip { background: rgba(30,58,138,0.95); color: white; }
+.fleet-content {
+  padding: 22px;
+  flex-grow: 1; display: flex; flex-direction: column;
+}
+.fleet-name { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+.fleet-year { color: #64748b; font-size: 0.85rem; margin-bottom: 12px; }
+.fleet-features { list-style: none; padding: 0; margin: 12px 0 18px; display: flex; flex-wrap: wrap; gap: 6px; }
+.fleet-features li { background: #f1f5f9; color: #475569; padding: 5px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.fleet-cta {
+  margin-top: auto; width: 100%;
+  background: transparent; color: #1E90FF;
+  border: 2px solid #1E90FF;
+  padding: 10px 18px; border-radius: 25px;
+  font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; transition: all 0.3s;
+}
+.fleet-cta:hover { background: #1E90FF; color: white; }
+.fleet-loading { text-align: center; padding: 50px 20px; color: #64748b; }
+.fleet-loading-spinner {
+  display: inline-block; width: 40px; height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #1E90FF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 15px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.fleet-fallback-icon { font-size: 4rem; color: #cbd5e1; display: flex; align-items: center; justify-content: center; height: 100%; }
+
+/* TIER CARDS */
+.tier-card { border: 2px solid #e5e7eb; border-radius: 16px; padding: 30px 25px; background: #fff; transition: all 0.3s ease; position: relative; height: 100%; display: flex; flex-direction: column; }
+.tier-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+.tier-card.popular { border-color: #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #fff 100%); transform: scale(1.03); }
+.tier-card.popular::before { content: "⭐ MOST POPULAR"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 6px 20px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
+.tier-name { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.tier-tagline { color: #64748b; font-size: 0.9rem; margin-bottom: 18px; min-height: 2.5em; }
+.tier-price { font-size: 2.4rem; font-weight: 800; color: #1e293b; margin: 5px 0; }
+.tier-price-period { color: #64748b; font-size: 0.9rem; margin-bottom: 18px; }
+.tier-features { list-style: none; padding: 0; margin: 18px 0; text-align: left; flex-grow: 1; }
+.tier-features li { padding: 8px 0 8px 28px; position: relative; color: #475569; font-size: 0.92rem; line-height: 1.5; }
+.tier-features li::before { content: "✓"; position: absolute; left: 0; color: #16a34a; font-weight: 800; font-size: 1.1rem; }
+.tier-cta { display: inline-block; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-top: 15px; transition: all 0.3s; text-align:center; cursor: pointer; border: none; }
+.tier-cta:hover { background: linear-gradient(135deg, #187bcd, #1565a8); transform: translateY(-2px); color:white; text-decoration: none;}
+.tier-card.popular .tier-cta { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.tier-card.popular .tier-cta:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+
+.concierge-banner { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border-radius: 16px; padding: 30px; margin: 40px 0; text-align: center; }
+.concierge-banner h3 { color: white; font-size: 1.6rem; margin-bottom: 10px; }
+.concierge-banner .price { font-size: 2.2rem; font-weight: 800; color: #fbbf24; margin: 10px 0; }
+.route-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.route-table th { background: #f8fafc; padding: 14px; text-align: left; font-weight: 700; color: #1e293b; border-bottom: 2px solid #e5e7eb; font-size: 0.95rem; }
+.route-table td { padding: 14px; border-bottom: 1px solid #e5e7eb; color: #475569; font-size: 0.93rem; }
+.route-table tr:hover { background: #fafafa; }
+.route-table .price-cell { font-weight: 700; color: #d97706; white-space: nowrap; }
+
+/* FLOATING CONTACT BUTTON & POPUP */
+.floating-contact-btn {
+  position: fixed; bottom: 30px; right: 30px;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1E90FF 0%, #187bcd 100%);
+  color: white; border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; cursor: pointer;
+  box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4);
+  z-index: 9998;
+  transition: all 0.3s ease;
+  animation: pulseRing 2.5s infinite;
+}
+.floating-contact-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(30, 144, 255, 0.6), 0 0 0 8px rgba(30, 144, 255, 0.15);
+  animation: none;
+}
+@keyframes pulseRing {
+  0% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 0 rgba(30, 144, 255, 0.5); }
+  70% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 16px rgba(30, 144, 255, 0); }
+  100% { box-shadow: 0 8px 30px rgba(30, 144, 255, 0.4), 0 0 0 0 rgba(30, 144, 255, 0); }
+}
+.contact-popup-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.contact-popup {
+  background: #fff; border-radius: 24px;
+  width: 100%; max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.contact-popup-header {
+  background: linear-gradient(135deg, #1E90FF 0%, #187bcd 100%);
+  color: white;
+  padding: 28px 24px; position: relative; text-align: center;
+}
+.contact-popup-header h3 { color: white; font-size: 1.4rem; font-weight: 800; margin: 0 0 6px; }
+.contact-popup-header p { color: rgba(255, 255, 255, 0.9); font-size: 0.92rem; margin: 0; }
+.contact-popup-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none; color: white;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+.contact-popup-close:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(90deg); }
+.contact-popup-body { padding: 16px; }
+.contact-option {
+  display: flex; align-items: center;
+  gap: 16px;
+  padding: 16px; border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  text-decoration: none;
+  border: 2px solid transparent;
+}
+.contact-option:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  transform: translateX(4px);
+  text-decoration: none;
+}
+.contact-option:last-child { margin-bottom: 0; }
+.contact-option-icon {
+  flex-shrink: 0;
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 1.3rem;
+}
+.contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+.contact-option.viber .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
+.contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
+.contact-option.phone .contact-option-icon { background: linear-gradient(135deg, #1E90FF, #187bcd); }
+.contact-option-content { flex-grow: 1; }
+.contact-option-title { font-weight: 700; color: #1e293b; font-size: 1rem; margin-bottom: 2px; }
+.contact-option-subtitle { color: #64748b; font-size: 0.85rem; }
+.contact-option-arrow { color: #94a3b8; font-size: 1.1rem; transition: all 0.2s; }
+.contact-option:hover .contact-option-arrow { color: #1E90FF; transform: translateX(3px); }
+@media (max-width: 768px) {
+  .floating-contact-btn { bottom: 20px; right: 20px; width: 56px; height: 56px; font-size: 1.4rem; }
+  .contact-popup { max-width: 100%; }
+  .contact-popup-header { padding: 22px 18px; }
+  .contact-popup-header h3 { font-size: 1.2rem; }
+  .tier-card.popular { transform: none; }
+  .route-table { font-size: 0.85rem; }
+  .route-table th, .route-table td { padding: 10px 8px; }
+}
+</style>
+
+<!-- Google Ads -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18051300821"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18051300821', { 'allow_enhanced_conversions': true });
+</script>
+<script>
+function gtag_report_conversion(url) {
+  var callback = function () { if (typeof(url) != 'undefined') { window.location = url; } };
+  if(typeof gtag==='function'){
+    gtag('event','conversion',{
+      'send_to':'AW-18051300821/5Nv1CM2IspYcENX7w59D',
+      'value':1.0,'currency':'USD','event_callback':callback
+    });
+    setTimeout(callback, 2000);
+  } else { if(url) window.location=url; }
+  return false;
+}
+</script>
+
+<meta charset="utf-8">
+
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="preload" as="image" href="/images/background/2.webp" fetchpriority="high" type="image/webp">
+<meta http-equiv="content-language" content="en">
+
+<title>Chișinău Airport Transfer from 800 MDL | Premium Private 24/7 | PlusRent</title>
+
+<link rel="icon" type="image/png" sizes="16x16" href="/images/icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E90FF">
+
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow">
+
+<meta name="description" content="Premium private Chișinău Airport transfer from 800 MDL. Comfortable vehicles, multilingual drivers, all-inclusive prices. Available 24/7. Call ☎ +373 60 000 500, WhatsApp or Telegram.">
+<meta name="keywords" content="chisinau airport transfer, transfer chisinau airport, chisinau airport taxi, private airport transfer chisinau, kiv airport transfer, airport pickup chisinau, premium transfer moldova, PlusRent transfer">
+<meta name="author" content="PlusRent.md">
+
+<link rel="alternate" hreflang="ro-MD" href="https://plusrent.md/ro/transfer-chisinau" />
+<link rel="alternate" hreflang="ru-MD" href="https://plusrent.md/ru/transfer-chisinau" />
+<link rel="alternate" hreflang="en" href="https://plusrent.md/en/transfer-chisinau" />
+<link rel="alternate" hreflang="x-default" href="https://plusrent.md/ro/transfer-chisinau" />
+<link rel="canonical" href="https://plusrent.md/en/transfer-chisinau">
+<meta name="geo.region" content="MD">
+<meta name="geo.placename" content="Chișinău">
+<meta name="geo.position" content="47.013737;28.886408">
+<meta name="ICBM" content="47.013737, 28.886408">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Chișinău Airport Transfer from 800 MDL | PlusRent">
+<meta property="og:description" content="Private airport transfer Chișinău. Premium vehicles, multilingual drivers, 24/7. From 800 MDL. Call: +373 60 000 500">
+<meta property="og:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+<meta property="og:url" content="https://plusrent.md/en/transfer-chisinau">
+<meta property="og:site_name" content="PlusRent">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Chișinău Airport Transfer from 800 MDL | PlusRent">
+<meta name="twitter:description" content="Private airport transfer with premium vehicles. Available 24/7. ☎ +373 60 000 500">
+<meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
+
+<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
+<link href="/css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
+<link href="/css/soferum.css" rel="stylesheet" type="text/css">
+<link href="/css/plugins.css" rel="stylesheet" type="text/css">
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<link href="/css/coloring.css" rel="stylesheet" type="text/css">
+<link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<script src="/js/config.js" defer></script>
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Chișinău Airport Transfer",
+  "alternateName": ["KIV Airport Transfer", "Chișinău Airport Pickup", "Private Airport Transfer Moldova"],
+  "description": "Premium private airport transfer service from Chișinău Airport (KIV) to all destinations in Chișinău and other Moldovan cities. Comfortable vehicles, multilingual professional drivers (RO/RU/EN), available 24/7. Price from 800 MDL.",
+  "url": "https://plusrent.md/en/transfer-chisinau",
+  "serviceType": "Airport Transfer",
+  "provider": {
+    "@type": "AutoRental",
+    "name": "PlusRent",
+    "url": "https://plusrent.md",
+    "logo": { "@type": "ImageObject", "url": "https://plusrent.md/images/icon.png" },
+    "telephone": "+373-60-000-500",
+    "email": "support@plusrent.md",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "str. Meșterul Manole 20",
+      "addressLocality": "Chișinău",
+      "postalCode": "MD-2044",
+      "addressCountry": "MD"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 47.013737, "longitude": 28.886408 },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+      "opens": "00:00", "closes": "23:59"
+    },
+    "sameAs": [
+      "https://www.instagram.com/plusrent.md",
+      "https://t.me/plusrent",
+      "https://www.tiktok.com/@plusrent",
+      "https://www.linkedin.com/company/plusrent",
+      "https://www.facebook.com/plusrent.md",
+      "https://www.trustpilot.com/review/plusrent.md"
+    ],
+    "priceRange": "from 800 MDL",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+373-60-000-500",
+      "contactType": "Customer Service",
+      "email": "support@plusrent.md",
+      "availableLanguage": ["English", "Romanian", "Russian"],
+      "areaServed": "MD"
+    }
+  },
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "MDL",
+    "lowPrice": "800",
+    "highPrice": "2000",
+    "availability": "https://schema.org/InStock",
+    "offerCount": "4"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much does a Chișinău Airport transfer cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PlusRent offers 3 tiers: Standard from 800 MDL, Business Comfort from 1,000 MDL (most popular), VIP Executive from 1,400 MDL. Plus Airport Concierge Package at €195. All prices all-inclusive."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does the transfer take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Chișinău Airport to city center takes approximately 20-30 minutes depending on traffic. Other zones (Botanica, Buiucani): 25-35 min. Other Moldovan cities: from 1 hour."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is the vehicle and capacity selected?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vehicle is matched to your tier and group size. Volume of vehicles for groups is discussed by phone — call +373 60 000 500 or WhatsApp/Telegram. We arrange single vehicle or multi-vehicle solutions based on passengers and luggage."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to pay in advance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No advance payment required. Pay driver at end — cash (MDL/EUR) or card. Corporate accounts available with monthly invoicing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I contact you?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Multiple channels: Phone +373 60 000 500 (24/7), WhatsApp at the same number, Telegram @plusrent, Email support@plusrent.md. Response in 3-5 minutes."
+      }
+    }
+  ]
+}
+</script>
+
+</head>
+
+<body>
+
+<!-- Scroll Progress Indicator -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div id="wrapper">
+<div id="de-preloader"></div>
+
+<header class="transparent scroll-light has-topbar">
+  <div id="topbar" class="topbar-dark text-light">
+    <div class="container">
+      <div class="topbar-left xs-hide">
+        <div class="topbar-widget">
+          <div class="topbar-widget"><a href="mailto:support@plusrent.md"><i class="fa fa-envelope"></i>support@plusrent.md</a></div>
+          <div class="topbar-widget"><i class="fa fa-clock-o"></i>Available 24/7</div>
+          <div class="topbar-widget"><i class="fa fa-map-marker"></i>Meșterul Manole 20, Chișinău</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="social-icons">
+          <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
+          <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
+          <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram fa-lg"></i></a>
+          <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp fa-lg"></i></a>
+          <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok fa-lg"></i></a>
+        </div>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="de-flex sm-pt10">
+          <div class="de-flex-col">
+            <div class="de-flex-col">
+              <div id="logo">
+                <a href="/en/">
+                  <img class="logo-1" src="/images/LOGO-4-demo.png" alt="PlusRent Logo">
+                  <img class="logo-2" src="/images/LOGO-5-demo.png" alt="PlusRent Logo">
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="de-flex-col">
+            <ul id="mainmenu">
+              <li><a class="menu-item" href="/en/" data-i18n="menu.home">Home</a></li>
+              <li><a class="menu-item" href="/en/cars" data-i18n="menu.cars">Cars</a></li>
+              <li><a class="menu-item" href="/en/about" data-i18n="menu.about">About Us</a></li>
+              <li><a class="menu-item" href="/en/contact" data-i18n="menu.contact">Contact</a></li>
+              <li><a class="menu-item" href="/en/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
+            </ul>
+          </div>
+          <div class="de-flex-col">
+            <div class="menu_side_area" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+              <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                <button onclick="openContactPopup()" class="call-now-btn"
+                  style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 10px 18px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(30, 144, 255, 0.3);">
+                  <i class="fa fa-comments" style="font-size: 13px;"></i>
+                  <span>Contact Us</span>
+                </button>
+              </div>
+              <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
+                <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
+                  <span class="lang-globe" id="langGlobe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="10" r="9" stroke="#f59e0b" stroke-width="2" />
+                      <ellipse cx="10" cy="10" rx="5" ry="9" stroke="#f59e0b" stroke-width="2" />
+                      <path d="M1 10h18" stroke="#f59e0b" stroke-width="2" />
+                    </svg>
+                  </span>
+                  <span class="lang-flag" id="langFlag"></span>
+                  <span id="langCode" style="font-weight:600;margin:0 2px 0 2px;">EN</span>
+                  <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;">
+                    <path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round" />
+                  </svg>
+                </button>
+                <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
+                  <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img src="/images/flags/romania.png" alt="Română" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RO</span></li>
+                  <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img src="/images/flags/united-kingdom.png" alt="English" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">EN</span></li>
+                  <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img src="/images/flags/russia.png" alt="Русский" style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span class="lang-code">RU</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div id="menu-btn" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="no-bottom no-top" id="content">
+<div id="top"></div>
+
+<!-- Hero -->
+<section id="subheader" class="jarallax text-light">
+  <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" fetchpriority="high" alt="Chișinău Airport Transfer - PlusRent">
+  <div class="center-y relative text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <div class="live-status-hero">
+            <span class="live-dot-hero"></span>
+            <span>AVAILABLE NOW · Booking Open 24/7</span>
+          </div>
+          <h1 style="text-shadow:0 2px 6px rgba(0,0,0,0.9); color:#fff;">Chișinău Airport Transfer</h1>
+          <p class="lead" style="text-shadow:0 1px 4px rgba(0,0,0,0.9); color:#fff;">Premium private vehicles, multilingual drivers, all-inclusive prices. From 800 MDL — available 24/7.</p>
+          <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-top:25px;">
+            <button onclick="openContactPopup()" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:14px 30px; border-radius:50px; text-decoration:none; font-weight:800; font-size:1rem; box-shadow:0 8px 20px rgba(245,158,11,0.4); border:none; cursor:pointer;">
+              <i class="fa fa-comments"></i> Contact Us — Reply in 3 min
+            </button>
+          </div>
+          <div class="hero-trust-bar">
+            <div class="hero-trust-item"><i class="fa fa-star"></i><span>5.0 Google</span></div>
+            <div class="hero-trust-item"><i class="fa fa-check-circle"></i><span>439+ Orders</span></div>
+            <div class="hero-trust-item"><i class="fa fa-clock-o"></i><span>24/7 Service</span></div>
+            <div class="hero-trust-item"><i class="fa fa-shield"></i><span>3+ Years Experience</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="contact-options">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-comments"></i></div>
+          <h2 class="h3">Quick Contact</h2>
+          <p>Choose your favorite way to reach us. We respond within 3-5 minutes during business hours.</p>
+          <button onclick="openContactPopup()" style="background: linear-gradient(135deg, #1E90FF, #187bcd); color: white; padding: 14px 32px; border-radius: 30px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);">
+            <i class="fa fa-comments"></i> Choose Contact Method
+          </button>
+          <div style="margin-top:18px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <span style="font-size:0.85rem; color:#64748b;">📞 Phone</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">💬 WhatsApp</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">✈️ Telegram</span>
+            <span style="color:#cbd5e1;">•</span>
+            <span style="font-size:0.85rem; color:#64748b;">📱 Viber</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-12">
+        <div class="contact-card">
+          <div class="phone-icon"><i class="fa fa-clock-o"></i></div>
+          <h2 class="h3">Request Callback</h2>
+          <p>Leave your number and flight date — we'll call back in 3-5 minutes.</p>
+          <form class="callback-form" id="callbackForm">
+            <input type="tel" id="callbackPhone" placeholder="Your phone number" required>
+            <button type="submit" class="btn-request-call">Request Callback</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service Description -->
+<section class="pt40 pb20" style="background:#fff;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 text-center">
+      <h2 style="font-size:1.8rem; color:#1e293b; margin-bottom:15px;">Premium Airport Transfer Service</h2>
+      <p style="color:#475569; font-size:1.05rem; line-height:1.7; max-width:800px; margin:0 auto;">
+        PlusRent offers <strong>premium private airport transfer</strong> from Chișinău Airport (KIV) to all destinations in Chișinău and other Moldovan cities. Professional drivers who speak Romanian, Russian and English. <strong>Volume of vehicles for groups is discussed by phone</strong> — we arrange single vehicle or multi-vehicle solutions based on your needs. All-inclusive prices: WiFi, water, luggage assistance. Pay on arrival.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 3-TIER PRICING -->
+<section class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="text-center mb40">
+      <h2 style="font-size:1.9rem; color:#1e293b; margin-bottom:12px;">Choose Your Package</h2>
+      <p style="color:#64748b; font-size:1.05rem;">Chișinău Airport → Chișinău Center. All prices all-inclusive.</p>
+    </div>
+
+    <div class="row" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; align-items:stretch;">
+      <div class="col-lg-3 col-md-6" style="margin-top:20px;">
+        <div class="tier-card">
+          <div class="tier-name">Standard</div>
+          <div class="tier-tagline">Reliable comfort, all-inclusive — perfect for solo or couple travelers.</div>
+          <div class="tier-price">800 <small style="font-size:1rem; color:#64748b; font-weight:500;">MDL</small></div>
+          <div class="tier-price-period">one-way • Airport ↔ Center</div>
+          <ul class="tier-features">
+            <li>Comfortable vehicle</li>
+            <li>Professional driver (RO/RU)</li>
+            <li>WiFi in vehicle</li>
+            <li>Bottled water</li>
+            <li>30 min wait at airport</li>
+            <li>Luggage assistance</li>
+            <li>Pay on arrival</li>
+          </ul>
+          <button onclick="openContactPopup('standard')" class="tier-cta">Book Standard</button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" style="margin-top:20px;">
+        <div class="tier-card popular">
+          <div class="tier-name">Business Comfort</div>
+          <div class="tier-tagline">The most chosen option — premium for business and families.</div>
+          <div class="tier-price">1,000 <small style="font-size:1rem; color:#64748b; font-weight:500;">MDL</small></div>
+          <div class="tier-price-period">one-way • Airport ↔ Center</div>
+          <ul class="tier-features">
+            <li><strong>Premium vehicle</strong></li>
+            <li>Multilingual driver (RO/RU/EN)</li>
+            <li>High-speed WiFi</li>
+            <li>Premium snacks + water</li>
+            <li>Priority communication</li>
+            <li>Pickup time flexibility</li>
+            <li>USB-C / Lightning chargers</li>
+            <li>Climate dual-zone</li>
+          </ul>
+          <button onclick="openContactPopup('business')" class="tier-cta">Book Business</button>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6" style="margin-top:20px;">
+        <div class="tier-card">
+          <div class="tier-name">VIP Executive</div>
+          <div class="tier-tagline">Top experience for executives, VIPs, expats.</div>
+          <div class="tier-price">1,400 <small style="font-size:1rem; color:#64748b; font-weight:500;">MDL</small></div>
+          <div class="tier-price-period">one-way • Airport ↔ Center</div>
+          <ul class="tier-features">
+            <li><strong>Luxury vehicle</strong></li>
+            <li>VIP driver in suit</li>
+            <li>Meet & greet at terminal</li>
+            <li>60 min wait included</li>
+            <li>Concierge support</li>
+            <li>Custom routes</li>
+            <li>Premium snacks, climate control</li>
+            <li>Discreet professional service</li>
+          </ul>
+          <button onclick="openContactPopup('vip')" class="tier-cta">Book VIP</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="concierge-banner">
+      <h3>✈️ Airport Concierge Package</h3>
+      <p style="font-size:1.05rem; margin-bottom:5px; opacity:0.95;">Complete premium solution for families, seniors and international travelers</p>
+      <div class="price">€195 <span style="font-size:1.2rem; opacity:0.85;">/ ~3,800 MDL</span></div>
+      <p style="opacity:0.95; font-size:0.95rem; max-width:700px; margin:0 auto 20px;">
+        ✓ Meet & greet at terminal &nbsp;•&nbsp; ✓ Luggage assistance &nbsp;•&nbsp; ✓ Premium snacks + water <br>
+        ✓ 60 min wait &nbsp;•&nbsp; ✓ Flight coordination &nbsp;•&nbsp; ✓ Concierge before/after
+      </p>
+      <button onclick="openContactPopup('concierge')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e3a8a; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; font-size:0.95rem; border:none; cursor:pointer;">
+        <i class="fa fa-comments"></i> Book Concierge Package
+      </button>
+    </div>
+
+    <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:25px;">
+      <i class="fa fa-info-circle"></i> Need a vehicle for groups or special requirements? Volume of vehicles discussed by phone — <button onclick="openContactPopup()" style="background:none; border:none; color:#d97706; font-weight:700; cursor:pointer; text-decoration:underline; padding:0;">contact us</button> for custom solutions.
+    </p>
+  </div>
+</section>
+
+<!-- Routes Tables -->
+<section class="pt60 pb60" style="background:#fff;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h2 style="text-align:center; font-size:1.7rem; color:#1e293b; margin-bottom:15px;">
+        <i class="fa fa-map-marker" style="color:#f59e0b; margin-right:8px;"></i>All Routes & Prices
+      </h2>
+      <p style="text-align:center; color:#64748b; margin-bottom:30px;">Indicative one-way prices. Round-trip — 10% discount.</p>
+
+      <h3 style="font-size:1.2rem; color:#1e293b; margin-bottom:15px;">Chișinău Airport ↔ Chișinău Zones</h3>
+      <table class="route-table">
+        <thead>
+          <tr><th>Destination</th><th>Standard</th><th>Business</th><th>VIP</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Centru / Telecentru</td><td class="price-cell">800 MDL</td><td class="price-cell">1,000 MDL</td><td class="price-cell">1,400 MDL</td></tr>
+          <tr><td>Botanica / Buiucani</td><td class="price-cell">850 MDL</td><td class="price-cell">1,050 MDL</td><td class="price-cell">1,450 MDL</td></tr>
+          <tr><td>Râșcani / Ciocana</td><td class="price-cell">900 MDL</td><td class="price-cell">1,100 MDL</td><td class="price-cell">1,500 MDL</td></tr>
+          <tr><td>Stăuceni / Codru</td><td class="price-cell">950 MDL</td><td class="price-cell">1,150 MDL</td><td class="price-cell">1,550 MDL</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:1.2rem; color:#1e293b; margin:30px 0 15px;">Chișinău Airport → Other Moldovan Cities</h3>
+      <table class="route-table">
+        <thead><tr><th>Destination</th><th>Standard</th><th>Business</th><th>VIP</th></tr></thead>
+        <tbody>
+          <tr><td>Orhei (≈45 km)</td><td class="price-cell">€40</td><td class="price-cell">€50</td><td class="price-cell">€70</td></tr>
+          <tr><td>Strășeni / Hâncești</td><td class="price-cell">€45</td><td class="price-cell">€55</td><td class="price-cell">€75</td></tr>
+          <tr><td>Comrat (≈90 km)</td><td class="price-cell">€80</td><td class="price-cell">€95</td><td class="price-cell">€130</td></tr>
+          <tr><td>Cahul (≈170 km)</td><td class="price-cell">€120</td><td class="price-cell">€140</td><td class="price-cell">€180</td></tr>
+          <tr><td>Bălți (≈140 km)</td><td class="price-cell">€100</td><td class="price-cell">€120</td><td class="price-cell">€160</td></tr>
+          <tr><td>Soroca (≈170 km)</td><td class="price-cell">€130</td><td class="price-cell">€150</td><td class="price-cell">€195</td></tr>
+        </tbody>
+      </table>
+
+      <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:20px;">
+        <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+        For special routes, larger groups or custom requirements, <button onclick="openContactPopup()" style="background:none; border:none; color:#d97706; font-weight:700; cursor:pointer; text-decoration:underline; padding:0;">contact us</button> for personalized quote.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:35px;">How It Works — 4 Simple Steps</h2>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3 class="h4">Contact Us</h3>
+        <p>Phone, WhatsApp, Telegram or Viber. Response in 3-5 minutes.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3 class="h4">Confirm Details</h3>
+        <p>Choose tier, communicate flight time, destination in Chișinău.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3 class="h4">We Wait For You</h3>
+        <p>Driver meets at arrivals. Business+: name plate. VIP: meet & greet at terminal.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h3 class="h4">Smooth Journey</h3>
+        <p>20-30 min to center. Pay at destination — cash or card.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="pt60 pb60" style="background:#fff; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:35px;">Why PlusRent for Airport Transfer?</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:25px;">
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>Premium Vehicles</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Modern fleet with climate control, WiFi, premium amenities. Vehicle volume discussed by phone for groups.</p>
+        </div>
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-plane-arrival" style="color:#f59e0b; margin-right:8px;"></i>Flight Tracking</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">We monitor your flight. Delayed? We wait — no extra fees in the included 30/60 min.</p>
+        </div>
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-language" style="color:#f59e0b; margin-right:8px;"></i>Multilingual Drivers</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">All drivers speak Romanian and Russian. English available on request. For VIP — multilingual included.</p>
+        </div>
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-clock-o" style="color:#f59e0b; margin-right:8px;"></i>Available 24/7</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">Non-stop including nights, weekends, holidays. Late arrivals — no problem.</p>
+        </div>
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-tag" style="color:#f59e0b; margin-right:8px;"></i>All-Inclusive Price</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">WiFi, water, assistance — all included. No hidden costs. Pay at destination.</p>
+        </div>
+        <div style="padding:25px; background:#f8fafc; border-radius:12px; border-left:4px solid #f59e0b;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:10px;"><i class="fa fa-shield" style="color:#f59e0b; margin-right:8px;"></i>3+ Years Experience</h3>
+          <p style="color:#475569; font-size:0.93rem; line-height:1.6;">439+ orders completed. PlusRent — trusted partner for airport transfers in Moldova.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OUR FLEET (Real cars from API) ============ -->
+<section id="fleet" class="fleet-section">
+  <div class="container">
+    <div class="text-center" style="margin-bottom: 10px;">
+      <span style="display:inline-block; background:rgba(30,144,255,0.1); color:#1E90FF; padding:6px 16px; border-radius:20px; font-size:0.78rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">OUR PREMIUM FLEET</span>
+      <h2 style="font-size:1.9rem; color:#1e293b; margin-bottom:12px; font-weight:800;">Real Photos from Our Active Fleet</h2>
+      <p style="color:#64748b; font-size:1.05rem; max-width:700px; margin:0 auto;">All vehicles regularly maintained, equipped with WiFi, climate control, premium amenities. Photos updated automatically when fleet changes.</p>
+    </div>
+    
+    <div id="fleetGrid" class="fleet-grid">
+      <div class="fleet-loading">
+        <div class="fleet-loading-spinner"></div>
+        <p>Loading our fleet from database...</p>
+      </div>
+    </div>
+    
+    <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-top:30px;">
+      <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
+      Number of vehicles for groups discussed by phone. <button onclick="openContactPopup()" style="background:none; border:none; color:#d97706; font-weight:700; cursor:pointer; text-decoration:underline; padding:0;">Contact us</button> for custom multi-vehicle solutions.
+    </p>
+  </div>
+</section>
+
+<!-- Corporate Mobility -->
+<section class="pt60 pb60" style="background:linear-gradient(135deg,#1e293b,#334155); color:#fff;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 text-center">
+      <div style="display:inline-block; background:rgba(245,158,11,0.2); color:#fbbf24; padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:600; margin-bottom:15px;">FOR COMPANIES & EXECUTIVES</div>
+      <h2 style="color:#fff; font-size:1.8rem; margin-bottom:15px;">Corporate Airport Mobility</h2>
+      <p style="color:#cbd5e1; font-size:1.05rem; max-width:700px; margin:0 auto 20px;">Monthly retainer for business travelers and teams. Fixed rates, monthly invoicing, dedicated support, priority booking.</p>
+      <ul style="display:inline-block; text-align:left; color:#cbd5e1; list-style:none; padding:0; margin:0 0 25px 0;">
+        <li style="padding:5px 0;">✓ Priority booking on every request</li>
+        <li style="padding:5px 0;">✓ Guaranteed fixed rates</li>
+        <li style="padding:5px 0;">✓ Dedicated account manager</li>
+        <li style="padding:5px 0;">✓ Monthly invoicing (B2B friendly)</li>
+        <li style="padding:5px 0;">✓ 24/7 support</li>
+      </ul>
+      <div>
+        <button onclick="openContactPopup('corporate')" style="display:inline-flex; align-items:center; gap:8px; background:#fbbf24; color:#1e293b; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:700; border:none; cursor:pointer;">
+          <i class="fa fa-comments"></i> Discuss Corporate Package
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h2 style="text-align:center; font-size:1.8rem; color:#1e293b; margin-bottom:15px;"><i class="fa fa-question-circle" style="color:#3b82f6; margin-right:8px;"></i>Frequently Asked Questions</h2>
+      <p style="text-align:center; color:#64748b; margin-bottom:35px;">Quick answers to common questions.</p>
+
+      <div class="faq-list" style="display:flex; flex-direction:column; gap:12px;">
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-money" style="color:#f59e0b; margin-right:10px;"></i>How much does Chișinău Airport transfer cost?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">3 tiers Airport → Center: <strong>Standard 800 MDL</strong>, <strong>Business 1,000 MDL</strong> (most popular), <strong>VIP 1,400 MDL</strong>. Plus <strong>Concierge €195</strong> with full service. All all-inclusive.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-clock-o" style="color:#f59e0b; margin-right:10px;"></i>How long does the transfer take?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Airport → Center: <strong>20-30 min</strong> (depending on traffic). Other zones (Botanica/Buiucani): 25-35 min. Other Moldovan cities: from 1 hour. Driver picks optimal route.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-users" style="color:#f59e0b; margin-right:10px;"></i>How are vehicles selected for my group?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Vehicle is matched to your tier and group size. <strong>Volume of vehicles for groups is discussed by phone</strong> — call <strong>+373 60 000 500</strong> or message via WhatsApp/Telegram. We arrange single vehicle or multi-vehicle solutions based on passengers, luggage, and special requirements.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-plane-arrival" style="color:#f59e0b; margin-right:10px;"></i>What if my flight is delayed?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">No problem. We monitor your flight automatically. <strong>Standard:</strong> 30 min wait included. <strong>Business+/VIP:</strong> 60 min wait included. Driver waits without extra charges.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-credit-card" style="color:#f59e0b; margin-right:10px;"></i>How do I pay?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;"><strong>No advance payment</strong> for individual bookings. Pay driver at end — cash (MDL/EUR) or card. Corporate accounts: monthly invoicing.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-language" style="color:#f59e0b; margin-right:10px;"></i>Do drivers speak English?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">All drivers speak <strong>Romanian and Russian</strong>. <strong>English available on request</strong> — mention this when booking. For VIP — multilingual included by default.</p>
+        </details>
+
+        <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
+          <summary style="font-weight:700; color:#1e293b; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa fa-comments" style="color:#f59e0b; margin-right:10px;"></i>How can I contact you?</span>
+            <span style="color:#3b82f6; font-size:1.3rem;">+</span>
+          </summary>
+          <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">Multiple ways: <strong>Phone +373 60 000 500</strong>, <strong>WhatsApp</strong>, <strong>Telegram @plusrent</strong>, <strong>Viber</strong>, Email. Response: 3-5 minutes. Click the floating contact button (bottom right) anytime.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related Services -->
+<section id="related" class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1">
+      <h3 style="text-align:center; font-size:1.3rem; color:#1e293b; margin-bottom:25px;"><i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>Other PlusRent Services</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
+        <a href="/en/transfer-iasi" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-plane" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Iași Airport Transfer</div>
+            <div style="color:#64748b; font-size:0.85rem;">Cross-border • from €140</div>
+          </div>
+        </a>
+        <a href="/en/sofer-personal" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-user-tie" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Personal Driver</div>
+            <div style="color:#64748b; font-size:0.85rem;">Executive • from 2,000 MDL/day</div>
+          </div>
+        </a>
+        <a href="/en/sofer-treaz" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-user" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Sober Driver</div>
+            <div style="color:#64748b; font-size:0.85rem;">24/7 • from 150 MDL</div>
+          </div>
+        </a>
+        <a href="/en/cars" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1e293b; border:1px solid #e5e7eb;">
+          <i class="fa fa-car" style="color:#3b82f6; font-size:1.4rem;"></i>
+          <div>
+            <div style="font-weight:700; font-size:0.95rem;">Car Rentals</div>
+            <div style="color:#64748b; font-size:0.85rem;">From €15/day</div>
+          </div>
+        </a>
+      </div>
+      <div style="display:flex; justify-content:center; gap:20px; margin-top:30px; flex-wrap:wrap;">
+        <a href="/ro/transfer-chisinau" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇷🇴 În română</a>
+        <span style="color:#cbd5e1;">•</span>
+        <a href="/ru/transfer-chisinau" style="color:#64748b; text-decoration:none; font-size:0.9rem;">🇷🇺 На русском</a>
+      </div>
+      <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:25px;">
+        <i class="fa fa-calendar"></i> Last updated: <time datetime="2026-04-30">April 30, 2026</time>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Success Modal -->
+<div id="successModal" class="success-modal">
+  <div class="success-modal-content">
+    <div class="success-icon-wrapper"><div class="success-icon">✓</div></div>
+    <h3 class="success-title">Thank You!</h3>
+    <p class="success-message">Your request has been sent successfully!</p>
+    <div class="success-details">
+      <p><i class="fa fa-phone"></i> <span>We'll call you in <strong>3-5 minutes</strong></span></p>
+      <p><i class="fa fa-shield"></i> <span><strong>Premium</strong> service guaranteed</span></p>
+    </div>
+    <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">Keep your phone handy</p>
+    <button class="btn-close-modal" onclick="closeModal()">
+      <i class="fa fa-check" style="margin-right: 8px;"></i><span>Got it</span>
+    </button>
+  </div>
+</div>
+
+</main>
+
+<a href="#" id="back-to-top" aria-label="Back to top"></a>
+
+<!-- Footer -->
+<footer class="text-light">
+  <div class="container">
+    <div class="row g-custom-x">
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">About Us</h2>
+          <p>PlusRent — premium car rental, sober driver, airport transfer and personal driver services in Moldova.</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Contact Information</h2>
+          <address class="s1">
+            <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Moldova</span>
+            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="text-decoration:underline !important;"><i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500</a>
+            <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important; display:block; margin-top:8px;"><i class="id-color fab fa-whatsapp fa-lg" style="margin-right:15px;"></i>WhatsApp</a>
+            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important; display:block; margin-top:8px;"><i class="id-color fab fa-telegram fa-lg" style="margin-right:15px;"></i>Telegram @plusrent</a>
+            <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:support@plusrent.md">support@plusrent.md</a></span>
+          </address>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h2 class="h5">Quick Links</h2>
+        <div class="widget">
+          <ul>
+            <li><a href="/en/">Home</a></li>
+            <li><a href="/en/cars">Cars</a></li>
+            <li><a href="/en/sofer-treaz">Sober Driver</a></li>
+            <li><a href="/en/transfer-chisinau">Chișinău Airport Transfer</a></li>
+            <li><a href="/en/transfer-iasi">Iași Airport Transfer</a></li>
+            <li><a href="/en/sofer-personal">Personal Driver</a></li>
+            <li><a href="/en/about">About Us</a></li>
+            <li><a href="/en/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="widget">
+          <h2 class="h5">Social Networks</h2>
+          <div class="social-icons">
+            <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook fa-lg"></i></a>
+            <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram fa-lg"></i></a>
+            <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp fa-lg"></i></a>
+            <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
+          </div>
+        </div>    
+      </div>
+    </div>
+  </div>
+  <div class="subfooter">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="de-flex">
+            <div class="de-flex-col"><a href="/en/">Copyright 2026 - PlusRent</a></div>
+            <ul class="menu-simple">
+              <li><a href="/terms">Terms & Conditions</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<!-- Floating Contact Button -->
+<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contact us">
+  <i class="fa fa-comments"></i>
+</button>
+
+<!-- Contact Popup -->
+<div id="contactPopup" class="contact-popup-overlay">
+  <div class="contact-popup">
+    <div class="contact-popup-header">
+      <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Close">
+        <i class="fa fa-times"></i>
+      </button>
+      <h3>Contact Us 24/7</h3>
+      <p>Choose your preferred contact method</p>
+    </div>
+    <div class="contact-popup-body">
+      <a href="javascript:void(0)" onclick="openWhatsApp()" class="contact-option whatsapp">
+        <div class="contact-option-icon"><i class="fab fa-whatsapp"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">WhatsApp</div>
+          <div class="contact-option-subtitle">Quick chat • Instant reply</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+      <a href="javascript:void(0)" onclick="openTelegram()" class="contact-option telegram">
+        <div class="contact-option-icon"><i class="fab fa-telegram"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Telegram</div>
+          <div class="contact-option-subtitle">@plusrent • Fast messaging</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+      <a href="javascript:void(0)" onclick="openViber()" class="contact-option viber">
+        <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Viber</div>
+          <div class="contact-option-subtitle">Voice and messages</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+      <a href="javascript:void(0)" onclick="makeDirectCall()" class="contact-option phone">
+        <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+        <div class="contact-option-content">
+          <div class="contact-option-title">Direct Call</div>
+          <div class="contact-option-subtitle">+373 60 000 500</div>
+        </div>
+        <i class="fa fa-chevron-right contact-option-arrow"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/plugins.js" defer></script>
+<script src="/js/burger-menu-fix.js" defer></script>
+<script src="/js/designesia.js" defer></script>
+<script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" defer></script>
+<script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
+<script src="/js/i18n-init.js" defer></script>
+
+<script>
+(function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var validLangs = ['ro', 'ru', 'en'];
+  if (!validLangs.includes(pathLang)) return;
+  function forceLang() {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      if (i18next.language !== pathLang) i18next.changeLanguage(pathLang);
+    } else { setTimeout(forceLang, 50); }
+  }
+  forceLang();
+})();
+</script>
+
+<script src="/js/universal-include.js" defer></script>
+
+<!-- ============ CONTACT POPUP — Context-Aware WhatsApp ============ -->
+<script>
+const WHATSAPP_TEXTS = {
+  default:   "Hello PlusRent! I'm interested in the Chișinău Airport transfer. Could you provide more details?",
+  standard:  "Hello PlusRent! I'm interested in the Standard Chișinău Airport transfer (800 MDL). Could you confirm availability and details?",
+  business:  "Hello PlusRent! I'm interested in the Business Comfort Chișinău Airport transfer (1,000 MDL). Could you confirm availability and details?",
+  vip:       "Hello PlusRent! I'm interested in the VIP Executive Chișinău Airport transfer (1,400 MDL). Could you confirm availability and details?",
+  concierge: "Hello PlusRent! I'm interested in the Airport Concierge Package (€195) for Chișinău Airport with meet & greet. Could you provide more details?",
+  corporate: "Hello PlusRent! I'm interested in the Corporate Airport Mobility for Chișinău. Could you discuss B2B options and custom pricing?"
+};
+
+let currentWhatsAppContext = 'default';
+
+function openContactPopup(context) {
+  currentWhatsAppContext = (context && WHATSAPP_TEXTS[context]) ? context : 'default';
+  document.getElementById('contactPopup').style.display = 'flex';
+  const scrollY = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.dataset.scrollY = scrollY;
+}
+
+function closeContactPopup() {
+  document.getElementById('contactPopup').style.display = 'none';
+  const scrollY = parseInt(document.body.dataset.scrollY || '0');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo(0, scrollY);
+  currentWhatsAppContext = 'default';
+}
+
+function openWhatsApp() {
+  gtag_report_conversion();
+  const text = encodeURIComponent(WHATSAPP_TEXTS[currentWhatsAppContext] || WHATSAPP_TEXTS.default);
+  window.open(`https://wa.me/37360000500?text=${text}`, '_blank');
+}
+
+function openViber() { gtag_report_conversion(); window.open('viber://chat?number=+37360000500', '_blank'); }
+function openTelegram() { gtag_report_conversion(); window.open('https://t.me/plusrent', '_blank'); }
+function makeDirectCall() { gtag_report_conversion(); window.location.href = 'tel:+37360000500'; }
+
+document.getElementById('contactPopup').addEventListener('click', function (e) {
+  if (e.target === this) closeContactPopup();
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeContactPopup();
+    const successModal = document.getElementById('successModal');
+    if (successModal) successModal.style.display = 'none';
+  }
+});
+</script>
+
+<!-- Callback Form -->
+<script>
+document.getElementById('callbackForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const phoneNumber = document.getElementById('callbackPhone').value;
+  if (phoneNumber.trim() === '') { alert('Please enter a valid phone number'); return; }
+  const submitButton = this.querySelector('.btn-request-call');
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Sending...';
+  submitButton.disabled = true;
+  try {
+    let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+    const response = await fetch(`${apiBaseUrl}/api/bookings/transfer-chisinau-callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone_number: phoneNumber,
+        service_type: 'transfer_chisinau',
+        customer_name: null, customer_email: null, special_instructions: null
+      })
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+    if (result.success) {
+      gtag_report_conversion();
+      document.getElementById('successModal').style.display = 'block';
+      document.getElementById('callbackPhone').value = '';
+    } else {
+      alert('Error: ' + (result.error || 'Could not send request.'));
+    }
+  } catch (error) {
+    alert('Error: Could not send request. Please try again.');
+  } finally {
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+  }
+});
+function closeModal() { document.getElementById('successModal').style.display = 'none'; }
+window.onclick = function(event) {
+  const modal = document.getElementById('successModal');
+  if (event.target === modal) modal.style.display = 'none';
+}
+</script>
+
+<!-- Scroll Progress + Sticky Header + Smooth Scroll -->
+<script>
+(function() {
+  const scrollProgress = document.getElementById('scrollProgress');
+  const header = document.querySelector('header.transparent');
+  const STICKY_THRESHOLD = 200;
+  let ticking = false;
+
+  function updateScrollEffects() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (scrollTop / scrollHeight) * 100;
+    if (scrollProgress) scrollProgress.style.width = scrolled + '%';
+    if (header) {
+      if (scrollTop > STICKY_THRESHOLD) header.classList.add('sticky-active');
+      else header.classList.remove('sticky-active');
+    }
+    ticking = false;
+  }
+
+  function requestTick() {
+    if (!ticking) { window.requestAnimationFrame(updateScrollEffects); ticking = true; }
+  }
+
+  window.addEventListener('scroll', requestTick, { passive: true });
+  updateScrollEffects();
+
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href === '#' || href === '#top') return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const offsetTop = target.offsetTop - 80;
+        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+      }
+    });
+  });
+})();
+</script>
+
+<!-- Fleet API Integration -->
+<script>
+(function() {
+  const fleetGrid = document.getElementById('fleetGrid');
+  if (!fleetGrid) return;
+  
+  function getTierForCar(car) {
+    const make = (car.make_name || '').toLowerCase();
+    const model = (car.model_name || '').toLowerCase();
+    const year = parseInt(car.production_year) || 0;
+    if (make === 'mercedes' && (model.includes('e') || model.includes('s'))) return 'vip';
+    if (make === 'bmw' && (model.includes('5') || model.includes('7'))) return 'vip';
+    if (make === 'audi' && model.includes('a6') && year >= 2021) return 'vip';
+    if (make === 'audi' && model.includes('a6')) return 'business';
+    if (make === 'lexus') return 'business';
+    if (make === 'bmw' && model.includes('3')) return 'business';
+    if (make === 'mercedes' && model.includes('c')) return 'business';
+    if (make === 'audi' && model.includes('a4') && year >= 2018) return 'business';
+    return 'standard';
+  }
+  
+  function getTierLabel(tier) { return { standard: 'STANDARD', business: 'BUSINESS', vip: 'VIP' }[tier] || 'STANDARD'; }
+  
+  function getCarFeatures(car, tier) {
+    const features = [];
+    if (tier === 'vip') features.push('Luxury', 'WiFi', 'Climate', 'VIP Driver');
+    else if (tier === 'business') features.push('Premium', 'WiFi', 'Climate', 'Multilingual');
+    else features.push('Comfort', 'WiFi', 'AC');
+    if (car.gearbox_name) features.push(car.gearbox_name);
+    if (car.fuel_type_name) features.push(car.fuel_type_name);
+    return features.slice(0, 4);
+  }
+  
+  function renderFleetCard(car, tier) {
+    const tierLabel = getTierLabel(tier);
+    const features = getCarFeatures(car, tier);
+    const carName = `${car.make_name || ''} ${car.model_name || ''}`.trim();
+    const year = car.production_year || '';
+    const imageUrl = car.head_image || '';
+    return `
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge ${tier}">${tierLabel}</span>
+          ${imageUrl 
+            ? `<img src="${imageUrl}" alt="${carName}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;fleet-tier-badge ${tier}&quot;>${tierLabel}</span><div class=&quot;fleet-fallback-icon&quot;><i class=&quot;fa fa-car&quot;></i></div>'">`
+            : `<div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>`
+          }
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">${carName}</div>
+          <div class="fleet-year">${year ? year + ' • ' : ''}${tier === 'vip' ? 'Luxury class' : tier === 'business' ? 'Premium class' : 'Comfort class'}</div>
+          <ul class="fleet-features">
+            ${features.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+          <button onclick="openContactPopup('${tier}')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderFallback() {
+    fleetGrid.innerHTML = `
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge">STANDARD</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">Standard Comfort Vehicle</div>
+          <div class="fleet-year">Comfort class</div>
+          <ul class="fleet-features"><li>Comfortable</li><li>WiFi</li><li>AC</li></ul>
+          <button onclick="openContactPopup('standard')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge business">BUSINESS</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">Premium Business Vehicle</div>
+          <div class="fleet-year">Premium class</div>
+          <ul class="fleet-features"><li>Premium</li><li>WiFi</li><li>Climate</li><li>Multilingual</li></ul>
+          <button onclick="openContactPopup('business')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-image">
+          <span class="fleet-tier-badge vip">VIP</span>
+          <div class="fleet-fallback-icon"><i class="fa fa-car"></i></div>
+        </div>
+        <div class="fleet-content">
+          <div class="fleet-name">VIP Executive Vehicle</div>
+          <div class="fleet-year">Luxury class</div>
+          <ul class="fleet-features"><li>Luxury</li><li>WiFi</li><li>Climate</li><li>VIP Driver</li></ul>
+          <button onclick="openContactPopup('vip')" class="fleet-cta">Book This Vehicle</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  async function loadFleet() {
+    try {
+      const apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+      const response = await fetch(`${apiBaseUrl}/api/cars`);
+      if (!response.ok) throw new Error('API request failed');
+      const cars = await response.json();
+      if (!Array.isArray(cars) || cars.length === 0) { renderFallback(); return; }
+      const grouped = { vip: [], business: [], standard: [] };
+      cars.forEach(car => { grouped[getTierForCar(car)].push(car); });
+      const display = [];
+      ['vip', 'business', 'standard'].forEach(tier => {
+        if (grouped[tier].length > 0) display.push({ car: grouped[tier][0], tier: tier });
+      });
+      ['business', 'standard', 'vip'].forEach(tier => {
+        if (display.length >= 6) return;
+        const additional = grouped[tier].slice(1, 3);
+        additional.forEach(car => { if (display.length < 6) display.push({ car: car, tier: tier }); });
+      });
+      if (display.length === 0) { renderFallback(); return; }
+      fleetGrid.innerHTML = display.map(item => renderFleetCard(item.car, item.tier)).join('');
+    } catch (error) {
+      console.warn('Fleet API error, showing fallback:', error);
+      renderFallback();
+    }
+  }
+  
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadFleet);
+  else loadFleet();
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var pathLang = window.location.pathname.split('/')[1];
+  var langs = {
+    ro: { flag: '/images/flags/romania.png', code: 'RO', alt: 'Română' },
+    ru: { flag: '/images/flags/russia.png', code: 'RU', alt: 'Русский' },
+    en: { flag: '/images/flags/united-kingdom.png', code: 'EN', alt: 'English' }
+  };
+  if (langs[pathLang]) {
+    var l = langs[pathLang];
+    var langFlag = document.getElementById('langFlag');
+    var langCode = document.getElementById('langCode');
+    if (langFlag) langFlag.innerHTML = '<img src="' + l.flag + '" alt="' + l.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+    if (langCode) langCode.textContent = l.code;
+  }
+  document.querySelectorAll('.lang-option').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
+      var lang = this.getAttribute('data-lang');
+      document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
+      localStorage.setItem('i18nextLng', lang);
+      localStorage.setItem('lang', lang);
+      window.location.href = '/' + lang + '/transfer-chisinau';
+    }, true);
+  });
+});
+</script>
+</body>
+</html>
