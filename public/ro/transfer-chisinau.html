@@ -1325,6 +1325,7 @@ header.sticky-active .logo-2 { display: none !important; }
   z-index: calc(var(--z-toast) - 1);
   align-items: center; justify-content: center; padding: 20px;
   animation: fadeIn 0.22s ease;
+  cursor: pointer; /* backdrop кликабелен — даёт сигнал "нажми чтобы закрыть" */
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .popup-box {
@@ -1332,6 +1333,7 @@ header.sticky-active .logo-2 { display: none !important; }
   width: 100%; max-width: 420px; overflow: hidden;
   box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.15);
   animation: slideUp 0.28s cubic-bezier(0.0, 0.0, 0.2, 1);
+  cursor: default; /* сброс курсора внутри попапа */
 }
 @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -1386,27 +1388,94 @@ header.sticky-active .logo-2 { display: none !important; }
 /* ============================================================
    FLOATING BUTTON — Gold (brand consistent, not blue)
    ============================================================ */
+/* ===== FLOATING CONTACT BUTTON ===== */
 .floating-btn {
-  position: fixed; bottom: 28px; right: 28px;
-  width: 60px; height: 60px; border-radius: 50%;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 56px; height: 56px; border-radius: 50%;
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   color: var(--luxury-black); border: none;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.45rem; cursor: pointer;
+  font-size: 1.35rem; cursor: pointer;
   box-shadow: var(--shadow-gold-lg);
   z-index: var(--z-float);
   transition: var(--t-med);
   animation: floatPulse 2.8s ease-in-out infinite;
   touch-action: manipulation;
 }
-.floating-btn:hover { transform: scale(1.1); animation: none; box-shadow: var(--shadow-gold-lg); }
+.floating-btn:hover {
+  transform: scale(1.1);
+  animation: none;
+  box-shadow: var(--shadow-gold-lg);
+}
 @keyframes floatPulse {
   0%   { box-shadow: var(--shadow-gold-lg), 0 0 0 0 rgba(245,158,11,0.45); }
   65%  { box-shadow: var(--shadow-gold-lg), 0 0 0 18px rgba(245,158,11,0); }
   100% { box-shadow: var(--shadow-gold-lg), 0 0 0 0 rgba(245,158,11,0); }
 }
+
+/* ===== BACK TO TOP — above floating button, same column ===== */
+#back-to-top {
+  position: fixed !important;
+  bottom: 96px !important;   /* 28px contact + 56px height + 12px gap */
+  right: 28px !important;
+  left: auto !important;
+  width: 40px !important; height: 40px !important;
+  border-radius: 50% !important;
+  background: var(--luxury-black) !important;
+  border: 1.5px solid rgba(245,158,11,0.35) !important;
+  color: var(--gold) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0 !important;        /* hide any text */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+  z-index: calc(var(--z-float) - 1) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+  transition: opacity 0.25s ease, transform 0.25s ease !important;
+}
+/* Arrow via pseudo-element (no icon font dependency) */
+#back-to-top::after {
+  content: '';
+  display: block;
+  width: 10px; height: 10px;
+  border-top: 2.5px solid var(--gold);
+  border-right: 2.5px solid var(--gold);
+  transform: rotate(-45deg) translateY(2px);
+  border-radius: 1px;
+}
+#back-to-top:hover {
+  background: var(--gold-dark) !important;
+  border-color: transparent !important;
+  box-shadow: var(--shadow-gold) !important;
+}
+#back-to-top:hover::after {
+  border-color: #fff;
+}
+/* Show state — framework adds .d-block or removes display:none */
+#back-to-top.show,
+#back-to-top:not([style*="display: none"]):not([style*="display:none"]) {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
 @media (max-width: 768px) {
-  .floating-btn { bottom: 22px; right: 22px; width: 54px; height: 54px; font-size: 1.3rem; }
+  .floating-btn {
+    bottom: 22px; right: 22px;
+    width: 50px; height: 50px; font-size: 1.25rem;
+  }
+  #back-to-top {
+    bottom: 84px !important;  /* 22px + 50px + 12px */
+    right: 22px !important;
+    width: 36px !important; height: 36px !important;
+  }
+  #back-to-top::after {
+    width: 8px; height: 8px;
+  }
   .header-rezerva-btn { padding: 8px 12px !important; font-size: 12px !important; }
 }
 
@@ -2252,7 +2321,10 @@ function doTelegram()  { openTelegram(); }
 function doCall()      { makeDirectCall(); }
 function closeContactPopup() { closePopup(); }
 
-document.getElementById('contactPopup').addEventListener('click', function(e) { if(e.target===this) closePopup(); });
+document.getElementById('contactPopup').addEventListener('click', function(e) {
+  // Закрываем если клик попал на оверлей, а НЕ внутрь popup-box
+  if (!document.querySelector('.popup-box').contains(e.target)) closePopup();
+});
 
 /* ============================================================
    CALLBACK FORM
