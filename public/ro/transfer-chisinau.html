@@ -613,52 +613,78 @@ header.sticky-active .logo-2 { display: none !important; }
 }
 
 /* ===== CONTACT SECTION ===== */
-.contact-options { padding: 56px 0; background: #fff; }
+.contact-options { padding: 60px 0; background: var(--surface); }
 .contact-card {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--border);
-  padding: 36px 32px;
-  height: 100%;
+  background: #fff; border-radius: 22px;
+  padding: 42px 38px; height: 100%;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.07);
   transition: all 0.3s;
+  position: relative; overflow: hidden;
 }
-.contact-card:hover { border-color: var(--gold); box-shadow: 0 10px 30px var(--gold-light); }
+.contact-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark), var(--blue));
+}
+.contact-card:hover { box-shadow: 0 16px 44px rgba(0,0,0,0.12); transform: translateY(-4px); }
 .contact-icon {
-  width: 58px; height: 58px;
+  width: 64px; height: 64px;
   background: linear-gradient(135deg, var(--gold), var(--gold-dark));
   border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; color: #fff; margin-bottom: 20px;
+  color: #fff; font-size: 1.6rem; margin-bottom: 22px;
   box-shadow: var(--shadow-gold);
 }
-.contact-card h2 { font-size: 1.3rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
-.contact-card p { color: var(--gray); font-size: 0.95rem; line-height: 1.65; margin-bottom: 20px; }
+.contact-card h2 {
+  font-size: 1.55rem; font-weight: 900;
+  color: var(--dark); margin-bottom: 12px; line-height: 1.15;
+}
+.contact-card p {
+  color: var(--gray); font-size: 1.05rem;
+  margin-bottom: 22px; line-height: 1.65;
+}
 .contact-phone-link {
   display: block;
-  font-size: 1.85rem; font-weight: 900; color: var(--gold-dark);
+  font-size: 2.2rem; font-weight: 900; color: var(--gold-dark);
   text-decoration: none; letter-spacing: -0.5px;
-  transition: color 0.2s;
+  transition: color 0.2s; margin-bottom: 22px;
 }
 .contact-phone-link:hover { color: var(--gold); }
+/* Channel pill buttons */
+.contact-channels { display: flex; flex-wrap: wrap; gap: 10px; }
+.contact-channel-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface); color: var(--dark);
+  padding: 11px 20px; border-radius: var(--radius-full);
+  text-decoration: none; font-size: 0.95rem; font-weight: 700;
+  border: 1.5px solid var(--border); transition: all 0.2s;
+}
+.contact-channel-btn:hover {
+  background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  transform: translateY(-2px); text-decoration: none; color: var(--dark);
+}
+.contact-channel-btn i { font-size: 1.1rem; }
+/* Callback form */
 .callback-form { display: flex; gap: 10px; flex-wrap: wrap; }
 .callback-form input[type="tel"] {
-  flex: 1; min-width: 180px;
-  padding: 13px 18px;
+  flex: 1; min-width: 200px;
+  padding: 15px 22px;
   border: 2px solid var(--border);
-  border-radius: var(--radius-full);
-  font-size: 0.95rem; font-family: inherit;
+  border-radius: var(--radius-full); font-size: 1.02rem;
   outline: none; transition: border-color 0.2s;
-  background: #fff;
+  background: var(--surface); font-family: inherit;
 }
-.callback-form input[type="tel"]:focus { border-color: var(--gold); }
+.callback-form input[type="tel"]:focus { border-color: var(--gold); background: #fff; }
 .btn-callback {
   background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #fff; border: none; padding: 13px 28px;
-  border-radius: var(--radius-full); font-weight: 700;
-  font-size: 0.95rem; cursor: pointer; white-space: nowrap;
-  transition: all 0.25s; font-family: inherit;
+  color: #fff; border: none;
+  padding: 15px 30px; border-radius: var(--radius-full);
+  font-weight: 800; font-size: 1.02rem;
+  cursor: pointer; transition: all 0.3s; white-space: nowrap;
+  box-shadow: var(--shadow-gold); font-family: inherit;
 }
-.btn-callback:hover { background: linear-gradient(135deg, var(--gold-dark), var(--gold-darker)); transform: translateY(-2px); }
+.btn-callback:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(245,158,11,0.45); }
 
 /* ===== GEO CITABILITY BLOCK ===== */
 .geo-block {
@@ -1418,12 +1444,17 @@ header.sticky-active .logo-2 { display: none !important; }
           <h2>Apel Direct — 60 Secunde</h2>
           <p>Sună acum și rezervă transferul tău instantaneu. Confirmăm pe loc: mașina, ora și șoferul.</p>
           <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="contact-phone-link">+373 60 000 500</a>
-          <p style="margin-top:16px; font-size:0.9rem; color:var(--gray-light); display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-            <span style="color:var(--gray);">Sau scrie prin:</span>
-            <a href="javascript:void(0)" onclick="openPopup('whatsapp')" style="display:inline-flex;align-items:center;gap:6px;color:#25D366;font-weight:700;text-decoration:none;"><i class="fab fa-whatsapp" style="font-size:1.15rem;"></i>WhatsApp</a>
-            <a href="javascript:void(0)" onclick="openPopup('telegram')" style="display:inline-flex;align-items:center;gap:6px;color:#0088cc;font-weight:700;text-decoration:none;"><i class="fab fa-telegram" style="font-size:1.15rem;"></i>Telegram</a>
-            <a href="javascript:void(0)" onclick="openPopup('viber')" style="display:inline-flex;align-items:center;gap:6px;color:#7360F2;font-weight:700;text-decoration:none;"><i class="fa fa-phone" style="font-size:1rem;"></i>Viber</a>
-          </p>
+          <div class="contact-channels">
+            <a href="https://wa.me/37360000500?text=Bun%C4%83!%20Vreau%20s%C4%83%20rezerv%20un%20transfer%20aeroport%20Chi%C8%99in%C4%83u.%20Pute%C8%9Bi%20oferi%20detalii%3F" target="_blank" rel="noopener noreferrer" onclick="gtag_report_conversion()" class="contact-channel-btn">
+              <i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp
+            </a>
+            <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" onclick="gtag_report_conversion()" class="contact-channel-btn">
+              <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram
+            </a>
+            <a href="viber://chat?number=+37360000500" onclick="gtag_report_conversion()" class="contact-channel-btn">
+              <i class="fab fa-viber" style="color:#7360F2;"></i> Viber
+            </a>
+          </div>
         </div>
       </div>
       <div class="col-lg-6 col-md-6 col-12" style="margin-bottom:24px;">
@@ -2040,7 +2071,8 @@ let ctxCtx = 'default';
 
 function openPopup(ctx) {
   ctxCtx = (ctx && WA_MSGS[ctx]) ? ctx : 'default';
-  document.getElementById('contactPopup').style.display = 'flex';
+  const el = document.getElementById('contactPopup');
+  el.style.display = 'flex';
   const sy = window.scrollY;
   Object.assign(document.body.style, { position:'fixed', top:`-${sy}px`, width:'100%', left:'0', right:'0' });
   document.body.dataset.sy = sy;
@@ -2052,10 +2084,30 @@ function closePopup() {
   window.scrollTo(0, sy);
   ctxCtx = 'default';
 }
-function doWhatsApp() { gtag_report_conversion(); window.open('https://wa.me/37360000500?text='+encodeURIComponent(WA_MSGS[ctxCtx]||WA_MSGS.default),'_blank'); }
-function doViber() { gtag_report_conversion(); window.open('viber://chat?number=+37360000500','_blank'); }
-function doTelegram() { gtag_report_conversion(); window.open('https://t.me/plusrent','_blank'); }
-function doCall() { gtag_report_conversion('tel:+37360000500'); }
+// Close popup first, then navigate — avoids popup blocker
+function openWhatsApp() {
+  const txt = encodeURIComponent(WA_MSGS[ctxCtx] || WA_MSGS.default);
+  closePopup();
+  gtag_report_conversion();
+  setTimeout(function(){ window.location.href = 'https://wa.me/37360000500?text=' + txt; }, 80);
+}
+function openViber() {
+  closePopup(); gtag_report_conversion();
+  setTimeout(function(){ window.location.href = 'viber://chat?number=+37360000500'; }, 80);
+}
+function openTelegram() {
+  closePopup(); gtag_report_conversion();
+  window.open('https://t.me/plusrent', '_blank');
+}
+function makeDirectCall() {
+  closePopup(); gtag_report_conversion();
+  setTimeout(function(){ window.location.href = 'tel:+37360000500'; }, 80);
+}
+function doWhatsApp()  { openWhatsApp(); }
+function doViber()     { openViber(); }
+function doTelegram()  { openTelegram(); }
+function doCall()      { makeDirectCall(); }
+function closeContactPopup() { closePopup(); }
 
 document.getElementById('contactPopup').addEventListener('click', function(e) { if(e.target===this) closePopup(); });
 
