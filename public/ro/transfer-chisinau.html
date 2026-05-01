@@ -1419,44 +1419,44 @@ header.sticky-active .logo-2 { display: none !important; }
 /* ===== BACK TO TOP — above floating button, same column ===== */
 #back-to-top {
   position: fixed !important;
-  bottom: 96px !important;   /* 28px contact + 56px height + 12px gap */
+  bottom: 96px !important;
   right: 28px !important;
   left: auto !important;
   width: 40px !important; height: 40px !important;
   border-radius: 50% !important;
-  background: var(--luxury-black) !important;
+  background-color: var(--luxury-black) !important;
+  /* Одна оранжевая стрелка через SVG — не зависит от фреймворка */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 18px 18px !important;
   border: 1.5px solid rgba(245,158,11,0.35) !important;
-  color: var(--gold) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 0 !important;        /* hide any text */
+  color: transparent !important; /* скрываем любой текст/иконку фреймворка */
+  font-size: 0 !important;
   box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
   z-index: calc(var(--z-float) - 1) !important;
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translateY(8px) !important;
-  transition: opacity 0.25s ease, transform 0.25s ease !important;
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease !important;
 }
-/* Arrow via pseudo-element (no icon font dependency) */
+/* Убиваем ВСЕ pseudo-elements фреймворка */
+#back-to-top::before,
 #back-to-top::after {
-  content: '';
-  display: block;
-  width: 10px; height: 10px;
-  border-top: 2.5px solid var(--gold);
-  border-right: 2.5px solid var(--gold);
-  transform: rotate(-45deg) translateY(2px);
-  border-radius: 1px;
+  display: none !important;
+  content: none !important;
 }
+
 #back-to-top:hover {
-  background: var(--gold-dark) !important;
+  background-color: var(--gold-dark) !important;
+  /* При ховере стрелка белая */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 18px 18px !important;
   border-color: transparent !important;
   box-shadow: var(--shadow-gold) !important;
 }
-#back-to-top:hover::after {
-  border-color: #fff;
-}
-/* Show state — framework adds .d-block or removes display:none */
 #back-to-top.show,
 #back-to-top:not([style*="display: none"]):not([style*="display:none"]) {
   opacity: 1 !important;
@@ -1470,12 +1470,10 @@ header.sticky-active .logo-2 { display: none !important; }
     width: 50px; height: 50px; font-size: 1.25rem;
   }
   #back-to-top {
-    bottom: 84px !important;  /* 22px + 50px + 12px */
+    bottom: 84px !important;
     right: 22px !important;
     width: 36px !important; height: 36px !important;
-  }
-  #back-to-top::after {
-    width: 8px; height: 8px;
+    background-size: 16px 16px !important;
   }
   .header-rezerva-btn { padding: 8px 12px !important; font-size: 12px !important; }
 }
