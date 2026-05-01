@@ -1515,6 +1515,170 @@ header.sticky-active .logo-2 { display:none!important; }
 
 .id-color { color:var(--gold)!important; }
 button:focus-visible,a:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+
+/* ========================================================
+   MOBILE-FIRST OPTIMIZATIONS — sofer-treaz
+   95% iPhone & Android users
+   ======================================================== */
+
+/* Global mobile feel */
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; }
+* { -webkit-tap-highlight-color: rgba(245,158,11,0.15); }
+
+/* STICKY BOTTOM BAR — always visible on mobile */
+.sticky-call-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: calc(var(--z-toast) - 1);
+  padding: 12px 16px;
+  background: var(--luxury-black);
+  border-top: 2px solid var(--gold);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+  gap: 10px;
+  align-items: center;
+}
+.sticky-call-bar a {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; border-radius: var(--r-full);
+  font-weight: 800; font-size: 1rem;
+  text-decoration: none; min-height: 52px;
+  touch-action: manipulation; flex: 1;
+  transition: var(--t-base);
+}
+.sticky-call-bar .btn-call-sticky {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--luxury-black);
+  box-shadow: var(--shadow-gold);
+  flex: 2;
+}
+.sticky-call-bar .btn-wa-sticky {
+  background: #25D366;
+  color: #fff;
+  flex: 1;
+}
+@media (max-width: 768px) {
+  .sticky-call-bar { display: flex; }
+  /* Push content above sticky bar */
+  body { padding-bottom: 82px; }
+  /* Hide floating button on mobile — sticky bar replaces it */
+  .floating-btn-st { display: none !important; }
+  #back-to-top { bottom: 100px !important; right: 16px !important; }
+}
+
+/* HERO — full-width phone button on mobile */
+@media (max-width: 768px) {
+  .hero-padded-st { padding-top: 100px !important; padding-bottom: 52px !important; min-height: auto; }
+  .hero-phone-big {
+    width: 100%; justify-content: center;
+    font-size: 1.75rem;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-radius: var(--r-full);
+    box-shadow: var(--shadow-gold-lg);
+    margin: 0 auto;
+    text-shadow: none;
+  }
+  .hero-phone-big .ph-icon { width: 44px; height: 44px; font-size: 1.1rem; animation: none; }
+}
+
+/* CONTACT CARDS — mobile */
+@media (max-width: 768px) {
+  .contact-card { padding: 28px 22px; border-radius: 20px; }
+  .phone-number {
+    font-size: 1.45rem !important;
+    padding: 14px 20px;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* BENEFIT CARDS — 1 col */
+@media (max-width: 768px) {
+  .benefits-grid { grid-template-columns: 1fr; gap: 12px; }
+  .benefit-card { display: flex; align-items: flex-start; gap: 16px; text-align: left; padding: 20px 18px; }
+  .benefit-icon { font-size: 2rem; margin-bottom: 0; flex-shrink: 0; }
+}
+
+/* FEATURES LIST — 1 col */
+@media (max-width: 768px) {
+  .features-list { grid-template-columns: 1fr; gap: 10px; }
+  .feature-item { padding: 14px 16px; }
+}
+
+/* STEPS — 2x2 grid on mobile */
+@media (max-width: 768px) {
+  .steps-container { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .steps-container::before { display: none; }
+  .step-number { width: 56px; height: 56px; font-size: 1.4rem; margin-bottom: 12px; }
+  .step-card h3 { font-size: 0.92rem; }
+  .step-card p { font-size: 0.82rem; }
+}
+
+/* INFO BOX — mobile */
+@media (max-width: 768px) {
+  .info-box { padding: 22px 18px; }
+  .info-item { flex-direction: column; gap: 2px; }
+}
+
+/* PRICE LIST — mobile */
+@media (max-width: 768px) {
+  .price-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px 18px; }
+  .price-val { font-size: 1.1rem; }
+  .price-label { font-size: 0.95rem; }
+}
+
+/* LEGAL BOXES — mobile */
+@media (max-width: 768px) {
+  .legal-box { padding: 18px 18px; }
+  .legal-box h3 { font-size: 1rem; }
+  .legal-box ul { padding-left: 16px; }
+}
+
+/* FAQ — mobile */
+@media (max-width: 768px) {
+  .faq-sum-st { padding: 15px 16px; font-size: 0.92rem; }
+  .faq-ans-st { padding: 12px 16px 16px; font-size: 0.9rem; }
+}
+
+/* GEO BLOCK — mobile */
+@media (max-width: 768px) {
+  .geo-block-st { padding: 22px 18px; }
+  .geo-text-st { font-size: 0.9rem; }
+}
+
+/* HERO trust pills — wrap on mobile */
+@media (max-width: 480px) {
+  .hero-trust-pills { flex-direction: column; align-items: center; gap: 8px; }
+  .hero-trust-pills > div { width: 100%; justify-content: center; }
+}
+
+/* FINAL CTA — mobile */
+@media (max-width: 768px) {
+  .final-cta-link { font-size: 1rem; padding: 16px 32px; width: 100%; justify-content: center; }
+}
+
+/* SECTION padding tighter on mobile */
+@media (max-width: 768px) {
+  section[style*="padding:76px"] { padding: 48px 0 !important; }
+  section[style*="padding:52px"] { padding: 36px 0 !important; }
+  section[style*="padding:84px"] { padding: 52px 0 !important; }
+  .section-title { font-size: 1.5rem !important; }
+  .section-sub { font-size: 0.95rem; }
+}
+
+/* Smooth tap feel on all buttons */
+a[href^="tel"], button, .btn-request-call, .phone-number {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+/* Input styling mobile */
+.callback-form input[type="tel"] {
+  font-size: 16px !important; /* prevents iOS zoom */
+  -webkit-appearance: none;
+}
 </style>
 </head>
 <body>
@@ -1611,7 +1775,7 @@ button:focus-visible,a:focus-visible { outline:3px solid var(--gold); outline-of
             +373 60 000 500
           </a>
         </div>
-        <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;">
+        <div class="hero-trust-pills" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
           <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);padding:10px 20px;border-radius:var(--r-full);color:rgba(255,255,255,0.92);font-size:0.86rem;font-weight:600;border:1px solid rgba(255,255,255,0.18);">
             <i class="fa fa-clock-o" style="color:var(--gold);"></i> 15-20 min sosire
           </div>
@@ -1834,7 +1998,7 @@ button:focus-visible,a:focus-visible { outline:3px solid var(--gold); outline-of
   <div class="container" style="position:relative;z-index:1;">
     <h2 style="color:#fff;font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:900;margin-bottom:12px;letter-spacing:-0.02em;text-shadow:0 2px 8px rgba(0,0,0,0.15);">Ai nevoie de un șofer treaz acum?</h2>
     <p style="color:rgba(255,255,255,0.92);font-size:1.1rem;margin-bottom:28px;">Un apel — șoferul vine în 15 minute. 24/7, inclusiv noaptea și weekendul.</p>
-    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex;align-items:center;gap:12px;background:var(--luxury-black);color:var(--gold);padding:18px 48px;border-radius:var(--r-full);font-weight:900;font-size:1.2rem;box-shadow:0 10px 32px rgba(0,0,0,0.3);transition:var(--t-med);text-decoration:none;letter-spacing:-0.01em;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 44px rgba(0,0,0,0.35)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 10px 32px rgba(0,0,0,0.3)'">
+    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="final-cta-link" style="display:inline-flex;align-items:center;gap:12px;background:var(--luxury-black);color:var(--gold);padding:18px 48px;border-radius:var(--r-full);font-weight:900;font-size:1.2rem;box-shadow:0 10px 32px rgba(0,0,0,0.3);transition:var(--t-med);text-decoration:none;letter-spacing:-0.01em;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 44px rgba(0,0,0,0.35)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 10px 32px rgba(0,0,0,0.3)'">
       <i class="fa fa-phone"></i> +373 60 000 500
     </a>
     <p style="margin-top:22px;color:rgba(255,255,255,0.88);font-size:0.92rem;">
@@ -1990,6 +2154,17 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
+
+
+<!-- STICKY MOBILE CALL BAR -->
+<div class="sticky-call-bar" id="stickyBar">
+  <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="btn-call-sticky">
+    <i class="fa fa-phone"></i> Sună Acum — 24/7
+  </a>
+  <a href="https://wa.me/37360000500?text=Bun%C4%83!%20Am%20nevoie%20de%20un%20%C8%99ofer%20treaz%20acum." target="_blank" rel="noopener noreferrer" onclick="gtag_report_conversion()" class="btn-wa-sticky">
+    <i class="fab fa-whatsapp"></i> WA
+  </a>
+</div>
 
 </body>
 </html>
