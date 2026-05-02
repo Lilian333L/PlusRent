@@ -76,6 +76,20 @@
 <link href="/css/style.css" rel="stylesheet" type="text/css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css">
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<script>
+/* Pre-init language detection (runs before defer scripts like universal-include.js
+   so they see the correct language from storage, not a stale value) */
+(function(){
+  try {
+    var p = window.location.pathname;
+    var l = 'ro';
+    if (/^\/ru(\/|$)/.test(p)) l = 'ru';
+    else if (/^\/en(\/|$)/.test(p)) l = 'en';
+    document.cookie = 'lang=' + l + ';path=/;max-age=2592000;SameSite=Lax';
+    if (window.localStorage) localStorage.setItem('i18nextLng', l);
+  } catch(e) {}
+})();
+</script>
 <script src="/js/config.js" defer></script>
 
 <script type="application/ld+json">
@@ -1901,7 +1915,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
               </a>
               <div class="lang-picker-wrapper" style="min-width:120px;">
                 <button id="langPickerBtn" class="lang-picker-btn" style="height:36px;display:flex;align-items:center;">
-                  <span id="langFlag"></span>
+                  <span id="langFlag"><img src="/images/flags/russia.png" alt="Русский" style="width:20px;height:15px;border-radius:2px;object-fit:cover;"></span>
                   <span id="langCode" style="font-weight:700;margin:0 4px;">RU</span>
                   <svg width="13" height="13" viewBox="0 0 20 20" style="margin-left:5px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                 </button>
