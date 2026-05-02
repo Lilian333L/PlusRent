@@ -75,6 +75,20 @@
 <link href="/css/style.css" rel="stylesheet" type="text/css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css">
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<script>
+/* Pre-init language detection (runs before defer scripts like universal-include.js
+   so they see the correct language from storage, not a stale value) */
+(function(){
+  try {
+    var p = window.location.pathname;
+    var l = 'ro';
+    if (/^\/ru(\/|$)/.test(p)) l = 'ru';
+    else if (/^\/en(\/|$)/.test(p)) l = 'en';
+    document.cookie = 'lang=' + l + ';path=/;max-age=2592000;SameSite=Lax';
+    if (window.localStorage) localStorage.setItem('i18nextLng', l);
+  } catch(e) {}
+})();
+</script>
 <script src="/js/config.js" defer></script>
 
 <script type="application/ld+json">
@@ -1897,7 +1911,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
               <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                 <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
                   <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#f59e0b" stroke-width="2"/><ellipse cx="10" cy="10" rx="5" ry="9" stroke="#f59e0b" stroke-width="2"/><path d="M1 10h18" stroke="#f59e0b" stroke-width="2"/></svg></span>
-                  <span class="lang-flag" id="langFlag"></span>
+                  <span class="lang-flag" id="langFlag"><img src="/images/flags/romania.png" alt="Română" style="width:20px;height:15px;border-radius:2px;object-fit:cover;"></span>
                   <span id="langCode" style="font-weight:700;margin:0 2px;">RO</span>
                   <svg width="14" height="14" viewBox="0 0 20 20" style="margin-left:6px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                 </button>
