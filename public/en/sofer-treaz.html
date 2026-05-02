@@ -2346,21 +2346,155 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
 })();
 </script>
 
+
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  var lf=document.getElementById('langFlag'), lc=document.getElementById('langCode');
-  if(lf) lf.innerHTML='<img src="/images/flags/united-kingdom.png" alt="English" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
-  if(lc) lc.textContent='EN';
-  document.querySelectorAll('.lang-option').forEach(function(el){
-    el.addEventListener('click',function(e){
-      e.stopImmediatePropagation();
-      var lang=this.getAttribute('data-lang');
-      document.cookie='lang='+lang+';path=/;max-age=2592000;SameSite=Lax';
-      localStorage.setItem('i18nextLng',lang);
-      window.location.href='/'+lang+'/sofer-treaz';
-    },true);
+/* Aggressive language picker enforcement.
+   Fights any external script (e.g. universal-include.js) that tries to set
+   the picker to a stale language from cookies/localStorage. */
+(function(){
+  var FLAGS = {
+    ro: {file:'romania.png',  alt:'Română'},
+    ru: {file:'russia.png',   alt:'Русский'},
+    en: {file:'united-kingdom.png', alt:'English'}
+  };
+  var path = window.location.pathname;
+  var lang = 'ro';
+  if (/^\/ru(\/|$)/.test(path)) lang = 'ru';
+  else if (/^\/en(\/|$)/.test(path)) lang = 'en';
+  var f = FLAGS[lang];
+  var imgHTML = '<img src="/images/flags/' + f.file + '" alt="' + f.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+  var codeText = lang.toUpperCase();
+  var enforcing = false;
+
+  function enforce(){
+    if (enforcing) return;
+    enforcing = true;
+    try {
+      var lf = document.getElementById('langFlag');
+      var lc = document.getElementById('langCode');
+      if (lf) {
+        var img = lf.querySelector('img');
+        if (!img || img.getAttribute('src') !== '/images/flags/' + f.file) {
+          lf.innerHTML = imgHTML;
+        }
+      }
+      if (lc && (lc.textContent || '').trim() !== codeText) {
+        lc.textContent = codeText;
+      }
+    } catch(e){}
+    enforcing = false;
+  }
+
+  // Run immediately + on lifecycle events
+  enforce();
+  document.addEventListener('DOMContentLoaded', enforce);
+  window.addEventListener('load', enforce);
+
+  // Brute-force re-apply during first 5s to fight async scripts
+  var n = 0;
+  var iv = setInterval(function(){
+    enforce();
+    if (++n > 25) clearInterval(iv);
+  }, 200);
+
+  // Persistent guard: revert any external mutation
+  function attachObserver(){
+    var lf = document.getElementById('langFlag');
+    var lc = document.getElementById('langCode');
+    if (lf) {
+      try { new MutationObserver(enforce).observe(lf, {childList:true, subtree:true, attributes:true, characterData:true}); } catch(e){}
+    }
+    if (lc) {
+      try { new MutationObserver(enforce).observe(lc, {childList:true, characterData:true, subtree:true}); } catch(e){}
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachObserver);
+  } else {
+    attachObserver();
+  }
+
+  // Click handler on dropdown options
+  function bindDropdown(){
+    document.querySelectorAll('.lang-option').forEach(function(el){
+      if (el.dataset.bound) return;
+      el.dataset.bound = '1';
+      el.addEventListener('click', function(e){
+        e.stopImmediatePropagation();
+        var newLang = this.getAttribute('data-lang');
+        try {
+          document.cookie = 'lang=' + newLang + ';path=/;max-age=2592000;SameSite=Lax';
+          localStorage.setItem('i18nextLng', newLang);
+        } catch(_){}
+        window.location.href = '/' + newLang + '/sofer-treaz';
+      }, true);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindDropdown);
+  } else {
+    bindDropdown();
+  }
+})();
+</script>
+
+
+
+<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contact us">
+  <i class="fa fa-comments"></i>
+</button>
+
+<div id="contactPopup" class="contact-popup-overlay">
+  <div class="contact-popup">
+    <div class="contact-popup-header">
+      <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Close"><i class="fa fa-times"></i></button>
+      <h3>Contact Us 24/7</h3>
+      <p>Choose your preferred method</p>
+    </div>
+    <div class="contact-popup-body">
+      <a href="javascript:void(0)" onclick="openWhatsApp()" class="contact-option whatsapp"><div class="contact-option-icon"><i class="fab fa-whatsapp"></i></div><div class="contact-option-content"><div class="contact-option-title">WhatsApp</div><div class="contact-option-subtitle">Quick chat · Instant reply</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
+      <a href="javascript:void(0)" onclick="openTelegram()" class="contact-option telegram"><div class="contact-option-icon"><i class="fab fa-telegram"></i></div><div class="contact-option-content"><div class="contact-option-title">Telegram</div><div class="contact-option-subtitle">@plusrent · Fast messaging</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
+      <a href="javascript:void(0)" onclick="openViber()" class="contact-option viber"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Viber</div><div class="contact-option-subtitle">Voice and messages</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
+      <a href="javascript:void(0)" onclick="makeDirectCall()" class="contact-option phone"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Direct Call</div><div class="contact-option-subtitle">+373 60 000 500</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var WA_DEFAULT = 'Hi! I need a sober driver now. Can you send someone?';
+  window.openContactPopup = function() {
+    var overlay = document.getElementById('contactPopup');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    var sy = window.scrollY;
+    document.body.style.cssText = 'position:fixed;top:-' + sy + 'px;width:100%;left:0;right:0;';
+    document.body.dataset.scrollY = sy;
+  };
+  window.closeContactPopup = function() {
+    var overlay = document.getElementById('contactPopup');
+    if (!overlay) return;
+    overlay.style.display = 'none';
+    var sy = parseInt(document.body.dataset.scrollY || '0');
+    document.body.style.cssText = '';
+    window.scrollTo(0, sy);
+  };
+  window.openWhatsApp = function() {
+    if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
+    window.open('https://wa.me/37360000500?text=' + encodeURIComponent(WA_DEFAULT), '_blank');
+  };
+  window.openTelegram   = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.open('https://t.me/plusrent', '_blank'); };
+  window.openViber      = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.open('viber://chat?number=+37360000500', '_blank'); };
+  window.makeDirectCall = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.location.href = 'tel:+37360000500'; };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var overlay = document.getElementById('contactPopup');
+    if (overlay) {
+      overlay.addEventListener('click', function(e){ if (e.target === e.currentTarget) closeContactPopup(); });
+    }
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeContactPopup(); });
   });
-});
+})();
 </script>
 
 </body>
