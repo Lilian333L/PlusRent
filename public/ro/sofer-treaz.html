@@ -1858,69 +1858,19 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 </style>
 
+
 <style>
-/* Contact popup CSS — only added if not already in page CSS */
-.floating-contact-btn {
+.floating-call-btn {
   position: fixed; bottom: 28px; right: 28px;
   width: 58px; height: 58px; border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #fff; border: none; cursor: pointer;
-  font-size: 1.4rem; box-shadow: 0 8px 22px rgba(245,158,11,0.45);
-  z-index: 9990; transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #1c1917; color: #fff; text-decoration: none;
+  font-size: 1.4rem; box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+  z-index: 9990; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   display: flex; align-items: center; justify-content: center;
 }
-.floating-contact-btn:hover { transform: scale(1.08); box-shadow: 0 12px 32px rgba(245,158,11,0.55); }
-@media(max-width:768px){ .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.2rem; } }
-
-.contact-popup-overlay {
-  display: none;
-  position: fixed; inset: 0; z-index: 10000;
-  background: rgba(28,25,23,0.65); backdrop-filter: blur(8px);
-  align-items: center; justify-content: center; padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-.contact-popup {
-  background: #fff; border-radius: 22px; max-width: 420px; width: 100%;
-  overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.3);
-  animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-.contact-popup-header {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  padding: 24px 28px; color: #fff; position: relative;
-}
-.contact-popup-header h3 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 900; color: #fff; }
-.contact-popup-header p  { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.9); }
-.contact-popup-close {
-  position: absolute; top: 18px; right: 18px;
-  width: 36px; height: 36px; border: none; border-radius: 50%;
-  background: rgba(255,255,255,0.18); color: #fff; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; transition: background 0.15s;
-}
-.contact-popup-close:hover { background: rgba(255,255,255,0.3); }
-.contact-popup-body { padding: 14px; }
-.contact-option {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; margin: 6px 0;
-  background: #f8f7f4; border-radius: 14px; text-decoration: none;
-  transition: background 0.15s, transform 0.15s;
-}
-.contact-option:hover { background: #ede9e1; transform: translateX(2px); text-decoration: none; }
-.contact-option-icon {
-  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 1.3rem;
-}
-.contact-option.whatsapp .contact-option-icon { background: #25D366; }
-.contact-option.telegram .contact-option-icon { background: #0088cc; }
-.contact-option.viber    .contact-option-icon { background: #7360F2; }
-.contact-option.phone    .contact-option-icon { background: #1E90FF; }
-.contact-option-content { flex: 1; min-width: 0; }
-.contact-option-title    { font-size: 1rem;    font-weight: 800; color: #1c1917; }
-.contact-option-subtitle { font-size: 0.82rem; color: #78716c; margin-top: 2px; }
-.contact-option-arrow    { color: #d6d3d1; font-size: 0.85rem; flex-shrink: 0; }
+.floating-call-btn:hover { transform: scale(1.08); background: #000; box-shadow: 0 12px 32px rgba(0,0,0,0.5); color:#fff; text-decoration: none; }
+.floating-call-btn:active { transform: scale(0.96); }
+@media(max-width:768px){ .floating-call-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.2rem; } }
 </style>
 </head>
 <body>
@@ -2555,62 +2505,10 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 
 
 
-<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contactează-ne">
-  <i class="fa fa-comments"></i>
-</button>
 
-<div id="contactPopup" class="contact-popup-overlay">
-  <div class="contact-popup">
-    <div class="contact-popup-header">
-      <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide"><i class="fa fa-times"></i></button>
-      <h3>Contactează-ne 24/7</h3>
-      <p>Alege metoda preferată</p>
-    </div>
-    <div class="contact-popup-body">
-      <a href="javascript:void(0)" onclick="openWhatsApp()" class="contact-option whatsapp"><div class="contact-option-icon"><i class="fab fa-whatsapp"></i></div><div class="contact-option-content"><div class="contact-option-title">WhatsApp</div><div class="contact-option-subtitle">Chat rapid · Răspuns instant</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="javascript:void(0)" onclick="openTelegram()" class="contact-option telegram"><div class="contact-option-icon"><i class="fab fa-telegram"></i></div><div class="contact-option-content"><div class="contact-option-title">Telegram</div><div class="contact-option-subtitle">@plusrent · Mesaje rapide</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="javascript:void(0)" onclick="openViber()" class="contact-option viber"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Viber</div><div class="contact-option-subtitle">Voce și mesaje</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="javascript:void(0)" onclick="makeDirectCall()" class="contact-option phone"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Apel direct</div><div class="contact-option-subtitle">+373 60 000 500</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  var WA_DEFAULT = 'Bună! Am nevoie de un șofer treaz acum. Puteți trimite pe cineva?';
-  window.openContactPopup = function() {
-    var overlay = document.getElementById('contactPopup');
-    if (!overlay) return;
-    overlay.style.display = 'flex';
-    var sy = window.scrollY;
-    document.body.style.cssText = 'position:fixed;top:-' + sy + 'px;width:100%;left:0;right:0;';
-    document.body.dataset.scrollY = sy;
-  };
-  window.closeContactPopup = function() {
-    var overlay = document.getElementById('contactPopup');
-    if (!overlay) return;
-    overlay.style.display = 'none';
-    var sy = parseInt(document.body.dataset.scrollY || '0');
-    document.body.style.cssText = '';
-    window.scrollTo(0, sy);
-  };
-  window.openWhatsApp = function() {
-    if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
-    window.open('https://wa.me/37360000500?text=' + encodeURIComponent(WA_DEFAULT), '_blank');
-  };
-  window.openTelegram   = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.open('https://t.me/plusrent', '_blank'); };
-  window.openViber      = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.open('viber://chat?number=+37360000500', '_blank'); };
-  window.makeDirectCall = function() { if (typeof gtag_report_conversion === 'function') gtag_report_conversion(); window.location.href = 'tel:+37360000500'; };
-
-  document.addEventListener('DOMContentLoaded', function(){
-    var overlay = document.getElementById('contactPopup');
-    if (overlay) {
-      overlay.addEventListener('click', function(e){ if (e.target === e.currentTarget) closeContactPopup(); });
-    }
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeContactPopup(); });
-  });
-})();
-</script>
+<a href="tel:+37360000500" onclick="if(typeof gtag_report_conversion==='function')gtag_report_conversion('tel:+37360000500')" class="floating-call-btn" aria-label="Apel direct">
+  <i class="fa fa-phone"></i>
+</a>
 
 </body>
 </html>
