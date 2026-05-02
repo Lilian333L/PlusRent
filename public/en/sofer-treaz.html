@@ -1859,6 +1859,71 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
   -webkit-appearance: none;
 }
 </style>
+
+<style>
+/* Contact popup CSS — only added if not already in page CSS */
+.floating-contact-btn {
+  position: fixed; bottom: 28px; right: 28px;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff; border: none; cursor: pointer;
+  font-size: 1.4rem; box-shadow: 0 8px 22px rgba(245,158,11,0.45);
+  z-index: 9990; transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.floating-contact-btn:hover { transform: scale(1.08); box-shadow: 0 12px 32px rgba(245,158,11,0.55); }
+@media(max-width:768px){ .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.2rem; } }
+
+.contact-popup-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(28,25,23,0.65); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+.contact-popup {
+  background: #fff; border-radius: 22px; max-width: 420px; width: 100%;
+  overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.3);
+  animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+.contact-popup-header {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  padding: 24px 28px; color: #fff; position: relative;
+}
+.contact-popup-header h3 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 900; color: #fff; }
+.contact-popup-header p  { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.9); }
+.contact-popup-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 36px; height: 36px; border: none; border-radius: 50%;
+  background: rgba(255,255,255,0.18); color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: background 0.15s;
+}
+.contact-popup-close:hover { background: rgba(255,255,255,0.3); }
+.contact-popup-body { padding: 14px; }
+.contact-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; margin: 6px 0;
+  background: #f8f7f4; border-radius: 14px; text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.contact-option:hover { background: #ede9e1; transform: translateX(2px); text-decoration: none; }
+.contact-option-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.3rem;
+}
+.contact-option.whatsapp .contact-option-icon { background: #25D366; }
+.contact-option.telegram .contact-option-icon { background: #0088cc; }
+.contact-option.viber    .contact-option-icon { background: #7360F2; }
+.contact-option.phone    .contact-option-icon { background: #1E90FF; }
+.contact-option-content { flex: 1; min-width: 0; }
+.contact-option-title    { font-size: 1rem;    font-weight: 800; color: #1c1917; }
+.contact-option-subtitle { font-size: 0.82rem; color: #78716c; margin-top: 2px; }
+.contact-option-arrow    { color: #d6d3d1; font-size: 0.85rem; flex-shrink: 0; }
+</style>
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress"></div>
@@ -2347,10 +2412,10 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
 </script>
 
 
+
 <script>
-/* Aggressive language picker enforcement.
-   Fights any external script (e.g. universal-include.js) that tries to set
-   the picker to a stale language from cookies/localStorage. */
+/* Language picker: hard-set the correct flag/code for the current URL.
+   Re-applies for first 5s to handle async scripts (e.g. universal-include.js). */
 (function(){
   var FLAGS = {
     ro: {file:'romania.png',  alt:'Română'},
@@ -2362,19 +2427,17 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
   if (/^\/ru(\/|$)/.test(path)) lang = 'ru';
   else if (/^\/en(\/|$)/.test(path)) lang = 'en';
   var f = FLAGS[lang];
-  var imgHTML = '<img src="/images/flags/' + f.file + '" alt="' + f.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+  var imgSrc = '/images/flags/' + f.file;
+  var imgHTML = '<img src="' + imgSrc + '" alt="' + f.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
   var codeText = lang.toUpperCase();
-  var enforcing = false;
 
   function enforce(){
-    if (enforcing) return;
-    enforcing = true;
     try {
       var lf = document.getElementById('langFlag');
       var lc = document.getElementById('langCode');
       if (lf) {
         var img = lf.querySelector('img');
-        if (!img || img.getAttribute('src') !== '/images/flags/' + f.file) {
+        if (!img || img.getAttribute('src') !== imgSrc) {
           lf.innerHTML = imgHTML;
         }
       }
@@ -2382,37 +2445,19 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
         lc.textContent = codeText;
       }
     } catch(e){}
-    enforcing = false;
   }
 
-  // Run immediately + on lifecycle events
+  // Apply immediately + on lifecycle events
   enforce();
   document.addEventListener('DOMContentLoaded', enforce);
   window.addEventListener('load', enforce);
 
-  // Brute-force re-apply during first 5s to fight async scripts
+  // Re-apply during first 5s to handle late async scripts (no MutationObserver to avoid loops)
   var n = 0;
   var iv = setInterval(function(){
     enforce();
     if (++n > 25) clearInterval(iv);
   }, 200);
-
-  // Persistent guard: revert any external mutation
-  function attachObserver(){
-    var lf = document.getElementById('langFlag');
-    var lc = document.getElementById('langCode');
-    if (lf) {
-      try { new MutationObserver(enforce).observe(lf, {childList:true, subtree:true, attributes:true, characterData:true}); } catch(e){}
-    }
-    if (lc) {
-      try { new MutationObserver(enforce).observe(lc, {childList:true, characterData:true, subtree:true}); } catch(e){}
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachObserver);
-  } else {
-    attachObserver();
-  }
 
   // Click handler on dropdown options
   function bindDropdown(){
@@ -2437,6 +2482,7 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
   }
 })();
 </script>
+
 
 
 
