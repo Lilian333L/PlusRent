@@ -1553,43 +1553,62 @@ header.sticky-active .logo-2 { display:none!important; }
 
 .id-color { color:var(--gold)!important; }
 button:focus-visible,a:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
-/* TripAdvisor rating pill */
-.ta-rating-pill {
-  display: inline-block !important;
-  padding: 13px 26px !important;
-  background: rgba(0,0,0,0.6) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(245,158,11,0.6) !important;
-  border-radius: 999px !important;
+/* TripAdvisor trust pill */
+.ta-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 26px;
+  background: #ffffff;
+  border: 2px solid var(--gold);
+  border-radius: 999px;
   text-decoration: none !important;
   transition: all 0.2s ease;
-  font-size: 1rem !important;
-  line-height: 1.2 !important;
+  box-shadow: 0 4px 14px rgba(245,158,11,0.18);
+  color: var(--dark);
+  font-size: 1rem;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  color: #fff !important;
 }
-.ta-rating-pill:hover {
-  background: rgba(0,0,0,0.75) !important;
-  border-color: rgba(245,158,11,0.95) !important;
+.ta-trust-pill:hover {
+  background: #fffbeb;
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(245,158,11,0.3);
+  box-shadow: 0 6px 20px rgba(245,158,11,0.3);
+  color: var(--dark);
   text-decoration: none !important;
-  color: #fff !important;
+}
+.ta-trust-pill .ta-stars-light {
+  color: var(--gold);
+  letter-spacing: 2px;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.ta-trust-pill .ta-rating-text {
+  color: var(--dark);
+  font-weight: 600;
+  line-height: 1;
+}
+.ta-trust-pill .ta-rating-text strong {
+  font-weight: 900;
+  color: var(--gold-dark);
+}
+.ta-trust-pill .ta-arrow {
+  color: var(--gold-dark);
+  font-weight: 900;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+.ta-trust-pill:hover .ta-arrow {
+  transform: translateX(4px);
 }
 
 @media (max-width: 480px) {
-  .ta-rating-pill {
-    padding: 12px 20px !important;
-    font-size: 0.92rem !important;
+  .ta-trust-pill {
+    padding: 12px 20px;
+    gap: 10px;
+    font-size: 0.92rem;
   }
-}
-@media (max-width: 380px) {
-  .ta-rating-pill {
-    padding: 11px 16px !important;
-    font-size: 0.85rem !important;
-  }
+  .ta-trust-pill .ta-stars-light { font-size: 0.95rem; letter-spacing: 1.5px; }
 }
 /* ========================================================
    MOBILE-FIRST OPTIMIZATIONS — sofer-treaz
@@ -1605,30 +1624,42 @@ body { font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
 
 /* HERO — full-width phone button on mobile */
 @media (max-width: 768px) {
-  .hero-padded-st { padding-top: 90px !important; padding-bottom: 36px !important; min-height: 0 !important; }
-  .hero-padded-st h1 { margin: 10px 0 12px !important; }
-  .hero-padded-st .lead { margin-bottom: 0 !important; font-size: 0.98rem !important; }
-
-  /* Phone button — adapt for mobile, don't hide */
+  .hero-padded-st {
+    padding-top: 80px !important;
+    padding-bottom: 30px !important;
+    min-height: 0 !important;
+  }
+  .hero-padded-st h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.18 !important;
+    margin: 8px 0 10px !important;
+  }
+  .hero-padded-st .lead,
+  .hero-padded-st p {
+    font-size: 0.92rem !important;
+    line-height: 1.5 !important;
+    margin: 0 auto 18px !important;
+    max-width: 460px;
+  }
+  .live-badge {
+    font-size: 11px !important;
+    padding: 7px 16px !important;
+  }
   .hero-phone-big {
-    font-size: 1.3rem !important;
-    padding: 14px 22px !important;
-    gap: 10px !important;
-    width: auto !important;
-    max-width: 100%;
+    font-size: 1.15rem !important;
+    padding: 12px 20px !important;
+    gap: 9px !important;
   }
   .hero-phone-big .ph-icon {
-    width: 38px !important;
-    height: 38px !important;
-    font-size: 0.95rem !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.85rem !important;
   }
 }
 
 @media (max-width: 380px) {
-  .hero-phone-big {
-    font-size: 1.1rem !important;
-    padding: 12px 18px !important;
-  }
+  .hero-padded-st h1 { font-size: 1.35rem !important; }
+  .hero-phone-big { font-size: 1rem !important; padding: 11px 18px !important; }
 }
 
 /* CONTACT CARDS — mobile */
@@ -1814,8 +1845,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
         <h1 style="text-shadow:0 2px 10px rgba(0,0,0,0.9);color:#fff;font-size:clamp(1.9rem,4.5vw,3rem);font-weight:900;line-height:1.12;margin:18px 0 16px;letter-spacing:-0.02em;">
           Șofer Treaz în Chișinău — Disponibil 24/7, Vine în 15 Minute
         </h1>
-        <p style="text-shadow:0 1px 6px rgba(0,0,0,0.8);color:rgba(255,255,255,0.92);font-size:1.1rem;max-width:560px;margin:0 auto 28px;line-height:1.65;">
-          Ai băut? Sună acum — vine la tine în <strong style="color:#fbbf24;">15–20 minute</strong> și conduce mașina ta acasă în siguranță. Disponibil în Chișinău și <strong style="color:#fbbf24;">toată Moldova</strong>.
+        <p style="text-shadow:0 1px 6px rgba(0,0,0,0.8);color:rgba(255,255,255,0.92);font-size:1.1rem;max-width:520px;margin:0 auto 22px;line-height:1.6;">
+         Ai băut? Sună acum — șoferul vine în <strong style="color:#fbbf24;">15 minute</strong> și conduce mașina ta acasă în siguranță.
         </p>
         <div style="margin-bottom:18px;">
           <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="hero-phone-big">
@@ -1823,12 +1854,6 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
             +373 60 000 500
           </a>
         </div>
-<!-- TripAdvisor rating block -->
-<div style="margin-top:18px;text-align:center;">
-  <a href="https://www.tripadvisor.com/Attraction_Review-g294456-d34327602-Reviews-PlusRent-Chisinau_Chisinau_District.html" target="_blank" rel="noopener" class="ta-rating-pill">
-    <span style="color:#fbbf24;letter-spacing:2px;">★★★★★</span>&nbsp;<span style="color:#fff;font-weight:800;">5.0</span>&nbsp;<span style="color:rgba(255,255,255,0.9);font-weight:600;">pe Tripadvisor</span>
-  </a>
-</div>
         </div>
       </div>
     </div>
@@ -1871,7 +1896,19 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
     </div>
   </div>
 </section>
-
+<!-- TRUST BAR — TripAdvisor rating -->
+<section style="padding:18px 0 32px;background:var(--surface-warm);text-align:center;">
+  <div class="container">
+    <a href="https://www.tripadvisor.com/Attraction_Review-g294456-d34327602-Reviews-PlusRent-Chisinau_Chisinau_District.html" target="_blank" rel="noopener" class="ta-trust-pill">
+      <span class="ta-stars-light">★★★★★</span>
+      <span class="ta-rating-text"><strong>5.0</strong> pe Tripadvisor</span>
+      <span class="ta-arrow">→</span>
+    </a>
+    <p style="margin:10px 0 0;color:var(--gray);font-size:0.82rem;">
+      Recenzii verificate de la clienți reali
+    </p>
+  </div>
+</section>
 <!-- DE CE NOI -->
 <section style="padding:76px 0;background:var(--white);">
   <div class="container">
