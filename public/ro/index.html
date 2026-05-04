@@ -717,15 +717,26 @@ a.text-primary, .price-summary-compact .text-primary,
 
 /* ============================================================
    HERO TIGHTEN-UP — booking form pulled closer to fold
+   (must clear transparent navbar + topbar overlap)
    ============================================================ */
-#section-hero { padding-top: 0 !important; }
-#section-hero .spacer-double.mobile-hidden { height: 40px; }
-@media (max-width: 991px) { #section-hero .spacer-double.mobile-hidden { display: none; } }
+#section-hero {
+  padding-top: 165px !important;   /* clear topbar (~40) + navbar (~80) + breathing room */
+  padding-bottom: 60px;
+}
+@media (max-width: 991px) {
+  #section-hero { padding-top: 110px !important; padding-bottom: 40px; }
+}
+@media (max-width: 575px) {
+  #section-hero { padding-top: 95px !important; }
+}
+#section-hero .spacer-double.mobile-hidden { display: none; } /* obsolete now padding handles spacing */
 
 #section-hero h1 {
   font-weight: 900;
   line-height: 1.08;
   letter-spacing: -0.5px;
+  font-size: clamp(1.85rem, 4.5vw, 3rem);
+  margin-bottom: 14px;
 }
 #section-hero h1 .gold-accent { color: var(--pr-gold); }
 
@@ -890,6 +901,55 @@ a.text-primary, .price-summary-compact .text-primary,
   content: "→"; font-size: 1rem; line-height: 1;
 }
 
+/* ============================================================
+   SEO CONTENT — readable typography for the key paragraph block
+   ============================================================ */
+#seo-content { padding: 72px 0; }
+#seo-content .seo-eyebrow {
+  display: inline-block;
+  color: var(--pr-gold-dark);
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 14px;
+  padding: 5px 14px;
+  background: var(--pr-gold-light);
+  border-radius: 999px;
+}
+#seo-content .seo-h2 {
+  font-weight: 900;
+  color: var(--pr-slate);
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  line-height: 1.2;
+  margin-bottom: 22px;
+  letter-spacing: -0.3px;
+}
+#seo-content .seo-lead {
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: var(--pr-slate);
+  margin-bottom: 18px;
+  padding-left: 16px;
+  border-left: 3px solid var(--pr-gold);
+}
+#seo-content .seo-p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 16px;
+}
+#seo-content .seo-lead strong,
+#seo-content .seo-p strong {
+  color: var(--pr-gold-darker);
+  font-weight: 700;
+}
+@media (max-width: 768px) {
+  #seo-content { padding: 52px 0; }
+  #seo-content .seo-lead { font-size: 1rem; padding-left: 12px; }
+  #seo-content .seo-p { font-size: 0.95rem; }
+}
+
+/* ============================================================
+   VISIBLE FAQ (boost AI citation — schema + visible answer pairs)
    ============================================================ */
 #visible-faq {
   padding: 72px 0;
@@ -1768,7 +1828,22 @@ footer .subfooter { background: var(--pr-dark) !important; }
         </div>
       </section>
 
-      <!-- SEO content section removed (per user request — content duplicates the citability block at page bottom) -->
+      <!-- SEO content — Chirie Auto Chisinau key paragraphs (AI citation block) -->
+      <section id="seo-content" class="pt60 pb60" style="background:#ffffff;border-top:1px solid var(--pr-border);">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+              <div class="seo-eyebrow">DESPRE SERVICIUL NOSTRU</div>
+              <h2 class="seo-h2">Chirie Auto Chisinau — PlusRent</h2>
+              <p class="seo-lead">PlusRent ofera <strong>inchirieri auto in Chisinau si Moldova</strong> cu livrare 24/7 la aeroportul Chisinau (KIV). Preturi de la <strong>€15/zi</strong>, asigurare RCA inclusa, fara costuri ascunse. Flota cuprinde BMW, Mercedes, Audi, Volkswagen, Toyota — toate verificate tehnic si igienizate la fiecare predare.</p>
+              <p class="seo-p">Oferim chirie masina pentru <strong>o zi, o saptamana sau pe termen lung</strong> cu reduceri substantiale. Livrare gratuita la Aeroportul Chisinau in programul de lucru, ridicare si returnare in locatii diferite (Chisinau, Aeroport, Iasi). Rezervarea dureaza sub 2 minute.</p>
+              <p class="seo-p">Suport clienti non-stop la <strong>+373 60 000 500</strong> — asistenta tehnica, modificari rezervari, sfaturi rute. Toate masinile includ asigurare RCA, climatizare si GPS. Plata la final — numerar (MDL/EUR) sau card bancar, fara avans.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISIBLE FAQ marker (re-anchor) -->
 
       <!-- VISIBLE FAQ — same answers as FAQPage schema, but visible for users + AI snippets -->
       <section id="visible-faq" aria-label="Intrebari frecvente despre chirie auto Chisinau">
