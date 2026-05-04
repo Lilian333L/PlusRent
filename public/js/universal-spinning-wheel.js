@@ -276,15 +276,16 @@
     function createModalCSS() {
         const style = document.createElement('style');
         style.textContent = `
+            /* ============================================================
+               UNIVERSAL SPINNING WHEEL — Luxury Black + Gold Edition
+               (matches luxury-glass-theme + back-to-top + calculator modal)
+               ============================================================ */
             .spinning-wheel-modal {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.65);
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px);
+                inset: 0;
+                background: rgba(28, 25, 23, 0.65);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
                 z-index: ${CONFIG.zIndex};
                 display: flex;
                 align-items: center;
@@ -292,11 +293,16 @@
                 opacity: 0;
                 transition: opacity 0.3s ease;
                 padding: 20px;
+                /* iPhone notch / Android nav respect */
+                padding-top: max(20px, env(safe-area-inset-top));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
             }
-            
+
             @supports not (backdrop-filter: blur(8px)) {
                 .spinning-wheel-modal {
-                    background: rgba(0, 0, 0, 0.85);
+                    background: rgba(28, 25, 23, 0.88);
                 }
             }
 
@@ -305,9 +311,8 @@
             }
 
             .spinning-wheel-modal-content {
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(20px);
-                border-radius: 24px;
+                background: #ffffff;
+                border-radius: 22px;
                 width: 100%;
                 max-width: 480px;
                 max-height: 90vh;
@@ -315,10 +320,10 @@
                 overflow: hidden;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                transform: scale(0.9);
-                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                box-shadow: 0 20px 60px rgba(245, 158, 11, 0.25),
-                            0 0 0 1px rgba(245, 158, 11, 0.1);
+                transform: scale(0.92);
+                transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+                box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22),
+                            0 0 0 1px rgba(245, 158, 11, 0.08);
             }
 
             .spinning-wheel-modal.show .spinning-wheel-modal-content {
@@ -330,39 +335,63 @@
                 max-height: 95vh;
             }
 
+            /* === Close button — gold ring on dark header === */
             .spinning-wheel-modal-close {
                 position: absolute;
-                top: 16px;
-                right: 16px;
+                top: 14px;
+                right: 14px;
                 width: 36px;
                 height: 36px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 24px;
+                font-size: 22px;
+                line-height: 1;
                 cursor: pointer;
-                color: white;
+                color: #f59e0b;
                 z-index: 10;
                 border-radius: 50%;
-                background: rgba(255, 255, 255, 0.2);
-                transition: all 0.3s ease;
-                backdrop-filter: blur(10px);
+                background: rgba(245, 158, 11, 0.12);
+                border: 1px solid rgba(245, 158, 11, 0.40);
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
             }
 
             .spinning-wheel-modal-close:hover {
-                background: rgba(255, 255, 255, 0.3);
+                background: #f59e0b;
+                color: #1C1917;
+                border-color: transparent;
                 transform: rotate(90deg);
             }
 
+            .spinning-wheel-modal-close:focus-visible {
+                outline: 2px solid #f59e0b;
+                outline-offset: 3px;
+            }
+
+            /* === HEADER — luxury black with gold underline === */
             .spinning-wheel-modal-header {
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                color: white;
-                padding: 32px 24px;
+                background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+                color: #ffffff;
+                padding: 32px 24px 28px;
                 text-align: center;
                 position: relative;
                 overflow: hidden;
+                border-bottom: 2px solid #f59e0b;
             }
 
+            .spinning-wheel-modal-header::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #f59e0b 0%, #d97706 50%, #f59e0b 100%);
+            }
+
+            /* Subtle gold radial — was harsh white pulse */
             .spinning-wheel-modal-header::before {
                 content: '';
                 position: absolute;
@@ -370,62 +399,59 @@
                 left: -50%;
                 width: 200%;
                 height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-                animation: pulse 3s ease-in-out infinite;
+                background: radial-gradient(circle, rgba(245, 158, 11, 0.10) 0%, transparent 65%);
+                pointer-events: none;
             }
 
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 0.5; }
-                50% { transform: scale(1.1); opacity: 0.8; }
-            }
-
+            /* Gift icon — gold accent on dark */
             .header-gift-icon {
-                width: 56px;
-                height: 56px;
-                margin: 0 auto 16px;
-                background: rgba(255, 255, 255, 0.25);
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 14px;
+                background: rgba(245, 158, 11, 0.15);
+                border: 1.5px solid rgba(245, 158, 11, 0.45);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                animation: bounce 2s ease-in-out infinite;
+                animation: prSwBounce 2.4s ease-in-out infinite;
                 position: relative;
                 z-index: 1;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                color: #f59e0b;
             }
 
             .header-gift-icon svg {
                 width: 28px;
                 height: 28px;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
             }
 
-            @keyframes bounce {
+            @keyframes prSwBounce {
                 0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-8px); }
+                50%      { transform: translateY(-6px); }
             }
 
             .spinning-wheel-modal-title {
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin: 0 0 8px 0;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                font-size: 1.65rem;
+                font-weight: 800;
+                margin: 0 0 6px 0;
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 position: relative;
                 z-index: 1;
-                color: white;
+                color: #ffffff;
+                letter-spacing: -0.3px;
             }
 
             .spinning-wheel-modal-subtitle {
-                font-size: 1rem;
+                font-size: 0.95rem;
                 margin: 0;
-                opacity: 0.95;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 position: relative;
                 z-index: 1;
-                color: white;
+                color: rgba(255, 255, 255, 0.78);
+                line-height: 1.5;
             }
 
+            /* === Phone-step content === */
             .spinning-wheel-wheel-content {
                 background: transparent;
                 display: flex;
@@ -433,7 +459,7 @@
             }
 
             .spinning-wheel-phone-step {
-                padding: 40px 32px;
+                padding: 36px 28px 32px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -446,37 +472,42 @@
                 text-align: center;
             }
 
+            /* Phone icon circle — black with gold icon */
             .phone-icon-circle {
-                width: 72px;
-                height: 72px;
-                margin: 0 auto 24px;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                width: 68px;
+                height: 68px;
+                margin: 0 auto 20px;
+                background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+                border: 1.5px solid rgba(245, 158, 11, 0.30);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18),
+                            inset 0 1px 0 rgba(245, 158, 11, 0.20);
+                color: #f59e0b;
             }
 
             .phone-icon-circle svg {
-                width: 36px;
-                height: 36px;
-                color: white;
+                width: 32px;
+                height: 32px;
             }
 
             .phone-step-title {
-                color: #1a202c;
-                font-size: 1.5rem;
-                margin: 0 0 12px 0;
-                font-weight: 700;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                color: #1C1917;
+                font-size: 1.4rem;
+                margin: 0 0 10px 0;
+                font-weight: 800;
+                font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                letter-spacing: -0.2px;
             }
 
             .phone-description {
-                color: #718096;
-                font-size: 0.95rem;
-                margin: 0 0 32px 0;
+                color: #525252;
+                font-size: 0.92rem;
+                margin: 0 0 28px 0;
                 line-height: 1.6;
+                font-family: 'DM Sans', sans-serif;
             }
 
             .phone-form {
@@ -485,7 +516,7 @@
 
             .input-wrapper {
                 position: relative;
-                margin-bottom: 20px;
+                margin-bottom: 16px;
             }
 
             .input-icon {
@@ -495,26 +526,35 @@
                 transform: translateY(-50%);
                 width: 20px;
                 height: 20px;
-                color: #a0aec0;
+                color: #a3a3a3;
                 pointer-events: none;
+                transition: color 0.2s ease;
             }
 
             .phone-input {
                 width: 100%;
-                padding: 16px 16px 16px 48px;
-                border: 2px solid #e2e8f0;
+                padding: 14px 16px 14px 48px;
+                border: 1.5px solid #e5e5e5;
                 border-radius: 12px;
-                font-size: 1rem;
-                transition: all 0.3s ease;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                /* font-size MUST be ≥16px on mobile to prevent iOS auto-zoom */
+                font-size: 16px;
+                transition: all 0.25s ease;
+                font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
                 box-sizing: border-box;
-                background: white;
+                background: #fafafa;
+                color: #1C1917;
             }
 
             .phone-input:focus {
                 outline: none;
                 border-color: #f59e0b;
-                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+                box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+                background: #ffffff;
+            }
+
+            .phone-input:focus ~ .input-icon,
+            .input-wrapper:focus-within .input-icon {
+                color: #f59e0b;
             }
 
             .phone-input::placeholder {
@@ -523,77 +563,98 @@
 
             .phone-input-error {
                 border-color: #ef4444 !important;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.10) !important;
+                background: #fef2f2 !important;
             }
 
             .phone-error-message {
                 color: #ef4444;
-                font-size: 0.875rem;
-                margin-top: 8px;
+                font-size: 0.86rem;
+                margin: -4px 0 12px;
                 text-align: left;
                 padding-left: 4px;
+                font-weight: 500;
             }
 
+            /* === Submit button — gold gradient, white text with shadow === */
             .phone-submit-btn {
                 width: 100%;
-                padding: 16px;
+                padding: 14px 18px;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                color: white;
+                color: #ffffff;
                 border: none;
                 border-radius: 12px;
-                font-size: 1.05rem;
-                font-weight: 600;
+                font-size: 1rem;
+                font-weight: 700;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+                font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                box-shadow: 0 6px 18px rgba(245, 158, 11, 0.28);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+                /* 48px touch target safe */
+                min-height: 48px;
+                -webkit-tap-highlight-color: transparent;
             }
 
             .phone-submit-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+                transform: translateY(-1px);
+                background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+                box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
             }
 
             .phone-submit-btn:active {
                 transform: translateY(0);
             }
 
+            .phone-submit-btn:focus-visible {
+                outline: 3px solid rgba(245, 158, 11, 0.55);
+                outline-offset: 2px;
+            }
+
             .phone-submit-btn:disabled {
-                opacity: 0.6;
+                opacity: 0.55;
                 cursor: not-allowed;
                 transform: none;
+                background: #d4d4d4;
+                color: #a3a3a3;
+                text-shadow: none;
+                box-shadow: none;
             }
 
             .btn-icon {
                 width: 20px;
                 height: 20px;
-                transition: transform 0.3s ease;
+                transition: transform 0.25s ease;
             }
 
             .phone-submit-btn:hover .btn-icon {
                 transform: translateX(4px);
             }
 
+            /* Privacy badge */
             .privacy-badge {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                margin-top: 20px;
-                color: #718096;
-                font-size: 0.875rem;
+                margin-top: 16px;
+                color: #737373;
+                font-size: 0.82rem;
+                font-family: 'DM Sans', sans-serif;
             }
 
             .privacy-badge svg {
-                width: 16px;
-                height: 16px;
-                color: #48bb78;
+                width: 15px;
+                height: 15px;
+                color: #16a34a;
+                flex-shrink: 0;
             }
 
+            /* === Wheel step (iframe) === */
             .spinning-wheel-wheel-step {
                 padding: 24px;
                 min-height: 500px;
@@ -605,11 +666,17 @@
             #universalSpinningWheelIframe {
                 flex: 1;
                 border-radius: 12px;
+                background: #ffffff;
             }
 
+            /* ============================================================
+               DESKTOP — large screens
+               ============================================================ */
             @media (min-width: 1024px) {
                 .spinning-wheel-modal {
                     padding: 40px;
+                    padding-top: max(40px, env(safe-area-inset-top));
+                    padding-bottom: max(40px, env(safe-area-inset-bottom));
                 }
 
                 .spinning-wheel-modal-content.wheel-step {
@@ -623,18 +690,29 @@
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 40px 32px;
+                    padding: 38px 32px 32px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 2rem;
+                    font-size: 1.85rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 1.125rem;
+                    font-size: 1.05rem;
+                }
+
+                .header-gift-icon {
+                    width: 64px;
+                    height: 64px;
+                }
+
+                .header-gift-icon svg {
+                    width: 30px;
+                    height: 30px;
                 }
             }
 
+            /* === Tablet === */
             @media (min-width: 768px) and (max-width: 1023px) {
                 .spinning-wheel-modal-content {
                     max-width: 600px;
@@ -649,23 +727,18 @@
                 }
             }
 
+            /* ============================================================
+               MOBILE — touch-friendly: 44×44 targets, safe-area, bottom-aligned button
+               ============================================================ */
             @media (max-width: 767px) {
                 .spinning-wheel-modal {
-                    padding: 12px;
-                    background: rgba(0, 0, 0, 0.5);
-                    -webkit-backdrop-filter: blur(8px);
-                    backdrop-filter: blur(8px);
-                }
-                
-                @supports not (backdrop-filter: blur(8px)) {
-                    .spinning-wheel-modal {
-                        background: rgba(0, 0, 0, 0.75);
-                    }
+                    padding: 14px;
+                    padding-top: max(14px, env(safe-area-inset-top));
+                    padding-bottom: max(14px, env(safe-area-inset-bottom));
                 }
 
                 .spinning-wheel-modal-content {
-                    background: white;
-                    border-radius: 20px;
+                    border-radius: 18px;
                     max-height: 92vh;
                     overflow-y: auto;
                     -webkit-overflow-scrolling: touch;
@@ -676,21 +749,22 @@
                     max-height: 95vh;
                 }
 
+                /* 44×44 touch target on mobile (Apple HIG) */
                 .spinning-wheel-modal-close {
                     top: 12px;
                     right: 12px;
-                    width: 32px;
-                    height: 32px;
-                    font-size: 22px;
+                    width: 44px;
+                    height: 44px;
+                    font-size: 24px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 24px 20px;
+                    padding: 26px 20px 22px;
                 }
 
                 .header-gift-icon {
-                    width: 48px;
-                    height: 48px;
+                    width: 52px;
+                    height: 52px;
                     margin-bottom: 12px;
                 }
 
@@ -700,47 +774,48 @@
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.4rem;
+                    font-size: 1.35rem;
                     margin-bottom: 6px;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.9rem;
+                    font-size: 0.88rem;
                 }
 
                 .spinning-wheel-phone-step {
-                    padding: 28px 20px;
+                    padding: 26px 20px 24px;
                 }
 
                 .phone-icon-circle {
-                    width: 64px;
-                    height: 64px;
-                    margin-bottom: 20px;
+                    width: 60px;
+                    height: 60px;
+                    margin-bottom: 18px;
                 }
 
                 .phone-icon-circle svg {
-                    width: 32px;
-                    height: 32px;
+                    width: 28px;
+                    height: 28px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.3rem;
-                    margin-bottom: 10px;
+                    font-size: 1.2rem;
+                    margin-bottom: 8px;
                 }
 
                 .phone-description {
-                    font-size: 0.875rem;
-                    margin-bottom: 24px;
-                }
-
-                .phone-input,
-                .phone-submit-btn {
-                    padding: 14px;
-                    font-size: 1rem;
+                    font-size: 0.86rem;
+                    margin-bottom: 22px;
                 }
 
                 .phone-input {
-                    padding-left: 44px;
+                    padding: 14px 14px 14px 44px;
+                    /* font-size 16px stays — prevents iOS auto-zoom */
+                }
+
+                .phone-submit-btn {
+                    padding: 16px 18px;
+                    font-size: 1rem;
+                    min-height: 52px;
                 }
 
                 .spinning-wheel-wheel-step {
@@ -749,51 +824,67 @@
                 }
             }
 
+            /* === Very small phones — iPhone SE (1st gen), small Androids === */
             @media (max-width: 400px) {
                 .spinning-wheel-modal {
-                    padding: 8px;
-                    background: rgba(0, 0, 0, 0.5);
-                    -webkit-backdrop-filter: blur(8px);
-                    backdrop-filter: blur(8px);
+                    padding: 10px;
                 }
-                
-                @supports not (backdrop-filter: blur(8px)) {
-                    .spinning-wheel-modal {
-                        background: rgba(0, 0, 0, 0.75);
-                    }
-                }
-                
+
                 .spinning-wheel-modal-content {
-                    background: white;
+                    border-radius: 16px;
                 }
 
                 .spinning-wheel-modal-header {
-                    padding: 20px 16px;
+                    padding: 22px 16px 20px;
                 }
 
                 .spinning-wheel-modal-title {
-                    font-size: 1.25rem;
+                    font-size: 1.2rem;
                 }
 
                 .spinning-wheel-modal-subtitle {
-                    font-size: 0.85rem;
+                    font-size: 0.83rem;
                 }
 
                 .spinning-wheel-phone-step {
-                    padding: 24px 16px;
+                    padding: 22px 16px 20px;
                 }
 
                 .phone-icon-circle {
-                    width: 56px;
-                    height: 56px;
+                    width: 54px;
+                    height: 54px;
+                    margin-bottom: 14px;
                 }
 
                 .phone-step-title {
-                    font-size: 1.15rem;
+                    font-size: 1.1rem;
                 }
 
                 .phone-description {
-                    font-size: 0.8rem;
+                    font-size: 0.82rem;
+                    margin-bottom: 18px;
+                }
+
+                .privacy-badge {
+                    font-size: 0.78rem;
+                }
+            }
+
+            /* === Reduced motion === */
+            @media (prefers-reduced-motion: reduce) {
+                .spinning-wheel-modal,
+                .spinning-wheel-modal-content,
+                .spinning-wheel-modal-close,
+                .phone-submit-btn,
+                .phone-input,
+                .btn-icon {
+                    transition: none !important;
+                }
+                .header-gift-icon {
+                    animation: none !important;
+                }
+                .spinning-wheel-modal-close:hover {
+                    transform: none !important;
                 }
             }
 
@@ -886,26 +977,29 @@ function showBonusNotification() {
     notification.id = 'bonus-notification';
     notification.style.cssText = `
         position: absolute;
-        top: 10px;
+        top: 12px;
         left: 50%;
         transform: translateX(-50%);
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
-        padding: 12px 24px;
+        background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+        color: #f59e0b;
+        padding: 11px 22px;
         border-radius: 50px;
+        border: 1.5px solid rgba(245, 158, 11, 0.45);
         font-weight: 700;
         font-size: 14px;
-        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 0 rgba(245, 158, 11, 0.45);
         z-index: 10000;
-        animation: bonusPulse 2s ease-in-out infinite;
+        animation: bonusPulse 2.4s ease-in-out infinite;
         display: flex;
         align-items: center;
         gap: 8px;
+        white-space: nowrap;
+        max-width: calc(100% - 32px);
     `;
     
     notification.innerHTML = `
-        <span style="font-size: 20px;">🎁</span>
-        <span>${getCurrentLanguage() === 'ru' ? 'Ваш бонус готов! Открытие через' : getCurrentLanguage() === 'ro' ? 'Bonusul tău este gata! Se deschide în' : 'Your bonus is ready! Opening in'} <span id="bonus-countdown">4</span>${getCurrentLanguage() === 'ru' ? ' сек...' : 's...'}</span>
+        <span style="font-size: 18px;" aria-hidden="true">🎁</span>
+        <span style="color: #ffffff;">${getCurrentLanguage() === 'ru' ? 'Ваш бонус готов! Открытие через' : getCurrentLanguage() === 'ro' ? 'Bonusul tău este gata! Se deschide în' : 'Your bonus is ready! Opening in'} <span id="bonus-countdown" style="color: #f59e0b; font-weight: 800;">4</span>${getCurrentLanguage() === 'ru' ? ' сек...' : 's...'}</span>
     `;
     
     if (!document.getElementById('bonus-notification-styles')) {
@@ -913,8 +1007,19 @@ function showBonusNotification() {
         style.id = 'bonus-notification-styles';
         style.textContent = `
             @keyframes bonusPulse {
-                0%, 100% { transform: translateX(-50%) scale(1); }
-                50% { transform: translateX(-50%) scale(1.05); }
+                0%, 100% {
+                    transform: translateX(-50%) scale(1);
+                    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 0 rgba(245, 158, 11, 0.45);
+                }
+                65% {
+                    transform: translateX(-50%) scale(1.03);
+                    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 14px rgba(245, 158, 11, 0);
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                #bonus-notification {
+                    animation: none !important;
+                }
             }
         `;
         document.head.appendChild(style);
