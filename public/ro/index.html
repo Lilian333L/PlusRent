@@ -124,271 +124,6 @@
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
 <!-- iOS zoom prevention + touch-action -->
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-/* PlusRent — Index Page Design Tokens & Components */
-:root {
-  /* Brand gold */
-  --gold:           #f59e0b;
-  --gold-dark:      #d97706;
-  --gold-darker:    #b45309;
-  --gold-light:     rgba(245,158,11,0.10);
-  --gold-mid:       rgba(245,158,11,0.18);
-  --gold-border:    rgba(245,158,11,0.25);
-
-  /* Luxury dark palette (colors.csv: Luxury/Premium Brand #1C1917) */
-  --luxury-black:   #1C1917;
-  --luxury-dark:    #292524;
-  --luxury-muted:   #44403C;
-  --dark:           #1e293b;
-  --dark-2:         #0f172a;
-
-  /* Surfaces (colors.csv: Luxury #FAFAF9) */
-  --surface:        #f8fafc;
-  --surface-warm:   #FAFAF9;
-  --white:          #ffffff;
-
-  /* Typography */
-  --gray:           #64748b;
-  --gray-light:     #94a3b8;
-  --border:         #e2e8f0;
-  --border-warm:    #e7e5e4;
-
-  /* Status */
-  --blue:           #1E90FF;
-  --blue-dark:      #187bcd;
-  --green:          #16a34a;
-
-  /* Shadows — multi-layer for depth */
-  --shadow-gold:    0 4px 14px rgba(245,158,11,0.20), 0 8px 28px rgba(245,158,11,0.15);
-  --shadow-gold-lg: 0 8px 24px rgba(245,158,11,0.22), 0 20px 50px rgba(245,158,11,0.18);
-  --shadow-card:    0 1px 3px rgba(0,0,0,0.04), 0 4px 18px rgba(0,0,0,0.07);
-  --shadow-card-lg: 0 2px 6px rgba(0,0,0,0.04), 0 12px 36px rgba(0,0,0,0.10);
-  --shadow-luxury:  0 4px 6px rgba(28,25,23,0.06), 0 16px 48px rgba(28,25,23,0.12);
-
-  /* Radii */
-  --r-sm:   10px;
-  --r-md:   16px;
-  --r-lg:   22px;
-  --r-xl:   32px;
-  --r-full: 999px;
-
-  /* Timing (ux-guidelines.csv: 150-300ms micro-interactions) */
-  --t-fast:    all 0.15s cubic-bezier(0.0, 0.0, 0.2, 1);
-  --t-base:    all 0.22s cubic-bezier(0.0, 0.0, 0.2, 1);
-  --t-med:     all 0.30s cubic-bezier(0.0, 0.0, 0.2, 1);
-  --t-slow:    all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  /* z-index scale (html-tailwind.csv) */
-  --z-base:    10;
-  --z-sticky:  20;
-  --z-dropdown:30;
-  --z-float:   40;
-  --z-modal:   50;
-  --z-toast:   9999;
-}
-
-/* === KEY COMPONENTS === */
-.scroll-progress {
-  position: fixed; top: 0; left: 0;
-  height: 3px; width: 0%; z-index: calc(var(--z-toast) + 2);
-  background: linear-gradient(90deg, var(--gold-darker), var(--gold), var(--gold-dark));
-  transition: width 0.08s linear;
-  box-shadow: 0 0 10px rgba(245,158,11,0.5);
-}
-header.sticky-active {
-  position: fixed !important; top: 0; left: 0; right: 0;
-  background: var(--luxury-black) !important;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.25);
-  animation: slideDown 0.28s cubic-bezier(0.0, 0.0, 0.2, 1);
-  z-index: calc(var(--z-sticky) * 400);
-}
-header.sticky-active #topbar { display: none !important; }
-header.sticky-active #mainmenu li a { color: rgba(255,255,255,0.88) !important; transition: var(--t-base); }
-header.sticky-active #mainmenu li a:hover { color: var(--gold) !important; }
-header.sticky-active .logo-1 { display: inline-block !important; }
-header.sticky-active .logo-2 { display: none !important; }
-.floating-contact-btn {
-  position: fixed; bottom: 28px; right: 28px;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-  color: var(--luxury-black); border: none; display: flex;
-  align-items: center; justify-content: center;
-  font-size: 1.4rem; cursor: pointer;
-  box-shadow: var(--shadow-gold-lg); z-index: var(--z-float);
-  transition: var(--t-med); touch-action: manipulation;
-  animation: floatPulse 2.8s ease-in-out infinite;
-}
-.floating-contact-btn:hover { transform: scale(1.10); animation: none; box-shadow: var(--shadow-gold-lg); }
-@media(max-width:768px){ .floating-contact-btn{ bottom:22px; right:22px; width:50px; height:50px; font-size:1.25rem; }
-.contact-popup-overlay { display: none; position: fixed; inset: 0; background: rgba(28,25,23,0.60); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; cursor: pointer; }
-.contact-popup { background: var(--white); border-radius: var(--r-xl); width: 100%; max-width: 420px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.15); animation: slideUp 0.28s cubic-bezier(0.0,0.0,0.2,1); cursor: default; }
-.contact-popup-header { background: linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-dark) 100%); border-bottom: 3px solid var(--gold); color: #fff; padding: 28px 22px; position: relative; text-align: center; }
-.contact-popup-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.10), transparent 60%); }
-.contact-popup-header h3 { color: #fff; font-size: 1.35rem; font-weight: 900; margin: 0 0 5px; position: relative; }
-.contact-popup-header p { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin: 0; position: relative; }
-.contact-popup-close { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: var(--t-base); touch-action: manipulation; z-index: 10; }
-.contact-popup-close:hover { background: rgba(255,255,255,0.22); color: #fff; transform: rotate(90deg); }
-.contact-popup-body { padding: 14px; }
-@media(max-width:768px){ .contact-popup{ max-width:100%; } .contact-popup-header{ padding:22px 18px; } .contact-popup-header h3{ font-size:1.2rem; }
-.contact-options { padding: 64px 0; background: var(--white); }
-.contact-options { padding: 60px 0; background: var(--surface-warm); }
-.contact-option { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--r-md); cursor: pointer; transition: var(--t-base); margin-bottom: 6px; text-decoration: none; border: 1.5px solid transparent; touch-action: manipulation; }
-.contact-option:hover { background: var(--surface-warm); border-color: var(--border-warm); transform: translateX(4px); text-decoration: none; }
-.contact-option:last-child { margin-bottom: 0; }
-.contact-option-icon { flex-shrink: 0; width: 50px; height: 50px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; }
-.contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
-.contact-option.viber .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
-.contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
-.contact-option.phone .contact-option-icon { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); }
-.contact-option-title { font-weight: 700; color: var(--dark); font-size: 1rem; margin-bottom: 2px; }
-.contact-option-subtitle { color: var(--gray); font-size: 0.84rem; }
-.contact-option-arrow { color: var(--gray-light); font-size: 1rem; transition: var(--t-fast); margin-left: auto; }
-.contact-option:hover .contact-option-arrow { color: var(--gold-dark); transform: translateX(3px); }
-.success-modal {
-  display: none; position: fixed; inset: 0;
-  background: rgba(28,25,23,0.65); backdrop-filter: blur(12px);
-  z-index: var(--z-toast); align-items: center; justify-content: center; padding: 20px;
-}
-.success-modal-box {
-  background: var(--white); border-radius: var(--r-xl);
-  padding: 50px 40px; max-width: 400px; width: 100%;
-  text-align: center;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.15);
-}
-.success-modal-box h3 { font-size: 1.6rem; font-weight: 900; color: var(--dark); margin-bottom: 10px; }
-.success-modal-box p  { color: var(--gray); font-size: 0.95rem; line-height: 1.6; }
-.success-modal-details {
-  background: var(--surface-warm); border-radius: var(--r-md);
-  padding: 16px 20px; margin: 18px 0; text-align: left;
-  border: 1px solid var(--border);
-}
-.success-modal-details p { display: flex; gap: 10px; align-items: flex-start; margin: 6px 0; color: var(--dark); font-size: 0.9rem; }
-.success-modal-details p:last-child { margin-bottom: 0; }
-.success-modal-details i { color: var(--gold-dark); margin-top: 2px; flex-shrink: 0; }
-.success-modal { display: none; position: fixed; inset: 0; background: rgba(28,25,23,0.65); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; }
-.success-modal[style*="block"] { display: flex !important; }
-.success-modal-content { background: var(--white); border-radius: var(--r-xl); padding: 44px 36px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.22), 0 0 0 1px rgba(245,158,11,0.12); animation: bounceIn 0.45s cubic-bezier(0.34,1.56,0.64,1); }
-.live-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--green);
-  color: #fff;
-  padding: 8px 20px; border-radius: var(--r-full);
-  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 18px rgba(22,163,74,0.4), 0 0 0 3px rgba(22,163,74,0.15);
-  margin-bottom: 20px;
-  transition: var(--t-base);
-}
-.live-dot {
-  width: 8px; height: 8px;
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
-  animation: livePulse 2s ease-in-out infinite;
-}
-.fade-in {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.5s cubic-bezier(0.0, 0.0, 0.2, 1),
-              transform 0.5s cubic-bezier(0.0, 0.0, 0.2, 1);
-}
-.fade-in.visible { opacity: 1; transform: translateY(0); }
-.eyebrow {
-  display: inline-block;
-  background: var(--gold-light);
-  color: var(--gold-dark);
-  border: 1px solid var(--gold-border);
-  padding: 6px 18px; border-radius: var(--r-full);
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 1.4px;
-  text-transform: uppercase; margin-bottom: 14px;
-}
-.eyebrow.center  { display: block; text-align: center; }
-.eyebrow.light   { background: rgba(245,158,11,0.14); color: var(--gold); border-color: rgba(245,158,11,0.28); }
-.eyebrow.white   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.15); }
-.eyebrow-center { display: block; text-align: center; }
-.section-title {
-  font-size: clamp(1.6rem, 3vw, 2.15rem);
-  font-weight: 900; color: var(--dark);
-  text-align: center; margin-bottom: 12px;
-  line-height: 1.2; letter-spacing: -0.02em;
-}
-.section-title.white { color: #fff; }
-.section-title { font-size: clamp(1.6rem, 2.8vw, 2rem); font-weight: 900; color: var(--dark); text-align: center; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.02em; }
-.section-sub {
-  text-align: center; color: var(--gray);
-  font-size: 1.03rem; max-width: 580px;
-  margin: 0 auto 40px; line-height: 1.7;
-}
-.section-sub.white { color: rgba(255,255,255,0.82); }
-.section-subtitle { text-align: center; color: var(--gray); font-size: 1.03rem; margin-bottom: 35px; max-width: 680px; margin-left: auto; margin-right: auto; line-height: 1.65; }
-
-/* Homepage-specific sections */
-
-/* ========================================================
-   INDEX PAGE — Homepage specific components
-   Design system: gold dominant, Sora font
-   ======================================================== */
-
-/* Trust signals */
-.trust-signals { padding: 72px 0; background: var(--white); }
-.trust-header { text-align: center; margin-bottom: 48px; }
-.trust-eyebrow { display: block; color: var(--gold); font-size: 1.1rem; letter-spacing: 2px; margin-bottom: 10px; }
-.trust-title { font-size: clamp(1.65rem, 3vw, 2.1rem); font-weight: 900; color: var(--dark); margin-bottom: 12px; letter-spacing: -0.02em; }
-.trust-subtitle { color: var(--gray); font-size: 1rem; max-width: 560px; margin: 0 auto; line-height: 1.65; }
-.trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 980px; margin: 0 auto; }
-.trust-card { background: var(--white); border: 1.5px solid var(--border-warm); border-radius: var(--r-lg); padding: 28px 22px; text-align: center; transition: var(--t-med); position: relative; overflow: hidden; }
-.trust-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold-darker), var(--gold), var(--gold-dark)); opacity: 0; transition: var(--t-base); }
-.trust-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-card-lg); border-color: var(--gold-border); }
-.trust-card:hover::before { opacity: 1; }
-.trust-icon { width: 54px; height: 54px; margin: 0 auto 16px; background: var(--gold-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold-dark); border: 1px solid var(--gold-border); transition: var(--t-base); }
-.trust-card:hover .trust-icon { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; border-color: transparent; }
-.trust-icon svg { width: 24px; height: 24px; }
-.trust-card-title { font-size: 0.97rem; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
-.trust-card-desc { font-size: 0.84rem; color: var(--gray); line-height: 1.5; }
-@media (max-width: 768px) { .trust-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
-@media (max-width: 480px) { .trust-grid { grid-template-columns: 1fr; } }
-
-/* Services grid */
-.services-section { padding: 80px 0; background: var(--surface-warm); }
-.services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 980px; margin: 40px auto 0; }
-.service-card { background: var(--white); border-radius: var(--r-xl); overflow: hidden; border: 1.5px solid var(--border-warm); transition: var(--t-slow); display: flex; flex-direction: column; position: relative; }
-.service-card::after { content: ''; position: absolute; inset: 0; border-radius: var(--r-xl); box-shadow: 0 0 0 0 rgba(245,158,11,0); transition: var(--t-med); pointer-events: none; }
-.service-card:hover { transform: translateY(-7px); box-shadow: var(--shadow-luxury); border-color: var(--gold-border); }
-.service-card:hover::after { box-shadow: 0 0 0 2px var(--gold-border); }
-.service-card-img { width: 100%; height: 200px; background: linear-gradient(135deg, var(--luxury-dark), var(--luxury-black)); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.service-card-img .svc-icon { font-size: 4rem; opacity: 0.6; transition: var(--t-med); }
-.service-card:hover .svc-icon { opacity: 0.9; transform: scale(1.1); }
-.service-card-badge { position: absolute; top: 14px; left: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; padding: 5px 14px; border-radius: var(--r-full); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: var(--shadow-gold); }
-.service-card-body { padding: 24px 22px; flex-grow: 1; display: flex; flex-direction: column; }
-.service-card-title { font-size: 1.15rem; font-weight: 900; color: var(--dark); margin-bottom: 7px; letter-spacing: -0.01em; }
-.service-card-desc { color: var(--gray); font-size: 0.88rem; line-height: 1.65; margin-bottom: 18px; flex-grow: 1; }
-.service-card-price { font-size: 0.78rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 4px; }
-.service-card-price-val { font-size: 1.6rem; font-weight: 900; color: var(--dark); letter-spacing: -0.03em; margin-bottom: 18px; }
-.service-card-price-val span { font-size: 0.9rem; color: var(--gray); font-weight: 400; }
-.service-card-cta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.service-card-link { display: inline-flex; align-items: center; gap: 7px; color: var(--gold-dark); font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: var(--t-base); }
-.service-card-link:hover { color: var(--gold); gap: 10px; text-decoration: none; }
-.service-card-btn { display: inline-flex; align-items: center; gap: 7px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #fff; padding: 10px 20px; border-radius: var(--r-full); font-weight: 800; font-size: 0.88rem; text-decoration: none; box-shadow: var(--shadow-gold); transition: var(--t-med); cursor: pointer; border: none; font-family: inherit; touch-action: manipulation; }
-.service-card-btn:hover { background: linear-gradient(135deg, var(--gold-dark), var(--gold-darker)); box-shadow: var(--shadow-gold-lg); transform: translateY(-2px); color: #fff; text-decoration: none; }
-@media (max-width: 768px) { .services-grid { grid-template-columns: 1fr; gap: 14px; } .service-card-img { height: 160px; } }
-
-/* Stats section */
-.stats-section { padding: 72px 0; background: linear-gradient(160deg, var(--luxury-black), var(--luxury-dark)); position: relative; overflow: hidden; }
-.stats-section::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f59e0b' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; z-index: 1; }
-.stat-item { text-align: center; padding: 24px 16px; background: rgba(255,255,255,0.05); border-radius: var(--r-md); border: 1px solid rgba(255,255,255,0.08); transition: var(--t-base); }
-.stat-item:hover { background: rgba(255,255,255,0.09); }
-.stat-num { font-size: 2.8rem; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 6px; letter-spacing: -0.03em; }
-.stat-label { font-size: 0.88rem; color: rgba(255,255,255,0.7); font-weight: 500; }
-@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } .stat-num { font-size: 2.2rem; } }
-
-/* Hero styling overrides */
-#section-hero .hero-subtitle { text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
-
-/* Marquee bar */
-section[aria-label="Flota auto disponibilă"] { background: var(--luxury-dark) !important; }
-
-</style>
 <style>
   /* ── font-size 16px prevents iOS auto-zoom on input focus ── */
   /* Works as backup even with user-scalable=no */
@@ -1328,87 +1063,7 @@ section[aria-label="Flota auto disponibilă"] { background: var(--luxury-dark) !
         </div>
       </section>
 
-      <!-- SERVICES SECTION -->
-<section class="services-section">
-  <div class="container">
-    <span class="eyebrow center" style="display:block;text-align:center;background:rgba(245,158,11,0.1);color:#d97706;border:1px solid rgba(245,158,11,0.2);padding:5px 16px;border-radius:999px;font-size:0.72rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px;">SERVICIILE NOASTRE</span>
-    <h2 class="section-title" style="font-size:clamp(1.6rem,2.8vw,2rem);font-weight:800;color:#1e293b;text-align:center;margin-bottom:12px;">Tot ce ai nevoie — un singur număr</h2>
-    <p style="text-align:center;color:#64748b;font-size:1rem;margin-bottom:0;max-width:580px;margin-left:auto;margin-right:auto;">Transport premium, șoferi profesioniști, disponibil 24/7. Fără avans, fără surprize.</p>
-    <div class="services-grid">
-
-      <div class="service-card fade-in">
-        <div class="service-card-img">
-          <span class="service-card-badge">24/7 · Non-Stop</span>
-          <span class="svc-icon">🚗</span>
-        </div>
-        <div class="service-card-body">
-          <div class="service-card-title">Șofer Treaz Chișinău</div>
-          <div class="service-card-desc">Ai băut? Un șofer profesionist vine la tine în 15–20 minute și conduce mașina ta acasă în siguranță. Disponibil 24/7 în Chișinău și toată Moldova.</div>
-          <div class="service-card-price">DE LA</div>
-          <div class="service-card-price-val">150 MDL <span>/ cursă</span></div>
-          <div class="service-card-cta">
-            <a href="/ro/sofer-treaz" class="service-card-link">Detalii <i class="fa fa-arrow-right" style="font-size:0.8rem;"></i></a>
-            <button onclick="openContactPopup('sofer-treaz')" class="service-card-btn"><i class="fa fa-phone"></i> Comandă</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card fade-in">
-        <div class="service-card-img">
-          <span class="service-card-badge">Aeroport KIV</span>
-          <span class="svc-icon">✈️</span>
-        </div>
-        <div class="service-card-body">
-          <div class="service-card-title">Transfer Aeroport Chișinău</div>
-          <div class="service-card-desc">Transfer privat preț fix, urmărire zbor în timp real. Driver cu pancartă în aeroport. Standard / Business / VIP Executiv.</div>
-          <div class="service-card-price">DE LA</div>
-          <div class="service-card-price-val">800 MDL <span>/ cursă</span></div>
-          <div class="service-card-cta">
-            <a href="/ro/transfer-chisinau" class="service-card-link">Detalii <i class="fa fa-arrow-right" style="font-size:0.8rem;"></i></a>
-            <button onclick="openContactPopup('transfer-kiv')" class="service-card-btn"><i class="fa fa-comments"></i> Rezervă</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card fade-in">
-        <div class="service-card-img">
-          <span class="service-card-badge">Chișinău → Iași</span>
-          <span class="svc-icon">🛣️</span>
-        </div>
-        <div class="service-card-body">
-          <div class="service-card-title">Transfer Chișinău — Iași</div>
-          <div class="service-card-desc">Transfer transfrontalier ușă-la-ușă. Include aeroport Iași (IAS). Preț fix în EUR, șoferul gestionează vama. Fără avans.</div>
-          <div class="service-card-price">DE LA</div>
-          <div class="service-card-price-val">€140 <span>/ cursă</span></div>
-          <div class="service-card-cta">
-            <a href="/ro/transfer-iasi" class="service-card-link">Detalii <i class="fa fa-arrow-right" style="font-size:0.8rem;"></i></a>
-            <button onclick="openContactPopup('transfer-iasi')" class="service-card-btn"><i class="fa fa-comments"></i> Rezervă</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card fade-in">
-        <div class="service-card-img">
-          <span class="service-card-badge">Executiv 24/7</span>
-          <span class="svc-icon">👔</span>
-        </div>
-        <div class="service-card-body">
-          <div class="service-card-title">Șofer Personal Chișinău</div>
-          <div class="service-card-desc">Șofer executiv pentru directori și expați. Pe mașina ta (de la 2.000 MDL) sau pe mașinile noastre premium (de la 3.500 MDL). Multilingv RO/RU/EN.</div>
-          <div class="service-card-price">DE LA</div>
-          <div class="service-card-price-val">2.000 MDL <span>/ zi</span></div>
-          <div class="service-card-cta">
-            <a href="/ro/sofer-personal" class="service-card-link">Detalii <i class="fa fa-arrow-right" style="font-size:0.8rem;"></i></a>
-            <button onclick="openContactPopup('sofer-personal')" class="service-card-btn"><i class="fa fa-comments"></i> Rezervă</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="section-cars">
+      <section id="section-cars">
         <div class="container">
           <div class="row align-items-center">
             <div class="col-lg-6 offset-lg-3 text-center">
@@ -1453,18 +1108,46 @@ section[aria-label="Flota auto disponibilă"] { background: var(--luxury-dark) !
           </div>
         </div>
       </section>
-      <section class="stats-section">
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat-item fade-in"><div class="stat-num">439+</div><div class="stat-label">Comenzi Finalizate</div></div>
-      <div class="stat-item fade-in"><div class="stat-num">★5.0</div><div class="stat-label">Rating Google</div></div>
-      <div class="stat-item fade-in"><div class="stat-num">3+</div><div class="stat-label">Ani de Experiență</div></div>
-      <div class="stat-item fade-in"><div class="stat-num">24/7</div><div class="stat-label">Disponibil Non-Stop</div></div>
-    </div>
-  </div>
-</section>
-
-
+      <section class="text-light jarallax">
+        <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" loading="lazy" alt="PlusRent Background">
+        <div class="container">
+          <div class="row g-5">
+            <div class="col-lg-6 wow fadeInRight">
+              <h2 data-i18n="about.offer">Ce Oferim</h2>
+            </div>
+            <div class="col-lg-6 wow fadeInLeft">
+              <span data-i18n="about.description">PlusRent oferă servicii complete de închirieri auto în Chișinău cu livrare 24/7 la aeroport. Flota noastră modernă include vehicule de la branduri premium, toate bine întreținute și pregătite pentru călătoria ta.</span>
+            </div>
+          </div>
+          <div class="spacer-double"></div>
+          <div class="row text-center">
+            <div class="col-md-3 col-sm-6 mb-sm-30">
+              <div class="de_count transparent text-light wow fadeInUp">
+                <h3 class="timer" data-to="439" data-speed="3000">439</h3>
+                <span data-i18n="about.completed_orders">Comenzi Finalizate</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30">
+              <div class="de_count transparent text-light wow fadeInUp">
+                <h3 class="timer" data-to="350" data-speed="3000">350</h3>
+                <span data-i18n="about.happy_customers">Clienți Mulțumiți</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30">
+              <div class="de_count transparent text-light wow fadeInUp">
+                <h3 class="timer" data-to="7" data-speed="3000">7</h3>
+                <span data-i18n="about.vehicles_fleet">Flota de Vehicule</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-sm-30">
+              <div class="de_count transparent text-light wow fadeInUp">
+                <h3 class="timer" data-to="3" data-speed="3000">3</h3>
+                <span data-i18n="about.years_experience">Ani de Experiență</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
     <section id="seo-content" class="pt60 pb60" style="background: #ffffff; border-top: 1px solid #e5e7eb;">
       <div class="container">
@@ -2515,114 +2198,5 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   ob.observe(document.body, { childList: true, subtree: true });
 })();
-</script>
-<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contactați-ne">
-  <i class="fa fa-comments"></i>
-</button>
-
-<div id="contactPopup" class="contact-popup-overlay">
-  <div class="contact-popup">
-    <div class="contact-popup-header">
-      <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide"><i class="fa fa-times"></i></button>
-      <h3>Contactați-ne 24/7</h3>
-      <p>Alegeți metoda preferată de contact</p>
-    </div>
-    <div class="contact-popup-body">
-      <a href="https://wa.me/37360000500?text=Bun%C4%83%21%20A%C8%99%20dori%20s%C4%83%20rezerv%20un%20%C8%99ofer%20personal.%20Pute%C8%9Bi%20oferi%20detalii%3F" onclick="event.preventDefault();openWhatsApp();" target="_blank" rel="noopener" class="contact-option whatsapp"><div class="contact-option-icon"><i class="fab fa-whatsapp"></i></div><div class="contact-option-content"><div class="contact-option-title">WhatsApp</div><div class="contact-option-subtitle">Chat rapid &middot; Răspuns imediat</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="https://t.me/plusrent" onclick="event.preventDefault();openTelegram();" target="_blank" rel="noopener" class="contact-option telegram"><div class="contact-option-icon"><i class="fab fa-telegram"></i></div><div class="contact-option-content"><div class="contact-option-title">Telegram</div><div class="contact-option-subtitle">@plusrent &middot; Mesagerie rapidă</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="viber://chat?number=%2B37360000500" onclick="event.preventDefault();openViber();" rel="noopener" class="contact-option viber"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Viber</div><div class="contact-option-subtitle">Voce și mesaje</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-      <a href="tel:+37360000500" onclick="event.preventDefault();makeDirectCall();" class="contact-option phone"><div class="contact-option-icon"><i class="fa fa-phone"></i></div><div class="contact-option-content"><div class="contact-option-title">Apel Direct</div><div class="contact-option-subtitle">+373 60 000 500</div></div><i class="fa fa-chevron-right contact-option-arrow"></i></a>
-    </div>
-  </div>
-</div>
-
-<script src="/js/plugins.js" defer></script>
-<script src="/js/burger-menu-fix.js" defer></script>
-<script src="/js/designesia.js" defer></script>
-<script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" defer></script>
-<script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
-<script src="/js/i18n-init.js" defer></script>
-<script src="/js/universal-include.js" defer></script>
-
-<script>
-const WHATSAPP_TEXTS = {
-  default:         "Bună ziua PlusRent! Sunt interesat de serviciile voastre. Puteți oferi mai multe detalii?",
-  'sofer-treaz':   "Bună ziua PlusRent! Am nevoie de un șofer treaz acum. Puteți trimite pe cineva?",
-  'transfer-kiv':  "Bună ziua PlusRent! Doresc să rezerv un transfer de la/spre aeroport Chișinău (KIV). Puteți oferi detalii?",
-  'transfer-iasi': "Bună ziua PlusRent! Doresc să rezerv un transfer Chișinău–Iași. Puteți oferi detalii și preț?",
-  'sofer-personal':"Bună ziua PlusRent! Sunt interesat de serviciul de șofer personal. Puteți oferi mai multe detalii?",
-};
-let currentCtx = 'default';
-
-function openContactPopup(ctx) {
-  currentCtx = (ctx && WHATSAPP_TEXTS[ctx]) ? ctx : 'default';
-  const overlay = document.getElementById('contactPopup');
-  overlay.style.display = 'flex';
-  const sy = window.scrollY;
-  document.body.style.cssText = `position:fixed;top:-${sy}px;width:100%;left:0;right:0;`;
-  document.body.dataset.scrollY = sy;
-}
-function closeContactPopup() {
-  document.getElementById('contactPopup').style.display = 'none';
-  const sy = parseInt(document.body.dataset.scrollY || '0');
-  document.body.style.cssText = '';
-  window.scrollTo(0, sy);
-  currentCtx = 'default';
-}
-function openWhatsApp() {
-  gtag_report_conversion();
-  const txt = encodeURIComponent(WHATSAPP_TEXTS[currentCtx] || WHATSAPP_TEXTS.default);
-  window.open(`https://wa.me/37360000500?text=${txt}`, '_blank');
-}
-function openViber()      { gtag_report_conversion(); window.open('viber://chat?number=+37360000500','_blank'); }
-function openTelegram()   { gtag_report_conversion(); window.open('https://t.me/plusrent','_blank'); }
-function makeDirectCall() { gtag_report_conversion(); window.location.href='tel:+37360000500'; }
-document.addEventListener('DOMContentLoaded', function() {
-  var popup = document.getElementById('contactPopup');
-  if(popup) popup.addEventListener('click', e => { if(e.target===e.currentTarget) closeContactPopup(); });
-});
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeContactPopup(); });
-</script>
-
-<script>
-(function(){
-  const bar = document.getElementById('scrollProgress');
-  const hdr = document.querySelector('header.transparent');
-  let ticking = false;
-  function update(){
-    const top = window.pageYOffset;
-    const total = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    if(bar) bar.style.width = (top/total*100)+'%';
-    if(hdr) hdr.classList.toggle('sticky-active', top > 200);
-    ticking = false;
-  }
-  window.addEventListener('scroll', ()=>{ if(!ticking){ requestAnimationFrame(update); ticking=true; } }, {passive:true});
-  update();
-  document.querySelectorAll('a[href^="#"]').forEach(a=>{
-    a.addEventListener('click', function(e){
-      const h=this.getAttribute('href');
-      if(h==='#'||h==='#top') return;
-      const t=document.querySelector(h);
-      if(t){ e.preventDefault(); window.scrollTo({top:t.offsetTop-80, behavior:'smooth'}); }
-    });
-  });
-  const els = document.querySelectorAll('.fade-in');
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('visible'); obs.unobserve(en.target); } });
-  }, { threshold: 0.10, rootMargin: '0px 0px -30px 0px' });
-  els.forEach(el=>obs.observe(el));
-})();
-</script>
-
-<script>
-(function(){
-  var els=document.querySelectorAll('.fade-in');
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('visible');obs.unobserve(en.target);}}); 
-  },{threshold:0.10,rootMargin:'0px 0px -30px 0px'});
-  els.forEach(function(el){obs.observe(el);});
-})();
-</script>
-
-</body>
+</script></body>
 </html>
