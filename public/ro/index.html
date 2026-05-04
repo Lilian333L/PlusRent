@@ -677,12 +677,13 @@ header.sticky-active #mainmenu li.active a { color: var(--pr-gold) !important; }
    ============================================================ */
 .btn-main {
   background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
-  color: var(--pr-black) !important;
+  color: #ffffff !important;
   border-radius: var(--pr-r-md) !important;
   font-weight: 700 !important;
   box-shadow: var(--pr-shadow-gold) !important;
   transition: var(--pr-t-base) !important;
   border: none !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.20);
 }
 .btn-main:hover, .btn-main:focus {
   background: linear-gradient(135deg, var(--pr-gold-dark) 0%, var(--pr-gold-darker) 100%) !important;
@@ -691,6 +692,17 @@ header.sticky-active #mainmenu li.active a { color: var(--pr-gold) !important; }
   box-shadow: var(--pr-shadow-gold-lg) !important;
 }
 .btn-main.btn-fullwidth { width: 100%; }
+
+/* Force-recolor any leftover Bootstrap "primary" (blue) usages → gold */
+.text-primary { color: var(--pr-gold-dark) !important; }
+.bg-primary   { background-color: var(--pr-gold) !important; }
+.border-primary { border-color: var(--pr-gold) !important; }
+/* Some templates use #1e90ff / dodgerblue / #3b82f6 / #2563eb hardcoded — neutralize on common interactive elements */
+a.text-primary, .price-summary-compact .text-primary,
+.modal-price-summary .text-primary, #vehicle-price.text-primary,
+#total-estimate.text-primary, #modal-total-estimate.text-primary {
+  color: var(--pr-gold-dark) !important;
+}
 
 /* Premium badge */
 .premium-badge {
@@ -1224,16 +1236,16 @@ footer .subfooter { background: var(--pr-dark) !important; }
           <div class="row align-items-center">
             <div class="col-lg-12 text-light">
               <div class="spacer-double mobile-hidden"></div>
-              <h1 class="mb-2" data-i18n="hero.title">
-                Chirie Auto <span class="gold-accent">Chisinau</span> — de la €15/zi
+              <h1 class="mb-2">
+                Chirie Auto <span style="color:var(--pr-gold);">Chisinau</span> — de la €15/zi
               </h1>
-              <p class="hero-subtitle text-light mb-3" style="font-size: 1.1rem; max-width: 720px;" data-i18n="hero.subtitle">
-                <strong>PlusRent</strong> ofera inchirieri auto in Chisinau si Moldova din 2022. Preturi de la <strong>€15/zi</strong>, asigurare <strong>RCA inclusa</strong>, fara avans la rezervare. Livrare 24/7 la Aeroportul Chisinau (KIV) si Iasi (IAS). Flota: BMW, Mercedes, Audi, Porsche, Volkswagen, Toyota.
+              <p class="hero-subtitle text-light mb-3" style="font-size: 1.06rem; max-width: 720px; line-height: 1.55;">
+                PlusRent ofera inchirieri auto in Chisinau si Moldova din 2022. Preturi de la €15/zi, asigurare RCA inclusa, fara avans la rezervare. Livrare 24/7 la Aeroportul Chisinau (KIV) si Iasi (IAS). Flota: BMW, Mercedes, Audi, Porsche, Volkswagen, Toyota.
               </p>
               <div class="hero-trust-pills" aria-label="Avantaje cheie">
-                <span class="pill"><i class="fa fa-check-circle"></i><span data-i18n="hero.pill_rca">RCA inclus</span></span>
-                <span class="pill"><i class="fa fa-bolt"></i><span data-i18n="hero.pill_noprepay">Fara avans</span></span>
-                <span class="pill"><i class="fa fa-clock-o"></i><span data-i18n="hero.pill_247">Livrare 24/7</span></span>
+                <span class="pill"><i class="fa fa-check-circle"></i><span>RCA inclus</span></span>
+                <span class="pill"><i class="fa fa-bolt"></i><span>Fara avans</span></span>
+                <span class="pill"><i class="fa fa-clock-o"></i><span>Livrare 24/7</span></span>
                 <span class="pill"><i class="fa fa-star"></i><span>5.0 ★ Google (30+)</span></span>
               </div>
               <div class="spacer-single"></div>
@@ -1695,92 +1707,68 @@ footer .subfooter { background: var(--pr-dark) !important; }
 
       <!-- COMPARISON TABLE removed per user request -->
 
-      <section class="text-light jarallax" aria-label="section">
-        <img src="/images/background/3.webp" width="1920" height="1080" loading="lazy" alt="Aventura cu PlusRent" class="jarallax-img">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-3">
-              <h2 data-i18n="adventure.title">Aventura Te Așteaptă</h2>
-              <div class="spacer-20"></div>
-            </div>
-            <div class="col-md-3">
-              <i class="fa fa-trophy de-icon mb20"></i>
-              <h3 class="h4" data-i18n="features.first_class_services">Servicii de Primă Clasă</h3>
-              <p data-i18n="features.first_class_services_desc">Experiență premium la fiecare pas</p>
-            </div>
-            <div class="col-md-3">
-              <i class="fa fa-road de-icon mb20"></i>
-              <h3 class="h4" data-i18n="features.road_assistance">Asistență Rutieră</h3>
-              <p data-i18n="features.road_assistance_desc">Suport 24/7 pe drum</p>
-            </div>
-            <div class="col-md-3">
-              <i class="fa fa-map-pin de-icon mb20"></i>
-              <h3 class="h4" data-i18n="features.free_pickup">Ridicare Gratuită</h3>
-              <p data-i18n="features.free_pickup_desc">Livrare la aeroport fără costuri extra</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="text-light jarallax">
+      <!-- ADVENTURE + ABOUT — merged into ONE section with single background -->
+      <section class="text-light jarallax pr-merged" aria-label="Despre PlusRent">
         <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" loading="lazy" alt="PlusRent Background">
         <div class="container">
-          <div class="row g-5">
-            <div class="col-lg-6 wow fadeInRight">
-              <h2 data-i18n="about.offer">Ce Oferim</h2>
+
+          <!-- Top row: 1 heading + 3 features -->
+          <div class="row align-items-stretch">
+            <div class="col-lg-3 mb-4 mb-lg-0">
+              <h2 style="font-weight:900;line-height:1.15;">Aventura Te Așteaptă</h2>
+              <p style="color:rgba(255,255,255,0.85);margin-top:14px;line-height:1.6;">Mașini moderne, livrare rapidă și suport 24/7 — chiria devine simplă cu PlusRent.</p>
             </div>
-            <div class="col-lg-6 wow fadeInLeft">
-              <span data-i18n="about.description">PlusRent oferă servicii complete de închirieri auto în Chișinău cu livrare 24/7 la aeroport. Flota noastră modernă include vehicule de la branduri premium, toate bine întreținute și pregătite pentru călătoria ta.</span>
+            <div class="col-md-3 mb-4 mb-md-0">
+              <i class="fa fa-trophy de-icon mb20" style="color:var(--pr-gold);"></i>
+              <h3 class="h4">Servicii de Primă Clasă</h3>
+              <p style="color:rgba(255,255,255,0.85);">Experiență premium la fiecare pas — de la rezervare până la returnarea mașinii.</p>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+              <i class="fa fa-road de-icon mb20" style="color:var(--pr-gold);"></i>
+              <h3 class="h4">Asistență Rutieră 24/7</h3>
+              <p style="color:rgba(255,255,255,0.85);">Suport telefonic în orice moment al zilei sau nopții, oriunde te-ai afla pe drum.</p>
+            </div>
+            <div class="col-md-3">
+              <i class="fa fa-map-pin de-icon mb20" style="color:var(--pr-gold);"></i>
+              <h3 class="h4">Ridicare Gratuită</h3>
+              <p style="color:rgba(255,255,255,0.85);">Livrare la Aeroportul Chișinău fără costuri suplimentare în programul de lucru.</p>
             </div>
           </div>
+
           <div class="spacer-double"></div>
+
+          <!-- Counters row: 4 stats -->
           <div class="row text-center">
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="439" data-speed="3000">439</h3>
-                <span data-i18n="about.completed_orders">Comenzi Finalizate</span>
+                <h3 class="timer" data-to="439" data-speed="3000" style="color:var(--pr-gold);">439</h3>
+                <span>Comenzi Finalizate</span>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="350" data-speed="3000">350</h3>
-                <span data-i18n="about.happy_customers">Clienți Mulțumiți</span>
+                <h3 class="timer" data-to="350" data-speed="3000" style="color:var(--pr-gold);">350</h3>
+                <span>Clienți Mulțumiți</span>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="7" data-speed="3000">7</h3>
-                <span data-i18n="about.vehicles_fleet">Flota de Vehicule</span>
+                <h3 class="timer" data-to="8" data-speed="3000" style="color:var(--pr-gold);">8</h3>
+                <span>Mărci Premium</span>
               </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-sm-30">
               <div class="de_count transparent text-light wow fadeInUp">
-                <h3 class="timer" data-to="3" data-speed="3000">3</h3>
-                <span data-i18n="about.years_experience">Ani de Experiență</span>
+                <h3 class="timer" data-to="3" data-speed="3000" style="color:var(--pr-gold);">3</h3>
+                <span>Ani de Experiență</span>
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
-    <section id="seo-content" class="pt60 pb60" style="background: #ffffff; border-top: 1px solid #e5e7eb;">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-10 offset-lg-1">
-            <h2 class="text-center mb-4" data-i18n="seo.title">Chirie Auto Chisinau — PlusRent</h2>
-            
-            <p data-i18n="seo.paragraph_1">PlusRent ofera inchirieri auto in Chisinau si Moldova cu livrare 24/7 la aeroportul Chisinau. Preturi de la €15/zi, asigurare RCA inclusa, fara costuri ascunse. Flota include BMW, Mercedes, Audi, Volkswagen, Toyota — toate verificate tehnic si igienizate.</p>
-            <p data-i18n="seo.paragraph_2">Oferim chirie masina pentru o zi, o saptamana sau pe termen lung cu reduceri substantiale. Livrare gratuita la aeroport in programul de lucru, ridicare si returnare in locatii diferite (Chisinau, Aeroport, Iasi). Rezervarea dureaza sub 2 minute.</p>
-            <p data-i18n="seo.paragraph_3">Suport clienti non-stop la +373 60 000 500 — asistenta tehnica, modificari rezervari, sfaturi rute. Toate masinile includ asigurare RCA, climatizare si GPS.</p>
-            
-            
-            <div class="text-center mt-4">
-              <a href="/ro/cars" class="btn-main"><i class="fa fa-car"></i> <span data-i18n="seo.btn_fleet">Vezi Flota</span></a>
-              <a href="tel:+37360000500" class="btn-main ms-3"><i class="fa fa-phone"></i> <span data-i18n="seo.btn_call">Suna Acum</span></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- SEO content section removed (per user request — content duplicates the citability block at page bottom) -->
 
       <!-- VISIBLE FAQ — same answers as FAQPage schema, but visible for users + AI snippets -->
       <section id="visible-faq" aria-label="Intrebari frecvente despre chirie auto Chisinau">
