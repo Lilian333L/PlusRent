@@ -827,6 +827,602 @@ body.cars-listing-page { background: #fafafa; }
     max-height: none !important;
   }
 }
+
+/* ============================================================
+   CATALOG UX UPGRADES (3 features)
+   ============================================================ */
+
+/* === ACTIVE FILTER CHIPS — visible badges over the grid === */
+.pr-active-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  align-items: center;
+}
+.pr-active-chips[hidden] { display: none; }
+
+.pr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 12px;
+  background: rgba(245, 158, 11, 0.10);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1C1917;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  animation: prChipIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pr-chip-label {
+  color: #57534e;
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.pr-chip-value {
+  color: #1C1917;
+  font-weight: 700;
+}
+
+.pr-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  background: rgba(28, 25, 23, 0.08);
+  color: #1C1917;
+  border: none;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.18s, color 0.18s;
+}
+.pr-chip-remove:hover {
+  background: #1C1917;
+  color: #f59e0b;
+}
+.pr-chip-remove:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 1px;
+}
+
+.pr-chip-clear-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px dashed rgba(28, 25, 23, 0.30);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #78350f;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: all 0.18s;
+}
+.pr-chip-clear-all:hover {
+  background: #1C1917;
+  border-color: #1C1917;
+  color: #f59e0b;
+}
+
+@keyframes prChipIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* === Active filter count badge on mobile filter button === */
+.pr-active-count {
+  display: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #f59e0b;
+  color: #1C1917;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+  margin-left: 4px;
+}
+.pr-active-count.has-filters {
+  display: inline-block;
+}
+
+/* === COMPARISON CHECKBOX on each car card === */
+.de-item .pr-compare-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(28, 25, 23, 0.15);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1C1917;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  transition: all 0.22s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 32px;
+}
+.de-item .pr-compare-toggle:hover {
+  border-color: #f59e0b;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+.de-item .pr-compare-toggle.is-active {
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
+}
+.de-item .pr-compare-toggle .pr-compare-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.de-item .pr-compare-toggle.is-active .pr-compare-check {
+  background: #f59e0b;
+  color: #1C1917;
+  border-color: #f59e0b;
+}
+.de-item .pr-compare-toggle.is-active .pr-compare-check::before {
+  content: '✓';
+  font-weight: 900;
+}
+
+/* === COMPARISON FLOATING BAR (bottom of viewport when 2+ selected) === */
+.pr-compare-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(140%);
+  z-index: 998;
+  width: calc(100% - 32px);
+  max-width: 560px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(245, 158, 11, 0.15);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s;
+  opacity: 0;
+}
+.pr-compare-bar:not([hidden]) {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.pr-compare-bar[hidden] { display: none !important; }
+
+.pr-compare-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.pr-compare-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 0.92rem;
+}
+.pr-compare-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  background: #f59e0b;
+  color: #1C1917;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.pr-compare-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+}
+
+.pr-compare-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pr-compare-clear,
+.pr-compare-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.22s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 40px;
+}
+
+.pr-compare-clear {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.85);
+}
+.pr-compare-clear:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.50);
+}
+
+.pr-compare-go {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
+}
+.pr-compare-go:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.40);
+}
+
+@media (max-width: 575px) {
+  .pr-compare-bar {
+    bottom: 12px;
+    width: calc(100% - 16px);
+  }
+  .pr-compare-label { display: none; }
+  .pr-compare-clear span,
+  .pr-compare-go {
+    font-size: 0.82rem;
+  }
+}
+
+/* === COMPARISON MODAL === */
+.pr-compare-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+.pr-compare-modal[hidden] { display: none !important; }
+
+.pr-compare-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.65);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  animation: prFadeIn 0.22s ease;
+}
+
+@keyframes prFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pr-compare-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.30);
+  animation: prModalIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes prModalIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pr-compare-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border-bottom: 2px solid #f59e0b;
+}
+.pr-compare-modal-header h2 {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+.pr-compare-modal-close {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1.5px solid rgba(245, 158, 11, 0.40);
+  border-radius: 50%;
+  color: #f59e0b;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.22s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-compare-modal-close:hover {
+  background: #f59e0b;
+  color: #1C1917;
+  border-color: transparent;
+  transform: rotate(90deg);
+}
+
+.pr-compare-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+.pr-compare-grid {
+  display: grid;
+  gap: 14px;
+}
+@media (min-width: 768px) {
+  .pr-compare-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .pr-compare-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 767px) {
+  .pr-compare-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.pr-compare-car {
+  background: #fafafa;
+  border: 1px solid rgba(28, 25, 23, 0.08);
+  border-top: 3px solid #f59e0b;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pr-compare-car-img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+.pr-compare-car-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1C1917;
+  margin: 4px 0 0;
+}
+.pr-compare-car-price {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+}
+.pr-compare-car-specs {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+.pr-compare-car-specs li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(28, 25, 23, 0.10);
+}
+.pr-compare-car-specs li:last-child { border-bottom: none; }
+.pr-compare-car-specs .pr-spec-label {
+  color: #57534e;
+  font-weight: 500;
+}
+.pr-compare-car-specs .pr-spec-value {
+  color: #1C1917;
+  font-weight: 700;
+  text-align: right;
+}
+
+.pr-compare-car-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 14px;
+  background: #1C1917;
+  color: #f59e0b;
+  border: 1.5px solid rgba(245, 158, 11, 0.40);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  margin-top: auto;
+  transition: all 0.22s;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-compare-car-cta:hover {
+  background: #f59e0b;
+  color: #1C1917;
+  border-color: transparent;
+}
+
+.pr-compare-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #78350f;
+  font-size: 0.95rem;
+}
+
+/* === MOBILE FILTER BOTTOM SHEET (replace modal) === */
+@media (max-width: 767px) {
+  .mobile-filter-sidebar {
+    position: fixed !important;
+    bottom: 0;
+    top: auto !important;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 90vh;
+    border-radius: 22px 22px 0 0 !important;
+    transform: translateY(100%) !important;
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    z-index: 10001;
+    background: #ffffff;
+    box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.30);
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    border-top: 3px solid #f59e0b;
+  }
+  .mobile-filter-sidebar.open,
+  .mobile-filter-sidebar.is-open {
+    transform: translateY(0) !important;
+  }
+
+  /* Bottom sheet drag handle (visual affordance) */
+  .mobile-filter-sidebar::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    display: block;
+    width: 44px;
+    height: 5px;
+    background: rgba(28, 25, 23, 0.20);
+    border-radius: 4px;
+    margin: 8px auto 4px;
+  }
+
+  /* Backdrop overlay */
+  .mobile-filter-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 25, 23, 0.50);
+    -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .mobile-filter-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Apply/Cancel sticky footer in bottom sheet */
+  .pr-mobile-filter-footer {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    border-top: 1px solid rgba(28, 25, 23, 0.10);
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
+    margin-top: 16px;
+  }
+  .pr-mobile-filter-cancel,
+  .pr-mobile-filter-apply {
+    flex: 1;
+    min-height: 48px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.22s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pr-mobile-filter-cancel {
+    background: transparent;
+    border: 1.5px solid rgba(28, 25, 23, 0.20);
+    color: #57534e;
+  }
+  .pr-mobile-filter-cancel:hover,
+  .pr-mobile-filter-cancel:active {
+    background: rgba(28, 25, 23, 0.05);
+    border-color: rgba(28, 25, 23, 0.40);
+  }
+  .pr-mobile-filter-apply {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  }
+  .pr-mobile-filter-apply:hover,
+  .pr-mobile-filter-apply:active {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    transform: translateY(-1px);
+  }
+}
+
+/* === Reduced motion guards === */
+@media (prefers-reduced-motion: reduce) {
+  .pr-chip,
+  .pr-compare-bar,
+  .pr-compare-modal-content,
+  .pr-compare-modal-backdrop,
+  .mobile-filter-sidebar,
+  .mobile-filter-backdrop {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 
@@ -979,9 +1575,32 @@ body.cars-listing-page { background: #fafafa; }
       <!-- CARS CATALOG - ИМЕННО СРАЗУ -->
       <div id="cars-catalog" class="container cars-main-container" style="padding-top: 40px;">
         <div class="mobile-filter-button-container d-md-none">
-          <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()">
-            <i class="fa fa-filter"></i> <span data-i18n="cars.filter_cars">Filtrează Mașini</span>
+          <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()" type="button" aria-label="Deschide filtre">
+            <i class="fa fa-sliders" aria-hidden="true"></i>
+            <span data-i18n="cars.filter_cars">Filtrează Mașini</span>
+            <span class="pr-active-count" id="prActiveCount" aria-hidden="true"></span>
           </button>
+        </div>
+
+        <!-- ACTIVE FILTER CHIPS — populated by JS when filters applied -->
+        <div class="pr-active-chips" id="prActiveChips" role="region" aria-label="Filtre active" hidden></div>
+
+        <!-- COMPARISON BAR — appears when 2+ cars selected -->
+        <div class="pr-compare-bar" id="prCompareBar" role="region" aria-label="Comparare mașini" hidden>
+          <div class="pr-compare-bar-inner">
+            <div class="pr-compare-bar-info">
+              <span class="pr-compare-count" id="prCompareCount">0</span>
+              <span class="pr-compare-label">selectate pentru comparație</span>
+            </div>
+            <div class="pr-compare-bar-actions">
+              <button type="button" class="pr-compare-clear" onclick="prCompareClear()" aria-label="Șterge selecția">
+                <i class="fa fa-times" aria-hidden="true"></i> Șterge
+              </button>
+              <button type="button" class="pr-compare-go" onclick="prCompareOpen()">
+                Compară <i class="fa fa-arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="row">
@@ -1159,709 +1778,28 @@ body.cars-listing-page { background: #fafafa; }
 
       <!-- ================================================== -->
       <!-- INTRO SECTION — RO ONLY                            -->
-      <!-- ================================================== -->
-      <section class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
+            <!-- Catalog ends here. FAQ/avantajele/related sections removed for catalog focus. -->
 
-            <h2 style="font-size:1.5rem; color:#1C1917; text-align:center; margin-bottom:20px;">
-              Flotă Completă — Mașini de Închiriat din Catalog
-            </h2>
-
-            <p style="color:#475569; line-height:1.8; font-size:0.93rem;">
-              <strong>Chirie auto in Chisinau</strong> de la PlusRent — agenție profesională de chirie auto în capitala Moldovei.
-              Oferim o flotă modernă de peste <strong>20 de vehicule</strong>: BMW, Mercedes-Benz, Audi, Volkswagen, Skoda, Toyota, Hyundai, Honda.
-              Prețuri accesibile <strong>de la €15/zi</strong> pentru categoria Economy. Toate tarifele includ
-              <strong>asigurare RCA</strong> și <strong>asistență rutieră 24/7</strong>, fără costuri ascunse.
-            </p>
-
-            <p style="color:#475569; line-height:1.8; font-size:0.93rem;">
-              Servicii de <strong>chirie auto Chisinau</strong> cu livrare rapidă la <strong>Aeroport Chișinău</strong>
-              (gratuită în programul de lucru) și la <strong>Aeroport Iași</strong> (România). Ridicare și returnare din
-              locații diferite disponibilă — Chișinău, Aeroport Chișinău sau Aeroport Iași. Kilometrajul inclus este de
-              <strong>200 km/zi</strong>, iar călătoriile internaționale (România, Ucraina, UE) sunt permise cu notificare prealabilă.
-            </p>
-
-            <p style="color:#475569; line-height:1.8; font-size:0.93rem;">
-              La PlusRent, <strong>experiența de șofer contează mai mult decât vârsta</strong> — fiecare caz este evaluat individual.
-              Rezervarea durează sub 2 minute online sau la telefon <strong>+373 60 000 500</strong>.
-              Suport clienți non-stop, asistență tehnică 24/7 și echipă profesionistă.
-              <strong>Peste 439 de chirie auto finalizate</strong>, 27 recenzii Google cu rating mediu ★ 5.0.
-            </p>
-
-            <div style="text-align:center; margin-top:20px;">
-              <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:12px 28px; border-radius:25px; text-decoration:none; font-weight:600; font-size:14px;">
-                <i class="fa fa-phone"></i> +373 60 000 500
-              </a>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================== -->
-      <!-- WHY CHOOSE US — 6 Benefits                         -->
-      <!-- ================================================== -->
-      <section class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-
-            <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-              <i class="fa fa-star" style="color:#f59e0b; margin-right:8px;"></i>
-              Avantajele PlusRent — Mașini de Închiriat
-            </h2>
-            <p style="text-align:center; color:#64748b; margin-bottom:35px; font-size:1.05rem;">
-              Servicii premium la prețuri accesibile. Peste 439 de chirie auto finalizate, 27 recenzii Google ★ 5.0.
-            </p>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">🚗</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">Flotă Modernă & Diversificată</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Peste 20 de mașini disponibile: BMW, Mercedes, Audi, Volkswagen, Skoda, Toyota, Hyundai, Honda. Toate vehiculele cu mentenanță tehnică regulată.
-                </p>
-              </div>
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">✈️</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">Livrare la Aeroport Chișinău & Iași</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Livrăm mașina la <strong>Aeroport Chișinău</strong> (gratuit în program) și <strong>Aeroport Iași</strong>. Ridicare/returnare din locații diferite disponibilă.
-                </p>
-              </div>
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">🛡️</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">Asigurare RCA Inclusă</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Toate inchirierile includ <strong>asigurare RCA</strong> (răspundere civilă auto). Prețul afișat este prețul final — fără surprize.
-                </p>
-              </div>
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">🚨</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">Asistență Rutieră 24/7</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Suport permanent la +373 60 000 500. În caz de accident sau defecțiune — te ghidăm prin procedură și trimitem înlocuire.
-                </p>
-              </div>
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">👤</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">Flexibilitate pentru Fiecare Client</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Fiecare caz este <strong>evaluat individual</strong>. La PlusRent experiența de șofer contează mai mult decât vârsta. Găsim soluții pentru majoritatea clienților.
-                </p>
-              </div>
-
-              <div style="background:#fff; border-radius:12px; padding:28px 24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); border-top:3px solid #f59e0b; border-left:1px solid rgba(245,158,11,0.10);">
-                <div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#1C1917,#292524);border:1.5px solid rgba(245,158,11,0.30);font-size:1.75rem;margin-bottom:14px;box-shadow:0 4px 12px -2px rgba(28,25,23,0.30),inset 0 1px 0 rgba(245,158,11,0.18);">⭐</div>
-                <h3 style="color:#1C1917; font-size:1.15rem; margin-bottom:10px;">27 Recenzii Google ★ 5.0</h3>
-                <p style="color:#64748b; line-height:1.6; margin:0; font-size:0.95rem;">
-                  Peste 439 de chirie auto finalizate cu succes și 350+ clienți mulțumiți. Clienții apreciază profesionalismul și transparența noastră.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================== -->
-      <!-- HOW IT WORKS — 4 Steps                             -->
-      <!-- ================================================== -->
-      <section class="pt60 pb60" style="background:#fff; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-
-            <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-              <i class="fa fa-cogs" style="color:#3b82f6; margin-right:8px;"></i>
-              Cum Funcționează — Închiriere în 4 Pași
-            </h2>
-            <p style="text-align:center; color:#64748b; margin-bottom:35px; font-size:1.05rem;">
-              Proces simplu și rapid — de la alegerea mașinii până la livrarea la aeroport.
-            </p>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
-
-              <div style="background:#f8fafc; border-radius:12px; padding:28px 20px; text-align:center; border:1px solid #e5e7eb;">
-                <div style="width:60px; height:60px; margin:0 auto 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">1</div>
-                <h4 style="color:#1C1917; font-size:1.1rem; margin-bottom:10px;">Alege Vehiculul</h4>
-                <p style="color:#64748b; line-height:1.5; margin:0; font-size:0.9rem;">
-                  Navighează flota noastră modernă și folosește filtrele pentru mașina potrivită.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:12px; padding:28px 20px; text-align:center; border:1px solid #e5e7eb;">
-                <div style="width:60px; height:60px; margin:0 auto 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">2</div>
-                <h4 style="color:#1C1917; font-size:1.1rem; margin-bottom:10px;">Selectează Locația</h4>
-                <p style="color:#64748b; line-height:1.5; margin:0; font-size:0.9rem;">
-                  Aeroport Chișinău, Biroul Nostru sau Aeroport Iași — tu decizi unde primești mașina.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:12px; padding:28px 20px; text-align:center; border:1px solid #e5e7eb;">
-                <div style="width:60px; height:60px; margin:0 auto 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">3</div>
-                <h4 style="color:#1C1917; font-size:1.1rem; margin-bottom:10px;">Fă Rezervarea</h4>
-                <p style="color:#64748b; line-height:1.5; margin:0; font-size:0.9rem;">
-                  Completează formularul rapid — durează 2 minute. Te contactăm pentru confirmare în 24h.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:12px; padding:28px 20px; text-align:center; border:1px solid #e5e7eb;">
-                <div style="width:60px; height:60px; margin:0 auto 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">4</div>
-                <h4 style="color:#1C1917; font-size:1.1rem; margin-bottom:10px;">Relaxează-te</h4>
-                <p style="color:#64748b; line-height:1.5; margin:0; font-size:0.9rem;">
-                  Asigurare RCA inclusă, asistență 24/7, 200 km/zi. Noi ne ocupăm de rest.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================== -->
-      <!-- PRICING SECTION                                    -->
-      <!-- ================================================== -->
-      <section id="pricing" class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-            <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-              <i class="fa fa-tag" style="color:#f59e0b; margin-right:8px;"></i>
-              Cât Costă Închirierea unei Mașini în Chișinău?
-            </h2>
-            <p style="text-align:center; color:#64748b; margin-bottom:35px; font-size:1.05rem;">
-              Prețuri transparente. Asigurare RCA inclusă în toate tarifele. Asistență rutieră 24/7 inclusă.
-            </p>
-
-            <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden;">
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>
-                    Economy (Toyota Auris, Skoda Fabia, Hyundai i20)
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Mașini economice pentru oraș. RCA + asistență 24/7 + 200 km/zi</div>
-                </div>
-                <div style="font-weight:700; color:#d97706; font-size:1.3rem; white-space:nowrap;">de la €15/zi</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb; background:#fafafa;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>
-                    Standard (VW Passat, Skoda Octavia, Toyota Corolla)
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Mașini confortabile pentru familii sau business. RCA + asistență 24/7 + 200 km/zi</div>
-                </div>
-                <div style="font-weight:700; color:#d97706; font-size:1.3rem; white-space:nowrap;">de la €31/zi</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-car" style="color:#f59e0b; margin-right:8px;"></i>
-                    Premium (BMW, Mercedes, Audi, Porsche)
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Mașini premium pentru evenimente, nunți, VIP. Toate beneficiile incluse</div>
-                </div>
-                <div style="font-weight:700; color:#d97706; font-size:1.3rem; white-space:nowrap;">de la €61/zi</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb; background:#fafafa;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-plane" style="color:#f59e0b; margin-right:8px;"></i>
-                    Livrare Aeroport Chișinău
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">În programul de lucru (8:00-18:00). În afara orelor se aplică +€15 per ridicare</div>
-                </div>
-                <div style="font-weight:700; color:#059669; font-size:1.1rem; white-space:nowrap;">GRATUIT</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-plane" style="color:#f59e0b; margin-right:8px;"></i>
-                    Livrare Aeroport Iași (România)
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Alternativă pentru călători din UE — la 2.5 ore de Chișinău</div>
-                </div>
-                <div style="font-weight:700; color:#d97706; font-size:1.3rem; white-space:nowrap;">+€35</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb; background:#fafafa;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-road" style="color:#f59e0b; margin-right:8px;"></i>
-                    Kilometri incluși
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Calculează: 200 km × numărul de zile. Kilometri suplimentari contra cost</div>
-                </div>
-                <div style="font-weight:700; color:#059669; font-size:1.1rem; white-space:nowrap;">200 km/zi</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e5e7eb;">
-                <div>
-                  <div style="font-weight:700; color:#1C1917; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-credit-card" style="color:#f59e0b; margin-right:8px;"></i>
-                    Metode de plată
-                  </div>
-                  <div style="color:#64748b; font-size:0.9rem;">Numerar (EUR/MDL/USD), card bancar (Visa/MasterCard), transfer bancar, plată online</div>
-                </div>
-                <div style="font-weight:700; color:#059669; font-size:1rem; white-space:nowrap;">Cash / Card</div>
-              </div>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px; background:linear-gradient(135deg,#fef3c7,#fde68a);">
-                <div>
-                  <div style="font-weight:700; color:#78350f; font-size:1.05rem; margin-bottom:4px;">
-                    <i class="fa fa-star" style="color:#d97706; margin-right:8px;"></i>
-                    Reduceri pentru chirie auto pe perioade lungi
-                  </div>
-                  <div style="color:#92400e; font-size:0.9rem;">Închirieri de 7+ zile beneficiază de tarif preferențial. Oferte corporate disponibile.</div>
-                </div>
-                <div style="font-weight:800; color:#d97706; font-size:1.3rem; white-space:nowrap;">până la -20%</div>
-              </div>
-
-            </div>
-
-            <p style="text-align:center; color:#64748b; margin-top:25px; font-size:0.95rem;">
-              <i class="fa fa-info-circle" style="color:#3b82f6;"></i>
-              Închirierea minimă este de 24 ore. Garanția (depozit rambursabil) se aplică la ridicare și se returnează integral după returnarea mașinii fără daune.
-              Apelează <strong><a href="tel:+37360000500" style="color:#d97706;">+373 60 000 500</a></strong> pentru o ofertă personalizată.
-            </p>
-
-            <div style="text-align:center; margin-top:25px;">
-              <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="display:inline-flex; align-items:center; gap:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:14px 32px; border-radius:30px; text-decoration:none; font-weight:700; font-size:1rem; box-shadow:0 4px 15px rgba(245,158,11,0.4);">
-                <i class="fa fa-phone"></i> Sună Acum pentru Ofertă Personalizată
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================== -->
-      <!-- INFO BOX — Important details                        -->
-      <!-- ================================================== -->
-      <section class="pt60 pb60" style="background:#fff; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-
-            <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-              <i class="fa fa-info-circle" style="color:#3b82f6; margin-right:8px;"></i>
-              Informații Importante
-            </h2>
-            <p style="text-align:center; color:#64748b; margin-bottom:35px; font-size:1.05rem;">
-              Tot ce trebuie să știi despre chirie auto la PlusRent.
-            </p>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px;">
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-file-text" style="color:#3b82f6; margin-right:8px;"></i>
-                  Documente Necesare
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  Permis de conducere valabil și buletin de identitate sau pașaport. Pentru cetățenii străini — pașaport internațional și permis internațional (dacă cel național nu e în format UE).
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-lock" style="color:#3b82f6; margin-right:8px;"></i>
-                  Depozit de Garanție
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  Garanția este un <strong>depozit rambursabil</strong> care asigură returnarea mașinii în siguranță. Se returnează integral dacă mașina e returnată fără daune, amenzile sunt achitate și combustibilul la nivelul de la ridicare.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-road" style="color:#3b82f6; margin-right:8px;"></i>
-                  Limita Kilometri
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  <strong>200 km/zi</strong> inclusi în prețul de bază. Pentru 3 zile = 600 km, pentru 7 zile = 1400 km. Kilometri suplimentari contra cost — planifică rutele pentru a evita costuri suplimentare.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-globe" style="color:#3b82f6; margin-right:8px;"></i>
-                  Călătorii Internaționale
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  Călătoriile în <strong>România, Ucraina și UE</strong> sunt permise cu <strong>notificare prealabilă</strong>. Anumite destinații pot avea cerințe suplimentare. Anunță-ne la rezervare despre țările pe care le vizitezi.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-clock-o" style="color:#3b82f6; margin-right:8px;"></i>
-                  Ore de Lucru
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  Program standard: <strong>8:00 - 18:00</strong>. În afara orelor de lucru se aplică o taxă suplimentară de <strong>+€15 per ridicare/returnare</strong>. Asistența la telefon este disponibilă 24/7.
-                </p>
-              </div>
-
-              <div style="background:#f8fafc; border-radius:10px; padding:22px; border-left:4px solid #3b82f6;">
-                <h4 style="color:#1C1917; font-size:1.05rem; margin-bottom:8px;">
-                  <i class="fa fa-exclamation-triangle" style="color:#3b82f6; margin-right:8px;"></i>
-                  În Caz de Accident
-                </h4>
-                <p style="color:#64748b; margin:0; font-size:0.9rem; line-height:1.6;">
-                  Contactează-ne imediat la <strong>+373 60 000 500</strong>. Protocol de urgență: asigură zona, notifică poliția dacă e necesar, sună-ne. Asistența 24/7 este inclusă.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </section>
-<!-- ЗАМЕНА секции карты: -->
-<section class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
-  <div class="container">
-    <div class="col-lg-10 offset-lg-1">
-      <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-        <i class="fa fa-map-marker" style="color:#f59e0b; margin-right:8px;"></i>
-        Locația Noastră în Chișinău
-      </h2>
-      <p style="text-align:center; color:#64748b; margin-bottom:25px; font-size:1.05rem;">
-        Biroul PlusRent — str. Meșterul Manole 20, Chișinău. Deservim și Aeroport Chișinău și Aeroport Iași.
-      </p>
- 
-      <!-- Leaflet Map Container -->
-      <div style="position:relative; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-        <div id="cars-map" style="width:100%; height:400px; border-radius:12px;"></div>
- 
-        <!-- Map Overlay -->
-        <div style="position:absolute; top:20px; right:20px; background:#fff; padding:18px 22px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.15); max-width:280px; z-index:1000;">
-          <h4 style="color:#1C1917; font-size:1.05rem; margin:0 0 8px 0; font-weight:700;">
-            <i class="fa fa-building" style="color:#f59e0b; margin-right:6px;"></i>
-            Biroul PlusRent
-          </h4>
-          <p style="color:#64748b; font-size:0.85rem; margin:0 0 6px 0; line-height:1.5;">
-            str. Meșterul Manole 20, Chișinău, Republica Moldova
-          </p>
-          <p style="color:#64748b; font-size:0.85rem; margin:0 0 12px 0;">
-            <i class="fa fa-phone" style="color:#f59e0b; margin-right:4px;"></i>
-            <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" style="color:#64748b; text-decoration:none;">+373 60 000 500</a>
-          </p>
-          <a href="https://maps.google.com/?q=Meșterul Manole 20, Chișinău, Republica Moldova"
-             target="_blank"
-             rel="noopener"
-             onclick="openMapsOnMobileCars(event, 'Meșterul Manole 20, Chișinău, Republica Moldova')"
-             style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:8px 16px; border-radius:20px; text-decoration:none; font-weight:600; font-size:0.85rem;">
-            <i class="fa fa-map-marker"></i> Deschide în Maps
-          </a>
-        </div>
-      </div>
- 
-      <!-- 3 Locations Cards -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px; margin-top:20px;">
-        <div style="background:#fff; border-radius:10px; padding:16px; border:1px solid #e5e7eb;">
-          <div style="font-weight:700; color:#1C1917; margin-bottom:4px;">
-            <i class="fa fa-building" style="color:#f59e0b; margin-right:6px;"></i>Biroul Nostru
-          </div>
-          <div style="color:#64748b; font-size:0.9rem;">str. Meșterul Manole 20, Chișinău MD-2044</div>
-        </div>
-        <div style="background:#fff; border-radius:10px; padding:16px; border:1px solid #e5e7eb;">
-          <div style="font-weight:700; color:#1C1917; margin-bottom:4px;">
-            <i class="fa fa-plane" style="color:#f59e0b; margin-right:6px;"></i>Aeroport Chișinău
-          </div>
-          <div style="color:#64748b; font-size:0.9rem;">Livrare gratuită în program (8:00-18:00)</div>
-        </div>
-        <div style="background:#fff; border-radius:10px; padding:16px; border:1px solid #e5e7eb;">
-          <div style="font-weight:700; color:#1C1917; margin-bottom:4px;">
-            <i class="fa fa-plane" style="color:#f59e0b; margin-right:6px;"></i>Aeroport Iași (România)
-          </div>
-          <div style="color:#64748b; font-size:0.9rem;">Livrare la cerere — +€35, 2.5h de Chișinău</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
- 
-      <!-- ================================================== -->
-      <!-- FAQ SECTION                                        -->
-      <!-- ================================================== -->
-      <section id="faq" class="pt60 pb60" style="background:#f8fafc; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-
-            <h2 style="text-align:center; margin-bottom:15px; font-size:1.8rem; color:#1C1917;">
-              <i class="fa fa-question-circle" style="color:#3b82f6; margin-right:8px;"></i>
-              Întrebări Frecvente despre Chirie Auto
-            </h2>
-            <p style="text-align:center; color:#64748b; margin-bottom:35px; font-size:1.05rem;">
-              Răspunsuri rapide la cele mai întrebate lucruri despre serviciul nostru.
-            </p>
-
-            <div class="faq-list" style="display:flex; flex-direction:column; gap:12px;">
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;" open>
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-money" style="color:#f59e0b; margin-right:10px;"></i>Cât costă chirie auto în Chișinău?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Prețurile la PlusRent încep de la <strong>€15/zi</strong> pentru categoria Economy,
-                  <strong>€31/zi</strong> pentru Standard și <strong>€61/zi</strong> pentru Premium (BMW, Mercedes, Audi).
-                  Toate prețurile includ <strong>asigurare RCA</strong> și <strong>asistență 24/7</strong>.
-                  Pentru chirie auto pe perioade lungi (7+ zile) aplicăm reduceri până la 20%.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-id-card" style="color:#f59e0b; margin-right:10px;"></i>De ce documente am nevoie pentru a închiria o mașină?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Ai nevoie de: <strong>permis de conducere valabil</strong> și <strong>buletin de identitate sau pașaport</strong>.
-                  Fiecare caz este evaluat individual — <strong>experiența de șofer este mai importantă decât vârsta</strong>.
-                  Pentru cetățenii străini acceptăm pașaport internațional și permis internațional dacă cel național nu e în format UE.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-plane" style="color:#f59e0b; margin-right:10px;"></i>Pot închiria mașină la Aeroportul Chișinău?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, oferim <strong>livrare la Aeroport Chișinău 24/7</strong>. În programul de lucru (8:00-18:00) livrarea este gratuită.
-                  În afara orelor de lucru se aplică o taxă de +€15. Livrăm și la <strong>Aeroport Iași (România)</strong>,
-                  la doar 2.5 ore de Chișinău — taxă +€35.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-shield" style="color:#f59e0b; margin-right:10px;"></i>Este inclusă asigurarea?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, toate variantele de chirie auto PlusRent includ <strong>asigurare RCA</strong> (răspundere civilă auto) în prețul afișat.
-                  <strong>Asistența rutieră 24/7</strong> este de asemenea inclusă. Nu există costuri ascunse.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-user" style="color:#f59e0b; margin-right:10px;"></i>Există vârstă minimă pentru închiriere?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  <strong>Fiecare caz este evaluat individual</strong>. La PlusRent experiența de șofer contează mai mult decât vârsta.
-                  Contactează-ne pentru confirmare la <strong>+373 60 000 500</strong> — găsim soluții pentru majoritatea clienților.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-credit-card" style="color:#f59e0b; margin-right:10px;"></i>Pot plăti cu cardul sau doar cash?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Acceptăm <strong>numerar</strong> (EUR, MDL, USD), <strong>card bancar</strong> (Visa, MasterCard),
-                  <strong>transfer bancar</strong> și <strong>plată online</strong> la rezervare. Plata se poate efectua la livrare sau în avans.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-road" style="color:#f59e0b; margin-right:10px;"></i>Câți kilometri includ închirierile?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Fiecare închiriere include o limită zilnică de <strong>200 km</strong>. Pentru un calcul exact al kilometrajului total, înmulțește 200 km × numărul de zile de închiriere.
-                  De exemplu: 3 zile = 600 km, 7 zile = 1400 km. Pentru kilometri suplimentari se aplică o taxă per kilometru extra.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-globe" style="color:#f59e0b; margin-right:10px;"></i>Pot ieși cu mașina din Moldova?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, <strong>călătoriile internaționale sunt permise cu notificare prealabilă</strong>. Permitem deplasări în
-                  <strong>România, Ucraina și UE</strong>. Anumite destinații pot avea cerințe sau restricții suplimentare.
-                  Anunță-ne la rezervare despre țările pe care le vei vizita.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-calendar-check-o" style="color:#f59e0b; margin-right:10px;"></i>Cum se efectuează rezervarea?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Rezervarea online durează <strong>2 minute</strong> pe plusrent.md: alegi mașina, selectezi datele, completezi datele și confirmi.
-                  Sau sună la <strong>+373 60 000 500</strong> — răspundem 24/7. Vei fi contactat pentru confirmare în maxim 24 de ore.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-car" style="color:#f59e0b; margin-right:10px;"></i>Ce mărci de mașini sunt disponibile?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  PlusRent include <strong>BMW, Mercedes-Benz, Audi, Volkswagen, Skoda, Toyota, Hyundai, Honda, Porsche</strong> și altele.
-                  Avem sedanuri, SUV-uri, crossovere și hatchback-uri, cu transmisie automată sau manuală, benzină/motorină/hibrid.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-lock" style="color:#f59e0b; margin-right:10px;"></i>Există depozit de garanție?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, se aplică un <strong>depozit rambursabil</strong> care garantează returnarea mașinii în siguranță.
-                  Garanția se returnează integral dacă mașina este returnată fără daune, toate amenzile de circulație sunt achitate,
-                  iar mașina este returnată la timp cu nivelul corect de combustibil.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-exclamation-triangle" style="color:#f59e0b; margin-right:10px;"></i>Ce fac în caz de accident sau defecțiune?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Contactează-ne imediat la <strong>+373 60 000 500</strong>. <strong>Asistența rutieră 24/7</strong> este inclusă
-                  în toate închirierile. Te vom ghida prin procedură, trimitem înlocuire dacă este necesar și coordonăm cu asigurarea.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-refresh" style="color:#f59e0b; margin-right:10px;"></i>Pot anula sau modifica rezervarea?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, modificările se pot face în avans cu notificare prealabilă. Pentru anulări și modificări contactează-ne la
-                  <strong>+373 60 000 500</strong> sau <a href="mailto:support@plusrent.md" style="color:#d97706;">support@plusrent.md</a>
-                  cu minim 24 de ore înainte.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-user-circle" style="color:#f59e0b; margin-right:10px;"></i>Oferiți și serviciu de șofer treaz?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, oferim serviciul de <strong>Șofer Treaz</strong> în Chișinău 24/7 <strong>de la 150 MDL</strong> —
-                  detalii la <a href="/ro/sofer-treaz" style="color:#d97706; font-weight:600;">plusrent.md/ro/sofer-treaz</a>.
-                  Timp sosire 15-20 minute. Conducem mașina ta acasă în siguranță.
-                </p>
-              </details>
-
-              <details style="background:#fff; border-radius:10px; padding:18px 22px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer;">
-                <summary style="font-weight:700; color:#1C1917; font-size:1.05rem; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                  <span><i class="fa fa-map-marker" style="color:#f59e0b; margin-right:10px;"></i>Pot ridica și returna mașina în locații diferite?</span>
-                  <span style="color:#3b82f6; font-size:1.3rem;">+</span>
-                </summary>
-                <p style="color:#475569; line-height:1.7; margin-top:15px; padding-top:15px; border-top:1px solid #e5e7eb;">
-                  Da, oferim <strong>3 locații</strong>: Aeroport Chișinău, Biroul Nostru (Meșterul Manole 20) și Aeroport Iași.
-                  Poți ridica din una și returna în alta. Livrarea la Aeroport Chișinău este gratuită în programul de lucru.
-                  Pentru Aeroport Iași se aplică taxă suplimentară (+€35).
-                </p>
-              </details>
-
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- ================================================== -->
-      <!-- RELATED SERVICES                                   -->
-      <!-- ================================================== -->
-      <section id="related" class="pt40 pb40" style="background:#fff; border-top:1px solid #e5e7eb;">
-        <div class="container">
-          <div class="col-lg-10 offset-lg-1">
-
-            <h3 style="text-align:center; font-size:1.3rem; color:#1C1917; margin-bottom:25px;">
-              <i class="fa fa-link" style="color:#3b82f6; margin-right:8px;"></i>
-              Alte Servicii PlusRent
-            </h3>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:15px;">
-
-              <a href="/ro/sofer-treaz" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1C1917; border:1px solid #e5e7eb;">
-                <i class="fa fa-user-circle" style="color:#3b82f6; font-size:1.4rem;"></i>
-                <div>
-                  <div style="font-weight:700; font-size:0.95rem;">Șofer Treaz Chișinău 24/7</div>
-                  <div style="color:#64748b; font-size:0.85rem;">De la 150 MDL — 15-20 minute</div>
-                </div>
-              </a>
-
-              <a href="/ro/" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1C1917; border:1px solid #e5e7eb;">
-                <i class="fa fa-home" style="color:#3b82f6; font-size:1.4rem;"></i>
-                <div>
-                  <div style="font-weight:700; font-size:0.95rem;">Pagina Principală</div>
-                  <div style="color:#64748b; font-size:0.85rem;">Toate serviciile PlusRent</div>
-                </div>
-              </a>
-
-              <a href="/contact" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1C1917; border:1px solid #e5e7eb;">
-                <i class="fa fa-envelope" style="color:#3b82f6; font-size:1.4rem;"></i>
-                <div>
-                  <div style="font-weight:700; font-size:0.95rem;">Contact</div>
-                  <div style="color:#64748b; font-size:0.85rem;">Email, telefon, adresă</div>
-                </div>
-              </a>
-
-              <a href="/terms" style="display:flex; align-items:center; gap:12px; padding:16px 20px; background:#f8fafc; border-radius:10px; text-decoration:none; color:#1C1917; border:1px solid #e5e7eb;">
-                <i class="fa fa-file-text" style="color:#3b82f6; font-size:1.4rem;"></i>
-                <div>
-                  <div style="font-weight:700; font-size:0.95rem;">Termeni & Condiții</div>
-                  <div style="color:#64748b; font-size:0.85rem;">Detalii complete închiriere</div>
-                </div>
-              </a>
-
-            </div>
-
-            <div style="display:flex; justify-content:center; gap:20px; margin-top:30px; flex-wrap:wrap;">
-              <a href="/ru/cars" style="color:#64748b; text-decoration:none; font-size:0.9rem;">
-                🇷🇺 Эта страница на русском
-              </a>
-              <span style="color:#cbd5e1;">•</span>
-              <a href="/en/cars" style="color:#64748b; text-decoration:none; font-size:0.9rem;">
-                🇬🇧 This page in English
-              </a>
-            </div>
-
-            <p style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:25px;">
-              <i class="fa fa-calendar"></i> Ultima actualizare:
-              <time datetime="2026-04-21">21 aprilie 2026</time>
-            </p>
-
-          </div>
-        </div>
-      </section>
-
-    </div>
-    <!-- content close -->
-
-    <a href="#" id="back-to-top"></a>
+        <a href="#" id="back-to-top"></a>
 
     <!-- footer begin -->
+
+    <!-- COMPARISON MODAL — side-by-side car comparison (max 3) -->
+    <div class="pr-compare-modal" id="prCompareModal" role="dialog" aria-modal="true" aria-labelledby="prCompareModalTitle" hidden>
+      <div class="pr-compare-modal-backdrop" onclick="prCompareCloseModal()"></div>
+      <div class="pr-compare-modal-content">
+        <div class="pr-compare-modal-header">
+          <h2 id="prCompareModalTitle">Comparare Mașini</h2>
+          <button type="button" class="pr-compare-modal-close" onclick="prCompareCloseModal()" aria-label="Închide">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="pr-compare-modal-body" id="prCompareModalBody">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+
     </main>
     <footer class="text-light">
       <div class="container">
@@ -2762,5 +2700,512 @@ function openMapsOnMobileCars(event, address) {
 </script>
 
   <!-- STICKY MOBILE PHONE CTA — high-ROI: +15-25% calls (mobile only) -->
+<script>
+/* ============================================================
+   PLUSRENT CATALOG UX — Active filter chips, comparison, mobile bottom sheet
+   Self-contained, defensive (won't break catalog if elements missing)
+   ============================================================ */
+(function() {
+  'use strict';
+
+  /* ============================================================
+     PART 1 — ACTIVE FILTER CHIPS
+     Mirrors selected filters as removable pills above the grid
+     ============================================================ */
+
+  var FILTER_LABELS = {
+    'filter-make-options':       { label: 'Marcă',      group: 'make' },
+    'filter-gear-options':       { label: 'Transmisie', group: 'gear' },
+    'filter-fuel-options':       { label: 'Combustibil',group: 'fuel' },
+    'filter-type-options':       { label: 'Tip',        group: 'type' },
+    'filter-doors-options':      { label: 'Uși',        group: 'doors' },
+    'filter-passengers-options': { label: 'Pasageri',   group: 'passengers' },
+    'filter-price-category-options': { label: 'Categoria', group: 'category' }
+  };
+
+  function renderActiveChips() {
+    var container = document.getElementById('prActiveChips');
+    var countBadge = document.getElementById('prActiveCount');
+    if (!container) return;
+
+    var chips = [];
+
+    // Iterate filter groups, find checked checkboxes
+    Object.keys(FILTER_LABELS).forEach(function(groupId) {
+      var group = document.getElementById(groupId);
+      if (!group) return;
+      var meta = FILTER_LABELS[groupId];
+      var checked = group.querySelectorAll('input[type="checkbox"]:checked');
+      checked.forEach(function(cb) {
+        var labelEl = cb.parentElement && cb.parentElement.querySelector('label, span');
+        var labelText = (labelEl && labelEl.textContent.trim()) || cb.value || '';
+        if (!labelText) return;
+        chips.push({
+          group: meta.group,
+          groupLabel: meta.label,
+          value: labelText,
+          checkbox: cb
+        });
+      });
+    });
+
+    // Date range
+    var dateFrom = document.getElementById('filter-date-from');
+    var dateTo   = document.getElementById('filter-date-to');
+    if (dateFrom && dateFrom.value && dateTo && dateTo.value) {
+      chips.push({
+        group: 'date',
+        groupLabel: 'Date',
+        value: dateFrom.value + ' – ' + dateTo.value,
+        clear: function() { dateFrom.value = ''; dateTo.value = ''; }
+      });
+    }
+
+    // Price range
+    var priceMin = document.getElementById('price-min');
+    var priceMax = document.getElementById('price-max');
+    if (priceMin && priceMax && (priceMin.value || priceMax.value)) {
+      var pmin = priceMin.value || '0';
+      var pmax = priceMax.value || '∞';
+      chips.push({
+        group: 'price',
+        groupLabel: 'Preț',
+        value: '€' + pmin + ' – €' + pmax,
+        clear: function() { priceMin.value = ''; priceMax.value = ''; }
+      });
+    }
+
+    // Render
+    container.innerHTML = '';
+    if (chips.length === 0) {
+      container.hidden = true;
+      if (countBadge) {
+        countBadge.classList.remove('has-filters');
+        countBadge.textContent = '';
+      }
+      return;
+    }
+    container.hidden = false;
+
+    chips.forEach(function(chip) {
+      var el = document.createElement('div');
+      el.className = 'pr-chip';
+      el.innerHTML = '<span class="pr-chip-label">' + chip.groupLabel + ':</span>' +
+                     '<span class="pr-chip-value"></span>' +
+                     '<button type="button" class="pr-chip-remove" aria-label="Elimină filtrul ' + chip.groupLabel + ' ' + chip.value + '">×</button>';
+      el.querySelector('.pr-chip-value').textContent = chip.value;
+      var btn = el.querySelector('.pr-chip-remove');
+      btn.addEventListener('click', function() {
+        if (chip.checkbox) {
+          chip.checkbox.checked = false;
+          chip.checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (typeof chip.clear === 'function') {
+          chip.clear();
+          // Trigger generic filter change event
+          document.dispatchEvent(new CustomEvent('pr-filters-changed'));
+        }
+        renderActiveChips();
+      });
+      container.appendChild(el);
+    });
+
+    // "Clear all" chip
+    var clearAll = document.createElement('button');
+    clearAll.type = 'button';
+    clearAll.className = 'pr-chip-clear-all';
+    clearAll.innerHTML = '<i class="fa fa-eraser" aria-hidden="true"></i> Șterge toate';
+    clearAll.addEventListener('click', function() {
+      var clearLink = document.getElementById('clear-filters-link');
+      if (clearLink) clearLink.click();
+      // Also reset price/date if no clear handler
+      if (priceMin) priceMin.value = '';
+      if (priceMax) priceMax.value = '';
+      if (dateFrom) dateFrom.value = '';
+      if (dateTo) dateTo.value = '';
+      setTimeout(renderActiveChips, 80);
+    });
+    container.appendChild(clearAll);
+
+    if (countBadge) {
+      countBadge.classList.add('has-filters');
+      countBadge.textContent = String(chips.length);
+    }
+  }
+
+  // Listen to filter changes (any checkbox in sidebar / mobile filter)
+  document.addEventListener('change', function(e) {
+    var target = e.target;
+    if (target && target.matches('input[type="checkbox"]') &&
+        target.closest('.filter-sidebar, .mobile-filter-sidebar, [id$="filter-options"]')) {
+      setTimeout(renderActiveChips, 50);
+    }
+  }, { passive: true });
+
+  // Also listen to custom event (for date/price changes)
+  document.addEventListener('pr-filters-changed', function() {
+    setTimeout(renderActiveChips, 50);
+  });
+
+  // Initial render after DOM + filter init
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(renderActiveChips, 800);
+    });
+  } else {
+    setTimeout(renderActiveChips, 800);
+  }
+
+  // Periodic recheck (catches AJAX-rendered filter options)
+  var checkCount = 0;
+  var checkInterval = setInterval(function() {
+    renderActiveChips();
+    checkCount++;
+    if (checkCount > 10) clearInterval(checkInterval);
+  }, 1500);
+
+
+  /* ============================================================
+     PART 2 — COMPARISON FEATURE
+     Up to 3 cars side-by-side
+     ============================================================ */
+
+  var COMPARE_MAX = 3;
+  var compareList = []; // [{ id, name, price, img, specs }]
+
+  function getCarDataFromCard(card) {
+    if (!card) return null;
+    var titleEl = card.querySelector('.de-title, h3, .de-item-title, .car-title');
+    var priceEl = card.querySelector('.de-price, .price-tag, .car-price, [class*="price"]');
+    var imgEl   = card.querySelector('img');
+
+    // Try to extract specs from existing markup
+    var specs = {};
+    var specEls = card.querySelectorAll('.car-specs li, .de-specs li, [class*="spec"] li, .car-feature');
+    specEls.forEach(function(el) {
+      var text = el.textContent.trim();
+      // try detect icon-name pairs e.g. "Manual", "Diesel", "5 uși"
+      if (text) specs[text] = '';
+    });
+
+    // Try to fetch data attributes if catalog provides them
+    var data = card.dataset || {};
+    if (data.gear)    specs['Transmisie'] = data.gear;
+    if (data.fuel)    specs['Combustibil'] = data.fuel;
+    if (data.year)    specs['An']         = data.year;
+    if (data.doors)   specs['Uși']        = data.doors;
+    if (data.seats)   specs['Pasageri']   = data.seats;
+    if (data.type)    specs['Tip']        = data.type;
+
+    var bookLink = card.querySelector('a[href*="rezerv"], a[href*="booking"], a.btn, a.btn-primary');
+
+    return {
+      id: card.dataset.carId || card.dataset.id || (titleEl ? titleEl.textContent.trim() : Math.random().toString(36).slice(2)),
+      name: titleEl ? titleEl.textContent.trim() : 'Mașină',
+      price: priceEl ? priceEl.textContent.trim() : '',
+      img: imgEl ? imgEl.src : '',
+      specs: specs,
+      bookHref: bookLink ? bookLink.href : '#'
+    };
+  }
+
+  function injectCompareToggles() {
+    var cards = document.querySelectorAll('.de-item.mb30, .de-item:not(.premium-badge)');
+    cards.forEach(function(card) {
+      if (card.querySelector('.pr-compare-toggle')) return; // already injected
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pr-compare-toggle';
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', 'Adaugă la comparație');
+      btn.innerHTML = '<span class="pr-compare-check" aria-hidden="true"></span><span>Compară</span>';
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleCompareCar(card, btn);
+      });
+
+      card.style.position = card.style.position || 'relative';
+      card.appendChild(btn);
+    });
+  }
+
+  function toggleCompareCar(card, btn) {
+    var data = getCarDataFromCard(card);
+    if (!data) return;
+
+    var idx = compareList.findIndex(function(c) { return c.id === data.id; });
+    if (idx >= 0) {
+      compareList.splice(idx, 1);
+      btn.classList.remove('is-active');
+      btn.setAttribute('aria-pressed', 'false');
+    } else {
+      if (compareList.length >= COMPARE_MAX) {
+        // Visual feedback: shake or just abort with toast (we'll just abort)
+        btn.style.animation = 'prChipIn 0.3s';
+        setTimeout(function() { btn.style.animation = ''; }, 300);
+        return;
+      }
+      compareList.push(data);
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+    }
+    updateCompareBar();
+  }
+
+  function updateCompareBar() {
+    var bar = document.getElementById('prCompareBar');
+    var countEl = document.getElementById('prCompareCount');
+    if (!bar) return;
+    if (compareList.length >= 2) {
+      bar.hidden = false;
+      if (countEl) countEl.textContent = String(compareList.length);
+    } else {
+      bar.hidden = true;
+    }
+  }
+
+  window.prCompareClear = function() {
+    compareList = [];
+    document.querySelectorAll('.pr-compare-toggle.is-active').forEach(function(b) {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    updateCompareBar();
+  };
+
+  window.prCompareOpen = function() {
+    var modal = document.getElementById('prCompareModal');
+    var body = document.getElementById('prCompareModalBody');
+    if (!modal || !body) return;
+
+    if (compareList.length < 2) {
+      body.innerHTML = '<div class="pr-compare-empty">Selectează cel puțin 2 mașini pentru comparație.</div>';
+    } else {
+      var grid = document.createElement('div');
+      grid.className = 'pr-compare-grid cols-' + compareList.length;
+
+      // Collect all spec keys union
+      var allKeys = {};
+      compareList.forEach(function(c) {
+        Object.keys(c.specs).forEach(function(k) { allKeys[k] = true; });
+      });
+      var keyList = Object.keys(allKeys);
+
+      compareList.forEach(function(car) {
+        var col = document.createElement('div');
+        col.className = 'pr-compare-car';
+
+        var html = '';
+        if (car.img) {
+          html += '<img class="pr-compare-car-img" src="' + escapeHtml(car.img) + '" alt="' + escapeHtml(car.name) + '" loading="lazy">';
+        }
+        html += '<h3 class="pr-compare-car-title">' + escapeHtml(car.name) + '</h3>';
+        if (car.price) {
+          html += '<span class="pr-compare-car-price">' + escapeHtml(car.price) + '</span>';
+        }
+        if (keyList.length > 0) {
+          html += '<ul class="pr-compare-car-specs">';
+          keyList.forEach(function(k) {
+            var v = car.specs[k] || '—';
+            html += '<li><span class="pr-spec-label">' + escapeHtml(k) + '</span><span class="pr-spec-value">' + escapeHtml(v) + '</span></li>';
+          });
+          html += '</ul>';
+        }
+        if (car.bookHref && car.bookHref !== '#') {
+          html += '<a href="' + escapeHtml(car.bookHref) + '" class="pr-compare-car-cta">Vezi detalii <i class="fa fa-arrow-right" aria-hidden="true"></i></a>';
+        }
+        col.innerHTML = html;
+        grid.appendChild(col);
+      });
+      body.innerHTML = '';
+      body.appendChild(grid);
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    // Focus close button for a11y
+    setTimeout(function() {
+      var closeBtn = modal.querySelector('.pr-compare-modal-close');
+      if (closeBtn) closeBtn.focus();
+    }, 100);
+  };
+
+  window.prCompareCloseModal = function() {
+    var modal = document.getElementById('prCompareModal');
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ESC closes modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var modal = document.getElementById('prCompareModal');
+      if (modal && !modal.hidden) prCompareCloseModal();
+    }
+  });
+
+  // Inject toggles after DOM ready + retry for AJAX-loaded cards
+  function tryInject() { injectCompareToggles(); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInject);
+  } else {
+    tryInject();
+  }
+  // Re-inject every 1.2s for first 8 seconds (catches AJAX load)
+  var injectCount = 0;
+  var injectInterval = setInterval(function() {
+    tryInject();
+    injectCount++;
+    if (injectCount > 7) clearInterval(injectInterval);
+  }, 1200);
+
+
+  /* ============================================================
+     PART 3 — MOBILE FILTER BOTTOM SHEET
+     Wraps existing toggleMobileFilter() to add backdrop + apply/cancel
+     ============================================================ */
+
+  var sheetState = {
+    snapshot: null,  // saved filter state when opened (for cancel)
+  };
+
+  function captureFilterSnapshot() {
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    if (!sidebar) return null;
+    var snap = [];
+    sidebar.querySelectorAll('input[type="checkbox"]').forEach(function(cb, i) {
+      snap.push({ idx: i, checked: cb.checked });
+    });
+    sidebar.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]').forEach(function(inp, i) {
+      snap.push({ idx: 'txt-' + i, value: inp.value });
+    });
+    return snap;
+  }
+
+  function restoreFilterSnapshot(snap) {
+    if (!snap) return;
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    if (!sidebar) return;
+    var cbs = sidebar.querySelectorAll('input[type="checkbox"]');
+    var txts = sidebar.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+    snap.forEach(function(s) {
+      if (typeof s.idx === 'number') {
+        if (cbs[s.idx]) cbs[s.idx].checked = s.checked;
+      } else {
+        var i = parseInt(s.idx.replace('txt-', ''), 10);
+        if (txts[i]) txts[i].value = s.value;
+      }
+    });
+  }
+
+  function ensureBackdrop() {
+    var bd = document.querySelector('.mobile-filter-backdrop');
+    if (!bd) {
+      bd = document.createElement('div');
+      bd.className = 'mobile-filter-backdrop';
+      bd.addEventListener('click', closeBottomSheet);
+      document.body.appendChild(bd);
+    }
+    return bd;
+  }
+
+  function ensureFooter() {
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    if (!sidebar) return;
+    if (sidebar.querySelector('.pr-mobile-filter-footer')) return;
+
+    var footer = document.createElement('div');
+    footer.className = 'pr-mobile-filter-footer';
+    footer.innerHTML =
+      '<button type="button" class="pr-mobile-filter-cancel">Anulează</button>' +
+      '<button type="button" class="pr-mobile-filter-apply">Aplică filtre</button>';
+    sidebar.appendChild(footer);
+
+    footer.querySelector('.pr-mobile-filter-cancel').addEventListener('click', function() {
+      restoreFilterSnapshot(sheetState.snapshot);
+      closeBottomSheet();
+      setTimeout(renderActiveChips, 100);
+    });
+    footer.querySelector('.pr-mobile-filter-apply').addEventListener('click', function() {
+      closeBottomSheet();
+      setTimeout(renderActiveChips, 100);
+      // Trigger filter recompute if there's an apply function
+      if (typeof window.applyFilters === 'function') {
+        try { window.applyFilters(); } catch(e) {}
+      } else {
+        document.dispatchEvent(new CustomEvent('pr-filters-changed'));
+      }
+    });
+  }
+
+  function openBottomSheet() {
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    if (!sidebar) return;
+    sheetState.snapshot = captureFilterSnapshot();
+    ensureFooter();
+    var bd = ensureBackdrop();
+    sidebar.classList.add('open', 'is-open');
+    bd.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBottomSheet() {
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    var bd = document.querySelector('.mobile-filter-backdrop');
+    if (sidebar) sidebar.classList.remove('open', 'is-open');
+    if (bd) bd.classList.remove('is-visible');
+    document.body.style.overflow = '';
+  }
+
+  // Wrap existing toggleMobileFilter() to use bottom sheet behavior
+  if (typeof window.toggleMobileFilter === 'function') {
+    var originalToggle = window.toggleMobileFilter;
+    window.toggleMobileFilter = function() {
+      var sidebar = document.querySelector('.mobile-filter-sidebar');
+      if (!sidebar) {
+        return originalToggle.apply(this, arguments);
+      }
+      var isOpen = sidebar.classList.contains('open') || sidebar.classList.contains('is-open');
+      if (isOpen) {
+        closeBottomSheet();
+      } else {
+        openBottomSheet();
+      }
+    };
+  } else {
+    // If toggleMobileFilter doesn't exist yet, define it
+    window.toggleMobileFilter = function() {
+      var sidebar = document.querySelector('.mobile-filter-sidebar');
+      if (!sidebar) return;
+      var isOpen = sidebar.classList.contains('open') || sidebar.classList.contains('is-open');
+      if (isOpen) closeBottomSheet();
+      else openBottomSheet();
+    };
+  }
+
+  // ESC closes bottom sheet
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var sidebar = document.querySelector('.mobile-filter-sidebar');
+      if (sidebar && (sidebar.classList.contains('open') || sidebar.classList.contains('is-open'))) {
+        closeBottomSheet();
+      }
+    }
+  });
+
+})();
+</script>
+
 </body>
 </html>
