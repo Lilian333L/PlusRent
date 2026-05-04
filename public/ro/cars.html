@@ -683,19 +683,67 @@ textarea:focus-visible, [role="button"]:focus-visible {
 }
 
 
-/* === BACK-TO-TOP — luxury black + gold === */
+/* === BACK-TO-TOP — luxury black + gold (matches index.html / sofer-personal) === */
 #back-to-top {
-  background: linear-gradient(135deg, var(--pr-black), var(--pr-black-2)) !important;
-  border: 1.5px solid rgba(245,158,11,0.40) !important;
-  color: var(--pr-gold) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.30) !important;
-  transition: transform 0.22s, box-shadow 0.22s, background 0.22s !important;
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  width: 48px !important;
+  height: 48px !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.40) !important;
+  border-radius: 50% !important;
+  color: #f59e0b !important;
+  text-decoration: none !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(245, 158, 11, 0.10) !important;
+  z-index: 997 !important;
+  cursor: pointer !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, opacity 0.25s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+  font-size: 0 !important; /* hide any text content */
+}
+#back-to-top.is-visible {
+  display: flex !important;
+}
+/* Up-arrow drawn via pseudo-element (no font-awesome dependency) */
+#back-to-top::before {
+  content: '' !important;
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-left: 2.5px solid #f59e0b !important;
+  border-top: 2.5px solid #f59e0b !important;
+  transform: rotate(45deg) translate(2px, 2px) !important;
+  transition: border-color 0.25s ease !important;
 }
 #back-to-top:hover {
-  background: var(--pr-gold) !important;
-  color: var(--pr-black) !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
   border-color: transparent !important;
-  transform: translateY(-2px) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 28px rgba(245, 158, 11, 0.40) !important;
+}
+#back-to-top:hover::before {
+  border-left-color: #1C1917 !important;
+  border-top-color: #1C1917 !important;
+}
+#back-to-top:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.60) !important;
+  outline-offset: 3px !important;
+}
+
+/* Push back-to-top up when floating contact button is also visible */
+body.has-floating-contact #back-to-top {
+  bottom: 92px !important;
+}
+@media (max-width: 768px) {
+  #back-to-top { width: 44px !important; height: 44px !important; bottom: 88px !important; right: 18px !important; }
+  body.has-floating-contact #back-to-top { bottom: 84px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #back-to-top, #back-to-top::before { transition: none !important; }
 }
 
 /* === Body bg === */
@@ -826,24 +874,21 @@ body.cars-listing-page { background: #fafafa; }
 }
 
 
-    /* === Sunați Acum — compact on mobile (icon shows, label hides) === */
-    @media (max-width: 575px) {
+    /* === Sunați Acum — desktop visible, hidden on mobile (floating btn handles mobile call) === */
+    @media (max-width: 991px) {
       .call-now-wrapper {
-        margin-right: 4px !important;
-      }
-      .call-now-btn {
-        padding: 9px 12px !important;
-        gap: 0 !important;
-      }
-      .call-now-btn span[data-i18n="call_now"] {
         display: none !important;
       }
-      .call-now-btn i {
-        font-size: 14px !important;
-      }
     }
-    @media (max-width: 380px) {
-      .call-now-btn { padding: 8px 10px !important; }
+    /* Desktop polish */
+    @media (min-width: 992px) {
+      .call-now-wrapper {
+        margin-right: 12px !important;
+        flex-shrink: 0 !important;
+      }
+      .call-now-btn {
+        white-space: nowrap;
+      }
     }
 /* ============================================================
    CATALOG UX UPGRADES (3 features)
@@ -1443,9 +1488,9 @@ body.cars-listing-page { background: #fafafa; }
     padding: 14px 18px;
   }
 
-  /* Apply/Cancel sticky footer in bottom sheet */
-  .pr-mobile-filter-footer {
-    position: sticky;
+  /* Sticky Apply/Cancel footer at bottom of sheet (not inside scroll area) */
+  .pr-sticky-footer {
+    position: relative;
     bottom: 0;
     background: #ffffff;
     border-top: 1px solid rgba(28, 25, 23, 0.10);
@@ -1454,9 +1499,9 @@ body.cars-listing-page { background: #fafafa; }
     display: flex;
     gap: 10px;
     box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
-    margin: 16px -18px -20px;
     flex-shrink: 0;
-    z-index: 5;
+    z-index: 10;
+    width: 100%;
   }
   .pr-mobile-filter-cancel,
   .pr-mobile-filter-apply {
@@ -1469,13 +1514,17 @@ body.cars-listing-page { background: #fafafa; }
     border: none;
     transition: all 0.22s;
     -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    line-height: 1;
   }
   .pr-mobile-filter-cancel {
     background: transparent;
     border: 1.5px solid rgba(28, 25, 23, 0.20);
     color: #57534e;
   }
-  .pr-mobile-filter-cancel:hover,
   .pr-mobile-filter-cancel:active {
     background: rgba(28, 25, 23, 0.05);
     border-color: rgba(28, 25, 23, 0.40);
@@ -1486,10 +1535,25 @@ body.cars-listing-page { background: #fafafa; }
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
     box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
   }
-  .pr-mobile-filter-apply:hover,
   .pr-mobile-filter-apply:active {
     background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     transform: translateY(-1px);
+  }
+  .pr-mobile-filter-apply:focus-visible,
+  .pr-mobile-filter-cancel:focus-visible {
+    outline: 3px solid rgba(245, 158, 11, 0.60);
+    outline-offset: 2px;
+  }
+
+  /* Sidebar must be flex-column so footer pushes to bottom */
+  .mobile-filter-overlay .mobile-filter-sidebar {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .mobile-filter-overlay .mobile-filter-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -3060,7 +3124,41 @@ function openMapsOnMobileCars(event, address) {
    PLUSRENT CATALOG UX — Active filter chips, comparison, mobile bottom sheet
    Self-contained, defensive (won't break catalog if elements missing)
    ============================================================ */
-(function() {
+
+  /* Back-to-top visibility — shows after scroll > 400px */
+  (function() {
+    var btt = document.getElementById('back-to-top');
+    if (!btt) return;
+    btt.classList.add('is-visible-eligible');
+    var threshold = 400;
+    var visible = false;
+    var ticking = false;
+    function update() {
+      var sy = window.pageYOffset || document.documentElement.scrollTop;
+      var should = sy > threshold;
+      if (should !== visible) {
+        visible = should;
+        btt.classList.toggle('is-visible', visible);
+      }
+      ticking = false;
+    }
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    btt.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+    /* Also signal floating contact button presence */
+    if (document.querySelector('.floating-contact-btn')) {
+      document.body.classList.add('has-floating-contact');
+    }
+  })();
+
+  (function() {
   'use strict';
 
   /* ============================================================
@@ -3534,50 +3632,74 @@ function openMapsOnMobileCars(event, address) {
   }
 
   function ensureMobileFilterFooter() {
+    /* Strategy: don't inject. Instead reuse the EXISTING native button
+       which already calls applyMobileFilters() (which reads checkboxes,
+       fetches cars, closes sheet — fully working).
+       We just style it as sticky bottom AND add a Cancel button next to it. */
     var sidebar = document.querySelector('.mobile-filter-sidebar');
     var content = document.querySelector('.mobile-filter-content');
     if (!content || !sidebar) return;
 
-    /* Dedup: remove ANY existing footers (ours or original "Aplică/Șterge") */
-    sidebar.querySelectorAll('.pr-mobile-filter-footer, .mobile-filter-actions, .filter-actions').forEach(function(el) {
-      el.remove();
-    });
+    /* Find original Apply button by its exact onclick attribute */
+    var origApply = sidebar.querySelector('button[onclick*="applyMobileFilters"]');
+    var origClear = sidebar.querySelector('button[onclick*="clearAllFilters"], a[onclick*="clearAllFilters"]');
 
-    /* Also remove inline buttons from original markup — they cause duplicate UX */
-    sidebar.querySelectorAll('button[onclick*="applyFilters"], button[onclick*="clearFilters"], a[onclick*="applyFilters"], a[onclick*="clearFilters"]').forEach(function(el) {
-      var parent = el.parentElement;
-      el.remove();
-      /* If parent becomes empty container, also remove */
-      if (parent && parent.children.length === 0 && parent.classList.contains('mobile-filter-footer')) {
-        parent.remove();
-      }
-    });
+    /* Remove our previous custom footer if injected before (idempotent) */
+    sidebar.querySelectorAll('.pr-mobile-filter-footer').forEach(function(el) { el.remove(); });
 
-    var footer = document.createElement('div');
-    footer.className = 'pr-mobile-filter-footer';
-    footer.innerHTML =
-      '<button type="button" class="pr-mobile-filter-cancel">Anulează</button>' +
-      '<button type="button" class="pr-mobile-filter-apply">Aplică filtre</button>';
-    content.appendChild(footer);
+    /* Find or create wrapper for sticky footer */
+    var footer = sidebar.querySelector('.pr-sticky-footer');
+    if (!footer) {
+      footer = document.createElement('div');
+      footer.className = 'pr-sticky-footer';
+      sidebar.appendChild(footer); // appended to sidebar, not content (so it's outside scroll area)
+    } else {
+      footer.innerHTML = '';
+    }
 
-    footer.querySelector('.pr-mobile-filter-cancel').addEventListener('click', function() {
+    /* CANCEL button (reverts to snapshot, closes sheet) */
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'pr-mobile-filter-cancel';
+    cancelBtn.textContent = 'Anulează';
+    cancelBtn.addEventListener('click', function() {
       restoreFilterSnapshot(sheetSnapshot);
       if (typeof window.toggleMobileFilter === 'function') {
         window.toggleMobileFilter();
       }
-      setTimeout(renderActiveChips, 150);
+      setTimeout(renderActiveChips, 200);
     });
+    footer.appendChild(cancelBtn);
 
-    footer.querySelector('.pr-mobile-filter-apply').addEventListener('click', function() {
-      if (typeof window.toggleMobileFilter === 'function') {
-        window.toggleMobileFilter();
-      }
-      setTimeout(renderActiveChips, 150);
-      if (typeof window.applyFilters === 'function') {
-        try { window.applyFilters(); } catch(e) {}
-      }
-      document.dispatchEvent(new CustomEvent('pr-filters-changed'));
-    });
+    /* APPLY button — clones original to inherit its onclick handler reliably */
+    if (origApply) {
+      var applyBtn = origApply.cloneNode(true);
+      applyBtn.className = 'pr-mobile-filter-apply';
+      applyBtn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Aplică filtre';
+      /* Ensure onclick attribute is preserved (cloneNode preserves attributes) */
+      footer.appendChild(applyBtn);
+
+      /* Hide the original button — replaced by sticky version */
+      origApply.style.display = 'none';
+    } else {
+      /* Fallback if original not found */
+      var applyBtn = document.createElement('button');
+      applyBtn.type = 'button';
+      applyBtn.className = 'pr-mobile-filter-apply';
+      applyBtn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Aplică filtre';
+      applyBtn.addEventListener('click', function() {
+        if (typeof window.applyMobileFilters === 'function') {
+          window.applyMobileFilters();
+        } else if (typeof window.toggleMobileFilter === 'function') {
+          window.toggleMobileFilter();
+        }
+        setTimeout(renderActiveChips, 200);
+      });
+      footer.appendChild(applyBtn);
+    }
+
+    /* Hide original Clear button (if any) — chips above grid handle clearing */
+    if (origClear) origClear.style.display = 'none';
   }
 
   // Hook into existing toggleMobileFilter — capture snapshot on open
