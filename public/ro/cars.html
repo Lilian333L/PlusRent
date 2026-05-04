@@ -649,9 +649,6 @@
   position: relative; z-index: 2;
 }
 
-50%      { transform: translateY(3px); }
-}
-
 
 @media (max-width: 575px) {
   #subheader { padding: 60px 0 30px; }
@@ -1305,62 +1302,101 @@ body.cars-listing-page { background: #fafafa; }
   font-size: 0.95rem;
 }
 
-/* === MOBILE FILTER BOTTOM SHEET (replace modal) === */
+/* === MOBILE FILTER BOTTOM SHEET (matches existing #mobile-filter-overlay markup) === */
 @media (max-width: 767px) {
-  .mobile-filter-sidebar {
+  /* The overlay is the wrapping element — backdrop layer */
+  .mobile-filter-overlay {
     position: fixed !important;
+    inset: 0 !important;
+    background: rgba(28, 25, 23, 0.55) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+            backdrop-filter: blur(6px) !important;
+    z-index: 10000 !important;
+    display: none !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .mobile-filter-overlay.active {
+    display: flex !important;
+    opacity: 1;
+  }
+
+  /* Sidebar = the bottom sheet itself */
+  .mobile-filter-overlay .mobile-filter-sidebar {
+    position: relative !important;
     bottom: 0;
-    top: auto !important;
-    left: 0;
-    right: 0;
     width: 100% !important;
     max-width: 100% !important;
-    max-height: 90vh;
+    max-height: 92vh !important;
     border-radius: 22px 22px 0 0 !important;
-    transform: translateY(100%) !important;
+    transform: translateY(100%);
     transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    overflow-y: auto;
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    z-index: 10001;
     background: #ffffff;
     box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.30);
     padding-bottom: max(20px, env(safe-area-inset-bottom));
     border-top: 3px solid #f59e0b;
+    display: flex !important;
+    flex-direction: column;
   }
-  .mobile-filter-sidebar.open,
-  .mobile-filter-sidebar.is-open {
-    transform: translateY(0) !important;
+  .mobile-filter-overlay.active .mobile-filter-sidebar {
+    transform: translateY(0);
   }
 
-  /* Bottom sheet drag handle (visual affordance) */
-  .mobile-filter-sidebar::before {
+  /* Drag handle visual affordance */
+  .mobile-filter-overlay .mobile-filter-sidebar::before {
     content: '';
-    position: sticky;
-    top: 0;
     display: block;
     width: 44px;
     height: 5px;
     background: rgba(28, 25, 23, 0.20);
     border-radius: 4px;
-    margin: 8px auto 4px;
+    margin: 10px auto 4px;
+    flex-shrink: 0;
   }
 
-  /* Backdrop overlay */
-  .mobile-filter-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(28, 25, 23, 0.50);
-    -webkit-backdrop-filter: blur(4px);
-            backdrop-filter: blur(4px);
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.22s;
+  /* Header inside sheet */
+  .mobile-filter-overlay .mobile-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 18px 14px;
+    border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+    flex-shrink: 0;
   }
-  .mobile-filter-backdrop.is-visible {
-    opacity: 1;
-    pointer-events: auto;
+  .mobile-filter-overlay .mobile-filter-header h5 {
+    margin: 0;
+    color: #1C1917;
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .mobile-filter-overlay .mobile-filter-close {
+    width: 36px;
+    height: 36px;
+    background: rgba(245, 158, 11, 0.10);
+    border: 1.5px solid rgba(245, 158, 11, 0.40);
+    color: #f59e0b;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.22s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-filter-overlay .mobile-filter-close:hover {
+    background: #f59e0b;
+    color: #1C1917;
+    border-color: transparent;
+  }
+
+  /* Content scrollable area */
+  .mobile-filter-overlay .mobile-filter-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 18px;
   }
 
   /* Apply/Cancel sticky footer in bottom sheet */
@@ -1369,12 +1405,14 @@ body.cars-listing-page { background: #fafafa; }
     bottom: 0;
     background: #ffffff;
     border-top: 1px solid rgba(28, 25, 23, 0.10);
-    padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding: 14px 18px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
     display: flex;
     gap: 10px;
     box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
-    margin-top: 16px;
+    margin: 16px -18px -20px;
+    flex-shrink: 0;
+    z-index: 5;
   }
   .pr-mobile-filter-cancel,
   .pr-mobile-filter-apply {
@@ -1484,9 +1522,9 @@ body.cars-listing-page { background: #fafafa; }
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
                     <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
-                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3); position: relative; overflow: hidden;">
-                      <i class="fa fa-phone" style="font-size: 12px;"></i>
-                      <span data-i18n="call_now">Call Now</span>
+                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);" aria-label="Sună Acum">
+                      <i class="fa fa-phone" style="font-size: 12px;" aria-hidden="true"></i>
+                      <span data-i18n="call_now">Sunați Acum</span>
                     </a>
                   </div>
                   <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
@@ -1799,6 +1837,119 @@ body.cars-listing-page { background: #fafafa; }
         </div>
       </div>
     </div>
+
+
+  <!-- ============================================================
+       CONTACT POPUP — identical to index.html (uses global styles)
+       ============================================================ -->
+  <div id="contactPopup" class="contact-popup-overlay">
+    <div class="contact-popup">
+      <div class="contact-popup-header">
+        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide">
+          <i class="fa fa-times"></i>
+        </button>
+        <h3 data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
+        <p data-i18n="contact_popup.subtitle">Alege modalitatea preferată de contact</p>
+      </div>
+      <div class="contact-popup-body">
+        <div class="contact-option" role="button" tabindex="0" onclick="openWhatsApp()" onkeydown="if(event.key==='Enter'||event.key===' '){openWhatsApp()}" aria-label="Contactează via WhatsApp">
+          <div class="contact-option-icon">
+            <i class="fab fa-whatsapp fa-lg"></i>
+          </div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.whatsapp">WhatsApp</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Chat rapid</div>
+          </div>
+        </div>
+
+        <div class="contact-option" role="button" tabindex="0" onclick="openViber()" onkeydown="if(event.key==='Enter'||event.key===' '){openViber()}" aria-label="Contactează via Viber">
+          <div class="contact-option-icon">
+            <i class="fa fa-phone"></i>
+          </div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.viber">Viber</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.viber_desc">Voce și mesaje</div>
+          </div>
+        </div>
+
+        <div class="contact-option" role="button" tabindex="0" onclick="openTelegram()" onkeydown="if(event.key==='Enter'||event.key===' '){openTelegram()}" aria-label="Contactează via Telegram">
+          <div class="contact-option-icon">
+            <i class="fa fa-paper-plane"></i>
+          </div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">Mesaje rapide</div>
+          </div>
+        </div>
+
+        <div class="contact-option" role="button" tabindex="0" onclick="makeDirectCall()" onkeydown="if(event.key==='Enter'||event.key===' '){makeDirectCall()}" aria-label="Sună direct">
+          <div class="contact-option-icon">
+            <i class="fa fa-phone"></i>
+          </div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.direct_call">Apel Direct</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">Sună acum</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contactează-ne">
+    <i class="fa fa-comments"></i>
+  </button>
+
+  <script>
+    function openContactPopup() {
+      document.getElementById('contactPopup').style.display = 'flex';
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.dataset.scrollY = scrollY;
+    }
+
+    function closeContactPopup() {
+      document.getElementById('contactPopup').style.display = 'none';
+      const scrollY = parseInt(document.body.dataset.scrollY || '0');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, scrollY);
+    }
+
+    function openWhatsApp() {
+      window.open('https://wa.me/+37360000500?text=Bună ziua! Am nevoie de ajutor cu închirierea unei mașini.', '_blank');
+    }
+    function openViber() {
+      window.open('viber://chat?number=+37360000500', '_blank');
+    }
+    function openTelegram() {
+      window.open('https://t.me/plusrent', '_blank');
+    }
+    function makeDirectCall() {
+      window.location.href = 'tel:+37360000500';
+    }
+
+    document.getElementById('contactPopup').addEventListener('click', function (e) {
+      if (e.target === this) {
+        closeContactPopup();
+      }
+    });
+    /* ESC closes popup */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const popup = document.getElementById('contactPopup');
+        if (popup && popup.style.display === 'flex') {
+          closeContactPopup();
+        }
+      }
+    });
+  </script>
 
     </main>
     <footer class="text-light">
@@ -2856,13 +3007,18 @@ function openMapsOnMobileCars(event, address) {
     setTimeout(renderActiveChips, 800);
   }
 
-  // Periodic recheck (catches AJAX-rendered filter options)
-  var checkCount = 0;
-  var checkInterval = setInterval(function() {
-    renderActiveChips();
-    checkCount++;
-    if (checkCount > 10) clearInterval(checkInterval);
-  }, 1500);
+  // Watch for filter sidebar mutations (catches AJAX-rendered options)
+  var sidebarRoot = document.querySelector('.filter-sidebar') ||
+                    document.querySelector('.cars-main-container') ||
+                    document.body;
+  if (sidebarRoot && typeof MutationObserver !== 'undefined') {
+    var sidebarTimer = null;
+    var sidebarMo = new MutationObserver(function() {
+      if (sidebarTimer) clearTimeout(sidebarTimer);
+      sidebarTimer = setTimeout(renderActiveChips, 100);
+    });
+    sidebarMo.observe(sidebarRoot, { childList: true, subtree: true });
+  }
 
 
   /* ============================================================
@@ -3055,152 +3211,189 @@ function openMapsOnMobileCars(event, address) {
     }
   });
 
-  // Inject toggles after DOM ready + retry for AJAX-loaded cards
-  function tryInject() { injectCompareToggles(); }
+  // Inject toggles + restore active state — runs on every catalog re-render
+  function tryInject() {
+    injectCompareToggles();
+    // Restore "is-active" state for cards that are in compareList
+    if (compareList.length === 0) return;
+    document.querySelectorAll('.de-item.mb30, .de-item').forEach(function(card) {
+      var data = getCarDataFromCard(card);
+      if (!data) return;
+      var btn = card.querySelector('.pr-compare-toggle');
+      if (!btn) return;
+      var isInList = compareList.some(function(c) { return c.id === data.id; });
+      if (isInList && !btn.classList.contains('is-active')) {
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+      } else if (!isInList && btn.classList.contains('is-active')) {
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', tryInject);
   } else {
     tryInject();
   }
-  // Re-inject every 1.2s for first 8 seconds (catches AJAX load)
-  var injectCount = 0;
-  var injectInterval = setInterval(function() {
-    tryInject();
-    injectCount++;
-    if (injectCount > 7) clearInterval(injectInterval);
-  }, 1200);
+
+  // MutationObserver — lives FOREVER, catches every catalog re-render
+  // (AJAX filter results, infinite scroll, sort changes, etc.)
+  var catalogContainer = document.getElementById('cars-catalog') ||
+                         document.querySelector('.cars-main-container') ||
+                         document.body;
+  if (catalogContainer && typeof MutationObserver !== 'undefined') {
+    var debounceTimer = null;
+    var mo = new MutationObserver(function(mutations) {
+      // Debounce — wait for batch of changes to settle
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        var hasNewCards = mutations.some(function(mut) {
+          return Array.from(mut.addedNodes).some(function(node) {
+            if (node.nodeType !== 1) return false;
+            return node.matches && (node.matches('.de-item') || node.querySelector('.de-item'));
+          });
+        });
+        if (hasNewCards) {
+          tryInject();
+          renderActiveChips();
+        }
+      }, 80);
+    });
+    mo.observe(catalogContainer, { childList: true, subtree: true });
+  }
+
+  // Backup: also re-inject on filter changes (in case observer misses something)
+  document.addEventListener('pr-filters-changed', function() {
+    setTimeout(tryInject, 200);
+    setTimeout(tryInject, 600);
+  });
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.matches && e.target.matches('input[type="checkbox"], input[type="radio"]')) {
+      setTimeout(tryInject, 250);
+    }
+  }, { passive: true });
 
 
   /* ============================================================
      PART 3 — MOBILE FILTER BOTTOM SHEET
-     Wraps existing toggleMobileFilter() to add backdrop + apply/cancel
+     Adds Apply/Cancel buttons. Existing toggleMobileFilter() handles open/close.
+     We add: snapshot before open, restore on cancel, footer injection, ESC handler.
      ============================================================ */
 
-  var sheetState = {
-    snapshot: null,  // saved filter state when opened (for cancel)
-  };
+  var sheetSnapshot = null;
 
   function captureFilterSnapshot() {
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    if (!sidebar) return null;
+    var content = document.querySelector('.mobile-filter-content');
+    if (!content) return null;
     var snap = [];
-    sidebar.querySelectorAll('input[type="checkbox"]').forEach(function(cb, i) {
-      snap.push({ idx: i, checked: cb.checked });
+    content.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(cb, i) {
+      snap.push({ key: 'cb-' + i, checked: cb.checked });
     });
-    sidebar.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]').forEach(function(inp, i) {
-      snap.push({ idx: 'txt-' + i, value: inp.value });
+    content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])').forEach(function(inp, i) {
+      snap.push({ key: 'txt-' + i, value: inp.value });
     });
     return snap;
   }
 
   function restoreFilterSnapshot(snap) {
     if (!snap) return;
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    if (!sidebar) return;
-    var cbs = sidebar.querySelectorAll('input[type="checkbox"]');
-    var txts = sidebar.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+    var content = document.querySelector('.mobile-filter-content');
+    if (!content) return;
+    var cbs = content.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+    var txts = content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])');
     snap.forEach(function(s) {
-      if (typeof s.idx === 'number') {
-        if (cbs[s.idx]) cbs[s.idx].checked = s.checked;
-      } else {
-        var i = parseInt(s.idx.replace('txt-', ''), 10);
+      if (s.key.startsWith('cb-')) {
+        var idx = parseInt(s.key.slice(3), 10);
+        if (cbs[idx] && cbs[idx].checked !== s.checked) {
+          cbs[idx].checked = s.checked;
+          cbs[idx].dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } else if (s.key.startsWith('txt-')) {
+        var i = parseInt(s.key.slice(4), 10);
         if (txts[i]) txts[i].value = s.value;
       }
     });
   }
 
-  function ensureBackdrop() {
-    var bd = document.querySelector('.mobile-filter-backdrop');
-    if (!bd) {
-      bd = document.createElement('div');
-      bd.className = 'mobile-filter-backdrop';
-      bd.addEventListener('click', closeBottomSheet);
-      document.body.appendChild(bd);
-    }
-    return bd;
-  }
-
-  function ensureFooter() {
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    if (!sidebar) return;
-    if (sidebar.querySelector('.pr-mobile-filter-footer')) return;
+  function ensureMobileFilterFooter() {
+    var content = document.querySelector('.mobile-filter-content');
+    if (!content) return;
+    if (content.querySelector('.pr-mobile-filter-footer')) return;
 
     var footer = document.createElement('div');
     footer.className = 'pr-mobile-filter-footer';
     footer.innerHTML =
       '<button type="button" class="pr-mobile-filter-cancel">Anulează</button>' +
       '<button type="button" class="pr-mobile-filter-apply">Aplică filtre</button>';
-    sidebar.appendChild(footer);
+    content.appendChild(footer);
 
     footer.querySelector('.pr-mobile-filter-cancel').addEventListener('click', function() {
-      restoreFilterSnapshot(sheetState.snapshot);
-      closeBottomSheet();
-      setTimeout(renderActiveChips, 100);
+      restoreFilterSnapshot(sheetSnapshot);
+      if (typeof window.toggleMobileFilter === 'function') {
+        window.toggleMobileFilter();
+      }
+      setTimeout(renderActiveChips, 150);
     });
+
     footer.querySelector('.pr-mobile-filter-apply').addEventListener('click', function() {
-      closeBottomSheet();
-      setTimeout(renderActiveChips, 100);
-      // Trigger filter recompute if there's an apply function
+      if (typeof window.toggleMobileFilter === 'function') {
+        window.toggleMobileFilter();
+      }
+      setTimeout(renderActiveChips, 150);
+      // Filter logic auto-runs via existing change handlers
       if (typeof window.applyFilters === 'function') {
         try { window.applyFilters(); } catch(e) {}
-      } else {
-        document.dispatchEvent(new CustomEvent('pr-filters-changed'));
       }
+      document.dispatchEvent(new CustomEvent('pr-filters-changed'));
     });
   }
 
-  function openBottomSheet() {
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    if (!sidebar) return;
-    sheetState.snapshot = captureFilterSnapshot();
-    ensureFooter();
-    var bd = ensureBackdrop();
-    sidebar.classList.add('open', 'is-open');
-    bd.classList.add('is-visible');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeBottomSheet() {
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    var bd = document.querySelector('.mobile-filter-backdrop');
-    if (sidebar) sidebar.classList.remove('open', 'is-open');
-    if (bd) bd.classList.remove('is-visible');
-    document.body.style.overflow = '';
-  }
-
-  // Wrap existing toggleMobileFilter() to use bottom sheet behavior
-  if (typeof window.toggleMobileFilter === 'function') {
-    var originalToggle = window.toggleMobileFilter;
+  // Hook into existing toggleMobileFilter — capture snapshot on open
+  var originalToggle = window.toggleMobileFilter;
+  if (typeof originalToggle === 'function') {
     window.toggleMobileFilter = function() {
-      var sidebar = document.querySelector('.mobile-filter-sidebar');
-      if (!sidebar) {
-        return originalToggle.apply(this, arguments);
-      }
-      var isOpen = sidebar.classList.contains('open') || sidebar.classList.contains('is-open');
-      if (isOpen) {
-        closeBottomSheet();
-      } else {
-        openBottomSheet();
-      }
-    };
-  } else {
-    // If toggleMobileFilter doesn't exist yet, define it
-    window.toggleMobileFilter = function() {
-      var sidebar = document.querySelector('.mobile-filter-sidebar');
-      if (!sidebar) return;
-      var isOpen = sidebar.classList.contains('open') || sidebar.classList.contains('is-open');
-      if (isOpen) closeBottomSheet();
-      else openBottomSheet();
+      var overlay = document.getElementById('mobile-filter-overlay');
+      var wasActive = overlay && overlay.classList.contains('active');
+
+      // Run original
+      var result = originalToggle.apply(this, arguments);
+
+      // After opening — capture snapshot, ensure footer present
+      setTimeout(function() {
+        if (overlay && overlay.classList.contains('active')) {
+          if (sheetSnapshot === null) {
+            sheetSnapshot = captureFilterSnapshot();
+          }
+          ensureMobileFilterFooter();
+        } else {
+          sheetSnapshot = null;  // reset when closed
+        }
+      }, 100);
+
+      return result;
     };
   }
 
-  // ESC closes bottom sheet
+  // Backdrop click closes
+  document.addEventListener('click', function(e) {
+    var overlay = document.getElementById('mobile-filter-overlay');
+    if (!overlay || !overlay.classList.contains('active')) return;
+    if (e.target === overlay) {
+      if (typeof window.toggleMobileFilter === 'function') {
+        window.toggleMobileFilter();
+      }
+    }
+  });
+
+  // ESC closes
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      var sidebar = document.querySelector('.mobile-filter-sidebar');
-      if (sidebar && (sidebar.classList.contains('open') || sidebar.classList.contains('is-open'))) {
-        closeBottomSheet();
-      }
+    if (e.key !== 'Escape') return;
+    var overlay = document.getElementById('mobile-filter-overlay');
+    if (overlay && overlay.classList.contains('active') &&
+        typeof window.toggleMobileFilter === 'function') {
+      window.toggleMobileFilter();
     }
   });
 
