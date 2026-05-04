@@ -683,67 +683,15 @@ textarea:focus-visible, [role="button"]:focus-visible {
 }
 
 
-/* === BACK-TO-TOP — luxury black + gold (matches index.html / sofer-personal) === */
+/* === BACK-TO-TOP — color tint only (shape comes from global style.css) === */
 #back-to-top {
-  position: fixed !important;
-  bottom: 24px !important;
-  right: 24px !important;
-  width: 48px !important;
-  height: 48px !important;
-  display: none;
-  align-items: center !important;
-  justify-content: center !important;
   background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
-  border: 1.5px solid rgba(245, 158, 11, 0.40) !important;
-  border-radius: 50% !important;
+  border-color: rgba(245, 158, 11, 0.40) !important;
   color: #f59e0b !important;
-  text-decoration: none !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(245, 158, 11, 0.10) !important;
-  z-index: 997 !important;
-  cursor: pointer !important;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, opacity 0.25s ease !important;
-  -webkit-tap-highlight-color: transparent !important;
-  font-size: 0 !important; /* hide any text content */
-}
-#back-to-top.is-visible {
-  display: flex !important;
-}
-/* Up-arrow drawn via pseudo-element (no font-awesome dependency) */
-#back-to-top::before {
-  content: '' !important;
-  display: block !important;
-  width: 12px !important;
-  height: 12px !important;
-  border-left: 2.5px solid #f59e0b !important;
-  border-top: 2.5px solid #f59e0b !important;
-  transform: rotate(45deg) translate(2px, 2px) !important;
-  transition: border-color 0.25s ease !important;
 }
 #back-to-top:hover {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-  border-color: transparent !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 10px 28px rgba(245, 158, 11, 0.40) !important;
-}
-#back-to-top:hover::before {
-  border-left-color: #1C1917 !important;
-  border-top-color: #1C1917 !important;
-}
-#back-to-top:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.60) !important;
-  outline-offset: 3px !important;
-}
-
-/* Push back-to-top up when floating contact button is also visible */
-body.has-floating-contact #back-to-top {
-  bottom: 92px !important;
-}
-@media (max-width: 768px) {
-  #back-to-top { width: 44px !important; height: 44px !important; bottom: 88px !important; right: 18px !important; }
-  body.has-floating-contact #back-to-top { bottom: 84px !important; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #back-to-top, #back-to-top::before { transition: none !important; }
+  color: #1C1917 !important;
 }
 
 /* === Body bg === */
@@ -874,21 +822,26 @@ body.cars-listing-page { background: #fafafa; }
 }
 
 
-    /* === Sunați Acum — desktop visible, hidden on mobile (floating btn handles mobile call) === */
+    /* === Sunați Acum — compact desktop, hidden mobile === */
     @media (max-width: 991px) {
-      .call-now-wrapper {
-        display: none !important;
-      }
+      .call-now-wrapper { display: none !important; }
     }
-    /* Desktop polish */
     @media (min-width: 992px) {
       .call-now-wrapper {
-        margin-right: 12px !important;
+        margin-right: 8px !important;
         flex-shrink: 0 !important;
       }
       .call-now-btn {
         white-space: nowrap;
+        padding: 7px 14px !important;
+        font-size: 13px !important;
+        gap: 6px !important;
       }
+      .call-now-btn i { font-size: 11px !important; }
+    }
+    /* On wide screens — bigger padding restored */
+    @media (min-width: 1200px) {
+      .call-now-btn { padding: 8px 16px !important; font-size: 14px !important; }
     }
 /* ============================================================
    CATALOG UX UPGRADES (3 features)
@@ -1488,72 +1441,76 @@ body.cars-listing-page { background: #fafafa; }
     padding: 14px 18px;
   }
 
-  /* Sticky Apply/Cancel footer at bottom of sheet (not inside scroll area) */
+  /* Sticky bottom action row (applied to existing button container) */
   .pr-sticky-footer {
-    position: relative;
-    bottom: 0;
-    background: #ffffff;
-    border-top: 1px solid rgba(28, 25, 23, 0.10);
-    padding: 14px 18px;
-    padding-bottom: max(14px, env(safe-area-inset-bottom));
-    display: flex;
-    gap: 10px;
-    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06);
-    flex-shrink: 0;
-    z-index: 10;
-    width: 100%;
+    position: sticky !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #ffffff !important;
+    border-top: 1px solid rgba(28, 25, 23, 0.10) !important;
+    padding: 14px 18px !important;
+    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    gap: 10px !important;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06) !important;
+    flex-shrink: 0 !important;
+    z-index: 10 !important;
+    margin: 0 !important;
+    grid-template-columns: none !important; /* override d-grid Bootstrap */
   }
   .pr-mobile-filter-cancel,
   .pr-mobile-filter-apply {
-    flex: 1;
-    min-height: 48px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border: none;
-    transition: all 0.22s;
-    -webkit-tap-highlight-color: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    line-height: 1;
+    flex: 1 !important;
+    min-height: 48px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.22s !important;
+    -webkit-tap-highlight-color: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    line-height: 1 !important;
+    width: auto !important;
   }
   .pr-mobile-filter-cancel {
-    background: transparent;
-    border: 1.5px solid rgba(28, 25, 23, 0.20);
-    color: #57534e;
+    background: transparent !important;
+    border: 1.5px solid rgba(28, 25, 23, 0.20) !important;
+    color: #57534e !important;
   }
   .pr-mobile-filter-cancel:active {
-    background: rgba(28, 25, 23, 0.05);
-    border-color: rgba(28, 25, 23, 0.40);
+    background: rgba(28, 25, 23, 0.05) !important;
+    border-color: rgba(28, 25, 23, 0.40) !important;
   }
   .pr-mobile-filter-apply {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
   }
   .pr-mobile-filter-apply:active {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    transform: translateY(-1px) !important;
   }
   .pr-mobile-filter-apply:focus-visible,
   .pr-mobile-filter-cancel:focus-visible {
-    outline: 3px solid rgba(245, 158, 11, 0.60);
-    outline-offset: 2px;
+    outline: 3px solid rgba(245, 158, 11, 0.60) !important;
+    outline-offset: 2px !important;
   }
 
-  /* Sidebar must be flex-column so footer pushes to bottom */
+  /* Sheet flexbox layout: scrollable content + fixed sticky footer */
   .mobile-filter-overlay .mobile-filter-sidebar {
     display: flex !important;
-    flex-direction: column;
+    flex-direction: column !important;
   }
   .mobile-filter-overlay .mobile-filter-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 }
 
@@ -3125,38 +3082,7 @@ function openMapsOnMobileCars(event, address) {
    Self-contained, defensive (won't break catalog if elements missing)
    ============================================================ */
 
-  /* Back-to-top visibility — shows after scroll > 400px */
-  (function() {
-    var btt = document.getElementById('back-to-top');
-    if (!btt) return;
-    btt.classList.add('is-visible-eligible');
-    var threshold = 400;
-    var visible = false;
-    var ticking = false;
-    function update() {
-      var sy = window.pageYOffset || document.documentElement.scrollTop;
-      var should = sy > threshold;
-      if (should !== visible) {
-        visible = should;
-        btt.classList.toggle('is-visible', visible);
-      }
-      ticking = false;
-    }
-    window.addEventListener('scroll', function() {
-      if (!ticking) {
-        window.requestAnimationFrame(update);
-        ticking = true;
-      }
-    }, { passive: true });
-    btt.addEventListener('click', function(e) {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    });
-    /* Also signal floating contact button presence */
-    if (document.querySelector('.floating-contact-btn')) {
-      document.body.classList.add('has-floating-contact');
-    }
-  })();
+
 
   (function() {
   'use strict';
@@ -3269,14 +3195,24 @@ function openMapsOnMobileCars(event, address) {
     clearAll.className = 'pr-chip-clear-all';
     clearAll.innerHTML = '<i class="fa fa-eraser" aria-hidden="true"></i> Șterge toate';
     clearAll.addEventListener('click', function() {
-      var clearLink = document.getElementById('clear-filters-link');
-      if (clearLink) clearLink.click();
-      // Also reset price/date if no clear handler
+      /* Use the page's own clearAllFilters() — it already handles BOTH
+         desktop and mobile filter checkboxes + URL state + re-fetch */
+      if (typeof window.clearAllFilters === 'function') {
+        try { window.clearAllFilters(); } catch(e) {}
+      } else {
+        var clearLink = document.getElementById('clear-filters-link');
+        if (clearLink) clearLink.click();
+      }
+      /* Also explicitly reset visible inputs we know about */
       if (priceMin) priceMin.value = '';
       if (priceMax) priceMax.value = '';
       if (dateFrom) dateFrom.value = '';
       if (dateTo) dateTo.value = '';
-      setTimeout(renderActiveChips, 80);
+      /* Also reset compare selection — clearing filters means new search */
+      if (typeof window.prCompareClear === 'function') {
+        try { window.prCompareClear(); } catch(e) {}
+      }
+      setTimeout(renderActiveChips, 200);
     });
     container.appendChild(clearAll);
 
@@ -3632,35 +3568,31 @@ function openMapsOnMobileCars(event, address) {
   }
 
   function ensureMobileFilterFooter() {
-    /* Strategy: don't inject. Instead reuse the EXISTING native button
-       which already calls applyMobileFilters() (which reads checkboxes,
-       fetches cars, closes sheet — fully working).
-       We just style it as sticky bottom AND add a Cancel button next to it. */
+    /* SIMPLE strategy: just add Cancel button next to existing native Apply.
+       Don't clone, don't hide, don't replace. Existing applyMobileFilters()
+       works perfectly — just give it bottom-sticky layout via CSS class. */
     var sidebar = document.querySelector('.mobile-filter-sidebar');
-    var content = document.querySelector('.mobile-filter-content');
-    if (!content || !sidebar) return;
+    if (!sidebar) return;
 
-    /* Find original Apply button by its exact onclick attribute */
+    /* Find the row containing the existing Apply button.
+       Markup: <div class="mt-3 d-grid"><button onclick="applyMobileFilters()">...</button></div>
+       OR similar. */
     var origApply = sidebar.querySelector('button[onclick*="applyMobileFilters"]');
-    var origClear = sidebar.querySelector('button[onclick*="clearAllFilters"], a[onclick*="clearAllFilters"]');
+    if (!origApply) return; // nothing to enhance
 
-    /* Remove our previous custom footer if injected before (idempotent) */
-    sidebar.querySelectorAll('.pr-mobile-filter-footer').forEach(function(el) { el.remove(); });
+    var actionRow = origApply.parentElement;
+    if (!actionRow) return;
 
-    /* Find or create wrapper for sticky footer */
-    var footer = sidebar.querySelector('.pr-sticky-footer');
-    if (!footer) {
-      footer = document.createElement('div');
-      footer.className = 'pr-sticky-footer';
-      sidebar.appendChild(footer); // appended to sidebar, not content (so it's outside scroll area)
-    } else {
-      footer.innerHTML = '';
-    }
+    /* Mark the row as our sticky footer */
+    actionRow.classList.add('pr-sticky-footer');
 
-    /* CANCEL button (reverts to snapshot, closes sheet) */
+    /* Remove duplicate Cancel buttons we may have added before */
+    actionRow.querySelectorAll('.pr-cancel-injected').forEach(function(el) { el.remove(); });
+
+    /* Inject Cancel button BEFORE Apply */
     var cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
-    cancelBtn.className = 'pr-mobile-filter-cancel';
+    cancelBtn.className = 'pr-mobile-filter-cancel pr-cancel-injected';
     cancelBtn.textContent = 'Anulează';
     cancelBtn.addEventListener('click', function() {
       restoreFilterSnapshot(sheetSnapshot);
@@ -3669,37 +3601,10 @@ function openMapsOnMobileCars(event, address) {
       }
       setTimeout(renderActiveChips, 200);
     });
-    footer.appendChild(cancelBtn);
+    actionRow.insertBefore(cancelBtn, origApply);
 
-    /* APPLY button — clones original to inherit its onclick handler reliably */
-    if (origApply) {
-      var applyBtn = origApply.cloneNode(true);
-      applyBtn.className = 'pr-mobile-filter-apply';
-      applyBtn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Aplică filtre';
-      /* Ensure onclick attribute is preserved (cloneNode preserves attributes) */
-      footer.appendChild(applyBtn);
-
-      /* Hide the original button — replaced by sticky version */
-      origApply.style.display = 'none';
-    } else {
-      /* Fallback if original not found */
-      var applyBtn = document.createElement('button');
-      applyBtn.type = 'button';
-      applyBtn.className = 'pr-mobile-filter-apply';
-      applyBtn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Aplică filtre';
-      applyBtn.addEventListener('click', function() {
-        if (typeof window.applyMobileFilters === 'function') {
-          window.applyMobileFilters();
-        } else if (typeof window.toggleMobileFilter === 'function') {
-          window.toggleMobileFilter();
-        }
-        setTimeout(renderActiveChips, 200);
-      });
-      footer.appendChild(applyBtn);
-    }
-
-    /* Hide original Clear button (if any) — chips above grid handle clearing */
-    if (origClear) origClear.style.display = 'none';
+    /* Polish existing Apply button's class — keep its onclick intact */
+    origApply.classList.add('pr-mobile-filter-apply');
   }
 
   // Hook into existing toggleMobileFilter — capture snapshot on open
