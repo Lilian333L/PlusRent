@@ -673,6 +673,89 @@ header.sticky-active #mainmenu li.active a { color: var(--pr-gold) !important; }
 }
 
 /* ============================================================
+   SKELETON LOADERS — fleet cards while API is fetching
+   ============================================================ */
+.pr-skeleton-card {
+  background: var(--pr-white);
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-r-lg);
+  overflow: hidden;
+  margin-bottom: 30px;
+  box-shadow: var(--pr-shadow-card);
+}
+.pr-skeleton-card .sk-img {
+  width: 100%; aspect-ratio: 16/10;
+  background: #efeae3;
+}
+.pr-skeleton-card .sk-body { padding: 18px 20px 20px; }
+.pr-skeleton-card .sk-line {
+  height: 14px; border-radius: 6px;
+  background: #efeae3; margin-bottom: 12px;
+}
+.pr-skeleton-card .sk-line.w-60 { width: 60%; height: 18px; }
+.pr-skeleton-card .sk-line.w-40 { width: 40%; }
+.pr-skeleton-card .sk-line.w-30 { width: 30%; height: 22px; margin-top: 18px; }
+.pr-skeleton-card .sk-pills {
+  display: flex; gap: 8px; margin: 16px 0 8px;
+}
+.pr-skeleton-card .sk-pill {
+  width: 50px; height: 22px; border-radius: 6px; background: #efeae3;
+}
+.pr-skeleton-card .sk-btn {
+  width: 100%; height: 40px; border-radius: var(--pr-r-md);
+  background: #efeae3; margin-top: 14px;
+}
+/* Shimmer pass — gold-tinted gradient sweeps across grey blocks */
+.pr-skeleton-card .sk-img,
+.pr-skeleton-card .sk-line,
+.pr-skeleton-card .sk-pill,
+.pr-skeleton-card .sk-btn {
+  position: relative; overflow: hidden;
+}
+.pr-skeleton-card .sk-img::after,
+.pr-skeleton-card .sk-line::after,
+.pr-skeleton-card .sk-pill::after,
+.pr-skeleton-card .sk-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    rgba(245,158,11,0) 0%,
+    rgba(245,158,11,0.18) 50%,
+    rgba(245,158,11,0) 100%);
+  transform: translateX(-100%);
+  animation: prShimmer 1.4s ease-in-out infinite;
+}
+@keyframes prShimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-skeleton-card .sk-img::after,
+  .pr-skeleton-card .sk-line::after,
+  .pr-skeleton-card .sk-pill::after,
+  .pr-skeleton-card .sk-btn::after { animation: none; opacity: 0.4; }
+}
+
+/* ============================================================
+   SKIP-TO-CONTENT — keyboard / screen-reader accessibility
+   ============================================================ */
+.pr-skip-link {
+  position: absolute; top: -48px; left: 12px;
+  background: var(--pr-black); color: var(--pr-gold) !important;
+  padding: 10px 20px; font-weight: 700; font-size: 0.9rem;
+  border: 1.5px solid rgba(245,158,11,0.45);
+  border-radius: 0 0 var(--pr-r-md) var(--pr-r-md);
+  text-decoration: none !important;
+  z-index: calc(var(--pr-z-toast) + 10);
+  transition: top 0.18s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+.pr-skip-link:focus,
+.pr-skip-link:focus-visible {
+  top: 0;
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+
+/* ============================================================
    PRIMARY BUTTON OVERRIDES — gold accent
    ============================================================ */
 .btn-main {
@@ -1173,6 +1256,8 @@ footer .subfooter { background: var(--pr-dark) !important; }
 </style>
 </head>
 <body>
+  <!-- Skip to main content (keyboard + screen-reader a11y) -->
+  <a class="pr-skip-link" href="#section-cars">Vezi mașinile →</a>
   <div id="toast-container"></div>
   <script>
     if (typeof window.API_BASE_URL === 'undefined' || window.API_BASE_URL === null) {
@@ -1356,7 +1441,7 @@ footer .subfooter { background: var(--pr-dark) !important; }
                         <h5 data-i18n="booking.pickup_location">Locația de Ridicare</h5>
                         <div class="radio-group">
                           <label class="radio-option">
-                            <input type="radio" name="pickup_location" value="Chisinau Airport" id="pickup_chisinau">
+                            <input type="radio" name="pickup_location" value="Chisinau Airport" id="pickup_chisinau" checked>
                             <span class="radio-custom"></span>
                             <span data-i18n="cars.chisinau_airport">Aeroportul Chișinău</span>
                           </label>
@@ -1366,7 +1451,7 @@ footer .subfooter { background: var(--pr-dark) !important; }
                             <span data-i18n="cars.our_office">Biroul Nostru</span>
                           </label>
                           <label class="radio-option">
-                            <input type="radio" name="pickup_location" value="Iasi Airport" id="pickup_iasi" checked>
+                            <input type="radio" name="pickup_location" value="Iasi Airport" id="pickup_iasi">
                             <span class="radio-custom"></span>
                             <span data-i18n="cars.iasi_airport">Aeroportul Iași</span>
                           </label>
@@ -1377,19 +1462,19 @@ footer .subfooter { background: var(--pr-dark) !important; }
                         <h5 data-i18n="booking.destination">Destinația</h5>
                         <div class="radio-group">
                           <label class="radio-option">
-                            <input type="radio" name="destination" value="Chisinau Airport" id="dropoff_chisinau">
+                            <input type="radio" name="destination" value="Chisinau Airport" id="dropoff_chisinau" checked>
                             <span class="radio-custom"></span>
-                            <span data-i18n="cars.chisinau_airport">Aeroportul Chisinau</span>
+                            <span data-i18n="cars.chisinau_airport">Aeroportul Chișinău</span>
                           </label>
                           <label class="radio-option">
-                            <input type="radio" name="destination" value="Our Office" id="dropoff_office" checked>
+                            <input type="radio" name="destination" value="Our Office" id="dropoff_office">
                             <span class="radio-custom"></span>
                             <span data-i18n="cars.our_office">Biroul Nostru</span>
                           </label>
                           <label class="radio-option">
                             <input type="radio" name="destination" value="Iasi Airport" id="dropoff_iasi">
                             <span class="radio-custom"></span>
-                            <span data-i18n="cars.iasi_airport">Aeroportul Iasi</span>
+                            <span data-i18n="cars.iasi_airport">Aeroportul Iași</span>
                           </label>
                         </div>
                       </div>
@@ -1608,11 +1693,14 @@ footer .subfooter { background: var(--pr-dark) !important; }
               <div class="spacer-20"></div>
             </div>
             <div class="clearfix"></div>
-            <div id="fleet-car-grid" class="fleet-car-grid">
-              <div style="text-align:center;padding:2em;">
-                <p>Se încarcă flota de vehicule...</p>
-                <p><small>Dacă nu se încarcă, asigură-te că serverul rulează și reîmprospătează pagina.</small></p>
-              </div>
+            <div id="fleet-car-grid" class="fleet-car-grid car-list-row">
+              <!-- Skeleton placeholders (replaced by JS once API responds) -->
+              <div class="col-xl-4 col-lg-4 col-md-6"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
+              <div class="col-xl-4 col-lg-4 col-md-6"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
+              <div class="col-xl-4 col-lg-4 col-md-6 d-none d-md-block"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
+              <div class="col-xl-4 col-lg-4 col-md-6 d-none d-lg-block"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
+              <div class="col-xl-4 col-lg-4 col-md-6 d-none d-lg-block"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
+              <div class="col-xl-4 col-lg-4 col-md-6 d-none d-xl-block"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>
             </div>
             <!-- SEO/AI fallback for crawlers without JS — gives AI engines content to cite -->
             <noscript>
@@ -2138,7 +2226,10 @@ footer .subfooter { background: var(--pr-dark) !important; }
       }
 
       grid.className = 'fleet-car-grid car-list-row';
-      grid.innerHTML = '<div style="text-align:center;padding:2em;">Loading...</div>';
+      // Skeleton placeholder template (used during fetch + language change)
+      const _SK_CARD = '<div class="col-xl-4 col-lg-4 col-md-6"><div class="pr-skeleton-card" aria-hidden="true"><div class="sk-img"></div><div class="sk-body"><div class="sk-line w-60"></div><div class="sk-line w-40"></div><div class="sk-pills"><span class="sk-pill"></span><span class="sk-pill"></span><span class="sk-pill"></span></div><div class="sk-line w-30"></div><div class="sk-btn"></div></div></div></div>';
+      const _SK_HTML = _SK_CARD.repeat(6);
+      grid.innerHTML = _SK_HTML;
 
       const apiUrl = window.API_BASE_URL + '/api/cars';
       
