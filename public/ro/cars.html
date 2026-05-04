@@ -610,7 +610,7 @@
 /* === HERO LUXURY === */
 #subheader {
   background: var(--pr-black) !important;
-  padding: 70px 0 40px;
+  padding: 50px 0 30px;
   position: relative;
   overflow: hidden;
 }
@@ -683,12 +683,18 @@ textarea:focus-visible, [role="button"]:focus-visible {
 }
 
 
-/* === BACK-TO-TOP — luxury tint, keeps global 40x40 + 6px radius from style.css === */
+/* === BACK-TO-TOP — small 40×40 from global, positioned above floating contact === */
+/* Global style.css default: bottom -40px hidden, 15px shown (.show class).
+   Floating contact button sits at bottom:28px right:28px with 56×56 size.
+   We push back-to-top up so they don't overlap. */
 #back-to-top {
   background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.25) !important;
+  right: 28px !important;
 }
-/* The ::before holds the FontAwesome arrow icon — global sets color: #fff, override to gold */
+#back-to-top.show {
+  bottom: 95px !important; /* sits above 56px floating contact + 28px gap = 95px */
+}
 #back-to-top::before {
   color: #f59e0b !important;
 }
@@ -698,6 +704,10 @@ textarea:focus-visible, [role="button"]:focus-visible {
 }
 #back-to-top:hover::before {
   color: #1C1917 !important;
+}
+@media (max-width: 768px) {
+  #back-to-top { right: 22px !important; }
+  #back-to-top.show { bottom: 84px !important; }
 }
 
 /* === Body bg === */
@@ -790,14 +800,29 @@ body.cars-listing-page { background: #fafafa; }
 
 /* Reduce hero on cars page — catalog should be visible immediately */
 @media (min-width: 768px) {
-  #subheader { padding: 60px 0 36px !important; }
-  #subheader h1 { font-size: clamp(1.6rem, 3.2vw, 2.2rem); margin-bottom: 8px; }
-  #subheader .lead { font-size: clamp(0.92rem, 1.5vw, 1rem); margin-bottom: 0; }
+  #subheader { padding: 50px 0 30px !important; }
+  #subheader h1 {
+    font-size: clamp(1.4rem, 2.6vw, 1.85rem) !important;
+    margin-bottom: 6px !important;
+    line-height: 1.15 !important;
+  }
+  #subheader .lead {
+    font-size: clamp(0.85rem, 1.3vw, 0.95rem) !important;
+    margin-bottom: 0 !important;
+    opacity: 0.78;
+  }
 }
 @media (max-width: 767px) {
-  #subheader { padding: 50px 0 26px !important; }
-  #subheader h1 { font-size: 1.4rem; margin-bottom: 6px; }
-  #subheader .lead { font-size: 0.88rem; }
+  #subheader { padding: 36px 0 22px !important; }
+  #subheader h1 {
+    font-size: 1.25rem !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
+  }
+  #subheader .lead {
+    font-size: 0.82rem !important;
+    line-height: 1.4 !important;
+  }
 }
 
 /* === Reduced motion === */
@@ -811,51 +836,59 @@ body.cars-listing-page { background: #fafafa; }
 }
 
 
-    /* === Sunați Acum — fits next to lang picker on all sizes === */
-    /* Desktop: compact pill */
-    @media (min-width: 992px) {
-      .call-now-wrapper {
-        margin-right: 8px !important;
-        flex-shrink: 0 !important;
-        align-self: center !important;
-      }
-      .call-now-btn {
-        white-space: nowrap;
-        padding: 7px 14px !important;
-        font-size: 13px !important;
-        gap: 6px !important;
-        height: 36px !important;
-        box-sizing: border-box !important;
-      }
-      .call-now-btn i { font-size: 11px !important; }
+    /* === Sunați Acum — definitive base + responsive (no inline conflicts) === */
+    .call-now-wrapper {
+      align-self: center;
+      flex-shrink: 0;
     }
+    .call-now-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 14px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
+      border-radius: 999px;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.30);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+      transition: transform 0.22s, box-shadow 0.22s, background 0.22s;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .call-now-btn:hover {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      box-shadow: 0 5px 14px rgba(245, 158, 11, 0.40);
+      transform: translateY(-1px);
+      color: #ffffff;
+      text-decoration: none;
+    }
+    .call-now-btn i { font-size: 11px; }
+
+    /* Wide desktop: slightly bigger */
     @media (min-width: 1200px) {
-      .call-now-btn { padding: 8px 16px !important; font-size: 14px !important; }
+      .call-now-btn { padding: 0 16px; font-size: 14px; }
     }
 
-    /* Mobile/tablet: icon-only round button (NOT hidden — accessible call action) */
+    /* Mobile / tablet (<992px): icon-only circular */
     @media (max-width: 991px) {
-      .call-now-wrapper {
-        margin-right: 6px !important;
-        flex-shrink: 0 !important;
-        align-self: center !important;
-      }
+      .call-now-wrapper { margin-right: 6px; }
       .call-now-btn {
-        width: 36px !important;
-        height: 36px !important;
-        padding: 0 !important;
-        gap: 0 !important;
-        border-radius: 50% !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
+        width: 36px;
+        padding: 0;
+        gap: 0;
+        border-radius: 50%;
       }
-      .call-now-btn span[data-i18n="call_now"] {
-        display: none !important;
-      }
-      .call-now-btn i {
-        font-size: 14px !important;
-        margin: 0 !important;
-      }
+      .call-now-btn span[data-i18n="call_now"] { display: none; }
+      .call-now-btn i { font-size: 13px; }
     }
 /* ============================================================
    CATALOG UX UPGRADES (3 features)
@@ -865,9 +898,12 @@ body.cars-listing-page { background: #fafafa; }
 .pr-active-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-  padding: 0;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
   align-items: center;
 }
 .pr-active-chips[hidden] { display: none; }
@@ -1252,9 +1288,8 @@ body.cars-listing-page { background: #fafafa; }
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self: center; margin-right: 8px; flex-shrink: 0;">
-                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
-                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);" aria-label="Sună Acum">
-                      <i class="fa fa-phone" style="font-size: 12px;" aria-hidden="true"></i>
+                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn" aria-label="Sună Acum">
+                      <i class="fa fa-phone" aria-hidden="true"></i>
                       <span data-i18n="call_now">Sunați Acum</span>
                     </a>
                   </div>
@@ -1342,7 +1377,7 @@ body.cars-listing-page { background: #fafafa; }
   </div>
 </nav>
       <!-- CARS CATALOG - ИМЕННО СРАЗУ -->
-      <div id="cars-catalog" class="container cars-main-container" style="padding-top: 40px;">
+      <div id="cars-catalog" class="container cars-main-container" style="padding-top: 24px;">
         <div class="mobile-filter-button-container d-md-none">
           <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()" type="button" aria-label="Deschide filtre">
             <i class="fa fa-sliders" aria-hidden="true"></i>
