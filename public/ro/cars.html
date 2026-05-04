@@ -825,6 +825,26 @@ body.cars-listing-page { background: #fafafa; }
   }
 }
 
+
+    /* === Sunați Acum — compact on mobile (icon shows, label hides) === */
+    @media (max-width: 575px) {
+      .call-now-wrapper {
+        margin-right: 4px !important;
+      }
+      .call-now-btn {
+        padding: 9px 12px !important;
+        gap: 0 !important;
+      }
+      .call-now-btn span[data-i18n="call_now"] {
+        display: none !important;
+      }
+      .call-now-btn i {
+        font-size: 14px !important;
+      }
+    }
+    @media (max-width: 380px) {
+      .call-now-btn { padding: 8px 10px !important; }
+    }
 /* ============================================================
    CATALOG UX UPGRADES (3 features)
    ============================================================ */
@@ -937,61 +957,85 @@ body.cars-listing-page { background: #fafafa; }
   display: inline-block;
 }
 
-/* === COMPARISON CHECKBOX on each car card === */
+/* === COMPARE TOGGLE — tiny circular icon, expands on hover/active === */
 .de-item .pr-compare-toggle {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   z-index: 5;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1.5px solid rgba(28, 25, 23, 0.15);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #1C1917;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(28, 25, 23, 0.12);
+  border-radius: 50%;
   cursor: pointer;
-  -webkit-backdrop-filter: blur(6px);
-          backdrop-filter: blur(6px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-  transition: all 0.22s;
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  min-height: 32px;
+  color: #57534e;
+  font-size: 14px;
+  overflow: hidden;
 }
-.de-item .pr-compare-toggle:hover {
-  border-color: #f59e0b;
-  background: #ffffff;
-  transform: translateY(-1px);
-}
-.de-item .pr-compare-toggle.is-active {
-  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
-  border-color: #f59e0b;
-  color: #f59e0b;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
-}
-.de-item .pr-compare-toggle .pr-compare-check {
+.de-item .pr-compare-toggle .pr-compare-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 16px;
   height: 16px;
-  border: 1.5px solid currentColor;
-  border-radius: 4px;
-  font-size: 11px;
   flex-shrink: 0;
+  transition: transform 0.22s;
 }
-.de-item .pr-compare-toggle.is-active .pr-compare-check {
-  background: #f59e0b;
-  color: #1C1917;
+.de-item .pr-compare-toggle .pr-compare-label {
+  display: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+/* Hover (desktop): expands to show label */
+@media (hover: hover) {
+  .de-item .pr-compare-toggle:hover {
+    width: auto;
+    padding: 0 12px 0 10px;
+    border-radius: 999px;
+    border-color: #f59e0b;
+    background: #ffffff;
+    color: #1C1917;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+  }
+  .de-item .pr-compare-toggle:hover .pr-compare-label {
+    display: inline;
+  }
+}
+
+/* Active (selected for comparison): luxury black + gold */
+.de-item .pr-compare-toggle.is-active {
+  width: auto;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
   border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
 }
-.de-item .pr-compare-toggle.is-active .pr-compare-check::before {
-  content: '✓';
-  font-weight: 900;
+.de-item .pr-compare-toggle.is-active .pr-compare-label {
+  display: inline;
+}
+.de-item .pr-compare-toggle.is-active .pr-compare-icon {
+  transform: rotate(45deg);  /* ⊕ becomes × visually */
+}
+.de-item .pr-compare-toggle:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.55);
+  outline-offset: 2px;
 }
 
 /* === COMPARISON FLOATING BAR (bottom of viewport when 2+ selected) === */
@@ -1520,7 +1564,7 @@ body.cars-listing-page { background: #fafafa; }
               <div class="de-flex-col">
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
-                  <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
+                  <div class="call-now-wrapper" style="align-self: center; margin-right: 8px; flex-shrink: 0;">
                     <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
                       style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);" aria-label="Sună Acum">
                       <i class="fa fa-phone" style="font-size: 12px;" aria-hidden="true"></i>
@@ -1839,81 +1883,253 @@ body.cars-listing-page { background: #fafafa; }
     </div>
 
 
+
   <!-- ============================================================
-       CONTACT POPUP — identical to index.html (uses global styles)
+       LUXURY CONTACT POPUP — copied from sofer-personal__3_.html
+       Self-contained CSS (no external CSS-variables required)
        ============================================================ -->
-  <div id="contactPopup" class="contact-popup-overlay">
+  <style id="pr-luxury-contact-popup">
+    .contact-popup-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(28, 25, 23, 0.60);
+      -webkit-backdrop-filter: blur(10px);
+              backdrop-filter: blur(10px);
+      z-index: 9999;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      cursor: pointer;
+    }
+    .contact-popup {
+      background: #ffffff;
+      border-radius: 18px;
+      width: 100%; max-width: 420px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(245, 158, 11, 0.15);
+      animation: prContactSlideUp 0.28s cubic-bezier(0, 0, 0.2, 1);
+      cursor: default;
+    }
+    @keyframes prContactSlideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .contact-popup-header {
+      background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+      border-bottom: 3px solid #f59e0b;
+      color: #ffffff;
+      padding: 28px 22px;
+      position: relative;
+      text-align: center;
+    }
+    .contact-popup-header::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .contact-popup-header h3 {
+      color: #ffffff; font-size: 1.35rem; font-weight: 900;
+      margin: 0 0 5px; position: relative;
+    }
+    .contact-popup-header p {
+      color: rgba(255, 255, 255, 0.75); font-size: 0.9rem;
+      margin: 0; position: relative;
+    }
+    .contact-popup-close {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.85);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      transition: all 0.22s ease;
+      touch-action: manipulation;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .contact-popup-close:hover {
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      transform: rotate(90deg);
+    }
+    .contact-popup-body { padding: 14px; }
+    .contact-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      margin-bottom: 6px;
+      text-decoration: none;
+      border: 1.5px solid transparent;
+      touch-action: manipulation;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .contact-option:hover {
+      background: #fafaf9;
+      border-color: rgba(245, 158, 11, 0.20);
+      transform: translateX(4px);
+      text-decoration: none;
+    }
+    .contact-option:last-child { margin-bottom: 0; }
+    .contact-option-icon {
+      flex-shrink: 0;
+      width: 50px; height: 50px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: #ffffff;
+      font-size: 1.3rem;
+    }
+    .contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+    .contact-option.viber    .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
+    .contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
+    .contact-option.phone    .contact-option-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .contact-option-content { flex: 1; min-width: 0; }
+    .contact-option-title {
+      font-weight: 700; color: #1C1917; font-size: 1rem; margin-bottom: 2px;
+    }
+    .contact-option-subtitle {
+      color: #78716c; font-size: 0.84rem;
+    }
+    .contact-option-arrow {
+      color: #d6d3d1; font-size: 1rem;
+      transition: all 0.18s ease;
+      margin-left: auto;
+    }
+    .contact-option:hover .contact-option-arrow {
+      color: #d97706;
+      transform: translateX(3px);
+    }
+    @media (max-width: 768px) {
+      .contact-popup { max-width: 100%; }
+      .contact-popup-header { padding: 22px 18px; }
+      .contact-popup-header h3 { font-size: 1.2rem; }
+    }
+
+    /* Floating contact button — luxury gold pulse */
+    .floating-contact-btn {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #1C1917;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40);
+      z-index: 998;
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+      touch-action: manipulation;
+      animation: prFloatPulse 2.8s ease-in-out infinite;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @keyframes prFloatPulse {
+      0%, 100% { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 0 rgba(245, 158, 11, 0.50); }
+      50%      { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 14px rgba(245, 158, 11, 0); }
+    }
+    .floating-contact-btn:hover {
+      transform: scale(1.10);
+      animation: none;
+    }
+    .floating-contact-btn:focus-visible {
+      outline: 3px solid rgba(245, 158, 11, 0.70);
+      outline-offset: 4px;
+    }
+    @media (max-width: 768px) {
+      .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .contact-popup { animation: none; }
+      .floating-contact-btn { animation: none; }
+      .contact-option:hover { transform: none; }
+      .contact-popup-close:hover { transform: none; }
+    }
+  </style>
+
+  <div id="contactPopup" class="contact-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="contactPopupTitle">
     <div class="contact-popup">
       <div class="contact-popup-header">
-        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide">
-          <i class="fa fa-times"></i>
+        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide" type="button">
+          <i class="fa fa-times" aria-hidden="true"></i>
         </button>
-        <h3 data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
+        <h3 id="contactPopupTitle" data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
         <p data-i18n="contact_popup.subtitle">Alege modalitatea preferată de contact</p>
       </div>
       <div class="contact-popup-body">
-        <div class="contact-option" role="button" tabindex="0" onclick="openWhatsApp()" onkeydown="if(event.key==='Enter'||event.key===' '){openWhatsApp()}" aria-label="Contactează via WhatsApp">
+        <a href="https://wa.me/+37360000500?text=Bună ziua! Am nevoie de ajutor cu închirierea unei mașini." target="_blank" rel="noopener noreferrer" class="contact-option whatsapp" aria-label="Contactează via WhatsApp">
           <div class="contact-option-icon">
-            <i class="fab fa-whatsapp fa-lg"></i>
+            <i class="fab fa-whatsapp" aria-hidden="true"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.whatsapp">WhatsApp</div>
             <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Chat rapid</div>
           </div>
-        </div>
+          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
+        </a>
 
-        <div class="contact-option" role="button" tabindex="0" onclick="openViber()" onkeydown="if(event.key==='Enter'||event.key===' '){openViber()}" aria-label="Contactează via Viber">
+        <a href="viber://chat?number=+37360000500" class="contact-option viber" aria-label="Contactează via Viber">
           <div class="contact-option-icon">
-            <i class="fa fa-phone"></i>
+            <i class="fa fa-phone" aria-hidden="true"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.viber">Viber</div>
             <div class="contact-option-subtitle" data-i18n="contact_popup.viber_desc">Voce și mesaje</div>
           </div>
-        </div>
+          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
+        </a>
 
-        <div class="contact-option" role="button" tabindex="0" onclick="openTelegram()" onkeydown="if(event.key==='Enter'||event.key===' '){openTelegram()}" aria-label="Contactează via Telegram">
+        <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" class="contact-option telegram" aria-label="Contactează via Telegram">
           <div class="contact-option-icon">
-            <i class="fa fa-paper-plane"></i>
+            <i class="fa fa-paper-plane" aria-hidden="true"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
             <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">Mesaje rapide</div>
           </div>
-        </div>
+          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
+        </a>
 
-        <div class="contact-option" role="button" tabindex="0" onclick="makeDirectCall()" onkeydown="if(event.key==='Enter'||event.key===' '){makeDirectCall()}" aria-label="Sună direct">
+        <a href="tel:+37360000500" onclick="if(typeof gtag_report_conversion==='function'){gtag_report_conversion('tel:+37360000500');}" class="contact-option phone" aria-label="Sună direct">
           <div class="contact-option-icon">
-            <i class="fa fa-phone"></i>
+            <i class="fa fa-phone" aria-hidden="true"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.direct_call">Apel Direct</div>
-            <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">Sună acum</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">+373 60 000 500</div>
           </div>
-        </div>
+          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
+        </a>
       </div>
     </div>
   </div>
 
   <button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contactează-ne">
-    <i class="fa fa-comments"></i>
+    <i class="fa fa-comments" aria-hidden="true"></i>
   </button>
 
   <script>
     function openContactPopup() {
-      document.getElementById('contactPopup').style.display = 'flex';
-      const scrollY = window.scrollY;
+      var popup = document.getElementById('contactPopup');
+      if (!popup) return;
+      popup.style.display = 'flex';
+      var scrollY = window.scrollY;
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
+      document.body.style.top = '-' + scrollY + 'px';
       document.body.style.width = '100%';
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.dataset.scrollY = scrollY;
     }
-
     function closeContactPopup() {
-      document.getElementById('contactPopup').style.display = 'none';
-      const scrollY = parseInt(document.body.dataset.scrollY || '0');
+      var popup = document.getElementById('contactPopup');
+      if (!popup) return;
+      popup.style.display = 'none';
+      var scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
@@ -1921,32 +2137,20 @@ body.cars-listing-page { background: #fafafa; }
       document.body.style.right = '';
       window.scrollTo(0, scrollY);
     }
-
-    function openWhatsApp() {
-      window.open('https://wa.me/+37360000500?text=Bună ziua! Am nevoie de ajutor cu închirierea unei mașini.', '_blank');
-    }
-    function openViber() {
-      window.open('viber://chat?number=+37360000500', '_blank');
-    }
-    function openTelegram() {
-      window.open('https://t.me/plusrent', '_blank');
-    }
-    function makeDirectCall() {
-      window.location.href = 'tel:+37360000500';
-    }
-
-    document.getElementById('contactPopup').addEventListener('click', function (e) {
-      if (e.target === this) {
-        closeContactPopup();
+    /* Backdrop click closes */
+    (function() {
+      var popup = document.getElementById('contactPopup');
+      if (popup) {
+        popup.addEventListener('click', function(e) {
+          if (e.target === popup) closeContactPopup();
+        });
       }
-    });
-    /* ESC closes popup */
+    })();
+    /* ESC closes */
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        const popup = document.getElementById('contactPopup');
-        if (popup && popup.style.display === 'flex') {
-          closeContactPopup();
-        }
+        var popup = document.getElementById('contactPopup');
+        if (popup && popup.style.display === 'flex') closeContactPopup();
       }
     });
   </script>
@@ -3035,16 +3239,14 @@ function openMapsOnMobileCars(event, address) {
     var priceEl = card.querySelector('.de-price, .price-tag, .car-price, [class*="price"]');
     var imgEl   = card.querySelector('img');
 
-    // Try to extract specs from existing markup
+    // Specs from existing markup
     var specs = {};
     var specEls = card.querySelectorAll('.car-specs li, .de-specs li, [class*="spec"] li, .car-feature');
     specEls.forEach(function(el) {
       var text = el.textContent.trim();
-      // try detect icon-name pairs e.g. "Manual", "Diesel", "5 uși"
       if (text) specs[text] = '';
     });
 
-    // Try to fetch data attributes if catalog provides them
     var data = card.dataset || {};
     if (data.gear)    specs['Transmisie'] = data.gear;
     if (data.fuel)    specs['Combustibil'] = data.fuel;
@@ -3054,11 +3256,24 @@ function openMapsOnMobileCars(event, address) {
     if (data.type)    specs['Tip']        = data.type;
 
     var bookLink = card.querySelector('a[href*="rezerv"], a[href*="booking"], a.btn, a.btn-primary');
+    var titleText = titleEl ? titleEl.textContent.trim() : '';
+    var priceText = priceEl ? priceEl.textContent.trim() : '';
+
+    /* STABLE ID — no Math.random! Deterministic by data-* or title+price.
+       Prevents duplicates when AJAX re-renders the same car. */
+    var stableId = card.dataset.carId || card.dataset.id ||
+                   ((titleText + '|' + priceText).replace(/\s+/g, '_').toLowerCase());
+
+    /* Persist back to card.dataset so subsequent reads are stable
+       even when innerHTML changes briefly */
+    if (!card.dataset.prCarId) {
+      card.dataset.prCarId = stableId;
+    }
 
     return {
-      id: card.dataset.carId || card.dataset.id || (titleEl ? titleEl.textContent.trim() : Math.random().toString(36).slice(2)),
-      name: titleEl ? titleEl.textContent.trim() : 'Mașină',
-      price: priceEl ? priceEl.textContent.trim() : '',
+      id: stableId,
+      name: titleText || 'Mașină',
+      price: priceText,
       img: imgEl ? imgEl.src : '',
       specs: specs,
       bookHref: bookLink ? bookLink.href : '#'
@@ -3075,7 +3290,8 @@ function openMapsOnMobileCars(event, address) {
       btn.className = 'pr-compare-toggle';
       btn.setAttribute('aria-pressed', 'false');
       btn.setAttribute('aria-label', 'Adaugă la comparație');
-      btn.innerHTML = '<span class="pr-compare-check" aria-hidden="true"></span><span>Compară</span>';
+      btn.title = 'Compară';
+      btn.innerHTML = '<span class="pr-compare-icon" aria-hidden="true">+</span><span class="pr-compare-label">Compară</span>';
 
       btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -3318,9 +3534,24 @@ function openMapsOnMobileCars(event, address) {
   }
 
   function ensureMobileFilterFooter() {
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
     var content = document.querySelector('.mobile-filter-content');
-    if (!content) return;
-    if (content.querySelector('.pr-mobile-filter-footer')) return;
+    if (!content || !sidebar) return;
+
+    /* Dedup: remove ANY existing footers (ours or original "Aplică/Șterge") */
+    sidebar.querySelectorAll('.pr-mobile-filter-footer, .mobile-filter-actions, .filter-actions').forEach(function(el) {
+      el.remove();
+    });
+
+    /* Also remove inline buttons from original markup — they cause duplicate UX */
+    sidebar.querySelectorAll('button[onclick*="applyFilters"], button[onclick*="clearFilters"], a[onclick*="applyFilters"], a[onclick*="clearFilters"]').forEach(function(el) {
+      var parent = el.parentElement;
+      el.remove();
+      /* If parent becomes empty container, also remove */
+      if (parent && parent.children.length === 0 && parent.classList.contains('mobile-filter-footer')) {
+        parent.remove();
+      }
+    });
 
     var footer = document.createElement('div');
     footer.className = 'pr-mobile-filter-footer';
@@ -3342,7 +3573,6 @@ function openMapsOnMobileCars(event, address) {
         window.toggleMobileFilter();
       }
       setTimeout(renderActiveChips, 150);
-      // Filter logic auto-runs via existing change handlers
       if (typeof window.applyFilters === 'function') {
         try { window.applyFilters(); } catch(e) {}
       }
