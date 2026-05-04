@@ -35,6 +35,10 @@
         }
     </script>
     <style>
+        /* ============================================================
+           SPINNING WHEEL STANDALONE — Luxury Black + Gold edition
+           Spotlight feel: dark surroundings, golden wheel in center
+           ============================================================ */
         * {
             margin: 0;
             padding: 0;
@@ -43,7 +47,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            /* Spotlight: warm gold glow at top, fading to luxury black at edges */
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 30%, rgba(245, 158, 11, 0.22) 0%, transparent 60%),
+                linear-gradient(135deg, #1C1917 0%, #292524 100%);
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
@@ -58,19 +65,20 @@
             align-items: center;
             justify-content: flex-start;
             padding: 15px 10px;
+            padding-top: max(15px, env(safe-area-inset-top));
+            padding-bottom: max(15px, env(safe-area-inset-bottom));
             position: relative;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-        /* Floating particles background - ОПТИМИЗИРОВАНО */
+        /* Subtle gold particles — was white dots, now barely-visible gold */
         .spinning-wheel-container::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(245, 158, 11, 0.10) 1px, transparent 1px);
             background-size: 50px 50px;
             background-position: 0 0;
             animation: particlesFloat 20s linear infinite;
@@ -111,7 +119,7 @@
             position: relative;
         }
 
-        /* ОПТИМИЗИРОВАННЫЙ Wheel Container */
+        /* Wheel container — performance-tuned */
         .wheel-container {
             position: relative;
             width: 280px;
@@ -139,25 +147,26 @@
             }
         }
 
-        /* Упрощенный glow для производительности */
+        /* Gold ring around the wheel — luxury feel, not cheap promo */
         .wheel-glow {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             border-radius: 50%;
             padding: 8px;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            animation: glowPulse 3s ease infinite;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b 50%, #d97706);
+            animation: glowPulse 3.5s ease infinite;
         }
 
         @keyframes glowPulse {
-            0%, 100% { 
-                box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+            0%, 100% {
+                box-shadow:
+                    0 0 35px rgba(245, 158, 11, 0.45),
+                    0 0 80px rgba(245, 158, 11, 0.18);
             }
-            50% { 
-                box-shadow: 0 0 45px rgba(245, 158, 11, 0.6);
+            50% {
+                box-shadow:
+                    0 0 55px rgba(245, 158, 11, 0.65),
+                    0 0 110px rgba(245, 158, 11, 0.28);
             }
         }
 
@@ -168,12 +177,12 @@
             border-radius: 50%;
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             padding: 0;
-            box-shadow: 
-                0 0 30px rgba(245, 158, 11, 0.3),
-                inset 0 0 20px rgba(255, 255, 255, 0.9);
+            box-shadow:
+                0 0 30px rgba(245, 158, 11, 0.30),
+                inset 0 0 20px rgba(255, 255, 255, 0.92);
         }
 
-        /* КРИТИЧНО ОПТИМИЗИРОВАННОЕ колесо */
+        /* Optimized wheel rotation surface */
         .wheel {
             position: relative;
             width: 100%;
@@ -255,7 +264,7 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
             z-index: 10;
-            background: rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.18);
             border-radius: 6px;
         }
 
@@ -266,7 +275,7 @@
             }
         }
 
-        /* Оптимизированная центральная кнопка */
+        /* Center START button — gold with luxury black ring */
         .center-button {
             position: absolute;
             top: 50%;
@@ -276,14 +285,17 @@
             height: 75px;
             border-radius: 50%;
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border: 4px solid white;
+            border: 4px solid #1C1917;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
-            transition: all 0.2s ease;
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.30),
+                0 0 0 1px rgba(245, 158, 11, 0.40);
+            transition: all 0.22s ease;
             z-index: 20;
             will-change: transform;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         @media (min-width: 768px) {
@@ -294,12 +306,19 @@
         }
 
         .center-button:hover {
-            transform: translate(-50%, -50%) scale(1.05);
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.6);
+            transform: translate(-50%, -50%) scale(1.06);
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.35),
+                0 0 0 2px rgba(245, 158, 11, 0.55);
         }
 
         .center-button:active {
             transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        .center-button:focus-visible {
+            outline: 3px solid #f59e0b;
+            outline-offset: 4px;
         }
 
         .center-button:disabled {
@@ -315,31 +334,27 @@
 
         .center-icon {
             font-size: 1.1rem;
-            color: white;
+            color: #ffffff;
             display: block;
             font-weight: 800;
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
             letter-spacing: 1px;
         }
 
-        /* Упрощенная стрелка */
+        /* Arrow pointer — gold instead of white for brand cohesion */
         .arrow-pointer {
             position: absolute;
             top: -20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 30;
-            animation: arrowBounce 1.5s ease-in-out infinite;
+            animation: arrowBounce 1.6s ease-in-out infinite;
         }
 
         @keyframes arrowBounce {
-            0%, 100% { 
-                transform: translateX(-50%) translateY(0);
-            }
-            50% { 
-                transform: translateX(-50%) translateY(-6px);
-            }
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50%      { transform: translateX(-50%) translateY(-6px); }
         }
 
         .arrow {
@@ -347,19 +362,17 @@
             height: 0;
             border-left: 18px solid transparent;
             border-right: 18px solid transparent;
-            border-top: 28px solid white;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            border-top: 28px solid #f59e0b;
+            filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.5));
             position: relative;
         }
 
         @media (max-width: 480px) {
-            .arrow-pointer {
-                top: -16px;
-            }
+            .arrow-pointer { top: -16px; }
             .arrow {
                 border-left: 15px solid transparent;
                 border-right: 15px solid transparent;
-                border-top: 24px solid white;
+                border-top: 24px solid #f59e0b;
             }
         }
 
@@ -370,22 +383,23 @@
             position: relative;
         }
 
-        /* Компактная карточка инструкций */
+        /* Instructions card — translucent white over dark, gold accent border */
         .instructions-card {
             background: rgba(255, 255, 255, 0.97);
+            -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
             border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 22px;
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.30),
+                0 0 0 1px rgba(245, 158, 11, 0.20);
+            border-top: 3px solid #f59e0b;
             position: relative;
             overflow: hidden;
         }
 
         @media (min-width: 768px) {
-            .instructions-card {
-                padding: 30px;
-            }
+            .instructions-card { padding: 30px; }
         }
 
         .instructions-card::before {
@@ -396,24 +410,26 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.08), transparent);
-            animation: cardShimmer 3s infinite;
+            animation: cardShimmer 3.5s infinite;
+            pointer-events: none;
         }
 
         @keyframes cardShimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0%   { left: -100%; }
+            100% { left:  100%; }
         }
 
         .instructions-title {
             font-size: 1.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #d97706, #1C1917);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-align: center;
             margin-bottom: 18px;
             position: relative;
+            letter-spacing: -0.3px;
         }
 
         @media (max-width: 480px) {
@@ -434,30 +450,34 @@
             align-items: flex-start;
             gap: 12px;
             margin-bottom: 12px;
-            padding: 10px;
+            padding: 11px 12px;
             border-radius: 12px;
-            transition: all 0.2s ease;
+            transition: all 0.22s ease;
             background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.08);
         }
 
         @media (max-width: 480px) {
             .instruction-step {
-                padding: 8px;
+                padding: 9px;
                 margin-bottom: 10px;
                 gap: 10px;
             }
         }
 
         .instruction-step:hover {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.12));
-            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.10));
+            border-color: rgba(245, 158, 11, 0.25);
+            transform: translateX(4px);
         }
 
+        /* Step numbers — luxury black with gold (matches main-page trust signals) */
         .step-number {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
+            background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+            color: #f59e0b;
+            border: 1.5px solid rgba(245, 158, 11, 0.30);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -465,7 +485,7 @@
             font-weight: 800;
             font-size: 0.95rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
         @media (max-width: 480px) {
@@ -477,51 +497,50 @@
         }
 
         .step-text {
-            color: #2d3748;
+            color: #1C1917;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.55;
             padding-top: 0.25rem;
             font-weight: 500;
         }
 
         @media (max-width: 480px) {
-            .step-text {
-                font-size: 0.9rem;
-            }
+            .step-text { font-size: 0.9rem; }
         }
 
-        /* Карточка результата */
+        /* === RESULT card (after spin completes) === */
         .result-card {
             background: rgba(255, 255, 255, 0.97);
+            -webkit-backdrop-filter: blur(15px);
             backdrop-filter: blur(15px);
             border-radius: 20px;
-            padding: 25px;
+            padding: 26px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.30),
+                0 0 0 1px rgba(245, 158, 11, 0.20);
+            border-top: 3px solid #f59e0b;
             display: none;
             position: relative;
             overflow: hidden;
         }
 
         @media (min-width: 768px) {
-            .result-card {
-                padding: 35px;
-            }
+            .result-card { padding: 36px; }
         }
 
         .result-card::before {
             content: '🎉';
             position: absolute;
             font-size: 80px;
-            opacity: 0.08;
+            opacity: 0.06;
             top: -15px;
             right: -15px;
-            animation: rotate 10s linear infinite;
+            animation: rotate 14s linear infinite;
         }
 
         @keyframes rotate {
-            0% { transform: rotate(0deg); }
+            0%   { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
@@ -531,135 +550,148 @@
         }
 
         @keyframes resultPop {
-            0% {
-                transform: scale(0.7);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0%   { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
         }
 
         .congratulations {
             font-size: 2rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #d97706, #1C1917);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.5rem;
             position: relative;
+            letter-spacing: -0.5px;
         }
 
         @media (max-width: 480px) {
-            .congratulations {
-                font-size: 1.6rem;
-            }
+            .congratulations { font-size: 1.6rem; }
         }
 
         .you-won {
-            font-size: 1.1rem;
-            color: #4a5568;
+            font-size: 1.05rem;
+            color: #525252;
             margin-bottom: 1.2rem;
             font-weight: 600;
         }
 
         @media (max-width: 480px) {
-            .you-won {
-                font-size: 1rem;
-            }
+            .you-won { font-size: 0.95rem; }
         }
 
+        /* Prize display — luxury black pill with gold number */
         .prize-display {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            font-size: 1.6rem;
+            background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+            color: #f59e0b;
+            border: 1.5px solid rgba(245, 158, 11, 0.45);
+            font-size: 1.7rem;
             font-weight: 900;
-            padding: 12px 30px;
+            padding: 13px 32px;
             border-radius: 50px;
             margin-bottom: 1.2rem;
             display: inline-block;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            box-shadow:
+                0 8px 28px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(245, 158, 11, 0.20);
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 480px) {
             .prize-display {
-                font-size: 1.4rem;
-                padding: 10px 25px;
+                font-size: 1.45rem;
+                padding: 11px 26px;
             }
         }
 
         .code-text {
             font-size: 1rem;
             margin-bottom: 1.5rem;
-            color: #4a5568;
+            color: #525252;
             font-weight: 500;
         }
 
+        /* Discount code — luxury black box with gold monospace */
         .discount-code {
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', 'SF Mono', Menlo, monospace;
             font-weight: 900;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            background: #1C1917;
             color: #f59e0b;
-            padding: 8px 16px;
+            padding: 9px 18px;
             border-radius: 10px;
-            border: 2px solid rgba(245, 158, 11, 0.4);
+            border: 1.5px solid rgba(245, 158, 11, 0.45);
             font-size: 1.2rem;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
+            display: inline-block;
+            box-shadow: inset 0 1px 0 rgba(245, 158, 11, 0.18);
+            user-select: all;
+            -webkit-user-select: all;
         }
 
         @media (max-width: 480px) {
             .discount-code {
                 font-size: 1.1rem;
-                padding: 7px 14px;
+                padding: 8px 14px;
+                letter-spacing: 1.8px;
             }
         }
 
+        /* Book Now CTA — keeps gold filled (main action) */
         .book-now-button {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
             border: none;
-            padding: 14px 30px;
+            padding: 15px 32px;
             border-radius: 50px;
             font-size: 1.05rem;
             font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow:
+                0 8px 26px rgba(245, 158, 11, 0.40),
+                inset 0 1px 0 rgba(255, 255, 255, 0.20);
+            transition: all 0.32s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             position: relative;
             overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+            min-height: 50px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         @media (max-width: 480px) {
             .book-now-button {
-                padding: 12px 25px;
+                padding: 13px 26px;
                 font-size: 1rem;
+                width: 100%;
             }
         }
 
         .book-now-button::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
+            inset: 0 auto 0 -100%;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.30), transparent);
+            transition: left 0.55s;
         }
 
-        .book-now-button:hover::before {
-            left: 100%;
-        }
+        .book-now-button:hover::before { left: 100%; }
 
         .book-now-button:hover {
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            box-shadow:
+                0 12px 32px rgba(245, 158, 11, 0.50),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
         .book-now-button:active {
             transform: translateY(0) scale(1);
+        }
+
+        .book-now-button:focus-visible {
+            outline: 3px solid rgba(245, 158, 11, 0.55);
+            outline-offset: 3px;
         }
 
         /* SVG Icon sizing */
@@ -675,23 +707,43 @@
             }
         }
 
-        /* Scrollbar styling */
-        .spinning-wheel-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
+        /* Scrollbar — gold accent on dark */
+        .spinning-wheel-container::-webkit-scrollbar { width: 6px; }
         .spinning-wheel-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(28, 25, 23, 0.40);
             border-radius: 10px;
         }
-
         .spinning-wheel-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(245, 158, 11, 0.55);
             border-radius: 10px;
         }
-
         .spinning-wheel-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(245, 158, 11, 0.75);
+        }
+
+        /* === prefers-reduced-motion — respect motion sensitivity === */
+        @media (prefers-reduced-motion: reduce) {
+            .spinning-wheel-container::before,
+            .arrow-pointer,
+            .wheel-glow,
+            .instructions-card::before,
+            .result-card::before,
+            .center-button:disabled {
+                animation: none !important;
+            }
+            .instruction-step:hover {
+                transform: none !important;
+            }
+            .center-button:hover,
+            .book-now-button:hover {
+                transform: translate(-50%, -50%) !important;
+            }
+            .center-button:hover {
+                transform: translate(-50%, -50%) !important;
+            }
+            .book-now-button:hover {
+                transform: none !important;
+            }
         }
     </style>
 </head>
