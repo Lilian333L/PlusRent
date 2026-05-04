@@ -68,6 +68,20 @@
 <link href="/css/style.css" rel="stylesheet" type="text/css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css">
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<script>
+/* Pre-init language detection — runs before defer scripts (universal-include.js etc.)
+   so they read the correct language from storage on first load. */
+(function(){
+  try {
+    var p = window.location.pathname;
+    var l = 'ro';
+    if (/^\/ru(\/|$)/.test(p)) l = 'ru';
+    else if (/^\/en(\/|$)/.test(p)) l = 'en';
+    document.cookie = 'lang=' + l + ';path=/;max-age=2592000;SameSite=Lax';
+    if (window.localStorage) localStorage.setItem('i18nextLng', l);
+  } catch(e) {}
+})();
+</script>
 <script src="/js/config.js" defer></script>
 
 <script type="application/ld+json">
@@ -1782,7 +1796,7 @@ input:focus-visible,
               </button>
               <div class="lang-picker-wrapper" style="min-width:120px;">
                 <button id="langPickerBtn" class="lang-picker-btn" style="height:36px;display:flex;align-items:center;">
-                  <span id="langFlag"></span>
+                  <span id="langFlag"><img src="/images/flags/romania.png" alt="Română" style="width:20px;height:15px;border-radius:2px;object-fit:cover;"></span>
                   <span id="langCode" style="font-weight:700;margin:0 4px;">RO</span>
                   <svg width="13" height="13" viewBox="0 0 20 20" style="margin-left:5px;"><path d="M5.5 8l4.5 4.5L14.5 8" stroke="#888" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
                 </button>
@@ -2482,22 +2496,74 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
 })();
 </script>
 
+
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  var lf=document.getElementById('langFlag'), lc=document.getElementById('langCode');
-  if(lf) lf.innerHTML='<img src="/images/flags/romania.png" alt="Romana" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
-  if(lc) lc.textContent='RO';
-  document.querySelectorAll('.lang-option').forEach(function(el){
-    el.addEventListener('click',function(e){
-      e.stopImmediatePropagation();
-      var lang=this.getAttribute('data-lang');
-      document.cookie='lang='+lang+';path=/;max-age=2592000;SameSite=Lax';
-      localStorage.setItem('i18nextLng',lang);
-      window.location.href='/'+lang+'/sofer-personal';
-    },true);
-  });
-});
+/* Aggressive language picker enforcement (fights universal-include.js).
+   Detects URL language, sets correct flag/code via setInterval for first 5s. */
+(function(){
+  var FLAGS = {
+    ro: {file:'romania.png',  alt:'Română'},
+    ru: {file:'russia.png',   alt:'Русский'},
+    en: {file:'united-kingdom.png', alt:'English'}
+  };
+  var path = window.location.pathname;
+  var lang = 'ro';
+  if (/^\/ru(\/|$)/.test(path)) lang = 'ru';
+  else if (/^\/en(\/|$)/.test(path)) lang = 'en';
+  var f = FLAGS[lang];
+  var imgSrc = '/images/flags/' + f.file;
+  var imgHTML = '<img src="' + imgSrc + '" alt="' + f.alt + '" style="width:20px;height:15px;border-radius:2px;object-fit:cover;">';
+  var codeText = lang.toUpperCase();
+
+  function enforce(){
+    try {
+      var lf = document.getElementById('langFlag');
+      var lc = document.getElementById('langCode');
+      if (lf) {
+        var img = lf.querySelector('img');
+        if (!img || img.getAttribute('src') !== imgSrc) {
+          lf.innerHTML = imgHTML;
+        }
+      }
+      if (lc && (lc.textContent || '').trim() !== codeText) {
+        lc.textContent = codeText;
+      }
+    } catch(e){}
+  }
+
+  enforce();
+  document.addEventListener('DOMContentLoaded', enforce);
+  window.addEventListener('load', enforce);
+
+  var n = 0;
+  var iv = setInterval(function(){
+    enforce();
+    if (++n > 25) clearInterval(iv);
+  }, 200);
+
+  function bindDropdown(){
+    document.querySelectorAll('.lang-option').forEach(function(el){
+      if (el.dataset.bound) return;
+      el.dataset.bound = '1';
+      el.addEventListener('click', function(e){
+        e.stopImmediatePropagation();
+        var newLang = this.getAttribute('data-lang');
+        try {
+          document.cookie = 'lang=' + newLang + ';path=/;max-age=2592000;SameSite=Lax';
+          localStorage.setItem('i18nextLng', newLang);
+        } catch(_){}
+        window.location.href = '/' + newLang + '/sofer-personal';
+      }, true);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindDropdown);
+  } else {
+    bindDropdown();
+  }
+})();
 </script>
+
 
 </body>
 </html>
