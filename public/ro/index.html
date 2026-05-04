@@ -673,6 +673,137 @@ header.sticky-active #mainmenu li.active a { color: var(--pr-gold) !important; }
 }
 
 /* ============================================================
+   PROGRESSIVE DISCLOSURE — collapsible "extra details" toggle
+   ============================================================ */
+.pr-extra-details {
+  border: 1px dashed var(--pr-border);
+  border-radius: var(--pr-r-md);
+  background: rgba(245,158,11,0.025);
+  transition: var(--pr-t-base);
+}
+.pr-extra-details[open] {
+  background: var(--pr-white);
+  border-style: solid;
+  border-color: var(--pr-gold-border);
+}
+.pr-extra-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 600; color: var(--pr-slate);
+  user-select: none;
+  transition: var(--pr-t-fast);
+}
+.pr-extra-summary::-webkit-details-marker { display: none; }
+.pr-extra-summary i { color: var(--pr-gold-dark); margin-right: 6px; }
+.pr-extra-summary small { color: var(--pr-gray); font-weight: 400; margin-left: 4px; }
+.pr-extra-summary:hover { color: var(--pr-gold-darker); }
+.pr-extra-chevron {
+  display: inline-block;
+  color: var(--pr-gold-dark);
+  transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  font-size: 1.1rem;
+}
+.pr-extra-details[open] .pr-extra-chevron { transform: rotate(180deg); }
+.pr-extra-details[open] .pr-extra-summary i { color: transparent; }
+.pr-extra-details[open] .pr-extra-summary i::before { content: "\f068"; color: var(--pr-gold-dark); }
+.pr-extra-body {
+  padding: 4px 16px 16px;
+  animation: prExtraSlide 0.25s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+@keyframes prExtraSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   PHONE INPUT — green checkmark when valid
+   ============================================================ */
+.pr-phone-wrap { position: relative; }
+.pr-phone-wrap .form-control { padding-right: 38px; }
+.pr-phone-check {
+  position: absolute; top: 50%; right: 12px;
+  transform: translateY(-50%) scale(0.5);
+  opacity: 0; pointer-events: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff; font-weight: 800; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pr-phone-wrap.is-valid .pr-phone-check {
+  opacity: 1; transform: translateY(-50%) scale(1);
+}
+.pr-phone-wrap.is-valid .form-control {
+  border-color: #22c55e !important;
+  background: rgba(34,197,94,0.04) !important;
+}
+
+/* ============================================================
+   SUBMIT BUTTON STATES — disabled / ready (pulse) / loading
+   ============================================================ */
+.pr-submit-btn {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+.pr-submit-btn[disabled] {
+  background: var(--pr-gray-light) !important;
+  color: #9ca3af !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.85;
+  transform: none !important;
+}
+.pr-submit-btn[disabled]:hover { transform: none !important; box-shadow: none !important; }
+
+/* Ready state: phone is valid, button is active, gentle pulse to draw attention */
+.pr-submit-btn.is-ready {
+  animation: prSubmitPulse 2.4s ease-in-out infinite;
+}
+@keyframes prSubmitPulse {
+  0%, 100% { box-shadow: var(--pr-shadow-gold), 0 0 0 0 rgba(245,158,11,0.45); }
+  50%      { box-shadow: var(--pr-shadow-gold), 0 0 0 10px rgba(245,158,11,0); }
+}
+.pr-submit-btn.is-ready:hover { animation: none; }
+
+/* Loading state: replace label with spinner */
+.pr-submit-label, .pr-submit-loading {
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: opacity 0.18s ease;
+}
+.pr-submit-loading { display: none; }
+.pr-submit-btn.is-loading .pr-submit-label { display: none; }
+.pr-submit-btn.is-loading .pr-submit-loading { display: inline-flex; }
+.pr-submit-btn.is-loading {
+  cursor: wait !important;
+  pointer-events: none;
+  animation: none !important;
+}
+.pr-spinner {
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: prSpin 0.7s linear infinite;
+}
+@keyframes prSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .pr-submit-btn.is-ready { animation: none; }
+  .pr-spinner { animation-duration: 1.4s; }
+}
+
+/* Hint text under submit button */
+.pr-submit-hint {
+  font-size: 0.78rem; color: var(--pr-gray);
+  text-align: center; margin: 8px 0 0;
+  transition: opacity 0.2s ease;
+}
+.pr-submit-hint.is-hidden { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+
+/* ============================================================
    SKELETON LOADERS — fleet cards while API is fetching
    ============================================================ */
 .pr-skeleton-card {
@@ -1502,20 +1633,29 @@ footer .subfooter { background: var(--pr-dark) !important; }
                         </div>
                       </div>
                       <div class="col-lg-12">
-                        <div class="field-set">
-                            <input type="email" name="email" id="email" class="form-control" placeholder="Email (opțional)" data-i18n-placeholder="booking.email_placeholder_optional" autocomplete="email" aria-label="Email">
+                        <div class="field-set pr-phone-wrap">
+                          <input type="tel" name="phone" id="phone" class="form-control" placeholder="Telefonul Tău *" data-i18n-placeholder="booking.phone_placeholder" autocomplete="tel" required aria-label="Telefonul Tău" inputmode="tel">
+                          <span class="pr-phone-check" aria-hidden="true">✓</span>
                         </div>
-                      </div>
-                      <div class="col-lg-12">
-                        <div class="field-set"> <input type="tel" name="phone" id="phone" class="form-control" placeholder="Telefonul Tău" data-i18n-placeholder="booking.phone_placeholder" autocomplete="tel" required aria-label="Telefonul Tău"> </div>
                       </div>
 
                       <div class="col-lg-12">
-                        <div class="field-set">
-                          <textarea name="message" id="message" class="form-control"
-                            data-i18n-placeholder="booking.message_placeholder"
-                            placeholder="Ai vreo solicitare specială?" aria-label="Mesaj Adițional"></textarea>
-                        </div>
+                        <details class="pr-extra-details">
+                          <summary class="pr-extra-summary">
+                            <span><i class="fa fa-plus-circle"></i> Detalii suplimentare <small>(opțional)</small></span>
+                            <span class="pr-extra-chevron">▾</span>
+                          </summary>
+                          <div class="pr-extra-body">
+                            <div class="field-set mb-3">
+                              <input type="email" name="email" id="email" class="form-control" placeholder="Email (opțional)" data-i18n-placeholder="booking.email_placeholder_optional" autocomplete="email" aria-label="Email">
+                            </div>
+                            <div class="field-set">
+                              <textarea name="message" id="message" class="form-control" rows="3"
+                                data-i18n-placeholder="booking.message_placeholder"
+                                placeholder="Ai vreo solicitare specială?" aria-label="Mesaj Adițional"></textarea>
+                            </div>
+                          </div>
+                        </details>
                       </div>
 
                       <input type="hidden" name="total_price" id="total_price" value="0">
@@ -1523,9 +1663,10 @@ footer .subfooter { background: var(--pr-dark) !important; }
                       <div class="col-lg-12">
                         <div class="field-set">
                           <p id='submit'>
-                            <button type='submit' id='send_message' class="btn-main btn-fullwidth"
-                              data-i18n="booking.submit">Trimite Rezervarea</button>
+                            <button type='submit' id='send_message' class="btn-main btn-fullwidth pr-submit-btn" disabled
+                              data-i18n="booking.submit"><span class="pr-submit-label"><i class="fa fa-paper-plane"></i> Trimite Rezervarea</span><span class="pr-submit-loading" aria-hidden="true"><span class="pr-spinner"></span> Se trimite...</span></button>
                           </p>
+                          <p class="pr-submit-hint" id="pr-submit-hint">Introduceți numărul de telefon pentru a trimite rezervarea</p>
                         </div>
                       </div>
                     </div>
@@ -2699,6 +2840,59 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(applyState, 100);
       setTimeout(applyState, 1000);
     })();
+</script>
+<script>
+// ============================================================
+// FORM UX — phone validation + submit button states
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  var phoneInput  = document.getElementById('phone');
+  var phoneWrap   = phoneInput ? phoneInput.closest('.pr-phone-wrap') : null;
+  var submitBtn   = document.getElementById('send_message');
+  var submitHint  = document.getElementById('pr-submit-hint');
+  var bookingForm = phoneInput ? phoneInput.closest('form') : null;
+  if (!phoneInput || !submitBtn) return;
+
+  // Light phone validator: must be 7+ digits (covers +373 60 000 500, +40 7xx, etc.)
+  function isValidPhone(v) {
+    var digits = (v || '').replace(/\D+/g, '');
+    return digits.length >= 7;
+  }
+
+  function updateSubmitState() {
+    var ok = isValidPhone(phoneInput.value);
+    if (phoneWrap) phoneWrap.classList.toggle('is-valid', ok);
+    if (ok) {
+      submitBtn.removeAttribute('disabled');
+      submitBtn.classList.add('is-ready');
+      if (submitHint) submitHint.classList.add('is-hidden');
+    } else {
+      submitBtn.setAttribute('disabled', 'disabled');
+      submitBtn.classList.remove('is-ready');
+      if (submitHint) submitHint.classList.remove('is-hidden');
+    }
+  }
+  phoneInput.addEventListener('input',  updateSubmitState);
+  phoneInput.addEventListener('change', updateSubmitState);
+  phoneInput.addEventListener('blur',   updateSubmitState);
+  updateSubmitState(); // initial
+
+  // Loading state on submit (added BEFORE existing handlers via capture phase
+  // so spinner shows immediately while AJAX/validation runs)
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', function() {
+      if (!submitBtn.hasAttribute('disabled')) {
+        submitBtn.classList.add('is-loading');
+        submitBtn.classList.remove('is-ready');
+      }
+      // Failsafe: if submit fails / validation rejects, restore after 8s
+      setTimeout(function() {
+        submitBtn.classList.remove('is-loading');
+        if (isValidPhone(phoneInput.value)) submitBtn.classList.add('is-ready');
+      }, 8000);
+    }, true);
+  }
+});
 </script>
 <script>
 // 🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ТАРИФОВ с публичным endpoint
