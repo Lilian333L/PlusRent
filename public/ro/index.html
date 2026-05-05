@@ -1466,6 +1466,110 @@ footer .subfooter { background: var(--pr-dark) !important; }
   #back-to-top { bottom: 84px !important; right: 22px !important; width: 36px !important; height: 36px !important; background-size: 16px 16px !important; }
 }
 </style>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   MARQUEE BULLETPROOF FIX — iOS Safari compat + WOW.js bypass
+   Section: aria-label="Flota auto disponibila"
+   Fixes:
+   - "Becomes black" — WOW.js stuck with opacity:0 on iOS
+   - "Doesn't move" — CSS animation jank without GPU layer
+   - text-clip:text rendering glitch on iOS Safari
+   - Global `.d-item { display: none }` rule conflict
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. BYPASS WOW.js — never wait for scroll trigger */
+section[aria-label="Flota auto disponibila"] .wow.fadeInRight {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation-name: none !important;
+  -webkit-animation-name: none !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+section[aria-label="Flota auto disponibila"] .wow.fadeInRight.animated {
+  /* Even if WOW adds animated class, don't run fadeInRight again */
+  animation-name: none !important;
+  -webkit-animation-name: none !important;
+}
+
+/* 2. FORCE flex on parent (don't depend on .d-flex utility) */
+section[aria-label="Flota auto disponibila"] > div {
+  display: flex !important;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* 3. OVERRIDE global `.d-item { display: none }` rule that hides marquee items.
+   The HTML uses inline style="display:block" but make it explicit here too. */
+section[aria-label="Flota auto disponibila"] .d-item {
+  display: flex !important;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* 4. SAFE marquee animation — translate3d forces GPU layer (smooth on iOS) */
+section[aria-label="Flota auto disponibila"] .de-marquee-list {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  -webkit-animation: pr-marquee-loop 40s linear infinite;
+  animation: pr-marquee-loop 40s linear infinite;
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+@-webkit-keyframes pr-marquee-loop {
+  0%   { -webkit-transform: translate3d(0, 0, 0); }
+  100% { -webkit-transform: translate3d(-50%, 0, 0); }
+}
+@keyframes pr-marquee-loop {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+/* 5. Force GPU layer on parent section (prevents iOS compositing flicker) */
+section[aria-label="Flota auto disponibila"] {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  overflow: hidden;
+}
+
+/* 6. iOS / Mobile — REPLACE -webkit-background-clip:text with solid gold.
+   The text-clip pattern is unreliable on iOS Safari (intermittent rendering
+   bug where text becomes invisible after compositing flush) */
+@media (max-width: 991px) {
+  section[aria-label="Flota auto disponibila"] .de-marquee-list .d-item-txt {
+    font-size: 42px !important;
+    line-height: 1 !important;
+    letter-spacing: -1px !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: #f59e0b !important;
+    color: #f59e0b !important;
+  }
+  section[aria-label="Flota auto disponibila"] .de-marquee-list .d-item-dot {
+    width: 60px !important;
+    max-height: 6px !important;
+    margin: 0 24px !important;
+    transform: translateY(-10px);
+    background: rgba(245, 158, 11, .35) !important;
+  }
+}
+
+/* 7. Respect user's reduce-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  section[aria-label="Flota auto disponibila"] .de-marquee-list {
+    -webkit-animation: none !important;
+    animation: none !important;
+  }
+}
+</style>
+
 </head>
 <body>
   <!-- Skip to main content (keyboard + screen-reader a11y) -->
