@@ -579,22 +579,1399 @@
 }
 </script>
 
-<style id="pr-luxury-augment">
+<style id="plusrent-brand-theme">
 :root {
-  --pr-black: #1C1917;
-  --pr-black-2: #292524;
-  --pr-gold: #f59e0b;
-  --pr-gold-dark: #d97706;
+  /* ── Brand gold ── */
+  --pr-gold:        #f59e0b;
+  --pr-gold-dark:   #d97706;
   --pr-gold-darker: #b45309;
-  --pr-gold-light: #fffbeb;
-  --pr-gold-border: #fde68a;
+  --pr-gold-light:  rgba(245,158,11,0.10);
+  --pr-gold-mid:    rgba(245,158,11,0.18);
+  --pr-gold-border: rgba(245,158,11,0.25);
+
+  /* ── Luxury dark palette ── */
+  --pr-black:       #1C1917;
+  --pr-dark:        #292524;
+  --pr-muted:       #44403C;
+  --pr-slate:       #1e293b;
+
+  /* ── Surfaces ── */
+  --pr-surface:     #FAFAF9;
+  --pr-white:       #ffffff;
+  --pr-border:      #e7e5e4;
+  --pr-gray:        #64748b;
+  --pr-gray-light:  #94a3b8;
+
+  /* ── Shadows ── */
+  --pr-shadow-gold:    0 4px 14px rgba(245,158,11,0.20), 0 8px 28px rgba(245,158,11,0.15);
+  --pr-shadow-gold-lg: 0 8px 24px rgba(245,158,11,0.22), 0 20px 50px rgba(245,158,11,0.18);
+  --pr-shadow-card:    0 1px 3px rgba(0,0,0,0.04), 0 4px 18px rgba(0,0,0,0.07);
+  --pr-shadow-card-lg: 0 2px 6px rgba(0,0,0,0.04), 0 12px 36px rgba(0,0,0,0.10);
+  --pr-shadow-luxury:  0 4px 6px rgba(28,25,23,0.06), 0 16px 48px rgba(28,25,23,0.12);
+
+  /* ── Radii ── */
+  --pr-r-sm:   10px;
+  --pr-r-md:   16px;
+  --pr-r-lg:   22px;
+  --pr-r-xl:   32px;
+
+  /* ── Timing ── */
+  --pr-t-fast: all 0.15s cubic-bezier(0.0, 0.0, 0.2, 1);
+  --pr-t-base: all 0.22s cubic-bezier(0.0, 0.0, 0.2, 1);
+  --pr-t-med:  all 0.30s cubic-bezier(0.0, 0.0, 0.2, 1);
+
+  /* ── z-index ── */
+  --pr-z-float: 40;
+  --pr-z-modal: 50;
+  --pr-z-toast: 9999;
 }
 
-/* === Skip link (a11y) === */
+/* ── Smooth scroll + reduced motion ── */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .floating-contact-btn { animation: none !important; }
+}
+
+body {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   SCROLL PROGRESS BAR (gold)
+   ============================================================ */
+#pr-scroll-progress {
+  position: fixed; top: 0; left: 0;
+  height: 3px; width: 0%; z-index: calc(var(--pr-z-toast) + 2);
+  background: linear-gradient(90deg, var(--pr-gold-darker), var(--pr-gold), var(--pr-gold-dark));
+  transition: width 0.08s linear;
+  box-shadow: 0 0 10px rgba(245,158,11,0.5);
+  pointer-events: none;
+}
+
+/* ============================================================
+   STICKY HEADER override (luxury black)
+   ============================================================ */
+header.sticky-active {
+  background: var(--pr-black) !important;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.25) !important;
+}
+header.sticky-active #mainmenu li a { color: rgba(255,255,255,0.88) !important; transition: var(--pr-t-base); }
+header.sticky-active #mainmenu li a:hover,
+header.sticky-active #mainmenu li.active a { color: var(--pr-gold) !important; }
+
+/* ============================================================
+   CALL-NOW BUTTON — gold (was blue gradient)
+   ============================================================ */
+.call-now-btn {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: var(--pr-black) !important;
+  box-shadow: var(--pr-shadow-gold) !important;
+  font-weight: 700 !important;
+  transition: var(--pr-t-base) !important;
+}
+.call-now-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--pr-shadow-gold-lg) !important;
+  color: var(--pr-black) !important;
+}
+
+/* ============================================================
+   PROGRESSIVE DISCLOSURE — collapsible "extra details" toggle
+   ============================================================ */
+.pr-extra-details {
+  border: 1px dashed var(--pr-border);
+  border-radius: var(--pr-r-md);
+  background: rgba(245,158,11,0.025);
+  transition: var(--pr-t-base);
+}
+.pr-extra-details[open] {
+  background: var(--pr-white);
+  border-style: solid;
+  border-color: var(--pr-gold-border);
+}
+.pr-extra-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 600; color: var(--pr-slate);
+  user-select: none;
+  transition: var(--pr-t-fast);
+}
+.pr-extra-summary::-webkit-details-marker { display: none; }
+.pr-extra-summary i { color: var(--pr-gold-dark); margin-right: 6px; }
+.pr-extra-summary small { color: var(--pr-gray); font-weight: 400; margin-left: 4px; }
+.pr-extra-summary:hover { color: var(--pr-gold-darker); }
+.pr-extra-chevron {
+  display: inline-block;
+  color: var(--pr-gold-dark);
+  transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  font-size: 1.1rem;
+}
+.pr-extra-details[open] .pr-extra-chevron { transform: rotate(180deg); }
+.pr-extra-details[open] .pr-extra-summary i { color: transparent; }
+.pr-extra-details[open] .pr-extra-summary i::before { content: "\f068"; color: var(--pr-gold-dark); }
+.pr-extra-body {
+  padding: 4px 16px 16px;
+  animation: prExtraSlide 0.25s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+@keyframes prExtraSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   PHONE INPUT — green checkmark when valid
+   ============================================================ */
+.pr-phone-wrap { position: relative; }
+.pr-phone-wrap .form-control { padding-right: 38px; }
+.pr-phone-check {
+  position: absolute; top: 50%; right: 12px;
+  transform: translateY(-50%) scale(0.5);
+  opacity: 0; pointer-events: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff; font-weight: 800; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pr-phone-wrap.is-valid .pr-phone-check {
+  opacity: 1; transform: translateY(-50%) scale(1);
+}
+.pr-phone-wrap.is-valid .form-control {
+  border-color: #22c55e !important;
+  background: rgba(34,197,94,0.04) !important;
+}
+
+/* ============================================================
+   SUBMIT BUTTON STATES — disabled / ready (pulse) / loading
+   ============================================================ */
+.pr-submit-btn {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+.pr-submit-btn[disabled] {
+  background: var(--pr-gray-light) !important;
+  color: #9ca3af !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.85;
+  transform: none !important;
+}
+.pr-submit-btn[disabled]:hover { transform: none !important; box-shadow: none !important; }
+
+/* Ready state: phone is valid, button is active, gentle pulse to draw attention */
+.pr-submit-btn.is-ready {
+  animation: prSubmitPulse 2.4s ease-in-out infinite;
+}
+@keyframes prSubmitPulse {
+  0%, 100% { box-shadow: var(--pr-shadow-gold), 0 0 0 0 rgba(245,158,11,0.45); }
+  50%      { box-shadow: var(--pr-shadow-gold), 0 0 0 10px rgba(245,158,11,0); }
+}
+.pr-submit-btn.is-ready:hover { animation: none; }
+
+/* Loading state: replace label with spinner */
+.pr-submit-label, .pr-submit-loading {
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: opacity 0.18s ease;
+}
+.pr-submit-loading { display: none; }
+.pr-submit-btn.is-loading .pr-submit-label { display: none; }
+.pr-submit-btn.is-loading .pr-submit-loading { display: inline-flex; }
+.pr-submit-btn.is-loading {
+  cursor: wait !important;
+  pointer-events: none;
+  animation: none !important;
+}
+.pr-spinner {
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: prSpin 0.7s linear infinite;
+}
+@keyframes prSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .pr-submit-btn.is-ready { animation: none; }
+  .pr-spinner { animation-duration: 1.4s; }
+}
+
+/* Hint text under submit button */
+.pr-submit-hint {
+  font-size: 0.78rem; color: var(--pr-gray);
+  text-align: center; margin: 8px 0 0;
+  transition: opacity 0.2s ease;
+}
+.pr-submit-hint.is-hidden { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+
+/* ============================================================
+   SKELETON LOADERS — fleet cards while API is fetching
+   ============================================================ */
+.pr-skeleton-card {
+  background: var(--pr-white);
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-r-lg);
+  overflow: hidden;
+  margin-bottom: 30px;
+  box-shadow: var(--pr-shadow-card);
+}
+.pr-skeleton-card .sk-img {
+  width: 100%; aspect-ratio: 16/10;
+  background: #efeae3;
+}
+.pr-skeleton-card .sk-body { padding: 18px 20px 20px; }
+.pr-skeleton-card .sk-line {
+  height: 14px; border-radius: 6px;
+  background: #efeae3; margin-bottom: 12px;
+}
+.pr-skeleton-card .sk-line.w-60 { width: 60%; height: 18px; }
+.pr-skeleton-card .sk-line.w-40 { width: 40%; }
+.pr-skeleton-card .sk-line.w-30 { width: 30%; height: 22px; margin-top: 18px; }
+.pr-skeleton-card .sk-pills {
+  display: flex; gap: 8px; margin: 16px 0 8px;
+}
+.pr-skeleton-card .sk-pill {
+  width: 50px; height: 22px; border-radius: 6px; background: #efeae3;
+}
+.pr-skeleton-card .sk-btn {
+  width: 100%; height: 40px; border-radius: var(--pr-r-md);
+  background: #efeae3; margin-top: 14px;
+}
+/* Shimmer pass — gold-tinted gradient sweeps across grey blocks */
+.pr-skeleton-card .sk-img,
+.pr-skeleton-card .sk-line,
+.pr-skeleton-card .sk-pill,
+.pr-skeleton-card .sk-btn {
+  position: relative; overflow: hidden;
+}
+.pr-skeleton-card .sk-img::after,
+.pr-skeleton-card .sk-line::after,
+.pr-skeleton-card .sk-pill::after,
+.pr-skeleton-card .sk-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    rgba(245,158,11,0) 0%,
+    rgba(245,158,11,0.18) 50%,
+    rgba(245,158,11,0) 100%);
+  transform: translateX(-100%);
+  animation: prShimmer 1.4s ease-in-out infinite;
+}
+@keyframes prShimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-skeleton-card .sk-img::after,
+  .pr-skeleton-card .sk-line::after,
+  .pr-skeleton-card .sk-pill::after,
+  .pr-skeleton-card .sk-btn::after { animation: none; opacity: 0.4; }
+}
+
+/* ============================================================
+   HERO SCROLL CTA — visible "Vezi mașinile ↓" button
+   Visible to all users (PC + mobile), scrolls to #section-cars
+   ============================================================ */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+/* Anchor offset so #section-cars heading isn't hidden under fixed navbar */
+#section-cars { scroll-margin-top: 100px; }
+@media (max-width: 991px) { #section-cars { scroll-margin-top: 75px; } }
+
+.hero-scroll-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 11px 22px;
+  background: rgba(245, 158, 11, 0.10);
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  border-radius: 999px;
+  color: var(--pr-gold) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.2px;
+}
+.hero-scroll-cta:hover,
+.hero-scroll-cta:focus {
+  background: var(--pr-gold);
+  color: var(--pr-black) !important;
+  border-color: var(--pr-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+  text-decoration: none !important;
+}
+.hero-scroll-cta:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.5);
+  outline-offset: 3px;
+}
+.hero-scroll-cta:active { transform: translateY(0); }
+
+.hero-scroll-cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.18);
+  animation: prScrollArrowBounce 1.8s ease-in-out infinite;
+}
+.hero-scroll-cta-arrow svg { width: 14px; height: 14px; display: block; }
+.hero-scroll-cta:hover .hero-scroll-cta-arrow {
+  background: rgba(28, 25, 23, 0.18);
+  animation: none;
+  transform: translateY(2px);
+}
+@keyframes prScrollArrowBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cta-arrow { animation: none; }
+}
+@media (max-width: 575px) {
+  .hero-scroll-cta {
+    margin-top: 14px;
+    padding: 12px 20px;
+    font-size: 0.92rem;
+    width: auto;
+    /* Touch target ≥44px height — already met via 12px×2 + line-height */
+  }
+}
+
+/* ============================================================
+   SKIP-TO-CONTENT — keyboard / screen-reader accessibility
+   ============================================================ */
 .pr-skip-link {
   position: absolute; top: -48px; left: 12px;
   background: var(--pr-black); color: var(--pr-gold) !important;
   padding: 10px 20px; font-weight: 700; font-size: 0.9rem;
+  border: 1.5px solid rgba(245,158,11,0.45);
+  border-radius: 0 0 var(--pr-r-md) var(--pr-r-md);
+  text-decoration: none !important;
+  z-index: calc(var(--pr-z-toast) + 10);
+  transition: top 0.18s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+.pr-skip-link:focus,
+.pr-skip-link:focus-visible {
+  top: 0;
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   PRIMARY BUTTON OVERRIDES — gold accent
+   ============================================================ */
+.btn-main {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: #ffffff !important;
+  border-radius: var(--pr-r-md) !important;
+  font-weight: 700 !important;
+  box-shadow: var(--pr-shadow-gold) !important;
+  transition: var(--pr-t-base) !important;
+  border: none !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.20);
+}
+.btn-main:hover, .btn-main:focus {
+  background: linear-gradient(135deg, var(--pr-gold-dark) 0%, var(--pr-gold-darker) 100%) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: var(--pr-shadow-gold-lg) !important;
+}
+.btn-main.btn-fullwidth { width: 100%; }
+
+/* Force-recolor any leftover Bootstrap "primary" (blue) usages → gold */
+.text-primary { color: var(--pr-gold-dark) !important; }
+.bg-primary   { background-color: var(--pr-gold) !important; }
+.border-primary { border-color: var(--pr-gold) !important; }
+/* Some templates use #1e90ff / dodgerblue / #3b82f6 / #2563eb hardcoded — neutralize on common interactive elements */
+a.text-primary, .price-summary-compact .text-primary,
+.modal-price-summary .text-primary, #vehicle-price.text-primary,
+#total-estimate.text-primary, #modal-total-estimate.text-primary {
+  color: var(--pr-gold-dark) !important;
+}
+
+/* Premium badge */
+.premium-badge {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: var(--pr-black) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+}
+
+/* ID-color (footer accent icons) → gold */
+.id-color { color: var(--pr-gold) !important; }
+
+/* ============================================================
+   HERO TIGHTEN-UP — booking form pulled closer to fold
+   (must clear transparent navbar + topbar overlap)
+   ============================================================ */
+#section-hero {
+  padding-top: 165px !important;   /* clear topbar (~40) + navbar (~80) + breathing room */
+  padding-bottom: 60px;
+}
+@media (max-width: 991px) {
+  #section-hero { padding-top: 110px !important; padding-bottom: 40px; }
+}
+@media (max-width: 575px) {
+  #section-hero { padding-top: 95px !important; }
+}
+#section-hero .spacer-double.mobile-hidden { display: none; } /* obsolete now padding handles spacing */
+
+#section-hero h1 {
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  font-size: clamp(1.85rem, 4.5vw, 3rem);
+  margin-bottom: 14px;
+}
+#section-hero h1 .gold-accent { color: var(--pr-gold); }
+
+#section-hero .hero-subtitle {
+  color: rgba(255,255,255,0.93) !important;
+  font-size: 1.08rem !important;
+  line-height: 1.55;
+}
+
+/* ── Hero quick-trust pills (above the booking card, AI-citable facts) ── */
+.hero-trust-pills {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 18px;
+}
+.hero-trust-pills .pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 999px;
+  background: rgba(245,158,11,0.14);
+  border: 1px solid rgba(245,158,11,0.30);
+  color: #fff; font-size: 0.86rem; font-weight: 600;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.hero-trust-pills .pill i { color: var(--pr-gold); font-size: 0.82rem; }
+@media (max-width: 575px) {
+  .hero-trust-pills .pill { font-size: 0.78rem; padding: 6px 11px; }
+}
+
+/* Booking card surface */
+#booking_form { font-family: inherit; }
+.padding40.rounded-5.shadow-soft { box-shadow: var(--pr-shadow-luxury) !important; }
+
+/* ============================================================
+   TRUST SIGNALS (relocated below cars) — gold accent icons
+   ============================================================ */
+.trust-signals { padding: 64px 0; background: var(--pr-surface); border-top: 1px solid var(--pr-border); }
+.trust-header { text-align: center; max-width: 720px; margin: 0 auto 36px; }
+.trust-eyebrow {
+  display: inline-block; color: var(--pr-gold);
+  font-size: 0.95rem; letter-spacing: 4px; margin-bottom: 10px;
+}
+.trust-title { font-weight: 900; color: var(--pr-slate); font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 8px; }
+.trust-subtitle { color: var(--pr-gray); font-size: 1rem; }
+
+.trust-grid {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 991px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575px) { .trust-grid { grid-template-columns: 1fr; } }
+
+.trust-card {
+  background: var(--pr-white);
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-r-lg);
+  padding: 26px 24px;
+  text-align: left;
+  transition: var(--pr-t-base);
+  box-shadow: var(--pr-shadow-card);
+}
+.trust-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--pr-gold-border);
+  box-shadow: var(--pr-shadow-luxury);
+}
+.trust-icon {
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--pr-gold-light);
+  color: var(--pr-gold-dark);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.trust-icon svg { width: 24px; height: 24px; }
+.trust-card-title { font-weight: 800; color: var(--pr-slate); font-size: 1.05rem; margin-bottom: 6px; }
+.trust-card-desc  { color: var(--pr-gray); font-size: 0.92rem; line-height: 1.5; margin: 0; }
+
+/* ============================================================
+   SERVICES — Alte Servicii PlusRent (linked services hub)
+   ============================================================ */
+.pr-services {
+  padding: 64px 0;
+  background: linear-gradient(180deg, var(--pr-white) 0%, var(--pr-surface) 100%);
+}
+.pr-services-head { text-align: center; max-width: 720px; margin: 0 auto 36px; }
+.pr-services-head .eyebrow {
+  display: inline-block; color: var(--pr-gold);
+  font-size: 0.85rem; letter-spacing: 4px; margin-bottom: 10px; font-weight: 700;
+}
+.pr-services h2 { font-weight: 900; color: var(--pr-slate); font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 8px; }
+.pr-services-head p { color: var(--pr-gray); font-size: 1rem; margin: 0; }
+
+.pr-services-grid {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1180px; margin: 0 auto; padding: 0 16px;
+}
+@media (max-width: 991px) { .pr-services-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575px) { .pr-services-grid { grid-template-columns: 1fr; } }
+
+.pr-service-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--pr-white);
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-r-lg);
+  padding: 26px 22px 22px;
+  text-decoration: none;
+  transition: var(--pr-t-base);
+  box-shadow: var(--pr-shadow-card);
+  color: var(--pr-slate);
+  overflow: hidden;
+}
+.pr-service-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pr-gold), var(--pr-gold-dark));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.30s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+.pr-service-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--pr-gold-border);
+  box-shadow: var(--pr-shadow-luxury);
+  color: var(--pr-slate);
+  text-decoration: none;
+}
+.pr-service-card:hover::before { transform: scaleX(1); }
+.pr-service-icon {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--pr-gold-light);
+  color: var(--pr-gold-dark);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  transition: var(--pr-t-base);
+}
+.pr-service-card:hover .pr-service-icon {
+  background: linear-gradient(135deg, var(--pr-gold), var(--pr-gold-dark));
+  color: var(--pr-black);
+}
+.pr-service-icon svg { width: 26px; height: 26px; }
+.pr-service-card h3 {
+  font-weight: 800; color: var(--pr-slate);
+  font-size: 1.08rem; margin: 0 0 4px;
+}
+.pr-service-card .pr-service-from {
+  color: var(--pr-gold-dark); font-weight: 700;
+  font-size: 0.9rem; margin-bottom: 10px;
+}
+.pr-service-card p {
+  color: var(--pr-gray); font-size: 0.92rem;
+  line-height: 1.55; margin: 0 0 16px; flex-grow: 1;
+}
+.pr-service-card .pr-service-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--pr-gold-dark); font-weight: 700;
+  font-size: 0.92rem;
+  transition: var(--pr-t-fast);
+}
+.pr-service-card:hover .pr-service-link { gap: 10px; color: var(--pr-gold-darker); }
+.pr-service-card .pr-service-link::after {
+  content: "→"; font-size: 1rem; line-height: 1;
+}
+
+/* ============================================================
+   SEO CONTENT — readable typography for the key paragraph block
+   ============================================================ */
+#seo-content { padding: 72px 0; }
+#seo-content .seo-eyebrow {
+  display: inline-block;
+  color: var(--pr-gold-dark);
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 14px;
+  padding: 5px 14px;
+  background: var(--pr-gold-light);
+  border-radius: 999px;
+}
+#seo-content .seo-h2 {
+  font-weight: 900;
+  color: var(--pr-slate);
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  line-height: 1.2;
+  margin-bottom: 22px;
+  letter-spacing: -0.3px;
+}
+#seo-content .seo-lead {
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: var(--pr-slate);
+  margin-bottom: 18px;
+  padding-left: 16px;
+  border-left: 3px solid var(--pr-gold);
+}
+#seo-content .seo-p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 16px;
+}
+#seo-content .seo-lead strong,
+#seo-content .seo-p strong {
+  color: var(--pr-gold-darker);
+  font-weight: 700;
+}
+@media (max-width: 768px) {
+  #seo-content { padding: 52px 0; }
+  #seo-content .seo-lead { font-size: 1rem; padding-left: 12px; }
+  #seo-content .seo-p { font-size: 0.95rem; }
+}
+
+/* ============================================================
+   VISIBLE FAQ (boost AI citation — schema + visible answer pairs)
+   ============================================================ */
+#visible-faq {
+  padding: 72px 0;
+  background: #fff;
+  border-top: 1px solid var(--pr-border);
+}
+#visible-faq .faq-head { text-align: center; max-width: 720px; margin: 0 auto 36px; }
+#visible-faq h2 { font-weight: 900; color: var(--pr-slate); font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 8px; }
+#visible-faq .faq-head p { color: var(--pr-gray); }
+.faq-grid { display: grid; gap: 14px; max-width: 880px; margin: 0 auto; padding: 0 16px; }
+.faq-item {
+  background: var(--pr-surface);
+  border: 1px solid var(--pr-border);
+  border-radius: var(--pr-r-md);
+  overflow: hidden;
+  transition: var(--pr-t-base);
+}
+.faq-item:hover { border-color: var(--pr-gold-border); }
+.faq-item[open] { border-color: var(--pr-gold-border); background: #fff; box-shadow: var(--pr-shadow-card); }
+.faq-item summary {
+  padding: 18px 22px; cursor: pointer;
+  font-weight: 700; color: var(--pr-slate); font-size: 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  list-style: none;
+  touch-action: manipulation;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "＋"; color: var(--pr-gold-dark); font-weight: 700;
+  transition: var(--pr-t-base); font-size: 1.2rem; flex-shrink: 0;
+}
+.faq-item[open] summary::after { content: "−"; transform: rotate(180deg); }
+.faq-item .faq-answer {
+  padding: 0 22px 20px;
+  color: var(--pr-slate); line-height: 1.7; font-size: 0.96rem;
+}
+.faq-item .faq-answer strong { color: var(--pr-gold-darker); }
+
+/* ============================================================
+   CTA "Sună-ne Acum" — luxury black with gold accents
+   ============================================================ */
+#section-call-to-action.bg-color-2 {
+  background: linear-gradient(135deg, var(--pr-black) 0%, var(--pr-dark) 100%) !important;
+  position: relative; overflow: hidden;
+}
+#section-call-to-action.bg-color-2::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 0%, rgba(245,158,11,0.10), transparent 60%);
+  pointer-events: none;
+}
+#section-call-to-action .subtitle.text-white { color: var(--pr-gold) !important; letter-spacing: 3px; }
+#section-call-to-action h2 { font-weight: 900; }
+.phone-num-big i { color: var(--pr-gold) !important; }
+.phone-num-big .pnb-num { color: #fff !important; font-weight: 900; }
+
+/* Footer luxury black */
+footer { background: var(--pr-black) !important; }
+footer h2.h5 { color: var(--pr-gold) !important; font-weight: 700; letter-spacing: 0.5px; }
+footer .subfooter { background: var(--pr-dark) !important; }
+
+/* ============================================================
+   CITABILITY ANSWER BLOCK — ensure it stays gold-themed
+   ============================================================ */
+.citability-block {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%) !important;
+  border-left: 5px solid var(--pr-gold) !important;
+  box-shadow: var(--pr-shadow-card) !important;
+  border-radius: var(--pr-r-lg) !important;
+}
+
+/* ============================================================
+   POPUP — Contact (Gold/Dark, brand consistent — from /sofer-personal)
+   ============================================================ */
+.contact-popup-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(28,25,23,0.60);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  z-index: 9999;
+  align-items: center; justify-content: center; padding: 20px;
+  animation: prFadeIn 0.22s ease;
+  cursor: pointer;
+}
+@keyframes prFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.contact-popup {
+  background: var(--pr-white); border-radius: var(--pr-r-xl);
+  width: 100%; max-width: 420px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.30), 0 0 0 1px rgba(245,158,11,0.15);
+  animation: prSlideUp 0.28s cubic-bezier(0.0,0.0,0.2,1);
+  cursor: default;
+}
+@keyframes prSlideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.contact-popup-header {
+  background: linear-gradient(135deg, var(--pr-black) 0%, var(--pr-dark) 100%);
+  border-bottom: 3px solid var(--pr-gold);
+  color: #fff; padding: 28px 22px; position: relative; text-align: center;
+}
+.contact-popup-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.10), transparent 60%);
+}
+.contact-popup-header h3 { color: #fff !important; font-size: 1.35rem !important; font-weight: 900 !important; margin: 0 0 5px !important; position: relative; }
+.contact-popup-header p { color: rgba(255,255,255,0.78) !important; font-size: 0.9rem !important; margin: 0 !important; position: relative; }
+.contact-popup-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85); width: 44px; height: 44px;
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: var(--pr-t-base);
+  touch-action: manipulation; z-index: 10;
+}
+.contact-popup-close:hover { background: rgba(255,255,255,0.22); color: #fff; transform: rotate(90deg); }
+.contact-popup-body { padding: 14px; }
+.contact-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: var(--pr-r-md); cursor: pointer;
+  transition: var(--pr-t-base); margin-bottom: 6px;
+  text-decoration: none; border: 1.5px solid transparent;
+  touch-action: manipulation;
+  color: var(--pr-slate);
+}
+.contact-option:hover, .contact-option:focus {
+  background: var(--pr-surface); border-color: var(--pr-border);
+  transform: translateX(4px); text-decoration: none; outline: none;
+}
+.contact-option:focus-visible { box-shadow: 0 0 0 3px rgba(245,158,11,0.35); }
+.contact-option:last-child { margin-bottom: 0; }
+.contact-option-icon {
+  flex-shrink: 0; width: 50px; height: 50px; border-radius: var(--pr-r-md);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.3rem;
+}
+.contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+.contact-option.viber    .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
+.contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
+.contact-option.phone    .contact-option-icon { background: linear-gradient(135deg, var(--pr-gold), var(--pr-gold-dark)); color: var(--pr-black); }
+.contact-option-content { flex: 1; }
+.contact-option-title    { font-weight: 700; color: var(--pr-slate); font-size: 1rem; margin-bottom: 2px; }
+.contact-option-subtitle { color: var(--pr-gray); font-size: 0.84rem; }
+.contact-option::after {
+  content: "›"; color: var(--pr-gray-light); font-size: 1.4rem; line-height: 1;
+  margin-left: auto; transition: var(--pr-t-fast); font-weight: 700;
+}
+.contact-option:hover::after { color: var(--pr-gold-dark); transform: translateX(3px); }
+@media (max-width: 768px) {
+  .contact-popup { max-width: 100%; }
+  .contact-popup-header { padding: 22px 18px; }
+  .contact-popup-header h3 { font-size: 1.2rem !important; }
+}
+
+/* ============================================================
+   FLOATING CONTACT BUTTON — Black + Gold icon (matches back-to-top)
+   ============================================================ */
+.floating-contact-btn {
+  position: fixed; bottom: 28px; right: 28px;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--pr-black);
+  color: var(--pr-gold); border: 1.5px solid rgba(245,158,11,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18);
+  z-index: var(--pr-z-float);
+  transition: var(--pr-t-med); touch-action: manipulation;
+  animation: prFloatPulse 2.8s ease-in-out infinite;
+}
+.floating-contact-btn:hover {
+  transform: scale(1.08);
+  animation: none;
+  background: var(--pr-gold-dark);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--pr-shadow-gold-lg);
+}
+.floating-contact-btn:focus-visible { outline: 3px solid rgba(245,158,11,0.5); outline-offset: 3px; }
+@keyframes prFloatPulse {
+  0%   { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0.45); }
+  65%  { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 18px rgba(245,158,11,0); }
+  100% { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0); }
+}
+@media (max-width: 768px) {
+  .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.25rem; }
+}
+
+/* ============================================================
+   BACK-TO-TOP — luxury black with gold arrow
+   ============================================================ */
+#back-to-top {
+  position: fixed !important;
+  bottom: 96px !important; right: 28px !important; left: auto !important;
+  width: 40px !important; height: 40px !important;
+  border-radius: 50% !important;
+  background-color: var(--pr-black) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 18px 18px !important;
+  border: 1.5px solid rgba(245,158,11,0.35) !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+  z-index: calc(var(--pr-z-float) - 1) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease !important;
+}
+#back-to-top::before, #back-to-top::after { display: none !important; content: none !important; }
+#back-to-top:hover {
+  background-color: var(--pr-gold-dark) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
+  border-color: transparent !important;
+  box-shadow: var(--pr-shadow-gold) !important;
+}
+/* Show ONLY when .show class is added by JS scroll handler (>400px scroll) */
+#back-to-top.show {
+  opacity: 1 !important; pointer-events: auto !important; transform: translateY(0) !important;
+}
+@media (max-width: 768px) {
+  #back-to-top { bottom: 84px !important; right: 22px !important; width: 36px !important; height: 36px !important; background-size: 16px 16px !important; }
+}
+</style>
+<style id="pr-cars-augment">
+/* ============================================================
+   CARS PAGE — catalog-specific UX layer on top of plusrent-brand-theme
+   (no overrides for back-to-top, floating-contact-btn, contact-popup —
+    they come from luxury theme exactly as in index.html)
+   ============================================================ */
+
+/* === Hero subheader subtle polish === */
+#subheader { padding: 60px 0 40px; }
+#subheader h1 { letter-spacing: -0.3px; }
+
+/* === Mobile filter overlay HIDDEN BY DEFAULT (all viewports) === */
+.mobile-filter-overlay { display: none !important; }
+@media (max-width: 991px) {
+  .mobile-filter-overlay.active { display: flex !important; }
+}
+
+/* === CATALOG container === */
+.cars-main-container { padding: 24px 12px 60px; }
+@media (min-width: 992px) { .cars-main-container { padding: 32px 16px 80px; } }
+
+/* === SIDEBAR — bulletproof 240px slim === */
+@media (min-width: 992px) {
+  .cars-main-container > .row,
+  .cars-main-container > .container > .row {
+    flex-wrap: nowrap !important;
+    display: flex !important;
+  }
+  .cars-main-container .small-sidebar {
+    flex: 0 0 240px !important;
+    width: 240px !important;
+    max-width: 240px !important;
+    padding-left: 0 !important;
+    padding-right: 28px !important;
+    box-sizing: border-box !important;
+  }
+  .cars-main-container .small-sidebar + [class*="col-"] {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: calc(100% - 240px) !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .cars-main-container > .row {
+    flex-wrap: nowrap !important;
+    display: flex !important;
+  }
+  .cars-main-container .small-sidebar {
+    flex: 0 0 210px !important;
+    width: 210px !important;
+    max-width: 210px !important;
+    padding-right: 20px !important;
+  }
+  .cars-main-container .small-sidebar + [class*="col-"] {
+    flex: 1 !important;
+    max-width: calc(100% - 210px) !important;
+    min-width: 0 !important;
+  }
+}
+
+/* === FILTER SIDEBAR — premium minimal === */
+.filter-sidebar {
+  background: var(--pr-white);
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: var(--pr-shadow-card);
+  border-top: 3px solid var(--pr-gold);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.875rem;
+  overflow: hidden;
+}
+@media (min-width: 992px) {
+  .cars-main-container .small-sidebar {
+    position: sticky;
+    top: 90px;
+    align-self: flex-start;
+  }
+}
+.filter-sidebar > .filter-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: -0.1px !important;
+  color: var(--pr-black) !important;
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  text-transform: none !important;
+  border-bottom: 1px solid rgba(28,25,23,0.08);
+}
+.filter-clear {
+  font-size: 0.74rem !important;
+  font-weight: 500 !important;
+  color: #78716c !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  padding: 4px 8px !important;
+  border-radius: 6px;
+  transition: var(--pr-t-fast);
+}
+.filter-clear:hover {
+  color: var(--pr-gold-dark) !important;
+  background: var(--pr-gold-light);
+  text-decoration: none !important;
+}
+.filter-sidebar hr.filter-divider { display: none !important; }
+
+/* Accordion sections */
+.pr-filter-section {
+  border-bottom: 1px solid rgba(28,25,23,0.06);
+}
+.pr-filter-section:last-child { border-bottom: none; }
+.pr-filter-section[open] { background: var(--pr-surface); }
+
+.pr-filter-summary {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #44403c;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.pr-filter-summary::-webkit-details-marker { display: none; }
+.pr-filter-summary::marker { content: ''; }
+.pr-filter-summary:hover { background: rgba(28,25,23,0.03); color: var(--pr-black); }
+.pr-filter-section[open] > .pr-filter-summary { color: var(--pr-black); }
+
+.pr-filter-chevron {
+  width: 8px; height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 3px;
+  transition: transform 0.22s;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.pr-filter-section[open] > .pr-filter-summary .pr-filter-chevron {
+  transform: rotate(-135deg);
+  margin-top: 4px; margin-bottom: 0;
+  border-color: var(--pr-gold-dark);
+  opacity: 1;
+}
+
+.pr-filter-body { padding: 0 16px 14px 16px; }
+
+/* Date inputs */
+.date-range-filter { display: flex; flex-direction: column; gap: 6px; }
+.date-input-wrapper { position: relative; }
+.date-input-wrapper i {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: #a8a29e; font-size: 12px; pointer-events: none;
+}
+.date-input-wrapper input,
+.price-range-inputs input[type="number"] {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 30px;
+  border: 1px solid rgba(28,25,23,0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  color: var(--pr-black);
+  cursor: pointer;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+}
+.date-input-wrapper input:hover,
+.date-input-wrapper input:focus,
+.price-range-inputs input[type="number"]:focus {
+  border-color: var(--pr-gold);
+  outline: none;
+}
+.price-range-inputs { display: flex; gap: 6px; align-items: center; }
+.price-range-inputs input[type="number"] { text-align: center; padding: 0 8px; }
+.price-range-divider { color: #a8a29e; font-size: 14px; flex-shrink: 0; }
+
+/* Filter checkbox/radio rows */
+.pr-filter-section > div[id$="-options"] > div,
+.pr-filter-section .filter-option-row {
+  display: flex !important;
+  align-items: center;
+  padding: 5px 0 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  position: relative;
+}
+.pr-filter-section > div[id$="-options"] > div label,
+.pr-filter-section .filter-option-row label {
+  display: flex !important;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  margin: 0 !important;
+  width: 100%;
+  font-weight: 400;
+  color: #292524;
+  font-size: 0.86rem;
+}
+
+/* Native checkbox/radio with gold accent (most reliable) */
+.pr-filter-section input[type="checkbox"],
+.pr-filter-section input[type="radio"],
+input[type="checkbox"][id^="filter-"],
+input[type="checkbox"][id^="mobile-filter-"],
+input[type="radio"][name="price-category"],
+input[type="radio"][name="mobile-price-category"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  accent-color: var(--pr-gold) !important;
+  flex-shrink: 0 !important;
+}
+.pr-filter-section .option-label { flex: 1; user-select: none; }
+
+/* Count badges (gray text, no orange pill) */
+.pr-filter-section > div[id$="-options"] > div > span:last-child:not(.option-label),
+.pr-filter-section > div[id$="-options"] > div > span:not([class*="option"]),
+.pr-filter-section > div[id$="-options"] > div .badge,
+.pr-filter-section .filter-count {
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #a8a29e !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  min-width: auto !important;
+  text-align: right !important;
+  line-height: 1 !important;
+  margin-left: auto !important;
+  flex-shrink: 0;
+}
+
+/* === MOBILE FILTER button === */
+.mobile-filter-button-container { margin-bottom: 14px; }
+.mobile-filter-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--pr-black) 0%, var(--pr-dark) 100%) !important;
+  color: var(--pr-gold) !important;
+  border: 1.5px solid rgba(245,158,11,0.40) !important;
+  font-family: 'Sora', sans-serif !important;
+  font-weight: 600;
+  padding: 12px 18px !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  min-height: 48px;
+  transition: var(--pr-t-base) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-filter-btn:hover, .mobile-filter-btn:focus {
+  background: var(--pr-gold) !important;
+  color: var(--pr-black) !important;
+  border-color: transparent !important;
+  transform: translateY(-1px);
+}
+
+/* === MOBILE FILTER overlay (bottom sheet) === */
+@media (max-width: 991px) {
+  .mobile-filter-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(28,25,23,0.55) !important;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    z-index: 10000;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .mobile-filter-overlay.active { opacity: 1; }
+  .mobile-filter-overlay .mobile-filter-sidebar {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 22px 22px 0 0 !important;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    background: #ffffff;
+    box-shadow: 0 -16px 50px rgba(0,0,0,0.30);
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    border-top: 3px solid var(--pr-gold);
+    display: flex !important;
+    flex-direction: column;
+  }
+  .mobile-filter-overlay.active .mobile-filter-sidebar { transform: translateY(0); }
+  .mobile-filter-overlay .mobile-filter-sidebar::before {
+    content: ''; display: block;
+    width: 44px; height: 5px;
+    background: rgba(28,25,23,0.20);
+    border-radius: 4px;
+    margin: 10px auto 4px;
+    flex-shrink: 0;
+  }
+  .mobile-filter-overlay .mobile-filter-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 18px 14px;
+    border-bottom: 1px solid rgba(28,25,23,0.08);
+    flex-shrink: 0;
+  }
+  .mobile-filter-overlay .mobile-filter-header h5 {
+    margin: 0; color: var(--pr-black);
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 1.05rem;
+  }
+  .mobile-filter-overlay .mobile-filter-close {
+    width: 36px; height: 36px;
+    background: rgba(245,158,11,0.10);
+    border: 1.5px solid rgba(245,158,11,0.40);
+    color: var(--pr-gold);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--pr-t-base);
+  }
+  .mobile-filter-overlay .mobile-filter-close:hover {
+    background: var(--pr-gold);
+    color: var(--pr-black);
+    border-color: transparent;
+  }
+  .mobile-filter-overlay .mobile-filter-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 18px 12px;
+  }
+  .mobile-filter-overlay .mobile-filter-actions {
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    background: #ffffff;
+    border-top: 1px solid rgba(28,25,23,0.10);
+    flex-shrink: 0;
+    box-shadow: 0 -4px 14px rgba(0,0,0,0.06);
+  }
+  .mobile-filter-overlay .mobile-filter-actions button {
+    flex: 1; min-height: 48px;
+    border-radius: 12px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 0.95rem;
+    border: none; cursor: pointer;
+    transition: var(--pr-t-base);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-filter-overlay .mobile-filter-actions .btn-outline-secondary {
+    background: transparent !important;
+    border: 1.5px solid rgba(28,25,23,0.20) !important;
+    color: #57534e !important;
+  }
+  .mobile-filter-overlay .mobile-filter-actions .btn-outline-secondary:hover {
+    background: rgba(28,25,23,0.05) !important;
+    border-color: rgba(28,25,23,0.40) !important;
+  }
+  .mobile-filter-overlay .mobile-filter-actions .btn-primary {
+    background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+    border: none !important;
+  }
+  .mobile-filter-overlay .mobile-filter-actions .btn-primary:hover {
+    background: linear-gradient(135deg, var(--pr-gold-dark) 0%, var(--pr-gold-darker) 100%) !important;
+  }
+}
+
+/* === ACTIVE FILTER CHIPS (above grid) === */
+.pr-active-chips {
+  display: flex; flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  align-items: center;
+}
+.pr-active-chips:empty { display: none; }
+.pr-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px 6px 12px;
+  background: var(--pr-gold-light);
+  border: 1px solid var(--pr-gold-border);
+  border-radius: 999px;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--pr-black);
+  white-space: nowrap;
+}
+.pr-chip-label { color: #57534e; font-weight: 500; }
+.pr-chip-value { color: var(--pr-black); font-weight: 600; }
+.pr-chip-remove {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px;
+  background: rgba(28,25,23,0.08);
+  color: var(--pr-black);
+  border: none; border-radius: 50%;
+  font-size: 11px; cursor: pointer; padding: 0;
+  transition: var(--pr-t-fast);
+}
+.pr-chip-remove:hover { background: var(--pr-black); color: var(--pr-gold); }
+.pr-chip-clear-all {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem; font-weight: 500;
+  color: var(--pr-gold-dark);
+  background: transparent;
+  border: 1px dashed rgba(28,25,23,0.30);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: var(--pr-t-fast);
+}
+.pr-chip-clear-all:hover {
+  background: var(--pr-black);
+  border-color: var(--pr-black);
+  color: var(--pr-gold);
+}
+
+/* === SORT BAR === */
+.cars-main-container .row.mb-2,
+.cars-main-container .row.mb-3 {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px !important;
+  box-shadow: var(--pr-shadow-card);
+}
+
+/* === CARS GRID — CSS Grid auto-fit === */
+.cars-main-container .row.car-list-row,
+.cars-main-container #car-list.row,
+.cars-main-container #car-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 18px !important;
+  margin: 0 !important;
+  padding: 0;
+  --bs-gutter-x: 0;
+  --bs-gutter-y: 0;
+}
+.cars-main-container .row.car-list-row > [class*="col-"],
+.cars-main-container #car-list.row > [class*="col-"],
+.cars-main-container #car-list > [class*="col-"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.cars-main-container .de-item.mb30 {
+  margin: 0 !important;
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 575px) {
+  .cars-main-container .row.car-list-row,
+  .cars-main-container #car-list.row,
+  .cars-main-container #car-list {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+}
+
+/* === SKIP LINK === */
+.pr-skip-link {
+  position: absolute; top: -48px; left: 12px;
+  background: var(--pr-black);
+  color: var(--pr-gold) !important;
+  padding: 10px 20px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700; font-size: 0.9rem;
   border: 1.5px solid rgba(245,158,11,0.45);
   border-radius: 0 0 8px 8px;
   text-decoration: none !important;
@@ -607,924 +1984,23 @@
   outline-offset: 2px;
 }
 
-/* === HERO LUXURY === */
-#subheader {
-  background: var(--pr-black) !important;
-  padding: 70px 0 40px;
-  position: relative;
-  overflow: hidden;
-}
-#subheader::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 75% 60% at 50% 50%, rgba(245,158,11,0.13) 0%, transparent 65%);
-  pointer-events: none;
-}
-#subheader::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--pr-gold) 35%, var(--pr-gold) 65%, transparent 100%);
-}
-#subheader .jarallax-img {
-  opacity: 0.18 !important;
-  filter: grayscale(0.4) contrast(0.95);
-}
-#subheader h1 {
-  color: #ffffff;
-  font-weight: 900;
-  font-size: clamp(1.85rem, 4.2vw, 2.7rem);
-  letter-spacing: -0.5px;
-  line-height: 1.1;
-  margin-bottom: 14px;
-  position: relative; z-index: 2;
-}
-#subheader h1 strong, #subheader h1 .gold {
-  color: var(--pr-gold);
-}
-#subheader .lead {
-  color: rgba(255,255,255,0.78);
-  font-size: clamp(0.95rem, 2vw, 1.06rem);
-  margin: 0 auto 22px;
-  max-width: 720px;
-  line-height: 1.55;
-  position: relative; z-index: 2;
-}
+#cars-catalog { scroll-margin-top: 90px; }
 
-
-@media (max-width: 575px) {
-  #subheader { padding: 60px 0 30px; }
-}
-
-/* === SMOOTH SCROLL + ANCHOR OFFSETS === */
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-#cars-catalog, #pricing, #faq, #related { scroll-margin-top: 90px; }
-
-/* === Section H2 — luxury treatment === */
-section h2 {
-  position: relative;
-}
-section h2::before {
-  content: ''; display: block;
-  width: 48px; height: 3px;
-  background: var(--pr-gold);
-  border-radius: 2px;
-  margin: 0 auto 14px;
-}
-/* Don't apply to nested h2 in cards/widgets */
-.de-item h2::before, .filter-sidebar h2::before, footer h2::before { display: none; }
-
-/* === FOCUS VISIBLE — keyboard navigation accent === */
-a:focus-visible, button:focus-visible,
-input:focus-visible, select:focus-visible,
-textarea:focus-visible, [role="button"]:focus-visible {
+/* Focus rings */
+.cars-main-container a:focus-visible,
+.cars-main-container button:focus-visible,
+.cars-main-container input:focus-visible,
+.cars-main-container select:focus-visible,
+.filter-sidebar input:focus-visible,
+.filter-sidebar a:focus-visible,
+.filter-sidebar summary:focus-visible {
   outline: 3px solid rgba(245,158,11,0.55) !important;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-
-/* === BACK-TO-TOP — color tint only (shape comes from global style.css) === */
-#back-to-top {
-  background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
-  border-color: rgba(245, 158, 11, 0.40) !important;
-  color: #f59e0b !important;
-}
-#back-to-top:hover {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-  color: #1C1917 !important;
-}
-
-/* === Body bg === */
-body { background: #fafafa; }
-body.cars-listing-page { background: #fafafa; }
-
-/* === CATALOG UX — sticky filter sidebar (desktop), polished mobile filter btn === */
-
-/* Desktop: sticky filter sidebar — follows scroll, always reachable */
-@media (min-width: 768px) {
-  .cars-main-container .small-sidebar {
-    position: sticky;
-    top: 90px;
-    max-height: calc(100vh - 110px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  /* Scrollbar inside filter sidebar — gold accent */
-  .cars-main-container .small-sidebar::-webkit-scrollbar { width: 5px; }
-  .cars-main-container .small-sidebar::-webkit-scrollbar-track {
-    background: rgba(28,25,23,0.04);
-    border-radius: 10px;
-  }
-  .cars-main-container .small-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(245,158,11,0.45);
-    border-radius: 10px;
-  }
-  .cars-main-container .small-sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(245,158,11,0.65);
-  }
-}
-
-/* Filter sidebar internal — luxury polish */
-.filter-sidebar {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 18px 16px;
-  box-shadow: 0 2px 12px -2px rgba(28,25,23,0.08), 0 0 0 1px rgba(28,25,23,0.04);
-  border-top: 3px solid var(--pr-gold);
-}
-.filter-title {
-  display: flex; align-items: center; justify-content: space-between;
-  font-weight: 800; color: var(--pr-black);
-  font-size: 1.05rem; padding-bottom: 10px;
-}
-.filter-clear {
-  font-size: 0.82rem; font-weight: 600;
-  color: var(--pr-gold-dark) !important;
-  cursor: pointer;
-  text-decoration: none !important;
-}
-.filter-clear:hover {
-  color: var(--pr-gold-darker) !important;
-  text-decoration: underline !important;
-}
-.filter-section-title {
-  font-weight: 700; color: var(--pr-black);
-  font-size: 0.88rem; letter-spacing: 0.3px;
-  text-transform: uppercase; margin-bottom: 10px;
-}
-.filter-divider {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(28,25,23,0.10) 30%, rgba(28,25,23,0.10) 70%, transparent 100%);
-  margin: 14px 0;
-}
-
-/* Mobile filter button — luxury black + gold (single stick-out CTA at top) */
-.mobile-filter-button-container {
-  margin-bottom: 16px;
-}
-.mobile-filter-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--pr-black) 0%, var(--pr-black-2) 100%) !important;
-  color: var(--pr-gold) !important;
-  border: 1.5px solid rgba(245,158,11,0.40) !important;
-  font-weight: 700;
-  padding: 13px 18px !important;
-  border-radius: 12px !important;
-  display: inline-flex !important;
-  align-items: center; justify-content: center;
-  gap: 10px;
-  font-size: 0.98rem;
-  letter-spacing: 0.2px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  min-height: 50px;
-  transition: transform 0.22s, box-shadow 0.22s !important;
-  -webkit-tap-highlight-color: transparent;
-}
-.mobile-filter-btn:hover, .mobile-filter-btn:focus {
-  background: var(--pr-gold) !important;
-  color: var(--pr-black) !important;
-  border-color: transparent !important;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(245,158,11,0.30);
-}
-.mobile-filter-btn i { font-size: 1rem; color: inherit; }
-
-/* === CARS GRID — soft polish (cards already styled by liquid-glass-theme) === */
-.cars-main-container .col-lg-9 { padding-left: 0; padding-right: 0; }
-@media (min-width: 992px) {
-  .cars-main-container .col-lg-9 { padding-left: 24px; }
-}
-
-/* Reduce hero on cars page — catalog should be visible immediately */
-@media (min-width: 768px) {
-  #subheader { padding: 60px 0 36px !important; }
-  #subheader h1 { font-size: clamp(1.6rem, 3.2vw, 2.2rem); margin-bottom: 8px; }
-  #subheader .lead { font-size: clamp(0.92rem, 1.5vw, 1rem); margin-bottom: 0; }
-}
-@media (max-width: 767px) {
-  #subheader { padding: 50px 0 26px !important; }
-  #subheader h1 { font-size: 1.4rem; margin-bottom: 6px; }
-  #subheader .lead { font-size: 0.88rem; }
-}
-
-/* === Reduced motion === */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  .cars-main-container .small-sidebar {
-    position: static !important;
-    max-height: none !important;
-  }
-}
-
-
-    /* === Sunați Acum — compact desktop, hidden mobile === */
-    @media (max-width: 991px) {
-      .call-now-wrapper { display: none !important; }
-    }
-    @media (min-width: 992px) {
-      .call-now-wrapper {
-        margin-right: 8px !important;
-        flex-shrink: 0 !important;
-      }
-      .call-now-btn {
-        white-space: nowrap;
-        padding: 7px 14px !important;
-        font-size: 13px !important;
-        gap: 6px !important;
-      }
-      .call-now-btn i { font-size: 11px !important; }
-    }
-    /* On wide screens — bigger padding restored */
-    @media (min-width: 1200px) {
-      .call-now-btn { padding: 8px 16px !important; font-size: 14px !important; }
-    }
-/* ============================================================
-   CATALOG UX UPGRADES (3 features)
-   ============================================================ */
-
-/* === ACTIVE FILTER CHIPS — visible badges over the grid === */
-.pr-active-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-  padding: 0;
-  align-items: center;
-}
-.pr-active-chips[hidden] { display: none; }
-
-.pr-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 12px;
-  background: rgba(245, 158, 11, 0.10);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #1C1917;
-  letter-spacing: 0.1px;
-  white-space: nowrap;
-  animation: prChipIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.pr-chip-label {
-  color: #57534e;
-  font-weight: 500;
-  margin-right: 2px;
-}
-
-.pr-chip-value {
-  color: #1C1917;
-  font-weight: 700;
-}
-
-.pr-chip-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  margin-left: 2px;
-  background: rgba(28, 25, 23, 0.08);
-  color: #1C1917;
-  border: none;
-  border-radius: 50%;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.18s, color 0.18s;
-}
-.pr-chip-remove:hover {
-  background: #1C1917;
-  color: #f59e0b;
-}
-.pr-chip-remove:focus-visible {
-  outline: 2px solid #f59e0b;
-  outline-offset: 1px;
-}
-
-.pr-chip-clear-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: transparent;
-  border: 1px dashed rgba(28, 25, 23, 0.30);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #78350f;
-  cursor: pointer;
-  letter-spacing: 0.2px;
-  transition: all 0.18s;
-}
-.pr-chip-clear-all:hover {
-  background: #1C1917;
-  border-color: #1C1917;
-  color: #f59e0b;
-}
-
-@keyframes prChipIn {
-  from { opacity: 0; transform: scale(0.85); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-/* === Active filter count badge on mobile filter button === */
-.pr-active-count {
-  display: none;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  background: #f59e0b;
-  color: #1C1917;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  line-height: 20px;
-  text-align: center;
-  margin-left: 4px;
-}
-.pr-active-count.has-filters {
-  display: inline-block;
-}
-
-/* === COMPARE TOGGLE — tiny circular icon, expands on hover/active === */
-.de-item .pr-compare-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1.5px solid rgba(28, 25, 23, 0.12);
-  border-radius: 50%;
-  cursor: pointer;
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  color: #57534e;
-  font-size: 14px;
-  overflow: hidden;
-}
-.de-item .pr-compare-toggle .pr-compare-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  transition: transform 0.22s;
-}
-.de-item .pr-compare-toggle .pr-compare-label {
-  display: none;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  margin-left: 6px;
-  white-space: nowrap;
-}
-
-/* Hover (desktop): expands to show label */
-@media (hover: hover) {
-  .de-item .pr-compare-toggle:hover {
-    width: auto;
-    padding: 0 12px 0 10px;
-    border-radius: 999px;
-    border-color: #f59e0b;
-    background: #ffffff;
-    color: #1C1917;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
-  }
-  .de-item .pr-compare-toggle:hover .pr-compare-label {
-    display: inline;
-  }
-}
-
-/* Active (selected for comparison): luxury black + gold */
-.de-item .pr-compare-toggle.is-active {
-  width: auto;
-  padding: 0 12px 0 10px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
-  border-color: #f59e0b;
-  color: #f59e0b;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
-}
-.de-item .pr-compare-toggle.is-active .pr-compare-label {
-  display: inline;
-}
-.de-item .pr-compare-toggle.is-active .pr-compare-icon {
-  transform: rotate(45deg);  /* ⊕ becomes × visually */
-}
-.de-item .pr-compare-toggle:focus-visible {
-  outline: 3px solid rgba(245, 158, 11, 0.55);
-  outline-offset: 2px;
-}
-
-/* === COMPARISON FLOATING BAR (bottom of viewport when 2+ selected) === */
-.pr-compare-bar {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(140%);
-  z-index: 998;
-  width: calc(100% - 32px);
-  max-width: 560px;
-  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
-  border: 1.5px solid rgba(245, 158, 11, 0.45);
-  border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(245, 158, 11, 0.15);
-  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s;
-  opacity: 0;
-}
-.pr-compare-bar:not([hidden]) {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-.pr-compare-bar[hidden] { display: none !important; }
-
-.pr-compare-bar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-}
-
-.pr-compare-bar-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #ffffff;
-  font-size: 0.92rem;
-}
-.pr-compare-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  padding: 0 8px;
-  background: #f59e0b;
-  color: #1C1917;
-  border-radius: 14px;
-  font-weight: 800;
-  font-size: 0.95rem;
-}
-.pr-compare-label {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.85rem;
-}
-
-.pr-compare-bar-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.pr-compare-clear,
-.pr-compare-go {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: 10px;
-  font-size: 0.86rem;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  transition: all 0.22s;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 40px;
-}
-
-.pr-compare-clear {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.30);
-  color: rgba(255, 255, 255, 0.85);
-}
-.pr-compare-clear:hover {
-  background: rgba(255, 255, 255, 0.10);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.50);
-}
-
-.pr-compare-go {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
-}
-.pr-compare-go:hover {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.40);
-}
-
-@media (max-width: 575px) {
-  .pr-compare-bar {
-    bottom: 12px;
-    width: calc(100% - 16px);
-  }
-  .pr-compare-label { display: none; }
-  .pr-compare-clear span,
-  .pr-compare-go {
-    font-size: 0.82rem;
-  }
-}
-
-/* === COMPARISON MODAL === */
-.pr-compare-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  padding-top: max(20px, env(safe-area-inset-top));
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
-}
-.pr-compare-modal[hidden] { display: none !important; }
-
-.pr-compare-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(28, 25, 23, 0.65);
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
-  animation: prFadeIn 0.22s ease;
-}
-
-@keyframes prFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.pr-compare-modal-content {
-  position: relative;
-  width: 100%;
-  max-width: 1100px;
-  max-height: 92vh;
-  background: #ffffff;
-  border-radius: 18px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.30);
-  animation: prModalIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes prModalIn {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-.pr-compare-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 22px;
-  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
-  border-bottom: 2px solid #f59e0b;
-}
-.pr-compare-modal-header h2 {
-  color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin: 0;
-  letter-spacing: -0.2px;
-}
-.pr-compare-modal-close {
-  width: 38px;
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1.5px solid rgba(245, 158, 11, 0.40);
-  border-radius: 50%;
-  color: #f59e0b;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.22s;
-  -webkit-tap-highlight-color: transparent;
-}
-.pr-compare-modal-close:hover {
-  background: #f59e0b;
-  color: #1C1917;
-  border-color: transparent;
-  transform: rotate(90deg);
-}
-
-.pr-compare-modal-body {
-  padding: 20px 22px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  flex: 1;
-}
-
-.pr-compare-grid {
-  display: grid;
-  gap: 14px;
-}
-@media (min-width: 768px) {
-  .pr-compare-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .pr-compare-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 767px) {
-  .pr-compare-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
-
-.pr-compare-car {
-  background: #fafafa;
-  border: 1px solid rgba(28, 25, 23, 0.08);
-  border-top: 3px solid #f59e0b;
-  border-radius: 12px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.pr-compare-car-img {
-  width: 100%;
-  aspect-ratio: 16/10;
-  object-fit: cover;
-  background: #f0f0f0;
-  border-radius: 8px;
-}
-.pr-compare-car-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #1C1917;
-  margin: 4px 0 0;
-}
-.pr-compare-car-price {
-  display: inline-block;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #ffffff;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 0.92rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  align-self: flex-start;
-}
-.pr-compare-car-specs {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0;
-  display: grid;
-  gap: 6px;
-  font-size: 0.86rem;
-}
-.pr-compare-car-specs li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px dashed rgba(28, 25, 23, 0.10);
-}
-.pr-compare-car-specs li:last-child { border-bottom: none; }
-.pr-compare-car-specs .pr-spec-label {
-  color: #57534e;
-  font-weight: 500;
-}
-.pr-compare-car-specs .pr-spec-value {
-  color: #1C1917;
-  font-weight: 700;
-  text-align: right;
-}
-
-.pr-compare-car-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 11px 14px;
-  background: #1C1917;
-  color: #f59e0b;
-  border: 1.5px solid rgba(245, 158, 11, 0.40);
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.88rem;
-  text-decoration: none;
-  margin-top: auto;
-  transition: all 0.22s;
-  min-height: 44px;
-  -webkit-tap-highlight-color: transparent;
-}
-.pr-compare-car-cta:hover {
-  background: #f59e0b;
-  color: #1C1917;
-  border-color: transparent;
-}
-
-.pr-compare-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: #78350f;
-  font-size: 0.95rem;
-}
-
-/* === MOBILE FILTER BOTTOM SHEET (matches existing #mobile-filter-overlay markup) === */
-@media (max-width: 767px) {
-  /* The overlay is the wrapping element — backdrop layer */
-  .mobile-filter-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(28, 25, 23, 0.55) !important;
-    -webkit-backdrop-filter: blur(6px) !important;
-            backdrop-filter: blur(6px) !important;
-    z-index: 10000 !important;
-    display: none !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-  .mobile-filter-overlay.active {
-    display: flex !important;
-    opacity: 1;
-  }
-
-  /* Sidebar = the bottom sheet itself */
-  .mobile-filter-overlay .mobile-filter-sidebar {
-    position: relative !important;
-    bottom: 0;
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 92vh !important;
-    border-radius: 22px 22px 0 0 !important;
-    transform: translateY(100%);
-    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    background: #ffffff;
-    box-shadow: 0 -16px 50px rgba(0, 0, 0, 0.30);
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    border-top: 3px solid #f59e0b;
-    display: flex !important;
-    flex-direction: column;
-  }
-  .mobile-filter-overlay.active .mobile-filter-sidebar {
-    transform: translateY(0);
-  }
-
-  /* Drag handle visual affordance */
-  .mobile-filter-overlay .mobile-filter-sidebar::before {
-    content: '';
-    display: block;
-    width: 44px;
-    height: 5px;
-    background: rgba(28, 25, 23, 0.20);
-    border-radius: 4px;
-    margin: 10px auto 4px;
-    flex-shrink: 0;
-  }
-
-  /* Header inside sheet */
-  .mobile-filter-overlay .mobile-filter-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 18px 14px;
-    border-bottom: 1px solid rgba(28, 25, 23, 0.08);
-    flex-shrink: 0;
-  }
-  .mobile-filter-overlay .mobile-filter-header h5 {
-    margin: 0;
-    color: #1C1917;
-    font-weight: 800;
-    font-size: 1.05rem;
-  }
-  .mobile-filter-overlay .mobile-filter-close {
-    width: 36px;
-    height: 36px;
-    background: rgba(245, 158, 11, 0.10);
-    border: 1.5px solid rgba(245, 158, 11, 0.40);
-    color: #f59e0b;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.22s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .mobile-filter-overlay .mobile-filter-close:hover {
-    background: #f59e0b;
-    color: #1C1917;
-    border-color: transparent;
-  }
-
-  /* Content scrollable area */
-  .mobile-filter-overlay .mobile-filter-content {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 14px 18px;
-  }
-
-  /* Sticky bottom action row (applied to existing button container) */
-  .pr-sticky-footer {
-    position: sticky !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: #ffffff !important;
-    border-top: 1px solid rgba(28, 25, 23, 0.10) !important;
-    padding: 14px 18px !important;
-    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
-    display: flex !important;
-    gap: 10px !important;
-    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.06) !important;
-    flex-shrink: 0 !important;
-    z-index: 10 !important;
-    margin: 0 !important;
-    grid-template-columns: none !important; /* override d-grid Bootstrap */
-  }
-  .pr-mobile-filter-cancel,
-  .pr-mobile-filter-apply {
-    flex: 1 !important;
-    min-height: 48px !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    font-size: 0.95rem !important;
-    cursor: pointer !important;
-    border: none !important;
-    transition: all 0.22s !important;
-    -webkit-tap-highlight-color: transparent !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    line-height: 1 !important;
-    width: auto !important;
-  }
-  .pr-mobile-filter-cancel {
-    background: transparent !important;
-    border: 1.5px solid rgba(28, 25, 23, 0.20) !important;
-    color: #57534e !important;
-  }
-  .pr-mobile-filter-cancel:active {
-    background: rgba(28, 25, 23, 0.05) !important;
-    border-color: rgba(28, 25, 23, 0.40) !important;
-  }
-  .pr-mobile-filter-apply {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-    color: #ffffff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18) !important;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
-  }
-  .pr-mobile-filter-apply:active {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
-    transform: translateY(-1px) !important;
-  }
-  .pr-mobile-filter-apply:focus-visible,
-  .pr-mobile-filter-cancel:focus-visible {
-    outline: 3px solid rgba(245, 158, 11, 0.60) !important;
-    outline-offset: 2px !important;
-  }
-
-  /* Sheet flexbox layout: scrollable content + fixed sticky footer */
-  .mobile-filter-overlay .mobile-filter-sidebar {
-    display: flex !important;
-    flex-direction: column !important;
-  }
-  .mobile-filter-overlay .mobile-filter-content {
-    flex: 1 1 auto !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-}
-
-/* === Reduced motion guards === */
-@media (prefers-reduced-motion: reduce) {
-  .pr-chip,
-  .pr-compare-bar,
-  .pr-compare-modal-content,
-  .pr-compare-modal-backdrop,
-  .mobile-filter-sidebar,
-  .mobile-filter-backdrop {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
-  }
+  .pr-filter-section[open] > .pr-filter-summary .pr-filter-chevron { transition: none; }
 }
 </style>
 </head>
@@ -1586,9 +2062,8 @@ body.cars-listing-page { background: #fafafa; }
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self: center; margin-right: 8px; flex-shrink: 0;">
-                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
-                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);" aria-label="Sună Acum">
-                      <i class="fa fa-phone" style="font-size: 12px;" aria-hidden="true"></i>
+                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn" aria-label="Sună Acum">
+                      <i class="fa fa-phone" aria-hidden="true"></i>
                       <span data-i18n="call_now">Sunați Acum</span>
                     </a>
                   </div>
@@ -1688,24 +2163,6 @@ body.cars-listing-page { background: #fafafa; }
         <!-- ACTIVE FILTER CHIPS — populated by JS when filters applied -->
         <div class="pr-active-chips" id="prActiveChips" role="region" aria-label="Filtre active" hidden></div>
 
-        <!-- COMPARISON BAR — appears when 2+ cars selected -->
-        <div class="pr-compare-bar" id="prCompareBar" role="region" aria-label="Comparare mașini" hidden>
-          <div class="pr-compare-bar-inner">
-            <div class="pr-compare-bar-info">
-              <span class="pr-compare-count" id="prCompareCount">0</span>
-              <span class="pr-compare-label">selectate pentru comparație</span>
-            </div>
-            <div class="pr-compare-bar-actions">
-              <button type="button" class="pr-compare-clear" onclick="prCompareClear()" aria-label="Șterge selecția">
-                <i class="fa fa-times" aria-hidden="true"></i> Șterge
-              </button>
-              <button type="button" class="pr-compare-go" onclick="prCompareOpen()">
-                Compară <i class="fa fa-arrow-right" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div class="row">
           <!-- Desktop Sidebar -->
           <div class="col-lg-3 col-md-4 small-sidebar d-none d-md-block">
@@ -1714,88 +2171,93 @@ body.cars-listing-page { background: #fafafa; }
                 <span data-i18n="cars.filters">Filtre</span>
                 <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Șterge tot</a>
               </div>
-              <hr class="filter-divider">
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_date_range">Interval Date</h6>
-                <div class="date-range-filter">
-                  <div class="date-input-wrapper">
-                    <i class="fa fa-calendar"></i>
-                    <input type="text" id="filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from">
+              <details class="pr-filter-section" open>
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_date_range">Interval Date</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div class="date-range-filter">
+                    <div class="date-input-wrapper">
+                      <i class="fa fa-calendar"></i>
+                      <input type="text" id="filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from">
+                    </div>
+                    <div class="date-input-wrapper">
+                      <i class="fa fa-calendar"></i>
+                      <input type="text" id="filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to">
+                    </div>
                   </div>
-                  <div class="date-input-wrapper">
-                    <i class="fa fa-calendar"></i>
-                    <input type="text" id="filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to">
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_make">Marcă</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-make-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_gear">Transmisie</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-gear-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_fuel">Combustibil</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-fuel-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_type">Tip</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-type-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_doors">Uși</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-doors-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section">
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_passengers">Pasageri</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div id="filter-passengers-options"></div>
+                </div>
+              </details>
+
+              <details class="pr-filter-section" open>
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price">Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div class="price-range-inputs">
+                    <input type="number" id="filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
+                    <div class="price-range-divider">—</div>
+                    <input type="number" id="filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
                   </div>
                 </div>
-              </div>
-              <hr class="filter-divider">
+              </details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_make">Marcă</h6>
-                <div id="filter-make-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_gear">Transmisie</h6>
-                <div id="filter-gear-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Combustibil</h6>
-                <div id="filter-fuel-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_type">Tip</h6>
-                <div id="filter-type-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_doors">Uși</h6>
-                <div id="filter-doors-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Pasageri</h6>
-                <div id="filter-passengers-options"></div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_price">Interval Preț</h6>
-                <div class="price-range-inputs">
-                  <input type="number" id="filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
-                  <div class="price-range-divider">—</div>
-                  <input type="number" id="filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
+              <details class="pr-filter-section" open>
+                <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price_category">Categoria de Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                <div class="pr-filter-body">
+                  <div class="filter-option-row">
+                    <label><input type="radio" name="price-category" value="econom" id="price-category-econom"><span class="option-label" data-i18n="cars.filter_econom">Econom</span></label>
+                  </div>
+                  <div class="filter-option-row">
+                    <label><input type="radio" name="price-category" value="standard" id="price-category-standard"><span class="option-label" data-i18n="cars.filter_standard">Standard</span></label>
+                  </div>
+                  <div class="filter-option-row">
+                    <label><input type="radio" name="price-category" value="premium" id="price-category-premium"><span class="option-label" data-i18n="cars.filter_premium">Premium</span></label>
+                  </div>
+                  <div class="filter-option-row">
+                    <label><input type="radio" name="price-category" value="all" id="price-category-all" checked><span class="option-label" data-i18n="cars.filter_all_types">Toate Tipurile</span></label>
+                  </div>
                 </div>
-              </div>
-              <hr class="filter-divider">
-
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Categoria</h6>
-                <div class="filter-option-row">
-                  <label><input type="radio" name="price-category" value="econom" id="price-category-econom">
-                    <span class="option-label" data-i18n="cars.filter_econom">Economy</span></label>
-                </div>
-                <div class="filter-option-row">
-                  <label><input type="radio" name="price-category" value="standard" id="price-category-standard">
-                    <span class="option-label" data-i18n="cars.filter_standard">Standard</span></label>
-                </div>
-                <div class="filter-option-row">
-                  <label><input type="radio" name="price-category" value="premium" id="price-category-premium">
-                    <span class="option-label" data-i18n="cars.filter_premium">Premium</span></label>
-                </div>
-                <div class="filter-option-row">
-                  <label><input type="radio" name="price-category" value="all" id="price-category-all" checked>
-                    <span class="option-label" data-i18n="cars.filter_all_types">Toate</span></label>
-                </div>
-              </div>
+              </details>
             </div>
           </div>
 
@@ -1807,50 +2269,58 @@ body.cars-listing-page { background: #fafafa; }
                 <button class="mobile-filter-close" onclick="toggleMobileFilter()"><i class="fa fa-times"></i></button>
               </div>
               <div class="mobile-filter-content">
-                <div id="mobile-filter-loading" class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
-                  <p class="mt-2 text-muted" data-i18n="cars.loading_filters">Se încarcă filtrele...</p>
-                </div>
-                <div id="mobile-filter-options" style="display: none;">
-                  <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_date_range">Interval Date</h6>
-                    <div class="date-range-filter">
-                      <div class="date-input-wrapper"><i class="fa fa-calendar"></i>
-                        <input type="text" id="mobile-filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from"></div>
-                      <div class="date-input-wrapper"><i class="fa fa-calendar"></i>
-                        <input type="text" id="mobile-filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to"></div>
+                  <details class="pr-filter-section" open>
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_date_range">Interval Date</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body">
+                      <div class="date-range-filter">
+                        <div class="date-input-wrapper"><i class="fa fa-calendar"></i><input type="text" id="mobile-filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from"></div>
+                        <div class="date-input-wrapper"><i class="fa fa-calendar"></i><input type="text" id="mobile-filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to"></div>
+                      </div>
                     </div>
-                  </div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_make">Marcă</h6><div id="mobile-filter-make-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_gear">Transmisie</h6><div id="mobile-filter-gear-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_fuel">Combustibil</h6><div id="mobile-filter-fuel-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_type">Tip</h6><div id="mobile-filter-type-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_doors">Uși</h6><div id="mobile-filter-doors-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category"><h6 class="filter-section-title" data-i18n="cars.filter_passengers">Pasageri</h6><div id="mobile-filter-passengers-options"></div></div>
-                  <hr class="filter-divider">
-                  <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_price">Interval Preț</h6>
-                    <div class="price-range-inputs">
-                      <input type="number" id="mobile-filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
-                      <div class="price-range-divider">—</div>
-                      <input type="number" id="mobile-filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_make">Marcă</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-make-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_gear">Transmisie</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-gear-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_fuel">Combustibil</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-fuel-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_type">Tip</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-type-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_doors">Uși</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-doors-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section">
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_passengers">Pasageri</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body"><div id="mobile-filter-passengers-options"></div></div>
+                  </details>
+                  <details class="pr-filter-section" open>
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price">Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body">
+                      <div class="price-range-inputs">
+                        <input type="number" id="mobile-filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
+                        <div class="price-range-divider">—</div>
+                        <input type="number" id="mobile-filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
+                      </div>
                     </div>
-                  </div>
-                  <hr class="filter-divider">
-                  <div class="filter-category">
-                    <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Categoria</h6>
-                    <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom"><span class="option-label" data-i18n="cars.filter_econom">Economy</span></label></div>
-                    <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard"><span class="option-label" data-i18n="cars.filter_standard">Standard</span></label></div>
-                    <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="premium" id="mobile-price-category-premium"><span class="option-label" data-i18n="cars.filter_premium">Premium</span></label></div>
-                    <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="all" id="mobile-price-category-all" checked><span class="option-label" data-i18n="cars.filter_all_types">Toate</span></label></div>
-                  </div>
-                </div>
+                  </details>
+                  <details class="pr-filter-section" open>
+                    <summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price_category">Categoria de Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
+                    <div class="pr-filter-body">
+                      <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom"><span class="option-label" data-i18n="cars.filter_econom">Econom</span></label></div>
+                      <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard"><span class="option-label" data-i18n="cars.filter_standard">Standard</span></label></div>
+                      <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="premium" id="mobile-price-category-premium"><span class="option-label" data-i18n="cars.filter_premium">Premium</span></label></div>
+                      <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="all" id="mobile-price-category-all" checked><span class="option-label" data-i18n="cars.filter_all_types">Toate Tipurile</span></label></div>
+                    </div>
+                  </details>
                 <div class="mobile-filter-actions">
                   <button class="btn btn-outline-secondary" onclick="clearAllFilters()"><i class="fa fa-times"></i> <span data-i18n="cars.filter_clear">Șterge tot</span></button>
                   <button class="btn btn-primary" onclick="applyMobileFilters()"><i class="fa fa-check"></i> <span data-i18n="cars.apply_filters">Aplică filtre</span></button>
@@ -1888,18 +2358,9 @@ body.cars-listing-page { background: #fafafa; }
     <!-- footer begin -->
 
     <!-- COMPARISON MODAL — side-by-side car comparison (max 3) -->
-    <div class="pr-compare-modal" id="prCompareModal" role="dialog" aria-modal="true" aria-labelledby="prCompareModalTitle" hidden>
-      <div class="pr-compare-modal-backdrop" onclick="prCompareCloseModal()"></div>
-      <div class="pr-compare-modal-content">
-        <div class="pr-compare-modal-header">
-          <h2 id="prCompareModalTitle">Comparare Mașini</h2>
-          <button type="button" class="pr-compare-modal-close" onclick="prCompareCloseModal()" aria-label="Închide">
-            <i class="fa fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="pr-compare-modal-body" id="prCompareModalBody">
-          <!-- Filled by JS -->
-        </div>
+    
+      
+        
       </div>
     </div>
 
@@ -1909,271 +2370,130 @@ body.cars-listing-page { background: #fafafa; }
        LUXURY CONTACT POPUP — copied from sofer-personal__3_.html
        Self-contained CSS (no external CSS-variables required)
        ============================================================ -->
-  <style id="pr-luxury-contact-popup">
-    .contact-popup-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(28, 25, 23, 0.60);
-      -webkit-backdrop-filter: blur(10px);
-              backdrop-filter: blur(10px);
-      z-index: 9999;
-      align-items: center; justify-content: center;
-      padding: 20px;
-      padding-top: max(20px, env(safe-area-inset-top));
-      padding-bottom: max(20px, env(safe-area-inset-bottom));
-      cursor: pointer;
-    }
-    .contact-popup {
-      background: #ffffff;
-      border-radius: 18px;
-      width: 100%; max-width: 420px;
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(245, 158, 11, 0.15);
-      animation: prContactSlideUp 0.28s cubic-bezier(0, 0, 0.2, 1);
-      cursor: default;
-    }
-    @keyframes prContactSlideUp {
-      from { transform: translateY(24px); opacity: 0; }
-      to   { transform: translateY(0); opacity: 1; }
-    }
-    .contact-popup-header {
-      background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
-      border-bottom: 3px solid #f59e0b;
-      color: #ffffff;
-      padding: 28px 22px;
-      position: relative;
-      text-align: center;
-    }
-    .contact-popup-header::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.10), transparent 60%);
-      pointer-events: none;
-    }
-    .contact-popup-header h3 {
-      color: #ffffff; font-size: 1.35rem; font-weight: 900;
-      margin: 0 0 5px; position: relative;
-    }
-    .contact-popup-header p {
-      color: rgba(255, 255, 255, 0.75); font-size: 0.9rem;
-      margin: 0; position: relative;
-    }
-    .contact-popup-close {
-      position: absolute; top: 12px; right: 12px;
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: rgba(255, 255, 255, 0.85);
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-      transition: all 0.22s ease;
-      touch-action: manipulation;
-      z-index: 10;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .contact-popup-close:hover {
-      background: rgba(255, 255, 255, 0.22);
-      color: #ffffff;
-      transform: rotate(90deg);
-    }
-    .contact-popup-body { padding: 14px; }
-    .contact-option {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.22s ease;
-      margin-bottom: 6px;
-      text-decoration: none;
-      border: 1.5px solid transparent;
-      touch-action: manipulation;
-      color: inherit;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .contact-option:hover {
-      background: #fafaf9;
-      border-color: rgba(245, 158, 11, 0.20);
-      transform: translateX(4px);
-      text-decoration: none;
-    }
-    .contact-option:last-child { margin-bottom: 0; }
-    .contact-option-icon {
-      flex-shrink: 0;
-      width: 50px; height: 50px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      color: #ffffff;
-      font-size: 1.3rem;
-    }
-    .contact-option.whatsapp .contact-option-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
-    .contact-option.viber    .contact-option-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
-    .contact-option.telegram .contact-option-icon { background: linear-gradient(135deg, #0088cc, #006699); }
-    .contact-option.phone    .contact-option-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .contact-option-content { flex: 1; min-width: 0; }
-    .contact-option-title {
-      font-weight: 700; color: #1C1917; font-size: 1rem; margin-bottom: 2px;
-    }
-    .contact-option-subtitle {
-      color: #78716c; font-size: 0.84rem;
-    }
-    .contact-option-arrow {
-      color: #d6d3d1; font-size: 1rem;
-      transition: all 0.18s ease;
-      margin-left: auto;
-    }
-    .contact-option:hover .contact-option-arrow {
-      color: #d97706;
-      transform: translateX(3px);
-    }
-    @media (max-width: 768px) {
-      .contact-popup { max-width: 100%; }
-      .contact-popup-header { padding: 22px 18px; }
-      .contact-popup-header h3 { font-size: 1.2rem; }
-    }
+  
 
-    /* Floating contact button — luxury gold pulse */
-    .floating-contact-btn {
-      position: fixed; bottom: 28px; right: 28px;
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #1C1917;
-      border: none;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem;
-      cursor: pointer;
-      box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40);
-      z-index: 998;
-      transition: transform 0.28s ease, box-shadow 0.28s ease;
-      touch-action: manipulation;
-      animation: prFloatPulse 2.8s ease-in-out infinite;
-      -webkit-tap-highlight-color: transparent;
-    }
-    @keyframes prFloatPulse {
-      0%, 100% { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 0 rgba(245, 158, 11, 0.50); }
-      50%      { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 14px rgba(245, 158, 11, 0); }
-    }
-    .floating-contact-btn:hover {
-      transform: scale(1.10);
-      animation: none;
-    }
-    .floating-contact-btn:focus-visible {
-      outline: 3px solid rgba(245, 158, 11, 0.70);
-      outline-offset: 4px;
-    }
-    @media (max-width: 768px) {
-      .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.25rem; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .contact-popup { animation: none; }
-      .floating-contact-btn { animation: none; }
-      .contact-option:hover { transform: none; }
-      .contact-popup-close:hover { transform: none; }
-    }
-  </style>
-
-  <div id="contactPopup" class="contact-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="contactPopupTitle">
+    <div id="contactPopup" class="contact-popup-overlay">
     <div class="contact-popup">
       <div class="contact-popup-header">
-        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide" type="button">
-          <i class="fa fa-times" aria-hidden="true"></i>
+        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Închide">
+          <i class="fa fa-times"></i>
         </button>
-        <h3 id="contactPopupTitle" data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
+        <h3 data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
         <p data-i18n="contact_popup.subtitle">Alege modalitatea preferată de contact</p>
       </div>
       <div class="contact-popup-body">
-        <a href="https://wa.me/+37360000500?text=Bună ziua! Am nevoie de ajutor cu închirierea unei mașini." target="_blank" rel="noopener noreferrer" class="contact-option whatsapp" aria-label="Contactează via WhatsApp">
+        <div class="contact-option whatsapp" role="button" tabindex="0" onclick="openWhatsApp()" onkeydown="if(event.key==='Enter'||event.key===' '){openWhatsApp()}" aria-label="Contactează via WhatsApp">
           <div class="contact-option-icon">
-            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+            <i class="fab fa-whatsapp fa-lg"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.whatsapp">WhatsApp</div>
-            <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Chat rapid</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Chat rapid · Răspuns imediat</div>
           </div>
-          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
-        </a>
+        </div>
 
-        <a href="viber://chat?number=+37360000500" class="contact-option viber" aria-label="Contactează via Viber">
+        <div class="contact-option telegram" role="button" tabindex="0" onclick="openTelegram()" onkeydown="if(event.key==='Enter'||event.key===' '){openTelegram()}" aria-label="Contactează via Telegram">
           <div class="contact-option-icon">
-            <i class="fa fa-phone" aria-hidden="true"></i>
+            <i class="fab fa-telegram fa-lg"></i>
+          </div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">@plusrent · Mesaje rapide</div>
+          </div>
+        </div>
+
+        <div class="contact-option viber" role="button" tabindex="0" onclick="openViber()" onkeydown="if(event.key==='Enter'||event.key===' '){openViber()}" aria-label="Contactează via Viber">
+          <div class="contact-option-icon">
+            <i class="fa fa-phone"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.viber">Viber</div>
             <div class="contact-option-subtitle" data-i18n="contact_popup.viber_desc">Voce și mesaje</div>
           </div>
-          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
-        </a>
+        </div>
 
-        <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" class="contact-option telegram" aria-label="Contactează via Telegram">
+        <div class="contact-option phone" role="button" tabindex="0" onclick="makeDirectCall()" onkeydown="if(event.key==='Enter'||event.key===' '){makeDirectCall()}" aria-label="Sună direct">
           <div class="contact-option-icon">
-            <i class="fa fa-paper-plane" aria-hidden="true"></i>
-          </div>
-          <div class="contact-option-content">
-            <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
-            <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">Mesaje rapide</div>
-          </div>
-          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
-        </a>
-
-        <a href="tel:+37360000500" onclick="if(typeof gtag_report_conversion==='function'){gtag_report_conversion('tel:+37360000500');}" class="contact-option phone" aria-label="Sună direct">
-          <div class="contact-option-icon">
-            <i class="fa fa-phone" aria-hidden="true"></i>
+            <i class="fa fa-phone"></i>
           </div>
           <div class="contact-option-content">
             <div class="contact-option-title" data-i18n="contact_popup.direct_call">Apel Direct</div>
             <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">+373 60 000 500</div>
           </div>
-          <i class="fa fa-chevron-right contact-option-arrow" aria-hidden="true"></i>
-        </a>
+        </div>
       </div>
     </div>
   </div>
 
   <button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contactează-ne">
-    <i class="fa fa-comments" aria-hidden="true"></i>
+    <i class="fa fa-comments"></i>
   </button>
 
   <script>
     function openContactPopup() {
-      var popup = document.getElementById('contactPopup');
-      if (!popup) return;
-      popup.style.display = 'flex';
-      var scrollY = window.scrollY;
+      var p = document.getElementById('contactPopup');
+      if (!p) return;
+      p.style.display = 'flex';
+      var sy = window.scrollY;
       document.body.style.position = 'fixed';
-      document.body.style.top = '-' + scrollY + 'px';
+      document.body.style.top = '-' + sy + 'px';
       document.body.style.width = '100%';
       document.body.style.left = '0';
       document.body.style.right = '0';
-      document.body.dataset.scrollY = scrollY;
+      document.body.dataset.scrollY = sy;
     }
     function closeContactPopup() {
-      var popup = document.getElementById('contactPopup');
-      if (!popup) return;
-      popup.style.display = 'none';
-      var scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
+      var p = document.getElementById('contactPopup');
+      if (!p) return;
+      p.style.display = 'none';
+      var sy = parseInt(document.body.dataset.scrollY || '0', 10);
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
       document.body.style.left = '';
       document.body.style.right = '';
-      window.scrollTo(0, scrollY);
+      window.scrollTo(0, sy);
     }
-    /* Backdrop click closes */
+    function openWhatsApp() { window.open('https://wa.me/+37360000500?text=Bun%C4%83 ziua! Am nevoie de ajutor cu chiria auto.', '_blank'); }
+    function openViber()    { window.open('viber://chat?number=+37360000500', '_blank'); }
+    function openTelegram() { window.open('https://t.me/plusrent', '_blank'); }
+    function makeDirectCall() {
+      if (typeof gtag_report_conversion === 'function') gtag_report_conversion('tel:+37360000500');
+      window.location.href = 'tel:+37360000500';
+    }
     (function() {
-      var popup = document.getElementById('contactPopup');
-      if (popup) {
-        popup.addEventListener('click', function(e) {
-          if (e.target === popup) closeContactPopup();
-        });
-      }
+      var p = document.getElementById('contactPopup');
+      if (p) p.addEventListener('click', function(e) { if (e.target === p) closeContactPopup(); });
+      document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        var pp = document.getElementById('contactPopup');
+        if (pp && pp.style.display === 'flex') closeContactPopup();
+      });
     })();
-    /* ESC closes */
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        var popup = document.getElementById('contactPopup');
-        if (popup && popup.style.display === 'flex') closeContactPopup();
+    /* Back-to-top: show only after scroll > 400px (matches index.html behavior) */
+    (function() {
+      var btt = document.getElementById('back-to-top');
+      if (!btt) return;
+      var threshold = 400;
+      var visible = false;
+      var ticking = false;
+      function update() {
+        var sy = window.pageYOffset || document.documentElement.scrollTop;
+        var should = sy > threshold;
+        if (should !== visible) {
+          visible = should;
+          btt.classList.toggle('show', visible);
+        }
+        ticking = false;
       }
-    });
+      window.addEventListener('scroll', function() {
+        if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+      }, { passive: true });
+      btt.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      });
+    })();
   </script>
 
     </main>
@@ -3208,430 +3528,13 @@ function openMapsOnMobileCars(event, address) {
       if (priceMax) priceMax.value = '';
       if (dateFrom) dateFrom.value = '';
       if (dateTo) dateTo.value = '';
-      /* Also reset compare selection — clearing filters means new search */
-      if (typeof window.prCompareClear === 'function') {
-        try { window.prCompareClear(); } catch(e) {}
-      }
-      setTimeout(renderActiveChips, 200);
     });
     container.appendChild(clearAll);
-
-    if (countBadge) {
-      countBadge.classList.add('has-filters');
-      countBadge.textContent = String(chips.length);
-    }
   }
-
-  // Listen to filter changes (any checkbox in sidebar / mobile filter)
-  document.addEventListener('change', function(e) {
-    var target = e.target;
-    if (target && target.matches('input[type="checkbox"]') &&
-        target.closest('.filter-sidebar, .mobile-filter-sidebar, [id$="filter-options"]')) {
-      setTimeout(renderActiveChips, 50);
-    }
-  }, { passive: true });
-
-  // Also listen to custom event (for date/price changes)
-  document.addEventListener('pr-filters-changed', function() {
-    setTimeout(renderActiveChips, 50);
-  });
-
-  // Initial render after DOM + filter init
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(renderActiveChips, 800);
-    });
-  } else {
-    setTimeout(renderActiveChips, 800);
-  }
-
-  // Watch for filter sidebar mutations (catches AJAX-rendered options)
-  var sidebarRoot = document.querySelector('.filter-sidebar') ||
-                    document.querySelector('.cars-main-container') ||
-                    document.body;
-  if (sidebarRoot && typeof MutationObserver !== 'undefined') {
-    var sidebarTimer = null;
-    var sidebarMo = new MutationObserver(function() {
-      if (sidebarTimer) clearTimeout(sidebarTimer);
-      sidebarTimer = setTimeout(renderActiveChips, 100);
-    });
-    sidebarMo.observe(sidebarRoot, { childList: true, subtree: true });
-  }
-
 
   /* ============================================================
-     PART 2 — COMPARISON FEATURE
-     Up to 3 cars side-by-side
+     PART 2 — MOBILE BOTTOM SHEET CLOSE handlers
      ============================================================ */
-
-  var COMPARE_MAX = 3;
-  var compareList = []; // [{ id, name, price, img, specs }]
-
-  function getCarDataFromCard(card) {
-    if (!card) return null;
-    var titleEl = card.querySelector('.de-title, h3, .de-item-title, .car-title');
-    var priceEl = card.querySelector('.de-price, .price-tag, .car-price, [class*="price"]');
-    var imgEl   = card.querySelector('img');
-
-    // Specs from existing markup
-    var specs = {};
-    var specEls = card.querySelectorAll('.car-specs li, .de-specs li, [class*="spec"] li, .car-feature');
-    specEls.forEach(function(el) {
-      var text = el.textContent.trim();
-      if (text) specs[text] = '';
-    });
-
-    var data = card.dataset || {};
-    if (data.gear)    specs['Transmisie'] = data.gear;
-    if (data.fuel)    specs['Combustibil'] = data.fuel;
-    if (data.year)    specs['An']         = data.year;
-    if (data.doors)   specs['Uși']        = data.doors;
-    if (data.seats)   specs['Pasageri']   = data.seats;
-    if (data.type)    specs['Tip']        = data.type;
-
-    var bookLink = card.querySelector('a[href*="rezerv"], a[href*="booking"], a.btn, a.btn-primary');
-    var titleText = titleEl ? titleEl.textContent.trim() : '';
-    var priceText = priceEl ? priceEl.textContent.trim() : '';
-
-    /* STABLE ID — no Math.random! Deterministic by data-* or title+price.
-       Prevents duplicates when AJAX re-renders the same car. */
-    var stableId = card.dataset.carId || card.dataset.id ||
-                   ((titleText + '|' + priceText).replace(/\s+/g, '_').toLowerCase());
-
-    /* Persist back to card.dataset so subsequent reads are stable
-       even when innerHTML changes briefly */
-    if (!card.dataset.prCarId) {
-      card.dataset.prCarId = stableId;
-    }
-
-    return {
-      id: stableId,
-      name: titleText || 'Mașină',
-      price: priceText,
-      img: imgEl ? imgEl.src : '',
-      specs: specs,
-      bookHref: bookLink ? bookLink.href : '#'
-    };
-  }
-
-  function injectCompareToggles() {
-    var cards = document.querySelectorAll('.de-item.mb30, .de-item:not(.premium-badge)');
-    cards.forEach(function(card) {
-      if (card.querySelector('.pr-compare-toggle')) return; // already injected
-
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'pr-compare-toggle';
-      btn.setAttribute('aria-pressed', 'false');
-      btn.setAttribute('aria-label', 'Adaugă la comparație');
-      btn.title = 'Compară';
-      btn.innerHTML = '<span class="pr-compare-icon" aria-hidden="true">+</span><span class="pr-compare-label">Compară</span>';
-
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleCompareCar(card, btn);
-      });
-
-      card.style.position = card.style.position || 'relative';
-      card.appendChild(btn);
-    });
-  }
-
-  function toggleCompareCar(card, btn) {
-    var data = getCarDataFromCard(card);
-    if (!data) return;
-
-    var idx = compareList.findIndex(function(c) { return c.id === data.id; });
-    if (idx >= 0) {
-      compareList.splice(idx, 1);
-      btn.classList.remove('is-active');
-      btn.setAttribute('aria-pressed', 'false');
-    } else {
-      if (compareList.length >= COMPARE_MAX) {
-        // Visual feedback: shake or just abort with toast (we'll just abort)
-        btn.style.animation = 'prChipIn 0.3s';
-        setTimeout(function() { btn.style.animation = ''; }, 300);
-        return;
-      }
-      compareList.push(data);
-      btn.classList.add('is-active');
-      btn.setAttribute('aria-pressed', 'true');
-    }
-    updateCompareBar();
-  }
-
-  function updateCompareBar() {
-    var bar = document.getElementById('prCompareBar');
-    var countEl = document.getElementById('prCompareCount');
-    if (!bar) return;
-    if (compareList.length >= 2) {
-      bar.hidden = false;
-      if (countEl) countEl.textContent = String(compareList.length);
-    } else {
-      bar.hidden = true;
-    }
-  }
-
-  window.prCompareClear = function() {
-    compareList = [];
-    document.querySelectorAll('.pr-compare-toggle.is-active').forEach(function(b) {
-      b.classList.remove('is-active');
-      b.setAttribute('aria-pressed', 'false');
-    });
-    updateCompareBar();
-  };
-
-  window.prCompareOpen = function() {
-    var modal = document.getElementById('prCompareModal');
-    var body = document.getElementById('prCompareModalBody');
-    if (!modal || !body) return;
-
-    if (compareList.length < 2) {
-      body.innerHTML = '<div class="pr-compare-empty">Selectează cel puțin 2 mașini pentru comparație.</div>';
-    } else {
-      var grid = document.createElement('div');
-      grid.className = 'pr-compare-grid cols-' + compareList.length;
-
-      // Collect all spec keys union
-      var allKeys = {};
-      compareList.forEach(function(c) {
-        Object.keys(c.specs).forEach(function(k) { allKeys[k] = true; });
-      });
-      var keyList = Object.keys(allKeys);
-
-      compareList.forEach(function(car) {
-        var col = document.createElement('div');
-        col.className = 'pr-compare-car';
-
-        var html = '';
-        if (car.img) {
-          html += '<img class="pr-compare-car-img" src="' + escapeHtml(car.img) + '" alt="' + escapeHtml(car.name) + '" loading="lazy">';
-        }
-        html += '<h3 class="pr-compare-car-title">' + escapeHtml(car.name) + '</h3>';
-        if (car.price) {
-          html += '<span class="pr-compare-car-price">' + escapeHtml(car.price) + '</span>';
-        }
-        if (keyList.length > 0) {
-          html += '<ul class="pr-compare-car-specs">';
-          keyList.forEach(function(k) {
-            var v = car.specs[k] || '—';
-            html += '<li><span class="pr-spec-label">' + escapeHtml(k) + '</span><span class="pr-spec-value">' + escapeHtml(v) + '</span></li>';
-          });
-          html += '</ul>';
-        }
-        if (car.bookHref && car.bookHref !== '#') {
-          html += '<a href="' + escapeHtml(car.bookHref) + '" class="pr-compare-car-cta">Vezi detalii <i class="fa fa-arrow-right" aria-hidden="true"></i></a>';
-        }
-        col.innerHTML = html;
-        grid.appendChild(col);
-      });
-      body.innerHTML = '';
-      body.appendChild(grid);
-    }
-
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-    // Focus close button for a11y
-    setTimeout(function() {
-      var closeBtn = modal.querySelector('.pr-compare-modal-close');
-      if (closeBtn) closeBtn.focus();
-    }, 100);
-  };
-
-  window.prCompareCloseModal = function() {
-    var modal = document.getElementById('prCompareModal');
-    if (!modal) return;
-    modal.hidden = true;
-    document.body.style.overflow = '';
-  };
-
-  function escapeHtml(s) {
-    if (s == null) return '';
-    return String(s).replace(/[&<>"']/g, function(c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-
-  // ESC closes modal
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      var modal = document.getElementById('prCompareModal');
-      if (modal && !modal.hidden) prCompareCloseModal();
-    }
-  });
-
-  // Inject toggles + restore active state — runs on every catalog re-render
-  function tryInject() {
-    injectCompareToggles();
-    // Restore "is-active" state for cards that are in compareList
-    if (compareList.length === 0) return;
-    document.querySelectorAll('.de-item.mb30, .de-item').forEach(function(card) {
-      var data = getCarDataFromCard(card);
-      if (!data) return;
-      var btn = card.querySelector('.pr-compare-toggle');
-      if (!btn) return;
-      var isInList = compareList.some(function(c) { return c.id === data.id; });
-      if (isInList && !btn.classList.contains('is-active')) {
-        btn.classList.add('is-active');
-        btn.setAttribute('aria-pressed', 'true');
-      } else if (!isInList && btn.classList.contains('is-active')) {
-        btn.classList.remove('is-active');
-        btn.setAttribute('aria-pressed', 'false');
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInject);
-  } else {
-    tryInject();
-  }
-
-  // MutationObserver — lives FOREVER, catches every catalog re-render
-  // (AJAX filter results, infinite scroll, sort changes, etc.)
-  var catalogContainer = document.getElementById('cars-catalog') ||
-                         document.querySelector('.cars-main-container') ||
-                         document.body;
-  if (catalogContainer && typeof MutationObserver !== 'undefined') {
-    var debounceTimer = null;
-    var mo = new MutationObserver(function(mutations) {
-      // Debounce — wait for batch of changes to settle
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(function() {
-        var hasNewCards = mutations.some(function(mut) {
-          return Array.from(mut.addedNodes).some(function(node) {
-            if (node.nodeType !== 1) return false;
-            return node.matches && (node.matches('.de-item') || node.querySelector('.de-item'));
-          });
-        });
-        if (hasNewCards) {
-          tryInject();
-          renderActiveChips();
-        }
-      }, 80);
-    });
-    mo.observe(catalogContainer, { childList: true, subtree: true });
-  }
-
-  // Backup: also re-inject on filter changes (in case observer misses something)
-  document.addEventListener('pr-filters-changed', function() {
-    setTimeout(tryInject, 200);
-    setTimeout(tryInject, 600);
-  });
-  document.addEventListener('change', function(e) {
-    if (e.target && e.target.matches && e.target.matches('input[type="checkbox"], input[type="radio"]')) {
-      setTimeout(tryInject, 250);
-    }
-  }, { passive: true });
-
-
-  /* ============================================================
-     PART 3 — MOBILE FILTER BOTTOM SHEET
-     Adds Apply/Cancel buttons. Existing toggleMobileFilter() handles open/close.
-     We add: snapshot before open, restore on cancel, footer injection, ESC handler.
-     ============================================================ */
-
-  var sheetSnapshot = null;
-
-  function captureFilterSnapshot() {
-    var content = document.querySelector('.mobile-filter-content');
-    if (!content) return null;
-    var snap = [];
-    content.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(cb, i) {
-      snap.push({ key: 'cb-' + i, checked: cb.checked });
-    });
-    content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])').forEach(function(inp, i) {
-      snap.push({ key: 'txt-' + i, value: inp.value });
-    });
-    return snap;
-  }
-
-  function restoreFilterSnapshot(snap) {
-    if (!snap) return;
-    var content = document.querySelector('.mobile-filter-content');
-    if (!content) return;
-    var cbs = content.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-    var txts = content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])');
-    snap.forEach(function(s) {
-      if (s.key.startsWith('cb-')) {
-        var idx = parseInt(s.key.slice(3), 10);
-        if (cbs[idx] && cbs[idx].checked !== s.checked) {
-          cbs[idx].checked = s.checked;
-          cbs[idx].dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      } else if (s.key.startsWith('txt-')) {
-        var i = parseInt(s.key.slice(4), 10);
-        if (txts[i]) txts[i].value = s.value;
-      }
-    });
-  }
-
-  function ensureMobileFilterFooter() {
-    /* SIMPLE strategy: just add Cancel button next to existing native Apply.
-       Don't clone, don't hide, don't replace. Existing applyMobileFilters()
-       works perfectly — just give it bottom-sticky layout via CSS class. */
-    var sidebar = document.querySelector('.mobile-filter-sidebar');
-    if (!sidebar) return;
-
-    /* Find the row containing the existing Apply button.
-       Markup: <div class="mt-3 d-grid"><button onclick="applyMobileFilters()">...</button></div>
-       OR similar. */
-    var origApply = sidebar.querySelector('button[onclick*="applyMobileFilters"]');
-    if (!origApply) return; // nothing to enhance
-
-    var actionRow = origApply.parentElement;
-    if (!actionRow) return;
-
-    /* Mark the row as our sticky footer */
-    actionRow.classList.add('pr-sticky-footer');
-
-    /* Remove duplicate Cancel buttons we may have added before */
-    actionRow.querySelectorAll('.pr-cancel-injected').forEach(function(el) { el.remove(); });
-
-    /* Inject Cancel button BEFORE Apply */
-    var cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.className = 'pr-mobile-filter-cancel pr-cancel-injected';
-    cancelBtn.textContent = 'Anulează';
-    cancelBtn.addEventListener('click', function() {
-      restoreFilterSnapshot(sheetSnapshot);
-      if (typeof window.toggleMobileFilter === 'function') {
-        window.toggleMobileFilter();
-      }
-      setTimeout(renderActiveChips, 200);
-    });
-    actionRow.insertBefore(cancelBtn, origApply);
-
-    /* Polish existing Apply button's class — keep its onclick intact */
-    origApply.classList.add('pr-mobile-filter-apply');
-  }
-
-  // Hook into existing toggleMobileFilter — capture snapshot on open
-  var originalToggle = window.toggleMobileFilter;
-  if (typeof originalToggle === 'function') {
-    window.toggleMobileFilter = function() {
-      var overlay = document.getElementById('mobile-filter-overlay');
-      var wasActive = overlay && overlay.classList.contains('active');
-
-      // Run original
-      var result = originalToggle.apply(this, arguments);
-
-      // After opening — capture snapshot, ensure footer present
-      setTimeout(function() {
-        if (overlay && overlay.classList.contains('active')) {
-          if (sheetSnapshot === null) {
-            sheetSnapshot = captureFilterSnapshot();
-          }
-          ensureMobileFilterFooter();
-        } else {
-          sheetSnapshot = null;  // reset when closed
-        }
-      }, 100);
-
-      return result;
-    };
-  }
 
   // Backdrop click closes
   document.addEventListener('click', function(e) {
