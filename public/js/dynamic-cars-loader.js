@@ -98,17 +98,34 @@ class DynamicCarsLoader {
         try {
           const carDetails = JSON.parse(selectedOption.getAttribute('data-car-details'));
           
+          // Build display name from API fields (display_name does not exist in response)
+          const displayName = `${carDetails.make_name || ''} ${carDetails.model_name || ''}`.trim()
+            || selectedOption.textContent;
+          
+          // Build proper image URL — handle full URLs (Supabase) AND relative paths
+          // (Same logic as openPriceCalculator in validation-booking.js)
+          let imageUrl;
+          if (carDetails.head_image) {
+            if (carDetails.head_image.startsWith('http')) {
+              imageUrl = carDetails.head_image;
+            } else {
+              imageUrl = (window.API_BASE_URL || '') + carDetails.head_image;
+            }
+          } else {
+            imageUrl = (window.API_BASE_URL || '') + '/uploads/placeholder.png';
+          }
+          
           // Update vehicle image
           const vehicleImage = document.getElementById('vehicle-image');
           if (vehicleImage) {
-            vehicleImage.src = carDetails.data_src || `${window.API_BASE_URL}/uploads/placeholder.png`;
-            vehicleImage.alt = carDetails.display_name;
+            vehicleImage.src = imageUrl;
+            vehicleImage.alt = displayName;
           }
           
           // Update vehicle name
           const vehicleName = document.getElementById('vehicle-name');
           if (vehicleName) {
-            vehicleName.textContent = carDetails.display_name;
+            vehicleName.textContent = displayName;
           }
           
           // Update vehicle details
@@ -206,4 +223,4 @@ if (document.readyState !== 'loading') {
 }
 
 // Export for use in other scripts
-window.DynamicCarsLoader = DynamicCarsLoader; 
+window.DynamicCarsLoader = DynamicCarsLoader;
