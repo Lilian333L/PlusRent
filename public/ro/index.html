@@ -1513,8 +1513,8 @@ section[aria-label="Flota auto disponibila"] .de-marquee-list {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  -webkit-animation: pr-marquee-loop 40s linear infinite;
-  animation: pr-marquee-loop 40s linear infinite;
+  -webkit-animation: pr-marquee-loop 25s linear infinite;
+  animation: pr-marquee-loop 25s linear infinite;
   will-change: transform;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -1590,6 +1590,78 @@ section[aria-label="Flota auto disponibila"] {
   section[aria-label="Flota auto disponibila"] .de-marquee-list {
     -webkit-animation: none !important;
     animation: none !important;
+  }
+}
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   A11Y + MOBILE PERF — global enhancements
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. :focus-visible — visible keyboard focus (gold ring on dark/light) ── */
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible,
+.radio-option:focus-visible,
+.lang-option:focus-visible {
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+  border-radius: 6px;
+}
+/* Skip link — already styled, ensure visible focus */
+.pr-skip-link:focus,
+.pr-skip-link:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 0;
+}
+
+/* ── 2. touch-action: manipulation — removes 300ms tap delay on iOS Safari ── */
+button,
+a,
+[role="button"],
+.lang-option,
+.radio-option,
+.car-card,
+.hero-scroll-cta,
+.call-now-btn,
+.contact-popup-option,
+.btn-main,
+.btn-primary,
+.btn-secondary,
+.pr-submit-btn,
+.btn-close-calc,
+input[type="submit"],
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"] {
+  touch-action: manipulation;
+}
+
+/* ── 3. prefers-reduced-motion — extended global coverage ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Allow critical UI feedback (focus rings) to remain instant */
+  *:focus-visible {
+    transition: none !important;
   }
 }
 </style>
@@ -1693,15 +1765,15 @@ section[aria-label="Flota auto disponibila"] {
                       </svg>
                     </button>
                     <ul id="langDropdown" class="lang-picker-dropdown" tabindex="-1">
-                      <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img
+                      <li class="lang-option" data-lang="ro" tabindex="0"><span class="lang-flag"><img loading="lazy" decoding="async"
                             src="/images/flags/romania.png" alt="Drapel Romania"
                             style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
                           class="lang-code">RO</span></li>
-                      <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img
+                      <li class="lang-option" data-lang="en" tabindex="0"><span class="lang-flag"><img loading="lazy" decoding="async"
                             src="/images/flags/united-kingdom.png" alt="Drapel Marea Britanie"
                             style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
                           class="lang-code">EN</span></li>
-                      <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img
+                      <li class="lang-option" data-lang="ru" tabindex="0"><span class="lang-flag"><img loading="lazy" decoding="async"
                             src="/images/flags/russia.png" alt="Drapel Rusia"
                             style="width: 20px; height: 15px; border-radius: 2px; object-fit: cover;"></span> <span
                           class="lang-code">RU</span></li>
@@ -2517,10 +2589,10 @@ section[aria-label="Flota auto disponibila"] {
                     <i class="fa fa-heart"></i><span>${car.likes || 0}</span>
                   </div>
                   <div class="d-atr-group">
-                    <span class="d-atr"><img src="/images/icons/1-green.svg" alt="Pasageri"><span></span> ${car.num_passengers || '-'}</span>
-                    <span class="d-atr"><img src="/images/icons/fuel-green.svg" alt="Combustibil"><span></span> ${fuelType}</span>
-                    <span class="d-atr"><img src="/images/icons/transmission.svg" alt="Transmisie">${gearType}</span>
-                    <span class="d-atr"><img src="/images/icons/4-green.svg" alt="Tip Masina"><span></span> ${carType}</span>
+                    <span class="d-atr"><img src="/images/icons/1-green.svg" loading="lazy" decoding="async" alt="Pasageri"><span></span> ${car.num_passengers || '-'}</span>
+                    <span class="d-atr"><img src="/images/icons/fuel-green.svg" loading="lazy" decoding="async" alt="Combustibil"><span></span> ${fuelType}</span>
+                    <span class="d-atr"><img src="/images/icons/transmission.svg" loading="lazy" decoding="async" alt="Transmisie">${gearType}</span>
+                    <span class="d-atr"><img src="/images/icons/4-green.svg" loading="lazy" decoding="async" alt="Tip Masina"><span></span> ${carType}</span>
                   </div>
                   <div class="d-price">
                     <span data-i18n="cars.daily_rate">Tarif Zilnic de la</span>
