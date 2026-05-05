@@ -1546,19 +1546,24 @@ footer .subfooter { background: var(--pr-dark) !important; }
   letter-spacing: 0.1px !important;
   white-space: nowrap !important;
   border-radius: 999px !important;
-  box-shadow: 0 3px 10px rgba(245,158,11,0.30) !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.20) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.20) !important;
   transition: var(--pr-t-base) !important;
   position: relative !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
   -webkit-tap-highlight-color: transparent !important;
+  filter: none !important;
 }
 .call-now-btn:hover {
   background: linear-gradient(135deg, var(--pr-gold-dark) 0%, var(--pr-gold-darker) 100%) !important;
-  box-shadow: 0 5px 14px rgba(245,158,11,0.40) !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25) !important;
   transform: translateY(-1px) !important;
 }
+/* Defensive: prevent any inherited glow filters */
+.call-now-wrapper, .call-now-btn { filter: none !important; }
+.call-now-wrapper::before, .call-now-wrapper::after,
+.call-now-btn::before, .call-now-btn::after { display: none !important; content: none !important; }
 .call-now-btn i { font-size: 11px !important; }
 @media (min-width: 1200px) {
   .call-now-btn { padding: 0 16px !important; font-size: 14px !important; }
@@ -2045,6 +2050,31 @@ footer .subfooter { background: var(--pr-dark) !important; }
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+  /* === FILTER SIDEBAR — narrower (more room for cars) === */
+  @media (min-width: 992px) {
+    .cars-main-container .col-lg-3.small-sidebar {
+      flex: 0 0 240px !important;
+      max-width: 240px !important;
+    }
+    .cars-main-container .col-lg-3.small-sidebar + [class*="col-"],
+    .cars-main-container .col-lg-3.small-sidebar ~ [class*="col-"] {
+      flex: 1 !important;
+      max-width: calc(100% - 240px) !important;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 991px) {
+    .cars-main-container .col-md-4.small-sidebar {
+      flex: 0 0 220px !important;
+      max-width: 220px !important;
+    }
+    .cars-main-container .col-md-4.small-sidebar + [class*="col-"],
+    .cars-main-container .col-md-4.small-sidebar ~ [class*="col-"] {
+      flex: 1 !important;
+      max-width: calc(100% - 220px) !important;
+    }
+  }
+
 </style>
 </head>
 
@@ -2215,15 +2245,11 @@ footer .subfooter { background: var(--pr-dark) !important; }
                 <span data-i18n="cars.filters">Filtre</span>
                 <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Șterge tot</a>
               </div>
-              <hr class="filter-divider">
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_date_range">Interval Date</h6>
-                <div class="date-range-filter">
+              <details class="pr-filter-section" open><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_date_range">Interval Date</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div class="date-range-filter">
                   <div class="date-input-wrapper">
                     <i class="fa fa-calendar"></i>
-                    <input type="text" id="filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from">
-                  </div>
+                    <input type="text" id="filter-date-from" placeholder="De la" readonly data-i18n-placeholder="cars.filter_date_from"></div></details>
                   <div class="date-input-wrapper">
                     <i class="fa fa-calendar"></i>
                     <input type="text" id="filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to">
@@ -2232,58 +2258,28 @@ footer .subfooter { background: var(--pr-dark) !important; }
               </div>
               <hr class="filter-divider">
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_make">Marcă</h6>
-                <div id="filter-make-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_make">Marcă</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-make-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_gear">Transmisie</h6>
-                <div id="filter-gear-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_gear">Transmisie</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-gear-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_fuel">Combustibil</h6>
-                <div id="filter-fuel-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_fuel">Combustibil</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-fuel-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_type">Tip</h6>
-                <div id="filter-type-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_type">Tip</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-type-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_doors">Uși</h6>
-                <div id="filter-doors-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_doors">Uși</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-doors-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_passengers">Pasageri</h6>
-                <div id="filter-passengers-options"></div>
-              </div>
-              <hr class="filter-divider">
+              <details class="pr-filter-section"><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_passengers">Pasageri</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div id="filter-passengers-options"></div></div></details>
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_price">Interval Preț</h6>
-                <div class="price-range-inputs">
+              <details class="pr-filter-section" open><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price">Interval Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div class="price-range-inputs">
                   <input type="number" id="filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
                   <div class="price-range-divider">—</div>
-                  <input type="number" id="filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
-                </div>
+                  <input type="number" id="filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to"></div></details>
               </div>
               <hr class="filter-divider">
 
-              <div class="filter-category">
-                <h6 class="filter-section-title" data-i18n="cars.filter_price_category">Categoria</h6>
-                <div class="filter-option-row">
+              <details class="pr-filter-section" open><summary class="pr-filter-summary"><span class="pr-filter-title-text" data-i18n="cars.filter_price_category">Categoria</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div class="pr-filter-body"><div class="filter-option-row">
                   <label><input type="radio" name="price-category" value="econom" id="price-category-econom">
-                    <span class="option-label" data-i18n="cars.filter_econom">Economy</span></label>
-                </div>
+                    <span class="option-label" data-i18n="cars.filter_econom">Economy</span></label></div></details>
                 <div class="filter-option-row">
                   <label><input type="radio" name="price-category" value="standard" id="price-category-standard">
                     <span class="option-label" data-i18n="cars.filter_standard">Standard</span></label>
@@ -2313,7 +2309,7 @@ footer .subfooter { background: var(--pr-dark) !important; }
                   <p class="mt-2 text-muted" data-i18n="cars.loading_filters">Se încarcă filtrele...</p>
                 </div>
                 <div id="mobile-filter-options" style="display: none;">
-                  <details class="pr-filter-section">
+                  <details class="pr-filter-section" open>
                     <summary class="pr-filter-summary"><span data-i18n="cars.filter_date_range" class="pr-filter-title-text">Interval Date</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
                     <div class="date-range-filter">
                       <div class="date-input-wrapper"><i class="fa fa-calendar"></i>
@@ -2322,13 +2318,13 @@ footer .subfooter { background: var(--pr-dark) !important; }
                         <input type="text" id="mobile-filter-date-to" placeholder="Până la" readonly data-i18n-placeholder="cars.filter_date_to"></div>
                     </div>
                   </details>
-                  <details class="pr-filter-section" open><summary class="pr-filter-summary"><span data-i18n="cars.filter_make" class="pr-filter-title-text">Marcă</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-make-options"></div></details>
+                  <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_make" class="pr-filter-title-text">Marcă</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-make-options"></div></details>
                   <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_gear" class="pr-filter-title-text">Transmisie</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-gear-options"></div></details>
                   <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_fuel" class="pr-filter-title-text">Combustibil</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-fuel-options"></div></details>
                   <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_type" class="pr-filter-title-text">Tip</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-type-options"></div></details>
                   <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_doors" class="pr-filter-title-text">Uși</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-doors-options"></div></details>
                   <details class="pr-filter-section"><summary class="pr-filter-summary"><span data-i18n="cars.filter_passengers" class="pr-filter-title-text">Pasageri</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary><div id="mobile-filter-passengers-options"></div></details>
-                  <details class="pr-filter-section">
+                  <details class="pr-filter-section" open>
                     <summary class="pr-filter-summary"><span data-i18n="cars.filter_price" class="pr-filter-title-text">Interval Preț</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
                     <div class="price-range-inputs">
                       <input type="number" id="mobile-filter-price-min" placeholder="De la" min="0" data-i18n-placeholder="cars.filter_price_from">
@@ -2336,7 +2332,7 @@ footer .subfooter { background: var(--pr-dark) !important; }
                       <input type="number" id="mobile-filter-price-max" placeholder="Până la" min="0" data-i18n-placeholder="cars.filter_price_to">
                     </div>
                   </details>
-                  <details class="pr-filter-section">
+                  <details class="pr-filter-section" open>
                     <summary class="pr-filter-summary"><span data-i18n="cars.filter_price_category" class="pr-filter-title-text">Categoria</span><span class="pr-filter-chevron" aria-hidden="true"></span></summary>
                     <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="econom" id="mobile-price-category-econom"><span class="option-label" data-i18n="cars.filter_econom">Economy</span></label></div>
                     <div class="filter-option-row"><label><input type="radio" name="mobile-price-category" value="standard" id="mobile-price-category-standard"><span class="option-label" data-i18n="cars.filter_standard">Standard</span></label></div>
