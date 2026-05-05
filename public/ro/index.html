@@ -1561,6 +1561,30 @@ section[aria-label="Flota auto disponibila"] {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   CLOSE-MODAL HOVER FIX — preserve vertical centering on hover
+   Bug: liquid-glass-theme.css line 215 sets transform:rotate(90deg) !important
+   on hover, which overrides indstyle.css default transform:translateY(-50%).
+   Result: button drops down 50% of its height when hovered.
+   Fix: re-apply translateY(-50%) alongside rotate.
+   ═══════════════════════════════════════════════════════════════ */
+.price-calculator-content .close-modal {
+  /* Default state — vertically center via top:50% + translateY(-50%) */
+  transform: translateY(-50%) !important;
+}
+.price-calculator-content .close-modal:hover {
+  /* Preserve centering, add rotate */
+  transform: translateY(-50%) rotate(90deg) !important;
+}
+.price-calculator-content .close-modal:active {
+  /* Click feedback — preserve centering, gentle scale */
+  transform: translateY(-50%) scale(0.94) !important;
+}
+.price-calculator-content .close-modal:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
 /* 7. Respect user's reduce-motion preference */
 @media (prefers-reduced-motion: reduce) {
   section[aria-label="Flota auto disponibila"] .de-marquee-list {
