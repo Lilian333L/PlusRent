@@ -3978,6 +3978,53 @@ function openMapsOnMobileCars(event, address) {
     if (mobileSidebar) chipsObserver.observe(mobileSidebar, { childList: true, subtree: true });
   });
 
+  /* === BULLETPROOF filter-clear hover via inline styles with !important === */
+  /* Inline style + !important beats any CSS rule. Used as final fallback */
+  /* against external CSS we can't fully override via specificity. */
+  function setupFilterClearHover() {
+    var btn = document.getElementById('clear-filters-link');
+    if (!btn || btn.dataset.prHoverWired) return;
+    btn.dataset.prHoverWired = '1';
+
+    function applyState(isActive) {
+      // Set on button itself
+      if (isActive) {
+        btn.style.setProperty('color', '#1C1917', 'important');
+        btn.style.setProperty('background', 'rgba(245, 158, 11, 0.18)', 'important');
+        btn.style.setProperty('border-color', 'rgba(245, 158, 11, 0.55)', 'important');
+      } else {
+        btn.style.setProperty('color', '#57534e', 'important');
+        btn.style.setProperty('background', 'transparent', 'important');
+        btn.style.setProperty('border-color', 'rgba(28, 25, 23, 0.12)', 'important');
+      }
+      // Force ALL children (spans, icons) to inherit the same color
+      var children = btn.querySelectorAll('*');
+      children.forEach(function(el) {
+        if (el.tagName === 'I' && isActive) {
+          el.style.setProperty('color', '#d97706', 'important'); // gold-dark icon on hover
+        } else {
+          el.style.setProperty('color', isActive ? '#1C1917' : '#57534e', 'important');
+        }
+      });
+    }
+
+    // Initial state
+    applyState(false);
+
+    // Hover/focus events — bulletproof against any external CSS
+    btn.addEventListener('mouseenter', function() { applyState(true); });
+    btn.addEventListener('mouseleave', function() { applyState(false); });
+    btn.addEventListener('focus',      function() { applyState(true); });
+    btn.addEventListener('blur',       function() { applyState(false); });
+    btn.addEventListener('touchstart', function() { applyState(true); }, { passive: true });
+    btn.addEventListener('touchend',   function() { setTimeout(function() { applyState(false); }, 150); }, { passive: true });
+  }
+
+  document.addEventListener('DOMContentLoaded', setupFilterClearHover);
+  /* Also run after delay (in case button is created dynamically) */
+  setTimeout(setupFilterClearHover, 500);
+  setTimeout(setupFilterClearHover, 1500);
+
 })();
 </script>
 
