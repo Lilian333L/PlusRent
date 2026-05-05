@@ -2945,7 +2945,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function onPhoneChange() {
-    // Save valid phones to localStorage
     try {
       if (isValidPhone(phoneInput.value)) {
         localStorage.setItem(PHONE_KEY, phoneInput.value);
@@ -2957,8 +2956,6 @@ document.addEventListener('DOMContentLoaded', function() {
   phoneInput.addEventListener('change', onPhoneChange);
   phoneInput.addEventListener('blur',   onPhoneChange);
 
-  // Multi-pass validation — covers DOMContentLoaded race conditions and
-  // browser autofill timing (autofill often happens after DOMContentLoaded)
   updateSubmitState();
   setTimeout(updateSubmitState, 100);
   setTimeout(updateSubmitState, 500);
@@ -3074,8 +3071,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalDetails = document.getElementById('modal-vehicle-details');
         const modalYear = document.getElementById('modal-vehicle-year');
         
-        if (vehicleImage && modalImage && vehicleImage.src && vehicleImage.src !== window.location.href) {
-          modalImage.src = vehicleImage.src;
+        // ── Robust check: only copy src if it's a REAL image URL ──
+        // <img src=""> resolves to document URL — don't copy that to modal
+        // Document URL with or without hash should both be excluded
+        if (vehicleImage && modalImage) {
+          var rawVehicleSrc = vehicleImage.getAttribute('src');
+          var docUrlNoHash = window.location.href.split('#')[0];
+          var isValidVehicleSrc = rawVehicleSrc && rawVehicleSrc.trim() !== ''
+                                  && vehicleImage.src
+                                  && vehicleImage.src !== window.location.href
+                                  && vehicleImage.src !== docUrlNoHash;
+          // Also: don't override modal image if modal already has a valid src
+          // (validation-booking.js openPriceCalculator sets modal-vehicle-image
+          // directly from carDetails.head_image — that's authoritative)
+          var rawModalSrc = modalImage.getAttribute('src');
+          var modalHasValidSrc = rawModalSrc && rawModalSrc.trim() !== ''
+                                 && modalImage.src
+                                 && modalImage.src !== window.location.href
+                                 && modalImage.src !== docUrlNoHash;
+          if (isValidVehicleSrc && !modalHasValidSrc) {
+            modalImage.src = vehicleImage.src;
+          }
         }
         
         if (vehicleName && modalName && vehicleName.textContent.trim()) {
