@@ -1666,6 +1666,403 @@ input[type="radio"] {
 }
 </style>
 
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   COUNTRY PICKER + PHONE FORMATTER + INLINE ERROR
+   Premium internationalized phone input with searchable country dropdown
+   ═══════════════════════════════════════════════════════════════ */
+
+.pr-phone-with-picker {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.pr-phone-with-picker .form-control {
+  flex: 1;
+  min-width: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+  padding-left: 12px;
+  padding-right: 38px;
+}
+
+/* Country pill (clickable, opens dropdown) */
+.pr-country-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  min-height: 48px;
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-right: 1px solid #e7e5e4;
+  border-radius: 12px 0 0 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1C1917;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.pr-country-pill:hover {
+  background: #fafaf8;
+  border-color: #f59e0b;
+  z-index: 1;
+}
+.pr-country-pill[aria-expanded="true"] {
+  background: #fafaf8;
+  border-color: #f59e0b;
+  z-index: 2;
+}
+.pr-cp-flag {
+  font-size: 1.25rem;
+  line-height: 1;
+  display: inline-block;
+  filter: saturate(1.05);
+}
+.pr-cp-code {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: #44403C;
+}
+.pr-cp-arrow {
+  width: 10px;
+  height: 6px;
+  color: #78716c;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.pr-country-pill[aria-expanded="true"] .pr-cp-arrow {
+  transform: rotate(180deg);
+  color: #f59e0b;
+}
+
+/* Dropdown panel */
+.pr-country-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px -8px rgba(28, 25, 23, 0.18), 0 4px 12px -2px rgba(28, 25, 23, 0.08);
+  overflow: hidden;
+  animation: prCountryDropdownIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 100%;
+}
+.pr-country-dropdown[hidden] { display: none; }
+
+@keyframes prCountryDropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pr-cd-search-wrap {
+  position: relative;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid #f5f5f4;
+  background: linear-gradient(180deg, #fafaf8 0%, #fff 100%);
+}
+.pr-cd-search-icon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #a8a29e;
+  pointer-events: none;
+}
+.pr-cd-search {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid #e7e5e4;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.pr-cd-search:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.pr-cd-search::placeholder { color: #a8a29e; }
+
+.pr-cd-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+.pr-cd-list::-webkit-scrollbar { width: 6px; }
+.pr-cd-list::-webkit-scrollbar-track { background: transparent; }
+.pr-cd-list::-webkit-scrollbar-thumb { background: #e7e5e4; border-radius: 3px; }
+.pr-cd-list::-webkit-scrollbar-thumb:hover { background: #d6d3d1; }
+
+.pr-cd-section-label {
+  padding: 8px 12px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a8a29e;
+  user-select: none;
+}
+
+.pr-cd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+.pr-cd-item:hover,
+.pr-cd-item.is-active {
+  background: #fafaf8;
+}
+.pr-cd-item.is-selected {
+  background: rgba(245, 158, 11, 0.08);
+}
+.pr-cd-item-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.pr-cd-item-name {
+  flex: 1;
+  color: #1C1917;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pr-cd-item-dial {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #78716c;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.pr-cd-item.is-selected .pr-cd-item-dial {
+  color: #d97706;
+}
+
+.pr-cd-no-results {
+  padding: 24px 16px;
+  text-align: center;
+  color: #a8a29e;
+  font-size: 0.9rem;
+}
+
+/* Inline phone error message */
+.pr-phone-error {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0 4px;
+  font-size: 0.82rem;
+  color: #b91c1c;
+  font-weight: 500;
+  line-height: 1.4;
+  animation: prErrorSlideIn 0.2s ease-out;
+}
+.pr-phone-error[hidden] { display: none; }
+@keyframes prErrorSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile: full-width dropdown, larger touch targets */
+@media (max-width: 575px) {
+  .pr-country-dropdown {
+    position: fixed;
+    inset: auto 12px 12px 12px;
+    top: auto;
+    max-height: 70vh;
+    border-radius: 16px;
+    z-index: 1000;
+  }
+  .pr-cd-list { max-height: 50vh; }
+  .pr-cd-item { padding: 12px 10px; font-size: 1rem; }
+  .pr-cp-flag { font-size: 1.4rem; }
+}
+
+/* Backdrop for mobile when dropdown is open */
+.pr-country-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 999;
+  animation: prBackdropIn 0.2s ease;
+  display: none;
+}
+.pr-country-backdrop.is-active { display: block; }
+@keyframes prBackdropIn { from { opacity: 0 } to { opacity: 1 } }
+@media (min-width: 576px) {
+  .pr-country-backdrop { display: none !important; }
+}
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   FINAL POLISH — car card hover, section dividers, view transitions
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Car card hover refinement (premium feel) ── */
+.fleet-car-grid > div:not(.pr-skeleton-card) > div,
+.car-card,
+[id="fleet-car-grid"] [class*="col-"] {
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.32s ease;
+}
+
+#fleet-car-grid > [class*="col-"]:hover > * {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px -12px rgba(28, 25, 23, 0.14),
+              0 8px 16px -4px rgba(28, 25, 23, 0.06),
+              0 0 0 1px rgba(245, 158, 11, 0.25);
+}
+
+/* Car image inside card — subtle scale on hover */
+#fleet-car-grid > [class*="col-"] img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+#fleet-car-grid > [class*="col-"]:hover img {
+  transform: scale(1.04);
+}
+
+/* ── 2. Section dividers — gold accent between major sections ── */
+.pr-section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+.pr-section-divider::before,
+.pr-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #e7e5e4 50%, transparent 100%);
+}
+.pr-section-divider-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+  color: #fff;
+  flex-shrink: 0;
+}
+.pr-section-divider-icon svg {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 575px) {
+  .pr-section-divider { padding: 16px 12px; }
+}
+
+/* ── 3. View Transitions API (modern Chrome/Edge — graceful fallback) ── */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: pr-vt-fade-out 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+::view-transition-new(root) {
+  animation: pr-vt-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes pr-vt-fade-out {
+  to { opacity: 0; }
+}
+@keyframes pr-vt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── 4. Trust micro-badges — small badges to build confidence ── */
+.pr-micro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b45309;
+  white-space: nowrap;
+  line-height: 1;
+}
+.pr-micro-badge svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.pr-micro-badge.pr-mb-secure {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.22);
+  color: #047857;
+}
+.pr-trust-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+@media (max-width: 575px) {
+  .pr-micro-badge { font-size: 0.72rem; padding: 5px 10px; }
+}
+
+/* ── 5. Submit hint with secure badge ── */
+.pr-submit-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 8px;
+}
+
+/* ── 6. Pulse animation for hero pills numbers when scrolled into view ── */
+.pr-count-up.is-counting {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+</style>
+
 </head>
 <body>
   <!-- Skip to main content (keyboard + screen-reader a11y) -->
@@ -1811,7 +2208,7 @@ input[type="radio"] {
                 <span class="pill"><i class="fa fa-check-circle"></i><span>RCA inclus</span></span>
                 <span class="pill"><i class="fa fa-bolt"></i><span>Fara avans</span></span>
                 <span class="pill"><i class="fa fa-clock-o"></i><span>Livrare 24/7</span></span>
-                <span class="pill"><i class="fa fa-star"></i><span>5.0 ★ Google (30+)</span></span>
+                <span class="pill"><i class="fa fa-star"></i><span><span class="pr-count-up" data-count-to="5.0" data-count-decimals="1">5.0</span> ★ Google (<span class="pr-count-up" data-count-to="30">30</span>+)</span></span>
               </div>
               <a href="#section-cars" class="hero-scroll-cta" aria-label="Vezi flota de mașini">
                 <span class="hero-scroll-cta-text">Vezi mașinile</span>
@@ -1922,9 +2319,22 @@ input[type="radio"] {
                         </div>
                       </div>
                       <div class="col-lg-12">
-                        <div class="field-set pr-phone-wrap">
-                          <input type="tel" name="phone" id="phone" class="form-control" placeholder="Telefonul Tău *" data-i18n-placeholder="booking.phone_placeholder" autocomplete="tel" required aria-label="Telefonul Tău" inputmode="tel">
+                        <div class="field-set pr-phone-wrap pr-phone-with-picker">
+                          <button type="button" class="pr-country-pill" id="prCountryPill" aria-haspopup="listbox" aria-expanded="false" aria-label="Selectează țara">
+                            <span class="pr-cp-flag" aria-hidden="true">🇲🇩</span>
+                            <span class="pr-cp-code">+373</span>
+                            <svg class="pr-cp-arrow" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,2 6,6 10,2"/></svg>
+                          </button>
+                          <input type="tel" name="phone" id="phone" class="form-control" placeholder="60 000 500" data-i18n-placeholder="booking.phone_placeholder" autocomplete="tel" required aria-label="Telefonul Tău" inputmode="tel">
                           <span class="pr-phone-check" aria-hidden="true">✓</span>
+                          <div class="pr-country-dropdown" id="prCountryDropdown" role="listbox" aria-labelledby="prCountryPill" hidden>
+                            <div class="pr-cd-search-wrap">
+                              <svg class="pr-cd-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                              <input type="text" class="pr-cd-search" id="prCountrySearch" placeholder="Caută țară..." autocomplete="off" aria-label="Caută țară">
+                            </div>
+                            <div class="pr-cd-list" id="prCountryList" role="presentation"></div>
+                          </div>
+                          <small class="pr-phone-error" id="phoneError" aria-live="polite" hidden></small>
                         </div>
                       </div>
 
@@ -1955,6 +2365,20 @@ input[type="radio"] {
                             <button type='submit' id='send_message' class="btn-main btn-fullwidth pr-submit-btn" disabled
                               data-i18n="booking.submit"><span class="pr-submit-label"><i class="fa fa-paper-plane"></i> Trimite Rezervarea</span><span class="pr-submit-loading" aria-hidden="true"><span class="pr-spinner"></span> Se trimite...</span></button>
                           </p>
+                          <div class="pr-trust-badges-row" aria-hidden="true">
+                            <span class="pr-micro-badge pr-mb-secure">
+                              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>
+                              SSL securizat
+                            </span>
+                            <span class="pr-micro-badge">
+                              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1l6 3v4c0 4-2.5 6-6 7-3.5-1-6-3-6-7V4z"/><path d="M5 8l2 2 4-4"/></svg>
+                              RCA inclus
+                            </span>
+                            <span class="pr-micro-badge">
+                              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2.5 1.5"/></svg>
+                              Răspuns 24/7
+                            </span>
+                          </div>
                           <p class="pr-submit-hint" id="pr-submit-hint">Introduceți numărul de telefon pentru a trimite rezervarea</p>
                         </div>
                       </div>
@@ -3590,5 +4014,363 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   ob.observe(document.body, { childList: true, subtree: true });
 })();
-</script></body>
+</script><script>
+// ═══════════════════════════════════════════════════════════════
+// COUNTRY PICKER + PHONE FORMATTER (JS Module)
+// Full ISO 3166-1 country list with dial codes
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  'use strict';
+
+  const COUNTRIES = [
+    ['Afganistan','AF','+93','🇦🇫'],['Africa de Sud','ZA','+27','🇿🇦'],['Albania','AL','+355','🇦🇱'],
+    ['Algeria','DZ','+213','🇩🇿'],['Andorra','AD','+376','🇦🇩'],['Angola','AO','+244','🇦🇴'],
+    ['Anguilla','AI','+1264','🇦🇮'],['Antigua și Barbuda','AG','+1268','🇦🇬'],['Arabia Saudită','SA','+966','🇸🇦'],
+    ['Argentina','AR','+54','🇦🇷'],['Armenia','AM','+374','🇦🇲'],['Aruba','AW','+297','🇦🇼'],
+    ['Australia','AU','+61','🇦🇺'],['Austria','AT','+43','🇦🇹'],['Azerbaidjan','AZ','+994','🇦🇿'],
+    ['Bahamas','BS','+1242','🇧🇸'],['Bahrain','BH','+973','🇧🇭'],['Bangladesh','BD','+880','🇧🇩'],
+    ['Barbados','BB','+1246','🇧🇧'],['Belarus','BY','+375','🇧🇾'],['Belgia','BE','+32','🇧🇪'],
+    ['Belize','BZ','+501','🇧🇿'],['Benin','BJ','+229','🇧🇯'],['Bermuda','BM','+1441','🇧🇲'],
+    ['Bhutan','BT','+975','🇧🇹'],['Bolivia','BO','+591','🇧🇴'],['Bosnia și Herțegovina','BA','+387','🇧🇦'],
+    ['Botswana','BW','+267','🇧🇼'],['Brazilia','BR','+55','🇧🇷'],['Brunei','BN','+673','🇧🇳'],
+    ['Bulgaria','BG','+359','🇧🇬'],['Burkina Faso','BF','+226','🇧🇫'],['Burundi','BI','+257','🇧🇮'],
+    ['Cambodgia','KH','+855','🇰🇭'],['Camerun','CM','+237','🇨🇲'],['Canada','CA','+1','🇨🇦'],
+    ['Capul Verde','CV','+238','🇨🇻'],['Cehia','CZ','+420','🇨🇿'],['Chile','CL','+56','🇨🇱'],
+    ['China','CN','+86','🇨🇳'],['Cipru','CY','+357','🇨🇾'],['Columbia','CO','+57','🇨🇴'],
+    ['Comore','KM','+269','🇰🇲'],['Congo','CG','+242','🇨🇬'],['Congo (RDC)','CD','+243','🇨🇩'],
+    ['Coreea de Nord','KP','+850','🇰🇵'],['Coreea de Sud','KR','+82','🇰🇷'],['Costa Rica','CR','+506','🇨🇷'],
+    ['Coasta de Fildeș','CI','+225','🇨🇮'],['Croația','HR','+385','🇭🇷'],['Cuba','CU','+53','🇨🇺'],
+    ['Curaçao','CW','+599','🇨🇼'],['Danemarca','DK','+45','🇩🇰'],['Djibouti','DJ','+253','🇩🇯'],
+    ['Dominica','DM','+1767','🇩🇲'],['Ecuador','EC','+593','🇪🇨'],['Egipt','EG','+20','🇪🇬'],
+    ['El Salvador','SV','+503','🇸🇻'],['Elveția','CH','+41','🇨🇭'],['Emiratele Arabe Unite','AE','+971','🇦🇪'],
+    ['Eritrea','ER','+291','🇪🇷'],['Estonia','EE','+372','🇪🇪'],['Etiopia','ET','+251','🇪🇹'],
+    ['Eswatini','SZ','+268','🇸🇿'],['Falkland (Insulele)','FK','+500','🇫🇰'],['Feroe (Insulele)','FO','+298','🇫🇴'],
+    ['Fiji','FJ','+679','🇫🇯'],['Filipine','PH','+63','🇵🇭'],['Finlanda','FI','+358','🇫🇮'],
+    ['Franța','FR','+33','🇫🇷'],['Gabon','GA','+241','🇬🇦'],['Gambia','GM','+220','🇬🇲'],
+    ['Georgia','GE','+995','🇬🇪'],['Germania','DE','+49','🇩🇪'],['Ghana','GH','+233','🇬🇭'],
+    ['Gibraltar','GI','+350','🇬🇮'],['Grecia','GR','+30','🇬🇷'],['Grenada','GD','+1473','🇬🇩'],
+    ['Groenlanda','GL','+299','🇬🇱'],['Guadelupa','GP','+590','🇬🇵'],['Guam','GU','+1671','🇬🇺'],
+    ['Guatemala','GT','+502','🇬🇹'],['Guernsey','GG','+44','🇬🇬'],['Guineea','GN','+224','🇬🇳'],
+    ['Guineea Ecuatorială','GQ','+240','🇬🇶'],['Guineea-Bissau','GW','+245','🇬🇼'],['Guyana','GY','+592','🇬🇾'],
+    ['Haiti','HT','+509','🇭🇹'],['Honduras','HN','+504','🇭🇳'],['Hong Kong','HK','+852','🇭🇰'],
+    ['India','IN','+91','🇮🇳'],['Indonezia','ID','+62','🇮🇩'],['Iordania','JO','+962','🇯🇴'],
+    ['Irak','IQ','+964','🇮🇶'],['Iran','IR','+98','🇮🇷'],['Irlanda','IE','+353','🇮🇪'],
+    ['Islanda','IS','+354','🇮🇸'],['Israel','IL','+972','🇮🇱'],['Italia','IT','+39','🇮🇹'],
+    ['Jamaica','JM','+1876','🇯🇲'],['Japonia','JP','+81','🇯🇵'],['Jersey','JE','+44','🇯🇪'],
+    ['Kazahstan','KZ','+7','🇰🇿'],['Kenya','KE','+254','🇰🇪'],['Kîrgîzstan','KG','+996','🇰🇬'],
+    ['Kiribati','KI','+686','🇰🇮'],['Kosovo','XK','+383','🇽🇰'],['Kuweit','KW','+965','🇰🇼'],
+    ['Laos','LA','+856','🇱🇦'],['Lesotho','LS','+266','🇱🇸'],['Letonia','LV','+371','🇱🇻'],
+    ['Liban','LB','+961','🇱🇧'],['Liberia','LR','+231','🇱🇷'],['Libia','LY','+218','🇱🇾'],
+    ['Liechtenstein','LI','+423','🇱🇮'],['Lituania','LT','+370','🇱🇹'],['Luxemburg','LU','+352','🇱🇺'],
+    ['Macao','MO','+853','🇲🇴'],['Macedonia de Nord','MK','+389','🇲🇰'],['Madagascar','MG','+261','🇲🇬'],
+    ['Malaezia','MY','+60','🇲🇾'],['Malawi','MW','+265','🇲🇼'],['Maldive','MV','+960','🇲🇻'],
+    ['Mali','ML','+223','🇲🇱'],['Malta','MT','+356','🇲🇹'],['Maroc','MA','+212','🇲🇦'],
+    ['Marshall (Insulele)','MH','+692','🇲🇭'],['Martinica','MQ','+596','🇲🇶'],['Mauritania','MR','+222','🇲🇷'],
+    ['Mauritius','MU','+230','🇲🇺'],['Mayotte','YT','+262','🇾🇹'],['Mexic','MX','+52','🇲🇽'],
+    ['Micronezia','FM','+691','🇫🇲'],['Moldova','MD','+373','🇲🇩'],['Monaco','MC','+377','🇲🇨'],
+    ['Mongolia','MN','+976','🇲🇳'],['Muntenegru','ME','+382','🇲🇪'],['Mozambic','MZ','+258','🇲🇿'],
+    ['Myanmar','MM','+95','🇲🇲'],['Namibia','NA','+264','🇳🇦'],['Nauru','NR','+674','🇳🇷'],
+    ['Nepal','NP','+977','🇳🇵'],['Nicaragua','NI','+505','🇳🇮'],['Niger','NE','+227','🇳🇪'],
+    ['Nigeria','NG','+234','🇳🇬'],['Niue','NU','+683','🇳🇺'],['Norvegia','NO','+47','🇳🇴'],
+    ['Noua Caledonie','NC','+687','🇳🇨'],['Noua Zeelandă','NZ','+64','🇳🇿'],['Oman','OM','+968','🇴🇲'],
+    ['Pakistan','PK','+92','🇵🇰'],['Palau','PW','+680','🇵🇼'],['Palestina','PS','+970','🇵🇸'],
+    ['Panama','PA','+507','🇵🇦'],['Papua Noua Guinee','PG','+675','🇵🇬'],['Paraguay','PY','+595','🇵🇾'],
+    ['Peru','PE','+51','🇵🇪'],['Polinezia Franceză','PF','+689','🇵🇫'],['Polonia','PL','+48','🇵🇱'],
+    ['Portugalia','PT','+351','🇵🇹'],['Porto Rico','PR','+1','🇵🇷'],['Qatar','QA','+974','🇶🇦'],
+    ['Regatul Unit','GB','+44','🇬🇧'],['Republica Centrafricană','CF','+236','🇨🇫'],['Republica Dominicană','DO','+1','🇩🇴'],
+    ['Reunion','RE','+262','🇷🇪'],['România','RO','+40','🇷🇴'],['Rusia','RU','+7','🇷🇺'],
+    ['Rwanda','RW','+250','🇷🇼'],['Samoa','WS','+685','🇼🇸'],['Samoa Americană','AS','+1684','🇦🇸'],
+    ['San Marino','SM','+378','🇸🇲'],['Sao Tome și Principe','ST','+239','🇸🇹'],['Senegal','SN','+221','🇸🇳'],
+    ['Serbia','RS','+381','🇷🇸'],['Seychelles','SC','+248','🇸🇨'],['Sierra Leone','SL','+232','🇸🇱'],
+    ['Singapore','SG','+65','🇸🇬'],['Siria','SY','+963','🇸🇾'],['Slovacia','SK','+421','🇸🇰'],
+    ['Slovenia','SI','+386','🇸🇮'],['Solomon (Insulele)','SB','+677','🇸🇧'],['Somalia','SO','+252','🇸🇴'],
+    ['Spania','ES','+34','🇪🇸'],['Sri Lanka','LK','+94','🇱🇰'],['Statele Unite','US','+1','🇺🇸'],
+    ['Sudan','SD','+249','🇸🇩'],['Sudan de Sud','SS','+211','🇸🇸'],['Suedia','SE','+46','🇸🇪'],
+    ['Surinam','SR','+597','🇸🇷'],['Tadjikistan','TJ','+992','🇹🇯'],['Taiwan','TW','+886','🇹🇼'],
+    ['Tanzania','TZ','+255','🇹🇿'],['Thailanda','TH','+66','🇹🇭'],['Timorul de Est','TL','+670','🇹🇱'],
+    ['Togo','TG','+228','🇹🇬'],['Tonga','TO','+676','🇹🇴'],['Trinidad și Tobago','TT','+1868','🇹🇹'],
+    ['Tunisia','TN','+216','🇹🇳'],['Turcia','TR','+90','🇹🇷'],['Turkmenistan','TM','+993','🇹🇲'],
+    ['Tuvalu','TV','+688','🇹🇻'],['Uganda','UG','+256','🇺🇬'],['Ucraina','UA','+380','🇺🇦'],
+    ['Ungaria','HU','+36','🇭🇺'],['Uruguay','UY','+598','🇺🇾'],['Uzbekistan','UZ','+998','🇺🇿'],
+    ['Vanuatu','VU','+678','🇻🇺'],['Vatican','VA','+39','🇻🇦'],['Venezuela','VE','+58','🇻🇪'],
+    ['Vietnam','VN','+84','🇻🇳'],['Yemen','YE','+967','🇾🇪'],['Zambia','ZM','+260','🇿🇲'],
+    ['Zimbabwe','ZW','+263','🇿🇼'],['Țările de Jos','NL','+31','🇳🇱']
+  ].map(c => ({name: c[0], code: c[1], dial: c[2], flag: c[3]}));
+
+  const POPULAR_CODES = ['MD', 'RO', 'RU', 'UA', 'IT', 'DE', 'FR', 'GB', 'US', 'IL', 'TR', 'BG'];
+  const STORAGE_KEY = 'pr_user_country';
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const pill = document.getElementById('prCountryPill');
+    const flagEl = pill && pill.querySelector('.pr-cp-flag');
+    const codeEl = pill && pill.querySelector('.pr-cp-code');
+    const dropdown = document.getElementById('prCountryDropdown');
+    const search = document.getElementById('prCountrySearch');
+    const list = document.getElementById('prCountryList');
+    const phoneInput = document.getElementById('phone');
+    const errorEl = document.getElementById('phoneError');
+    if (!pill || !dropdown || !search || !list || !phoneInput) return;
+
+    let backdrop = document.querySelector('.pr-country-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.className = 'pr-country-backdrop';
+      document.body.appendChild(backdrop);
+    }
+
+    let currentCountry = COUNTRIES.find(c => c.code === 'MD');
+    try {
+      const savedCode = localStorage.getItem(STORAGE_KEY);
+      if (savedCode) {
+        const found = COUNTRIES.find(c => c.code === savedCode);
+        if (found) currentCountry = found;
+      }
+    } catch (e) {}
+
+    function setCountry(country, persist) {
+      const oldCountry = currentCountry;
+      currentCountry = country;
+      flagEl.textContent = country.flag;
+      codeEl.textContent = country.dial;
+      pill.setAttribute('aria-label', 'Selectează țara: ' + country.name + ' ' + country.dial);
+
+      const currentVal = phoneInput.value.replace(/\s+/g, '');
+      const oldDialDigits = oldCountry.dial.replace(/\D/g, '');
+
+      let localDigits = currentVal.replace(/^\+/, '');
+      if (localDigits.startsWith(oldDialDigits)) {
+        localDigits = localDigits.slice(oldDialDigits.length);
+      }
+
+      if (localDigits.length > 0) {
+        const grouped = localDigits.match(/.{1,3}/g) || [];
+        phoneInput.value = country.dial + ' ' + grouped.join(' ');
+      } else {
+        phoneInput.value = '';
+      }
+      phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+      if (persist !== false) {
+        try { localStorage.setItem(STORAGE_KEY, country.code); } catch (e) {}
+      }
+    }
+
+    function renderList(filter) {
+      const f = (filter || '').toLowerCase().trim();
+      let html = '';
+
+      function renderItem(c) {
+        const selected = c.code === currentCountry.code ? ' is-selected' : '';
+        return '<div class="pr-cd-item' + selected + '" role="option" data-code="' + c.code + '" tabindex="0">' +
+               '<span class="pr-cd-item-flag">' + c.flag + '</span>' +
+               '<span class="pr-cd-item-name">' + c.name + '</span>' +
+               '<span class="pr-cd-item-dial">' + c.dial + '</span></div>';
+      }
+
+      if (!f) {
+        const popular = POPULAR_CODES.map(code => COUNTRIES.find(c => c.code === code)).filter(Boolean);
+        html += '<div class="pr-cd-section-label">Frecvent folosite</div>';
+        popular.forEach(c => { html += renderItem(c); });
+        html += '<div class="pr-cd-section-label">Toate țările</div>';
+        COUNTRIES.forEach(c => { html += renderItem(c); });
+      } else {
+        const matches = COUNTRIES.filter(c =>
+          c.name.toLowerCase().includes(f) ||
+          c.dial.includes(f) ||
+          c.code.toLowerCase().includes(f) ||
+          c.dial.replace('+', '').includes(f.replace('+', ''))
+        );
+        if (matches.length === 0) {
+          html = '<div class="pr-cd-no-results">Nicio țară găsită</div>';
+        } else {
+          matches.forEach(c => { html += renderItem(c); });
+        }
+      }
+      list.innerHTML = html;
+
+      list.querySelectorAll('.pr-cd-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const code = this.dataset.code;
+          const country = COUNTRIES.find(c => c.code === code);
+          if (country) {
+            setCountry(country);
+            close();
+            phoneInput.focus();
+          }
+        });
+        item.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        });
+      });
+    }
+
+    function open() {
+      dropdown.hidden = false;
+      pill.setAttribute('aria-expanded', 'true');
+      backdrop.classList.add('is-active');
+      renderList('');
+      if (window.innerWidth > 575) {
+        setTimeout(() => search.focus(), 50);
+      }
+      setTimeout(() => {
+        const sel = list.querySelector('.is-selected');
+        if (sel) sel.scrollIntoView({ block: 'nearest' });
+      }, 0);
+    }
+
+    function close() {
+      dropdown.hidden = true;
+      pill.setAttribute('aria-expanded', 'false');
+      backdrop.classList.remove('is-active');
+      search.value = '';
+    }
+
+    pill.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (dropdown.hidden) open();
+      else close();
+    });
+
+    search.addEventListener('input', function() {
+      renderList(this.value);
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !dropdown.hidden) {
+        e.preventDefault();
+        close();
+        pill.focus();
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!dropdown.hidden &&
+          !dropdown.contains(e.target) &&
+          !pill.contains(e.target)) {
+        close();
+      }
+    });
+
+    backdrop.addEventListener('click', close);
+
+    // ─ Phone formatter + inline error ─
+    function formatPhoneAsTyped() {
+      const raw = phoneInput.value.replace(/\D/g, '');
+      if (!raw) return;
+
+      const dialDigits = currentCountry.dial.replace(/\D/g, '');
+      let local = raw;
+      if (raw.startsWith(dialDigits)) {
+        local = raw.slice(dialDigits.length);
+      }
+
+      const grouped = local.match(/.{1,3}/g) || [];
+      const formatted = currentCountry.dial + (grouped.length ? ' ' + grouped.join(' ') : '');
+
+      if (phoneInput.value !== formatted) {
+        phoneInput.value = formatted;
+      }
+    }
+
+    function showError(msg) {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    function hideError() {
+      if (errorEl) errorEl.hidden = true;
+    }
+
+    function validatePhoneInline() {
+      const digits = phoneInput.value.replace(/\D/g, '');
+      const dialDigits = currentCountry.dial.replace(/\D/g, '');
+      const localOnly = digits.startsWith(dialDigits) ? digits.slice(dialDigits.length) : digits;
+
+      if (digits.length === 0 || digits === dialDigits) {
+        hideError();
+        return false;
+      }
+      if (localOnly.length < 6) {
+        showError('Numărul trebuie să aibă cel puțin 6 cifre după prefix');
+        return false;
+      }
+      if (localOnly.length > 12) {
+        showError('Numărul are prea multe cifre');
+        return false;
+      }
+      hideError();
+      return true;
+    }
+
+    let formatTimeout;
+    phoneInput.addEventListener('input', function() {
+      clearTimeout(formatTimeout);
+      formatTimeout = setTimeout(formatPhoneAsTyped, 100);
+    });
+    phoneInput.addEventListener('blur', function() {
+      formatPhoneAsTyped();
+      validatePhoneInline();
+    });
+    phoneInput.addEventListener('focus', hideError);
+
+    setCountry(currentCountry, false);
+
+    setTimeout(() => {
+      if (phoneInput.value) {
+        formatPhoneAsTyped();
+      }
+    }, 200);
+  });
+})();
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// COUNT-UP ANIMATION — animates numbers when scrolled into view
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.pr-count-up');
+    if (!elements.length) return;
+
+    const animate = (el) => {
+      const target = parseFloat(el.dataset.countTo);
+      if (isNaN(target)) return;
+      const decimals = parseInt(el.dataset.countDecimals || '0', 10);
+      const duration = 1400;
+      const startTime = performance.now();
+      el.classList.add('is-counting');
+
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out-cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = target * eased;
+        el.textContent = decimals > 0 ? value.toFixed(decimals) : Math.round(value);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.classList.remove('is-counting');
+      }
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.counted) {
+          entry.target.dataset.counted = '1';
+          animate(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5, rootMargin: '0px 0px -50px 0px' });
+
+    elements.forEach(el => observer.observe(el));
+  });
+})();
+</script>
+</body>
 </html>
