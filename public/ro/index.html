@@ -2911,6 +2911,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
   var phoneInput  = document.getElementById('phone');
+  var nameInput   = document.getElementById('name');
+  var emailInput  = document.getElementById('email');
   var phoneWrap   = phoneInput ? phoneInput.closest('.pr-phone-wrap') : null;
   var submitBtn   = document.getElementById('send_message');
   var submitHint  = document.getElementById('pr-submit-hint');
@@ -2921,6 +2923,21 @@ document.addEventListener('DOMContentLoaded', function() {
   function isValidPhone(v) {
     var digits = (v || '').replace(/\D+/g, '');
     return digits.length >= 8;
+  }
+
+  // ── PERSIST phone/name/email to localStorage so returning users see them ──
+  var STORAGE_KEYS = { phone: 'pr_user_phone', name: 'pr_user_name', email: 'pr_user_email' };
+  try {
+    var savedPhone = localStorage.getItem(STORAGE_KEYS.phone);
+    if (savedPhone && !phoneInput.value) phoneInput.value = savedPhone;
+    var savedName = localStorage.getItem(STORAGE_KEYS.name);
+    if (savedName && nameInput && !nameInput.value) nameInput.value = savedName;
+    var savedEmail = localStorage.getItem(STORAGE_KEYS.email);
+    if (savedEmail && emailInput && !emailInput.value) emailInput.value = savedEmail;
+  } catch(e) { /* localStorage may be blocked */ }
+
+  function persistField(key, val) {
+    try { if (val) localStorage.setItem(key, val); } catch(e) {}
   }
 
   function updateSubmitState() {
@@ -2936,10 +2953,29 @@ document.addEventListener('DOMContentLoaded', function() {
       if (submitHint) submitHint.classList.remove('is-hidden');
     }
   }
-  phoneInput.addEventListener('input',  updateSubmitState);
-  phoneInput.addEventListener('change', updateSubmitState);
-  phoneInput.addEventListener('blur',   updateSubmitState);
-  updateSubmitState(); // initial
+
+  function onPhoneChange() {
+    persistField(STORAGE_KEYS.phone, phoneInput.value);
+    updateSubmitState();
+  }
+  phoneInput.addEventListener('input',  onPhoneChange);
+  phoneInput.addEventListener('change', onPhoneChange);
+  phoneInput.addEventListener('blur',   onPhoneChange);
+
+  if (nameInput) {
+    nameInput.addEventListener('change', function() { persistField(STORAGE_KEYS.name, nameInput.value); });
+    nameInput.addEventListener('blur',   function() { persistField(STORAGE_KEYS.name, nameInput.value); });
+  }
+  if (emailInput) {
+    emailInput.addEventListener('change', function() { persistField(STORAGE_KEYS.email, emailInput.value); });
+    emailInput.addEventListener('blur',   function() { persistField(STORAGE_KEYS.email, emailInput.value); });
+  }
+
+  // Run validation NOW (with restored value) and again after autofill races
+  updateSubmitState();
+  setTimeout(updateSubmitState, 100);
+  setTimeout(updateSubmitState, 500);
+  setTimeout(updateSubmitState, 1500);
 
   // Loading state on submit (added BEFORE existing handlers via capture phase
   // so spinner shows immediately while AJAX/validation runs)
@@ -3141,6 +3177,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           };
           document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
+
+          // ESC key closes modal
+          window.priceCalculatorEscHandler = function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+              e.preventDefault();
+              closePriceCalculator();
+            }
+          };
+          document.addEventListener('keydown', window.priceCalculatorEscHandler);
         }
 
         syncVehicleDataToModal();
@@ -3150,29 +3195,123 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const vehicleSelect = document.getElementById('vehicle_type');
       if (vehicleSelect) {
+        // ── Persist selected vehicle so it survives page navigation/refresh ──
+        var VEHICLE_KEYS = {
+          id: 'pr_selected_vehicle_id',
+          image: 'pr_selected_vehicle_image',
+          name: 'pr_selected_vehicle_name',
+          details: 'pr_selected_vehicle_details',
+          price: 'pr_selected_vehicle_price'
+        };
+
+        function snapshotVehicle() {
+          var vehicleImage = document.getElementById('vehicle-image');
+          var vehicleName = document.getElementById('vehicle-name');
+          var vehicleDetails = document.getElementById('vehicle-details');
+          var vehiclePrice = document.getElementById('vehicle-price');
+
+          var snap = {};
+          if (vehicleSelect.value) snap.id = vehicleSelect.value;
+          if (vehicleImage && vehicleImage.src && vehicleImage.src !== window.location.href) snap.image = vehicleImage.src;
+          if (vehicleName && vehicleName.textContent.trim()) snap.name = vehicleName.textContent.trim();
+          if (vehicleDetails && vehicleDetails.textContent.trim()) snap.details = vehicleDetails.textContent.trim();
+          if (vehiclePrice && vehiclePrice.textContent.trim()) snap.price = vehiclePrice.textContent.trim();
+
+          // Cache to dataset (live-session) AND localStorage (cross-page)
+          if (snap.image) vehicleSelect.dataset.lastImage = snap.image;
+          if (snap.name) vehicleSelect.dataset.lastName = snap.name;
+          if (snap.details) vehicleSelect.dataset.lastDetails = snap.details;
+          if (snap.price) vehicleSelect.dataset.lastPrice = snap.price;
+
+          try {
+            if (snap.id) localStorage.setItem(VEHICLE_KEYS.id, snap.id);
+            if (snap.image) localStorage.setItem(VEHICLE_KEYS.image, snap.image);
+            if (snap.name) localStorage.setItem(VEHICLE_KEYS.name, snap.name);
+            if (snap.details) localStorage.setItem(VEHICLE_KEYS.details, snap.details);
+            if (snap.price) localStorage.setItem(VEHICLE_KEYS.price, snap.price);
+          } catch(e) {}
+        }
+
+        function restoreVehicleVisualsFromCache() {
+          // If image got blanked but we have cached image, restore it
+          var vehicleImage = document.getElementById('vehicle-image');
+          var vehicleName = document.getElementById('vehicle-name');
+          var vehicleDetails = document.getElementById('vehicle-details');
+          var vehiclePrice = document.getElementById('vehicle-price');
+          var info = document.getElementById('selected-vehicle-info');
+
+          var cachedImage   = vehicleSelect.dataset.lastImage   || (function(){ try { return localStorage.getItem(VEHICLE_KEYS.image)   || ''; } catch(e){ return ''; }})();
+          var cachedName    = vehicleSelect.dataset.lastName    || (function(){ try { return localStorage.getItem(VEHICLE_KEYS.name)    || ''; } catch(e){ return ''; }})();
+          var cachedDetails = vehicleSelect.dataset.lastDetails || (function(){ try { return localStorage.getItem(VEHICLE_KEYS.details) || ''; } catch(e){ return ''; }})();
+          var cachedPrice   = vehicleSelect.dataset.lastPrice   || (function(){ try { return localStorage.getItem(VEHICLE_KEYS.price)   || ''; } catch(e){ return ''; }})();
+
+          if (vehicleSelect.value) {
+            if (vehicleImage && (!vehicleImage.src || vehicleImage.src === window.location.href) && cachedImage) {
+              vehicleImage.src = cachedImage;
+            }
+            if (vehicleName && !vehicleName.textContent.trim() && cachedName) {
+              vehicleName.textContent = cachedName;
+            }
+            if (vehicleDetails && !vehicleDetails.textContent.trim() && cachedDetails) {
+              vehicleDetails.textContent = cachedDetails;
+            }
+            if (vehiclePrice && !vehiclePrice.textContent.trim() && cachedPrice) {
+              vehiclePrice.textContent = cachedPrice;
+            }
+            if (info && info.style.display === 'none' && (cachedImage || cachedName)) {
+              info.style.display = '';
+            }
+          }
+        }
+
+        function restoreVehicleSelection() {
+          // Wait for options to be populated (dynamic API load)
+          try {
+            var savedId = localStorage.getItem(VEHICLE_KEYS.id);
+            if (!savedId) return;
+            // Check if option exists
+            var opt = vehicleSelect.querySelector('option[value="' + savedId + '"]');
+            if (opt && vehicleSelect.value !== savedId) {
+              vehicleSelect.value = savedId;
+              vehicleSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          } catch(e) {}
+          // Then restore cached visuals as a defensive fallback
+          restoreVehicleVisualsFromCache();
+        }
+
         vehicleSelect.addEventListener('change', function() {
-          setTimeout(function() {
-            const vehicleImage = document.getElementById('vehicle-image');
-            const vehicleName = document.getElementById('vehicle-name');
-            const vehicleDetails = document.getElementById('vehicle-details');
-            const vehiclePrice = document.getElementById('vehicle-price');
-            
-            if (vehicleImage && vehicleImage.src) {
-              vehicleSelect.dataset.lastImage = vehicleImage.src;
-            }
-            if (vehicleName && vehicleName.textContent) {
-              vehicleSelect.dataset.lastName = vehicleName.textContent;
-            }
-            if (vehicleDetails && vehicleDetails.textContent) {
-              vehicleSelect.dataset.lastDetails = vehicleDetails.textContent;
-            }
-            if (vehiclePrice && vehiclePrice.textContent) {
-              vehicleSelect.dataset.lastPrice = vehiclePrice.textContent;
-            }
-          }, 600);
+          setTimeout(snapshotVehicle, 600);
+          // Also snapshot earlier in case external code resets things
+          setTimeout(snapshotVehicle, 50);
         });
+
+        // Watch for the image getting unexpectedly blanked → restore from cache
+        var vehicleImageEl = document.getElementById('vehicle-image');
+        if (vehicleImageEl && 'MutationObserver' in window) {
+          new MutationObserver(function() {
+            if ((!vehicleImageEl.src || vehicleImageEl.src === window.location.href) && vehicleSelect.value) {
+              restoreVehicleVisualsFromCache();
+            }
+          }).observe(vehicleImageEl, { attributes: true, attributeFilter: ['src'] });
+        }
+
+        // Restore on load (after API populates options) — multiple passes
+        setTimeout(restoreVehicleSelection, 200);
+        setTimeout(restoreVehicleSelection, 800);
+        setTimeout(restoreVehicleSelection, 2000);
+        setTimeout(restoreVehicleSelection, 4000);
+
+        // Also restore when user scrolls back to top (returns from #section-cars)
+        var lastRestoreCheck = 0;
+        window.addEventListener('scroll', function() {
+          var now = Date.now();
+          if (now - lastRestoreCheck < 500) return;
+          lastRestoreCheck = now;
+          if (window.scrollY < 600) restoreVehicleVisualsFromCache();
+        }, { passive: true });
       }
-      
+
     });
 </script>
 
@@ -3292,16 +3431,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('price-calculator-modal');
     if (modal) modal.style.display = 'none';
 
-    // ── RESTORE SCROLL: read top BEFORE clearing ──
-    const rawTop = document.body.style.top;           // "-500px"
-    const scrollY = rawTop ? Math.abs(parseInt(rawTop, 10)) : 0;
+    // ── RESTORE SCROLL: prefer dataset.scrollY, fallback to body.style.top ──
+    let scrollY = 0;
+    if (document.body.dataset.scrollY) {
+      scrollY = parseInt(document.body.dataset.scrollY, 10) || 0;
+    } else if (document.body.style.top) {
+      scrollY = Math.abs(parseInt(document.body.style.top, 10)) || 0;
+    }
 
-    // Clear body lock — only properties we set
+    // Clear body lock — only properties we set (defensive: clear all known locks)
     document.body.style.position = '';
     document.body.style.top      = '';
     document.body.style.left     = '';
     document.body.style.right    = '';
     document.body.style.width    = '';
+    document.body.style.overflow = '';
+    delete document.body.dataset.scrollY;
+
+    // Also clear documentElement (html) in case anything locked it
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.position = '';
 
     // Remove event listeners
     if (window.priceCalculatorWheelHandler) {
@@ -3311,6 +3460,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.priceCalculatorKeyHandler) {
       document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
       window.priceCalculatorKeyHandler = null;
+    }
+    if (window.priceCalculatorEscHandler) {
+      document.removeEventListener('keydown', window.priceCalculatorEscHandler);
+      window.priceCalculatorEscHandler = null;
     }
 
     // ── RESTORE SCROLL SYNCHRONOUSLY ──
