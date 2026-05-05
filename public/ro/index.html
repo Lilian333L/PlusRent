@@ -2923,6 +2923,13 @@ document.addEventListener('DOMContentLoaded', function() {
     return digits.length >= 8;
   }
 
+  // ── PERSIST phone to localStorage so returning users see it pre-filled ──
+  var PHONE_KEY = 'pr_user_phone';
+  try {
+    var savedPhone = localStorage.getItem(PHONE_KEY);
+    if (savedPhone && !phoneInput.value) phoneInput.value = savedPhone;
+  } catch(e) { /* localStorage may be blocked */ }
+
   function updateSubmitState() {
     var ok = isValidPhone(phoneInput.value);
     if (phoneWrap) phoneWrap.classList.toggle('is-valid', ok);
@@ -2936,10 +2943,26 @@ document.addEventListener('DOMContentLoaded', function() {
       if (submitHint) submitHint.classList.remove('is-hidden');
     }
   }
-  phoneInput.addEventListener('input',  updateSubmitState);
-  phoneInput.addEventListener('change', updateSubmitState);
-  phoneInput.addEventListener('blur',   updateSubmitState);
-  updateSubmitState(); // initial
+
+  function onPhoneChange() {
+    // Save valid phones to localStorage
+    try {
+      if (isValidPhone(phoneInput.value)) {
+        localStorage.setItem(PHONE_KEY, phoneInput.value);
+      }
+    } catch(e) {}
+    updateSubmitState();
+  }
+  phoneInput.addEventListener('input',  onPhoneChange);
+  phoneInput.addEventListener('change', onPhoneChange);
+  phoneInput.addEventListener('blur',   onPhoneChange);
+
+  // Multi-pass validation — covers DOMContentLoaded race conditions and
+  // browser autofill timing (autofill often happens after DOMContentLoaded)
+  updateSubmitState();
+  setTimeout(updateSubmitState, 100);
+  setTimeout(updateSubmitState, 500);
+  setTimeout(updateSubmitState, 1500);
 
   // Loading state on submit (added BEFORE existing handlers via capture phase
   // so spinner shows immediately while AJAX/validation runs)
