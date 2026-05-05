@@ -1008,12 +1008,57 @@ a.text-primary, .price-summary-compact .text-primary,
   color: var(--pr-gold-dark) !important;
 }
 
-/* Premium badge */
+/* === HOT BADGE — luxury black with gold accent (overrides external CSS) === */
+.de-item .premium-badge,
+.de-item.premium .premium-badge,
+.cars-main-container .premium-badge,
 .premium-badge {
-  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
-  color: var(--pr-black) !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.5px;
+  position: absolute !important;
+  top: 12px !important;
+  left: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
+  color: #f59e0b !important;
+  font-family: 'Sora', sans-serif !important;
+  font-size: 0.66rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.4px !important;
+  text-transform: uppercase !important;
+  padding: 6px 11px 6px 9px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(0, 0, 0, 0.10) inset !important;
+  z-index: 5 !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.20);
+  line-height: 1 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Beat external ::before star (replace with our own gold star, visible on dark bg) */
+.de-item .premium-badge::before,
+.cars-main-container .premium-badge::before,
+.premium-badge::before {
+  content: '★' !important;
+  display: inline-block !important;
+  color: #f59e0b !important;
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+  margin: 0 2px 0 0 !important;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.55);
+  background: transparent !important;
+  border: none !important;
+  position: static !important;
+  padding: 0 !important;
+}
+.de-item .premium-badge::after,
+.premium-badge::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* ID-color (footer accent icons) → gold */
@@ -1711,23 +1756,7 @@ a.filter-clear:focus-visible {
   text-transform: none !important;
   border-bottom: 1px solid rgba(28,25,23,0.08);
 }
-.filter-clear {
-  font-size: 0.74rem !important;
-  font-weight: 500 !important;
-  color: #78716c !important;
-  cursor: pointer !important;
-  text-decoration: none !important;
-  letter-spacing: 0.4px !important;
-  text-transform: uppercase !important;
-  padding: 4px 8px !important;
-  border-radius: 6px;
-  transition: var(--pr-t-fast);
-}
-.filter-clear:hover {
-  color: var(--pr-gold-dark) !important;
-  background: var(--pr-gold-light);
-  text-decoration: none !important;
-}
+/* duplicate .filter-clear rule removed (use the strong override above) */
 .filter-sidebar hr.filter-divider { display: none !important; }
 
 /* Accordion sections */
@@ -2010,53 +2039,160 @@ input[type="radio"][name="mobile-price-category"] {
   }
 }
 
-/* === ACTIVE FILTER CHIPS (above grid) === */
+/* === ACTIVE FILTER CHIPS — premium polished, max UX === */
 .pr-active-chips {
-  display: flex; flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 14px;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px 0 !important;
+  padding: 14px 16px !important;
   align-items: center;
+  background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.20);
+  border-left: 3px solid var(--pr-gold) !important;
+  border-radius: 10px;
+  animation: chipsAppear 0.35s cubic-bezier(0,0,0.2,1);
 }
-.pr-active-chips:empty { display: none; }
+.pr-active-chips:empty,
+.pr-active-chips[hidden] {
+  display: none !important;
+}
+@keyframes chipsAppear {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Header label "Filtre Active:" before chips */
+.pr-active-chips::before {
+  content: 'Filtre Active';
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--pr-gold-dark);
+  margin-right: 4px;
+  padding-right: 12px;
+  border-right: 1px solid rgba(28, 25, 23, 0.12);
+}
+
 .pr-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 10px 6px 12px;
-  background: var(--pr-gold-light);
-  border: 1px solid var(--pr-gold-border);
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  background: #ffffff;
+  border: 1px solid rgba(28, 25, 23, 0.10);
   border-radius: 999px;
   font-family: 'Sora', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--pr-black);
   white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s cubic-bezier(0,0,0.2,1);
+  animation: chipIn 0.28s cubic-bezier(0,0,0.2,1) backwards;
 }
-.pr-chip-label { color: #57534e; font-weight: 500; }
-.pr-chip-value { color: var(--pr-black); font-weight: 600; }
-.pr-chip-remove {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 18px;
-  background: rgba(28,25,23,0.08);
+.pr-chip:hover {
+  border-color: var(--pr-gold);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18);
+  transform: translateY(-1px);
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pr-chip-label {
+  color: #78716c;
+  font-weight: 500;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.pr-chip-value {
   color: var(--pr-black);
-  border: none; border-radius: 50%;
-  font-size: 11px; cursor: pointer; padding: 0;
-  transition: var(--pr-t-fast);
+  font-weight: 600;
+  font-size: 0.82rem;
 }
-.pr-chip-remove:hover { background: var(--pr-black); color: var(--pr-gold); }
+
+.pr-chip-remove {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(28, 25, 23, 0.06);
+  color: var(--pr-black);
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-chip-remove:hover {
+  background: var(--pr-black);
+  color: var(--pr-gold);
+  transform: rotate(90deg);
+}
+.pr-chip-remove:focus-visible {
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+
+/* "Șterge toate" chip — separated visually */
 .pr-chip-clear-all {
   font-family: 'Sora', sans-serif;
-  font-size: 0.78rem; font-weight: 500;
-  color: var(--pr-gold-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #78716c;
   background: transparent;
-  border: 1px dashed rgba(28,25,23,0.30);
+  border: 1px dashed rgba(28, 25, 23, 0.25);
   border-radius: 999px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   cursor: pointer;
-  transition: var(--pr-t-fast);
+  letter-spacing: 0.3px;
+  margin-left: auto;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .pr-chip-clear-all:hover {
   background: var(--pr-black);
   border-color: var(--pr-black);
+  border-style: solid;
   color: var(--pr-gold);
+}
+.pr-chip-clear-all:focus-visible {
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+.pr-chip-clear-all i { font-size: 0.7rem; }
+
+/* Mobile: stack horizontally with scroll */
+@media (max-width: 575px) {
+  .pr-active-chips {
+    padding: 12px 14px !important;
+    gap: 6px;
+  }
+  .pr-active-chips::before {
+    flex-basis: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+    padding: 0 0 6px 0;
+    margin-bottom: 4px;
+  }
+  .pr-chip-clear-all { margin-left: 0; }
 }
 
 /* === SORT BAR === */
@@ -3695,6 +3831,53 @@ function openMapsOnMobileCars(event, address) {
         typeof window.toggleMobileFilter === 'function') {
       window.toggleMobileFilter();
     }
+  });
+
+  /* Wire up chip re-rendering on any filter change (defensive) */
+  function wireChipsHooks() {
+    var allInputs = document.querySelectorAll(
+      '.filter-sidebar input[type="checkbox"], ' +
+      '.filter-sidebar input[type="radio"], ' +
+      '#filter-date-from, #filter-date-to, ' +
+      '#filter-price-min, #filter-price-max, ' +
+      '#mobile-filter-overlay input[type="checkbox"], ' +
+      '#mobile-filter-overlay input[type="radio"], ' +
+      '#mobile-filter-date-from, #mobile-filter-date-to, ' +
+      '#mobile-filter-price-min, #mobile-filter-price-max'
+    );
+    allInputs.forEach(function(input) {
+      if (input.dataset.prChipHooked) return;
+      input.dataset.prChipHooked = '1';
+      input.addEventListener('change', function() { setTimeout(renderActiveChips, 30); });
+      input.addEventListener('input',  function() { setTimeout(renderActiveChips, 30); });
+    });
+  }
+  /* Also re-wire after each car list re-render (filters are dynamic) */
+  document.addEventListener('pr-filters-changed', function() { setTimeout(wireChipsHooks, 50); });
+  /* Initial + delayed init for dynamically rendered checkboxes */
+  document.addEventListener('DOMContentLoaded', function() {
+    wireChipsHooks();
+    setTimeout(wireChipsHooks, 500);
+    setTimeout(wireChipsHooks, 1500);
+    setTimeout(renderActiveChips, 1500);
+  });
+  /* Watch for new filter checkbox elements (renderSidebarOptions inserts them dynamically) */
+  var chipsObserver = new MutationObserver(function(mutations) {
+    var hasNewInputs = mutations.some(function(m) {
+      return Array.from(m.addedNodes).some(function(n) {
+        return n.nodeType === 1 && (n.matches && (n.matches('input') || n.querySelector('input')));
+      });
+    });
+    if (hasNewInputs) {
+      wireChipsHooks();
+      setTimeout(renderActiveChips, 30);
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.querySelector('.filter-sidebar');
+    var mobileSidebar = document.querySelector('#mobile-filter-overlay');
+    if (sidebar) chipsObserver.observe(sidebar, { childList: true, subtree: true });
+    if (mobileSidebar) chipsObserver.observe(mobileSidebar, { childList: true, subtree: true });
   });
 
 })();
