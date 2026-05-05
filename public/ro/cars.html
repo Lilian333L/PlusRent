@@ -726,39 +726,198 @@ body.cars-listing-page { background: #fafafa; }
   }
 }
 
-/* Filter sidebar internal — luxury polish */
+/* === FILTER SIDEBAR — compact premium redesign === */
 .filter-sidebar {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 18px 16px;
-  box-shadow: 0 2px 12px -2px rgba(28,25,23,0.08), 0 0 0 1px rgba(28,25,23,0.04);
+  border-radius: 12px;
+  padding: 4px 0;
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04), 0 0 0 1px rgba(28, 25, 23, 0.06);
   border-top: 3px solid var(--pr-gold);
+  font-size: 0.875rem;
 }
+
+/* Header row: "Filtre" + "Șterge tot" */
 .filter-title {
-  display: flex; align-items: center; justify-content: space-between;
-  font-weight: 800; color: var(--pr-black);
-  font-size: 1.05rem; padding-bottom: 10px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-weight: 700 !important;
+  color: var(--pr-black) !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.2px !important;
+  padding: 14px 16px 10px !important;
+  margin: 0 !important;
+  text-transform: none !important;
+  border-bottom: 1px solid rgba(28, 25, 23, 0.06);
 }
 .filter-clear {
-  font-size: 0.82rem; font-weight: 600;
-  color: var(--pr-gold-dark) !important;
-  cursor: pointer;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: #78716c !important;
+  cursor: pointer !important;
   text-decoration: none !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  padding: 2px 0;
 }
 .filter-clear:hover {
-  color: var(--pr-gold-darker) !important;
+  color: var(--pr-gold-dark) !important;
   text-decoration: underline !important;
 }
-.filter-section-title {
-  font-weight: 700; color: var(--pr-black);
-  font-size: 0.88rem; letter-spacing: 0.3px;
-  text-transform: uppercase; margin-bottom: 10px;
+
+/* Each filter category */
+.filter-category {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(28, 25, 23, 0.05);
 }
+.filter-category:last-of-type {
+  border-bottom: none;
+}
+
+/* Section title — small, lowercase, weight 600 */
+.filter-section-title {
+  font-weight: 600 !important;
+  color: #44403c !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 8px !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Hide the old <hr> dividers — borders on .filter-category replace them */
 .filter-divider {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(28,25,23,0.10) 30%, rgba(28,25,23,0.10) 70%, transparent 100%);
-  margin: 14px 0;
+  display: none !important;
+}
+
+/* Date range inputs — compact stacked */
+.date-range-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.date-input-wrapper {
+  position: relative;
+}
+.date-input-wrapper i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a8a29e;
+  font-size: 12px;
+  pointer-events: none;
+}
+.date-input-wrapper input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 30px;
+  border: 1px solid rgba(28, 25, 23, 0.12);
+  border-radius: 8px;
+  background: #fafaf9;
+  font-size: 0.82rem;
+  color: var(--pr-black);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.date-input-wrapper input:hover,
+.date-input-wrapper input:focus {
+  background: #ffffff;
+  border-color: var(--pr-gold);
+  outline: none;
+}
+
+/* Filter option rows (checkbox lists) */
+.filter-category > div[id$="-options"] > div,
+.filter-option-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  margin: 0;
+  cursor: pointer;
+  transition: padding 0.18s;
+  position: relative;
+}
+.filter-category > div[id$="-options"] > div:hover {
+  padding-left: 4px;
+}
+.filter-category > div[id$="-options"] > div label,
+.filter-option-row label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0 !important;
+  width: 100%;
+  font-weight: 500;
+  color: #292524;
+  font-size: 0.875rem;
+}
+.filter-category input[type="checkbox"],
+.filter-category input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--pr-gold);
+  flex-shrink: 0;
+}
+.filter-category .option-label {
+  flex: 1;
+  user-select: none;
+}
+
+/* Count badges (the gold pills with numbers like "2", "1" next to options) */
+.filter-category .filter-count,
+.filter-category > div[id$="-options"] > div > span:last-child:not(.option-label),
+.filter-category > div[id$="-options"] > div .badge {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #78716c !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  min-width: auto !important;
+  text-align: right !important;
+  line-height: 1 !important;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Price input inputs */
+.price-range-filter {
+  display: flex;
+  gap: 6px;
+}
+.price-range-filter input[type="number"] {
+  flex: 1;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid rgba(28, 25, 23, 0.12);
+  border-radius: 8px;
+  background: #fafaf9;
+  font-size: 0.82rem;
+  color: var(--pr-black);
+  text-align: center;
+}
+.price-range-filter input[type="number"]:focus {
+  outline: none;
+  border-color: var(--pr-gold);
+  background: #ffffff;
+}
+
+/* Sort dropdown row above grid — compact luxury */
+.cars-main-container .row.mb-2,
+.cars-main-container .row.mb-3 {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px !important;
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.04), 0 0 0 1px rgba(28, 25, 23, 0.06);
 }
 
 /* Mobile filter button — luxury black + gold (single stick-out CTA at top) */
@@ -825,6 +984,28 @@ body.cars-listing-page { background: #fafafa; }
   }
 }
 
+
+
+/* === CARS GRID polish === */
+.cars-main-container .row.gx-4,
+.cars-main-container .row.car-list-row {
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 1.25rem;
+}
+@media (max-width: 575px) {
+  .cars-main-container .row.gx-4,
+  .cars-main-container .row.car-list-row {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+  }
+}
+
+/* Hide huge "ȘTERGE TOATE FILTRELE" big button if exists in markup */
+.filter-sidebar > button.btn-clear-all,
+.filter-sidebar > a.btn-clear-all {
+  display: none !important;
+}
+
 /* === Reduced motion === */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -838,8 +1019,11 @@ body.cars-listing-page { background: #fafafa; }
 
     /* === Sunați Acum — definitive base + responsive (no inline conflicts) === */
     .call-now-wrapper {
+      display: inline-flex;
+      align-items: center;
       align-self: center;
       flex-shrink: 0;
+      margin: 0;
     }
     .call-now-btn {
       display: inline-flex;
@@ -894,16 +1078,13 @@ body.cars-listing-page { background: #fafafa; }
    CATALOG UX UPGRADES (3 features)
    ============================================================ */
 
-/* === ACTIVE FILTER CHIPS — visible badges over the grid === */
+/* === ACTIVE FILTER CHIPS — minimal flat row === */
 .pr-active-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin: 0 0 14px;
-  padding: 10px 14px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 12px;
+  padding: 0;
   align-items: center;
 }
 .pr-active-chips[hidden] { display: none; }
