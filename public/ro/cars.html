@@ -1628,37 +1628,76 @@ nav a.call-now-btn:hover {
   -webkit-text-fill-color: #f59e0b;
 }
 
-/* === FILTER CLEAR hover — readable colors (defensive against external white override) === */
-.filter-sidebar .filter-clear,
-.filter-sidebar a.filter-clear,
-a.filter-clear,
-#clear-filters-link {
-  font-size: 0.74rem !important;
-  font-weight: 500 !important;
-  color: #78716c !important;
+/* === FILTER CLEAR — ULTRA-strong override (beats external CSS) === */
+html body .filter-sidebar .filter-clear,
+html body .filter-sidebar button.filter-clear,
+html body .filter-sidebar a.filter-clear,
+html body button.filter-clear#clear-filters-link,
+html body a.filter-clear#clear-filters-link,
+html body #clear-filters-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: 'Sora', sans-serif !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #57534e !important;
   background: transparent !important;
   cursor: pointer !important;
   text-decoration: none !important;
-  letter-spacing: 0.4px !important;
+  letter-spacing: 0.3px !important;
   text-transform: uppercase !important;
-  padding: 4px 10px !important;
+  padding: 5px 10px !important;
   border-radius: 6px !important;
-  border: 1px solid transparent !important;
+  border: 1px solid rgba(28, 25, 23, 0.12) !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
   transition: color 0.18s, background 0.18s, border-color 0.18s !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
-.filter-sidebar .filter-clear:hover,
-.filter-sidebar a.filter-clear:hover,
-a.filter-clear:hover,
-#clear-filters-link:hover {
+html body .filter-sidebar .filter-clear i,
+html body #clear-filters-link i {
+  font-size: 0.78rem !important;
+  color: inherit !important;
+  margin: 0 !important;
+}
+html body .filter-sidebar .filter-clear .filter-clear-text,
+html body #clear-filters-link .filter-clear-text {
+  color: inherit !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+/* HOVER state — readable dark text on gold-tint, ULTRA specific */
+html body .filter-sidebar .filter-clear:hover,
+html body .filter-sidebar button.filter-clear:hover,
+html body .filter-sidebar a.filter-clear:hover,
+html body button.filter-clear#clear-filters-link:hover,
+html body a.filter-clear#clear-filters-link:hover,
+html body #clear-filters-link:hover {
   color: #1C1917 !important;
-  background: rgba(245, 158, 11, 0.12) !important;
-  border-color: rgba(245, 158, 11, 0.40) !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(245, 158, 11, 0.55) !important;
   text-decoration: none !important;
 }
-.filter-sidebar .filter-clear:focus-visible,
-a.filter-clear:focus-visible {
+html body .filter-sidebar .filter-clear:hover i,
+html body #clear-filters-link:hover i {
+  color: #d97706 !important;
+}
+html body .filter-sidebar .filter-clear:hover .filter-clear-text,
+html body #clear-filters-link:hover .filter-clear-text {
+  color: #1C1917 !important;
+}
+/* Focus accessibility */
+html body #clear-filters-link:focus-visible {
   outline: 2px solid var(--pr-gold) !important;
-  outline-offset: 2px;
+  outline-offset: 2px !important;
+}
+/* Defensive: kill any inherited link/button "color: white" or text-decoration */
+html body .filter-sidebar .filter-clear:active,
+html body #clear-filters-link:active {
+  color: #1C1917 !important;
+  background: rgba(245, 158, 11, 0.25) !important;
 }
 
 
@@ -1746,15 +1785,20 @@ a.filter-clear:focus-visible {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
   font-family: 'Sora', sans-serif !important;
   font-weight: 700 !important;
   font-size: 0.95rem !important;
   letter-spacing: -0.1px !important;
   color: var(--pr-black) !important;
-  padding: 14px 16px !important;
+  padding: 12px 14px !important;
   margin: 0 !important;
   text-transform: none !important;
   border-bottom: 1px solid rgba(28,25,23,0.08);
+}
+.filter-sidebar > .filter-title > span:first-child {
+  flex-shrink: 0;
 }
 /* duplicate .filter-clear rule removed (use the strong override above) */
 .filter-sidebar hr.filter-divider { display: none !important; }
@@ -2448,7 +2492,9 @@ input[type="radio"][name="mobile-price-category"] {
             <div class="filter-sidebar">
               <div class="filter-title">
                 <span data-i18n="cars.filters">Filtre</span>
-                <a class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear">Șterge tot</a>
+                <button type="button" class="filter-clear" id="clear-filters-link" data-i18n="cars.filter_clear_short" aria-label="Șterge toate filtrele" title="Resetează toate filtrele">
+                  <i class="fa fa-times-circle" aria-hidden="true"></i><span class="filter-clear-text">Resetează</span>
+                </button>
               </div>
 
               <details class="pr-filter-section" open>
