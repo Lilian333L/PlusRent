@@ -381,13 +381,31 @@ $(document).ready(function () {
       // Remove the modal from DOM after animation
       $(this).remove();
 
-      // Reset the form
+      // Reset the form (clears all input values: name, phone, email, message...)
       $("#booking_form")[0].reset();
       $("#total_price").val("0");
 
       // Clear any error states
       $(".error_input").removeClass("error_input");
       $(".field-error").remove();
+
+      // ── RESTORE persisted phone from localStorage so returning users keep it ──
+      // form.reset() clears the input AND does NOT fire 'input' event. The phone
+      // validation listener in index.html relies on 'input' to sync .is-valid /
+      // submit-disabled states. Without this, the checkmark + active button
+      // stay stale (showing "valid" state on an empty field).
+      try {
+        var phoneInput = document.getElementById("phone");
+        if (phoneInput) {
+          var savedPhone = localStorage.getItem("pr_user_phone");
+          if (savedPhone) {
+            phoneInput.value = savedPhone;
+          }
+          // Always fire input event so validation re-syncs (.is-valid + submit
+          // disabled state). If savedPhone exists → marks valid. If not → invalid.
+          phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      } catch (e) { /* localStorage may be blocked — graceful fallback */ }
     });
   };
 
@@ -1020,7 +1038,6 @@ function closePriceCalculator() {
   document.body.style.right    = "";
   document.body.style.width    = "";
   document.body.style.overflow = "";
-  // Also clear documentElement (html) in case anything locked it
   document.documentElement.style.overflow = "";
   if (document.body.dataset) delete document.body.dataset.scrollY;
 
@@ -1035,8 +1052,9 @@ function closePriceCalculator() {
     window.modalDatePicker = null;
   }
 
-  // Re-enable any disabled elements
-  $("button, input, select, textarea").prop("disabled", false);
+  // Re-enable any disabled elements (but DO NOT touch submit button — its disabled state
+  // is managed by phone validation listener; let updateSubmitState own it)
+  $("button:not(#send_message), input, select, textarea").prop("disabled", false);
 
   // Remove event listeners to prevent memory leaks
   $(document).off("keydown.modal");
