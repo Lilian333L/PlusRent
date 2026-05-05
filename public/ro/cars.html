@@ -610,7 +610,7 @@
 /* === HERO LUXURY === */
 #subheader {
   background: var(--pr-black) !important;
-  padding: 50px 0 30px;
+  padding: 70px 0 40px;
   position: relative;
   overflow: hidden;
 }
@@ -683,31 +683,15 @@ textarea:focus-visible, [role="button"]:focus-visible {
 }
 
 
-/* === BACK-TO-TOP — small 40×40 from global, positioned above floating contact === */
-/* Global style.css default: bottom -40px hidden, 15px shown (.show class).
-   Floating contact button sits at bottom:28px right:28px with 56×56 size.
-   We push back-to-top up so they don't overlap. */
+/* === BACK-TO-TOP — color tint only (shape comes from global style.css) === */
 #back-to-top {
   background: linear-gradient(135deg, #1C1917 0%, #292524 100%) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(245, 158, 11, 0.25) !important;
-  right: 28px !important;
-}
-#back-to-top.show {
-  bottom: 95px !important; /* sits above 56px floating contact + 28px gap = 95px */
-}
-#back-to-top::before {
+  border-color: rgba(245, 158, 11, 0.40) !important;
   color: #f59e0b !important;
 }
 #back-to-top:hover {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.40) !important;
-}
-#back-to-top:hover::before {
   color: #1C1917 !important;
-}
-@media (max-width: 768px) {
-  #back-to-top { right: 22px !important; }
-  #back-to-top.show { bottom: 84px !important; }
 }
 
 /* === Body bg === */
@@ -717,12 +701,26 @@ body.cars-listing-page { background: #fafafa; }
 /* === CATALOG UX — sticky filter sidebar (desktop), polished mobile filter btn === */
 
 /* Desktop: sticky filter sidebar — follows scroll, always reachable */
-/* Desktop sidebar — natural flow, no scroll, no sticky */
 @media (min-width: 768px) {
   .cars-main-container .small-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Scrollbar inside filter sidebar — gold accent */
+  .cars-main-container .small-sidebar::-webkit-scrollbar { width: 5px; }
+  .cars-main-container .small-sidebar::-webkit-scrollbar-track {
+    background: rgba(28,25,23,0.04);
+    border-radius: 10px;
+  }
+  .cars-main-container .small-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(245,158,11,0.45);
+    border-radius: 10px;
+  }
+  .cars-main-container .small-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(245,158,11,0.65);
   }
 }
 
@@ -800,29 +798,14 @@ body.cars-listing-page { background: #fafafa; }
 
 /* Reduce hero on cars page — catalog should be visible immediately */
 @media (min-width: 768px) {
-  #subheader { padding: 50px 0 30px !important; }
-  #subheader h1 {
-    font-size: clamp(1.4rem, 2.6vw, 1.85rem) !important;
-    margin-bottom: 6px !important;
-    line-height: 1.15 !important;
-  }
-  #subheader .lead {
-    font-size: clamp(0.85rem, 1.3vw, 0.95rem) !important;
-    margin-bottom: 0 !important;
-    opacity: 0.78;
-  }
+  #subheader { padding: 60px 0 36px !important; }
+  #subheader h1 { font-size: clamp(1.6rem, 3.2vw, 2.2rem); margin-bottom: 8px; }
+  #subheader .lead { font-size: clamp(0.92rem, 1.5vw, 1rem); margin-bottom: 0; }
 }
 @media (max-width: 767px) {
-  #subheader { padding: 36px 0 22px !important; }
-  #subheader h1 {
-    font-size: 1.25rem !important;
-    margin-bottom: 4px !important;
-    line-height: 1.2 !important;
-  }
-  #subheader .lead {
-    font-size: 0.82rem !important;
-    line-height: 1.4 !important;
-  }
+  #subheader { padding: 50px 0 26px !important; }
+  #subheader h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  #subheader .lead { font-size: 0.88rem; }
 }
 
 /* === Reduced motion === */
@@ -832,63 +815,33 @@ body.cars-listing-page { background: #fafafa; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
+  .cars-main-container .small-sidebar {
+    position: static !important;
+    max-height: none !important;
+  }
 }
 
 
-    /* === Sunați Acum — definitive base + responsive (no inline conflicts) === */
-    .call-now-wrapper {
-      align-self: center;
-      flex-shrink: 0;
-    }
-    .call-now-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 36px;
-      padding: 0 14px;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 13px;
-      letter-spacing: 0.1px;
-      white-space: nowrap;
-      border-radius: 999px;
-      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.30);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-      transition: transform 0.22s, box-shadow 0.22s, background 0.22s;
-      position: relative;
-      overflow: hidden;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .call-now-btn:hover {
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      box-shadow: 0 5px 14px rgba(245, 158, 11, 0.40);
-      transform: translateY(-1px);
-      color: #ffffff;
-      text-decoration: none;
-    }
-    .call-now-btn i { font-size: 11px; }
-
-    /* Wide desktop: slightly bigger */
-    @media (min-width: 1200px) {
-      .call-now-btn { padding: 0 16px; font-size: 14px; }
-    }
-
-    /* Mobile / tablet (<992px): icon-only circular */
+    /* === Sunați Acum — compact desktop, hidden mobile === */
     @media (max-width: 991px) {
-      .call-now-wrapper { margin-right: 6px; }
-      .call-now-btn {
-        width: 36px;
-        padding: 0;
-        gap: 0;
-        border-radius: 50%;
+      .call-now-wrapper { display: none !important; }
+    }
+    @media (min-width: 992px) {
+      .call-now-wrapper {
+        margin-right: 8px !important;
+        flex-shrink: 0 !important;
       }
-      .call-now-btn span[data-i18n="call_now"] { display: none; }
-      .call-now-btn i { font-size: 13px; }
+      .call-now-btn {
+        white-space: nowrap;
+        padding: 7px 14px !important;
+        font-size: 13px !important;
+        gap: 6px !important;
+      }
+      .call-now-btn i { font-size: 11px !important; }
+    }
+    /* On wide screens — bigger padding restored */
+    @media (min-width: 1200px) {
+      .call-now-btn { padding: 8px 16px !important; font-size: 14px !important; }
     }
 /* ============================================================
    CATALOG UX UPGRADES (3 features)
@@ -898,12 +851,9 @@ body.cars-listing-page { background: #fafafa; }
 .pr-active-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 14px;
-  padding: 10px 14px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 12px;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
   align-items: center;
 }
 .pr-active-chips[hidden] { display: none; }
@@ -1003,6 +953,395 @@ body.cars-listing-page { background: #fafafa; }
 }
 .pr-active-count.has-filters {
   display: inline-block;
+}
+
+/* === COMPARE TOGGLE — tiny circular icon, expands on hover/active === */
+.de-item .pr-compare-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(28, 25, 23, 0.12);
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: #57534e;
+  font-size: 14px;
+  overflow: hidden;
+}
+.de-item .pr-compare-toggle .pr-compare-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.22s;
+}
+.de-item .pr-compare-toggle .pr-compare-label {
+  display: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+/* Hover (desktop): expands to show label */
+@media (hover: hover) {
+  .de-item .pr-compare-toggle:hover {
+    width: auto;
+    padding: 0 12px 0 10px;
+    border-radius: 999px;
+    border-color: #f59e0b;
+    background: #ffffff;
+    color: #1C1917;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+  }
+  .de-item .pr-compare-toggle:hover .pr-compare-label {
+    display: inline;
+  }
+}
+
+/* Active (selected for comparison): luxury black + gold */
+.de-item .pr-compare-toggle.is-active {
+  width: auto;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
+}
+.de-item .pr-compare-toggle.is-active .pr-compare-label {
+  display: inline;
+}
+.de-item .pr-compare-toggle.is-active .pr-compare-icon {
+  transform: rotate(45deg);  /* ⊕ becomes × visually */
+}
+.de-item .pr-compare-toggle:focus-visible {
+  outline: 3px solid rgba(245, 158, 11, 0.55);
+  outline-offset: 2px;
+}
+
+/* === COMPARISON FLOATING BAR (bottom of viewport when 2+ selected) === */
+.pr-compare-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(140%);
+  z-index: 998;
+  width: calc(100% - 32px);
+  max-width: 560px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(245, 158, 11, 0.15);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s;
+  opacity: 0;
+}
+.pr-compare-bar:not([hidden]) {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.pr-compare-bar[hidden] { display: none !important; }
+
+.pr-compare-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.pr-compare-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 0.92rem;
+}
+.pr-compare-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  background: #f59e0b;
+  color: #1C1917;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.pr-compare-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+}
+
+.pr-compare-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pr-compare-clear,
+.pr-compare-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.22s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 40px;
+}
+
+.pr-compare-clear {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  color: rgba(255, 255, 255, 0.85);
+}
+.pr-compare-clear:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.50);
+}
+
+.pr-compare-go {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.30);
+}
+.pr-compare-go:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.40);
+}
+
+@media (max-width: 575px) {
+  .pr-compare-bar {
+    bottom: 12px;
+    width: calc(100% - 16px);
+  }
+  .pr-compare-label { display: none; }
+  .pr-compare-clear span,
+  .pr-compare-go {
+    font-size: 0.82rem;
+  }
+}
+
+/* === COMPARISON MODAL === */
+.pr-compare-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+.pr-compare-modal[hidden] { display: none !important; }
+
+.pr-compare-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.65);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  animation: prFadeIn 0.22s ease;
+}
+
+@keyframes prFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pr-compare-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.30);
+  animation: prModalIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes prModalIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pr-compare-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border-bottom: 2px solid #f59e0b;
+}
+.pr-compare-modal-header h2 {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+.pr-compare-modal-close {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1.5px solid rgba(245, 158, 11, 0.40);
+  border-radius: 50%;
+  color: #f59e0b;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.22s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-compare-modal-close:hover {
+  background: #f59e0b;
+  color: #1C1917;
+  border-color: transparent;
+  transform: rotate(90deg);
+}
+
+.pr-compare-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+.pr-compare-grid {
+  display: grid;
+  gap: 14px;
+}
+@media (min-width: 768px) {
+  .pr-compare-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .pr-compare-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 767px) {
+  .pr-compare-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.pr-compare-car {
+  background: #fafafa;
+  border: 1px solid rgba(28, 25, 23, 0.08);
+  border-top: 3px solid #f59e0b;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pr-compare-car-img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+.pr-compare-car-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1C1917;
+  margin: 4px 0 0;
+}
+.pr-compare-car-price {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+}
+.pr-compare-car-specs {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+.pr-compare-car-specs li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(28, 25, 23, 0.10);
+}
+.pr-compare-car-specs li:last-child { border-bottom: none; }
+.pr-compare-car-specs .pr-spec-label {
+  color: #57534e;
+  font-weight: 500;
+}
+.pr-compare-car-specs .pr-spec-value {
+  color: #1C1917;
+  font-weight: 700;
+  text-align: right;
+}
+
+.pr-compare-car-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 14px;
+  background: #1C1917;
+  color: #f59e0b;
+  border: 1.5px solid rgba(245, 158, 11, 0.40);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  margin-top: auto;
+  transition: all 0.22s;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+.pr-compare-car-cta:hover {
+  background: #f59e0b;
+  color: #1C1917;
+  border-color: transparent;
+}
+
+.pr-compare-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #78350f;
+  font-size: 0.95rem;
 }
 
 /* === MOBILE FILTER BOTTOM SHEET (matches existing #mobile-filter-overlay markup) === */
@@ -1175,53 +1514,12 @@ body.cars-listing-page { background: #fafafa; }
   }
 }
 
-
-  /* === FILTER ACTION BUTTONS — polished luxury look === */
-  .pr-sticky-footer .pr-mobile-filter-cancel,
-  .pr-sticky-footer .pr-mobile-filter-apply,
-  .pr-sticky-footer button {
-    text-transform: none !important;
-    letter-spacing: 0.2px !important;
-  }
-  .pr-sticky-footer .pr-mobile-filter-cancel {
-    background: #fafaf9 !important;
-    border: 1.5px solid rgba(28, 25, 23, 0.12) !important;
-    color: #44403c !important;
-    font-weight: 700 !important;
-  }
-  .pr-sticky-footer .pr-mobile-filter-cancel:hover,
-  .pr-sticky-footer .pr-mobile-filter-cancel:active {
-    background: #f5f5f4 !important;
-    border-color: rgba(28, 25, 23, 0.30) !important;
-    color: #1C1917 !important;
-  }
-  .pr-sticky-footer .pr-mobile-filter-apply,
-  .pr-sticky-footer button[onclick*="applyMobileFilters"] {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    font-weight: 800 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18) !important;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-  }
-  .pr-sticky-footer .pr-mobile-filter-apply:hover,
-  .pr-sticky-footer .pr-mobile-filter-apply:active,
-  .pr-sticky-footer button[onclick*="applyMobileFilters"]:hover,
-  .pr-sticky-footer button[onclick*="applyMobileFilters"]:active {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
-    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-  }
-
-  /* Hide "Șterge tot" link inside mobile filter — it's redundant
-     (chips above grid already provide clear-all UX) */
-  .mobile-filter-overlay #mobile-clear-filters-link,
-  .mobile-filter-overlay a[onclick*="clearAllFilters"] {
-    display: none !important;
-  }
-
-  /* === Reduced motion guards === */
+/* === Reduced motion guards === */
 @media (prefers-reduced-motion: reduce) {
   .pr-chip,
+  .pr-compare-bar,
+  .pr-compare-modal-content,
+  .pr-compare-modal-backdrop,
   .mobile-filter-sidebar,
   .mobile-filter-backdrop {
     animation: none !important;
@@ -1288,8 +1586,9 @@ body.cars-listing-page { background: #fafafa; }
                 <div class="menu_side_area"
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self: center; margin-right: 8px; flex-shrink: 0;">
-                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn" aria-label="Sună Acum">
-                      <i class="fa fa-phone" aria-hidden="true"></i>
+                    <a href="tel:+37360000500" onclick="gtag_report_conversion('tel:+37360000500')" class="call-now-btn"
+                      style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; padding: 10px 16px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35); position: relative; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);" aria-label="Sună Acum">
+                      <i class="fa fa-phone" style="font-size: 12px;" aria-hidden="true"></i>
                       <span data-i18n="call_now">Sunați Acum</span>
                     </a>
                   </div>
@@ -1377,7 +1676,7 @@ body.cars-listing-page { background: #fafafa; }
   </div>
 </nav>
       <!-- CARS CATALOG - ИМЕННО СРАЗУ -->
-      <div id="cars-catalog" class="container cars-main-container" style="padding-top: 24px;">
+      <div id="cars-catalog" class="container cars-main-container" style="padding-top: 40px;">
         <div class="mobile-filter-button-container d-md-none">
           <button class="btn btn-primary mobile-filter-btn" onclick="toggleMobileFilter()" type="button" aria-label="Deschide filtre">
             <i class="fa fa-sliders" aria-hidden="true"></i>
@@ -1388,6 +1687,23 @@ body.cars-listing-page { background: #fafafa; }
 
         <!-- ACTIVE FILTER CHIPS — populated by JS when filters applied -->
         <div class="pr-active-chips" id="prActiveChips" role="region" aria-label="Filtre active" hidden></div>
+
+        <!-- COMPARISON BAR — appears when 2+ cars selected -->
+        <div class="pr-compare-bar" id="prCompareBar" role="region" aria-label="Comparare mașini" hidden>
+          <div class="pr-compare-bar-inner">
+            <div class="pr-compare-bar-info">
+              <span class="pr-compare-count" id="prCompareCount">0</span>
+              <span class="pr-compare-label">selectate pentru comparație</span>
+            </div>
+            <div class="pr-compare-bar-actions">
+              <button type="button" class="pr-compare-clear" onclick="prCompareClear()" aria-label="Șterge selecția">
+                <i class="fa fa-times" aria-hidden="true"></i> Șterge
+              </button>
+              <button type="button" class="pr-compare-go" onclick="prCompareOpen()">
+                Compară <i class="fa fa-arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="row">
@@ -1571,6 +1887,21 @@ body.cars-listing-page { background: #fafafa; }
 
     <!-- footer begin -->
 
+    <!-- COMPARISON MODAL — side-by-side car comparison (max 3) -->
+    <div class="pr-compare-modal" id="prCompareModal" role="dialog" aria-modal="true" aria-labelledby="prCompareModalTitle" hidden>
+      <div class="pr-compare-modal-backdrop" onclick="prCompareCloseModal()"></div>
+      <div class="pr-compare-modal-content">
+        <div class="pr-compare-modal-header">
+          <h2 id="prCompareModalTitle">Comparare Mașini</h2>
+          <button type="button" class="pr-compare-modal-close" onclick="prCompareCloseModal()" aria-label="Închide">
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="pr-compare-modal-body" id="prCompareModalBody">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
 
 
 
@@ -1715,12 +2046,12 @@ body.cars-listing-page { background: #fafafa; }
       z-index: 998;
       transition: transform 0.28s ease, box-shadow 0.28s ease;
       touch-action: manipulation;
-      animation: prFloatPulse 4.5s ease-in-out infinite;
+      animation: prFloatPulse 2.8s ease-in-out infinite;
       -webkit-tap-highlight-color: transparent;
     }
     @keyframes prFloatPulse {
-      0%, 100% { box-shadow: 0 8px 22px rgba(245, 158, 11, 0.30), 0 0 0 0 rgba(245, 158, 11, 0.20); }
-      50%      { box-shadow: 0 8px 22px rgba(245, 158, 11, 0.30), 0 0 0 6px rgba(245, 158, 11, 0); }
+      0%, 100% { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 0 rgba(245, 158, 11, 0.50); }
+      50%      { box-shadow: 0 12px 30px rgba(245, 158, 11, 0.40), 0 0 0 14px rgba(245, 158, 11, 0); }
     }
     .floating-contact-btn:hover {
       transform: scale(1.10);
@@ -2877,6 +3208,10 @@ function openMapsOnMobileCars(event, address) {
       if (priceMax) priceMax.value = '';
       if (dateFrom) dateFrom.value = '';
       if (dateTo) dateTo.value = '';
+      /* Also reset compare selection — clearing filters means new search */
+      if (typeof window.prCompareClear === 'function') {
+        try { window.prCompareClear(); } catch(e) {}
+      }
       setTimeout(renderActiveChips, 200);
     });
     container.appendChild(clearAll);
@@ -2885,6 +3220,417 @@ function openMapsOnMobileCars(event, address) {
       countBadge.classList.add('has-filters');
       countBadge.textContent = String(chips.length);
     }
+  }
+
+  // Listen to filter changes (any checkbox in sidebar / mobile filter)
+  document.addEventListener('change', function(e) {
+    var target = e.target;
+    if (target && target.matches('input[type="checkbox"]') &&
+        target.closest('.filter-sidebar, .mobile-filter-sidebar, [id$="filter-options"]')) {
+      setTimeout(renderActiveChips, 50);
+    }
+  }, { passive: true });
+
+  // Also listen to custom event (for date/price changes)
+  document.addEventListener('pr-filters-changed', function() {
+    setTimeout(renderActiveChips, 50);
+  });
+
+  // Initial render after DOM + filter init
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(renderActiveChips, 800);
+    });
+  } else {
+    setTimeout(renderActiveChips, 800);
+  }
+
+  // Watch for filter sidebar mutations (catches AJAX-rendered options)
+  var sidebarRoot = document.querySelector('.filter-sidebar') ||
+                    document.querySelector('.cars-main-container') ||
+                    document.body;
+  if (sidebarRoot && typeof MutationObserver !== 'undefined') {
+    var sidebarTimer = null;
+    var sidebarMo = new MutationObserver(function() {
+      if (sidebarTimer) clearTimeout(sidebarTimer);
+      sidebarTimer = setTimeout(renderActiveChips, 100);
+    });
+    sidebarMo.observe(sidebarRoot, { childList: true, subtree: true });
+  }
+
+
+  /* ============================================================
+     PART 2 — COMPARISON FEATURE
+     Up to 3 cars side-by-side
+     ============================================================ */
+
+  var COMPARE_MAX = 3;
+  var compareList = []; // [{ id, name, price, img, specs }]
+
+  function getCarDataFromCard(card) {
+    if (!card) return null;
+    var titleEl = card.querySelector('.de-title, h3, .de-item-title, .car-title');
+    var priceEl = card.querySelector('.de-price, .price-tag, .car-price, [class*="price"]');
+    var imgEl   = card.querySelector('img');
+
+    // Specs from existing markup
+    var specs = {};
+    var specEls = card.querySelectorAll('.car-specs li, .de-specs li, [class*="spec"] li, .car-feature');
+    specEls.forEach(function(el) {
+      var text = el.textContent.trim();
+      if (text) specs[text] = '';
+    });
+
+    var data = card.dataset || {};
+    if (data.gear)    specs['Transmisie'] = data.gear;
+    if (data.fuel)    specs['Combustibil'] = data.fuel;
+    if (data.year)    specs['An']         = data.year;
+    if (data.doors)   specs['Uși']        = data.doors;
+    if (data.seats)   specs['Pasageri']   = data.seats;
+    if (data.type)    specs['Tip']        = data.type;
+
+    var bookLink = card.querySelector('a[href*="rezerv"], a[href*="booking"], a.btn, a.btn-primary');
+    var titleText = titleEl ? titleEl.textContent.trim() : '';
+    var priceText = priceEl ? priceEl.textContent.trim() : '';
+
+    /* STABLE ID — no Math.random! Deterministic by data-* or title+price.
+       Prevents duplicates when AJAX re-renders the same car. */
+    var stableId = card.dataset.carId || card.dataset.id ||
+                   ((titleText + '|' + priceText).replace(/\s+/g, '_').toLowerCase());
+
+    /* Persist back to card.dataset so subsequent reads are stable
+       even when innerHTML changes briefly */
+    if (!card.dataset.prCarId) {
+      card.dataset.prCarId = stableId;
+    }
+
+    return {
+      id: stableId,
+      name: titleText || 'Mașină',
+      price: priceText,
+      img: imgEl ? imgEl.src : '',
+      specs: specs,
+      bookHref: bookLink ? bookLink.href : '#'
+    };
+  }
+
+  function injectCompareToggles() {
+    var cards = document.querySelectorAll('.de-item.mb30, .de-item:not(.premium-badge)');
+    cards.forEach(function(card) {
+      if (card.querySelector('.pr-compare-toggle')) return; // already injected
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pr-compare-toggle';
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', 'Adaugă la comparație');
+      btn.title = 'Compară';
+      btn.innerHTML = '<span class="pr-compare-icon" aria-hidden="true">+</span><span class="pr-compare-label">Compară</span>';
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleCompareCar(card, btn);
+      });
+
+      card.style.position = card.style.position || 'relative';
+      card.appendChild(btn);
+    });
+  }
+
+  function toggleCompareCar(card, btn) {
+    var data = getCarDataFromCard(card);
+    if (!data) return;
+
+    var idx = compareList.findIndex(function(c) { return c.id === data.id; });
+    if (idx >= 0) {
+      compareList.splice(idx, 1);
+      btn.classList.remove('is-active');
+      btn.setAttribute('aria-pressed', 'false');
+    } else {
+      if (compareList.length >= COMPARE_MAX) {
+        // Visual feedback: shake or just abort with toast (we'll just abort)
+        btn.style.animation = 'prChipIn 0.3s';
+        setTimeout(function() { btn.style.animation = ''; }, 300);
+        return;
+      }
+      compareList.push(data);
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+    }
+    updateCompareBar();
+  }
+
+  function updateCompareBar() {
+    var bar = document.getElementById('prCompareBar');
+    var countEl = document.getElementById('prCompareCount');
+    if (!bar) return;
+    if (compareList.length >= 2) {
+      bar.hidden = false;
+      if (countEl) countEl.textContent = String(compareList.length);
+    } else {
+      bar.hidden = true;
+    }
+  }
+
+  window.prCompareClear = function() {
+    compareList = [];
+    document.querySelectorAll('.pr-compare-toggle.is-active').forEach(function(b) {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    updateCompareBar();
+  };
+
+  window.prCompareOpen = function() {
+    var modal = document.getElementById('prCompareModal');
+    var body = document.getElementById('prCompareModalBody');
+    if (!modal || !body) return;
+
+    if (compareList.length < 2) {
+      body.innerHTML = '<div class="pr-compare-empty">Selectează cel puțin 2 mașini pentru comparație.</div>';
+    } else {
+      var grid = document.createElement('div');
+      grid.className = 'pr-compare-grid cols-' + compareList.length;
+
+      // Collect all spec keys union
+      var allKeys = {};
+      compareList.forEach(function(c) {
+        Object.keys(c.specs).forEach(function(k) { allKeys[k] = true; });
+      });
+      var keyList = Object.keys(allKeys);
+
+      compareList.forEach(function(car) {
+        var col = document.createElement('div');
+        col.className = 'pr-compare-car';
+
+        var html = '';
+        if (car.img) {
+          html += '<img class="pr-compare-car-img" src="' + escapeHtml(car.img) + '" alt="' + escapeHtml(car.name) + '" loading="lazy">';
+        }
+        html += '<h3 class="pr-compare-car-title">' + escapeHtml(car.name) + '</h3>';
+        if (car.price) {
+          html += '<span class="pr-compare-car-price">' + escapeHtml(car.price) + '</span>';
+        }
+        if (keyList.length > 0) {
+          html += '<ul class="pr-compare-car-specs">';
+          keyList.forEach(function(k) {
+            var v = car.specs[k] || '—';
+            html += '<li><span class="pr-spec-label">' + escapeHtml(k) + '</span><span class="pr-spec-value">' + escapeHtml(v) + '</span></li>';
+          });
+          html += '</ul>';
+        }
+        if (car.bookHref && car.bookHref !== '#') {
+          html += '<a href="' + escapeHtml(car.bookHref) + '" class="pr-compare-car-cta">Vezi detalii <i class="fa fa-arrow-right" aria-hidden="true"></i></a>';
+        }
+        col.innerHTML = html;
+        grid.appendChild(col);
+      });
+      body.innerHTML = '';
+      body.appendChild(grid);
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    // Focus close button for a11y
+    setTimeout(function() {
+      var closeBtn = modal.querySelector('.pr-compare-modal-close');
+      if (closeBtn) closeBtn.focus();
+    }, 100);
+  };
+
+  window.prCompareCloseModal = function() {
+    var modal = document.getElementById('prCompareModal');
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ESC closes modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var modal = document.getElementById('prCompareModal');
+      if (modal && !modal.hidden) prCompareCloseModal();
+    }
+  });
+
+  // Inject toggles + restore active state — runs on every catalog re-render
+  function tryInject() {
+    injectCompareToggles();
+    // Restore "is-active" state for cards that are in compareList
+    if (compareList.length === 0) return;
+    document.querySelectorAll('.de-item.mb30, .de-item').forEach(function(card) {
+      var data = getCarDataFromCard(card);
+      if (!data) return;
+      var btn = card.querySelector('.pr-compare-toggle');
+      if (!btn) return;
+      var isInList = compareList.some(function(c) { return c.id === data.id; });
+      if (isInList && !btn.classList.contains('is-active')) {
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+      } else if (!isInList && btn.classList.contains('is-active')) {
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInject);
+  } else {
+    tryInject();
+  }
+
+  // MutationObserver — lives FOREVER, catches every catalog re-render
+  // (AJAX filter results, infinite scroll, sort changes, etc.)
+  var catalogContainer = document.getElementById('cars-catalog') ||
+                         document.querySelector('.cars-main-container') ||
+                         document.body;
+  if (catalogContainer && typeof MutationObserver !== 'undefined') {
+    var debounceTimer = null;
+    var mo = new MutationObserver(function(mutations) {
+      // Debounce — wait for batch of changes to settle
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        var hasNewCards = mutations.some(function(mut) {
+          return Array.from(mut.addedNodes).some(function(node) {
+            if (node.nodeType !== 1) return false;
+            return node.matches && (node.matches('.de-item') || node.querySelector('.de-item'));
+          });
+        });
+        if (hasNewCards) {
+          tryInject();
+          renderActiveChips();
+        }
+      }, 80);
+    });
+    mo.observe(catalogContainer, { childList: true, subtree: true });
+  }
+
+  // Backup: also re-inject on filter changes (in case observer misses something)
+  document.addEventListener('pr-filters-changed', function() {
+    setTimeout(tryInject, 200);
+    setTimeout(tryInject, 600);
+  });
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.matches && e.target.matches('input[type="checkbox"], input[type="radio"]')) {
+      setTimeout(tryInject, 250);
+    }
+  }, { passive: true });
+
+
+  /* ============================================================
+     PART 3 — MOBILE FILTER BOTTOM SHEET
+     Adds Apply/Cancel buttons. Existing toggleMobileFilter() handles open/close.
+     We add: snapshot before open, restore on cancel, footer injection, ESC handler.
+     ============================================================ */
+
+  var sheetSnapshot = null;
+
+  function captureFilterSnapshot() {
+    var content = document.querySelector('.mobile-filter-content');
+    if (!content) return null;
+    var snap = [];
+    content.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(cb, i) {
+      snap.push({ key: 'cb-' + i, checked: cb.checked });
+    });
+    content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])').forEach(function(inp, i) {
+      snap.push({ key: 'txt-' + i, value: inp.value });
+    });
+    return snap;
+  }
+
+  function restoreFilterSnapshot(snap) {
+    if (!snap) return;
+    var content = document.querySelector('.mobile-filter-content');
+    if (!content) return;
+    var cbs = content.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+    var txts = content.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input:not([type])');
+    snap.forEach(function(s) {
+      if (s.key.startsWith('cb-')) {
+        var idx = parseInt(s.key.slice(3), 10);
+        if (cbs[idx] && cbs[idx].checked !== s.checked) {
+          cbs[idx].checked = s.checked;
+          cbs[idx].dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } else if (s.key.startsWith('txt-')) {
+        var i = parseInt(s.key.slice(4), 10);
+        if (txts[i]) txts[i].value = s.value;
+      }
+    });
+  }
+
+  function ensureMobileFilterFooter() {
+    /* SIMPLE strategy: just add Cancel button next to existing native Apply.
+       Don't clone, don't hide, don't replace. Existing applyMobileFilters()
+       works perfectly — just give it bottom-sticky layout via CSS class. */
+    var sidebar = document.querySelector('.mobile-filter-sidebar');
+    if (!sidebar) return;
+
+    /* Find the row containing the existing Apply button.
+       Markup: <div class="mt-3 d-grid"><button onclick="applyMobileFilters()">...</button></div>
+       OR similar. */
+    var origApply = sidebar.querySelector('button[onclick*="applyMobileFilters"]');
+    if (!origApply) return; // nothing to enhance
+
+    var actionRow = origApply.parentElement;
+    if (!actionRow) return;
+
+    /* Mark the row as our sticky footer */
+    actionRow.classList.add('pr-sticky-footer');
+
+    /* Remove duplicate Cancel buttons we may have added before */
+    actionRow.querySelectorAll('.pr-cancel-injected').forEach(function(el) { el.remove(); });
+
+    /* Inject Cancel button BEFORE Apply */
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'pr-mobile-filter-cancel pr-cancel-injected';
+    cancelBtn.textContent = 'Anulează';
+    cancelBtn.addEventListener('click', function() {
+      restoreFilterSnapshot(sheetSnapshot);
+      if (typeof window.toggleMobileFilter === 'function') {
+        window.toggleMobileFilter();
+      }
+      setTimeout(renderActiveChips, 200);
+    });
+    actionRow.insertBefore(cancelBtn, origApply);
+
+    /* Polish existing Apply button's class — keep its onclick intact */
+    origApply.classList.add('pr-mobile-filter-apply');
+  }
+
+  // Hook into existing toggleMobileFilter — capture snapshot on open
+  var originalToggle = window.toggleMobileFilter;
+  if (typeof originalToggle === 'function') {
+    window.toggleMobileFilter = function() {
+      var overlay = document.getElementById('mobile-filter-overlay');
+      var wasActive = overlay && overlay.classList.contains('active');
+
+      // Run original
+      var result = originalToggle.apply(this, arguments);
+
+      // After opening — capture snapshot, ensure footer present
+      setTimeout(function() {
+        if (overlay && overlay.classList.contains('active')) {
+          if (sheetSnapshot === null) {
+            sheetSnapshot = captureFilterSnapshot();
+          }
+          ensureMobileFilterFooter();
+        } else {
+          sheetSnapshot = null;  // reset when closed
+        }
+      }, 100);
+
+      return result;
+    };
   }
 
   // Backdrop click closes
