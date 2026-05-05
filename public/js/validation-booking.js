@@ -325,7 +325,6 @@ $(document).ready(function () {
 
   // Handle form submission - now opens price calculator modal
   submitButton.click(function (e) {
-    console.log("submitButton clicked");
     // Skip old validation system if we're on car-single page (using new BookingFormHandler)
     if (window.location.pathname.includes("car-single")) {
       return; // Don't prevent default, let the new BookingFormHandler handle it
@@ -2829,12 +2828,8 @@ async function markReturnGiftAsRedeemed() {
     const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
 
     if (!phoneNumber) {
-      console.log('⚠️ No phone number found');
       return;
     }
-
-    console.log('📞 Marking return gift as redeemed for:', phoneNumber);
-
     // ✅ ИСПРАВЛЕНО: Правильный URL и параметр
     const response = await fetch(
       "/api/bookings/mark-return-gift-redeemed",  // ← ИСПРАВЛЕНО
@@ -2849,7 +2844,6 @@ async function markReturnGiftAsRedeemed() {
 
     if (response.ok) {
       const result = await response.json();
-      console.log('✅ Return gift marked as redeemed:', result);
     } else {
       const errorData = await response.json();
       console.error('❌ Failed to mark return gift:', errorData);
@@ -3127,8 +3121,6 @@ function hideFloatingFreeDaysNotification() {
 // ========== MODERN TOAST NOTIFICATION SYSTEM ==========
 
 function showToast(message, type = 'error', duration = 5000) {
-    console.log(`🔔 showToast called: ${type} - ${message}`);
-    
     const container = document.getElementById('toast-container');
     if (!container) {
         console.error('❌ Toast container not found!');
@@ -3194,12 +3186,10 @@ function showInfoToast(message, duration = 5000) {
 
 // ✅ Простые обёртки для совместимости со старым кодом
 function showError(message) {
-    console.log('🔴 showError called:', message);
     showErrorToast(message);
 }
 
 function showSuccess(message) {
-    console.log('🟢 showSuccess called:', message);
     showSuccessToast(message);
 }
 
