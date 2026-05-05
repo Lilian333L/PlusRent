@@ -1003,11 +1003,32 @@ function closePriceCalculator() {
   // Remove modal-open class to restore normal page functionality
   $("body").removeClass("modal-open");
 
-  // Ensure body scroll is restored
-  $("body").css("overflow", "");
+  // ── RESTORE SCROLL POSITION (when openPriceCalculator wrapper used position:fixed lock) ──
+  // The wrapper in index.html stores scrollY in body.dataset.scrollY and sets body.style.top.
+  // We must read scrollY BEFORE clearing body styles, then restore via window.scrollTo.
+  var savedScrollY = 0;
+  if (document.body.dataset && document.body.dataset.scrollY) {
+    savedScrollY = parseInt(document.body.dataset.scrollY, 10) || 0;
+  } else if (document.body.style.top) {
+    savedScrollY = Math.abs(parseInt(document.body.style.top, 10)) || 0;
+  }
+
+  // Clear ALL body locks (defensive — covers different lock strategies used by wrappers)
+  document.body.style.position = "";
+  document.body.style.top      = "";
+  document.body.style.left     = "";
+  document.body.style.right    = "";
+  document.body.style.width    = "";
+  document.body.style.overflow = "";
+  // Also clear documentElement (html) in case anything locked it
+  document.documentElement.style.overflow = "";
+  if (document.body.dataset) delete document.body.dataset.scrollY;
 
   // Remove any remaining modal backdrop if present
   $(".modal-backdrop").remove();
+
+  // Restore scroll synchronously (only if we captured a position)
+  if (savedScrollY > 0) window.scrollTo(0, savedScrollY);
 
   // Clean up DatePickerManager
   if (window.modalDatePicker) {
@@ -1020,6 +1041,16 @@ function closePriceCalculator() {
   // Remove event listeners to prevent memory leaks
   $(document).off("keydown.modal");
   $(document).off("click.modal");
+
+  // Cleanup wheel/key handlers added by openPriceCalculator wrapper (in index.html)
+  if (window.priceCalculatorWheelHandler) {
+    document.removeEventListener("wheel", window.priceCalculatorWheelHandler, { capture: true });
+    window.priceCalculatorWheelHandler = null;
+  }
+  if (window.priceCalculatorKeyHandler) {
+    document.removeEventListener("keydown", window.priceCalculatorKeyHandler);
+    window.priceCalculatorKeyHandler = null;
+  }
 }
 
 async function calculateModalPrice() {
