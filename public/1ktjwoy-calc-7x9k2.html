@@ -142,16 +142,31 @@ details.collapsible-card > summary .arrow { margin-left: auto; color: var(--ambe
 details.collapsible-card[open] > summary .arrow { transform: rotate(180deg); }
 details.collapsible-card > .details-content { padding: 0 20px 20px 20px; }
 
-/* Скрипт для клиента */
+/* Скрипт для клиента — диалог по телефону */
 .client-script { background: linear-gradient(135deg, #0a1f15, #0c1410); border: 1px solid #1f4d3a; border-radius: 16px; padding: 18px; margin-top: 12px; }
-.script-title { font-size: 0.78rem; font-weight: 700; color: var(--green); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-.script-text { background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.15); border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.6; color: var(--text); white-space: pre-wrap; font-family: 'DM Sans', sans-serif; }
-.script-text.empty { color: var(--text-dim); font-style: italic; text-align: center; padding: 20px; }
+.script-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+.script-title { font-size: 0.78rem; font-weight: 700; color: var(--green); display: flex; align-items: center; gap: 8px; }
+.lang-toggle { display: flex; gap: 0; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 3px; border: 1px solid rgba(34,197,94,0.2); }
+.lang-btn { background: transparent; border: none; color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px; }
+.lang-btn.active { background: var(--green); color: #000; }
+
+.phone-script { background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.15); border-radius: 10px; padding: 6px 14px; }
+.phone-script.empty { padding: 20px; text-align: center; color: var(--text-dim); font-style: italic; font-size: 0.82rem; }
+.phone-step { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed rgba(34,197,94,0.12); }
+.phone-step:last-child { border-bottom: none; }
+.step-num { background: var(--green); color: #000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; margin-top: 2px; font-family: 'Space Mono', monospace; }
+.step-text { color: var(--text); font-size: 0.86rem; line-height: 1.55; flex: 1; }
+.price-highlight { color: var(--green); font-weight: 700; font-family: 'Space Mono', monospace; font-size: 1.05em; }
+.time-highlight { color: var(--amber); font-weight: 700; font-family: 'Space Mono', monospace; font-size: 1.05em; }
+
+.if-asks { background: rgba(59,130,246,0.06); border-left: 3px solid var(--blue); border-radius: 4px 8px 8px 4px; padding: 10px 12px; margin-top: 10px; font-size: 0.78rem; line-height: 1.55; }
+.if-asks-title { color: var(--blue); font-weight: 700; margin-bottom: 4px; font-size: 0.72rem; }
+.if-asks-text { color: var(--text); }
+
 .script-actions { display: flex; gap: 8px; margin-top: 10px; }
 .btn-copy-script { flex: 1; background: var(--green); border: none; border-radius: 10px; padding: 10px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: opacity 0.15s; }
 .btn-copy-script:hover { opacity: 0.9; }
 .btn-copy-script.copied { background: var(--blue); }
-.btn-whatsapp { background: #25d366; border: none; border-radius: 10px; padding: 10px 14px; color: #000; font-weight: 700; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 4px; }
 
 .objections-section { margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(34,197,94,0.2); }
 .objections-title { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
@@ -326,39 +341,30 @@ details.collapsible-card > .details-content { padding: 0 20px 20px 20px; }
 
   <!-- СКРИПТ ДЛЯ КЛИЕНТА -->
   <div class="client-script">
-    <div class="script-title">💬 Что сказать клиенту по телефону</div>
-    <div class="script-text empty" id="script-text">Введи маршрут и цену — текст сгенерируется автоматически</div>
+    <div class="script-header">
+      <div class="script-title">💬 Скрипт по телефону</div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">🇷🇺 RU</button>
+        <button class="lang-btn" data-lang="ro" onclick="setLang('ro')">🇷🇴 RO</button>
+      </div>
+    </div>
+
+    <div class="phone-script empty" id="phone-script">
+      <span id="empty-text">Введи маршрут и цену — скрипт сгенерируется</span>
+    </div>
+
+    <div class="if-asks" id="if-asks-block" style="display:none">
+      <div class="if-asks-title" id="if-asks-title"></div>
+      <div class="if-asks-text" id="if-asks-text"></div>
+    </div>
+
     <div class="script-actions">
-      <button class="btn-copy-script" id="btn-copy-script" onclick="copyClientScript()">📋 Скопировать текст</button>
+      <button class="btn-copy-script" id="btn-copy-script" onclick="copyClientScript()">📋 Скопировать (для WhatsApp)</button>
     </div>
 
     <div class="objections-section">
-      <div class="objections-title">🎯 Если торгуется или говорит "дорого"</div>
-
-      <div class="objection-item">
-        <div class="obj-q">— "Дорого, у других дешевле"</div>
-        <div class="obj-a">"У нас всё включено — топливо, два водителя, авто сопровождения. У других "от 150" — это приманка, потом по факту 300-400 + доплаты на месте за остановки и ночь. Мы говорим финальную цену сразу."</div>
-      </div>
-
-      <div class="objection-item">
-        <div class="obj-q">— "А можно дешевле?"</div>
-        <div class="obj-a">"Минимальная цена за это расстояние и время. Дешевле — только постоянным клиентам после нескольких поездок (скидка 10%). Хотите я записал ваш номер для скидки на следующий раз?"</div>
-      </div>
-
-      <div class="objection-item">
-        <div class="obj-q">— "Я лучше такси возьму"</div>
-        <div class="obj-a">"Такси не довезёт вашу машину — она останется. Завтра вам ехать за ней (ещё ~150 лей такси) + парковка ночью + риск что эвакуируют. У нас машина у дома утром. По итогу одно и то же по цене, но без головной боли."</div>
-      </div>
-
-      <div class="objection-item">
-        <div class="obj-q">— "Я сам нормально доеду"</div>
-        <div class="obj-a">"Штраф за пьяную езду в Молдове — 50 000 лей минимум, плюс лишение прав на годы. Наша услуга в 80-100 раз дешевле. Это самая выгодная страховка которую вы можете купить за этот вечер."</div>
-      </div>
-
-      <div class="objection-item">
-        <div class="obj-q">— "Долго ехать"</div>
-        <div class="obj-a">"15-20 минут до вас, по Кишинёву. Уже выезжаем, диспетчер позвонит когда будем рядом. Ждать всё равно меньше чем такси в час пик."</div>
-      </div>
+      <div class="objections-title" id="objections-title">🎯 Если торгуется или говорит "дорого"</div>
+      <div id="objections-list"></div>
     </div>
   </div>
 
@@ -415,6 +421,7 @@ let lastSegments = [];
 let lastDurations = [];
 let lastTotalKm = 0;
 let lastTotalSec = 0;
+let lastEtaSec = 0;             // время первого сегмента: Дом → Забор клиента
 let directCost = ADS_COST;
 let workCost = 0;
 let fullCost = ADS_COST;
@@ -662,6 +669,7 @@ function calcManual() {
 function updateResults(segments, durations) {
   lastTotalKm = segments.reduce((a, b) => a + b, 0);
   lastTotalSec = (durations || []).reduce((a, b) => a + b, 0);
+  lastEtaSec = (durations && durations.length) ? durations[0] : 0;
   renderRouteViz(segments);
   recompute();
 }
@@ -823,64 +831,160 @@ function updatePriceAdvice(p, profit, margin) {
   advice.innerHTML = `✅ <b>Хорошая цена с прибылью ${profit} лей.</b> Уверенно называй её клиенту, не извиняйся за неё`;
 }
 
+// ================== ДВУЯЗЫЧНЫЕ ТЕКСТЫ СКРИПТА ==================
+const SCRIPTS = {
+  ru: {
+    flag: '🇷🇺',
+    empty: 'Введи маршрут и цену — скрипт сгенерируется',
+    step1: (a, b, price, eta) => `«PlusRent. От <b>${a}</b> до <b>${b}</b> — <span class="price-highlight">${price} лей</span>, всё включено. Водитель у вас через <span class="time-highlight">${eta} минут</span>.»`,
+    step2: '«Подтверждаете заказ?»',
+    step3: '<b>(После «да»)</b> «Что-то ещё нужно — остановки по пути или ожидание?»',
+    ifAsksTitle: '📌 Если переспрашивает или удивляется цене:',
+    ifAsks: '«В цену всё включено: топливо, два водителя, доставка машины домой. Без доплат на месте.»',
+    objectionsTitle: '🎯 Если торгуется или говорит «дорого»',
+    objections: [
+      { q: '— «Дорого, у других дешевле»', a: 'У нас всё включено — топливо, два водителя, авто сопровождения. У других "от 150" — приманка, потом 300-400 + доплаты на месте за остановки и ночь. Мы говорим финальную цену сразу.' },
+      { q: '— «А можно дешевле?»', a: 'Это минимум за такое расстояние и время. Дешевле — только постоянным клиентам после нескольких поездок (скидка 10%). Хотите я запишу ваш номер для скидки на следующий раз?' },
+      { q: '— «Я лучше такси возьму»', a: 'Такси не довезёт вашу машину — она останется. Завтра вам ехать за ней (ещё ~150 лей такси) + парковка ночью + риск что эвакуируют. У нас машина у дома утром.' },
+      { q: '— «Я сам нормально доеду»', a: 'Штраф за пьяную езду в Молдове — минимум 50 000 лей, плюс лишение прав на годы. Наша услуга в 80-100 раз дешевле. Самая выгодная страховка на этот вечер.' },
+      { q: '— «Долго ехать»', a: 'Уже выезжаем, диспетчер позвонит когда будем рядом. Ждать всё равно меньше чем такси в час пик.' },
+      { q: '— Молчит, думает', a: 'Сделать заказ? Я фиксирую за вами этот тариф, водитель уже выезжает.' }
+    ],
+    copyTemplate: (a, b, price, stops, eta) => `PlusRent. Заказ принят:
+
+📍 Маршрут: ${a} → ${b}${stops ? '\n🚏 Остановки: ' + stops : ''}
+💰 Стоимость: ${price} лей (всё включено)
+🚗 Водитель приедет через ${eta} минут
+
+Оплата на месте — наличные или карта.
+Диспетчер позвонит когда водитель подъедет.`
+  },
+  ro: {
+    flag: '🇷🇴',
+    empty: 'Introdu ruta și prețul — scriptul se va genera',
+    step1: (a, b, price, eta) => `«PlusRent. De la <b>${a}</b> la <b>${b}</b> — <span class="price-highlight">${price} lei</span>, totul inclus. Șoferul ajunge la dvs. în <span class="time-highlight">${eta} minute</span>.»`,
+    step2: '«Confirmați comanda?»',
+    step3: '<b>(După «da»)</b> «Mai aveți nevoie de ceva — opriri pe drum sau așteptare?»',
+    ifAsksTitle: '📌 Dacă întreabă din nou sau e surprins de preț:',
+    ifAsks: '«În preț e totul inclus: combustibil, doi șoferi, livrarea mașinii acasă. Fără suplimente la fața locului.»',
+    objectionsTitle: '🎯 Dacă se târguiește sau zice «scump»',
+    objections: [
+      { q: '— «E scump, la alții e mai ieftin»', a: 'La noi totul e inclus — combustibil, doi șoferi, mașina de însoțire. La alții "de la 150" — momeală, apoi 300-400 + suplimente la fața locului pentru opriri și noapte. Noi spunem prețul final imediat.' },
+      { q: '— «Se poate mai ieftin?»', a: 'Acesta e minimul pentru această distanță și acest timp. Mai ieftin — doar clienților fideli (10% reducere după câteva curse). Vreți să vă rețin numărul pentru reducere data viitoare?' },
+      { q: '— «Iau mai bine taxi»', a: 'Taxiul nu duce mașina dvs. — rămâne acolo. Mâine trebuie să mergeți după ea (încă ~150 lei taxi) + parcare peste noapte + riscul să fie ridicată. La noi mașina e acasă dimineața.' },
+      { q: '— «Conduc eu, e bine»', a: 'Amenda pentru condus în stare de ebrietate în Moldova — minim 50 000 lei, plus suspendarea permisului pentru ani. Serviciul nostru e de 80-100 de ori mai ieftin. Cea mai bună asigurare pe seara asta.' },
+      { q: '— «Durează mult»', a: 'Plecăm acum, dispecerul sună când suntem aproape. Oricum mai puțin decât taxiul la oră de vârf.' },
+      { q: '— Tace, se gândește', a: 'Confirmăm comanda? Vă rezerv acest tarif, șoferul deja pleacă.' }
+    ],
+    copyTemplate: (a, b, price, stops, eta) => `PlusRent. Comanda confirmată:
+
+📍 Ruta: ${a} → ${b}${stops ? '\n🚏 Opriri: ' + stops : ''}
+💰 Preț: ${price} lei (totul inclus)
+🚗 Șoferul ajunge în ${eta} minute
+
+Plata la fața locului — numerar sau card.
+Dispecerul sună când șoferul ajunge.`
+  }
+};
+
+let currentLang = localStorage.getItem('pr_lang') || 'ru';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('pr_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  const price = parseFloat(document.getElementById('client-price').value) || 0;
+  updateClientScript(price);
+  renderObjections();
+}
+
+function renderObjections() {
+  const lang = SCRIPTS[currentLang];
+  document.getElementById('objections-title').textContent = lang.objectionsTitle;
+  document.getElementById('objections-list').innerHTML = lang.objections.map(o => `
+    <div class="objection-item">
+      <div class="obj-q">${o.q}</div>
+      <div class="obj-a">${o.a}</div>
+    </div>
+  `).join('');
+}
+
+function formatEta(sec) {
+  // ETA = время первого сегмента (Дом → Забор) + 3 мин на подготовку водителя
+  // Округляем до 5, минимум 15 мин
+  const minWithBuffer = Math.round(sec / 60) + 3;
+  const rounded = Math.max(15, Math.round(minWithBuffer / 5) * 5);
+  return rounded;
+}
+
 function updateClientScript(price) {
-  const el = document.getElementById('script-text');
-  if (!el) return;
+  const box = document.getElementById('phone-script');
+  const ifAsks = document.getElementById('if-asks-block');
+  const lang = SCRIPTS[currentLang];
 
   if (price === 0 || lastTotalKm === 0) {
-    el.className = 'script-text empty';
-    el.textContent = 'Введи маршрут и цену — текст сгенерируется автоматически';
+    box.className = 'phone-script empty';
+    box.innerHTML = `<span id="empty-text">${lang.empty}</span>`;
+    ifAsks.style.display = 'none';
     return;
   }
 
-  const pickup = document.getElementById('client-pickup').value.trim() || 'указанной точки';
-  const final = document.getElementById('client-final').value.trim() || 'дома';
-  const stops = getActiveStops();
-  const stopsText = stops.length ? ` с заездом через ${stops.length === 1 ? '1 точку' : stops.length + ' точки'}` : '';
-  const isNight = opts.night;
+  const pickup = document.getElementById('client-pickup').value.trim() || (currentLang === 'ru' ? 'указанной точки' : 'punctul indicat');
+  const final = document.getElementById('client-final').value.trim() || (currentLang === 'ru' ? 'дома' : 'destinație');
+  const a = truncateAddr(pickup);
+  const b = truncateAddr(final);
+  const eta = formatEta(lastEtaSec);
 
-  const script = `Здравствуйте! Шофер треаз PlusRent.
+  box.className = 'phone-script';
+  box.innerHTML = `
+    <div class="phone-step">
+      <div class="step-num">1</div>
+      <div class="step-text">${lang.step1(a, b, price, eta)}</div>
+    </div>
+    <div class="phone-step">
+      <div class="step-num">2</div>
+      <div class="step-text">${lang.step2}</div>
+    </div>
+    <div class="phone-step">
+      <div class="step-num">3</div>
+      <div class="step-text">${lang.step3}</div>
+    </div>
+  `;
 
-📍 Маршрут: ${truncateAddr(pickup)} → ${truncateAddr(final)}${stopsText}
-
-💰 Стоимость: ${price} лей
-В цену входит ВСЁ:
-✓ Профессиональный водитель
-✓ Авто сопровождения (2 наших водителя)
-✓ Топливо
-✓ Доставка вашей машины до дома${isNight ? '\n✓ Без ночной доплаты — фикс цена' : ''}
-
-Оплата на месте — наличные или карта.
-Подъезжаем за 15-20 минут.
-
-Едем?`;
-
-  el.className = 'script-text';
-  el.textContent = script;
+  document.getElementById('if-asks-title').textContent = lang.ifAsksTitle;
+  document.getElementById('if-asks-text').textContent = lang.ifAsks;
+  ifAsks.style.display = 'block';
 }
 
 function truncateAddr(s) {
   if (!s || s === '—') return s;
-  // Убираем "Кишинёв" и "Молдова" если есть, оставляем суть
   return s.replace(/,?\s*(Кишинёв|Кишинев|Chișinău|Chisinau|Молдова|Moldova|Republic of Moldova).*$/i, '').trim();
 }
 
 function copyClientScript() {
-  const el = document.getElementById('script-text');
+  const price = parseFloat(document.getElementById('client-price').value) || 0;
   const btn = document.getElementById('btn-copy-script');
-  if (!el || el.classList.contains('empty')) return;
-  const text = el.textContent;
+  if (price === 0 || lastTotalKm === 0) return;
+
+  const pickup = truncateAddr(document.getElementById('client-pickup').value.trim()) || '—';
+  const final = truncateAddr(document.getElementById('client-final').value.trim()) || '—';
+  const stops = getActiveStops().map(truncateAddr).join(', ');
+  const eta = formatEta(lastEtaSec);
+  const lang = SCRIPTS[currentLang];
+  const text = lang.copyTemplate(pickup, final, price, stops, eta);
+
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
       btn.textContent = '✅ Скопировано!';
       btn.classList.add('copied');
       setTimeout(() => {
-        btn.textContent = '📋 Скопировать текст';
+        btn.textContent = '📋 Скопировать (для WhatsApp)';
         btn.classList.remove('copied');
       }, 2000);
-    }).catch(() => {
-      fallbackCopy(text);
-    });
+    }).catch(() => fallbackCopy(text));
   } else {
     fallbackCopy(text);
   }
@@ -939,6 +1043,7 @@ function saveOrder() {
     durations: lastDurations,
     totalKm: lastTotalKm.toFixed(1),
     totalSec: lastTotalSec,
+    etaSec: lastEtaSec,
     directCost: directCost,
     workCost: workCost,
     fullCost: fullCost,
@@ -995,6 +1100,7 @@ function loadOrder(id) {
   lastDurations = order.durations || [];
   lastTotalKm = parseFloat(order.totalKm);
   lastTotalSec = order.totalSec || 0;
+  lastEtaSec = order.etaSec || 0;
   renderRouteViz(lastSegments);
   recompute();
 
@@ -1066,6 +1172,7 @@ if (smi) document.getElementById('maint-interval').value = smi;
 saveSettings();
 recompute();
 renderHistory();
+setLang(currentLang);
 </script>
 </body>
 </html>
