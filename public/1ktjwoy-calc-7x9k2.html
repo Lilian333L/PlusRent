@@ -130,6 +130,39 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .section-divider { height: 1px; background: rgba(245,158,11,0.15); margin: 8px 0; }
 .work-warning { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; padding: 6px 10px; background: rgba(239,68,68,0.06); border-radius: 8px; border: 1px solid rgba(239,68,68,0.15); display: none; }
 .work-warning.show { display: block; }
+
+/* Сворачиваемая карточка */
+details.collapsible-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 0; margin-bottom: 12px; overflow: hidden; }
+details.collapsible-card[open] { border-color: var(--amber-dim); }
+details.collapsible-card > summary { padding: 16px 20px; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); user-select: none; transition: background 0.15s; }
+details.collapsible-card > summary::-webkit-details-marker { display: none; }
+details.collapsible-card > summary:hover { background: rgba(245,158,11,0.04); }
+details.collapsible-card > summary .icon { width: 26px; height: 26px; background: var(--amber-glow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+details.collapsible-card > summary .arrow { margin-left: auto; color: var(--amber); font-size: 0.85rem; transition: transform 0.2s; }
+details.collapsible-card[open] > summary .arrow { transform: rotate(180deg); }
+details.collapsible-card > .details-content { padding: 0 20px 20px 20px; }
+
+/* Скрипт для клиента */
+.client-script { background: linear-gradient(135deg, #0a1f15, #0c1410); border: 1px solid #1f4d3a; border-radius: 16px; padding: 18px; margin-top: 12px; }
+.script-title { font-size: 0.78rem; font-weight: 700; color: var(--green); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.script-text { background: rgba(0,0,0,0.3); border: 1px solid rgba(34,197,94,0.15); border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.6; color: var(--text); white-space: pre-wrap; font-family: 'DM Sans', sans-serif; }
+.script-text.empty { color: var(--text-dim); font-style: italic; text-align: center; padding: 20px; }
+.script-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn-copy-script { flex: 1; background: var(--green); border: none; border-radius: 10px; padding: 10px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: opacity 0.15s; }
+.btn-copy-script:hover { opacity: 0.9; }
+.btn-copy-script.copied { background: var(--blue); }
+.btn-whatsapp { background: #25d366; border: none; border-radius: 10px; padding: 10px 14px; color: #000; font-weight: 700; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+
+.objections-section { margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(34,197,94,0.2); }
+.objections-title { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.objection-item { background: rgba(0,0,0,0.25); border-left: 3px solid var(--amber); border-radius: 4px 8px 8px 4px; padding: 10px 12px; margin-bottom: 6px; font-size: 0.78rem; line-height: 1.5; }
+.objection-item .obj-q { color: var(--amber); font-weight: 600; margin-bottom: 4px; font-size: 0.74rem; }
+.objection-item .obj-a { color: var(--text); }
+
+.price-advice { font-size: 0.78rem; padding: 10px 12px; border-radius: 10px; margin-top: 10px; line-height: 1.5; }
+.price-advice.good { background: rgba(34,197,94,0.08); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.price-advice.warn { background: rgba(245,158,11,0.08); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+.price-advice.bad { background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
 </style>
 </head>
 <body>
@@ -141,7 +174,8 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
   <div class="constants">
     <div class="constant-pill">⛽ <span>35 лей/л</span></div>
-    <div class="constant-pill">📊 <span>13 л/100км</span></div>
+    <div class="constant-pill">📊 <span>15 л/100км</span></div>
+    <div class="constant-pill">🔧 <span id="cp-maint">~0.64 л/км</span></div>
     <div class="constant-pill">📢 Ads <span>75 лей</span></div>
     <div class="constant-pill">👥 <span id="cp-driver-rate">60 л/ч × 2</span></div>
   </div>
@@ -209,8 +243,13 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><div class="icon">⚙️</div> Параметры заказа</div>
+  <details class="collapsible-card" id="settings-card">
+    <summary>
+      <div class="icon">⚙️</div>
+      <span>Параметры заказа</span>
+      <span class="arrow">▼</span>
+    </summary>
+    <div class="details-content">
     <div class="input-group input-suffix">
       <label>Ожидание клиента (свадьба, простой)</label>
       <input type="number" id="wait-min" placeholder="0" min="0" step="5" oninput="recompute()">
@@ -234,8 +273,19 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
         <input type="number" id="driver-count" value="2" min="1" max="3" step="1" oninput="saveSettings();recompute()">
         <div class="suffix">чел</div>
       </div>
+      <div class="input-group input-suffix">
+        <label>ТО (масло+фильтры)</label>
+        <input type="number" id="maint-cost" value="4500" min="0" step="100" oninput="saveSettings();recompute()">
+        <div class="suffix">лей</div>
+      </div>
+      <div class="input-group input-suffix">
+        <label>Интервал ТО</label>
+        <input type="number" id="maint-interval" value="7000" min="1000" step="500" oninput="saveSettings();recompute()">
+        <div class="suffix">км</div>
+      </div>
     </div>
-  </div>
+    </div>
+  </details>
 
   <div class="route-viz" id="route-viz">
     <div style="color:var(--text-dim);font-size:0.75rem;text-align:center;width:100%;">Нет маршрута</div>
@@ -245,6 +295,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
     <div class="result-row"><span class="label">🛣 Общий путь</span><span class="value" id="r-total-km">0 км</span></div>
     <div class="result-row"><span class="label">⏱ Время в работе</span><span class="value" id="r-time">0 мин</span></div>
     <div class="result-row"><span class="label">⛽ Топливо</span><span class="value" id="r-fuel">0 л · 0 лей</span></div>
+    <div class="result-row"><span class="label" id="r-maint-label">🔧 ТО (масло, фильтры)</span><span class="value" id="r-maint">0 лей</span></div>
     <div class="result-row"><span class="label">📢 Google Ads</span><span class="value">75 лей</span></div>
     <div class="result-row" id="r-wait-row" style="display:none"><span class="label">⏰ Ожидание</span><span class="value" id="r-wait">0 лей</span></div>
 
@@ -254,7 +305,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
     <div class="result-row total"><span class="label">💰 Полная себестоимость</span><span class="value" id="r-total-cost">75 лей</span></div>
 
-    <div class="market-hint" id="market-hint">📊 Рынок: 150-400 лей по городу, от 250 пригород</div>
+    <div class="price-advice good" id="price-advice">💡 Введи цену чтобы увидеть совет</div>
 
     <div class="price-input-section">
       <label>💵 Цена клиенту (с 50 в конце для чаевых)</label>
@@ -263,7 +314,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
         <div class="suffix">лей</div>
       </div>
       <div class="price-tiers" id="price-tiers"></div>
-      <div style="font-size:0.66rem;color:var(--text-dim);text-align:center;margin-top:6px;">×1.5 / ×2 / ×2.5 / ×3 от прямых затрат · число снизу = чистая прибыль</div>
+      <div style="font-size:0.66rem;color:var(--text-dim);text-align:center;margin-top:6px;">×2.2 / ×2.5 / ×2.8 / ×3.2 от прямых затрат · число снизу = чистая прибыль</div>
     </div>
 
     <div class="result-row profit" style="margin-top:14px"><span class="label">📈 Чистая прибыль (после оплаты водителей)</span><span class="value" id="r-profit">0 лей</span></div>
@@ -271,6 +322,44 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
     <div class="work-warning" id="work-warning">⚠️ Цена ниже полной себестоимости — работаешь в убыток</div>
 
     <button class="btn-save-order" id="btn-save-order" onclick="saveOrder()">💾 Сохранить в историю</button>
+  </div>
+
+  <!-- СКРИПТ ДЛЯ КЛИЕНТА -->
+  <div class="client-script">
+    <div class="script-title">💬 Что сказать клиенту по телефону</div>
+    <div class="script-text empty" id="script-text">Введи маршрут и цену — текст сгенерируется автоматически</div>
+    <div class="script-actions">
+      <button class="btn-copy-script" id="btn-copy-script" onclick="copyClientScript()">📋 Скопировать текст</button>
+    </div>
+
+    <div class="objections-section">
+      <div class="objections-title">🎯 Если торгуется или говорит "дорого"</div>
+
+      <div class="objection-item">
+        <div class="obj-q">— "Дорого, у других дешевле"</div>
+        <div class="obj-a">"У нас всё включено — топливо, два водителя, авто сопровождения. У других "от 150" — это приманка, потом по факту 300-400 + доплаты на месте за остановки и ночь. Мы говорим финальную цену сразу."</div>
+      </div>
+
+      <div class="objection-item">
+        <div class="obj-q">— "А можно дешевле?"</div>
+        <div class="obj-a">"Минимальная цена за это расстояние и время. Дешевле — только постоянным клиентам после нескольких поездок (скидка 10%). Хотите я записал ваш номер для скидки на следующий раз?"</div>
+      </div>
+
+      <div class="objection-item">
+        <div class="obj-q">— "Я лучше такси возьму"</div>
+        <div class="obj-a">"Такси не довезёт вашу машину — она останется. Завтра вам ехать за ней (ещё ~150 лей такси) + парковка ночью + риск что эвакуируют. У нас машина у дома утром. По итогу одно и то же по цене, но без головной боли."</div>
+      </div>
+
+      <div class="objection-item">
+        <div class="obj-q">— "Я сам нормально доеду"</div>
+        <div class="obj-a">"Штраф за пьяную езду в Молдове — 50 000 лей минимум, плюс лишение прав на годы. Наша услуга в 80-100 раз дешевле. Это самая выгодная страховка которую вы можете купить за этот вечер."</div>
+      </div>
+
+      <div class="objection-item">
+        <div class="obj-q">— "Долго ехать"</div>
+        <div class="obj-a">"15-20 минут до вас, по Кишинёву. Уже выезжаем, диспетчер позвонит когда будем рядом. Ждать всё равно меньше чем такси в час пик."</div>
+      </div>
+    </div>
   </div>
 
   <div class="history-section">
@@ -288,8 +377,10 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
         <input type="password" id="api-key-input" placeholder="AIzaSy...">
       </div>
       <button class="btn-save-key" onclick="saveApiKey()">Сохранить ключ</button>
+      <button class="btn-save-key" style="background:var(--red);margin-left:6px" onclick="clearApiKey()">🗑 Очистить</button>
       <div style="font-size:0.65rem; color:var(--text-dim); margin-top:6px;">
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--blue)">Google Cloud Console</a> → Distance Matrix API + Places API
+        Формат ключа: <code style="color:var(--amber)">AIzaSy...</code> (~39 символов)<br>
+        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--blue)">Google Cloud Console</a> → включи 3 API: <b>Maps JavaScript</b>, <b>Places</b>, <b>Distance Matrix</b>
       </div>
     </details>
   </div>
@@ -298,7 +389,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 <script>
 // ================== КОНСТАНТЫ ==================
 const FUEL_PRICE = 35;
-const CONSUMPTION = 13;
+const CONSUMPTION = 15;          // л/100км (реальный расход с двумя машинами)
 const ADS_COST = 75;
 const MIN_PRICE = 150;
 const WAIT_RATE = 1;
@@ -306,11 +397,16 @@ const NIGHT_MULT = 1.20;
 const WEEKEND_MULT = 1.10;
 const AVG_SPEED_KMH = 30;
 
+// Техобслуживание (ТО, масло, фильтры) — амортизация на каждый км
+// По умолчанию 4500 лей раз в 7000 км → ~0.643 лей/км
+const DEFAULT_MAINTENANCE_COST = 4500;
+const DEFAULT_MAINTENANCE_INTERVAL = 7000;
+
 const TIERS = [
-  { label: '×1.5',  mult: 1.5,  recommended: false },
-  { label: '×2',    mult: 2.0,  recommended: true  },
-  { label: '×2.5',  mult: 2.5,  recommended: false },
-  { label: '×3',    mult: 3.0,  recommended: false }
+  { label: '×2.2', mult: 2.2,  recommended: false },  // минимум (постоянник, торг)
+  { label: '×2.5', mult: 2.5,  recommended: true  },  // ✓ рекомендуемый
+  { label: '×2.8', mult: 2.8,  recommended: false },  // хорошо
+  { label: '×3.2', mult: 3.2,  recommended: false }   // премиум (ночь, дальний)
 ];
 
 // ================== СОСТОЯНИЕ ==================
@@ -356,29 +452,64 @@ function saveHome() {
 function saveSettings() {
   const rate = parseFloat(document.getElementById('driver-rate').value) || 60;
   const count = parseInt(document.getElementById('driver-count').value) || 2;
+  const maintCost = parseFloat(document.getElementById('maint-cost').value) || DEFAULT_MAINTENANCE_COST;
+  const maintInterval = parseFloat(document.getElementById('maint-interval').value) || DEFAULT_MAINTENANCE_INTERVAL;
   localStorage.setItem('pr_driver_rate', rate);
   localStorage.setItem('pr_driver_count', count);
+  localStorage.setItem('pr_maint_cost', maintCost);
+  localStorage.setItem('pr_maint_interval', maintInterval);
   document.getElementById('cp-driver-rate').textContent = `${rate} л/ч × ${count}`;
+  document.getElementById('cp-maint').textContent = `~${(maintCost / maintInterval).toFixed(2)} л/км`;
+}
+
+function isValidGoogleKey(k) {
+  // Google Maps API ключи начинаются с AIzaSy и имеют ~39 символов из [A-Za-z0-9_-]
+  return typeof k === 'string' && /^AIzaSy[A-Za-z0-9_-]{30,40}$/.test(k.trim());
+}
+
+function clearApiKey() {
+  localStorage.removeItem('pr_gkey');
+  document.getElementById('api-key-input').value = '';
+  alert('🗑 Ключ удалён. Перезагрузи страницу и введи новый.');
 }
 
 function saveApiKey() {
   const k = document.getElementById('api-key-input').value.trim();
-  if (k) {
-    localStorage.setItem('pr_gkey', k);
-    alert('✅ Сохранено');
-    loadGoogleMaps(k);
+  if (!k) return;
+  if (k === '••••••••') { alert('Введи новый ключ или нажми "Очистить".'); return; }
+  if (!isValidGoogleKey(k)) {
+    alert('❌ Это не похоже на ключ Google Maps.\n\nКлюч должен начинаться с "AIzaSy" и быть длиной ~39 символов.\n\nПолучи ключ: console.cloud.google.com → APIs & Services → Credentials');
+    return;
   }
+  localStorage.setItem('pr_gkey', k);
+  alert('✅ Сохранено. Перезагрузи страницу для применения.');
+  location.reload();
 }
 
 let googleLoaded = false;
 function loadGoogleMaps(key) {
   if (!key || googleLoaded) return;
+  if (!isValidGoogleKey(key)) {
+    // Мусорный ключ в localStorage — чистим, чтобы не падал каждый раз
+    console.warn('Невалидный API ключ в localStorage, очищаю:', key);
+    localStorage.removeItem('pr_gkey');
+    return;
+  }
   const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=initAC`;
+  s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&callback=initAC`;
   s.async = true; s.defer = true;
-  s.onerror = () => showStatus('Ошибка загрузки Google Maps', 'error');
+  s.onerror = () => {
+    showStatus('Ошибка загрузки Google Maps — проверь ключ', 'error');
+    localStorage.removeItem('pr_gkey');
+  };
   document.head.appendChild(s);
 }
+
+// Перехват ошибок Google Maps API (InvalidKeyMapError и т.д.)
+window.gm_authFailure = function() {
+  localStorage.removeItem('pr_gkey');
+  alert('❌ Google Maps отверг ключ (InvalidKeyMapError).\n\nКлюч был очищен. Возможные причины:\n\n1. Ключ неверный\n2. Не включён Maps JavaScript API в Google Cloud Console\n3. Не включён биллинг (но есть $200/мес бесплатно)\n4. Ограничения по домену не пропускают этот сайт\n\nПерезагрузи и введи новый ключ.');
+};
 
 window.initAC = function() {
   googleLoaded = true;
@@ -544,8 +675,14 @@ function recompute() {
   const fuel = (totalKm * CONSUMPTION) / 100;
   const fuelCost = fuel * FUEL_PRICE;
 
+  // Техобслуживание (масло+фильтры): за каждый км начисляется доля от ТО
+  const maintenanceCostPer = parseFloat(document.getElementById('maint-cost').value) || DEFAULT_MAINTENANCE_COST;
+  const maintenanceInterval = parseFloat(document.getElementById('maint-interval').value) || DEFAULT_MAINTENANCE_INTERVAL;
+  const maintenancePerKm = maintenanceCostPer / maintenanceInterval;
+  const maintenanceCost = totalKm * maintenancePerKm;
+
   const waitCost = waitMin * WAIT_RATE;
-  directCost = Math.round(fuelCost + ADS_COST + waitCost);
+  directCost = Math.round(fuelCost + maintenanceCost + ADS_COST + waitCost);
 
   const driverRate = parseFloat(document.getElementById('driver-rate').value) || 60;
   const driverCount = parseInt(document.getElementById('driver-count').value) || 2;
@@ -556,6 +693,8 @@ function recompute() {
   document.getElementById('r-total-km').textContent = totalKm.toFixed(1) + ' км';
   document.getElementById('r-time').textContent = formatTime(totalWorkMin);
   document.getElementById('r-fuel').textContent = fuel.toFixed(1) + ' л · ' + Math.round(fuelCost) + ' лей';
+  document.getElementById('r-maint').textContent = Math.round(maintenanceCost) + ' лей';
+  document.getElementById('r-maint-label').textContent = `🔧 ТО (${maintenancePerKm.toFixed(2)} л/км)`;
 
   if (waitCost > 0) {
     document.getElementById('r-wait-row').style.display = 'flex';
@@ -590,13 +729,6 @@ function recompute() {
     `;
   }).join('');
   document.getElementById('price-tiers').innerHTML = tiersHtml;
-
-  let marketText = '';
-  if (totalKm < 15) marketText = '📊 Рынок: 150-300 лей · короткая поездка';
-  else if (totalKm < 35) marketText = '📊 Рынок: 250-450 лей · средняя по городу';
-  else if (totalKm < 70) marketText = '📊 Рынок: 350-700 лей · пригород';
-  else marketText = '📊 Рынок: 700+ лей · загородная поездка';
-  document.getElementById('market-hint').textContent = marketText;
 
   updateProfit();
 }
@@ -648,6 +780,107 @@ function updateProfit() {
     if (elPrice === p) el.classList.add('selected');
     else el.classList.remove('selected');
   });
+
+  updatePriceAdvice(p, profit, margin);
+  updateClientScript(p);
+}
+
+function updatePriceAdvice(p, profit, margin) {
+  const advice = document.getElementById('price-advice');
+  if (!advice) return;
+  if (p === 0) {
+    advice.className = 'price-advice good';
+    advice.textContent = '💡 Выбери тир выше или введи свою цену';
+    return;
+  }
+  if (profit < 0) {
+    advice.className = 'price-advice bad';
+    advice.innerHTML = `❌ <b>Убыток ${Math.abs(profit)} лей.</b> Минимум для этого заказа = ${roundToX50(fullCost * 1.15)} лей чтобы хоть что-то заработать`;
+    return;
+  }
+  if (margin < 20) {
+    advice.className = 'price-advice warn';
+    advice.innerHTML = `⚠️ <b>Маржа всего ${margin}%.</b> Можно поднять до ${roundToX50(directCost * 2.5)} — клиент скорее всего согласится, аргумент: "всё включено, без доплат"`;
+    return;
+  }
+  if (margin >= 40) {
+    advice.className = 'price-advice good';
+    advice.innerHTML = `✅ <b>Отличная цена.</b> Если клиент торгуется — можно опуститься до ${roundToX50(directCost * 2.2)} (минимум) и всё равно остаться в плюсе`;
+    return;
+  }
+  advice.className = 'price-advice good';
+  advice.innerHTML = `✅ <b>Хорошая цена с прибылью ${profit} лей.</b> Уверенно называй её клиенту, не извиняйся за неё`;
+}
+
+function updateClientScript(price) {
+  const el = document.getElementById('script-text');
+  if (!el) return;
+
+  if (price === 0 || lastTotalKm === 0) {
+    el.className = 'script-text empty';
+    el.textContent = 'Введи маршрут и цену — текст сгенерируется автоматически';
+    return;
+  }
+
+  const pickup = document.getElementById('client-pickup').value.trim() || 'указанной точки';
+  const final = document.getElementById('client-final').value.trim() || 'дома';
+  const stops = getActiveStops();
+  const stopsText = stops.length ? ` с заездом через ${stops.length === 1 ? '1 точку' : stops.length + ' точки'}` : '';
+  const isNight = opts.night;
+
+  const script = `Здравствуйте! Шофер треаз PlusRent.
+
+📍 Маршрут: ${truncateAddr(pickup)} → ${truncateAddr(final)}${stopsText}
+
+💰 Стоимость: ${price} лей
+В цену входит ВСЁ:
+✓ Профессиональный водитель
+✓ Авто сопровождения (2 наших водителя)
+✓ Топливо
+✓ Доставка вашей машины до дома${isNight ? '\n✓ Без ночной доплаты — фикс цена' : ''}
+
+Оплата на месте — наличные или карта.
+Подъезжаем за 15-20 минут.
+
+Едем?`;
+
+  el.className = 'script-text';
+  el.textContent = script;
+}
+
+function truncateAddr(s) {
+  if (!s || s === '—') return s;
+  // Убираем "Кишинёв" и "Молдова" если есть, оставляем суть
+  return s.replace(/,?\s*(Кишинёв|Кишинев|Chișinău|Chisinau|Молдова|Moldova|Republic of Moldova).*$/i, '').trim();
+}
+
+function copyClientScript() {
+  const el = document.getElementById('script-text');
+  const btn = document.getElementById('btn-copy-script');
+  if (!el || el.classList.contains('empty')) return;
+  const text = el.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Скопировано!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 Скопировать текст';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); alert('Скопировано'); } catch { alert('Не удалось скопировать'); }
+  document.body.removeChild(ta);
 }
 
 function setPrice(v) {
@@ -815,6 +1048,10 @@ const sr = localStorage.getItem('pr_driver_rate');
 if (sr) document.getElementById('driver-rate').value = sr;
 const sc = localStorage.getItem('pr_driver_count');
 if (sc) document.getElementById('driver-count').value = sc;
+const smc = localStorage.getItem('pr_maint_cost');
+if (smc) document.getElementById('maint-cost').value = smc;
+const smi = localStorage.getItem('pr_maint_interval');
+if (smi) document.getElementById('maint-interval').value = smi;
 saveSettings();
 recompute();
 renderHistory();
