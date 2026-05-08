@@ -714,10 +714,21 @@ function recompute() {
   if (opts.night) priceMultiplier *= NIGHT_MULT;
   if (opts.weekend) priceMultiplier *= WEEKEND_MULT;
 
-  // Тиры цен — от ПРЯМЫХ затрат (как было в оригинале), но снизу показываем чистую прибыль
+  // Тиры цен — от ПРЯМЫХ затрат. Логика округления:
+  // 1) По умолчанию округляем до X50 (150, 250, 350...) — для чаевых
+  // 2) Если цена совпадает с предыдущим тиром — округляем до ближайшего 50
+  //    (может получиться X00, например 700) чтобы тиры не дублировались
+  let prevPrice = 0;
   const tiersHtml = TIERS.map(t => {
     const raw = Math.max(MIN_PRICE, directCost * t.mult * priceMultiplier);
-    const price = roundToX50(raw);
+    let price = roundToX50(raw);
+    if (price <= prevPrice) {
+      // Округляем до ближайшего 50 — может дать не-X50 (700, 800 и т.д.)
+      price = Math.round(raw / 50) * 50;
+      // Гарантируем что строго больше предыдущего
+      if (price <= prevPrice) price = prevPrice + 50;
+    }
+    prevPrice = price;
     const realProfit = price - fullCost;
     const profitColor = realProfit >= 0 ? 'color:var(--green)' : 'color:var(--red)';
     return `
