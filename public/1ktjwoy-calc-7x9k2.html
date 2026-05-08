@@ -2,16 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-
-  <!-- ===== PRECONNECT — PageSpeed optimization ===== -->
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-  <link rel="dns-prefetch" href="https://www.google-analytics.com">
-  <!-- ===== END PRECONNECT ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="dns-prefetch" href="https://maps.googleapis.com">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PlusRent — Калькулятор Șofer Treaz</title>
+<title>PlusRent — Калькулятор Șofer Treaz v3</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -21,7 +15,7 @@
   --text: #e4e4e7; --text-dim: #71717a; --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
 }
 body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 12px; -webkit-tap-highlight-color: transparent; }
-.container { max-width: 520px; margin: 0 auto; }
+.container { max-width: 540px; margin: 0 auto; }
 .header { text-align: center; padding: 20px 0 14px; }
 .header h1 { font-family: 'Space Mono', monospace; font-size: 1.3rem; color: var(--amber); letter-spacing: 2px; text-transform: uppercase; }
 .header p { color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; }
@@ -46,9 +40,12 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .btn-icon { width: 42px; height: 42px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text-dim); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
 .btn-icon:hover { border-color: var(--amber); color: var(--amber); }
 .btn-icon.saved { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+.btn-icon.delete:hover { border-color: var(--red); color: var(--red); }
 .btn-calc { width: 100%; background: linear-gradient(135deg, var(--amber), var(--amber-dim)); border: none; border-radius: 12px; padding: 14px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 14px; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-calc:hover { opacity: 0.9; }
 .btn-calc:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-add-stop { width: 100%; background: transparent; border: 1px dashed var(--border); border-radius: 10px; padding: 10px; color: var(--text-dim); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; margin-top: 10px; transition: all 0.15s; }
+.btn-add-stop:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
 .status-msg { text-align: center; font-size: 0.78rem; padding: 8px; border-radius: 8px; margin-top: 10px; display: none; }
 .status-msg.error { display: block; background: rgba(239,68,68,0.1); color: var(--red); }
 .status-msg.success { display: block; background: rgba(34,197,94,0.08); color: var(--green); }
@@ -57,26 +54,38 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .route-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--amber); }
 .route-dot.home { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
 .route-dot.client { background: var(--red); box-shadow: 0 0 0 2px var(--red); }
+.route-dot.stop { background: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
 .route-label { font-size: 0.6rem; color: var(--text-dim); margin-top: 5px; text-align: center; white-space: nowrap; }
 .route-line { flex: 1; height: 2px; background: var(--border); min-width: 24px; position: relative; }
 .route-line .dist { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--amber); white-space: nowrap; }
 .results { background: linear-gradient(135deg, #1a1708, #16161a); border: 1px solid var(--amber-dim); border-radius: 16px; padding: 20px; margin-top: 12px; }
-.result-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(245,158,11,0.1); }
+.result-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(245,158,11,0.08); }
 .result-row:last-child { border-bottom: none; }
 .result-row .label { font-size: 0.82rem; color: var(--text-dim); }
 .result-row .value { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: var(--text); }
-.result-row.total { border-top: 2px solid var(--amber-dim); border-bottom: none; margin-top: 6px; padding-top: 14px; }
+.result-row.subtotal { border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); margin: 4px 0; padding: 8px 0; }
+.result-row.subtotal .label { font-size: 0.85rem; color: var(--text); font-weight: 600; }
+.result-row.subtotal .value { color: var(--text); font-weight: 700; }
+.result-row.total { border-top: 2px solid var(--amber-dim); border-bottom: none; margin-top: 8px; padding-top: 12px; }
 .result-row.total .label { font-size: 0.95rem; font-weight: 700; color: var(--text); }
 .result-row.total .value { font-size: 1.4rem; color: var(--amber); font-weight: 700; }
 .price-input-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .price-input-section label { font-size: 0.78rem; color: var(--amber); font-weight: 600; }
-.price-input-section input { background: rgba(245,158,11,0.08); border-color: var(--amber-dim); color: var(--amber); font-size: 1.2rem; text-align: center; font-family: 'Space Mono', monospace; }
+.price-input-section input { background: rgba(245,158,11,0.08); border-color: var(--amber-dim); color: var(--amber); font-size: 1.3rem; text-align: center; font-family: 'Space Mono', monospace; font-weight: 700; }
 .price-input-section input:focus { border-color: var(--amber); background: rgba(245,158,11,0.12); }
-.suggest-prices { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-.suggest-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
-.suggest-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
-.suggest-btn.recommended { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
-.result-row.profit .value { color: var(--green); }
+
+.price-tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.price-tier { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 4px; cursor: pointer; transition: all 0.15s; text-align: center; }
+.price-tier:hover { border-color: var(--amber); }
+.price-tier.recommended { border-color: var(--green); background: rgba(34,197,94,0.06); }
+.price-tier.selected { border-color: var(--amber); background: var(--amber-glow); }
+.tier-name { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-dim); margin-bottom: 4px; }
+.price-tier.recommended .tier-name { color: var(--green); }
+.tier-price { font-family: 'Space Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.tier-margin { font-size: 0.58rem; color: var(--text-dim); margin-top: 2px; font-family: 'Space Mono', monospace; }
+.price-tier.recommended .tier-margin { color: var(--green); }
+
+.result-row.profit .value { font-size: 1.05rem; font-weight: 700; }
 .result-row.margin { background: rgba(34,197,94,0.08); border-radius: 8px; padding: 8px 10px; margin-top: 4px; }
 .manual-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
 .toggle-btn { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.78rem; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
@@ -86,21 +95,17 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .api-key-section summary { font-size: 0.75rem; color: var(--text-dim); cursor: pointer; }
 .btn-save-key { background: var(--green); border: none; border-radius: 8px; padding: 6px 14px; color: #000; font-size: 0.75rem; font-weight: 600; cursor: pointer; margin-top: 6px; }
 
-/* Save order button */
 .btn-save-order { width: 100%; background: var(--green); border: none; border-radius: 12px; padding: 12px; color: #000; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s; }
 .btn-save-order:hover { opacity: 0.9; }
 .btn-save-order:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* History */
 .history-section { margin-top: 16px; }
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .history-header h3 { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
 .btn-clear-history { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; color: var(--red); font-size: 0.7rem; cursor: pointer; transition: all 0.15s; }
 .btn-clear-history:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
-
 .history-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
 .history-item:hover { border-color: var(--amber); }
-.history-item.active { border-color: var(--green); background: rgba(34,197,94,0.05); }
 .history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .history-date { font-size: 0.7rem; color: var(--text-dim); }
 .history-price { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--amber); font-weight: 700; }
@@ -114,20 +119,31 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .history-empty { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 20px; }
 .history-profit-pos { color: var(--green); }
 .history-profit-neg { color: var(--red); }
+
+.options-row { display: flex; gap: 8px; margin-top: 8px; }
+.opt-toggle { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.72rem; cursor: pointer; text-align: center; transition: all 0.15s; }
+.opt-toggle.active { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+.market-hint { font-size: 0.7rem; color: var(--text-dim); text-align: center; margin-top: 6px; padding: 6px; background: rgba(59,130,246,0.06); border-radius: 8px; border: 1px solid rgba(59,130,246,0.15); }
+.stop-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+.stop-row .input-group { flex: 1; margin-bottom: 0; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.section-divider { height: 1px; background: rgba(245,158,11,0.15); margin: 8px 0; }
+.work-warning { font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; padding: 6px 10px; background: rgba(239,68,68,0.06); border-radius: 8px; border: 1px solid rgba(239,68,68,0.15); display: none; }
+.work-warning.show { display: block; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1>🚗 Șofer Treaz Calc</h1>
-    <p>Внутренний калькулятор PlusRent</p>
+    <h1>🚗 Șofer Treaz Calc v3</h1>
+    <p>Полный учёт: топливо · Ads · работа 2 водителей</p>
   </div>
 
   <div class="constants">
     <div class="constant-pill">⛽ <span>35 лей/л</span></div>
     <div class="constant-pill">📊 <span>13 л/100км</span></div>
-    <div class="constant-pill">👥 <span>2 водит.</span></div>
     <div class="constant-pill">📢 Ads <span>75 лей</span></div>
+    <div class="constant-pill">👥 <span id="cp-driver-rate">60 л/ч × 2</span></div>
   </div>
 
   <div class="manual-toggle">
@@ -137,83 +153,126 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
   <div id="map-mode">
     <div class="card">
-      <div class="card-title"><div class="icon">🏠</div> Наш адрес (сохраняется)</div>
+      <div class="card-title"><div class="icon">🏠</div> Наш адрес (база)</div>
       <div class="address-row">
         <div class="input-group"><input type="text" id="home-address" placeholder="ул. Мештерул Маноле 20, Кишинёв"></div>
         <button class="btn-icon" id="btn-save-home" onclick="saveHome()" title="Сохранить">💾</button>
       </div>
     </div>
+
     <div class="card">
-      <div class="card-title"><div class="icon">📍</div> Маршрут клиента</div>
+      <div class="card-title"><div class="icon">📍</div> Маршрут поездки</div>
       <div class="input-group">
-        <label>Где забрать клиента</label>
-        <input type="text" id="client-location" placeholder="Адрес или название места">
+        <label>① Откуда забрать клиента</label>
+        <input type="text" id="client-pickup" placeholder="Адрес или название места">
       </div>
+
+      <div id="stops-container"></div>
+
       <div class="input-group">
-        <label>Куда отвезти (дом клиента)</label>
-        <input type="text" id="client-home" placeholder="Адрес дома клиента">
+        <label>🏁 Конечная точка</label>
+        <input type="text" id="client-final" placeholder="Адрес куда отвезти">
       </div>
+
+      <button class="btn-add-stop" onclick="addStop()">+ Добавить промежуточную остановку</button>
     </div>
+
     <button class="btn-calc" id="btn-calculate" onclick="calculateRoute()">
-      <span id="calc-text">📐 Рассчитать расстояния</span>
+      <span id="calc-text">📐 Рассчитать маршрут</span>
     </button>
     <div class="status-msg" id="status"></div>
   </div>
 
   <div id="manual-mode" style="display:none">
     <div class="card">
-      <div class="card-title"><div class="icon">📍</div> Расстояния (вручную)</div>
+      <div class="card-title"><div class="icon">📍</div> Расстояния (вручную, км)</div>
       <div class="input-group input-suffix">
-        <label>Дом → Локация клиента</label>
-        <input type="number" id="d1" placeholder="0" min="0" oninput="calcManual()">
+        <label>Дом → точка забора (порожний)</label>
+        <input type="number" id="m-d-to" placeholder="0" min="0" step="0.1" oninput="calcManual()">
         <div class="suffix">км</div>
       </div>
       <div class="input-group input-suffix">
-        <label>Локация клиента → Дом клиента</label>
-        <input type="number" id="d2" placeholder="0" min="0" oninput="calcManual()">
+        <label>Маршрут клиента (вкл. остановки)</label>
+        <input type="number" id="m-d-route" placeholder="0" min="0" step="0.1" oninput="calcManual()">
         <div class="suffix">км</div>
       </div>
       <div class="input-group input-suffix">
-        <label>Дом клиента → Наш дом (назад)</label>
-        <input type="number" id="d3" placeholder="0" min="0" oninput="calcManual()">
+        <label>Конечная → дом (порожний возврат)</label>
+        <input type="number" id="m-d-back" placeholder="0" min="0" step="0.1" oninput="calcManual()">
         <div class="suffix">км</div>
+      </div>
+      <div class="input-group input-suffix">
+        <label>Время поездки (опц., иначе = км/30 × 60)</label>
+        <input type="number" id="m-time" placeholder="авто" min="0" step="5" oninput="calcManual()">
+        <div class="suffix">мин</div>
       </div>
     </div>
   </div>
 
-  <div class="route-viz">
-    <div class="route-point"><div class="route-dot home"></div><div class="route-label">Дом</div></div>
-    <div class="route-line"><div class="dist" id="viz-d1">—</div></div>
-    <div class="route-point"><div class="route-dot client"></div><div class="route-label">Клиент</div></div>
-    <div class="route-line"><div class="dist" id="viz-d2">—</div></div>
-    <div class="route-point"><div class="route-dot"></div><div class="route-label">Дом кл.</div></div>
-    <div class="route-line"><div class="dist" id="viz-d3">—</div></div>
-    <div class="route-point"><div class="route-dot home"></div><div class="route-label">Дом</div></div>
+  <div class="card">
+    <div class="card-title"><div class="icon">⚙️</div> Параметры заказа</div>
+    <div class="input-group input-suffix">
+      <label>Ожидание клиента (свадьба, простой)</label>
+      <input type="number" id="wait-min" placeholder="0" min="0" step="5" oninput="recompute()">
+      <div class="suffix">мин</div>
+    </div>
+    <div class="options-row">
+      <button class="opt-toggle" id="opt-night" onclick="toggleOpt('night')">🌙 Ночь (+20%)</button>
+      <button class="opt-toggle" id="opt-weekend" onclick="toggleOpt('weekend')">🎉 Выходные (+10%)</button>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="settings-grid">
+      <div class="input-group input-suffix">
+        <label>Ставка водителя</label>
+        <input type="number" id="driver-rate" value="60" min="0" step="5" oninput="saveSettings();recompute()">
+        <div class="suffix">л/ч</div>
+      </div>
+      <div class="input-group input-suffix">
+        <label>Кол-во водителей</label>
+        <input type="number" id="driver-count" value="2" min="1" max="3" step="1" oninput="saveSettings();recompute()">
+        <div class="suffix">чел</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="route-viz" id="route-viz">
+    <div style="color:var(--text-dim);font-size:0.75rem;text-align:center;width:100%;">Нет маршрута</div>
   </div>
 
   <div class="results">
-    <div class="result-row"><span class="label">Общий путь</span><span class="value" id="r-total-km">0 км</span></div>
-    <div class="result-row"><span class="label">Расход топлива</span><span class="value" id="r-fuel">0 л</span></div>
-    <div class="result-row"><span class="label">Стоимость топлива</span><span class="value" id="r-fuel-cost">0 лей</span></div>
+    <div class="result-row"><span class="label">🛣 Общий путь</span><span class="value" id="r-total-km">0 км</span></div>
+    <div class="result-row"><span class="label">⏱ Время в работе</span><span class="value" id="r-time">0 мин</span></div>
+    <div class="result-row"><span class="label">⛽ Топливо</span><span class="value" id="r-fuel">0 л · 0 лей</span></div>
     <div class="result-row"><span class="label">📢 Google Ads</span><span class="value">75 лей</span></div>
-    <div class="result-row total"><span class="label">💰 Себестоимость</span><span class="value" id="r-cost">75 лей</span></div>
+    <div class="result-row" id="r-wait-row" style="display:none"><span class="label">⏰ Ожидание</span><span class="value" id="r-wait">0 лей</span></div>
+
+    <div class="result-row subtotal"><span class="label">💵 Прямые затраты</span><span class="value" id="r-direct-cost">75 лей</span></div>
+
+    <div class="result-row"><span class="label" id="r-work-label">👥 Работа водителей</span><span class="value" id="r-work-cost">0 лей</span></div>
+
+    <div class="result-row total"><span class="label">💰 Полная себестоимость</span><span class="value" id="r-total-cost">75 лей</span></div>
+
+    <div class="market-hint" id="market-hint">📊 Рынок: 150-400 лей по городу, от 250 пригород</div>
 
     <div class="price-input-section">
-      <div class="input-group input-suffix">
-        <label>Цена клиенту</label>
+      <label>💵 Цена клиенту (с 50 в конце для чаевых)</label>
+      <div class="input-group input-suffix" style="margin-top:6px">
         <input type="number" id="client-price" placeholder="0" min="0" oninput="updateProfit()">
         <div class="suffix">лей</div>
       </div>
-      <div class="suggest-prices" id="suggestions"></div>
+      <div class="price-tiers" id="price-tiers"></div>
+      <div style="font-size:0.66rem;color:var(--text-dim);text-align:center;margin-top:6px;">×1.5 / ×2 / ×2.5 / ×3 от прямых затрат · число снизу = чистая прибыль</div>
     </div>
 
-    <div class="result-row profit" style="margin-top:10px"><span class="label">📈 Прибыль</span><span class="value" id="r-profit">0 лей</span></div>
-    <div class="result-row margin"><span class="label">Маржа</span><span class="value" id="r-margin">0%</span></div>
+    <div class="result-row profit" style="margin-top:14px"><span class="label">📈 Чистая прибыль (после оплаты водителей)</span><span class="value" id="r-profit">0 лей</span></div>
+    <div class="result-row margin"><span class="label">Маржа от цены</span><span class="value" id="r-margin">0%</span></div>
+    <div class="work-warning" id="work-warning">⚠️ Цена ниже полной себестоимости — работаешь в убыток</div>
 
     <button class="btn-save-order" id="btn-save-order" onclick="saveOrder()">💾 Сохранить в историю</button>
   </div>
 
-  <!-- History -->
   <div class="history-section">
     <div class="history-header">
       <h3>📋 История заказов</h3>
@@ -237,9 +296,40 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 </div>
 
 <script>
-const FUEL_PRICE = 35, CONSUMPTION = 13, ADS_COST = 75;
-let currentCost = ADS_COST;
-let lastD1 = 0, lastD2 = 0, lastD3 = 0;
+// ================== КОНСТАНТЫ ==================
+const FUEL_PRICE = 35;
+const CONSUMPTION = 13;
+const ADS_COST = 75;
+const MIN_PRICE = 150;
+const WAIT_RATE = 1;
+const NIGHT_MULT = 1.20;
+const WEEKEND_MULT = 1.10;
+const AVG_SPEED_KMH = 30;
+
+const TIERS = [
+  { label: '×1.5',  mult: 1.5,  recommended: false },
+  { label: '×2',    mult: 2.0,  recommended: true  },
+  { label: '×2.5',  mult: 2.5,  recommended: false },
+  { label: '×3',    mult: 3.0,  recommended: false }
+];
+
+// ================== СОСТОЯНИЕ ==================
+let stopsCount = 0;
+let lastSegments = [];
+let lastDurations = [];
+let lastTotalKm = 0;
+let lastTotalSec = 0;
+let directCost = ADS_COST;
+let workCost = 0;
+let fullCost = ADS_COST;
+let opts = { night: false, weekend: false };
+let routePoints = [];
+
+// 150, 250, 350, 450... (всегда оканчивается на 50)
+function roundToX50(n) {
+  if (n <= 150) return 150;
+  return Math.round((n - 50) / 100) * 100 + 50;
+}
 
 function setMode(m) {
   document.getElementById('map-mode').style.display = m === 'map' ? 'block' : 'none';
@@ -248,14 +338,36 @@ function setMode(m) {
   document.getElementById('toggle-manual').className = 'toggle-btn' + (m === 'manual' ? ' active' : '');
 }
 
+function toggleOpt(name) {
+  opts[name] = !opts[name];
+  document.getElementById('opt-' + name).classList.toggle('active');
+  recompute();
+}
+
 function saveHome() {
   const a = document.getElementById('home-address').value.trim();
-  if (a) { localStorage.setItem('pr_home', a); document.getElementById('btn-save-home').className = 'btn-icon saved'; setTimeout(() => document.getElementById('btn-save-home').className = 'btn-icon', 1500); }
+  if (a) {
+    localStorage.setItem('pr_home', a);
+    document.getElementById('btn-save-home').className = 'btn-icon saved';
+    setTimeout(() => document.getElementById('btn-save-home').className = 'btn-icon', 1500);
+  }
+}
+
+function saveSettings() {
+  const rate = parseFloat(document.getElementById('driver-rate').value) || 60;
+  const count = parseInt(document.getElementById('driver-count').value) || 2;
+  localStorage.setItem('pr_driver_rate', rate);
+  localStorage.setItem('pr_driver_count', count);
+  document.getElementById('cp-driver-rate').textContent = `${rate} л/ч × ${count}`;
 }
 
 function saveApiKey() {
   const k = document.getElementById('api-key-input').value.trim();
-  if (k) { localStorage.setItem('pr_gkey', k); alert('✅ Сохранено'); loadGoogleMaps(k); }
+  if (k) {
+    localStorage.setItem('pr_gkey', k);
+    alert('✅ Сохранено');
+    loadGoogleMaps(k);
+  }
 }
 
 let googleLoaded = false;
@@ -270,132 +382,342 @@ function loadGoogleMaps(key) {
 
 window.initAC = function() {
   googleLoaded = true;
-  const opts = { componentRestrictions: { country: 'md' } };
-  ['home-address','client-location','client-home'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && window.google) new google.maps.places.Autocomplete(el, opts);
-  });
+  attachAutocomplete();
   showStatus('✅ Google Maps подключён', 'success');
   setTimeout(hideStatus, 2000);
 };
 
+function attachAutocomplete() {
+  if (!window.google) return;
+  const acOpts = { componentRestrictions: { country: 'md' } };
+  const ids = ['home-address', 'client-pickup', 'client-final'];
+  document.querySelectorAll('[id^="stop-input-"]').forEach(el => ids.push(el.id));
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.acAttached) {
+      new google.maps.places.Autocomplete(el, acOpts);
+      el.dataset.acAttached = '1';
+    }
+  });
+}
+
+function addStop() {
+  stopsCount++;
+  const idx = stopsCount;
+  const div = document.createElement('div');
+  div.className = 'stop-row';
+  div.id = `stop-row-${idx}`;
+  div.innerHTML = `
+    <div class="input-group">
+      <label>🚏 Остановка #${idx}</label>
+      <input type="text" id="stop-input-${idx}" placeholder="Адрес остановки">
+    </div>
+    <button class="btn-icon delete" onclick="removeStop(${idx})" title="Удалить">✕</button>
+  `;
+  document.getElementById('stops-container').appendChild(div);
+  if (googleLoaded) attachAutocomplete();
+}
+
+function removeStop(idx) {
+  const r = document.getElementById(`stop-row-${idx}`);
+  if (r) r.remove();
+  let n = 1;
+  document.querySelectorAll('[id^="stop-row-"] label').forEach(l => {
+    l.textContent = `🚏 Остановка #${n++}`;
+  });
+}
+
+function getActiveStops() {
+  const stops = [];
+  document.querySelectorAll('[id^="stop-input-"]').forEach(el => {
+    const v = el.value.trim();
+    if (v) stops.push(v);
+  });
+  return stops;
+}
+
 async function calculateRoute() {
-  const h = document.getElementById('home-address').value.trim();
-  const cl = document.getElementById('client-location').value.trim();
-  const ch = document.getElementById('client-home').value.trim();
-  if (!h || !cl || !ch) { showStatus('Заполни все 3 адреса', 'error'); return; }
-  if (!googleLoaded || !window.google) {
-    window.open(`https://www.google.com/maps/dir/${encodeURIComponent(h)}/${encodeURIComponent(cl)}/${encodeURIComponent(ch)}/${encodeURIComponent(h)}`, '_blank');
-    showStatus('Нет API — открыл Google Maps', 'error'); return;
+  const home = document.getElementById('home-address').value.trim();
+  const pickup = document.getElementById('client-pickup').value.trim();
+  const final = document.getElementById('client-final').value.trim();
+  const stops = getActiveStops();
+
+  if (!home || !pickup || !final) {
+    showStatus('Заполни: дом, точку забора и конечную', 'error');
+    return;
   }
+
+  const points = [home, pickup, ...stops, final, home];
+  const labels = ['Дом', 'Забор', ...stops.map((_, i) => `Стоп ${i+1}`), 'Финиш', 'Дом'];
+  const types = ['home', 'client', ...stops.map(() => 'stop'), 'client', 'home'];
+
+  if (!googleLoaded || !window.google) {
+    const url = `https://www.google.com/maps/dir/${points.map(encodeURIComponent).join('/')}`;
+    window.open(url, '_blank');
+    showStatus('Нет API — открыл маршрут в Google Maps', 'error');
+    return;
+  }
+
   const btn = document.getElementById('btn-calculate');
   btn.disabled = true;
   document.getElementById('calc-text').textContent = '⏳ Считаю...';
+
   try {
     const svc = new google.maps.DistanceMatrixService();
-    const get = (o, d) => new Promise((res, rej) => {
-      svc.getDistanceMatrix({ origins: o, destinations: d, travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.METRIC },
-        (r, s) => s === 'OK' ? res(r) : rej(new Error(s)));
+    const getSegment = (o, d) => new Promise((res, rej) => {
+      svc.getDistanceMatrix(
+        { origins: [o], destinations: [d], travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.METRIC },
+        (r, s) => {
+          if (s !== 'OK') return rej(new Error(s));
+          const e = r.rows[0].elements[0];
+          if (e.status !== 'OK') return rej(new Error(e.status));
+          res({ km: e.distance.value / 1000, sec: e.duration.value });
+        }
+      );
     });
-    const r1 = await get([h], [cl]);
-    const r2 = await get([cl], [ch]);
-    const r3 = await get([ch], [h]);
-    const d1 = r1.rows[0].elements[0].distance.value / 1000;
-    const d2 = r2.rows[0].elements[0].distance.value / 1000;
-    const d3 = r3.rows[0].elements[0].distance.value / 1000;
-    updateResults(d1, d2, d3);
+
+    const promises = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      promises.push(getSegment(points[i], points[i+1]));
+    }
+    const results = await Promise.all(promises);
+    const segments = results.map(r => r.km);
+    const durations = results.map(r => r.sec);
+
+    routePoints = labels.map((l, i) => ({ label: l, type: types[i] }));
+    lastSegments = segments;
+    lastDurations = durations;
+    updateResults(segments, durations);
     showStatus('✅ Готово', 'success');
-  } catch (e) { showStatus('Ошибка: ' + e.message, 'error'); }
-  finally { btn.disabled = false; document.getElementById('calc-text').textContent = '📐 Рассчитать расстояния'; }
+    setTimeout(hideStatus, 2000);
+  } catch (e) {
+    showStatus('Ошибка: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('calc-text').textContent = '📐 Рассчитать маршрут';
+  }
 }
 
 function calcManual() {
-  updateResults(
-    parseFloat(document.getElementById('d1').value) || 0,
-    parseFloat(document.getElementById('d2').value) || 0,
-    parseFloat(document.getElementById('d3').value) || 0
-  );
+  const dTo = parseFloat(document.getElementById('m-d-to').value) || 0;
+  const dRoute = parseFloat(document.getElementById('m-d-route').value) || 0;
+  const dBack = parseFloat(document.getElementById('m-d-back').value) || 0;
+  const totalKm = dTo + dRoute + dBack;
+
+  const manualMin = parseFloat(document.getElementById('m-time').value);
+  let totalSec;
+  if (!isNaN(manualMin) && manualMin > 0) {
+    totalSec = manualMin * 60;
+  } else {
+    totalSec = (totalKm / AVG_SPEED_KMH) * 3600;
+  }
+
+  routePoints = [
+    { label: 'Дом', type: 'home' },
+    { label: 'Забор', type: 'client' },
+    { label: 'Финиш', type: 'client' },
+    { label: 'Дом', type: 'home' }
+  ];
+  const segments = [dTo, dRoute, dBack];
+  const durations = totalKm > 0
+    ? segments.map(s => (s / totalKm) * totalSec)
+    : [0, 0, 0];
+
+  lastSegments = segments;
+  lastDurations = durations;
+  updateResults(segments, durations);
 }
 
-function updateResults(d1, d2, d3) {
-  lastD1 = d1; lastD2 = d2; lastD3 = d3;
-  const km = d1 + d2 + d3;
-  const fuel = (km * CONSUMPTION) / 100;
+function updateResults(segments, durations) {
+  lastTotalKm = segments.reduce((a, b) => a + b, 0);
+  lastTotalSec = (durations || []).reduce((a, b) => a + b, 0);
+  renderRouteViz(segments);
+  recompute();
+}
+
+function recompute() {
+  const totalKm = lastTotalKm;
+  const drivingMin = lastTotalSec / 60;
+  const waitMin = parseFloat(document.getElementById('wait-min').value) || 0;
+  const totalWorkMin = drivingMin + waitMin;
+
+  const fuel = (totalKm * CONSUMPTION) / 100;
   const fuelCost = fuel * FUEL_PRICE;
-  currentCost = Math.ceil(fuelCost) + ADS_COST;
-  document.getElementById('viz-d1').textContent = d1 ? d1.toFixed(1) + ' км' : '—';
-  document.getElementById('viz-d2').textContent = d2 ? d2.toFixed(1) + ' км' : '—';
-  document.getElementById('viz-d3').textContent = d3 ? d3.toFixed(1) + ' км' : '—';
-  document.getElementById('r-total-km').textContent = km.toFixed(1) + ' км';
-  document.getElementById('r-fuel').textContent = fuel.toFixed(1) + ' л';
-  document.getElementById('r-fuel-cost').textContent = Math.round(fuelCost) + ' лей';
-  document.getElementById('r-cost').textContent = currentCost + ' лей';
-  const sg = document.getElementById('suggestions');
-  if (currentCost > ADS_COST) {
-    const p = [1.5, 2, 2.5, 3].map(m => Math.ceil(currentCost * m / 50) * 50);
-    sg.innerHTML = p.map((v, i) => `<button class="suggest-btn${i===1?' recommended':''}" onclick="setPrice(${v})">${i===1?'✓ ':''}${v}</button>`).join('');
-  } else sg.innerHTML = '';
+
+  const waitCost = waitMin * WAIT_RATE;
+  directCost = Math.round(fuelCost + ADS_COST + waitCost);
+
+  const driverRate = parseFloat(document.getElementById('driver-rate').value) || 60;
+  const driverCount = parseInt(document.getElementById('driver-count').value) || 2;
+  workCost = Math.round((totalWorkMin / 60) * driverRate * driverCount);
+
+  fullCost = directCost + workCost;
+
+  document.getElementById('r-total-km').textContent = totalKm.toFixed(1) + ' км';
+  document.getElementById('r-time').textContent = formatTime(totalWorkMin);
+  document.getElementById('r-fuel').textContent = fuel.toFixed(1) + ' л · ' + Math.round(fuelCost) + ' лей';
+
+  if (waitCost > 0) {
+    document.getElementById('r-wait-row').style.display = 'flex';
+    document.getElementById('r-wait').textContent = Math.round(waitCost) + ' лей';
+  } else {
+    document.getElementById('r-wait-row').style.display = 'none';
+  }
+
+  document.getElementById('r-direct-cost').textContent = directCost + ' лей';
+
+  const workH = (totalWorkMin / 60).toFixed(2);
+  document.getElementById('r-work-label').textContent = `👥 Работа ${driverCount} вод. (${workH}ч × ${driverRate}л/ч)`;
+  document.getElementById('r-work-cost').textContent = workCost + ' лей';
+  document.getElementById('r-total-cost').textContent = fullCost + ' лей';
+
+  let priceMultiplier = 1;
+  if (opts.night) priceMultiplier *= NIGHT_MULT;
+  if (opts.weekend) priceMultiplier *= WEEKEND_MULT;
+
+  // Тиры цен — от ПРЯМЫХ затрат (как было в оригинале), но снизу показываем чистую прибыль
+  const tiersHtml = TIERS.map(t => {
+    const raw = Math.max(MIN_PRICE, directCost * t.mult * priceMultiplier);
+    const price = roundToX50(raw);
+    const realProfit = price - fullCost;
+    const profitColor = realProfit >= 0 ? 'color:var(--green)' : 'color:var(--red)';
+    return `
+      <div class="price-tier${t.recommended ? ' recommended' : ''}" onclick="setPrice(${price})">
+        <div class="tier-name">${t.recommended ? '✓ ' : ''}${t.label}</div>
+        <div class="tier-price">${price}</div>
+        <div class="tier-margin" style="${profitColor}">${realProfit >= 0 ? '+' : ''}${realProfit}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('price-tiers').innerHTML = tiersHtml;
+
+  let marketText = '';
+  if (totalKm < 15) marketText = '📊 Рынок: 150-300 лей · короткая поездка';
+  else if (totalKm < 35) marketText = '📊 Рынок: 250-450 лей · средняя по городу';
+  else if (totalKm < 70) marketText = '📊 Рынок: 350-700 лей · пригород';
+  else marketText = '📊 Рынок: 700+ лей · загородная поездка';
+  document.getElementById('market-hint').textContent = marketText;
+
   updateProfit();
+}
+
+function formatTime(min) {
+  if (min === 0) return '0 мин';
+  if (min < 60) return Math.round(min) + ' мин';
+  const h = Math.floor(min / 60);
+  const m = Math.round(min - h * 60);
+  return m === 0 ? `${h}ч` : `${h}ч ${m}мин`;
+}
+
+function renderRouteViz(segments) {
+  const viz = document.getElementById('route-viz');
+  if (!routePoints.length || lastTotalKm === 0) {
+    viz.innerHTML = '<div style="color:var(--text-dim);font-size:0.75rem;text-align:center;width:100%;">Нет маршрута</div>';
+    return;
+  }
+  let html = '';
+  routePoints.forEach((p, i) => {
+    html += `<div class="route-point"><div class="route-dot ${p.type}"></div><div class="route-label">${p.label}</div></div>`;
+    if (i < routePoints.length - 1) {
+      const d = segments[i] !== undefined ? segments[i].toFixed(1) + ' км' : '—';
+      html += `<div class="route-line"><div class="dist">${d}</div></div>`;
+    }
+  });
+  viz.innerHTML = html;
 }
 
 function updateProfit() {
   const p = parseFloat(document.getElementById('client-price').value) || 0;
-  const profit = p - currentCost;
+  const profit = p - fullCost;
   const margin = p > 0 ? ((profit / p) * 100).toFixed(0) : 0;
+
   const pe = document.getElementById('r-profit');
-  pe.textContent = profit + ' лей';
+  pe.textContent = (profit >= 0 ? '+' : '') + profit + ' лей';
   pe.style.color = profit >= 0 ? '#22c55e' : '#ef4444';
+
   const me = document.getElementById('r-margin');
   me.textContent = margin + '%';
-  me.style.color = margin >= 50 ? '#22c55e' : margin >= 30 ? '#f59e0b' : '#ef4444';
+  me.style.color = margin >= 40 ? '#22c55e' : margin >= 20 ? '#f59e0b' : '#ef4444';
+
+  const warn = document.getElementById('work-warning');
+  if (p > 0 && profit < 0) warn.classList.add('show');
+  else warn.classList.remove('show');
+
+  document.querySelectorAll('.price-tier').forEach(el => {
+    const elPrice = parseInt(el.querySelector('.tier-price').textContent);
+    if (elPrice === p) el.classList.add('selected');
+    else el.classList.remove('selected');
+  });
 }
 
-function setPrice(v) { document.getElementById('client-price').value = v; updateProfit(); }
-function showStatus(m, t) { const e = document.getElementById('status'); e.textContent = m; e.className = 'status-msg ' + t; }
-function hideStatus() { document.getElementById('status').className = 'status-msg'; }
+function setPrice(v) {
+  document.getElementById('client-price').value = v;
+  updateProfit();
+}
 
-// ===== HISTORY =====
+function showStatus(m, t) {
+  const e = document.getElementById('status');
+  if (!e) return;
+  e.textContent = m;
+  e.className = 'status-msg ' + t;
+}
+function hideStatus() {
+  const e = document.getElementById('status');
+  if (e) e.className = 'status-msg';
+}
+
 function getHistory() {
-  try { return JSON.parse(localStorage.getItem('pr_history') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('pr_history_v3') || '[]'); }
+  catch { return []; }
 }
-
-function saveHistory(h) {
-  localStorage.setItem('pr_history', JSON.stringify(h));
+function saveHistoryArr(h) {
+  localStorage.setItem('pr_history_v3', JSON.stringify(h));
 }
 
 function saveOrder() {
   const price = parseFloat(document.getElementById('client-price').value) || 0;
   const home = document.getElementById('home-address').value.trim();
-  const clientLoc = document.getElementById('client-location').value.trim();
-  const clientHome = document.getElementById('client-home').value.trim();
+  const pickup = document.getElementById('client-pickup').value.trim();
+  const final = document.getElementById('client-final').value.trim();
+  const stops = getActiveStops();
 
-  if (currentCost <= ADS_COST && lastD1 === 0) { showStatus('Сначала рассчитай расстояние', 'error'); return; }
+  if (lastTotalKm === 0) { showStatus('Сначала рассчитай маршрут', 'error'); return; }
+  if (price === 0) { showStatus('Укажи цену клиенту', 'error'); return; }
 
   const order = {
     id: Date.now(),
     date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     home: home || '—',
-    clientLocation: clientLoc || '—',
-    clientHome: clientHome || '—',
-    d1: lastD1, d2: lastD2, d3: lastD3,
-    totalKm: (lastD1 + lastD2 + lastD3).toFixed(1),
-    cost: currentCost,
+    pickup: pickup || '—',
+    stops: stops,
+    final: final || '—',
+    segments: lastSegments,
+    durations: lastDurations,
+    totalKm: lastTotalKm.toFixed(1),
+    totalSec: lastTotalSec,
+    directCost: directCost,
+    workCost: workCost,
+    fullCost: fullCost,
     price: price,
-    profit: price - currentCost
+    profit: price - fullCost,
+    waitMin: parseFloat(document.getElementById('wait-min').value) || 0,
+    night: opts.night,
+    weekend: opts.weekend,
+    driverRate: parseFloat(document.getElementById('driver-rate').value) || 60,
+    driverCount: parseInt(document.getElementById('driver-count').value) || 2
   };
 
   const history = getHistory();
   history.unshift(order);
-  if (history.length > 50) history.pop();
-  saveHistory(history);
+  if (history.length > 100) history.pop();
+  saveHistoryArr(history);
   renderHistory();
   showStatus('✅ Сохранено в историю', 'success');
   setTimeout(hideStatus, 2000);
 }
 
 function deleteOrder(id) {
-  const history = getHistory().filter(o => o.id !== id);
-  saveHistory(history);
+  saveHistoryArr(getHistory().filter(o => o.id !== id));
   renderHistory();
 }
 
@@ -403,16 +725,41 @@ function loadOrder(id) {
   const order = getHistory().find(o => o.id === id);
   if (!order) return;
   document.getElementById('home-address').value = order.home;
-  document.getElementById('client-location').value = order.clientLocation;
-  document.getElementById('client-home').value = order.clientHome;
+  document.getElementById('client-pickup').value = order.pickup;
+  document.getElementById('client-final').value = order.final;
   document.getElementById('client-price').value = order.price || '';
-  updateResults(order.d1, order.d2, order.d3);
+  document.getElementById('wait-min').value = order.waitMin || '';
+  if (order.driverRate) document.getElementById('driver-rate').value = order.driverRate;
+  if (order.driverCount) document.getElementById('driver-count').value = order.driverCount;
+
+  document.getElementById('stops-container').innerHTML = '';
+  stopsCount = 0;
+  (order.stops || []).forEach(addr => {
+    addStop();
+    document.getElementById(`stop-input-${stopsCount}`).value = addr;
+  });
+
+  opts.night = !!order.night;
+  opts.weekend = !!order.weekend;
+  document.getElementById('opt-night').classList.toggle('active', opts.night);
+  document.getElementById('opt-weekend').classList.toggle('active', opts.weekend);
+
+  const labels = ['Дом', 'Забор', ...(order.stops || []).map((_, i) => `Стоп ${i+1}`), 'Финиш', 'Дом'];
+  const types = ['home', 'client', ...(order.stops || []).map(() => 'stop'), 'client', 'home'];
+  routePoints = labels.map((l, i) => ({ label: l, type: types[i] }));
+  lastSegments = order.segments || [];
+  lastDurations = order.durations || [];
+  lastTotalKm = parseFloat(order.totalKm);
+  lastTotalSec = order.totalSec || 0;
+  renderRouteViz(lastSegments);
+  recompute();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function clearHistory() {
   if (confirm('Удалить всю историю?')) {
-    localStorage.removeItem('pr_history');
+    localStorage.removeItem('pr_history_v3');
     renderHistory();
   }
 }
@@ -424,25 +771,28 @@ function renderHistory() {
     list.innerHTML = '<div class="history-empty">Нет сохранённых заказов</div>';
     return;
   }
-  list.innerHTML = history.map(o => `
-    <div class="history-item" onclick="loadOrder(${o.id})">
-      <div class="history-top">
-        <span class="history-date">${o.date}</span>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="history-price">${o.price} лей</span>
-          <button class="history-delete" onclick="event.stopPropagation();deleteOrder(${o.id})" title="Удалить">✕</button>
+  list.innerHTML = history.map(o => {
+    const stopsStr = (o.stops && o.stops.length) ? ` (+${o.stops.length} стоп.)` : '';
+    return `
+      <div class="history-item" onclick="loadOrder(${o.id})">
+        <div class="history-top">
+          <span class="history-date">${o.date}${o.night ? ' 🌙' : ''}${o.weekend ? ' 🎉' : ''}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="history-price">${o.price} лей</span>
+            <button class="history-delete" onclick="event.stopPropagation();deleteOrder(${o.id})" title="Удалить">✕</button>
+          </div>
+        </div>
+        <div class="history-route">
+          📍 <span class="addr">${truncate(o.pickup)}</span> → <span class="addr">${truncate(o.final)}</span>${stopsStr}
+        </div>
+        <div class="history-stats">
+          <span class="history-stat">🛣 <span>${o.totalKm} км</span></span>
+          <span class="history-stat">💰 <span>${o.fullCost} лей</span></span>
+          <span class="history-stat ${o.profit >= 0 ? 'history-profit-pos' : 'history-profit-neg'}">📈 <span>${o.profit >= 0 ? '+' : ''}${o.profit} лей</span></span>
         </div>
       </div>
-      <div class="history-route">
-        📍 <span class="addr">${truncate(o.clientLocation)}</span> → <span class="addr">${truncate(o.clientHome)}</span>
-      </div>
-      <div class="history-stats">
-        <span class="history-stat">🛣 <span>${o.totalKm} км</span></span>
-        <span class="history-stat">💰 <span>${o.cost} лей</span></span>
-        <span class="history-stat ${o.profit >= 0 ? 'history-profit-pos' : 'history-profit-neg'}">📈 <span>${o.profit >= 0 ? '+' : ''}${o.profit} лей</span></span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function truncate(s, max = 30) {
@@ -450,12 +800,23 @@ function truncate(s, max = 30) {
   return s.length > max ? s.substring(0, max) + '...' : s;
 }
 
-// Init
+// ================== INIT ==================
 const sh = localStorage.getItem('pr_home');
-if (sh) { document.getElementById('home-address').value = sh; document.getElementById('btn-save-home').className = 'btn-icon saved'; }
+if (sh) {
+  document.getElementById('home-address').value = sh;
+  document.getElementById('btn-save-home').className = 'btn-icon saved';
+}
 const sk = localStorage.getItem('pr_gkey');
-if (sk) { document.getElementById('api-key-input').value = '••••••••'; loadGoogleMaps(sk); }
-updateResults(0, 0, 0);
+if (sk) {
+  document.getElementById('api-key-input').value = '••••••••';
+  loadGoogleMaps(sk);
+}
+const sr = localStorage.getItem('pr_driver_rate');
+if (sr) document.getElementById('driver-rate').value = sr;
+const sc = localStorage.getItem('pr_driver_count');
+if (sc) document.getElementById('driver-count').value = sc;
+saveSettings();
+recompute();
 renderHistory();
 </script>
 </body>
