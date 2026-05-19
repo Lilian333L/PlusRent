@@ -129,6 +129,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/modal-ux.css">
 <!-- iOS zoom prevention + touch-action -->
 <style>
   /* ── font-size 16px prevents iOS auto-zoom on input focus ── */
@@ -1725,13 +1726,36 @@ input[type="radio"] {
               </div>
 
               <div class="de-flex-col">
-                <ul id="mainmenu">
-                  <li><a class="menu-item" href="/ru/" data-i18n="menu.home">Главная</a></li>
-                  <li><a class="menu-item" href="/ru/cars" data-i18n="menu.cars">Автомобили</a></li>
-                  <li><a class="menu-item" href="/ru/about" data-i18n="menu.about">О нас</a></li>
-                  <li><a class="menu-item" href="/ru/contact" data-i18n="menu.contact">Контакты</a></li>
-                  <li><a class="menu-item" href="/ru/sofer-treaz" data-i18n="menu.sober_driver">Трезвый водитель</a></li>
-                </ul>
+<ul id="mainmenu">
+  <li><a class="menu-item" href="/ru/" data-i18n="menu.home">Главная</a></li>
+  <li><a class="menu-item" href="/ru/cars" data-i18n="menu.cars">Автомобили</a></li>
+  <li class="pr-services-li" id="prServicesLi">
+    <a class="pr-services-trigger"
+       href="#"
+       id="prServicesTrigger"
+       aria-haspopup="true"
+       aria-expanded="false"
+       role="button">
+      <b class="pr-services-label"></b>
+      <svg class="pr-chevron" width="12" height="12" viewBox="0 0 20 20"
+           fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="pr-mega-menu" id="prMegaMenu" role="menu" aria-label="Services menu" style="display:none">
+      <!-- JS перепишет этот контент, поэтому ссылки тут не критичны, но для SSR/no-JS поставь правильные -->
+      <a href="/ru/cars">Аренда авто</a>
+      <a href="/ru/sofer-treaz">Трезвый водитель</a>
+      <a href="/ru/transfer-chisinau">Трансфер аэропорт Кишинев</a>
+      <a href="/ru/transfer-iasi">Трансфер аэропорт Яссы</a>
+      <a href="/ru/sofer-personal">Личный водитель</a>
+    </div>
+  </li>
+  <li><a class="menu-item" href="/ru/about" data-i18n="menu.about">О нас</a></li>
+  <li><a class="menu-item" href="/ru/contact" data-i18n="menu.contact">Контакты</a></li>
+</ul>
               </div>
 
               <div class="de-flex-col">
@@ -2516,6 +2540,7 @@ input[type="radio"] {
   <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" integrity="sha384-J9jP59RNeZv2OJ7y5pIHGbmPCCQ8mp8+ULxAk/+x+HhvkqKt/36+fkwCCA6Iuuu7" crossorigin="anonymous" defer></script>
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" integrity="sha384-COJXe3V80HA3eNdfqp4afZIp3PGuO0Di8dR/+iNl0dpXSATgwKEWeJAsVPLpFeKn" crossorigin="anonymous" defer></script>
   <script src="/js/i18n-init.js" defer></script>
+  <script src="/js/services-nav.js" defer></script>
 <script>
 // Принудительно переключаем язык по URL после инициализации i18next
 (function() {
