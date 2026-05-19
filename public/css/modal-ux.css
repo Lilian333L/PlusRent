@@ -11,9 +11,35 @@ html.is-modal-open {
 
 /* ============================================================================
  * HIDE FLOATING ELEMENTS WHEN ANY MODAL IS OPEN
- * (CSS fallback — JS auto-detection also handles this in burger-menu-fix.js)
+ * Smooth opacity fade + JS auto-detection in burger-menu-fix.js
  * Add `data-hide-on-modal` to any custom element to opt into this behavior.
  * ========================================================================== */
+
+/* Prepare elements for smooth transition */
+.floating-call-btn,
+.floating-contact-btn,
+.float-btn,
+.sticky-cta,
+.fixed-cta,
+.call-now-floating,
+.suna-acum,
+.btn-suna,
+.btn-call-now,
+.scroll-to-top,
+.back-to-top,
+.contact-popup-trigger,
+.popup-trigger,
+.chat-widget,
+.whatsapp-float,
+[data-hide-on-modal],
+header a[href^="tel:"],
+header .btn-main-color,
+header .de-btn,
+header .btn-call {
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+
+/* When ANY modal is open — smoothly fade out floating CTAs */
 html.is-modal-open .floating-call-btn,
 html.is-modal-open .floating-contact-btn,
 html.is-modal-open .float-btn,
@@ -30,8 +56,23 @@ html.is-modal-open .popup-trigger,
 html.is-modal-open .chat-widget,
 html.is-modal-open .whatsapp-float,
 html.is-modal-open [data-hide-on-modal] {
-  visibility: hidden !important;
+  opacity: 0 !important;
   pointer-events: none !important;
+}
+
+/* "Sună Acum" CTA in header — hide ONLY when burger menu opens */
+/* (but keep tel: links INSIDE the menu visible — those are part of the menu) */
+header.menu-open > a[href^="tel:"],
+header.menu-open > div > a[href^="tel:"],
+header.menu-open > .btn-main-color,
+header.menu-open > div > .btn-main-color,
+header.menu-open > .de-btn,
+header.menu-open > .btn-call,
+header.menu-open .header-cta,
+header.menu-open .header-phone-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.18s ease-out;
 }
 
 /* Allow internal scroll containers to scroll smoothly, but contain overscroll */
