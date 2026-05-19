@@ -152,6 +152,7 @@
         + 'font-weight:500!important;text-transform:none!important;border:none!important;'
         + 'line-height:1!important;color:rgba(255,255,255,.88)!important;'
         + 'position:static!important;letter-spacing:normal!important;background:transparent!important;'
+        + 'vertical-align:middle!important;'
       );
     }
 
@@ -159,19 +160,30 @@
     var ch = trigger.querySelector('.pr-chevron');
     if (ch) ch.setAttribute('style',
       'width:11px!important;height:11px!important;max-width:11px!important;max-height:11px!important;'
-      + 'flex-shrink:0!important;display:block!important;opacity:.55;transition:transform .22s ease;'
+      + 'display:inline-block!important;vertical-align:middle!important;'
+      + 'opacity:.55;transition:transform .22s ease;margin-left:2px;'
     );
 
     var mobile = isMobile();
 
     /* Trigger style — desktop: flex left-aligned | mobile: centered like other items */
-    trigger.setAttribute('style',
-      'display:flex!important;align-items:center!important;gap:4px!important;'
-      + 'padding:15px 0!important;'
-      + (mobile ? 'justify-content:center!important;width:100%!important;' : '')
-      + 'color:rgba(255,255,255,.88)!important;font-weight:500!important;'
-      + 'text-decoration:none!important;cursor:pointer!important;background:transparent!important;border-bottom:none!important;'
-    );
+    if (mobile) {
+      /* Mobile: flex centered — already working perfectly */
+      trigger.setAttribute('style',
+        'display:flex!important;align-items:center!important;justify-content:center!important;'
+        + 'gap:4px!important;width:100%!important;padding:15px 0!important;'
+        + 'color:rgba(255,255,255,.88)!important;font-weight:500!important;'
+        + 'text-decoration:none!important;cursor:pointer!important;background:transparent!important;border-bottom:none!important;'
+      );
+    } else {
+      /* Desktop: display:block — exactly matches other #mainmenu li a items */
+      trigger.setAttribute('style',
+        'display:block!important;padding:15px 0!important;'
+        + 'color:rgba(255,255,255,.88)!important;font-weight:500!important;'
+        + 'text-decoration:none!important;cursor:pointer!important;'
+        + 'background:transparent!important;border-bottom:none!important;'
+      );
+    }
 
     /* Active page gold */
     var urls = t.items.map(function(i){ return i.url; });
