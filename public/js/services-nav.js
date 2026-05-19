@@ -152,7 +152,6 @@
         + 'font-weight:500!important;text-transform:none!important;border:none!important;'
         + 'line-height:1!important;color:rgba(255,255,255,.88)!important;'
         + 'position:static!important;letter-spacing:normal!important;background:transparent!important;'
-        + 'vertical-align:middle!important;'
       );
     }
 
@@ -160,7 +159,7 @@
     var ch = trigger.querySelector('.pr-chevron');
     if (ch) ch.setAttribute('style',
       'width:11px!important;height:11px!important;max-width:11px!important;max-height:11px!important;'
-      + 'display:inline-block!important;vertical-align:middle!important;'
+      + 'display:inline-block!important;vertical-align:-2px!important;'
       + 'opacity:.55;transition:transform .22s ease;margin-left:2px;'
     );
 
