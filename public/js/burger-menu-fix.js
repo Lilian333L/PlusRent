@@ -81,20 +81,43 @@
       document.querySelectorAll(sel).forEach(el => explicit.add(el));
     });
 
-    // 2. Auto-detect by computed style:
+    // 2. Catch the "Sună Acum" / "Call Now" CTA button in the header
+    //    (which is NOT inside the menu navigation — that one stays visible)
+    document.querySelectorAll('header a[href^="tel:"], header button[onclick*="tel:"]').forEach(el => {
+      // Skip if it's INSIDE a menu list (those are the menu's own phone links)
+      if (el.closest('nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
+      explicit.add(el);
+    });
+
+    // 3. Catch CTA-style buttons in header (Sună Acum variations)
+    document.querySelectorAll('header').forEach(header => {
+      header.querySelectorAll('a, button').forEach(el => {
+        if (el.closest('nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
+        const text = (el.textContent || '').trim().toLowerCase();
+        const className = (el.className || '').toString().toLowerCase();
+        // Match common Sună Acum / Call Now / Звоните patterns
+        if (
+          /\b(sun[aă]\s*acum|call\s*now|звон|позвонить|sunati|apel|book\s*now)\b/i.test(text) ||
+          /\b(suna|call|phone|tel|book|btn-main|btn-cta|de-btn)\b/i.test(className)
+        ) {
+          explicit.add(el);
+        }
+      });
+    });
+
+    // 4. Auto-detect by computed style:
     //    - position: fixed
     //    - has high z-index (≥ 100)
-    //    - is NOT a registered modal/header/menu
+    //    - is NOT a registered modal/header itself/menu
     //    - is currently visible
     const autoDetected = new Set();
     const excludeIds = ['contactPopup', 'price-calculator-modal', 'mobile-filter-overlay', 'mainmenu', 'de-sidebar'];
-    const excludeTags = ['HEADER', 'NAV'];
     document.querySelectorAll('a, button, div').forEach(el => {
       if (excludeIds.includes(el.id)) return;
-      if (excludeTags.includes(el.tagName)) return;
-      if (el.closest('header, nav, [aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay')) return;
+      if (el.tagName === 'HEADER' || el.tagName === 'NAV') return;
+      if (el.closest('[aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay, nav ul, .menu, #mainmenu')) return;
       const cs = window.getComputedStyle(el);
-      if (cs.position !== 'fixed') return;
+      if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
       const z = parseInt(cs.zIndex, 10);
       if (isNaN(z) || z < 100) return;
       if (cs.display === 'none' || cs.visibility === 'hidden') return;
@@ -109,10 +132,14 @@
 
   function hideFloatingElements() {
     floatingElements.forEach(el => {
-      // Save current inline display so we can restore exactly
-      el._prevDisplay = el.style.display;
-      el._prevVisibility = el.style.visibility;
-      el.style.visibility = 'hidden';
+      // Save current inline styles so we can restore exactly
+      el._prevTransition = el.style.transition;
+      el._prevOpacity    = el.style.opacity;
+      el._prevPointer    = el.style.pointerEvents;
+      // Smooth fade-out
+      el.style.transition    = 'opacity 0.18s ease-out';
+      el.style.opacity       = '0';
+      el.style.pointerEvents = 'none';
       el.setAttribute('aria-hidden', 'true');
       el.dataset.hiddenByModal = '1';
     });
@@ -121,8 +148,12 @@
   function showFloatingElements() {
     floatingElements.forEach(el => {
       if (el.dataset.hiddenByModal === '1') {
-        el.style.visibility = el._prevVisibility || '';
-        el.style.display = el._prevDisplay || '';
+        el.style.opacity       = el._prevOpacity    || '';
+        el.style.pointerEvents = el._prevPointer    || '';
+        // Remove transition after a frame so we don't keep it lingering
+        requestAnimationFrame(() => {
+          el.style.transition = el._prevTransition || '';
+        });
         el.removeAttribute('aria-hidden');
         delete el.dataset.hiddenByModal;
       }
