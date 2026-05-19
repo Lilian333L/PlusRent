@@ -87,24 +87,29 @@
       var isCar    = !!item.car;
       var isActive = cur === item.url.split('/').pop();
 
-      /* badge colors */
-      var bbg  = isCar  ? 'rgba(245,158,11,.20)' : (item.live ? 'rgba(34,197,94,.15)'   : 'rgba(245,158,11,.12)');
-      var bcol = isCar  ? '#f59e0b'               : (item.live ? '#4ade80'               : '#f59e0b');
-      var bbrd = isCar  ? '1.5px solid rgba(245,158,11,.5)' : (item.live ? '1px solid rgba(34,197,94,.25)' : '1px solid rgba(245,158,11,.25)');
+      /* badge colors — priority: live (green) > isCar (gold solid) > default (gold light) */
+      var bbg  = item.live ? 'rgba(34,197,94,.15)'               : (isCar ? 'rgba(245,158,11,.20)'               : 'rgba(245,158,11,.12)');
+      var bcol = item.live ? '#4ade80'                            : (isCar ? '#f59e0b'                            : '#f59e0b');
+      var bbrd = item.live ? '1px solid rgba(34,197,94,.25)'      : (isCar ? '1.5px solid rgba(245,158,11,.5)'   : '1px solid rgba(245,158,11,.25)');
 
-      /* card highlight */
-      var cbg  = isCar ? 'rgba(245,158,11,.07)' : (isActive ? 'rgba(245,158,11,.10)' : 'transparent');
-      var cbrd = isCar ? 'rgba(245,158,11,.25)'  : (isActive ? 'rgba(245,158,11,.30)' : 'transparent');
+      /* card highlight — Chirie Auto stays gold-tinted always; active state uses LEFT ACCENT BAR */
+      var cbg  = isCar ? 'rgba(245,158,11,.07)' : 'transparent';
+      var cbrd = isCar ? 'rgba(245,158,11,.25)' : 'transparent';
       var cmbottom = isCar ? '8px' : '3px';
+
+      /* Left accent bar for the currently active page (works with or without isCar) */
+      var activeAccent = isActive ? 'box-shadow:inset 3px 0 0 #f59e0b;' : '';
 
       var card = '<a href="' + item.url + '" style="'
         + 'display:flex;align-items:center;gap:10px;'
         + 'padding:11px 10px;border-radius:10px;'
         + 'background:' + cbg + ';'
         + 'border:1px solid ' + cbrd + ';'
+        + activeAccent
         + 'text-decoration:none;color:inherit;'
         + 'margin-bottom:' + cmbottom + ';'
-        + 'box-sizing:border-box;"'
+        + 'box-sizing:border-box;'
+        + 'transition:background .15s ease, border-color .15s ease;"'
         + ' onmouseover="this.style.background=\'rgba(245,158,11,.10)\';this.style.borderColor=\'rgba(245,158,11,.28)\';"'
         + ' onmouseout="this.style.background=\'' + cbg + '\';this.style.borderColor=\'' + cbrd + '\';"'
         + '>'
@@ -134,14 +139,25 @@
     el.style.cssText = 'max-height:0;overflow:hidden;transition:max-height .35s ease;box-sizing:border-box;';
 
     var links = t.items.map(function(item, i) {
-      var isCar = !!item.car;
+      var isCar    = !!item.car;
+      var isActive = cur === item.url.split('/').pop();
+      var showBadge = isCar || !!item.live;
+
+      /* Badge color: live (green) takes priority over isCar (gold) */
+      var bbg  = item.live ? 'rgba(34,197,94,.15)'          : 'rgba(245,158,11,.2)';
+      var bcol = item.live ? '#4ade80'                       : '#f59e0b';
+      var bbrd = item.live ? '1px solid rgba(34,197,94,.4)' : '1px solid rgba(245,158,11,.4)';
+
+      /* Left accent bar for active page */
+      var leftAccent = isActive ? 'box-shadow:inset 3px 0 0 #f59e0b;' : '';
 
       return '<a href="' + item.url + '" style="'
         + 'display:flex;align-items:center;gap:11px;'
         + 'padding:11px 16px;'
         + 'color:rgba(255,255,255,.88);text-decoration:none;'
         + 'border-bottom:1px solid rgba(255,255,255,.06);'
-        + 'background:' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + ';"'
+        + 'background:' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + ';'
+        + leftAccent + '"'
         + ' onmouseover="this.style.background=\'rgba(245,158,11,.08)\';"'
         + ' onmouseout="this.style.background=\'' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + '\';"'
         + '>'
@@ -149,7 +165,7 @@
         + '<div style="flex:1;min-width:0;text-align:left;">'
           + '<div style="font-weight:' + (isCar ? '700' : '600') + ';font-size:14px;">' + item.name + '</div>'
         + '</div>'
-        + (isCar ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.2);color:#f59e0b;border:1px solid rgba(245,158,11,.4);">' + item.badge + '</span>' : '')
+        + (showBadge ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:' + bbg + ';color:' + bcol + ';border:' + bbrd + ';">' + item.badge + '</span>' : '')
         + '</a>';
     }).join('');
 
