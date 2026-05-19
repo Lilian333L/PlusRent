@@ -43,7 +43,16 @@
     var s = document.createElement('style');
     s.id = 'prNavStyle';
     s.textContent = [
-      '#prMegaMenu a { display:flex !important; align-items:center !important; flex-direction:row !important; text-align:left !important; padding:11px 20px !important; border-bottom:1px solid rgba(255,255,255,.07) !important; }',
+      /* Fix 1: mobile menu open — solid dark bg, no transparent bleed */
+      'header.menu-open { background:#1C1917 !important; background-color:#1C1917 !important; }',
+      'header.menu-open.transparent { background:#1C1917 !important; }',
+      'header.menu-open.scroll-light { background:#1C1917 !important; }',
+
+      /* Fix 2: accordion visual separation */
+      '#prMegaMenu { background:rgba(0,0,0,.18) !important; border-left:2px solid rgba(245,158,11,.28) !important; margin:2px 0 4px 16px !important; border-radius:0 0 8px 8px !important; }',
+
+      /* Fix 3: panel link layout — overrides Designesia */
+      '#prMegaMenu a { display:flex !important; align-items:center !important; flex-direction:row !important; text-align:left !important; padding:9px 16px !important; border-bottom:1px solid rgba(255,255,255,.06) !important; }',
       '#prMegaMenu a > div:last-of-type { flex:1 !important; min-width:0 !important; text-align:left !important; }',
       '#prMegaMenu a > div > div { text-align:left !important; white-space:normal !important; }',
       '#prMegaMenu a > span { flex-shrink:0 !important; display:inline-block !important; width:auto !important; align-self:center !important; }'
@@ -131,7 +140,7 @@
       var col = isActive ? '#f59e0b' : 'rgba(255,255,255,.82)';
       return '<a href="' + item.url + '" style="'
         + 'display:flex;align-items:center;gap:12px;'
-        + 'padding:' + (isCar ? '12px 20px' : '10px 20px') + ';'
+        + 'padding:' + (isCar ? '10px 16px' : '9px 16px') + ';'
         + 'color:' + col + ';'
         + 'text-decoration:none;font-size:14px;font-weight:' + (isActive || isCar ? '700' : '500') + ';'
         + 'border-bottom:1px solid rgba(255,255,255,.07);'
