@@ -27,14 +27,13 @@
       label   : 'All services',
       items: [
         { name: 'Sober Driver',          sub: 'Chișinău · 150 MDL',     badge: '24/7',    live: true,  url: '/en/sofer-treaz'       },
-        { name: 'Transfer KIV Airport',  sub: 'Chișinău · 800 MDL',     badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
-        { name: 'Transfer IAS Airport',  sub: 'Iași · €140',             badge: 'Premium', live: false, url: '/en/transfer-iasi'     },
-        { name: 'Personal Driver',       sub: 'Executive · 2,000/day',  badge: 'VIP',     live: false, url: '/en/sofer-personal'    }
+        { name: 'Transfer KIV',          sub: 'Chișinău · 800 MDL',     badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
+        { name: 'Transfer IAS',          sub: 'Iași · €140',             badge: 'Premium', live: false, url: '/en/transfer-iasi'     },
+        { name: 'Personal Driver',       sub: 'Executive · 2000/day',   badge: 'VIP',     live: false, url: '/en/sofer-personal'    }
       ]
     }
   };
 
-  /* inline SVG — explicit size wins over Bootstrap's max-width:100% */
   var ICO = [
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="#f59e0b" style="width:17px;height:17px;min-width:17px;display:block;flex-shrink:0"><path d="M12 2C8.1 2 5 6.3 5 10.8 5 17 12 22 12 22s7-5 7-11.2C19 6.3 15.9 2 12 2zm0 12a3.3 3.3 0 110-6.6 3.3 3.3 0 010 6.6z"/></svg>',
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="#f59e0b" style="width:17px;height:17px;min-width:17px;display:block;flex-shrink:0"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0011.5 2 1.5 1.5 0 0010 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
@@ -42,13 +41,10 @@
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="#f59e0b" style="width:17px;height:17px;min-width:17px;display:block;flex-shrink:0"><path d="M12 12c2.67 0 4.8-2.13 4.8-4.8 0-2.66-2.13-4.8-4.8-4.8-2.66 0-4.8 2.14-4.8 4.8 0 2.67 2.14 4.8 4.8 4.8zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>'
   ];
 
-  function getLang() {
-    var p = window.location.pathname.split('/')[1];
-    return SERVICES[p] ? p : 'ro';
-  }
+  function getLang() { var p = window.location.pathname.split('/')[1]; return SERVICES[p] ? p : 'ro'; }
   function isMobile() { return window.innerWidth < 992; }
 
-  /* ── DESKTOP PANEL (detached to body, position:fixed) ── */
+  /* ── DESKTOP PANEL ── */
   function buildDesktopPanel(t, cur) {
     var el = document.createElement('div');
     el.id = 'prDropPanel';
@@ -56,27 +52,42 @@
 
     var cards = t.items.map(function(item, i) {
       var isActive = cur === item.url.split('/').pop();
-      var bbg  = item.live ? 'rgba(34,197,94,.15)'   : 'rgba(245,158,11,.12)';
-      var bcol = item.live ? '#4ade80'               : '#f59e0b';
-      var bbrd = item.live ? '1px solid rgba(34,197,94,.25)' : '1px solid rgba(245,158,11,.25)';
-      return '<a href="' + item.url + '" style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:10px;background:' + (isActive ? 'rgba(245,158,11,.1)' : 'transparent') + ';border:1px solid ' + (isActive ? 'rgba(245,158,11,.3)' : 'transparent') + ';text-decoration:none;color:inherit;margin-bottom:4px;box-sizing:border-box;" onmouseover="this.style.background=\'rgba(245,158,11,.07)\';this.style.borderColor=\'rgba(245,158,11,.22)\';" onmouseout="this.style.background=\'' + (isActive ? 'rgba(245,158,11,.1)' : 'transparent') + '\';this.style.borderColor=\'' + (isActive ? 'rgba(245,158,11,.3)' : 'transparent') + '\';">'
+      var bbg  = item.live ? 'rgba(34,197,94,.15)'            : 'rgba(245,158,11,.12)';
+      var bcol = item.live ? '#4ade80'                        : '#f59e0b';
+      var bbrd = item.live ? '1px solid rgba(34,197,94,.25)'  : '1px solid rgba(245,158,11,.25)';
+
+      /* Card: min-width:0 critical — forces grid cell to contain flex content */
+      return '<a href="' + item.url + '" style="'
+        + 'display:flex;align-items:center;gap:10px;'
+        + 'padding:10px;border-radius:10px;'
+        + 'min-width:0;overflow:hidden;'  /* ← key fix for badge overflow */
+        + 'background:' + (isActive ? 'rgba(245,158,11,.1)' : 'transparent') + ';'
+        + 'border:1px solid ' + (isActive ? 'rgba(245,158,11,.3)' : 'transparent') + ';'
+        + 'text-decoration:none;color:inherit;margin-bottom:4px;box-sizing:border-box;"'
+        + ' onmouseover="this.style.background=\'rgba(245,158,11,.07)\';this.style.borderColor=\'rgba(245,158,11,.22)\';"'
+        + ' onmouseout="this.style.background=\'' + (isActive ? 'rgba(245,158,11,.1)' : 'transparent') + '\';this.style.borderColor=\'' + (isActive ? 'rgba(245,158,11,.3)' : 'transparent') + '\';"'
+        + '>'
+        /* icon */
         + '<div style="width:36px;height:36px;min-width:36px;border-radius:9px;background:rgba(245,158,11,.10);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + ICO[i] + '</div>'
-        + '<div style="flex:1;min-width:0;overflow:hidden;">'
-          + '<strong style="display:block;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.92);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.name + '</strong>'
+        /* text — flex:1 min-width:0 forces truncation */
+        + '<div style="flex:1;min-width:0;">'
+          + '<strong style="display:block;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.name + '</strong>'
           + '<small style="display:block;font-size:11px;color:rgba(255,255,255,.38);margin-top:1px;white-space:nowrap;">' + item.sub + '</small>'
         + '</div>'
-        + '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-left:4px;background:' + bbg + ';color:' + bcol + ';border:' + bbrd + ';">' + item.badge + '</span>'
+        /* badge — always visible, never overflows because card has overflow:hidden */
+        + '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;background:' + bbg + ';color:' + bcol + ';border:' + bbrd + ';">' + item.badge + '</span>'
         + '</a>';
     }).join('');
 
     el.innerHTML =
       '<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:10px;">' + t.label + '</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">' + cards + '</div>';
+      /* grid: min-width:0 on container ensures 1fr columns can shrink */
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:0;">' + cards + '</div>';
 
     return el;
   }
 
-  /* ── MOBILE PANEL (accordion — matches mobile menu light theme) ── */
+  /* ── MOBILE PANEL (accordion, dark theme — matches mobile nav bg) ── */
   function buildMobilePanel(t, cur) {
     var el = document.createElement('div');
     el.id = 'prMegaMenu';
@@ -84,11 +95,27 @@
 
     var links = t.items.map(function(item, i) {
       var isActive = cur === item.url.split('/').pop();
-      return '<a href="' + item.url + '" style="display:flex;align-items:center;gap:12px;padding:11px 16px;color:' + (isActive ? '#d97706' : '#1a1a1a') + ';text-decoration:none;font-size:14px;font-weight:' + (isActive ? '700' : '500') + ';border-bottom:1px solid rgba(0,0,0,.06);box-sizing:border-box;background:transparent;" onmouseover="this.style.color=\'#d97706\';this.style.background=\'rgba(245,158,11,.06)\';" onmouseout="this.style.color=\'' + (isActive ? '#d97706' : '#1a1a1a') + '\';this.style.background=\'transparent\';">'
-        + '<div style="width:32px;height:32px;min-width:32px;border-radius:8px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + ICO[i].replace(/fill="#f59e0b"/g, 'fill="#d97706"') + '</div>'
-        + '<div>'
-          + '<div style="font-weight:600;">' + item.name + '</div>'
-          + '<div style="font-size:11px;color:#888;margin-top:1px;">' + item.sub + '</div>'
+      /* Dark theme to match Designesia mobile overlay dark bg */
+      return '<a href="' + item.url + '" style="'
+        + 'display:flex;align-items:center;gap:12px;'
+        + 'padding:12px 16px;'
+        + 'color:' + (isActive ? '#f59e0b' : 'rgba(255,255,255,.82)') + ';'
+        + 'text-decoration:none;font-size:14px;font-weight:' + (isActive ? '700' : '500') + ';'
+        + 'border-bottom:1px solid rgba(255,255,255,.07);'
+        + 'box-sizing:border-box;background:transparent;'
+        + '-webkit-tap-highlight-color:rgba(245,158,11,.15);"'
+        /* Touch feedback */
+        + ' ontouchstart="this.style.background=\'rgba(245,158,11,.10)\';"'
+        + ' ontouchend="var el=this;setTimeout(function(){el.style.background=\'transparent\';},200);"'
+        + ' onmouseover="this.style.background=\'rgba(245,158,11,.08)\';"'
+        + ' onmouseout="this.style.background=\'transparent\';"'
+        + '>'
+        /* icon */
+        + '<div style="width:34px;height:34px;min-width:34px;border-radius:9px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + ICO[i] + '</div>'
+        /* text — flex:1 + text-align:left fixes centering issue */
+        + '<div style="flex:1;min-width:0;text-align:left;">'
+          + '<div style="font-weight:600;font-size:14px;">' + item.name + '</div>'
+          + '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px;">' + item.sub + '</div>'
         + '</div>'
         + '</a>';
     }).join('');
@@ -97,14 +124,13 @@
     return el;
   }
 
-  function positionPanel(triggerEl, panel) {
-    var rect = triggerEl.getBoundingClientRect();
+  function positionPanel(trigger, panel) {
+    var rect = trigger.getBoundingClientRect();
     var W = 480;
     var left = rect.left + rect.width / 2 - W / 2;
     left = Math.max(10, Math.min(left, window.innerWidth - W - 10));
     panel.style.top  = (rect.bottom + 6) + 'px';
     panel.style.left = left + 'px';
-    panel.style.width = W + 'px';
   }
 
   function init() {
@@ -116,24 +142,53 @@
     var t   = SERVICES[getLang()];
     var cur = window.location.pathname.replace(/\/+$/, '').split('/').pop();
 
-    /* Fix label — override ALL Designesia span rules */
+    /* ── Fix label: override ALL Designesia/Bootstrap span rules ── */
     var lbl = trigger.querySelector('.pr-services-label');
     if (lbl) {
       lbl.textContent = t.trigger;
-      lbl.setAttribute('style', 'display:inline!important;width:auto!important;font-size:15px!important;font-weight:500!important;text-transform:none!important;border:none!important;line-height:1!important;color:inherit!important;position:static!important;letter-spacing:normal!important;background:transparent!important;');
+      lbl.setAttribute('style',
+        'display:inline!important;'
+        + 'width:auto!important;'
+        + 'font-size:15px!important;'
+        + 'font-weight:500!important;'
+        + 'text-transform:none!important;'
+        + 'border:none!important;'
+        + 'line-height:1!important;'
+        + 'color:rgba(255,255,255,.88)!important;'  /* explicit white, no inherit */
+        + 'position:static!important;'
+        + 'letter-spacing:normal!important;'
+        + 'background:transparent!important;'
+      );
     }
 
-    /* Fix chevron */
+    /* ── Fix chevron ── */
     var ch = trigger.querySelector('.pr-chevron');
-    if (ch) ch.setAttribute('style', 'width:11px!important;height:11px!important;max-width:11px!important;max-height:11px!important;flex-shrink:0!important;display:block!important;opacity:.55;transition:transform .22s ease;');
+    if (ch) ch.setAttribute('style',
+      'width:11px!important;height:11px!important;max-width:11px!important;max-height:11px!important;'
+      + 'flex-shrink:0!important;display:block!important;'
+      + 'opacity:.55;transition:transform .22s ease;'
+    );
 
-    /* Trigger base style */
-    trigger.setAttribute('style', 'display:inline-flex!important;align-items:center!important;gap:4px!important;padding:15px 0!important;color:inherit!important;font-weight:500!important;text-decoration:none!important;cursor:pointer!important;background:transparent!important;');
+    /* ── Trigger: display:flex (block-level) to match other #mainmenu li a ──
+       Other items: display:block + padding:15px 0
+       We use display:flex to keep b+svg side by side at same height ── */
+    trigger.setAttribute('style',
+      'display:flex!important;'
+      + 'align-items:center!important;'
+      + 'gap:4px!important;'
+      + 'padding:15px 0!important;'
+      + 'color:rgba(255,255,255,.88)!important;'
+      + 'font-weight:500!important;'
+      + 'text-decoration:none!important;'
+      + 'cursor:pointer!important;'
+      + 'background:transparent!important;'
+      + 'border-bottom:none!important;'
+    );
 
-    /* Active page gold */
+    /* ── Active page: gold ── */
     var urls = t.items.map(function(i){ return i.url; });
     if (urls.indexOf(window.location.pathname.replace(/\/+$/, '')) !== -1 && lbl) {
-      lbl.style.color = '#f59e0b';
+      lbl.style.setProperty('color', '#f59e0b', 'important');
     }
 
     var open = false;
@@ -145,23 +200,25 @@
       panel = buildDesktopPanel(t, cur);
       document.body.appendChild(panel);
 
-      var show = function() {
+      function show() {
         open = true;
         positionPanel(trigger, panel);
         panel.style.opacity = '1';
         panel.style.pointerEvents = 'all';
         panel.style.transform = 'translateY(0)';
         trigger.setAttribute('aria-expanded', 'true');
-        if (ch) ch.style.transform = 'rotate(180deg)';
-      };
-      var hide = function() {
+        if (ch)  ch.style.transform = 'rotate(180deg)';
+        if (lbl) lbl.style.setProperty('color', '#f59e0b', 'important');
+      }
+      function hide() {
         open = false;
         panel.style.opacity = '0';
         panel.style.pointerEvents = 'none';
         panel.style.transform = 'translateY(-6px)';
         trigger.setAttribute('aria-expanded', 'false');
-        if (ch) ch.style.transform = 'rotate(0deg)';
-      };
+        if (ch)  ch.style.transform = 'rotate(0deg)';
+        if (lbl) lbl.style.setProperty('color', 'rgba(255,255,255,.88)', 'important');
+      }
 
       li.addEventListener('mouseenter', show);
       li.addEventListener('mouseleave', hide);
@@ -172,20 +229,23 @@
 
     } else {
       /* ─ MOBILE ─ */
-      if (oldMega) { oldMega.remove(); }
+      if (oldMega) oldMega.remove();
       panel = buildMobilePanel(t, cur);
       li.appendChild(panel);
 
-      /* Mobile: trigger inherits dark text from header-mobile CSS
-         When expanded → gold text on light bg */
+      /* Mobile: override light-theme color that header-mobile applies */
+      trigger.style.setProperty('color', 'rgba(255,255,255,.88)', 'important');
+      trigger.style.setProperty('background', 'transparent', 'important');
+
       trigger.addEventListener('click', function(e) {
         e.preventDefault(); e.stopPropagation();
         open = !open;
         panel.style.maxHeight = open ? '500px' : '0';
         trigger.setAttribute('aria-expanded', String(open));
-        if (ch) ch.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
-        /* Keep text readable on light mobile bg */
-        if (lbl) lbl.style.color = open ? '#d97706' : '';
+        if (ch)  ch.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+        if (lbl) lbl.style.setProperty('color', open ? '#f59e0b' : 'rgba(255,255,255,.88)', 'important');
+        /* Touch feedback on trigger itself */
+        trigger.style.background = open ? 'rgba(245,158,11,.08)' : 'transparent';
       });
     }
   }
