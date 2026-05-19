@@ -6345,7 +6345,265 @@ header.smaller{
     -webkit-border-radius: 10px;
     background: rgba(255, 255, 255, .05);
 }
+/* ── Trigger LI ── */
+.pr-services-li {
+  position: relative;
+}
 
+.pr-services-trigger {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.pr-chevron {
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.55;
+}
+
+.pr-services-li.open .pr-chevron,
+.pr-services-li:hover .pr-chevron {
+  transform: rotate(180deg);
+  opacity: 0.9;
+}
+
+/* ── Mega Panel — DESKTOP ── */
+.pr-mega-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  width: 520px;
+  background: var(--pr-black);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-top: 2px solid var(--pr-gold);
+  padding: 14px;
+  z-index: 9999;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+@media (min-width: 992px) {
+  .pr-services-li:hover .pr-mega-menu,
+  .pr-services-li.open .pr-mega-menu {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ── Mega Panel — MOBILE ── */
+@media (max-width: 991px) {
+  .pr-mega-menu {
+    position: static;
+    transform: none !important;
+    width: 100%;
+    left: auto;
+    border-radius: 8px;
+    border: none;
+    border-left: 2px solid var(--pr-gold);
+    border-top: none;
+    box-shadow: none;
+    background: rgba(255,255,255,0.04);
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 1;
+    pointer-events: none;
+    transition: max-height 0.35s ease, padding 0.3s ease;
+    margin-top: 4px;
+    margin-left: 12px;
+  }
+  .pr-services-li.open .pr-mega-menu {
+    max-height: 700px;
+    pointer-events: all;
+    padding: 8px 8px 12px;
+  }
+}
+
+/* ── Section label ── */
+.pr-mega-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  padding: 2px 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 10px;
+}
+
+@media (max-width: 991px) {
+  .pr-mega-label { display: none; }
+}
+
+/* ── Grid ── */
+.pr-mega-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+@media (max-width: 991px) {
+  .pr-mega-grid { grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* ── Service card ── */
+.pr-mega-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  text-decoration: none !important;
+  transition: var(--pr-t-base);
+  cursor: pointer;
+  color: inherit !important;
+}
+
+.pr-mega-item:hover {
+  background: rgba(245,158,11,0.07);
+  border-color: var(--pr-gold-border);
+  transform: translateX(3px);
+}
+
+.pr-mega-item.pr-item-active {
+  background: rgba(245,158,11,0.10);
+  border-color: var(--pr-gold-border);
+}
+
+@media (max-width: 991px) {
+  .pr-mega-item { padding: 9px 10px; border-radius: 7px; }
+  .pr-mega-item:hover { transform: none; }
+}
+
+/* ── Icon box ── */
+.pr-mega-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 9px;
+  background: rgba(245,158,11,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--pr-t-base);
+}
+
+.pr-mega-icon svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--pr-gold);
+}
+
+.pr-mega-item:hover .pr-mega-icon,
+.pr-mega-item.pr-item-active .pr-mega-icon {
+  background: rgba(245,158,11,0.18);
+}
+
+@media (max-width: 991px) {
+  .pr-mega-icon { width: 32px; height: 32px; min-width: 32px; border-radius: 7px; }
+  .pr-mega-icon svg { width: 15px; height: 15px; }
+}
+
+/* ── Text block ── */
+.pr-mega-text strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.3;
+}
+
+.pr-mega-text small {
+  display: block;
+  font-size: 11px;
+  color: rgba(255,255,255,0.38);
+  margin-top: 2px;
+}
+
+@media (max-width: 991px) {
+  .pr-mega-text strong { font-size: 12.5px; }
+}
+
+/* ── Badge ── */
+.pr-mega-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pr-badge-live {
+  background: rgba(34,197,94,0.12);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.22);
+}
+
+.pr-badge-gold {
+  background: rgba(245,158,11,0.12);
+  color: var(--pr-gold);
+  border: 1px solid var(--pr-gold-border);
+}
+
+@media (max-width: 991px) {
+  .pr-mega-badge { display: none; }
+}
+
+/* ── Footer phone strip ── */
+.pr-mega-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 10px;
+}
+
+.pr-mega-footer svg {
+  width: 13px;
+  height: 13px;
+  fill: var(--pr-gold);
+  flex-shrink: 0;
+}
+
+.pr-mega-footer span {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+}
+
+.pr-mega-footer a {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.68) !important;
+  text-decoration: none !important;
+  transition: var(--pr-t-base);
+}
+
+.pr-mega-footer a:hover {
+  color: var(--pr-gold) !important;
+}
+
+@media (max-width: 991px) {
+  .pr-mega-footer { display: none; }
+}
+
+/* ── Active menu indicator when on a service page ── */
+.pr-services-li.pr-on-service-page > .pr-services-trigger {
+  color: var(--pr-gold) !important;
+}
 .pricing-s2 .top {
     padding: 30px;
     padding-bottom: 20px;
