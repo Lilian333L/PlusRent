@@ -1,38 +1,38 @@
 (function () {
   'use strict';
 
-  var SERVICES = {
+    var SERVICES = {
     ro: {
       trigger : 'Servicii',
       label   : 'Servicii PlusRent',
       items: [
-        { name: 'Chirie Auto',           sub: 'Chișinău · de la €15/zi', badge: '€15/zi',  car: true,  url: '/ro/cars'          },
-        { name: 'Șofer Treaz',           sub: 'Chișinău · 150 MDL',      badge: '24/7',    live: true,  url: '/ro/sofer-treaz'   },
-        { name: 'Transfer Aeroport Chișinău', sub: 'Aeroport KIV · 800 MDL',  badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
-        { name: 'Transfer Aeroport Iași', sub: 'Aeroport IAS · €140',      badge: 'Premium', live: false, url: '/ro/transfer-iasi' },
-        { name: 'Șofer Personal',        sub: 'Executiv · 2.000 MDL/zi', badge: 'VIP',     live: false, url: '/ro/sofer-personal' }
+        { name: 'Chirie Auto',                   sub: '· de la €15/zi',       badge: '€15/zi',  car: true,  url: '/ro/cars'              },
+        { name: 'Șofer Treaz',                   sub: '· de la 150 MDL',      badge: '24/7',    live: true,  url: '/ro/sofer-treaz'       },
+        { name: 'Transfer Aeroport Chișinău',    sub: '· de la 800 MDL',      badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
+        { name: 'Transfer Aeroport Iași',        sub: '· de la €140',         badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
+        { name: 'Șofer Personal',                sub: '· de la 2.000 MDL/zi', badge: 'VIP',     live: false, url: '/ro/sofer-personal'    }
       ]
     },
     ru: {
       trigger : 'Услуги',
       label   : 'Услуги PlusRent',
       items: [
-        { name: 'Аренда авто',            sub: 'Кишинёв · от €15/день',   badge: '€15/дн',  car: true,  url: '/ru/cars'           },
-        { name: 'Трезвый водитель',       sub: 'Кишинёв · 150 MDL',       badge: '24/7',    live: true,  url: '/ru/sofer-treaz'    },
-        { name: 'Трансфер аэропорт Кишинёв',  sub: 'Аэропорт KIV · 800 MDL',  badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
-        { name: 'Трансфер аэропорт Яссы',  sub: 'Аэропорт IAS · €140',      badge: 'Premium', live: false, url: '/ru/transfer-iasi'  },
-        { name: 'Личный водитель',         sub: 'VIP · 2000 MDL/дн',       badge: 'VIP',     live: false, url: '/ru/sofer-personal' }
+        { name: 'Аренда авто',                   sub: '· от €15/день',        badge: '€15/дн',  car: true,  url: '/ru/cars'              },
+        { name: 'Трезвый водитель',              sub: '· от 150 MDL',         badge: '24/7',    live: true,  url: '/ru/sofer-treaz'       },
+        { name: 'Трансфер аэропорт Кишинёв',    sub: '· от 800 MDL',         badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
+        { name: 'Трансфер аэропорт Яссы',       sub: '· от €140',            badge: 'Premium', live: false, url: '/ru/transfer-iasi'     },
+        { name: 'Личный водитель',               sub: '· от 2000 MDL/дн',    badge: 'VIP',     live: false, url: '/ru/sofer-personal'    }
       ]
     },
     en: {
       trigger : 'Services',
       label   : 'PlusRent Services',
       items: [
-        { name: 'Car Rental',             sub: 'Chișinău · from €15/day', badge: '€15/day', car: true,  url: '/en/cars'           },
-        { name: 'Sober Driver',           sub: 'Chișinău · 150 MDL',      badge: '24/7',    live: true,  url: '/en/sofer-treaz'    },
-        { name: 'Airport Transfer Chișinău',   sub: 'KIV Airport · 800 MDL',   badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
-        { name: 'Airport Transfer Iași',   sub: 'IAS Airport · €140',       badge: 'Premium', live: false, url: '/en/transfer-iasi'  },
-        { name: 'Personal Driver',        sub: 'Executive · 2000/day',    badge: 'VIP',     live: false, url: '/en/sofer-personal' }
+        { name: 'Car Rental',                    sub: '· from €15/day',       badge: '€15/day', car: true,  url: '/en/cars'              },
+        { name: 'Sober Driver',                  sub: '· from 150 MDL',       badge: '24/7',    live: true,  url: '/en/sofer-treaz'       },
+        { name: 'Airport Transfer Chișinău',     sub: '· from 800 MDL',       badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
+        { name: 'Airport Transfer Iași',         sub: '· from €140',          badge: 'Premium', live: false, url: '/en/transfer-iasi'     },
+        { name: 'Personal Driver',               sub: '· from 2,000 MDL/day', badge: 'VIP',     live: false, url: '/en/sofer-personal'    }
       ]
     }
   };
