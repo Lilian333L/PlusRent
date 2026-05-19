@@ -6,33 +6,33 @@
       trigger : 'Servicii',
       label   : 'Servicii PlusRent',
       items: [
-        { name: 'Chirie Auto',                   sub: '· de la €15/zi',       badge: '€15/zi',  car: true,  url: '/ro/cars'              },
-        { name: 'Șofer Treaz',                   sub: '· de la 150 MDL',      badge: '24/7',    live: true,  url: '/ro/sofer-treaz'       },
-        { name: 'Transfer Aeroport Chișinău',    sub: '· de la 800 MDL',      badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
-        { name: 'Transfer Aeroport Iași',        sub: '· de la €140',         badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
-        { name: 'Șofer Personal',                sub: '· de la 2.000 MDL/zi', badge: 'VIP',     live: false, url: '/ro/sofer-personal'    }
+        { name: 'Chirie Auto',                   badge: '24/7',    car: true,   live: true,  url: '/ro/cars'              },
+        { name: 'Șofer Treaz',                   badge: '24/7',    live: true,  url: '/ro/sofer-treaz'       },
+        { name: 'Transfer Aeroport Chișinău',    badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
+        { name: 'Transfer Aeroport Iași',        badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
+        { name: 'Șofer Personal',                badge: 'VIP',     live: false, url: '/ro/sofer-personal'    }
       ]
     },
     ru: {
       trigger : 'Услуги',
       label   : 'Услуги PlusRent',
       items: [
-        { name: 'Аренда авто',                   sub: '· от €15/день',        badge: '€15/дн',  car: true,  url: '/ru/cars'              },
-        { name: 'Трезвый водитель',              sub: '· от 150 MDL',         badge: '24/7',    live: true,  url: '/ru/sofer-treaz'       },
-        { name: 'Трансфер аэропорт Кишинёв',    sub: '· от 800 MDL',         badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
-        { name: 'Трансфер аэропорт Яссы',       sub: '· от €140',            badge: 'Premium', live: false, url: '/ru/transfer-iasi'     },
-        { name: 'Личный водитель',               sub: '· от 2000 MDL/дн',    badge: 'VIP',     live: false, url: '/ru/sofer-personal'    }
+        { name: 'Аренда авто',                   badge: '24/7',    car: true,   live: true,  url: '/ru/cars'              },
+        { name: 'Трезвый водитель',              badge: '24/7',    live: true,  url: '/ru/sofer-treaz'       },
+        { name: 'Трансфер аэропорт Кишинёв',    badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
+        { name: 'Трансфер аэропорт Яссы',       badge: 'Premium', live: false, url: '/ru/transfer-iasi'     },
+        { name: 'Личный водитель',               badge: 'VIP',     live: false, url: '/ru/sofer-personal'    }
       ]
     },
     en: {
       trigger : 'Services',
       label   : 'PlusRent Services',
       items: [
-        { name: 'Car Rental',                    sub: '· from €15/day',       badge: '€15/day', car: true,  url: '/en/cars'              },
-        { name: 'Sober Driver',                  sub: '· from 150 MDL',       badge: '24/7',    live: true,  url: '/en/sofer-treaz'       },
-        { name: 'Airport Transfer Chișinău',     sub: '· from 800 MDL',       badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
-        { name: 'Airport Transfer Iași',         sub: '· from €140',          badge: 'Premium', live: false, url: '/en/transfer-iasi'     },
-        { name: 'Personal Driver',               sub: '· from 2,000 MDL/day', badge: 'VIP',     live: false, url: '/en/sofer-personal'    }
+        { name: 'Car Rental',                    badge: '24/7',    car: true,   live: true,  url: '/en/cars'              },
+        { name: 'Sober Driver',                  badge: '24/7',    live: true,  url: '/en/sofer-treaz'       },
+        { name: 'Airport Transfer Chișinău',     badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
+        { name: 'Airport Transfer Iași',         badge: 'Premium', live: false, url: '/en/transfer-iasi'     },
+        { name: 'Personal Driver',               badge: 'VIP',     live: false, url: '/en/sofer-personal'    }
       ]
     }
   };
@@ -52,7 +52,7 @@
       '#prMegaMenu { background:rgba(0,0,0,.18) !important; border-left:2px solid rgba(245,158,11,.28) !important; margin:2px 0 4px 16px !important; border-radius:0 0 8px 8px !important; }',
 
       /* Fix 3: panel link layout — overrides Designesia */
-      '#prMegaMenu a { display:flex !important; align-items:center !important; flex-direction:row !important; text-align:left !important; padding:9px 16px !important; border-bottom:1px solid rgba(255,255,255,.06) !important; }',
+      '#prMegaMenu a { display:flex !important; align-items:center !important; flex-direction:row !important; text-align:left !important; padding:11px 16px !important; border-bottom:1px solid rgba(255,255,255,.06) !important; }',
       '#prMegaMenu a > div:last-of-type { flex:1 !important; min-width:0 !important; text-align:left !important; }',
       '#prMegaMenu a > div > div { text-align:left !important; white-space:normal !important; }',
       '#prMegaMenu a > span { flex-shrink:0 !important; display:inline-block !important; width:auto !important; align-self:center !important; }'
@@ -99,7 +99,7 @@
 
       var card = '<a href="' + item.url + '" style="'
         + 'display:flex;align-items:center;gap:10px;'
-        + 'padding:9px 10px;border-radius:10px;'
+        + 'padding:11px 10px;border-radius:10px;'
         + 'background:' + cbg + ';'
         + 'border:1px solid ' + cbrd + ';'
         + 'text-decoration:none;color:inherit;'
@@ -111,7 +111,6 @@
         + '<div style="width:34px;height:34px;min-width:34px;border-radius:9px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + ICO[i] + '</div>'
         + '<div style="flex:1;min-width:0;">'
           + '<strong style="display:block;font-size:13px;font-weight:700;color:rgba(255,255,255,.92);line-height:1.3;">' + item.name + '</strong>'
-          + '<small style="display:block;font-size:11px;color:rgba(255,255,255,.40);margin-top:2px;">' + item.sub + '</small>'
         + '</div>'
         + '<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;background:' + bbg + ';color:' + bcol + ';border:' + bbrd + ';">' + item.badge + '</span>'
         + '</a>';
@@ -135,27 +134,20 @@
     el.style.cssText = 'max-height:0;overflow:hidden;transition:max-height .35s ease;box-sizing:border-box;';
 
     var links = t.items.map(function(item, i) {
-      var isCar    = !!item.car;
-      var isActive = cur === item.url.split('/').pop();
-      var col = isActive ? '#f59e0b' : 'rgba(255,255,255,.82)';
+      var isCar = !!item.car;
+
       return '<a href="' + item.url + '" style="'
-        + 'display:flex;align-items:center;gap:12px;'
-        + 'padding:' + (isCar ? '10px 16px' : '9px 16px') + ';'
-        + 'color:' + col + ';'
-        + 'text-decoration:none;font-size:14px;font-weight:' + (isActive || isCar ? '700' : '500') + ';'
-        + 'border-bottom:1px solid rgba(255,255,255,.07);'
-        + 'background:' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + ';'
-        + 'box-sizing:border-box;'
-        + '-webkit-tap-highlight-color:rgba(245,158,11,.2);"'
-        + ' ontouchstart="this._b=this.style.background;this.style.background=\'rgba(245,158,11,.14)\';"'
-        + ' ontouchend="var e=this;setTimeout(function(){e.style.background=e._b||\'transparent\';},450);"'
+        + 'display:flex;align-items:center;gap:11px;'
+        + 'padding:11px 16px;'
+        + 'color:rgba(255,255,255,.88);text-decoration:none;'
+        + 'border-bottom:1px solid rgba(255,255,255,.06);'
+        + 'background:' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + ';"'
         + ' onmouseover="this.style.background=\'rgba(245,158,11,.08)\';"'
         + ' onmouseout="this.style.background=\'' + (isCar ? 'rgba(245,158,11,.05)' : 'transparent') + '\';"'
         + '>'
         + '<div style="width:34px;height:34px;min-width:34px;border-radius:9px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + ICO[i] + '</div>'
         + '<div style="flex:1;min-width:0;text-align:left;">'
           + '<div style="font-weight:' + (isCar ? '700' : '600') + ';font-size:14px;">' + item.name + '</div>'
-          + '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px;">' + item.sub + '</div>'
         + '</div>'
         + (isCar ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.2);color:#f59e0b;border:1px solid rgba(245,158,11,.4);">' + item.badge + '</span>' : '')
         + '</a>';
