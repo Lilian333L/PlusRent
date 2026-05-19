@@ -6351,103 +6351,77 @@ header.smaller{
    не перебьют размеры и layout.
 ═══════════════════════════════════════════════════════════ */
 
-/* ── Trigger ── */
-.pr-services-li                         { position: relative !important; }
-.pr-services-trigger                    { display: flex !important; align-items: center !important; gap: 5px !important; cursor: pointer; user-select: none; white-space: nowrap; }
-.pr-chevron                             { flex-shrink: 0 !important; width: 12px !important; height: 12px !important; transition: transform .22s ease; opacity: .55; }
-.pr-services-li.open .pr-chevron,
-.pr-services-li:hover .pr-chevron      { transform: rotate(180deg); opacity: .9; }
+/* Trigger */
+.pr-services-li { position: relative !important; }
 
-/* ── Desktop mega panel ── */
-.pr-mega-menu {
-  position: absolute !important;
-  top: calc(100% + 10px) !important;
-  left: 50% !important;
-  transform: translateX(-50%) translateY(-6px) !important;
-  width: 520px !important;
-  max-width: 520px !important;
-  background: #1C1917 !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
-  border-top: 2px solid #f59e0b !important;
-  padding: 14px !important;
-  z-index: 9999 !important;
-  box-shadow: 0 24px 70px rgba(0,0,0,.6), 0 4px 16px rgba(0,0,0,.4) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: opacity .22s ease, transform .22s ease !important;
-  /* reset anything Bootstrap might add */
-  min-width: unset !important;
-  float: none !important;
-  list-style: none !important;
+.pr-services-trigger {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  white-space: nowrap !important;
+  padding: 15px 0 !important;   /* match #mainmenu li a padding */
+  text-decoration: none !important;
+  color: #fff !important;
+  font-weight: 500 !important;
 }
 
-/* prevent Bootstrap SVG blowup inside mega */
-.pr-mega-menu svg {
+.pr-services-label {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  border: none !important;
+  width: auto !important;
+  display: inline !important;
+  letter-spacing: normal !important;
+  line-height: normal !important;
+  color: inherit !important;
+}
+
+.pr-chevron {
+  flex-shrink: 0 !important;
+  width: 12px !important;
+  height: 12px !important;
+  max-width: 12px !important;
+  max-height: 12px !important;
+  overflow: visible !important;
+  transition: transform .22s ease !important;
+  opacity: .6 !important;
+  display: block !important;
+}
+
+/* Badge colours */
+.pr-badge-live {
+  background: rgba(34,197,94,.13) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(34,197,94,.25) !important;
+}
+.pr-badge-gold {
+  background: rgba(245,158,11,.13) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245,158,11,.28) !important;
+}
+
+/* Gold trigger when on a service page */
+.pr-services-li.pr-on-service-page > .pr-services-trigger { color: #f59e0b !important; }
+
+/* SVG inside mega — prevent Bootstrap max-width:100% blowup */
+#prMegaMenu svg {
   max-width: none !important;
   max-height: none !important;
   overflow: hidden !important;
 }
 
-/* show: hover + .open */
-@media (min-width: 992px) {
-  .pr-services-li:hover .pr-mega-menu,
-  .pr-services-li.open  .pr-mega-menu {
-    opacity: 1 !important;
-    pointer-events: all !important;
-    transform: translateX(-50%) translateY(0) !important;
-  }
-}
-
-/* ── Badge colours ── */
-.pr-badge-live {
-  background: rgba(34,197,94,.12) !important;
-  color: #4ade80 !important;
-  border: 1px solid rgba(34,197,94,.22) !important;
-}
-.pr-badge-gold {
-  background: rgba(245,158,11,.12) !important;
-  color: #f59e0b !important;
-  border: 1px solid rgba(245,158,11,.25) !important;
-}
-
-/* ── Active nav: gold trigger if on a service page ── */
-.pr-services-li.pr-on-service-page > .pr-services-trigger { color: #f59e0b !important; }
-
-/* ── MOBILE ── */
+/* MOBILE — внутри @media, не снаружи! */
 @media (max-width: 991px) {
-  .pr-mega-menu {
-    position: static !important;
-    transform: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    left: auto !important;
-    border-radius: 8px !important;
-    border: none !important;
-    border-left: 2px solid #f59e0b !important;
-    box-shadow: none !important;
-    background: rgba(255,255,255,.04) !important;
-    padding: 0 !important;
-    max-height: 0 !important;
-    overflow: hidden !important;
-    opacity: 1 !important;
-    pointer-events: none !important;
-    transition: max-height .35s ease, padding .3s ease !important;
-    margin-top: 4px;
-    margin-left: 12px;
+  .pr-services-trigger {
+    padding: 12px 0 !important;
   }
-  .pr-services-li.open .pr-mega-menu {
-    max-height: 800px !important;
-    pointer-events: all !important;
-    padding: 8px 8px 12px !important;
+  .pr-badge-live,
+  .pr-badge-gold {
+    display: none !important;
   }
-  /* stack to single column on mobile */
-  .pr-mega-menu [style*="grid-template-columns:1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* hide badges on mobile */
-  .pr-mega-menu .pr-badge-live,
-  .pr-mega-menu .pr-badge-gold { display: none !important; }
 }
 .pricing-s2 .top {
     padding: 30px;
