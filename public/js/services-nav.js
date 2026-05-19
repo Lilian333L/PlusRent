@@ -7,8 +7,8 @@
       label   : 'Toate serviciile',
       items: [
         { name: 'Șofer Treaz',           sub: 'Chișinău · 150 MDL',      badge: '24/7',    live: true,  url: '/ro/sofer-treaz'       },
-        { name: 'Transfer Aeroport KIV', sub: 'Chișinău · 800 MDL',      badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
-        { name: 'Transfer Aeroport IAS', sub: 'Iași · €140',              badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
+        { name: 'Transfer Aeroport Chișinău', sub: 'Chișinău · 800 MDL',      badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
+        { name: 'Transfer Aeroport IAȘI', sub: 'Iași · €140',              badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
         { name: 'Șofer Personal',        sub: 'Executiv · 2.000 MDL/zi', badge: 'VIP',     live: false, url: '/ro/sofer-personal'    }
       ]
     },
