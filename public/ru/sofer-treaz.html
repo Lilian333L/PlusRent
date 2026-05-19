@@ -76,6 +76,8 @@
 <link href="/css/style.css" rel="stylesheet" type="text/css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css">
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/css/modal-ux.css">
+
 <script>
 /* Pre-init language detection (runs before defer scripts like universal-include.js
    so they see the correct language from storage, not a stale value) */
@@ -1933,13 +1935,36 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
             </div>
           </div>
           <div class="de-flex-col">
-            <ul id="mainmenu">
-              <li><a class="menu-item" href="/ru/">Главная</a></li>
-              <li><a class="menu-item" href="/ru/cars">Автомобили</a></li>
-              <li><a class="menu-item" href="/ru/about">О нас</a></li>
-              <li><a class="menu-item" href="/ru/contact">Контакты</a></li>
-              <li><a class="menu-item" href="/ru/sofer-treaz">Трезвый водитель</a></li>
-            </ul>
+<ul id="mainmenu">
+  <li><a class="menu-item" href="/ru/" data-i18n="menu.home">Главная</a></li>
+  <li><a class="menu-item" href="/ru/cars" data-i18n="menu.cars">Автомобили</a></li>
+  <li class="pr-services-li" id="prServicesLi">
+    <a class="pr-services-trigger"
+       href="#"
+       id="prServicesTrigger"
+       aria-haspopup="true"
+       aria-expanded="false"
+       role="button">
+      <b class="pr-services-label"></b>
+      <svg class="pr-chevron" width="12" height="12" viewBox="0 0 20 20"
+           fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="pr-mega-menu" id="prMegaMenu" role="menu" aria-label="Services menu" style="display:none">
+      <!-- JS перепишет этот контент, поэтому ссылки тут не критичны, но для SSR/no-JS поставь правильные -->
+      <a href="/ru/cars">Аренда авто</a>
+      <a href="/ru/sofer-treaz">Трезвый водитель</a>
+      <a href="/ru/transfer-chisinau">Трансфер аэропорт KIV</a>
+      <a href="/ru/transfer-iasi">Трансфер аэропорт IAS</a>
+      <a href="/ru/sofer-personal">Личный водитель</a>
+    </div>
+  </li>
+  <li><a class="menu-item" href="/ru/about" data-i18n="menu.about">О нас</a></li>
+  <li><a class="menu-item" href="/ru/contact" data-i18n="menu.contact">Контакты</a></li>
+</ul>
           </div>
           <div class="de-flex-col">
             <div class="menu_side_area" style="display:flex;align-items:center;gap:12px;">
@@ -2320,6 +2345,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 <script src="/js/plugins.js" defer></script>
 <script src="/js/burger-menu-fix.js" defer></script>
+<script src="/js/services-nav.js" defer></script>
 <script src="/js/designesia.js" defer></script>
 <script src="https://unpkg.com/i18next@21.6.16/dist/umd/i18next.min.js" defer></script>
 <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
