@@ -8,8 +8,8 @@
       items: [
         { name: 'Chirie Auto',           sub: 'Chișinău · de la €15/zi', badge: '€15/zi',  car: true,  url: '/ro/cars'          },
         { name: 'Șofer Treaz',           sub: 'Chișinău · 150 MDL',      badge: '24/7',    live: true,  url: '/ro/sofer-treaz'   },
-        { name: 'Transfer Aeroport KIV', sub: 'Chișinău · 800 MDL',      badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
-        { name: 'Transfer Aeroport IAS', sub: 'Iași · €140',              badge: 'Premium', live: false, url: '/ro/transfer-iasi' },
+        { name: 'Transfer Aeroport Chișinău', sub: 'Aeroport KIV · 800 MDL',  badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
+        { name: 'Transfer Aeroport Iași', sub: 'Aeroport IAS · €140',      badge: 'Premium', live: false, url: '/ro/transfer-iasi' },
         { name: 'Șofer Personal',        sub: 'Executiv · 2.000 MDL/zi', badge: 'VIP',     live: false, url: '/ro/sofer-personal' }
       ]
     },
@@ -19,8 +19,8 @@
       items: [
         { name: 'Аренда авто',            sub: 'Кишинёв · от €15/день',   badge: '€15/дн',  car: true,  url: '/ru/cars'           },
         { name: 'Трезвый водитель',       sub: 'Кишинёв · 150 MDL',       badge: '24/7',    live: true,  url: '/ru/sofer-treaz'    },
-        { name: 'Трансфер аэропорт KIV',  sub: 'Кишинёв · 800 MDL',       badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
-        { name: 'Трансфер аэропорт IAS',  sub: 'Яссы · €140',              badge: 'Premium', live: false, url: '/ru/transfer-iasi'  },
+        { name: 'Трансфер аэропорт Кишинёв',  sub: 'Аэропорт KIV · 800 MDL',  badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
+        { name: 'Трансфер аэропорт Яссы',  sub: 'Аэропорт IAS · €140',      badge: 'Premium', live: false, url: '/ru/transfer-iasi'  },
         { name: 'Личный водитель',         sub: 'VIP · 2000 MDL/дн',       badge: 'VIP',     live: false, url: '/ru/sofer-personal' }
       ]
     },
@@ -30,14 +30,28 @@
       items: [
         { name: 'Car Rental',             sub: 'Chișinău · from €15/day', badge: '€15/day', car: true,  url: '/en/cars'           },
         { name: 'Sober Driver',           sub: 'Chișinău · 150 MDL',      badge: '24/7',    live: true,  url: '/en/sofer-treaz'    },
-        { name: 'Airport Transfer KIV',   sub: 'Chișinău · 800 MDL',      badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
-        { name: 'Airport Transfer IAS',   sub: 'Iași · €140',              badge: 'Premium', live: false, url: '/en/transfer-iasi'  },
+        { name: 'Airport Transfer Chișinău',   sub: 'KIV Airport · 800 MDL',   badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
+        { name: 'Airport Transfer Iași',   sub: 'IAS Airport · €140',       badge: 'Premium', live: false, url: '/en/transfer-iasi'  },
         { name: 'Personal Driver',        sub: 'Executive · 2000/day',    badge: 'VIP',     live: false, url: '/en/sofer-personal' }
       ]
     }
   };
 
-  /* SVG icons by index (0=car,1=sober,2=plane,3=depart,4=person) */
+  /* Inject CSS for mobile panel — overrides Designesia's header-mobile rules */
+  (function() {
+    if (document.getElementById('prNavStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'prNavStyle';
+    s.textContent = [
+      '#prMegaMenu a { display:flex !important; align-items:center !important; flex-direction:row !important; text-align:left !important; padding:11px 20px !important; border-bottom:1px solid rgba(255,255,255,.07) !important; }',
+      '#prMegaMenu a > div:last-of-type { flex:1 !important; min-width:0 !important; text-align:left !important; }',
+      '#prMegaMenu a > div > div { text-align:left !important; white-space:normal !important; }',
+      '#prMegaMenu a > span { flex-shrink:0 !important; display:inline-block !important; width:auto !important; align-self:center !important; }'
+    ].join('');
+    document.head.appendChild(s);
+  })();
+
+    /* SVG icons by index (0=car,1=sober,2=plane,3=depart,4=person) */
   var ICO = [
     /* 0 car */
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="#f59e0b" style="width:17px;height:17px;min-width:17px;display:block;flex-shrink:0"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>',
