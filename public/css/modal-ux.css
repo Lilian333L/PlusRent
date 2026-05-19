@@ -1,0 +1,77 @@
+/* ============================================================================
+ * PlusRent — Modal/Popup UX Enhancements
+ * Add to main stylesheet (or load after main CSS)
+ * ========================================================================== */
+
+/* Lock background scroll WITHOUT layout shift on iOS */
+html.is-modal-open {
+  /* Compensate for scrollbar width to avoid jump on desktop */
+  scrollbar-gutter: stable;
+}
+
+/* Allow internal scroll containers to scroll smoothly, but contain overscroll */
+.contact-popup-body,
+.modal-body,
+.price-calculator-content,
+#de-sidebar,
+#mainmenu,
+.mobile-filter-content,
+[data-scrollable] {
+  overscroll-behavior: contain;          /* iOS Safari: no rubber-band leakage */
+  -webkit-overflow-scrolling: touch;     /* iOS: native momentum scroll */
+}
+
+/* Visible focus ring for keyboard navigation inside modals (WCAG 2.4.7) */
+[aria-modal="true"] :focus-visible {
+  outline: 2px solid #f59e0b;            /* PlusRent gold */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect reduced-motion preference (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .popup,
+  #mainmenu,
+  #de-sidebar,
+  .mobile-filter-content,
+  #contactPopup,
+  #price-calculator-modal {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Hidden but accessible — for inert fallback on older browsers */
+[inert] {
+  pointer-events: none;
+  cursor: default;
+  user-select: none;
+}
+
+/* iOS Safari fix: when keyboard opens inside modal, prevent body shift */
+@supports (-webkit-touch-callout: none) {
+  html.is-modal-open body {
+    /* Prevent iOS keyboard from pushing modal off-screen */
+    height: 100%;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+/* Optional: smooth fade-in when opening modals */
+[aria-modal="true"] {
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes modalFadeIn {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
