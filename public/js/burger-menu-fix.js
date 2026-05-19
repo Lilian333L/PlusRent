@@ -42,6 +42,93 @@
     '[data-scrollable]',     // ← so HTML can opt-in without JS change
   ];
 
+  /* ────────────── FLOATING ELEMENTS (auto-hide during modal) ────────────── */
+  /*
+   * Selectors for floating buttons/triggers that should be hidden whenever
+   * any modal is open. Covers common patterns + provides opt-in attribute.
+   *
+   * Add `data-hide-on-modal` to any element you want auto-hidden.
+   */
+  const FLOATING_SELECTORS = [
+    // Generic floating call/contact buttons
+    '.floating-call-btn',
+    '.floating-contact-btn',
+    '.float-btn',
+    '.sticky-cta',
+    '.fixed-cta',
+    '.call-now-floating',
+    '.suna-acum',
+    '.btn-suna',
+    '.btn-call-now',
+    '.scroll-to-top',
+    '.back-to-top',
+    // Common popup triggers
+    '.contact-popup-trigger',
+    '.popup-trigger',
+    '.chat-widget',
+    '.whatsapp-float',
+    // Opt-in attribute — sprinkle on any element to auto-hide
+    '[data-hide-on-modal]',
+  ];
+
+  // List of elements found at boot — populated by detectFloatingElements()
+  let floatingElements = [];
+
+  function detectFloatingElements() {
+    // 1. Find by explicit selectors (always hide these)
+    const explicit = new Set();
+    FLOATING_SELECTORS.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => explicit.add(el));
+    });
+
+    // 2. Auto-detect by computed style:
+    //    - position: fixed
+    //    - has high z-index (≥ 100)
+    //    - is NOT a registered modal/header/menu
+    //    - is currently visible
+    const autoDetected = new Set();
+    const excludeIds = ['contactPopup', 'price-calculator-modal', 'mobile-filter-overlay', 'mainmenu', 'de-sidebar'];
+    const excludeTags = ['HEADER', 'NAV'];
+    document.querySelectorAll('a, button, div').forEach(el => {
+      if (excludeIds.includes(el.id)) return;
+      if (excludeTags.includes(el.tagName)) return;
+      if (el.closest('header, nav, [aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay')) return;
+      const cs = window.getComputedStyle(el);
+      if (cs.position !== 'fixed') return;
+      const z = parseInt(cs.zIndex, 10);
+      if (isNaN(z) || z < 100) return;
+      if (cs.display === 'none' || cs.visibility === 'hidden') return;
+      // Skip very large containers (likely modal backdrops not yet detected)
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 400 && rect.height > 400) return;
+      autoDetected.add(el);
+    });
+
+    floatingElements = [...new Set([...explicit, ...autoDetected])];
+  }
+
+  function hideFloatingElements() {
+    floatingElements.forEach(el => {
+      // Save current inline display so we can restore exactly
+      el._prevDisplay = el.style.display;
+      el._prevVisibility = el.style.visibility;
+      el.style.visibility = 'hidden';
+      el.setAttribute('aria-hidden', 'true');
+      el.dataset.hiddenByModal = '1';
+    });
+  }
+
+  function showFloatingElements() {
+    floatingElements.forEach(el => {
+      if (el.dataset.hiddenByModal === '1') {
+        el.style.visibility = el._prevVisibility || '';
+        el.style.display = el._prevDisplay || '';
+        el.removeAttribute('aria-hidden');
+        delete el.dataset.hiddenByModal;
+      }
+    });
+  }
+
   function findScrollable(target) {
     for (const sel of SCROLLABLE_SELECTORS) {
       const el = target.closest && target.closest(sel);
@@ -65,6 +152,9 @@
       document.body.style.touchAction = 'none';
       document.addEventListener('touchmove', preventOutsideScroll, { passive: false });
       document.addEventListener('wheel',     preventOutsideScroll, { passive: false });
+      // Re-scan and hide all floating elements (in case DOM changed)
+      detectFloatingElements();
+      hideFloatingElements();
     }
     state.openCount += 1;
   }
@@ -82,6 +172,7 @@
     document.body.style.touchAction = '';
     document.removeEventListener('touchmove', preventOutsideScroll);
     document.removeEventListener('wheel',     preventOutsideScroll);
+    showFloatingElements();
     const restoreTo = state.scrollY;
     requestAnimationFrame(() => window.scrollTo(0, restoreTo));
   }
