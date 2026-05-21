@@ -32,15 +32,29 @@ function initI18n() {
   }
   
 
-  // Always default to Romanian unless user explicitly picks another language
+  // ──── URL IS THE SOURCE OF TRUTH ────
+  // Detect language from URL path (/ro/, /ru/, /en/)
+  // This overrides any stale localStorage value to prevent
+  // the "stuck on wrong language" bug.
+  function detectUrlLanguage() {
+    const path = window.location.pathname;
+    if (/^\/ru(\/|$)/.test(path)) return 'ru';
+    if (/^\/en(\/|$)/.test(path)) return 'en';
+    if (/^\/ro(\/|$)/.test(path)) return 'ro';
+    return null;
+  }
+
+  const urlLang = detectUrlLanguage();
   const savedLang = localStorage.getItem('lang');
   const defaultLang = detectSystemLanguage();
-  let initialLang = savedLang || defaultLang;
 
-  if (!savedLang) {
-    localStorage.setItem('lang', defaultLang);
-    initialLang = defaultLang;
-  }
+  // Priority: URL > saved > browser default
+  let initialLang = urlLang || savedLang || defaultLang;
+
+  // Sync BOTH localStorage keys to current language
+  // (HTML pre-init uses 'i18nextLng', this file uses 'lang' — keep them aligned)
+  localStorage.setItem('lang', initialLang);
+  localStorage.setItem('i18nextLng', initialLang);
 
   try {
     i18next
@@ -217,7 +231,9 @@ function setupI18nEvents() {
 
   i18next.on('languageChanged', () => {
     updateContent();
+    // Sync both keys to stay consistent with the URL-based source of truth
     localStorage.setItem('lang', i18next.language);
+    localStorage.setItem('i18nextLng', i18next.language);
     updateLangPickerUI();
     updateAboutHeading();
     
@@ -308,16 +324,35 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     langOptions.forEach(function(opt) {
       opt.addEventListener('click', function(e) {
-        var lang = opt.getAttribute('data-lang');
-        var currentLang = localStorage.getItem('lang') || 'ro';
-        
+        var newLang = opt.getAttribute('data-lang');
+        var currentPath = window.location.pathname;
+
+        // Determine current language from URL
+        var currentUrlLang = 'ro';
+        if (/^\/ru(\/|$)/.test(currentPath)) currentUrlLang = 'ru';
+        else if (/^\/en(\/|$)/.test(currentPath)) currentUrlLang = 'en';
+
         // Only proceed if language is actually changing
-        if (lang !== currentLang) {
-          // Store the new language preference
-          localStorage.setItem('lang', lang);
-          
-          // Reload the page to prevent copy from getting messed up
-          window.location.reload();
+        if (newLang !== currentUrlLang) {
+          // Sync both localStorage keys for any other code that reads them
+          localStorage.setItem('lang', newLang);
+          localStorage.setItem('i18nextLng', newLang);
+
+          // Build new URL with language prefix swapped:
+          //   /ro/sofer-treaz  →  /en/sofer-treaz
+          //   /ru/cars         →  /ro/cars
+          //   /sofer-treaz     →  /en/sofer-treaz (unprefixed → prefix)
+          var newPath;
+          if (/^\/(ro|ru|en)(\/|$)/.test(currentPath)) {
+            // Has a language prefix — replace it
+            newPath = currentPath.replace(/^\/(ro|ru|en)(\/|$)/, '/' + newLang + '$2');
+          } else {
+            // No prefix — add one
+            newPath = '/' + newLang + currentPath;
+          }
+
+          // Preserve query string if any (?utm_source=... etc.)
+          window.location.href = newPath + window.location.search;
         } else {
           // Just close dropdown if same language selected
           closeDropdown();
@@ -554,4 +589,4 @@ function loadFallbackTranslations(lang) {
 
 
 // Start the initialization with enhanced fallback strategies
-initializeI18nWithFallbacks(); 
+initializeI18nWithFallbacks();
