@@ -129,6 +129,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet">
   <link href="/css/liquid-glass-theme.css" rel="stylesheet">
+  <link href="/css/scroll-lock.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/modal-ux.css">
 <!-- iOS zoom prevention + touch-action -->
 <style>
@@ -3437,218 +3438,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      function syncVehicleDataToModal() {
-        const vehicleImage = document.getElementById('vehicle-image');
-        const vehicleName = document.getElementById('vehicle-name');
-        const vehicleDetails = document.getElementById('vehicle-details');
-        
-        const modalImage = document.getElementById('modal-vehicle-image');
-        const modalName = document.getElementById('modal-vehicle-name');
-        const modalDetails = document.getElementById('modal-vehicle-details');
-        const modalYear = document.getElementById('modal-vehicle-year');
-        
-        // ── Robust check: only copy src if it's a REAL image URL ──
-        // <img src=""> resolves to document URL — don't copy that to modal
-        // Document URL with or without hash should both be excluded
-        if (vehicleImage && modalImage) {
-          var rawVehicleSrc = vehicleImage.getAttribute('src');
-          var docUrlNoHash = window.location.href.split('#')[0];
-          var isValidVehicleSrc = rawVehicleSrc && rawVehicleSrc.trim() !== ''
-                                  && vehicleImage.src
-                                  && vehicleImage.src !== window.location.href
-                                  && vehicleImage.src !== docUrlNoHash;
-          // Also: don't override modal image if modal already has a valid src
-          // (validation-booking.js openPriceCalculator sets modal-vehicle-image
-          // directly from carDetails.head_image — that's authoritative)
-          var rawModalSrc = modalImage.getAttribute('src');
-          var modalHasValidSrc = rawModalSrc && rawModalSrc.trim() !== ''
-                                 && modalImage.src
-                                 && modalImage.src !== window.location.href
-                                 && modalImage.src !== docUrlNoHash;
-          if (isValidVehicleSrc && !modalHasValidSrc) {
-            modalImage.src = vehicleImage.src;
-          }
-        }
-        
-        if (vehicleName && modalName && vehicleName.textContent.trim()) {
-          modalName.textContent = vehicleName.textContent.trim();
-        }
-        
-        if (vehicleDetails && modalDetails && vehicleDetails.textContent.trim()) {
-          modalDetails.textContent = vehicleDetails.textContent.trim();
-        }
-        
-        const vehicleSelect = document.getElementById('vehicle_type');
-        if (vehicleSelect && vehicleSelect.value && modalYear) {
-          const selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
-          const year = selectedOption.dataset.year || '-';
-          modalYear.textContent = year;
-        }
-        
-        const pickupChecked = document.querySelector('input[name="pickup_location"]:checked');
-        const dropoffChecked = document.querySelector('input[name="destination"]:checked');
-        
-        if (pickupChecked) {
-          const pickupLabel = pickupChecked.closest('.radio-option')?.querySelector('span:not(.radio-custom)')?.textContent;
-          const modalPickup = document.getElementById('modal-pickup-location');
-          if (modalPickup && pickupLabel) {
-            modalPickup.textContent = pickupLabel.trim();
-          }
-        }
-        
-        if (dropoffChecked) {
-          const dropoffLabel = dropoffChecked.closest('.radio-option')?.querySelector('span:not(.radio-custom)')?.textContent;
-          const modalDropoff = document.getElementById('modal-dropoff-location');
-          if (modalDropoff && dropoffLabel) {
-            modalDropoff.textContent = dropoffLabel.trim();
-          }
-        }
-      }
-      
-      const originalOpenCalculator = window.openPriceCalculator;
-      
-      window.openPriceCalculator = function() {
-        const vehicleSelect = document.getElementById('vehicle_type');
-        if (!vehicleSelect || !vehicleSelect.value) {
-          if (typeof window.showError === 'function') {
-            window.showError('Te rugăm să selectezi un vehicul mai întâi');
-          } else {
-            alert('Te rugăm să selectezi un vehicul mai întâi');
-          }
-          return;
-        }
-
-        if (originalOpenCalculator && typeof originalOpenCalculator === 'function') {
-          originalOpenCalculator.call(this);
-        }
-
-        const modal = document.getElementById('price-calculator-modal');
-        if (modal) {
-          modal.style.display = 'flex';
-
-          // ── iOS SCROLL LOCK: body position:fixed only (proven pattern) ──
-          const scrollY = window.scrollY || window.pageYOffset;
-          document.body.style.position = 'fixed';
-          document.body.style.top      = '-' + scrollY + 'px';
-          document.body.style.left     = '0';
-          document.body.style.right    = '0';
-          document.body.style.width    = '100%';
-          // Store for restore
-          document.body.dataset.scrollY = String(scrollY);
-
-          // Wheel/keyboard block for desktop
-          window.priceCalculatorWheelHandler = function(e) {
-            const modalBody = document.querySelector('#price-calculator-modal .modal-body');
-            if (!modalBody || !modalBody.contains(e.target)) {
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          };
-          document.addEventListener('wheel', window.priceCalculatorWheelHandler, { passive: false, capture: true });
-
-          window.priceCalculatorKeyHandler = function(e) {
-            const keys = [32,33,34,35,36,37,38,39,40];
-            if (keys.includes(e.keyCode)) {
-              const modalBody = document.querySelector('#price-calculator-modal .modal-body');
-              if (!modalBody || !modalBody.contains(document.activeElement)) {
-                e.preventDefault();
-              }
-            }
-          };
-          document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
-
-          /* ── iOS SCROLL ENGINE KICK (v8 — BULLETPROOF) ──
-           * iOS Safari decides "is this element scrollable?" ONCE when
-           * the element first becomes visible, and caches that decision.
-           * Modal content loads asynchronously (i18n, datepicker, dropdowns),
-           * so a single kick at T=0 misses content that settles later.
-           *
-           * Strategy:
-           *   1. Use overflow-y: scroll (not auto) — more reliable on iOS
-           *   2. Multiple kicks at 0, 200, 600, 1500, 3000 ms
-           *   3. ResizeObserver — re-kick whenever scrollHeight changes
-           *   4. MutationObserver — re-kick on DOM mutations (datepicker etc.)
-           */
-          var __mb = modal.querySelector('.modal-body');
-          if (__mb) {
-            __mb.style.overflowY = 'scroll';
-            __mb.style.webkitOverflowScrolling = 'touch';
-
-            var __kick = function() {
-              try {
-                var prev = __mb.scrollTop;
-                __mb.scrollTop = prev + 1;
-                __mb.scrollTop = prev;
-              } catch (e) {}
-            };
-
-            // Staggered kicks for content that settles at different times
-            requestAnimationFrame(function(){ requestAnimationFrame(__kick); });
-            setTimeout(__kick, 200);
-            setTimeout(__kick, 600);
-            setTimeout(__kick, 1500);
-            setTimeout(__kick, 3000);
-
-            // Auto re-kick when modal-body's size changes (content loaded)
-            if (window.ResizeObserver && !__mb.__prSizeObs) {
-              var lastScrollHeight = 0;
-              __mb.__prSizeObs = new ResizeObserver(function() {
-                if (__mb.scrollHeight !== lastScrollHeight) {
-                  lastScrollHeight = __mb.scrollHeight;
-                  __kick();
-                }
-              });
-              __mb.__prSizeObs.observe(__mb);
-            }
-
-            // Auto re-kick on DOM mutations inside modal-body
-            if (!__mb.__prDomObs) {
-              __mb.__prDomObs = new MutationObserver(function() {
-                requestAnimationFrame(__kick);
-              });
-              __mb.__prDomObs.observe(__mb, {
-                childList: true,
-                subtree: true,
-                attributes: false,
-                characterData: false
-              });
-            }
-          }
-        }
-
-        syncVehicleDataToModal();
-        setTimeout(syncVehicleDataToModal, 100);
-        setTimeout(syncVehicleDataToModal, 300);
-      };
-      
-      const vehicleSelect = document.getElementById('vehicle_type');
-      if (vehicleSelect) {
-        vehicleSelect.addEventListener('change', function() {
-          setTimeout(function() {
-            const vehicleImage = document.getElementById('vehicle-image');
-            const vehicleName = document.getElementById('vehicle-name');
-            const vehicleDetails = document.getElementById('vehicle-details');
-            const vehiclePrice = document.getElementById('vehicle-price');
-            
-            if (vehicleImage && vehicleImage.src) {
-              vehicleSelect.dataset.lastImage = vehicleImage.src;
-            }
-            if (vehicleName && vehicleName.textContent) {
-              vehicleSelect.dataset.lastName = vehicleName.textContent;
-            }
-            if (vehicleDetails && vehicleDetails.textContent) {
-              vehicleSelect.dataset.lastDetails = vehicleDetails.textContent;
-            }
-            if (vehiclePrice && vehiclePrice.textContent) {
-              vehicleSelect.dataset.lastPrice = vehiclePrice.textContent;
-            }
-          }, 600);
-        });
-      }
-      
-    });
+/* ── REMOVED v9 (refactor): inline wrapper around window.openPriceCalculator.
+ * Was ~180 lines of code duplicating body-lock setup, iOS scroll kicks,
+ * wheel/key handlers and syncVehicleDataToModal. All consolidated in:
+ *   - /js/validation-booking.js  (openPriceCalculator + syncVehicleDataToModal)
+ *   - /js/burger-menu-fix.js     (PlusRentModal.openManaged / iosScrollKick)
+ * The new architecture has a SINGLE body-lock manager and SINGLE close
+ * pathway. Adding new modals: call PlusRentModal.openManaged(modal, opts). */
 </script>
 
   <script src="/js/universal-include.js" defer></script>
@@ -3763,50 +3559,10 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 <script>
-  function closePriceCalculator() {
-    const modal = document.getElementById('price-calculator-modal');
-    if (modal) modal.style.display = 'none';
-
-    // ── RESTORE SCROLL: read top BEFORE clearing ──
-    const rawTop = document.body.style.top;           // "-500px"
-    const scrollY = rawTop ? Math.abs(parseInt(rawTop, 10)) : 0;
-
-    // Clear body lock — only properties we set
-    document.body.style.position = '';
-    document.body.style.top      = '';
-    document.body.style.left     = '';
-    document.body.style.right    = '';
-    document.body.style.width    = '';
-
-    // Remove event listeners
-    if (window.priceCalculatorWheelHandler) {
-      document.removeEventListener('wheel', window.priceCalculatorWheelHandler, { capture: true });
-      window.priceCalculatorWheelHandler = null;
-    }
-    if (window.priceCalculatorKeyHandler) {
-      document.removeEventListener('keydown', window.priceCalculatorKeyHandler);
-      window.priceCalculatorKeyHandler = null;
-    }
-
-    // ── RESTORE SCROLL SYNCHRONOUSLY ──
-    window.scrollTo(0, scrollY);
-  }
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('price-calculator-modal');
-    if (modal) {
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          closePriceCalculator();
-        }
-      });
-      
-      /* ── REMOVED v6: redundant inline touchmove handler with passive:false.
-       *    burger-menu-fix.js's preventOutsideScroll already does the same
-       *    work; having two non-passive touchmove listeners forced iOS to
-       *    wait for both → caused scroll-delay. */
-    }
-  });
+/* ── REMOVED v9 (refactor): inline closePriceCalculator + outside-click handler.
+ * Both are now provided by validation-booking.js + PlusRentModal:
+ *   - closePriceCalculator: validation-booking.js (calls PlusRentModal.closeManaged)
+ *   - Backdrop click: PlusRentModal.openManaged({closeOnBackdropClick: true}) */
 </script>
 
 <script>
