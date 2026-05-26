@@ -28,6 +28,7 @@
     activeModal: null,      // currently active modal element
     observers: [],          // tracked observers for cleanup
     keydownHandler: null,   // bound Escape/Tab handler
+    lockedByExternal: false,// true if body lock was set by another script (avoid double-restore)
   };
 
   /* ────────────── SCROLLABLE CONTAINERS WHITELIST ────────────── */
@@ -172,15 +173,34 @@
 
   function lockScroll() {
     if (state.openCount === 0) {
-      state.scrollY = window.scrollY || window.pageYOffset || 0;
+      /* ── Detect if body is ALREADY locked by another script
+       *    (e.g. inline wrapper in index.html for price-calculator-modal,
+       *    which sets position:fixed + top:-Ypx synchronously BEFORE this
+       *    MutationObserver-triggered call runs as a microtask).
+       *    If we naively read window.scrollY here, it returns 0 (because
+       *    body is already position:fixed), and we'd overwrite top:-500px
+       *    with top:0px — causing a visible page-jump under the modal
+       *    that looks like a "flicker" or modal re-opening. ── */
+      const existingPosition = document.body.style.position;
+      const existingTop      = document.body.style.top;
+      const alreadyLocked    = existingPosition === 'fixed' && existingTop && existingTop !== '0px';
+
+      if (alreadyLocked) {
+        // Reuse the scrollY captured by whoever locked first — don't touch styles.
+        state.scrollY = Math.abs(parseInt(existingTop, 10)) || 0;
+        state.lockedByExternal = true;
+      } else {
+        state.scrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top      = `-${state.scrollY}px`;
+        document.body.style.left     = '0';
+        document.body.style.right    = '0';
+        document.body.style.width    = '100%';
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+        state.lockedByExternal = false;
+      }
       document.documentElement.classList.add('is-modal-open');
-      document.body.style.position = 'fixed';
-      document.body.style.top      = `-${state.scrollY}px`;
-      document.body.style.left     = '0';
-      document.body.style.right    = '0';
-      document.body.style.width    = '100%';
-      document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
       document.addEventListener('touchmove', preventOutsideScroll, { passive: false });
       document.addEventListener('wheel',     preventOutsideScroll, { passive: false });
       // Re-scan and hide all floating elements (in case DOM changed)
@@ -194,18 +214,26 @@
     state.openCount = Math.max(0, state.openCount - 1);
     if (state.openCount > 0) return;
     document.documentElement.classList.remove('is-modal-open');
-    document.body.style.position    = '';
-    document.body.style.top         = '';
-    document.body.style.left        = '';
-    document.body.style.right       = '';
-    document.body.style.width       = '';
-    document.body.style.overflow    = '';
-    document.body.style.touchAction = '';
+    /* If the lock was owned by external code (inline wrapper), let IT clear
+     * the body styles + scrollTo. Touching them here causes a double-restore
+     * jump. We only clear what WE set. */
+    if (!state.lockedByExternal) {
+      document.body.style.position    = '';
+      document.body.style.top         = '';
+      document.body.style.left        = '';
+      document.body.style.right       = '';
+      document.body.style.width       = '';
+      document.body.style.overflow    = '';
+      document.body.style.touchAction = '';
+    }
     document.removeEventListener('touchmove', preventOutsideScroll);
     document.removeEventListener('wheel',     preventOutsideScroll);
     showFloatingElements();
-    const restoreTo = state.scrollY;
-    requestAnimationFrame(() => window.scrollTo(0, restoreTo));
+    if (!state.lockedByExternal) {
+      const restoreTo = state.scrollY;
+      requestAnimationFrame(() => window.scrollTo(0, restoreTo));
+    }
+    state.lockedByExternal = false;
   }
 
   function preventOutsideScroll(e) {
