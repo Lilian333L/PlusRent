@@ -431,7 +431,22 @@
     registerModal({
       element:    priceModal,
       isOpen:     () => window.getComputedStyle(priceModal).display !== 'none',
-      onClose:    () => { priceModal.style.display = 'none'; },
+      /* ── Route the close through window.closePriceCalculator() (defined in
+       *    validation-booking.js) so the body-lock cleanup runs. Previously
+       *    the ESC key called `priceModal.style.display = 'none'` directly,
+       *    which set display='none' BUT skipped clearing body styles. Since
+       *    state.lockedByExternal=true (inline wrapper in index.html sets
+       *    body lock), unlockScroll() also skipped body cleanup → body
+       *    remained position:fixed forever → page scroll stayed locked
+       *    until refresh. The X button and outside-click worked because
+       *    they go through closePriceCalculator() directly. */
+      onClose:    () => {
+        if (typeof window.closePriceCalculator === 'function') {
+          window.closePriceCalculator();
+        } else {
+          priceModal.style.display = 'none';
+        }
+      },
       attrFilter: ['style', 'class'],
     });
   }

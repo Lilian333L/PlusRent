@@ -812,8 +812,13 @@ async function openPriceCalculator() {
   // Применить сразу при открытии модалки
   setTimeout(updateTimeOptions, 100);
 
-  // Show modal
-  $("#price-calculator-modal").fadeIn(300);
+  // Show modal — direct display, let CSS @keyframes fadeIn / slideUpFadeIn
+  // handle the visual animation. (Previously used jQuery fadeIn(300), but
+  // it set inline opacity:0 which conflicted with both the CSS animation
+  // and the inline-wrapper's display='flex' in index.html → triggered the
+  // "modal opens couple times" flicker.)
+  var __pcm = document.getElementById("price-calculator-modal");
+  if (__pcm) __pcm.style.display = "flex";
   $("body").addClass("modal-open");
 
   // Initialize DatePickerManager for modal
@@ -1014,8 +1019,13 @@ $("#modal-discount-code").on("input", function () {
 
 function closePriceCalculator() {
   hideLoading();
-  // Hide the modal
-  $("#price-calculator-modal").fadeOut(300);
+  // Hide the modal — direct display=none, no fadeOut. Previously fadeOut(300)
+  // animated opacity for 300ms while body styles were already cleared sync
+  // below → if user pressed ESC, body styles cleanup ran inside the inline
+  // wrapper, but if scrollY/dataset got out of sync the page would not restore
+  // properly. Direct hide is simpler and matches the open flow.
+  var __pcm = document.getElementById("price-calculator-modal");
+  if (__pcm) __pcm.style.display = "none";
 
   // Remove modal-open class to restore normal page functionality
   $("body").removeClass("modal-open");
