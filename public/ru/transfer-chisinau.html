@@ -1689,9 +1689,16 @@ input:focus-visible,
           </div>
           <div class="de-flex-col">
             <div class="menu_side_area" style="display:flex;align-items:center;gap:12px;">
-              <button onclick="openPopup()" class="header-rezerva-btn" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;padding:10px 18px;border-radius:30px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-gold);min-height:40px;touch-action:manipulation;">
-                <i class="fa fa-phone" style="font-size:12px;"></i> Забронировать
-              </button>
+              <div class="call-now-wrapper" style="align-self:center;">
+                <a href="tel:+37360000500"
+                   onclick="gtag_report_conversion('tel:+37360000500')"
+                   class="call-now-btn"
+                   aria-label="Позвонить Сейчас"
+                   style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#1C1917;text-shadow:0 1px 2px rgba(255,255,255,0.18);padding:10px 18px;border-radius:25px;text-decoration:none;font-weight:600;font-size:14px;box-shadow:0 4px 15px rgba(245,158,11,0.30);position:relative;overflow:hidden;animation:pulse 2s infinite;">
+                  <i class="fa fa-phone" style="font-size:12px;"></i>
+                  <span data-i18n="call_now">Позвонить Сейчас</span>
+                </a>
+              </div>
               <div class="lang-picker-wrapper" style="min-width:120px;align-self:center;">
                 <button id="langPickerBtn" class="lang-picker-btn" aria-haspopup="listbox" aria-expanded="false" style="height:36px;display:flex;align-items:center;">
                   <span class="lang-globe" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:3px;">
@@ -2238,9 +2245,7 @@ input:focus-visible,
 </footer>
 
 <!-- FLOATING BUTTON — Gold (brand consistent) -->
-<button type="button" class="floating-btn" onclick="openPopup()" aria-label="Связаться с PlusRent">
-  <i class="fa fa-comments"></i>
-</button>
+<button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Связаться с нами"><i class="fa fa-comments"></i></button>
 
 <!-- CONTACT POPUP -->
 <div id="contactPopup" class="popup-overlay" style="display:none;">
@@ -2365,7 +2370,7 @@ function doViber()     { openViber(); }
 function doTelegram()  { openTelegram(); }
 function doCall()      { makeDirectCall(); }
 function closeContactPopup() { closePopup(); }
-
+function openContactPopup(ctx) { openPopup(ctx); }
 document.getElementById('contactPopup').addEventListener('click', function(e) {
   if (!document.querySelector('.popup-box').contains(e.target)) closePopup();
 });
