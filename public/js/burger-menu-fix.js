@@ -401,6 +401,135 @@
     state.lastFocus = null;
   }
 
+  /* ──────────── iOS SCROLL KICK (v8 — BULLETPROOF) ────────────
+   * Encapsulates the multi-stage scroll-engine "kick" pattern that
+   * forces iOS Safari to register a scrollable element correctly
+   * even when its content settles asynchronously. Single source of
+   * truth, replaces the inline-wrapper version that used to live in
+   * each index.html.
+   * --------------------------------------------------------------
+   * Usage:  PlusRentModal.iosScrollKick(element)
+   *   - sets overflowY: scroll, -webkit-overflow-scrolling: touch
+   *   - fires scrollTop nudges at 0, 200, 600, 1500, 3000 ms
+   *   - installs a ResizeObserver to re-kick on size change
+   *   - installs a MutationObserver to re-kick on DOM changes
+   */
+  function iosScrollKick(container) {
+    if (!container) return;
+    // Apply iOS-friendly scroll properties once
+    container.style.overflowY = 'scroll';
+    container.style.webkitOverflowScrolling = 'touch';
+
+    const kick = function () {
+      try {
+        const prev = container.scrollTop;
+        container.scrollTop = prev + 1;
+        container.scrollTop = prev;
+      } catch (e) { /* ignore */ }
+    };
+
+    // Staggered kicks — content may settle at different async times
+    requestAnimationFrame(function () { requestAnimationFrame(kick); });
+    setTimeout(kick, 200);
+    setTimeout(kick, 600);
+    setTimeout(kick, 1500);
+    setTimeout(kick, 3000);
+
+    // ResizeObserver: re-kick whenever scrollHeight changes (content loaded)
+    if (window.ResizeObserver && !container.__prSizeObs) {
+      let lastScrollHeight = 0;
+      container.__prSizeObs = new ResizeObserver(function () {
+        if (container.scrollHeight !== lastScrollHeight) {
+          lastScrollHeight = container.scrollHeight;
+          kick();
+        }
+      });
+      container.__prSizeObs.observe(container);
+    }
+
+    // MutationObserver: re-kick on DOM mutations (datepicker overlay, etc.)
+    if (!container.__prDomObs) {
+      container.__prDomObs = new MutationObserver(function () {
+        requestAnimationFrame(kick);
+      });
+      container.__prDomObs.observe(container, {
+        childList: true,
+        subtree: true,
+        attributes: false,
+        characterData: false,
+      });
+    }
+  }
+
+  /* ──────────── UNIFIED OPEN / CLOSE — recommended for all modals ──────────── */
+  /*
+   * Use this for new code instead of toggling style.display directly.
+   * Handles EVERYTHING: class toggle, body lock, ARIA, keyboard, focus,
+   * iOS scroll kick, backdrop click. Single source of truth.
+   *
+   *   PlusRentModal.openManaged(modal, {
+   *     iosScrollContainer: '.modal-body' | element,  // optional
+   *     closeFn: function() {...},                    // ESC / backdrop will call this
+   *     closeOnBackdropClick: true,                   // default true
+   *     openClass: 'open',                            // class to add (default)
+   *   });
+   *
+   *   PlusRentModal.closeManaged(modal);
+   */
+  function openManaged(modal, opts) {
+    if (!modal) return;
+    opts = opts || {};
+    const openClass = opts.openClass || 'open';
+    const closeFn = opts.closeFn || function () { closeManaged(modal); };
+
+    // Mark element as managed so closeManaged can find its config
+    modal.__prClose = closeFn;
+    modal.__prOpenClass = openClass;
+
+    // 1. Add open class — CSS handles display/animation
+    modal.classList.add(openClass);
+
+    // 2. Full lifecycle: scroll lock + ARIA + keyboard + focus
+    openModal(modal, closeFn);
+
+    // 3. Backdrop click — close when clicking on the overlay itself
+    if (opts.closeOnBackdropClick !== false) {
+      const handler = function (e) {
+        if (e.target === modal) closeFn();
+      };
+      modal.__prBackdropHandler = handler;
+      modal.addEventListener('click', handler);
+    }
+
+    // 4. iOS scroll kick on the inner scrollable container
+    if (opts.iosScrollContainer) {
+      const el = typeof opts.iosScrollContainer === 'string'
+        ? modal.querySelector(opts.iosScrollContainer)
+        : opts.iosScrollContainer;
+      iosScrollKick(el);
+    }
+  }
+
+  function closeManaged(modal) {
+    if (!modal) return;
+    const openClass = modal.__prOpenClass || 'open';
+
+    // 1. Remove open class — CSS hides modal
+    modal.classList.remove(openClass);
+
+    // 2. Detach backdrop handler
+    if (modal.__prBackdropHandler) {
+      modal.removeEventListener('click', modal.__prBackdropHandler);
+      delete modal.__prBackdropHandler;
+    }
+
+    // 3. Full close lifecycle
+    closeModal(modal);
+
+    delete modal.__prClose;
+    delete modal.__prOpenClass;
+  }
+
   /* ────────────── DECLARATIVE REGISTRATION ────────────── */
   /*
    * Each modal is described by:
@@ -414,6 +543,12 @@
     if (!element) return;
     let opened = false;
     const observer = new MutationObserver(() => {
+      /* SKIP if this modal is being managed by openManaged/closeManaged.
+       * openManaged already does the full lifecycle; without this guard,
+       * MutationObserver would fire on the .open class change and call
+       * openModal a SECOND time → double lockScroll, double ARIA, etc. */
+      if (element.__prClose) return;
+
       const isNowOpen = isOpen();
       if (isNowOpen === opened) return;
       opened = isNowOpen;
@@ -492,14 +627,18 @@
     document.removeEventListener('touchcancel', resetTouchTracking);
   });
 
-  /* ────────────── EXPOSE MINIMAL API ────────────── */
-  /* For inline scripts or future modals: */
+  /* ────────────── EXPOSE PUBLIC API ────────────── */
   window.PlusRentModal = {
-    open:  openModal,
-    close: closeModal,
-    register: registerModal,
-    lock:  lockScroll,
-    unlock: unlockScroll,
+    // NEW unified API (preferred for all new code):
+    openManaged:    openManaged,
+    closeManaged:   closeManaged,
+    iosScrollKick:  iosScrollKick,
+    // Legacy / lower-level — still works for MutationObserver-based registrations
+    open:           openModal,
+    close:          closeModal,
+    register:       registerModal,
+    lock:           lockScroll,
+    unlock:         unlockScroll,
   };
 
 })();

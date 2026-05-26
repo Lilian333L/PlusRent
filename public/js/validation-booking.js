@@ -580,6 +580,109 @@ $(document).ready(function () {
     $(this).siblings(".field-error").remove();
   });
 });
+
+/* ──────────────────────────────────────────────────────────────────────
+ * syncVehicleDataToModal — copies vehicle data from the visible booking
+ * form (index.html) to the price-calculator-modal display elements.
+ *
+ * Previously lived in inline-wrapper scripts inside ro/ru/en index.html
+ * (~70 lines × 3 files). Moved here as a single source of truth.
+ *
+ * Note: validation-booking.js's openPriceCalculator already populates
+ * modal-vehicle-image / -name / -details from the `data-car-details`
+ * JSON attribute of the selected <option>. This function is a fallback
+ * + extension: it copies from the visible DOM elements (which may have
+ * loaded fresh data from API) AND it populates fields that data-car-details
+ * doesn't carry (year, location labels).
+ * ────────────────────────────────────────────────────────────────────── */
+function syncVehicleDataToModal() {
+  var vehicleImage   = document.getElementById('vehicle-image');
+  var vehicleName    = document.getElementById('vehicle-name');
+  var vehicleDetails = document.getElementById('vehicle-details');
+
+  var modalImage   = document.getElementById('modal-vehicle-image');
+  var modalName    = document.getElementById('modal-vehicle-name');
+  var modalDetails = document.getElementById('modal-vehicle-details');
+  var modalYear    = document.getElementById('modal-vehicle-year');
+
+  // Robust src check — don't copy '' or document URL into the modal img
+  if (vehicleImage && modalImage) {
+    var rawVehicleSrc = vehicleImage.getAttribute('src');
+    var docUrlNoHash  = window.location.href.split('#')[0];
+    var isValidVehicleSrc = rawVehicleSrc && rawVehicleSrc.trim() !== ''
+                            && vehicleImage.src
+                            && vehicleImage.src !== window.location.href
+                            && vehicleImage.src !== docUrlNoHash;
+    // Don't override modal image if it already has a valid src
+    // (openPriceCalculator sets it from carDetails.head_image — authoritative)
+    var rawModalSrc = modalImage.getAttribute('src');
+    var modalHasValidSrc = rawModalSrc && rawModalSrc.trim() !== ''
+                           && modalImage.src
+                           && modalImage.src !== window.location.href
+                           && modalImage.src !== docUrlNoHash;
+    if (isValidVehicleSrc && !modalHasValidSrc) {
+      modalImage.src = vehicleImage.src;
+    }
+  }
+
+  if (vehicleName && modalName && vehicleName.textContent.trim()) {
+    modalName.textContent = vehicleName.textContent.trim();
+  }
+
+  if (vehicleDetails && modalDetails && vehicleDetails.textContent.trim()) {
+    modalDetails.textContent = vehicleDetails.textContent.trim();
+  }
+
+  var vehicleSelect = document.getElementById('vehicle_type');
+  if (vehicleSelect && vehicleSelect.value && modalYear) {
+    var selectedOption = vehicleSelect.options[vehicleSelect.selectedIndex];
+    var year = selectedOption.dataset.year || '-';
+    modalYear.textContent = year;
+  }
+
+  var pickupChecked  = document.querySelector('input[name="pickup_location"]:checked');
+  var dropoffChecked = document.querySelector('input[name="destination"]:checked');
+
+  if (pickupChecked) {
+    var pickupLabel = pickupChecked.closest('.radio-option')
+      && pickupChecked.closest('.radio-option').querySelector('span:not(.radio-custom)')
+      && pickupChecked.closest('.radio-option').querySelector('span:not(.radio-custom)').textContent;
+    var modalPickup = document.getElementById('modal-pickup-location');
+    if (modalPickup && pickupLabel) {
+      modalPickup.textContent = pickupLabel.trim();
+    }
+  }
+
+  if (dropoffChecked) {
+    var dropoffLabel = dropoffChecked.closest('.radio-option')
+      && dropoffChecked.closest('.radio-option').querySelector('span:not(.radio-custom)')
+      && dropoffChecked.closest('.radio-option').querySelector('span:not(.radio-custom)').textContent;
+    var modalDropoff = document.getElementById('modal-dropoff-location');
+    if (modalDropoff && dropoffLabel) {
+      modalDropoff.textContent = dropoffLabel.trim();
+    }
+  }
+}
+
+/* Save last-known vehicle data to dataset on selection change.
+ * Was inline in index.html's wrapper; consolidated here. */
+$(document).ready(function () {
+  var vehicleSelect = document.getElementById('vehicle_type');
+  if (!vehicleSelect) return;
+  vehicleSelect.addEventListener('change', function () {
+    setTimeout(function () {
+      var vehicleImage   = document.getElementById('vehicle-image');
+      var vehicleName    = document.getElementById('vehicle-name');
+      var vehicleDetails = document.getElementById('vehicle-details');
+      var vehiclePrice   = document.getElementById('vehicle-price');
+      if (vehicleImage   && vehicleImage.src)        vehicleSelect.dataset.lastImage   = vehicleImage.src;
+      if (vehicleName    && vehicleName.textContent) vehicleSelect.dataset.lastName    = vehicleName.textContent;
+      if (vehicleDetails && vehicleDetails.textContent) vehicleSelect.dataset.lastDetails = vehicleDetails.textContent;
+      if (vehiclePrice   && vehiclePrice.textContent)   vehicleSelect.dataset.lastPrice   = vehiclePrice.textContent;
+    }, 600);
+  });
+});
+
 async function openPriceCalculator() {
   // Since we removed date/time fields from main form, we'll set default values
   const today = new Date();
@@ -812,13 +915,31 @@ async function openPriceCalculator() {
   // Применить сразу при открытии модалки
   setTimeout(updateTimeOptions, 100);
 
-  // Show modal — direct display, let CSS animations handle the visual
-  // (Previously $("#price-calculator-modal").fadeIn(300) caused the "opens
-  // couple times" flicker due to jQuery + inline-wrapper + CSS-animation
-  // all competing on opacity/display.)
+  // Show modal — single source of truth via PlusRentModal.openManaged.
+  // This handles: class toggle (.open → CSS display:flex), body scroll
+  // lock (position:fixed + scrollY save), ARIA, focus trap, ESC handler,
+  // backdrop click close, iOS scroll engine kick + ResizeObserver +
+  // MutationObserver. No inline-wrapper duplication anymore.
   var __pcm = document.getElementById("price-calculator-modal");
-  if (__pcm) __pcm.style.display = "flex";
-  $("body").addClass("modal-open");
+  if (__pcm) {
+    // Sync vehicle data from index.html form to modal display elements
+    // (covers fields that data-car-details JSON doesn't have, e.g. year)
+    syncVehicleDataToModal();
+    setTimeout(syncVehicleDataToModal, 100);
+    setTimeout(syncVehicleDataToModal, 300);
+
+    if (window.PlusRentModal && typeof window.PlusRentModal.openManaged === 'function') {
+      window.PlusRentModal.openManaged(__pcm, {
+        iosScrollContainer: '.modal-body',
+        closeFn: window.closePriceCalculator || closePriceCalculator,
+        closeOnBackdropClick: true,
+      });
+    } else {
+      // Fallback if PlusRentModal isn't loaded for some reason
+      __pcm.style.display = "flex";
+    }
+  }
+  $("body").addClass("modal-open"); // legacy class consumers (CSS in scroll-lock.css)
 
   // Initialize DatePickerManager for modal
 
@@ -1018,39 +1139,48 @@ $("#modal-discount-code").on("input", function () {
 
 function closePriceCalculator() {
   hideLoading();
-  // Hide the modal — direct display=none, no fadeOut (was async timing issue
-  // with body lock cleanup that ran sync before fadeOut completed).
+
+  // Close the modal via single source of truth — PlusRentModal handles
+  // class toggle (.open removed → CSS display:none), body scroll lock
+  // cleanup (position/top/etc. cleared + window.scrollTo restored),
+  // ARIA, keyboard handlers, backdrop click cleanup, focus restoration.
   var __pcm = document.getElementById("price-calculator-modal");
-  if (__pcm) __pcm.style.display = "none";
-
-  // Remove modal-open class to restore normal page functionality
-  $("body").removeClass("modal-open");
-
-  // ── RESTORE SCROLL POSITION (when openPriceCalculator wrapper used position:fixed lock) ──
-  // The wrapper in index.html stores scrollY in body.dataset.scrollY and sets body.style.top.
-  // We must read scrollY BEFORE clearing body styles, then restore via window.scrollTo.
-  var savedScrollY = 0;
-  if (document.body.dataset && document.body.dataset.scrollY) {
-    savedScrollY = parseInt(document.body.dataset.scrollY, 10) || 0;
-  } else if (document.body.style.top) {
-    savedScrollY = Math.abs(parseInt(document.body.style.top, 10)) || 0;
+  if (__pcm) {
+    if (window.PlusRentModal && typeof window.PlusRentModal.closeManaged === 'function') {
+      window.PlusRentModal.closeManaged(__pcm);
+    } else {
+      // Fallback if PlusRentModal isn't loaded
+      __pcm.style.display = "none";
+    }
   }
 
-  // Clear ALL body locks (defensive — covers different lock strategies used by wrappers)
-  document.body.style.position = "";
-  document.body.style.top      = "";
-  document.body.style.left     = "";
-  document.body.style.right    = "";
-  document.body.style.width    = "";
-  document.body.style.overflow = "";
-  document.documentElement.style.overflow = "";
-  if (document.body.dataset) delete document.body.dataset.scrollY;
+  // Legacy body class
+  $("body").removeClass("modal-open");
+
+  // Defensive: clear any inline body locks that legacy code may have set
+  // (idempotent — PlusRentModal already did this if it was the locker).
+  // This protects against stuck body state if other modal scripts get
+  // out of sync.
+  if (document.body.style.position === 'fixed') {
+    var savedScrollY = 0;
+    if (document.body.dataset && document.body.dataset.scrollY) {
+      savedScrollY = parseInt(document.body.dataset.scrollY, 10) || 0;
+    } else if (document.body.style.top) {
+      savedScrollY = Math.abs(parseInt(document.body.style.top, 10)) || 0;
+    }
+    document.body.style.position = "";
+    document.body.style.top      = "";
+    document.body.style.left     = "";
+    document.body.style.right    = "";
+    document.body.style.width    = "";
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+    if (document.body.dataset) delete document.body.dataset.scrollY;
+    if (savedScrollY > 0) window.scrollTo(0, savedScrollY);
+  }
 
   // Remove any remaining modal backdrop if present
   $(".modal-backdrop").remove();
-
-  // Restore scroll synchronously (only if we captured a position)
-  if (savedScrollY > 0) window.scrollTo(0, savedScrollY);
 
   // Clean up DatePickerManager
   if (window.modalDatePicker) {
@@ -1061,19 +1191,9 @@ function closePriceCalculator() {
   // is managed by phone validation listener; let updateSubmitState own it)
   $("button:not(#send_message), input, select, textarea").prop("disabled", false);
 
-  // Remove event listeners to prevent memory leaks
+  // Remove jQuery-namespaced listeners that legacy code may have added
   $(document).off("keydown.modal");
   $(document).off("click.modal");
-
-  // Cleanup wheel/key handlers added by openPriceCalculator wrapper (in index.html)
-  if (window.priceCalculatorWheelHandler) {
-    document.removeEventListener("wheel", window.priceCalculatorWheelHandler, { capture: true });
-    window.priceCalculatorWheelHandler = null;
-  }
-  if (window.priceCalculatorKeyHandler) {
-    document.removeEventListener("keydown", window.priceCalculatorKeyHandler);
-    window.priceCalculatorKeyHandler = null;
-  }
 }
 
 async function calculateModalPrice() {
