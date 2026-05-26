@@ -1670,31 +1670,41 @@ input[type="radio"] {
 
 <style id="pr-modal-mobile-scroll-fix">
 /* ════════════════════════════════════════════════════════════════════
-   PRICE CALCULATOR MODAL — mobile scroll fix (v2)
+   PRICE CALCULATOR MODAL — DEFINITIVE iOS scroll fix (v6)
    ─────────────────────────────────────────────────────────────────────
-   iOS Safari has a known bug: scrollable elements inside a fixed-position
-   parent take a while to "wake up" — first touches don't scroll until iOS
-   initializes the compositor layer. Combined with non-passive touchmove
-   handlers (which force iOS to wait for JS handlers before starting
-   scroll), this manifests as "scroll doesn't work for first 2 seconds".
-   Fixes below:
-     - touch-action: pan-y       → explicit vertical-only touch
-     - -webkit-overflow-scrolling: touch → iOS momentum
-     - overscroll-behavior: contain      → no bg bounce on iOS
-     - transform: translate3d(0,0,0)     → force GPU layer (KEY fix)
-     - will-change: scroll-position      → ahead-of-time scroll prep
+   iOS Safari delays scroll initialization for elements inside
+   position:fixed parents AND inside transform:translateY animating
+   ancestors. Combined fix:
+     1. Pure-opacity entrance animation (no transform on parent)
+     2. GPU compositing layer on the scrollable element
+     3. Explicit touch-action: pan-y to override body's potential none
+     4. -webkit-overflow-scrolling: touch for iOS momentum
+     5. will-change: scroll-position to pre-warm iOS scroll engine
    ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Override the slideUpFadeIn keyframes to OPACITY ONLY ──
+ * The original (in indstyle.css) used `transform: translateY(40px) scale(0.96)`
+ * which creates a containing block on .price-calculator-content during the
+ * animation, and iOS Safari does NOT enable scroll inside transforming
+ * ancestors until the animation finishes AND iOS recomputes layout. By
+ * replacing transform with pure opacity, .price-calculator-content stays
+ * "static" (no transform) → iOS scroll works from the very first touch. */
+@keyframes slideUpFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .price-calculator-modal .modal-body {
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior: contain !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  /* ↓↓ KEY iOS fix: GPU compositing layer breaks the scroll-inside-fixed bug */
+  /* Force own GPU compositing layer — KEY iOS fix */
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
   will-change: scroll-position;
-  /* Ensure scroll area is its own stacking context */
+  /* Own stacking context */
   position: relative;
   z-index: 1;
 }
@@ -1702,17 +1712,12 @@ input[type="radio"] {
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior: contain !important;
+  /* shorter open animation */
+  animation-duration: 0.25s !important;
 }
-/* Modal backdrop itself blocks bg scroll */
 .price-calculator-modal {
   touch-action: none;
   overscroll-behavior: contain;
-}
-/* Shorter open animation → less time during which transform creates a
-   containing block on .price-calculator-content (which can trap iOS
-   scroll init). Original was 0.4s, now 0.22s. */
-.price-calculator-content {
-  animation-duration: 0.22s !important;
 }
 </style>
 </head>
@@ -3453,6 +3458,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           };
           document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
+
+          /* ── iOS SCROLL ENGINE KICK (v6) ──
+           * iOS Safari sometimes delays initializing scroll-touch for
+           * elements that just became visible inside position:fixed
+           * parents. The trick: nudge the scrollable element's scrollTop
+           * by 1px and back to 0 right after the modal becomes visible.
+           * This forces iOS to register the element as scrollable
+           * IMMEDIATELY rather than waiting for the user to touch a few
+           * times. Done in a double-rAF to ensure layout has settled. */
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              var mb = modal.querySelector('.modal-body');
+              if (!mb) return;
+              try {
+                mb.scrollTop = 1;
+                mb.scrollTop = 0;
+              } catch (e) {}
+            });
+          });
         }
 
         syncVehicleDataToModal();
@@ -3639,12 +3663,9 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       /* ── REMOVED v6: redundant inline touchmove handler with passive:false.
-       *    burger-menu-fix.js's preventOutsideScroll (attached to document
-       *    in lockScroll) already provides identical outside-scroll
-       *    prevention. Having TWO non-passive touchmove listeners forced
-       *    iOS Safari to wait for both JS handlers before starting scroll
-       *    on every touch → caused the "scroll inside modal lags for couple
-       *    of seconds" symptom on mobile. */
+       *    burger-menu-fix.js's preventOutsideScroll already does the same
+       *    work; having two non-passive touchmove listeners forced iOS to
+       *    wait for both → caused scroll-delay. */
     }
   });
 </script>
