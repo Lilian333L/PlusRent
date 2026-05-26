@@ -52,7 +52,17 @@
             '.lightbox.open',
             '.lightbox.active',
             '#imageLightbox[style*="display: block"]',
-            '#imageLightbox[style*="display:block"]'
+            '#imageLightbox[style*="display:block"]',
+            // PlusRent-specific modals (not covered by generic .modal class)
+            '#price-calculator-modal[style*="display: flex"]',
+            '#price-calculator-modal[style*="display:flex"]',
+            '#price-calculator-modal[style*="display: block"]',
+            '.price-calculator-modal[style*="display: flex"]',
+            '.contact-popup-overlay[style*="display: flex"]',
+            '.contact-popup-overlay[style*="display:flex"]',
+            '.contact-popup-overlay.open',
+            '#contactPopup[style*="display: flex"]',
+            '#contactPopup[style*="display:flex"]'
         ];
 
         for (const selector of modalSelectors) {
@@ -75,6 +85,11 @@
         }
 
         if (document.body.style.overflow === 'hidden') {
+            return true;
+        }
+
+        // PlusRent: when modal locks body via inline position:fixed (top:-Npx)
+        if (document.body.style.position === 'fixed' && document.body.style.top) {
             return true;
         }
 
@@ -939,28 +954,32 @@ function showModal(options = {}) {
     }
     
     if (isAnyModalOpen()) {
-        console.log('⏳ Another modal is open, will show spinning wheel in 4 seconds...');
-        
-        showBonusNotification();
-        
-        setTimeout(() => {
-            if (!state.userClosedModal) {
-                console.log('✅ Showing spinning wheel now...');
-                
-                const openModals = document.querySelectorAll('.modal.show, .modal.active, [role="dialog"][style*="display: block"]');
-                openModals.forEach(modal => {
-                    modal.style.display = 'none';
-                    modal.classList.remove('show', 'active');
-                });
-                
-                document.body.classList.remove('modal-open', 'no-scroll', 'overflow-hidden');
-                
-                setTimeout(() => {
-                    showModalInternal(options);
-                }, 200);
+        // PlusRent v6: NEVER force-close another modal to show the wheel.
+        // Previously this branch waited 4s then ripped open modals via
+        // `style.display = 'none'` + removed body.modal-open class. That
+        // showed the wheel on top of an open price-calculator-modal (which
+        // also had its scroll-lock listeners still attached → clicks/inputs
+        // on the wheel were swallowed → user couldn't interact with either).
+        // Now we poll politely: re-check every 3s, show only when no other
+        // modal is open. The 4s "force" path is gone.
+        console.log('⏳ Another modal is open, will retry in 3 seconds...');
+        if (state._waitingForModalClose) return; // already polling
+        state._waitingForModalClose = true;
+        const retry = () => {
+            if (state.userClosedModal) {
+                state._waitingForModalClose = false;
+                return;
             }
-        }, 4000);
-        
+            if (isAnyModalOpen()) {
+                setTimeout(retry, 3000);
+            } else {
+                state._waitingForModalClose = false;
+                console.log('✅ Other modal closed, showing wheel now');
+                // Give the just-closed modal one extra tick to fully clean up
+                setTimeout(() => showModalInternal(options), 250);
+            }
+        };
+        setTimeout(retry, 3000);
         return;
     }
     
@@ -1048,6 +1067,7 @@ function showModalInternal(options = {}) {
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
     document.body.style.top = `-${window.scrollY}px`;
+    state._weOwnBodyLock = true; // PlusRent v6: mark this body lock as ours
     
     updateModalTranslations();
     
@@ -1146,6 +1166,7 @@ function closeModal() {
         document.body.style.top = '';
         document.body.style.overflow = '';
         document.body.style.width = '';
+        state._weOwnBodyLock = false; // PlusRent v6: released our body lock
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }, 300);
 }
@@ -1848,6 +1869,40 @@ function closeModal() {
         if (typeof i18next !== 'undefined') {
             i18next.on('languageChanged', updateModalTranslations);
         }
+
+        /* PlusRent v6: if any modal opens AFTER the wheel is already shown,
+         * hide the wheel until the modal closes. Detects via body.modal-open
+         * class (added by validation-booking.js) and body.style.position=fixed
+         * (set by inline wrappers). This prevents the wheel from sitting on
+         * top of an open price-calculator-modal with no interactive ability. */
+        let wheelHiddenByOtherModal = false;
+        const checkOtherModalState = () => {
+            if (!state.modal) return;
+            const wheelIsShown = state.modal.style.display === 'flex' ||
+                                 state.modal.classList.contains('show');
+            const otherOpen = isAnyModalOpen();
+            // Don't count our OWN body.position:fixed as "other modal" — distinguish.
+            // showModalInternal sets the same body styles, so isAnyModalOpen() would
+            // return true. Check: is the body lock ours? If `state._weOwnBodyLock`
+            // is true, it's ours.
+            const otherIsTheirs = otherOpen && !state._weOwnBodyLock;
+
+            if (otherIsTheirs && wheelIsShown && !wheelHiddenByOtherModal) {
+                // Hide wheel temporarily
+                state.modal.dataset.prevDisplay = state.modal.style.display || 'flex';
+                state.modal.style.display = 'none';
+                wheelHiddenByOtherModal = true;
+                console.log('🎡 Wheel hidden because another modal opened');
+            } else if (!otherIsTheirs && wheelHiddenByOtherModal) {
+                // Restore wheel
+                state.modal.style.display = state.modal.dataset.prevDisplay || 'flex';
+                wheelHiddenByOtherModal = false;
+                console.log('🎡 Wheel restored after other modal closed');
+            }
+        };
+        // Watch body class and inline style for changes
+        const bodyObserver = new MutationObserver(checkOtherModalState);
+        bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class', 'style'] });
         
         setTimeout(updateModalTranslations, 1000);
         
