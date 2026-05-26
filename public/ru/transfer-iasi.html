@@ -340,30 +340,79 @@ header.sticky-active .logo-2 { display: none !important; }
 .final-cta p { color: rgba(255,255,255,0.93); font-size: 1.1rem; margin-bottom: 30px; position: relative; z-index: 1; }
 .btn-final { display: inline-flex; align-items: center; gap: 10px; background: var(--luxury-black); color: var(--gold); padding: 17px 46px; border-radius: var(--r-full); font-weight: 900; font-size: 1.1rem; cursor: pointer; border: none; font-family: inherit; box-shadow: 0 10px 32px rgba(0,0,0,0.3), 0 2px 0 rgba(0,0,0,0.2); transition: var(--t-med); text-decoration: none; position: relative; z-index: 1; min-height: 56px; touch-action: manipulation; }
 .btn-final:hover { background: #0f172a; transform: translateY(-4px); box-shadow: 0 20px 44px rgba(0,0,0,0.35); color: var(--gold); }
-.popup-overlay { display: none; position: fixed; inset: 0; background: rgba(28,25,23,0.60); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: calc(var(--z-toast) - 1); align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.22s ease; cursor: pointer; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.popup-box { background: var(--white); border-radius: 24px; width: 100%; max-width: 420px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(245,158,11,0.15); animation: slideUp 0.28s cubic-bezier(0.0, 0.0, 0.2, 1); cursor: default; }
-@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.popup-head { background: linear-gradient(135deg, var(--luxury-black) 0%, var(--luxury-dark) 100%); color: #fff; padding: 28px 24px; position: relative; text-align: center; border-bottom: 3px solid var(--gold); }
-.popup-head::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.10), transparent 60%); }
-.popup-head h3 { color: #fff; font-size: 1.4rem; font-weight: 800; margin: 0 0 6px; position: relative; }
-.popup-head p { color: rgba(255,255,255,0.75); font-size: 0.9rem; margin: 0; position: relative; }
-.popup-close { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: var(--t-base); touch-action: manipulation; z-index: 10; }
+.popup-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(28,25,23,0.60);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  z-index: 9999;
+  align-items: center; justify-content: center; padding: 20px;
+  animation: prFadeIn 0.22s ease;
+  cursor: pointer;
+}
+@keyframes prFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.popup-box {
+  background: #ffffff; border-radius: 32px;
+  width: 100%; max-width: 420px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.30), 0 0 0 1px rgba(245,158,11,0.15);
+  animation: prSlideUp 0.28s cubic-bezier(0.0, 0.0, 0.2, 1);
+  cursor: default;
+}
+@keyframes prSlideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.popup-head {
+  background: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  border-bottom: 3px solid #f59e0b;
+  color: #fff; padding: 28px 22px; position: relative; text-align: center;
+}
+.popup-head::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.10), transparent 60%);
+}
+.popup-head h3 { color: #fff; font-size: 1.35rem; font-weight: 900; margin: 0 0 5px; position: relative; }
+.popup-head p  { color: rgba(255,255,255,0.78); font-size: 0.9rem; margin: 0; position: relative; }
+.popup-close {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.85); width: 44px; height: 44px;
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: all 0.22s cubic-bezier(0.0, 0.0, 0.2, 1);
+  touch-action: manipulation;
+  z-index: 10;
+}
 .popup-close:hover { background: rgba(255,255,255,0.22); color: #fff; transform: rotate(90deg); }
 .popup-body { padding: 14px; }
-.popup-option { display: flex; align-items: center; gap: 15px; padding: 14px 16px; border-radius: 14px; cursor: pointer; transition: var(--t-base); margin-bottom: 6px; text-decoration: none; border: 1.5px solid transparent; touch-action: manipulation; }
-.popup-option:hover { background: var(--surface-warm); border-color: var(--border); transform: translateX(4px); text-decoration: none; }
+.popup-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 16px; cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.0, 0.0, 0.2, 1); margin-bottom: 6px;
+  text-decoration: none; border: 1.5px solid transparent;
+  touch-action: manipulation;
+  color: #1e293b;
+}
+.popup-option:hover, .popup-option:focus {
+  background: #FAFAF9; border-color: #e7e5e4;
+  transform: translateX(4px); text-decoration: none; outline: none;
+}
+.popup-option:focus-visible { box-shadow: 0 0 0 3px rgba(245,158,11,0.35); }
 .popup-option:last-child { margin-bottom: 0; }
-.popup-opt-icon { flex-shrink: 0; width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; }
-.o-whatsapp .popup-opt-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
-.o-viber .popup-opt-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
-.o-telegram .popup-opt-icon { background: linear-gradient(135deg, #0088cc, #006699); }
-.o-phone .popup-opt-icon { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); }
-.popup-opt-title { font-weight: 700; color: var(--dark); font-size: 1rem; margin-bottom: 2px; }
-.popup-opt-sub { color: var(--gray); font-size: 0.84rem; }
-.popup-opt-arrow { margin-left: auto; color: var(--gray-light); font-size: 1rem; transition: var(--t-fast); }
-.popup-option:hover .popup-opt-arrow { color: var(--gold-dark); transform: translateX(3px); }
-@media (max-width: 768px) { .popup-box { max-width: 100%; } .popup-head { padding: 22px 18px; } .popup-head h3 { font-size: 1.2rem; } }
+.popup-opt-icon {
+  flex-shrink: 0; width: 50px; height: 50px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.3rem;
+}
+.o-whatsapp  .popup-opt-icon { background: linear-gradient(135deg, #25D366, #128C7E); }
+.o-viber     .popup-opt-icon { background: linear-gradient(135deg, #7360F2, #5145CD); }
+.o-telegram  .popup-opt-icon { background: linear-gradient(135deg, #0088cc, #006699); }
+.o-phone     .popup-opt-icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: #1C1917; }
+.popup-opt-title  { font-weight: 700; color: #1e293b; font-size: 1rem; margin-bottom: 2px; }
+.popup-opt-sub    { color: #64748b; font-size: 0.84rem; }
+.popup-opt-arrow  { margin-left: auto; color: #94a3b8; font-size: 1rem; transition: all 0.15s cubic-bezier(0.0, 0.0, 0.2, 1); }
+.popup-option:hover .popup-opt-arrow { color: #d97706; transform: translateX(3px); }
+@media (max-width: 768px) {
+  .popup-box { max-width: 100%; }
+  .popup-head { padding: 22px 18px; }
+  .popup-head h3 { font-size: 1.2rem; }
+}
 .floating-btn { position: fixed; bottom: 28px; right: 28px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: var(--luxury-black); border: none; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; cursor: pointer; box-shadow: var(--shadow-gold-lg); z-index: var(--z-float); transition: var(--t-med); animation: floatPulse 2.8s ease-in-out infinite; touch-action: manipulation; }
 .floating-btn:hover { transform: scale(1.1); animation: none; box-shadow: var(--shadow-gold-lg); }
 @keyframes floatPulse { 0% { box-shadow: var(--shadow-gold-lg), 0 0 0 0 rgba(245,158,11,0.45); } 65% { box-shadow: var(--shadow-gold-lg), 0 0 0 18px rgba(245,158,11,0); } 100% { box-shadow: var(--shadow-gold-lg), 0 0 0 0 rgba(245,158,11,0); } }
@@ -407,6 +456,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex]:focus-vis
 .btn-concierge { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--luxury-black); padding: 14px 32px; border-radius: var(--r-full); text-decoration: none; font-weight: 900; font-size: 0.98rem; box-shadow: var(--shadow-gold); transition: var(--t-med); min-height: 50px; touch-action: manipulation; border: none; cursor: pointer; font-family: inherit; }
 .btn-concierge:hover { transform: translateY(-3px); box-shadow: var(--shadow-gold-lg); color: var(--luxury-black); }
 @media(max-width:768px){ .concierge-banner{padding:28px 22px;} .concierge-banner h3{font-size:1.3rem;} }
+</style>
+
+<style id="pr-floating-btn-fix">
+/* ════════════════════════════════════════════════════════════════════
+   FLOATING CONTACT BUTTON — Black + Gold icon (matches index.html)
+   Targets .floating-btn (transfer pages) and .floating-contact-btn
+   (sofer-personal). Uses !important to win over media-query overrides
+   in the page's existing inline <style> blocks.
+   ═══════════════════════════════════════════════════════════════════ */
+.floating-btn,
+.floating-contact-btn {
+  background: #1C1917 !important;
+  color: #f59e0b !important;
+  border: 1.5px solid rgba(245,158,11,0.35) !important;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18) !important;
+  animation: prFloatPulseFix 2.8s ease-in-out infinite !important;
+}
+.floating-btn:hover,
+.floating-contact-btn:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 28px rgba(245,158,11,0.45), 0 2px 6px rgba(0,0,0,0.18) !important;
+  animation: none !important;
+  transform: scale(1.08) !important;
+}
+@keyframes prFloatPulseFix {
+  0%   { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0.45); }
+  65%  { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 18px rgba(245,158,11,0); }
+  100% { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0); }
+}
 </style>
 </head>
 <body>
