@@ -203,6 +203,9 @@
       document.documentElement.classList.add('is-modal-open');
       document.addEventListener('touchmove', preventOutsideScroll, { passive: false });
       document.addEventListener('wheel',     preventOutsideScroll, { passive: false });
+      /* PlusRent v7: reset per-gesture state when touch ends */
+      document.addEventListener('touchend',    resetTouchTracking, { passive: true });
+      document.addEventListener('touchcancel', resetTouchTracking, { passive: true });
       // Re-scan and hide all floating elements (in case DOM changed)
       detectFloatingElements();
       hideFloatingElements();
@@ -228,6 +231,8 @@
     }
     document.removeEventListener('touchmove', preventOutsideScroll);
     document.removeEventListener('wheel',     preventOutsideScroll);
+    document.removeEventListener('touchend',    resetTouchTracking);
+    document.removeEventListener('touchcancel', resetTouchTracking);
     showFloatingElements();
     if (!state.lockedByExternal) {
       const restoreTo = state.scrollY;
@@ -242,22 +247,53 @@
       e.preventDefault();
       return;
     }
-    // Allow scroll inside container, but block bounce at edges
+    /* PlusRent v7: rewrote the edge-bounce logic.
+     * The OLD code had a critical bug: on the FIRST touchmove of a gesture
+     * (when container._lastTouchY was undefined), the fallback `_lastTouchY
+     * || touch.clientY` made direction always compute to 'up'. If the modal
+     * had just opened (scrollTop == 0 == atTop), the very first swipe →
+     * preventDefault() → iOS aborted the scroll gesture entirely. The user
+     * had to lift their finger and try again; iOS then sometimes initialized
+     * scroll, sometimes not. Hence "scroll sometimes works, sometimes not".
+     *
+     * Now: track touchstart Y per-container, and only preventDefault when
+     * we have a CONFIRMED overscroll direction (not on the first touchmove).
+     */
     if (e.type === 'touchmove') {
+      const touch = e.touches[0];
+      if (!touch) return;
+      // First touchmove — record position, never preventDefault
+      if (container._touchStartY === undefined) {
+        container._touchStartY = touch.clientY;
+        container._lastTouchY = touch.clientY;
+        return;
+      }
       const atTop    = container.scrollTop <= 0;
       const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight;
-      if (atTop || atBottom) {
-        // Use Touch.clientY delta to determine direction safely
-        const touch = e.touches[0];
-        if (touch) {
-          const direction = touch.clientY < (container._lastTouchY || touch.clientY) ? 'down' : 'up';
-          if ((atTop && direction === 'up') || (atBottom && direction === 'down')) {
-            e.preventDefault();
-          }
-          container._lastTouchY = touch.clientY;
+      const direction = touch.clientY > container._touchStartY ? 'up' : 'down';
+      // Only block when CLEARLY trying to overscroll past an edge
+      if ((atTop && direction === 'up') || (atBottom && direction === 'down')) {
+        // Need a minimum delta to be confident — avoid blocking tiny jitter
+        if (Math.abs(touch.clientY - container._touchStartY) > 8) {
+          e.preventDefault();
         }
       }
+      container._lastTouchY = touch.clientY;
+    } else if (e.type === 'touchend' || e.type === 'touchcancel') {
+      // Reset per-gesture state
+      delete container._touchStartY;
+      delete container._lastTouchY;
     }
+  }
+
+  function resetTouchTracking(e) {
+    // Walk through known scrollable selectors and clear gesture state.
+    SCROLLABLE_SELECTORS.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        delete el._touchStartY;
+        delete el._lastTouchY;
+      });
+    });
   }
 
   /* ────────────── ACCESSIBILITY ────────────── */
@@ -452,6 +488,8 @@
     teardownKeyboardHandlers();
     document.removeEventListener('touchmove', preventOutsideScroll);
     document.removeEventListener('wheel',     preventOutsideScroll);
+    document.removeEventListener('touchend',    resetTouchTracking);
+    document.removeEventListener('touchcancel', resetTouchTracking);
   });
 
   /* ────────────── EXPOSE MINIMAL API ────────────── */
