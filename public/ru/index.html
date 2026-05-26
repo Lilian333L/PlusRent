@@ -3458,24 +3458,63 @@ document.addEventListener('DOMContentLoaded', function() {
           };
           document.addEventListener('keydown', window.priceCalculatorKeyHandler, { passive: false });
 
-          /* ── iOS SCROLL ENGINE KICK (v6) ──
-           * iOS Safari sometimes delays initializing scroll-touch for
-           * elements that just became visible inside position:fixed
-           * parents. The trick: nudge the scrollable element's scrollTop
-           * by 1px and back to 0 right after the modal becomes visible.
-           * This forces iOS to register the element as scrollable
-           * IMMEDIATELY rather than waiting for the user to touch a few
-           * times. Done in a double-rAF to ensure layout has settled. */
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              var mb = modal.querySelector('.modal-body');
-              if (!mb) return;
+          /* ── iOS SCROLL ENGINE KICK (v8 — BULLETPROOF) ──
+           * iOS Safari decides "is this element scrollable?" ONCE when
+           * the element first becomes visible, and caches that decision.
+           * Modal content loads asynchronously (i18n, datepicker, dropdowns),
+           * so a single kick at T=0 misses content that settles later.
+           *
+           * Strategy:
+           *   1. Use overflow-y: scroll (not auto) — more reliable on iOS
+           *   2. Multiple kicks at 0, 200, 600, 1500, 3000 ms
+           *   3. ResizeObserver — re-kick whenever scrollHeight changes
+           *   4. MutationObserver — re-kick on DOM mutations (datepicker etc.)
+           */
+          var __mb = modal.querySelector('.modal-body');
+          if (__mb) {
+            __mb.style.overflowY = 'scroll';
+            __mb.style.webkitOverflowScrolling = 'touch';
+
+            var __kick = function() {
               try {
-                mb.scrollTop = 1;
-                mb.scrollTop = 0;
+                var prev = __mb.scrollTop;
+                __mb.scrollTop = prev + 1;
+                __mb.scrollTop = prev;
               } catch (e) {}
-            });
-          });
+            };
+
+            // Staggered kicks for content that settles at different times
+            requestAnimationFrame(function(){ requestAnimationFrame(__kick); });
+            setTimeout(__kick, 200);
+            setTimeout(__kick, 600);
+            setTimeout(__kick, 1500);
+            setTimeout(__kick, 3000);
+
+            // Auto re-kick when modal-body's size changes (content loaded)
+            if (window.ResizeObserver && !__mb.__prSizeObs) {
+              var lastScrollHeight = 0;
+              __mb.__prSizeObs = new ResizeObserver(function() {
+                if (__mb.scrollHeight !== lastScrollHeight) {
+                  lastScrollHeight = __mb.scrollHeight;
+                  __kick();
+                }
+              });
+              __mb.__prSizeObs.observe(__mb);
+            }
+
+            // Auto re-kick on DOM mutations inside modal-body
+            if (!__mb.__prDomObs) {
+              __mb.__prDomObs = new MutationObserver(function() {
+                requestAnimationFrame(__kick);
+              });
+              __mb.__prDomObs.observe(__mb, {
+                childList: true,
+                subtree: true,
+                attributes: false,
+                characterData: false
+              });
+            }
+          }
         }
 
         syncVehicleDataToModal();
