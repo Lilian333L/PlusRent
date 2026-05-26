@@ -1668,6 +1668,30 @@ input[type="radio"] {
 }
 </style>
 
+<style id="pr-modal-mobile-scroll-fix">
+/* ════════════════════════════════════════════════════════════════════
+   PRICE CALCULATOR MODAL — mobile scroll fix
+   body inherits `touch-action: none` from burger-menu-fix lockScroll.
+   Override on the modal's scrollable areas so iOS/Android can scroll
+   inside the modal with finger/touch.
+   ═══════════════════════════════════════════════════════════════════ */
+.price-calculator-modal .modal-body {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  overflow-y: auto !important;
+}
+.price-calculator-content {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+/* When modal is open, ensure body has no touch-action transferred to modal
+   children. Modal itself can keep touch-action: none (blocks bg scroll). */
+.price-calculator-modal {
+  touch-action: none;
+}
+</style>
 </head>
 <body>
   <!-- Skip to main content (keyboard + screen-reader a11y) -->
