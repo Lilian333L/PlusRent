@@ -102,6 +102,340 @@
 
   <!-- Styles moved to external CSS -->
 
+<style id="pr-car-single-redesign-v1">
+/* ════════════════════════════════════════════════════════════════════
+   PlusRent car-single.html — UX/UI Redesign v1
+   Aesthetic: refined luxury (gold + black + warm whites)
+   Brand tokens — kept consistent with index.html
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --pr-gold:        #f59e0b;
+  --pr-gold-dark:   #d97706;
+  --pr-gold-light:  #fbbf24;
+  --pr-black:       #0a0a0a;
+  --pr-charcoal:    #1f2937;
+  --pr-cream:       #fefce8;
+  --pr-text:        #1a202c;
+  --pr-text-soft:   #4a5568;
+  --pr-border:      #e5e7eb;
+  --pr-bg:          #f9fafb;
+  --pr-shadow-gold:    0 4px 14px rgba(245,158,11,0.28);
+  --pr-shadow-gold-lg: 0 10px 28px rgba(245,158,11,0.36);
+  --pr-shadow-soft:    0 4px 18px rgba(0,0,0,0.06);
+  --pr-shadow-deep:    0 12px 30px rgba(0,0,0,0.12);
+  --pr-radius:      14px;
+  --pr-radius-lg:   20px;
+  --pr-t-fast:      150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --pr-t-base:      260ms cubic-bezier(0.4, 0, 0.2, 1);
+  --pr-z-float:     9990;
+  --pr-z-popup:     9999;
+}
+
+/* ─────────── CALL-NOW BUTTON (gold, matches index.html) ─────────── */
+.call-now-btn {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: var(--pr-black) !important;
+  font-weight: 700 !important;
+  box-shadow: var(--pr-shadow-gold) !important;
+  transition: var(--pr-t-base) !important;
+  border: none !important;
+}
+.call-now-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--pr-shadow-gold-lg) !important;
+  color: var(--pr-black) !important;
+}
+.call-now-btn:focus-visible {
+  outline: 3px solid rgba(245,158,11,0.5);
+  outline-offset: 3px;
+}
+
+/* ─────────── REQUIRED / OPTIONAL field markers ─────────── */
+.required-marker {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--pr-gold-dark);
+  font-weight: 800;
+  font-size: 1em;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+.optional-marker {
+  display: inline-block;
+  margin-left: 6px;
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 0.85em;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+/* ─────────── ENHANCED FORM CONTROLS (gold focus) ─────────── */
+.form-control:focus {
+  border-color: var(--pr-gold) !important;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.18) !important;
+  outline: none !important;
+}
+/* Invalid styling — only when user has interacted, not on initial load */
+.form-control:not(:placeholder-shown):invalid:not(:focus) {
+  border-color: #fca5a5;
+}
+/* Radio cards — make radio buttons feel like premium selectable cards */
+.radio-label {
+  transition: var(--pr-t-base);
+  cursor: pointer;
+}
+.radio-label:hover {
+  border-color: var(--pr-gold) !important;
+  background-color: rgba(245, 158, 11, 0.04) !important;
+}
+.radio-label input[type="radio"]:checked + span,
+.radio-label:has(input[type="radio"]:checked) {
+  color: var(--pr-gold-dark);
+  font-weight: 600;
+}
+
+/* ─────────── SECTION HEADERS — section badges with numbers ─────────── */
+.booking-section {
+  position: relative;
+  transition: var(--pr-t-base);
+}
+.booking-section:focus-within {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18), var(--pr-shadow-soft) !important;
+  border-color: var(--pr-gold) !important;
+}
+
+/* ─────────── PRICE SIDEBAR — sticky on desktop ─────────── */
+@media (min-width: 992px) {
+  .col-lg-4:has(.price-sidebar-card) {
+    position: sticky;
+    top: 90px;
+    align-self: flex-start;
+  }
+}
+.price-sidebar-card {
+  transition: var(--pr-t-base);
+}
+.price-sidebar-card:hover {
+  box-shadow: var(--pr-shadow-deep);
+}
+
+/* ─────────── SUBMIT BUTTON — premium gold ─────────── */
+#send_message,
+.btn-main.btn-fullwidth {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: var(--pr-black) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  border: none !important;
+  border-radius: var(--pr-radius) !important;
+  padding: 18px 32px !important;
+  font-size: 1.05rem !important;
+  box-shadow: var(--pr-shadow-gold) !important;
+  transition: var(--pr-t-base) !important;
+  text-transform: none !important;
+}
+#send_message:hover,
+.btn-main.btn-fullwidth:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pr-shadow-gold-lg) !important;
+}
+#send_message:active,
+.btn-main.btn-fullwidth:active {
+  transform: translateY(0);
+}
+
+/* ─────────── FLOATING CONTACT BUTTON — copied from index.html ─────────── */
+.floating-contact-btn {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--pr-black);
+  color: var(--pr-gold);
+  border: 1.5px solid rgba(245,158,11,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18);
+  z-index: var(--pr-z-float);
+  transition: var(--pr-t-base);
+  touch-action: manipulation;
+  animation: prFloatPulse 2.8s ease-in-out infinite;
+}
+.floating-contact-btn:hover {
+  transform: scale(1.08);
+  animation: none;
+  background: var(--pr-gold-dark);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--pr-shadow-gold-lg);
+}
+.floating-contact-btn:focus-visible {
+  outline: 3px solid rgba(245,158,11,0.5);
+  outline-offset: 3px;
+}
+@keyframes prFloatPulse {
+  0%   { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0.45); }
+  65%  { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 18px rgba(245,158,11,0); }
+  100% { box-shadow: 0 6px 22px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(245,158,11,0); }
+}
+@media (max-width: 768px) {
+  .floating-contact-btn { bottom: 22px; right: 22px; width: 50px; height: 50px; font-size: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-contact-btn { animation: none !important; }
+}
+
+/* ─────────── CONTACT POPUP — copied from index.html aesthetic ─────────── */
+.contact-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  align-items: center; justify-content: center;
+  z-index: var(--pr-z-popup);
+  padding: 20px;
+  overscroll-behavior: contain;
+  touch-action: none;
+  animation: prPopupOverlayFadeIn 0.3s ease-out;
+}
+.contact-popup-overlay[style*="display: flex"],
+.contact-popup-overlay[style*="display:flex"] {
+  display: flex !important;
+}
+@keyframes prPopupOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.contact-popup {
+  background: #fff;
+  border-radius: var(--pr-radius-lg);
+  max-width: 440px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: prPopupSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes prPopupSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.contact-popup-header {
+  background: linear-gradient(135deg, var(--pr-black) 0%, var(--pr-charcoal) 100%);
+  padding: 28px 24px 24px;
+  position: relative;
+  text-align: center;
+}
+.contact-popup-header::before {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pr-gold-dark), var(--pr-gold), var(--pr-gold-dark));
+}
+.contact-popup-header h3 {
+  color: #fff !important;
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  margin: 0 0 5px !important;
+  letter-spacing: -0.01em;
+}
+.contact-popup-header p {
+  color: rgba(255,255,255,0.7) !important;
+  font-size: 0.9rem !important;
+  margin: 0 !important;
+}
+.contact-popup-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--pr-t-fast);
+  font-size: 0.95rem;
+}
+.contact-popup-close:hover {
+  background: rgba(255,255,255,0.2);
+  transform: rotate(90deg);
+}
+.contact-popup-close:focus-visible {
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+.contact-popup-body {
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  overscroll-behavior: contain;
+}
+.contact-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: var(--pr-t-base);
+  text-decoration: none;
+}
+.contact-option:hover {
+  background: #fff;
+  transform: translateX(4px);
+  box-shadow: var(--pr-shadow-soft);
+}
+.contact-option:focus-visible {
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+.contact-option-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.contact-option.whatsapp:hover  { border-color: #25D366; }
+.contact-option.whatsapp .contact-option-icon { background: #25D366; }
+.contact-option.telegram:hover  { border-color: #0088cc; }
+.contact-option.telegram .contact-option-icon { background: #0088cc; }
+.contact-option.viber:hover     { border-color: #7360F2; }
+.contact-option.viber .contact-option-icon    { background: #7360F2; }
+.contact-option.phone:hover     { border-color: var(--pr-gold); }
+.contact-option.phone .contact-option-icon    { background: linear-gradient(135deg, var(--pr-gold), var(--pr-gold-dark)); color: var(--pr-black); }
+.contact-option-title {
+  font-weight: 700;
+  color: var(--pr-text);
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.contact-option-subtitle {
+  font-size: 0.82rem;
+  color: var(--pr-text-soft);
+}
+
+/* ─────────── A11Y FOCUS — use :focus-visible only (no blue ring on programmatic focus) ─────────── */
+.contact-popup button:focus-visible,
+.contact-popup input:focus-visible {
+  outline: 2px solid var(--pr-gold);
+  outline-offset: 2px;
+}
+
+/* ─────────── MOBILE OPTIMIZATIONS ─────────── */
+@media (max-width: 768px) {
+  .contact-popup { max-width: 100%; margin: 0 8px; }
+  .contact-popup-body { padding: 16px; }
+  .contact-option { padding: 12px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-popup-overlay,
+  .contact-popup,
+  .contact-option { animation: none !important; transition: none !important; }
+}
+</style>
 </head>
 
 <body>
@@ -186,6 +520,7 @@
                   style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; ">
                   <div class="call-now-wrapper" style="align-self:center; margin-right: 2vw;">
                     <a href="tel:+37360000500" class="call-now-btn"
+                      style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:25px;text-decoration:none;font-size:14px;position:relative;overflow:hidden;" aria-label="Sună Acum">
                       <i class="fa fa-phone" style="font-size: 12px;"></i>
                       <span data-i18n="call_now">Call Now</span>
                     </a>
@@ -292,7 +627,7 @@
                   <!-- Price Breakdown Card -->
                   <div class="price-sidebar-card">
                     <h5 style="margin: 0 0 18px 0; color: #1a202c; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                      <i class="fa fa-chart-line" style="color: #667eea;"></i>
+                      <i class="fa fa-chart-line" style="color: #f59e0b;"></i>
                       <span data-i18n="cars.pricing_breakdown">Pricing Breakdown</span>
                     </h5>
                     <div id="price-tiers-main">
@@ -350,13 +685,13 @@
                         <!-- Pickup Date & Time -->
                         <div class="date-time-grid">
                           <div class="form-group">
-                            <label class="form-label" data-i18n="cars.pickup_date">Pickup Date</label>
+                            <label class="form-label" data-i18n="cars.pickup_date">Pickup Date<span class="required-marker" aria-hidden="true">*</span></label>
                             <input type="text" id="date-picker" name="Pick Up Date"
-                              data-i18n-placeholder="booking.date_placeholder" class="form-control">
+                              data-i18n-placeholder="booking.date_placeholder" class="form-control" required>
                           </div>
                           <div class="form-group">
-                            <label class="form-label" data-i18n="cars.pickup_time">Pickup Time</label>
-                            <select id="pickup-time" name="Pick Up Time" class="form-control">
+                            <label class="form-label" data-i18n="cars.pickup_time">Pickup Time<span class="required-marker" aria-hidden="true">*</span></label>
+                            <select id="pickup-time" name="Pick Up Time" class="form-control" required>
                               <option value="00:00">00:00</option>
                               <option value="01:00">01:00</option>
                               <option value="02:00">02:00</option>
@@ -388,13 +723,13 @@
                         <!-- Return Date & Time -->
                         <div class="date-time-grid">
                           <div class="form-group">
-                            <label class="form-label" data-i18n="cars.return_date">Return Date</label>
+                            <label class="form-label" data-i18n="cars.return_date">Return Date<span class="required-marker" aria-hidden="true">*</span></label>
                             <input type="text" id="date-picker-2" name="Collection Date"
-                              data-i18n-placeholder="booking.date_placeholder" class="form-control">
+                              data-i18n-placeholder="booking.date_placeholder" class="form-control" required>
                           </div>
                           <div class="form-group">
-                            <label class="form-label" data-i18n="cars.return_time">Return Time</label>
-                            <select id="collection-time" name="Collection Time" class="form-control">
+                            <label class="form-label" data-i18n="cars.return_time">Return Time<span class="required-marker" aria-hidden="true">*</span></label>
+                            <select id="collection-time" name="Collection Time" class="form-control" required>
                               <option value="00:00">00:00</option>
                               <option value="01:00">01:00</option>
                               <option value="02:00">02:00</option>
@@ -449,7 +784,7 @@
                       <div class="booking-section-content">
                         <!-- Pickup Location -->
                         <div class="form-group mb20">
-                          <label class="form-label" data-i18n="cars.pickup_location">Pickup Location</label>
+                          <label class="form-label" data-i18n="cars.pickup_location">Pickup Location<span class="required-marker" aria-hidden="true">*</span></label>
                           <div class="radio-group">
                             <label class="radio-label">
                               <input type="radio" name="pickup_location" value="Chisinau Airport">
@@ -468,7 +803,7 @@
 
                         <!-- Dropoff Location -->
                         <div class="form-group">
-                          <label class="form-label" data-i18n="cars.dropoff_location">Dropoff Location</label>
+                          <label class="form-label" data-i18n="cars.dropoff_location">Dropoff Location<span class="required-marker" aria-hidden="true">*</span></label>
                           <div class="radio-group">
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Chisinau Airport">
@@ -496,19 +831,19 @@
                       
                       <div class="booking-section-content">
                         <div class="form-group mb15">
-                          <label class="form-label" data-i18n="cars.email_address">Email Address</label>
+                          <label class="form-label" data-i18n="cars.email_address">Email Address <span class="optional-marker">(opțional)</span></label>
                           <input type="email" name="customer_email" placeholder="your.email@example.com" class="form-control">
                         </div>
                         <div class="form-group mb15">
-                          <label class="form-label" data-i18n="cars.phone_number">Phone Number</label>
+                          <label class="form-label" data-i18n="cars.phone_number">Phone Number<span class="required-marker" aria-hidden="true">*</span></label>
                           <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required class="form-control">
                         </div>
                         <div class="form-group mb15">
-                          <label class="form-label" data-i18n="cars.customer_age">Age</label>
+                          <label class="form-label" data-i18n="cars.customer_age">Age<span class="required-marker" aria-hidden="true">*</span></label>
                           <input type="number" name="customer_age" placeholder="25" min="18" max="100" required class="form-control">
                         </div>
                         <div class="form-group">
-                          <label class="form-label" data-i18n="cars.discount_code">Discount Code</label>
+                          <label class="form-label" data-i18n="cars.discount_code">Discount Code <span class="optional-marker">(opțional)</span></label>
                           <input type="text" name="discount_code" placeholder="Enter discount code"
                             data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input class="form-control">
                         </div>
@@ -525,7 +860,7 @@
                       <div class="booking-section-content">
                         <div id="price-loading"
                           style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 100px;">
-                          <i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #667eea;"></i>
+                          <i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #f59e0b;"></i>
                           <span style="font-size: 14px; color: #6c757d; font-weight: 500;">Calculating price...</span>
                         </div>
                         <div id="price-content" style="display: none;">
@@ -1490,11 +1825,11 @@
 
         priceContent.innerHTML = `
           <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid #e8eef3;">
-            <div style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #667eea;">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #f59e0b;">
               €${lowestPrice}<span style="font-size: 14px; font-weight: 500; color: #6c757d;">/day</span>
             </div>
             <div style="font-size: 13px; color: #718096; margin-top: 8px;">
-              <i class="fa fa-info-circle" style="color: #667eea;"></i> 
+              <i class="fa fa-info-circle" style="color: #f59e0b;"></i> 
               <span data-i18n="cars.loading_breakdown">Loading detailed breakdown...</span>
             </div>
           </div>
@@ -1806,5 +2141,137 @@
 })();
 </script>
 <!-- I18N-FOUC-FIX-V1 END -->
+
+  <!-- ═══ Contact popup (matches index.html) ═══ -->
+  <div id="contactPopup" class="contact-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="contactPopupTitle">
+    <div class="contact-popup">
+      <div class="contact-popup-header">
+        <button class="contact-popup-close" onclick="closeContactPopup()" aria-label="Close">
+          <i class="fa fa-times"></i>
+        </button>
+        <h3 id="contactPopupTitle" data-i18n="contact_popup.title">Contactează-ne 24/7</h3>
+        <p data-i18n="contact_popup.subtitle">Alege modalitatea preferată de contact</p>
+      </div>
+      <div class="contact-popup-body">
+        <div class="contact-option whatsapp" role="button" tabindex="0" onclick="openWhatsApp()" onkeydown="if(event.key==='Enter'||event.key===' '){openWhatsApp()}" aria-label="WhatsApp">
+          <div class="contact-option-icon"><i class="fab fa-whatsapp fa-lg"></i></div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.whatsapp">WhatsApp</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.whatsapp_desc">Chat rapid · Răspuns imediat</div>
+          </div>
+        </div>
+        <div class="contact-option telegram" role="button" tabindex="0" onclick="openTelegram()" onkeydown="if(event.key==='Enter'||event.key===' '){openTelegram()}" aria-label="Telegram">
+          <div class="contact-option-icon"><i class="fab fa-telegram fa-lg"></i></div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.telegram">Telegram</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.telegram_desc">@plusrent · Mesaje rapide</div>
+          </div>
+        </div>
+        <div class="contact-option viber" role="button" tabindex="0" onclick="openViber()" onkeydown="if(event.key==='Enter'||event.key===' '){openViber()}" aria-label="Viber">
+          <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.viber">Viber</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.viber_desc">Voce și mesaje</div>
+          </div>
+        </div>
+        <div class="contact-option phone" role="button" tabindex="0" onclick="makeDirectCall()" onkeydown="if(event.key==='Enter'||event.key===' '){makeDirectCall()}" aria-label="Call">
+          <div class="contact-option-icon"><i class="fa fa-phone"></i></div>
+          <div class="contact-option-content">
+            <div class="contact-option-title" data-i18n="contact_popup.direct_call">Apel Direct</div>
+            <div class="contact-option-subtitle" data-i18n="contact_popup.direct_call_desc">+373 60 000 500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="floating-contact-btn" onclick="openContactPopup()" aria-label="Contact us">
+    <i class="fa fa-comments"></i>
+  </button>
+
+  <script id="pr-car-single-redesign-js-v1">
+    /* ════ Contact popup open/close + channel handlers (mirrors index.html) ════ */
+    function openContactPopup() {
+      var popup = document.getElementById('contactPopup');
+      if (!popup) return;
+      popup.style.display = 'flex';
+      var scrollY = window.scrollY || window.pageYOffset;
+      document.body.style.position = 'fixed';
+      document.body.style.top      = '-' + scrollY + 'px';
+      document.body.style.left     = '0';
+      document.body.style.right    = '0';
+      document.body.style.width    = '100%';
+      document.body.dataset.scrollY = String(scrollY);
+    }
+    function closeContactPopup() {
+      var popup = document.getElementById('contactPopup');
+      if (!popup) return;
+      popup.style.display = 'none';
+      var scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
+      document.body.style.position = '';
+      document.body.style.top      = '';
+      document.body.style.left     = '';
+      document.body.style.right    = '';
+      document.body.style.width    = '';
+      window.scrollTo(0, scrollY);
+    }
+    function openWhatsApp() {
+      if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
+      var txt = encodeURIComponent("Bună ziua PlusRent! Aș dori să rezerv o mașină. Puteți oferi mai multe detalii?");
+      window.open('https://wa.me/37360000500?text=' + txt, '_blank');
+    }
+    function openTelegram() {
+      if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
+      window.open('https://t.me/plusrent', '_blank');
+    }
+    function openViber() {
+      if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
+      window.open('viber://chat?number=+37360000500', '_blank');
+    }
+    function makeDirectCall() {
+      if (typeof gtag_report_conversion === 'function') gtag_report_conversion();
+      window.location.href = 'tel:+37360000500';
+    }
+    // Close on backdrop click
+    document.addEventListener('DOMContentLoaded', function () {
+      var popup = document.getElementById('contactPopup');
+      if (popup) {
+        popup.addEventListener('click', function (e) {
+          if (e.target === popup) closeContactPopup();
+        });
+      }
+      // Close on ESC
+      document.addEventListener('keydown', function (e) {
+        if ((e.key === 'Escape' || e.key === 'Esc') && popup && popup.style.display === 'flex') {
+          closeContactPopup();
+        }
+      });
+    });
+
+    /* ════ Language switcher fix (no ro/ru/en variant of car-single exists) ════
+     * The default handler in i18n-init.js redirects to /ru/car-single.html
+     * which doesn't exist → user lands on /ru/ home page. Fix: reload current
+     * URL with new language stored in localStorage/cookie; i18n-init.js will
+     * apply translations to data-i18n attributes after reload.
+     * Uses capture phase + stopImmediatePropagation to run BEFORE i18n-init's
+     * bubble-phase click handler.
+     */
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.lang-option').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.stopImmediatePropagation();
+          var lang = this.getAttribute('data-lang');
+          var currentLang = localStorage.getItem('lang') || localStorage.getItem('i18nextLng') || 'ro';
+          if (lang === currentLang) return; // same language → do nothing
+          document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
+          localStorage.setItem('i18nextLng', lang);
+          localStorage.setItem('lang', lang);
+          // Reload current URL (preserves ?id=N query string) — stay on car-single.html
+          window.location.reload();
+        }, true); // capture phase — important!
+      });
+    });
+  </script>
+
 </body>
 </html>
