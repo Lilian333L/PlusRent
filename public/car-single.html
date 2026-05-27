@@ -553,9 +553,31 @@
                 <ul id="mainmenu">
                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
+                  <li class="pr-services-li" id="prServicesLi">
+                    <a class="pr-services-trigger"
+                       href="#"
+                       id="prServicesTrigger"
+                       aria-haspopup="true"
+                       aria-expanded="false"
+                       role="button">
+                      <b class="pr-services-label"></b>
+                      <svg class="pr-chevron" width="12" height="12" viewBox="0 0 20 20"
+                           fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M5 7.5L10 12.5L15 7.5"
+                              stroke="currentColor" stroke-width="2.2"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </a>
+                    <div class="pr-mega-menu" id="prMegaMenu" role="menu" aria-label="Services menu" style="display:none">
+                      <a href="/cars">Chirie Auto</a>
+                      <a href="/sofer-treaz">Șofer Treaz</a>
+                      <a href="/transfer-chisinau">Transfer Aeroport KIV</a>
+                      <a href="/transfer-iasi">Transfer Aeroport IAS</a>
+                      <a href="/sofer-personal">Șofer Personal</a>
+                    </div>
+                  </li>
                   <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
                   <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
-                  <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
                 </ul>
               </div>
 
@@ -1240,6 +1262,9 @@
   <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.js" defer></script>
 
+  <!-- Services Dropdown (mega-menu for "Services" item) -->
+  <script src="js/services-nav.js" defer></script>
+
   <script>
     // Global formatting function
     function formatDisplayText(rawKey) {
@@ -1888,6 +1913,11 @@
             window.lastValidatedCouponCode = null;
           }
 
+          // Remove any previous feedback message + valid/invalid classes while editing
+          this.classList.remove('is-valid', 'is-invalid');
+          const oldFeedback = this.parentNode.querySelector('.coupon-feedback');
+          if (oldFeedback) oldFeedback.remove();
+
           if (validationTimeout) {
             clearTimeout(validationTimeout);
           }
@@ -1903,6 +1933,25 @@
 
         discountInput.addEventListener('blur', async function () {
           const code = this.value.trim();
+          const self = this;
+
+          // Helper — render feedback message under the input
+          function showCouponFeedback(type, text) {
+            removeCouponFeedback();
+            if (!text) return;
+            const wrap = self.parentNode;
+            const box = document.createElement('div');
+            box.className = 'coupon-feedback coupon-' + type;
+            const iconSvg = type === 'error'
+              ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+              : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            box.innerHTML = iconSvg + '<span>' + text + '</span>';
+            wrap.appendChild(box);
+          }
+          function removeCouponFeedback() {
+            const existing = self.parentNode.querySelector('.coupon-feedback');
+            if (existing) existing.remove();
+          }
 
           if (code && code.length >= 3) {
             try {
@@ -1929,6 +1978,12 @@
                   existingMessage.remove();
                 }
 
+                // Show success message if API returned one
+                const successText = result.message
+                  || (typeof i18next !== 'undefined' && i18next.t && i18next.t('coupons.applied_successfully'))
+                  || 'Купон применён';
+                showCouponFeedback('success', successText);
+
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
                   window.priceCalculator.recalculatePrice();
                 }
@@ -1940,10 +1995,21 @@
                 }
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
+
+                // Show API error message (e.g. "Phone number not authorized for this coupon")
+                const errorText = result.message
+                  || result.error
+                  || (typeof i18next !== 'undefined' && i18next.t && i18next.t('coupons.invalid'))
+                  || 'Промокод недействителен';
+                showCouponFeedback('error', errorText);
               }
             } catch (error) {
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
+              showCouponFeedback('error',
+                (typeof i18next !== 'undefined' && i18next.t && i18next.t('errors.network'))
+                || 'Ошибка проверки промокода. Проверьте соединение.'
+              );
             }
           } else if (code.length === 0) {
             if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
@@ -1952,6 +2018,7 @@
             this.classList.remove("is-valid", "is-invalid");
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
+            removeCouponFeedback();
           }
         });
 
