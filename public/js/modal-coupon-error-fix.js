@@ -30,7 +30,7 @@
   const LOG = '[PR-COUPON-FIX]';
   function log() {
     // Uncomment next line to enable debug logging in production console
-    // console.log.apply(console, [LOG].concat([].slice.call(arguments)));
+     console.log.apply(console, [LOG].concat([].slice.call(arguments)));
   }
 
   function getApiBase() {
