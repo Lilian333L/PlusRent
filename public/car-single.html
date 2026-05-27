@@ -2501,8 +2501,31 @@
       });
     }
 
-    /* ─────── 3. SECTION COMPLETION — show ✓ when section is filled ─────── */
-    function checkSectionComplete(section) {
+    /* ─────── 3. PRICE ROW TAGGER — mark discount rows green ─────── */
+    var priceContent = document.getElementById('price-content');
+    function tagPriceRows() {
+      if (!priceContent) return;
+      // Find every row "<div style='...space-between...margin-bottom: 6px'>" inside #price-content
+      var rows = priceContent.querySelectorAll('div[style*="space-between"][style*="margin-bottom: 6px"]');
+      rows.forEach(function (row) {
+        var lastSpan = row.lastElementChild;
+        if (!lastSpan || lastSpan.tagName !== 'SPAN') return;
+        var val = (lastSpan.textContent || '').trim();
+        // Discount rows have a leading "-"
+        if (val.charAt(0) === '-') {
+          row.classList.add('price-row-discount');
+        } else {
+          row.classList.remove('price-row-discount');
+        }
+      });
+    }
+    if (priceContent) {
+      tagPriceRows();
+      var priceObserver = new MutationObserver(tagPriceRows);
+      priceObserver.observe(priceContent, { childList: true, subtree: true, characterData: true });
+    }
+
+    /* ─────── 4. SECTION COMPLETION — show ✓ when section is filled ─────── */
       if (!section) return false;
       // For radio groups: at least one checked per radio name in section
       var radios = section.querySelectorAll('input[type="radio"]');
