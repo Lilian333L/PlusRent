@@ -2980,6 +2980,71 @@ select[name="Collection Time"].form-control:focus {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
+/* ── MOBILE: compact subheader, no jarallax-induced layout chaos ──
+   The jarallax library positions the bg <img> with absolute + transform,
+   sometimes producing 612px-tall images on a 430px wide viewport
+   (especially when the soft keyboard opens). On mobile we:
+   1) shrink the section's padding so it's a thin banner, not a hero,
+   2) freeze the jarallax bg image so it can't drift, just covers the box. */
+@media (max-width: 767px) {
+  #subheader {
+    padding: 26px 0 28px 0 !important;
+    min-height: auto !important;
+  }
+  #subheader h1 {
+    margin-top: 18px !important;
+    margin-bottom: 0 !important;
+    font-size: clamp(1.25rem, 4.8vw, 1.7rem) !important;
+    letter-spacing: -0.02em;
+  }
+  #subheader::after {
+    background: linear-gradient(180deg,
+      rgba(15, 23, 42, 0.4) 0%,
+      rgba(15, 23, 42, 0.65) 70%,
+      var(--pr2-cream-1) 100%) !important;
+  }
+  /* Cage the jarallax bg image — no transforms, no overflowing height */
+  #subheader.jarallax [id^="jarallax-container-"] .jarallax-img,
+  #subheader.jarallax > .jarallax-img,
+  #subheader .jarallax-img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+  #subheader.jarallax [id^="jarallax-container-"] {
+    top: 0 !important;
+    height: 100% !important;
+    transform: none !important;
+  }
+}
+
+/* ── Carousel: guarantee no pure white even if image fails to render ──
+   Adds a soft slate gradient + car silhouette behind every image.
+   Original gradient bg from singlecar.css is preserved; we enhance it. */
+.custom-carousel-main {
+  background-color: #e2e8f0 !important;
+  background-image:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 70c0-3 3-6 6-6h2l3-15c1-3 4-5 8-5h130c4 0 7 2 8 5l3 15h2c3 0 6 3 6 6v18c0 2-1 4-3 4h-9c-1 4-5 8-10 8s-10-4-10-8H49c-1 4-5 8-10 8s-10-4-10-8h-6c-2 0-4-2-4-4z'/%3E%3Ccircle cx='44' cy='90' r='6'/%3E%3Ccircle cx='156' cy='90' r='6'/%3E%3Cpath d='M44 49h112'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, var(--c-slate-100), var(--c-slate-200)) !important;
+  background-position: center center, 0 0 !important;
+  background-size: clamp(120px, 28%, 200px), cover !important;
+  background-repeat: no-repeat, no-repeat !important;
+}
+/* When an active image is rendered on top, it covers the placeholder — perfect */
+.custom-carousel-main img.active {
+  background: var(--c-slate-100); /* image's own bg in case it loads with transparency */
+}
+
 /* ──────────────────────────────────────────────────────────────────
    16. ENTRANCE ANIMATIONS — staggered reveals on load
    ────────────────────────────────────────────────────────────────── */
