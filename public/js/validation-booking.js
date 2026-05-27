@@ -1685,9 +1685,20 @@ async function submitBooking() {
 
             showError(finalMessage);
           } else {
-            showError(
-              data.message || data.error || "Booking failed. Please try again."
-            );
+            // Server may return an i18n key (e.g. "coupons.phone_not_authorized",
+            // "coupons.applied_successfully") in data.message or data.error.
+            // Translate before showing the toast so user doesn't see raw keys.
+            let msg = data.message || data.error || "Booking failed. Please try again.";
+            if (
+              typeof msg === "string" &&
+              /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(msg) &&
+              typeof i18next !== "undefined" &&
+              typeof i18next.t === "function"
+            ) {
+              const t = i18next.t(msg);
+              if (t && t !== msg) msg = t;
+            }
+            showError(msg);
           }
           return false; // Return false for errors (don't throw)
         }

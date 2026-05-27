@@ -234,33 +234,54 @@ async validateAndShowCoupon(couponCode) {
   }
 
   try {
-    // Validate the coupon
-    const response = await fetch(`${window.API_BASE_URL}/api/coupons/validate-redemption/${couponCode}`);
-    let result = await response.json();
-    
-    if (!result.valid) {
-      // Try regular coupon validation
-      const response2 = await fetch(`${window.API_BASE_URL}/api/coupons/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode })
-      });
-      result = await response2.json();
-    }
-    
+    // Read customer phone from the main booking form so the server can
+    // enforce per-phone coupon restrictions. Without this, phone-restricted
+    // coupons would falsely appear valid here (server validates code-only)
+    // and only fail at booking submit time with a confusing raw i18n key.
+    const phoneInput =
+      document.getElementById('phone') ||
+      document.querySelector('input[name="phone"]') ||
+      document.querySelector('input[name="customer_phone"]');
+    const customerPhone = phoneInput ? (phoneInput.value || '').trim() : '';
+
+    // Use the lookup endpoint (same one used in modal + on submit).
+    // It accepts an optional phone and returns valid:false with a specific
+    // message key (e.g. coupons.phone_not_authorized) when restricted.
+    const phonePart = customerPhone
+      ? `?phone=${encodeURIComponent(customerPhone)}`
+      : '';
+    const response = await fetch(
+      `${window.API_BASE_URL || ''}/api/coupons/lookup/${encodeURIComponent(couponCode)}${phonePart}`
+    );
+    const result = await response.json();
+
+    const discountInput = document.querySelector('input[name="discount_code"]');
+
     if (result.valid) {
       // Store coupon data
       window.cachedCouponData = result;
       window.lastValidatedCouponCode = couponCode;
-      
-      // Update input styling
-      const discountInput = document.querySelector('input[name="discount_code"]');
+
       if (discountInput) {
         discountInput.classList.remove("is-invalid");
         discountInput.classList.add("is-valid");
       }
-      
+
       // Recalculate price to show messages
+      this.recalculatePrice();
+    } else {
+      // Coupon is invalid OR not authorized for this phone — clear all
+      // valid-state so user doesn't see a false green checkmark / fake
+      // discount line in the price summary.
+      window.cachedCouponData = null;
+      window.lastValidatedCouponCode = null;
+
+      if (discountInput) {
+        discountInput.classList.remove("is-valid");
+        discountInput.classList.add("is-invalid");
+      }
+
+      // Recalculate to remove any previously-applied discount from totals.
       this.recalculatePrice();
     }
   } catch (error) {
