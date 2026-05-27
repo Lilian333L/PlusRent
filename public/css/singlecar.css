@@ -2014,3 +2014,997 @@ input.flatpickr-input::-webkit-credentials-auto-fill-button {
   }
 }
 /* === END SINGLECAR-CALENDAR-SYNC-V1 === */
+
+
+/* ════════════════════════════════════════════════════════════════════
+   ░░░ SINGLECAR — REDESIGN V2 ░░░
+   Layer of UX/UI refinements on top of the existing v1 system:
+     • Atmospheric warm-cream background (premium luxury feel)
+     • DM Sans display typography for headings & numerics
+     • Quick info chips under car name
+     • Trust ribbon (4 confidence boosters above the form)
+     • Numbered step badges (1→2→3) on booking sections
+     • Section completion ✓ indicators
+     • Location radio cards with icons + sub-labels
+     • CTA trust row (no-card / free-cancel / instant) above submit
+     • Gallery counter overlay on carousel
+     • Subtle scroll/load entrance animations (staggered)
+     • Polished micro-interactions
+   Brand tokens reused: --c-brand-*, --c-slate-*, spacing, radii.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* New display font + atmospheric tones */
+  --pr2-font-display: 'DM Sans', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --pr2-cream-1: #fdfbf6;  /* warmest, top */
+  --pr2-cream-2: #fbf7ee;  /* mid */
+  --pr2-cream-3: #fefcf6;  /* card tint */
+  --pr2-glow-amber: rgba(245, 158, 11, 0.07);
+  --pr2-glow-cream: rgba(251, 191, 36, 0.05);
+
+  --pr2-success: #10b981;
+  --pr2-success-soft: #d1fae5;
+  --pr2-success-bg: #ecfdf5;
+
+  --pr2-shadow-warm: 0 6px 24px -8px rgba(180, 83, 9, 0.12),
+                     0 2px 6px -2px rgba(180, 83, 9, 0.06);
+  --pr2-shadow-warm-lg: 0 18px 40px -12px rgba(180, 83, 9, 0.18),
+                       0 4px 12px -4px rgba(180, 83, 9, 0.08);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   1. PAGE ATMOSPHERE — soft cream + amber glows + subtle grain
+   ────────────────────────────────────────────────────────────────── */
+
+/* Apply only to the car-single page (we scope by #section-car-single's ancestor body).
+   We keep the body bg outside the section for global atmosphere. */
+body {
+  background-color: var(--pr2-cream-1) !important;
+  background-image:
+    radial-gradient(ellipse 900px 600px at 8% 12%,  var(--pr2-glow-amber), transparent 60%),
+    radial-gradient(ellipse 750px 500px at 92% 30%, var(--pr2-glow-cream), transparent 65%),
+    radial-gradient(ellipse 700px 450px at 50% 95%, rgba(245, 158, 11, 0.04), transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Very subtle grain layer for premium tactile feel.
+   Inline SVG fractal noise, multiply-blended at low opacity. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.35  0 0 0 0 0.15  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+
+/* Ensure the actual content sits above the grain layer */
+#section-car-single,
+#subheader,
+header,
+footer,
+#wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cards keep a near-white surface for crisp form contrast,
+   but get a faint warm tint that harmonises with the cream bg. */
+.price-sidebar-card,
+.booking-form-main,
+.compact-specs-container,
+.whats-included {
+  background: linear-gradient(180deg, #ffffff 0%, var(--pr2-cream-3) 100%) !important;
+  box-shadow: var(--pr2-shadow-warm) !important;
+}
+
+/* Inner booking sections stay slightly cooler-white to differentiate
+   from the card they sit in */
+.booking-section {
+  background: linear-gradient(180deg, #ffffff 0%, #fdfaf2 100%) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   2. DISPLAY TYPOGRAPHY — DM Sans for headings & numeric tokens
+   ────────────────────────────────────────────────────────────────── */
+#car-name,
+.booking-form-main h4,
+.compact-specs-container h4,
+.whats-included h4,
+.section-header h4,
+#subheader h1 {
+  font-family: var(--pr2-font-display);
+  letter-spacing: -0.025em;
+  font-feature-settings: 'ss01', 'ss03', 'cv11';
+  font-weight: 700;
+}
+
+#car-name {
+  font-size: clamp(1.6rem, 1.4rem + 1vw, 2rem) !important;
+  line-height: 1.15 !important;
+  margin-bottom: 12px !important;
+}
+
+.price-amount {
+  font-family: var(--pr2-font-display) !important;
+  font-feature-settings: 'tnum', 'lnum';
+  letter-spacing: -0.04em !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   3. QUICK INFO CHIPS — under car name (mirror of compact specs)
+   ────────────────────────────────────────────────────────────────── */
+.car-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 18px;
+  min-height: 28px; /* reserves space — prevents layout shift */
+}
+
+.car-quick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 9px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(180, 83, 9, 0.14);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-slate-700);
+  letter-spacing: 0.005em;
+  line-height: 1.2;
+  transition: var(--t-fast);
+  white-space: nowrap;
+}
+.car-quick-chip:hover {
+  border-color: var(--c-brand-300);
+  background: var(--c-brand-50);
+  color: var(--c-brand-800);
+}
+.car-quick-chip svg,
+.car-quick-chip i {
+  width: 13px;
+  height: 13px;
+  color: var(--c-brand-600);
+  flex-shrink: 0;
+}
+.car-quick-chip i {
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   4. TRUST RIBBON — 4 confidence boosters before the form
+   ────────────────────────────────────────────────────────────────── */
+.trust-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 18px 22px;
+  margin: 24px 0 22px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--pr2-cream-2) 100%);
+  border: 1px solid rgba(180, 83, 9, 0.14);
+  border-radius: var(--r-lg);
+  box-shadow: var(--pr2-shadow-warm);
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+.trust-ribbon::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--c-brand-400) 20%,
+    var(--c-brand-600) 50%,
+    var(--c-brand-400) 80%,
+    transparent 100%);
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.trust-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--c-brand-50), var(--c-brand-100));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-brand-700);
+  box-shadow: inset 0 0 0 1px rgba(180, 83, 9, 0.08);
+}
+.trust-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+.trust-text strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--c-slate-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--pr2-font-display);
+  letter-spacing: -0.005em;
+}
+.trust-text span {
+  font-size: 11.5px;
+  color: var(--c-slate-500);
+  font-weight: 500;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tablet: 2x2 grid */
+@media (max-width: 991px) {
+  .trust-ribbon {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 18px;
+    padding: 16px 18px;
+  }
+}
+/* Mobile: 1 column */
+@media (max-width: 575px) {
+  .trust-ribbon {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+  }
+  .trust-icon { width: 34px; height: 34px; border-radius: 9px; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   5. NUMBERED STEP BADGES on form sections (1 → 2 → 3)
+   ────────────────────────────────────────────────────────────────── */
+.booking-section[data-step] h5 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 0;
+}
+.booking-section[data-step] h5::before {
+  content: attr(data-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--c-brand-500), var(--c-brand-600));
+  color: white;
+  border-radius: 50%;
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: var(--pr2-font-display);
+  letter-spacing: 0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: var(--t-base);
+}
+/* Add the data-step attribute via CSS on the h5 itself (already on parent) */
+.booking-section h5 i {
+  /* Hide the old fa icon now that we use a step number */
+  display: none !important;
+}
+/* For Price Summary (no data-step) we keep the icon visible */
+.booking-section-summary h5 i {
+  display: inline-flex !important;
+  color: var(--c-brand-600);
+}
+
+.booking-section[data-step]:hover h5::before {
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   6. SECTION COMPLETION INDICATOR — ✓ check when filled
+   ────────────────────────────────────────────────────────────────── */
+.booking-section.is-complete {
+  border-color: var(--pr2-success) !important;
+  background: linear-gradient(180deg, var(--pr2-success-bg) 0%, #ffffff 70%) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.08), var(--shadow-sm);
+}
+.booking-section.is-complete h5::before {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+/* Render a green check at the right side of the h5 when complete */
+.booking-section[data-step] h5 {
+  position: relative;
+  padding-right: 32px;
+}
+.booking-section[data-step] h5::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--pr2-success);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'><path fill-rule='evenodd' d='M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4L8.5 12l6.8-6.7a1 1 0 0 1 1.4 0z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px;
+  opacity: 0;
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity var(--t-base);
+}
+.booking-section.is-complete h5::after {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   7. LOCATION RADIO CARDS — with icon + sub-label
+   ────────────────────────────────────────────────────────────────── */
+.radio-group-location {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 575px) {
+  .radio-group-location {
+    grid-template-columns: 1fr;
+  }
+}
+
+.radio-group-location .radio-label {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px !important;
+  background: var(--c-bg);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: var(--t-fast);
+  user-select: none;
+  position: relative;
+  min-height: 64px;
+}
+/* hide the native radio circle visually (we color the whole card instead) */
+.radio-group-location .radio-label input[type="radio"] {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+}
+
+.radio-group-location .radio-label .loc-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--c-slate-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-slate-600);
+  transition: var(--t-fast);
+}
+.radio-group-location .radio-label .loc-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.radio-group-location .radio-label .loc-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-slate-900);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.radio-group-location .radio-label .loc-sub {
+  font-size: 11px;
+  color: var(--c-slate-500);
+  margin-top: 2px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Hover state */
+.radio-group-location .radio-label:hover {
+  border-color: var(--c-brand-400);
+  background: var(--c-brand-50);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.radio-group-location .radio-label:hover .loc-icon {
+  background: var(--c-brand-100);
+  color: var(--c-brand-700);
+}
+
+/* Checked state */
+.radio-group-location .radio-label:has(input[type="radio"]:checked) {
+  border-color: var(--c-brand-500) !important;
+  background: linear-gradient(135deg, var(--c-brand-50), #fff7e6) !important;
+  box-shadow: inset 0 0 0 1.5px var(--c-brand-500),
+              0 4px 14px -4px rgba(245, 158, 11, 0.35) !important;
+}
+.radio-group-location .radio-label:has(input[type="radio"]:checked) .loc-icon {
+  background: linear-gradient(135deg, var(--c-brand-400), var(--c-brand-600));
+  color: white;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+.radio-group-location .radio-label:has(input[type="radio"]:checked) .loc-name {
+  color: var(--c-brand-900);
+}
+.radio-group-location .radio-label:has(input[type="radio"]:checked) .loc-sub {
+  color: var(--c-brand-700);
+}
+
+/* Tiny check marker at top-right of selected card */
+.radio-group-location .radio-label::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-brand-500);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'><path fill-rule='evenodd' d='M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4L8.5 12l6.8-6.7a1 1 0 0 1 1.4 0z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity var(--t-fast);
+}
+.radio-group-location .radio-label:has(input[type="radio"]:checked)::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Focus for keyboard nav */
+.radio-group-location .radio-label:has(input[type="radio"]:focus-visible) {
+  outline: 3px solid rgba(245, 158, 11, 0.4);
+  outline-offset: 2px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   8. CTA TRUST ROW — above submit button
+   ────────────────────────────────────────────────────────────────── */
+.cta-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 6px 0 14px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border: 1px solid #a7f3d0;
+  border-radius: var(--r-md);
+  color: #065f46;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.cta-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.cta-trust-item svg {
+  color: var(--pr2-success);
+  flex-shrink: 0;
+}
+.cta-trust-sep {
+  color: #6ee7b7;
+  font-weight: 800;
+  user-select: none;
+}
+@media (max-width: 575px) {
+  .cta-trust-row {
+    gap: 6px 10px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+  }
+  .cta-trust-sep { display: none; }
+}
+
+/* Submit button — slightly enhanced with shimmer on hover */
+#send_message {
+  background: linear-gradient(135deg, var(--c-brand-500) 0%, var(--c-brand-600) 100%) !important;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--pr2-font-display) !important;
+  letter-spacing: -0.005em !important;
+  box-shadow: 0 10px 24px -8px rgba(245, 158, 11, 0.5),
+              0 4px 8px -2px rgba(245, 158, 11, 0.25) !important;
+}
+#send_message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%);
+  transition: left 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+#send_message:hover::before { left: 100%; }
+#send_message:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px -8px rgba(245, 158, 11, 0.55),
+              0 6px 12px -2px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   9. GALLERY COUNTER OVERLAY
+   ────────────────────────────────────────────────────────────────── */
+.carousel-counter {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+  animation: pr2-fade-in 400ms ease both;
+  animation-delay: 200ms;
+}
+.carousel-counter svg {
+  opacity: 0.85;
+}
+@media (max-width: 575px) {
+  .carousel-counter {
+    bottom: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+}
+@keyframes pr2-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   10. PRICE SIDEBAR — refined warm tint + better hierarchy
+   ────────────────────────────────────────────────────────────────── */
+.price-sidebar-card {
+  border: 1px solid rgba(180, 83, 9, 0.12) !important;
+  position: relative;
+  overflow: hidden;
+}
+/* Featured "Daily rate" card — give it a subtle gold ribbon */
+.price-sidebar-card:first-of-type {
+  background: linear-gradient(135deg, #ffffff 0%, var(--pr2-cream-3) 50%, #fff7e6 100%) !important;
+  border-color: rgba(245, 158, 11, 0.22) !important;
+}
+.price-sidebar-card:first-of-type::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--c-brand-400), var(--c-brand-600));
+}
+.price-badge {
+  background: linear-gradient(135deg, var(--c-brand-100), var(--c-brand-200)) !important;
+  box-shadow: inset 0 0 0 1px rgba(180, 83, 9, 0.12);
+}
+
+/* Pricing breakdown — slicker tier rows */
+.price-tier-item {
+  border-left-width: 3px;
+  border-left-color: var(--c-brand-400);
+  transition: var(--t-fast), transform var(--t-fast);
+}
+.price-tier-item:hover {
+  transform: translateX(2px);
+  border-left-color: var(--c-brand-600);
+  background: linear-gradient(90deg, var(--c-brand-50), transparent) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   11. SPEC CARDS — finer hover lift
+   ────────────────────────────────────────────────────────────────── */
+.spec-card {
+  background: linear-gradient(180deg, #ffffff 0%, var(--pr2-cream-3) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.1) !important;
+  transition: transform var(--t-base), box-shadow var(--t-base),
+              border-color var(--t-fast);
+}
+.spec-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--pr2-shadow-warm-lg);
+  border-color: var(--c-brand-400) !important;
+}
+.spec-card > div:first-child {
+  background: linear-gradient(135deg, var(--c-brand-50), var(--c-brand-100));
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+.spec-card:hover > div:first-child {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   12. WHAT'S INCLUDED — more visual cards, less list-y
+   ────────────────────────────────────────────────────────────────── */
+.whats-included {
+  border-radius: var(--r-xl);
+  padding: var(--s-8);
+  border: 1px solid rgba(180, 83, 9, 0.12);
+  margin-bottom: var(--s-10);
+}
+.whats-included h4 {
+  text-align: center;
+  margin-bottom: var(--s-2);
+}
+.whats-included-subtitle {
+  text-align: center;
+  color: var(--c-slate-500);
+  font-size: var(--fs-md);
+  margin: 0 auto var(--s-6);
+  max-width: 480px;
+}
+.whats-included-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-5);
+}
+@media (max-width: 767px) {
+  .whats-included-grid { grid-template-columns: 1fr; gap: var(--s-3); }
+  .whats-included { padding: var(--s-5); }
+}
+.wi-group {
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border);
+  background: #ffffff;
+  transition: var(--t-base);
+}
+.wi-group:hover { box-shadow: var(--pr2-shadow-warm); }
+.wi-group-included {
+  background: linear-gradient(180deg, #ffffff 0%, var(--pr2-success-bg) 200%);
+  border-color: rgba(16, 185, 129, 0.18);
+}
+.wi-group-addons {
+  background: linear-gradient(180deg, #ffffff 0%, var(--pr2-cream-2) 200%);
+  border-color: rgba(180, 83, 9, 0.14);
+}
+.wi-group h5 {
+  margin: 0 0 var(--s-4);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.01em;
+  font-family: var(--pr2-font-display);
+}
+.wi-group-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.wi-group-icon-check {
+  background: var(--pr2-success-soft);
+  color: #065f46;
+}
+.wi-group-icon-plus {
+  background: var(--c-brand-100);
+  color: var(--c-brand-700);
+}
+.wi-group-icon svg { width: 18px; height: 18px; }
+
+.wi-list { list-style: none; padding: 0; margin: 0; }
+.wi-list li {
+  display: flex;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px dashed var(--c-border);
+  align-items: flex-start;
+}
+.wi-list li:first-child { border-top: none; padding-top: 0; }
+.wi-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+.wi-icon-check { background: var(--pr2-success-soft); color: #047857; }
+.wi-icon-plus { background: var(--c-brand-100); color: var(--c-brand-700); }
+.wi-icon svg { width: 13px; height: 13px; }
+.wi-text { display: flex; flex-direction: column; line-height: 1.35; }
+.wi-text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-slate-900);
+  letter-spacing: -0.005em;
+}
+.wi-text span {
+  font-size: 12.5px;
+  color: var(--c-slate-500);
+  margin-top: 2px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   13. CAROUSEL — premium polish
+   ────────────────────────────────────────────────────────────────── */
+.custom-carousel {
+  box-shadow: var(--pr2-shadow-warm-lg);
+  border: 1px solid rgba(180, 83, 9, 0.1);
+}
+.custom-carousel-arrow {
+  width: 46px;
+  height: 46px;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18),
+              0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.custom-carousel-arrow:hover {
+  background: var(--c-brand-500) !important;
+  color: white !important;
+}
+.custom-carousel-nav img {
+  width: 86px;
+  height: 64px;
+  border-radius: var(--r-md);
+  transition: opacity var(--t-fast), outline-color var(--t-fast),
+              transform var(--t-fast);
+}
+.custom-carousel-nav img:hover {
+  transform: translateY(-2px);
+}
+.custom-carousel-nav img.active {
+  outline-color: var(--c-brand-500) !important;
+  outline-width: 2.5px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   14. FORM INPUTS — inline success feedback (green when valid)
+   ────────────────────────────────────────────────────────────────── */
+.form-control:not(:placeholder-shown):valid:not(:focus):not([readonly]) {
+  border-color: rgba(16, 185, 129, 0.5);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2310b981'><path fill-rule='evenodd' d='M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.7-9.3a1 1 0 0 0-1.4-1.4L9 10.6 7.7 9.3a1 1 0 0 0-1.4 1.4l2 2a1 1 0 0 0 1.4 0l4-4z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  padding-right: 38px;
+}
+/* select / date pickers — keep their existing chevron, no green check */
+select.form-control:not(:placeholder-shown):valid,
+input[readonly].form-control,
+input.flatpickr-input.form-control {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3e%3c/svg%3e") !important;
+  background-position: right 12px center !important;
+  background-size: 16px !important;
+  padding-right: 36px !important;
+}
+
+/* Slightly tighter, premium-feeling inputs */
+.form-control {
+  border-radius: 10px !important;
+  font-size: 14.5px !important;
+  padding: 11px 14px !important;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast),
+              background var(--t-fast) !important;
+}
+.form-control:focus {
+  border-color: var(--c-brand-500) !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   15. HERO SUBHEADER — soften & warm up
+   ────────────────────────────────────────────────────────────────── */
+#subheader {
+  position: relative;
+}
+#subheader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(15, 23, 42, 0.35) 0%,
+    rgba(15, 23, 42, 0.55) 70%,
+    var(--pr2-cream-1) 100%);
+  pointer-events: none;
+}
+#subheader > .center-y { z-index: 2; }
+#subheader h1 {
+  font-size: clamp(1.7rem, 1.2rem + 2vw, 2.8rem) !important;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   16. ENTRANCE ANIMATIONS — staggered reveals on load
+   ────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .custom-carousel,
+  .col-lg-4 > #car-name,
+  .car-quick-chips,
+  .price-sidebar-card,
+  .trust-ribbon,
+  .booking-form-main,
+  .compact-specs-container,
+  .whats-included,
+  .section-header {
+    animation: pr2-rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .custom-carousel              { animation-delay: 80ms; }
+  .col-lg-4 > #car-name         { animation-delay: 140ms; }
+  .car-quick-chips              { animation-delay: 200ms; }
+  .price-sidebar-card           { animation-delay: 260ms; }
+  .price-sidebar-card + .price-sidebar-card { animation-delay: 320ms; }
+  .trust-ribbon                 { animation-delay: 380ms; }
+  .booking-form-main            { animation-delay: 440ms; }
+  .compact-specs-container      { animation-delay: 120ms; }
+  .whats-included               { animation-delay: 160ms; }
+  .section-header               { animation-delay: 200ms; }
+
+  /* Hover micro-lifts on cards */
+  .price-sidebar-card,
+  .booking-section,
+  .spec-card {
+    transition: transform var(--t-base),
+                box-shadow var(--t-base),
+                border-color var(--t-fast),
+                background var(--t-fast);
+  }
+}
+@keyframes pr2-rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   17. ACCESSIBILITY — preserve focus rings, respect reduced motion
+   ────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body::before { display: none; } /* drop grain anim too */
+  .custom-carousel,
+  .col-lg-4 > #car-name,
+  .car-quick-chips,
+  .price-sidebar-card,
+  .trust-ribbon,
+  .booking-form-main,
+  .compact-specs-container,
+  .whats-included,
+  .section-header { animation: none !important; }
+  #send_message::before { display: none; }
+}
+
+/* Strong focus ring for keyboard users */
+.car-quick-chip:focus-visible,
+.radio-group-location .radio-label:focus-within {
+  outline: 3px solid rgba(245, 158, 11, 0.5);
+  outline-offset: 2px;
+}
+
+/* High-contrast mode bumps */
+@media (prefers-contrast: more) {
+  .trust-ribbon,
+  .booking-section,
+  .radio-group-location .radio-label,
+  .price-sidebar-card { border-width: 2px !important; }
+  .car-quick-chip { border-width: 1.5px; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   18. RESPONSIVE FINE-TUNING
+   ────────────────────────────────────────────────────────────────── */
+/* Tablet: booking form sections stack better */
+@media (max-width: 1199px) {
+  .booking-form-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 767px) {
+  .booking-form-grid { grid-template-columns: 1fr; }
+  /* On mobile, when section is collapsed, keep step badge & check visible */
+  .booking-section[data-step] h5 { padding-right: 56px; } /* badge + arrow */
+  .booking-section[data-step] h5::after {
+    right: 26px; /* leave room for the existing collapse caret */
+  }
+  .booking-section.collapsed h5::after { display: none; } /* hide check while collapsed */
+
+  /* Bigger touch targets in location grid */
+  .radio-group-location .radio-label { min-height: 56px; padding: 10px !important; }
+}
+
+/* Smallest mobile */
+@media (max-width: 380px) {
+  .trust-ribbon { padding: 12px; }
+  .trust-text strong { font-size: 13px; }
+  .trust-text span { font-size: 11px; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   19. SAFE OVERRIDES — repair any earlier rule that would clash
+   ────────────────────────────────────────────────────────────────── */
+/* The original CSS had a generic '.radio-label' rule with display: flex.
+   Our location grid uses different layout. Make sure non-location radios
+   (if any are later added) still look fine. */
+.radio-group:not(.radio-group-location) .radio-label .loc-icon,
+.radio-group:not(.radio-group-location) .radio-label .loc-content {
+  display: none; /* defensive: only show structured parts inside location group */
+}
+
+/* Description section paragraph color refinement */
+#car-description {
+  color: var(--c-slate-700) !important;
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+}
+
+/* Section header h4 small underline accent */
+.section-header h4 {
+  position: relative;
+  padding-bottom: 12px;
+  margin-bottom: 14px !important;
+}
+.section-header h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 42px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--c-brand-500), var(--c-brand-700));
+  border-radius: 999px;
+}
+
+/* === END SINGLECAR REDESIGN V2 === */
