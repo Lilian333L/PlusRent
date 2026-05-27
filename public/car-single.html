@@ -909,7 +909,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
-                                <span class="loc-sub">KIV · Aeroport</span>
                               </span>
                             </label>
                             <label class="radio-label">
@@ -919,7 +918,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
-                                <span class="loc-sub">Chișinău · Centru</span>
                               </span>
                             </label>
                             <label class="radio-label">
@@ -929,7 +927,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
-                                <span class="loc-sub">IAS · România</span>
                               </span>
                             </label>
                           </div>
@@ -946,7 +943,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
-                                <span class="loc-sub">KIV · Aeroport</span>
                               </span>
                             </label>
                             <label class="radio-label">
@@ -956,7 +952,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
-                                <span class="loc-sub">Chișinău · Centru</span>
                               </span>
                             </label>
                             <label class="radio-label">
@@ -966,7 +961,6 @@
                               </span>
                               <span class="loc-content">
                                 <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
-                                <span class="loc-sub">IAS · România</span>
                               </span>
                             </label>
                           </div>
@@ -1238,7 +1232,7 @@
   <script src="js/price-calculator.js"></script>
   <script src="js/booking-form-handler.js?v=1.1"></script>
   <script src="js/validation-booking.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" defer></script>
 
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
@@ -1589,12 +1583,28 @@
           // Catch 200-OK-but-empty images (server returned bad data without firing onerror)
           if (this.naturalWidth === 0 || this.naturalHeight === 0) {
             this.onerror();
+            return;
           }
+          // Fade in once actually loaded
+          this.classList.add('pr-img-loaded');
         };
+        // If already cached and loaded synchronously, fire load handler manually
+        if (img.complete && img.naturalWidth > 0) {
+          img.classList.add('pr-img-loaded');
+        }
       }
 
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
+        // First image gets browser-level priority hints → starts downloading immediately
+        if (index === 0) {
+          img.loading = 'eager';
+          if ('fetchPriority' in img) img.fetchPriority = 'high';
+          img.decoding = 'async';
+        } else {
+          img.loading = 'lazy';
+          img.decoding = 'async';
+        }
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Car image ${index + 1}`;
         attachImageFallback(img);
@@ -1605,6 +1615,8 @@
 
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.decoding = 'async';
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Thumbnail ${index + 1}`;
         attachImageFallback(img);
