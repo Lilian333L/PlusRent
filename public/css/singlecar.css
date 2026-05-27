@@ -2984,7 +2984,13 @@ select[name="Collection Time"].form-control:focus {
    The subheader's `images/background/2.jpg` is decorative chrome (not the actual car),
    so on mobile it just steals screen space before the user reaches the real content
    (gallery + booking form). Hide the bg image entirely → subheader becomes a slim
-   ~50px title plate on the page's cream background. Saves ~300px of vertical scroll. */
+   title plate on the page's cream background. Saves ~250-300px of vertical scroll.
+
+   IMPORTANT: site `header` is `position: absolute; z-index: 1001; height: 70px`
+   → it sits OVER the top of every section. The desktop subheader has 50px+100px+100px
+   = 150px of buffer (padding + h1 margin-top) so the title isn't covered. We need
+   to give the mobile subheader a matching top buffer (~78px) or the h1 disappears
+   behind the fixed header. */
 @media (max-width: 767px) {
   /* Hide every flavour of jarallax bg image / container */
   #subheader.jarallax > img.jarallax-img,
@@ -2995,10 +3001,10 @@ select[name="Collection Time"].form-control:focus {
     display: none !important;
   }
 
-  /* Subheader = thin title bar on cream */
+  /* Subheader = thin title bar BELOW the fixed header (78px top clears 70px header) */
   #subheader,
   #subheader.jarallax {
-    padding: 14px 16px 10px !important;
+    padding: 84px 16px 14px !important;
     min-height: 0 !important;
     background: transparent !important;
     overflow: visible !important;
@@ -3017,7 +3023,7 @@ select[name="Collection Time"].form-control:focus {
   }
   #subheader h1 {
     margin: 0 !important;
-    font-size: clamp(1.05rem, 4.4vw, 1.4rem) !important;
+    font-size: clamp(1.15rem, 4.8vw, 1.55rem) !important;
     line-height: 1.25 !important;
     letter-spacing: -0.015em !important;
     text-shadow: none !important;
