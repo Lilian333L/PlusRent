@@ -1,21 +1,18 @@
 /*
- * modal-coupon-error-fix.js
+ * modal-coupon-error-fix.js  (v2 — MutationObserver approach)
  * ----------------------------------------------------------------------------
- * Fix: when a coupon validation error fires inside the price-calculator modal,
- * the toast (#toast-container at body level) is visually hidden BEHIND the
- * modal's content area on most viewports — user sees nothing until modal
- * closes. The modal already has an empty <div id="coupon-error-message"> in
- * the DOM (under #modal-discount-code) for exactly this purpose. We populate
- * it whenever showError() fires while the modal is open.
+ * Fix: coupon validation errors shown in toast (#toast-container at body level)
+ * are visually hidden behind the price-calculator modal's backdrop. The modal
+ * already has an empty <div id="coupon-error-message"> for inline errors but
+ * it's unused.
  *
- * Patch approach:
- *   1) Wrap window.showError → if modal is open, also render inline error
- *   2) Auto-hide inline error when:
- *      - input is cleared
- *      - input becomes is-valid (coupon accepted)
- *      - modal is closed
+ * v1 of this patch wrapped window.showError — that DID NOT WORK because
+ * validation-booking.js calls the file-local `showError(...)` function directly
+ * (line 1097: `showError(i18next.t(msgKey))`), bypassing window.showError.
  *
- * Loaded AFTER validation-booking.js so window.showError is already defined.
+ * v2 approach: MutationObserver on #toast-container. When a new
+ * .toast-notification.error is added AND the modal is open → copy its text
+ * into #coupon-error-message. Works regardless of who created the toast.
  * ----------------------------------------------------------------------------
  */
 (function () {
@@ -39,7 +36,6 @@
       '<line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
       '<span style="flex:1;">' + escapeHtml(message) + '</span>';
 
-    // Inline styles (override base .field-error and ensure visibility inside modal)
     Object.assign(box.style, {
       display: 'flex',
       alignItems: 'flex-start',
@@ -70,8 +66,24 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  function extractToastMessage(toastNode) {
+    // Toast structure (from validation-booking.js:3274-3281):
+    //   <div class="toast-notification error">
+    //     <div class="toast-icon">✕</div>
+    //     <div class="toast-content">
+    //       <div class="toast-title">Error</div>
+    //       <div class="toast-message">{actual text}</div>
+    //     </div>
+    //     <button class="toast-close">×</button>
+    //   </div>
+    const msgEl = toastNode.querySelector && toastNode.querySelector('.toast-message');
+    if (msgEl) return msgEl.textContent.trim();
+    // Fallback: take all text minus the close button "×"
+    return (toastNode.textContent || '').replace(/×/g, '').trim();
+  }
+
   function init() {
-    // Inject keyframe animation once
+    // Inject fade-in keyframe once
     if (!document.getElementById('pr-coupon-err-style')) {
       const s = document.createElement('style');
       s.id = 'pr-coupon-err-style';
@@ -83,34 +95,39 @@
       document.head.appendChild(s);
     }
 
-    // (1) Wrap window.showError to also render inline if modal is open.
-    //     Toast still fires (we don't break existing flow), but the user
-    //     now also sees the error INSIDE the modal where they're looking.
-    if (typeof window.showError === 'function' && !window.showError.__prModalPatched) {
-      const original = window.showError;
-      window.showError = function (message) {
-        try {
-          if (isModalOpen() && document.getElementById('modal-discount-code')) {
-            showInlineError(message);
+    // (1) Primary mechanism — MutationObserver on toast container
+    // When a new error toast appears AND the modal is open → mirror inline.
+    const toastContainer = document.getElementById('toast-container');
+    if (toastContainer && !toastContainer.__prCouponPatched) {
+      const obs = new MutationObserver(function (mutations) {
+        if (!isModalOpen()) return;
+        for (const m of mutations) {
+          if (m.type !== 'childList') continue;
+          for (const node of m.addedNodes) {
+            if (node.nodeType !== 1) continue; // ELEMENT_NODE
+            if (!node.classList) continue;
+            if (!node.classList.contains('toast-notification')) continue;
+            // Only mirror errors (not success/info/warning)
+            if (!node.classList.contains('error')) continue;
+            const msg = extractToastMessage(node);
+            if (msg) showInlineError(msg);
           }
-        } catch (e) { /* never block original */ }
-        return original.apply(this, arguments);
-      };
-      window.showError.__prModalPatched = true;
+        }
+      });
+      obs.observe(toastContainer, { childList: true });
+      toastContainer.__prCouponPatched = true;
     }
 
-    // (2) Auto-hide inline error on relevant input state changes
+    // (2) Auto-hide inline error on relevant state changes
     const input = document.getElementById('modal-discount-code');
-    if (input) {
+    if (input && !input.__prCouponPatched) {
       input.addEventListener('input', function () {
         if (this.value.trim() === '') {
           hideInlineError();
           this.classList.remove('is-valid', 'is-invalid');
         }
       });
-
-      // Observe class changes — clear error when input becomes valid
-      const obs = new MutationObserver(function (mutations) {
+      const inputObs = new MutationObserver(function (mutations) {
         for (const m of mutations) {
           if (m.attributeName === 'class' && input.classList.contains('is-valid')) {
             hideInlineError();
@@ -118,34 +135,39 @@
           }
         }
       });
-      obs.observe(input, { attributes: true, attributeFilter: ['class'] });
+      inputObs.observe(input, { attributes: true, attributeFilter: ['class'] });
+      input.__prCouponPatched = true;
     }
 
-    // (3) Clear when modal closes (button or click outside)
+    // (3) Clear when modal closes (button or close-handler)
     document.addEventListener('click', function (e) {
       if (!e.target) return;
       const closer = e.target.closest && e.target.closest('.close-modal, .btn-close-calc');
       if (closer) hideInlineError();
     }, true);
 
-    // Also wrap closePriceCalculator if available (most robust)
-    if (typeof window.closePriceCalculator === 'function' && !window.closePriceCalculator.__prModalPatched) {
+    if (typeof window.closePriceCalculator === 'function' && !window.closePriceCalculator.__prCouponPatched) {
       const origClose = window.closePriceCalculator;
       window.closePriceCalculator = function () {
         hideInlineError();
         return origClose.apply(this, arguments);
       };
-      window.closePriceCalculator.__prModalPatched = true;
+      window.closePriceCalculator.__prCouponPatched = true;
     }
   }
 
-  // Run after validation-booking.js has set up window.showError
+  // The toast-container and modal might not exist at DOMContentLoaded
+  // (if they are injected later). Be defensive — try once at ready, then once
+  // 200ms later as a safety net.
+  function tryInit() {
+    init();
+    // Re-try once more in case toast-container was injected late
+    setTimeout(init, 250);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      // Defer slightly so validation-booking.js init also completes
-      setTimeout(init, 50);
-    });
+    document.addEventListener('DOMContentLoaded', tryInit);
   } else {
-    setTimeout(init, 50);
+    tryInit();
   }
 })();
