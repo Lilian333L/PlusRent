@@ -74,7 +74,19 @@
     '<svg width="17" height="17" viewBox="0 0 24 24" fill="#f59e0b" style="width:17px;height:17px;min-width:17px;display:block;flex-shrink:0"><path d="M12 12c2.67 0 4.8-2.13 4.8-4.8 0-2.66-2.13-4.8-4.8-4.8-2.66 0-4.8 2.14-4.8 4.8 0 2.67 2.14 4.8 4.8 4.8zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>'
   ];
 
-  function getLang() { var p = window.location.pathname.split('/')[1]; return SERVICES[p] ? p : 'ro'; }
+  function getLang() {
+    var p = window.location.pathname.split('/')[1];
+    if (SERVICES[p]) return p;
+    // Fallback for pages outside language subpaths (e.g. /car-single, /cars):
+    // read user's selected language from localStorage / cookie.
+    try {
+      var stored = localStorage.getItem('lang') || localStorage.getItem('i18nextLng');
+      if (stored && SERVICES[stored]) return stored;
+      var cookieMatch = document.cookie.match(/(?:^|; )lang=([^;]+)/);
+      if (cookieMatch && SERVICES[cookieMatch[1]]) return cookieMatch[1];
+    } catch (e) {}
+    return 'ro';
+  }
   function isMobile() { return window.innerWidth < 992; }
 
   /* ── DESKTOP PANEL ── */
