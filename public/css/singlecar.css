@@ -2980,51 +2980,57 @@ select[name="Collection Time"].form-control:focus {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
-/* ── MOBILE: compact subheader, no jarallax-induced layout chaos ──
-   The jarallax library positions the bg <img> with absolute + transform,
-   sometimes producing 612px-tall images on a 430px wide viewport
-   (especially when the soft keyboard opens). On mobile we:
-   1) shrink the section's padding so it's a thin banner, not a hero,
-   2) freeze the jarallax bg image so it can't drift, just covers the box. */
+/* ── MOBILE: kill the decorative hero background, keep only a thin title bar ──
+   The subheader's `images/background/2.jpg` is decorative chrome (not the actual car),
+   so on mobile it just steals screen space before the user reaches the real content
+   (gallery + booking form). Hide the bg image entirely → subheader becomes a slim
+   ~50px title plate on the page's cream background. Saves ~300px of vertical scroll. */
 @media (max-width: 767px) {
-  #subheader {
-    padding: 26px 0 28px 0 !important;
-    min-height: auto !important;
+  /* Hide every flavour of jarallax bg image / container */
+  #subheader.jarallax > img.jarallax-img,
+  #subheader > img.jarallax-img,
+  #subheader .jarallax-img,
+  #subheader.jarallax [id^="jarallax-container-"],
+  #subheader [id^="jarallax-container-"] {
+    display: none !important;
+  }
+
+  /* Subheader = thin title bar on cream */
+  #subheader,
+  #subheader.jarallax {
+    padding: 14px 16px 10px !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+  /* Kill the dark gradient overlay used on desktop */
+  #subheader::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Title — dark text on cream, normal heading-style */
+  #subheader,
+  #subheader.text-light,
+  #subheader h1 {
+    color: var(--c-slate-900) !important;
   }
   #subheader h1 {
-    margin-top: 18px !important;
-    margin-bottom: 0 !important;
-    font-size: clamp(1.25rem, 4.8vw, 1.7rem) !important;
-    letter-spacing: -0.02em;
-  }
-  #subheader::after {
-    background: linear-gradient(180deg,
-      rgba(15, 23, 42, 0.4) 0%,
-      rgba(15, 23, 42, 0.65) 70%,
-      var(--pr2-cream-1) 100%) !important;
-  }
-  /* Cage the jarallax bg image — no transforms, no overflowing height */
-  #subheader.jarallax [id^="jarallax-container-"] .jarallax-img,
-  #subheader.jarallax > .jarallax-img,
-  #subheader .jarallax-img {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
     margin: 0 !important;
-    transform: none !important;
-    object-fit: cover !important;
-    object-position: center center !important;
+    font-size: clamp(1.05rem, 4.4vw, 1.4rem) !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.015em !important;
+    text-shadow: none !important;
+    font-family: var(--pr2-font-display);
+    font-weight: 700;
   }
-  #subheader.jarallax [id^="jarallax-container-"] {
-    top: 0 !important;
-    height: 100% !important;
-    transform: none !important;
+
+  /* The decorative cream-fade-to-cream gradient is no longer needed
+     (we removed the dark bg it was masking), but if any rule reapplied a dark
+     background-color, neutralise it: */
+  #subheader.dark,
+  #subheader.text-light {
+    background-color: transparent !important;
   }
 }
 
