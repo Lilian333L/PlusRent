@@ -2526,6 +2526,7 @@
     }
 
     /* ─────── 4. SECTION COMPLETION — show ✓ when section is filled ─────── */
+    function checkSectionComplete(section) {
       if (!section) return false;
       // For radio groups: at least one checked per radio name in section
       var radios = section.querySelectorAll('input[type="radio"]');
@@ -2565,12 +2566,39 @@
     // Bind to form input/change events (event delegation on the form)
     var form = document.getElementById('contact_form');
     if (form) {
-      ['input', 'change', 'blur'].forEach(function (evt) {
+      // Listen on BOTH form AND document — flatpickr sometimes sets value
+      // programmatically without bubbling a 'change' event. Document-level
+      // capture catches everything regardless of source.
+      ['input', 'change', 'blur', 'click', 'keyup'].forEach(function (evt) {
         form.addEventListener(evt, refreshAllSections, true);
+        document.addEventListener(evt, refreshAllSections, true);
       });
-      // Initial run after a short delay (forms populated by JS)
+
+      // Initial runs after a short delay (forms populated by JS)
       setTimeout(refreshAllSections, 300);
       setTimeout(refreshAllSections, 1200);
+      setTimeout(refreshAllSections, 2500);
+
+      // Polling fallback for the first 20 seconds — handles cases where
+      // flatpickr/datepicker-manager.js updates input.value via JS property
+      // (which fires NO native events). After 20s, event listeners take over.
+      var pollCount = 0;
+      var pollInterval = setInterval(function () {
+        refreshAllSections();
+        pollCount++;
+        if (pollCount > 20) clearInterval(pollInterval); // ~20 seconds @ 1Hz
+      }, 1000);
+
+      // MutationObserver on form — watches for `value`/`checked` attribute
+      // changes (flatpickr/datepicker often mirror to attributes). We deliberately
+      // do NOT watch `class` here, because refreshAllSections() itself adds/removes
+      // the `is-complete` class — watching `class` would create an infinite loop.
+      var formObserver = new MutationObserver(refreshAllSections);
+      formObserver.observe(form, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['value', 'checked']
+      });
     }
   })();
   </script>
