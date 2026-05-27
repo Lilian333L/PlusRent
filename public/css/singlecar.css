@@ -3212,10 +3212,13 @@ select[name="Collection Time"].form-control:focus {
   line-height: 1.5 !important;
 }
 
-/* Loading state — bigger, more polished spinner */
+/* Loading state — bigger, more polished spinner.
+   IMPORTANT: do NOT force `display: flex !important` here.
+   The HTML has inline `style="display: flex; ..."` (so flex layout works by default),
+   and price-calculator.js sets `style.display = 'none'` when loading completes.
+   An !important display rule here would prevent JS from ever hiding the spinner. */
 #price-loading {
   min-height: 120px !important;
-  display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
