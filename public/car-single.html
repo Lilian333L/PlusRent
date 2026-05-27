@@ -62,6 +62,11 @@
   
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <!-- ===== Premium display font: DM Sans (used for headings & price) ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
   
   <!-- API Configuration -->
   <script>
@@ -606,8 +611,13 @@
                     <div class="custom-carousel-main" id="car-images" onclick="openLightbox(window.currentCarSlide)">
                       <!-- Main images will be inserted here -->
                     </div>
-                    <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)">‹</button>
-                    <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)">›</button>
+                    <!-- Gallery counter overlay (updated by JS via MutationObserver) -->
+                    <div class="carousel-counter" id="carousel-counter" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      <span id="carousel-counter-text">1 / 1</span>
+                    </div>
+                    <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)" aria-label="Previous image">‹</button>
+                    <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)" aria-label="Next image">›</button>
                     <div class="custom-carousel-nav" id="car-thumbs">
                       <!-- Thumbnail images will be inserted here -->
                     </div>
@@ -616,7 +626,10 @@
 
                 <!-- Price Sidebar -->
                 <div class="col-lg-4">
-                  <h3 id="car-name" style="margin-bottom: 20px; font-size: 1.8rem; font-weight: 700; color: #1a202c;"></h3>
+                  <h3 id="car-name" style="margin-bottom: 12px; font-size: 1.8rem; font-weight: 700; color: #1a202c;"></h3>
+
+                  <!-- Quick info chips (populated by JS from #car-specs-compact data) -->
+                  <div class="car-quick-chips" id="car-quick-chips" aria-live="polite"></div>
                   
                   <!-- Daily Rate Card -->
                   <div class="price-sidebar-card">
@@ -639,6 +652,48 @@
 
               <!-- BOOKING FORM -->
               <div class="spacer-single"></div>
+
+              <!-- ═════════ TRUST RIBBON — confidence boosters before form ═════════ -->
+              <div class="trust-ribbon" role="list">
+                <div class="trust-item" role="listitem">
+                  <span class="trust-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18l-2 13H5L3 6z"/><path d="M3 6L2 3H0"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/><path d="M9 12l2 2 4-4"/></svg>
+                  </span>
+                  <span class="trust-text">
+                    <strong data-i18n="cars.trust_cancellation">Free cancellation</strong>
+                    <span data-i18n="cars.trust_cancellation_sub">Until 24h before pickup</span>
+                  </span>
+                </div>
+                <div class="trust-item" role="listitem">
+                  <span class="trust-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  </span>
+                  <span class="trust-text">
+                    <strong data-i18n="cars.trust_verified">Verified vehicle</strong>
+                    <span data-i18n="cars.trust_verified_sub">RCA + roadside assistance</span>
+                  </span>
+                </div>
+                <div class="trust-item" role="listitem">
+                  <span class="trust-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </span>
+                  <span class="trust-text">
+                    <strong data-i18n="cars.trust_support">24/7 support</strong>
+                    <span data-i18n="cars.trust_support_sub">Phone & WhatsApp</span>
+                  </span>
+                </div>
+                <div class="trust-item" role="listitem">
+                  <span class="trust-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                  </span>
+                  <span class="trust-text">
+                    <strong data-i18n="cars.trust_mileage">200 km / day</strong>
+                    <span data-i18n="cars.trust_mileage_sub">Free included mileage</span>
+                  </span>
+                </div>
+              </div>
+              <!-- ═════════ END TRUST RIBBON ═════════ -->
+
               <div class="booking-form-main">
 
                 <!-- Booking Success Notification -->
@@ -675,7 +730,7 @@
                   <div class="booking-form-grid">
 
                     <!-- Booking Details Section -->
-                    <div class="booking-section">
+                    <div class="booking-section" data-step="1" data-section="dates">
                       <h5>
                         <i class="fa fa-calendar"></i>
                         <span data-i18n="cars.booking_details">Booking Details</span>
@@ -775,7 +830,7 @@
                     </div>
 
                     <!-- Location Details Section -->
-                    <div class="booking-section">
+                    <div class="booking-section" data-step="2" data-section="location">
                       <h5>
                         <i class="fa fa-map-marker"></i>
                         <span data-i18n="cars.location_details">Location Details</span>
@@ -785,18 +840,36 @@
                         <!-- Pickup Location -->
                         <div class="form-group mb20">
                           <label class="form-label" data-i18n="cars.pickup_location">Pickup Location<span class="required-marker" aria-hidden="true">*</span></label>
-                          <div class="radio-group">
+                          <div class="radio-group radio-group-location">
                             <label class="radio-label">
                               <input type="radio" name="pickup_location" value="Chisinau Airport">
-                              <span data-i18n="cars.chisinau_airport">Chisinau Airport</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
+                                <span class="loc-sub">KIV · Aeroport</span>
+                              </span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="pickup_location" value="Our Office">
-                              <span data-i18n="cars.our_office">Our Office</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h0M9 12h0M9 15h0M9 18h0M15 9h0M15 12h0M15 15h0M15 18h0"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
+                                <span class="loc-sub">Chișinău · Centru</span>
+                              </span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="pickup_location" value="Iasi Airport" checked>
-                              <span data-i18n="cars.iasi_airport">Iasi Airport</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
+                                <span class="loc-sub">IAS · România</span>
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -804,18 +877,36 @@
                         <!-- Dropoff Location -->
                         <div class="form-group">
                           <label class="form-label" data-i18n="cars.dropoff_location">Dropoff Location<span class="required-marker" aria-hidden="true">*</span></label>
-                          <div class="radio-group">
+                          <div class="radio-group radio-group-location">
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Chisinau Airport">
-                              <span data-i18n="cars.chisinau_airport">Chisinau Airport</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
+                                <span class="loc-sub">KIV · Aeroport</span>
+                              </span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Our Office" checked>
-                              <span data-i18n="cars.our_office">Our Office</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h0M9 12h0M9 15h0M9 18h0M15 9h0M15 12h0M15 15h0M15 18h0"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
+                                <span class="loc-sub">Chișinău · Centru</span>
+                              </span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Iasi Airport">
-                              <span data-i18n="cars.iasi_airport">Iasi Airport</span>
+                              <span class="loc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                              </span>
+                              <span class="loc-content">
+                                <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
+                                <span class="loc-sub">IAS · România</span>
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -823,7 +914,7 @@
                     </div>
 
                     <!-- Contact Information Section -->
-                    <div class="booking-section">
+                    <div class="booking-section" data-step="3" data-section="contact">
                       <h5>
                         <i class="fa fa-user"></i>
                         <span data-i18n="cars.contact_information">Contact Information</span>
@@ -832,26 +923,26 @@
                       <div class="booking-section-content">
                         <div class="form-group mb15">
                           <label class="form-label" data-i18n="cars.email_address">Email Address <span class="optional-marker">(opțional)</span></label>
-                          <input type="email" name="customer_email" placeholder="your.email@example.com" class="form-control">
+                          <input type="email" name="customer_email" placeholder="your.email@example.com" class="form-control" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false">
                         </div>
                         <div class="form-group mb15">
                           <label class="form-label" data-i18n="cars.phone_number">Phone Number<span class="required-marker" aria-hidden="true">*</span></label>
-                          <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required class="form-control">
+                          <input type="tel" name="customer_phone" placeholder="+373 60 000 000" required class="form-control" inputmode="tel" autocomplete="tel">
                         </div>
                         <div class="form-group mb15">
                           <label class="form-label" data-i18n="cars.customer_age">Age<span class="required-marker" aria-hidden="true">*</span></label>
-                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required class="form-control">
+                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required class="form-control" inputmode="numeric">
                         </div>
                         <div class="form-group">
                           <label class="form-label" data-i18n="cars.discount_code">Discount Code <span class="optional-marker">(opțional)</span></label>
                           <input type="text" name="discount_code" placeholder="Enter discount code"
-                            data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input class="form-control">
+                            data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input class="form-control" autocapitalize="characters" spellcheck="false">
                         </div>
                       </div>
                     </div>
 
                     <!-- Price Summary Section -->
-                    <div class="booking-section">
+                    <div class="booking-section booking-section-summary" data-section="summary">
                       <h5>
                         <i class="fa fa-calculator"></i>
                         <span data-i18n="cars.total_price_breakdown">Total Price</span>
@@ -869,6 +960,24 @@
                       </div>
                     </div>
 
+                  </div>
+
+                  <!-- ═════════ CTA TRUST ROW — reassurance right before submit ═════════ -->
+                  <div class="cta-trust-row" aria-hidden="true">
+                    <span class="cta-trust-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span data-i18n="cars.cta_no_card">No card required</span>
+                    </span>
+                    <span class="cta-trust-sep">·</span>
+                    <span class="cta-trust-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span data-i18n="cars.cta_free_cancel">Free cancellation</span>
+                    </span>
+                    <span class="cta-trust-sep">·</span>
+                    <span class="cta-trust-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span data-i18n="cars.cta_instant">Instant confirmation</span>
+                    </span>
                   </div>
 
                   <button type='submit' id='send_message' class="btn-main btn-fullwidth" data-i18n="cars.book_now">Book Now</button>
@@ -2271,6 +2380,132 @@
         }, true); // capture phase — important!
       });
     });
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SINGLECAR REDESIGN V2 — UX enhancement scripts
+       1. Quick chips renderer (mirror from #car-specs-compact)
+       2. Gallery counter (MutationObserver on .custom-carousel-main)
+       3. Section completion indicator (input → is-complete class)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* ─────── 1. QUICK CHIPS — mirror first 4 specs into hero chips ─────── */
+    var chipsTarget = document.getElementById('car-quick-chips');
+    var specsSource = document.getElementById('car-specs-compact');
+
+    function renderChips() {
+      if (!chipsTarget || !specsSource) return;
+      var cards = specsSource.querySelectorAll('.spec-card');
+      if (!cards.length) return;
+      var html = '';
+      var max = Math.min(cards.length, 4);
+      for (var i = 0; i < max; i++) {
+        var card = cards[i];
+        // last child div contains the text label
+        var textNode = card.querySelector('div:last-child');
+        var iconNode = card.querySelector('div:first-child');
+        var text = textNode ? textNode.textContent.trim() : '';
+        if (!text) continue;
+        var iconHTML = '';
+        if (iconNode) {
+          var svg = iconNode.querySelector('svg, i');
+          if (svg) iconHTML = svg.outerHTML;
+        }
+        html += '<span class="car-quick-chip">' + iconHTML + '<span>' + text + '</span></span>';
+      }
+      chipsTarget.innerHTML = html;
+    }
+
+    if (chipsTarget && specsSource) {
+      // initial attempt
+      renderChips();
+      // re-render whenever specs are populated by dynamic-cars-loader.js
+      var specsObserver = new MutationObserver(function () { renderChips(); });
+      specsObserver.observe(specsSource, { childList: true, subtree: true });
+    }
+
+    /* ─────── 2. GALLERY COUNTER — watch active image, update counter ─────── */
+    var carouselMain = document.getElementById('car-images');
+    var counterEl = document.getElementById('carousel-counter-text');
+    var counterContainer = document.getElementById('carousel-counter');
+
+    function updateCounter() {
+      if (!carouselMain || !counterEl) return;
+      var imgs = carouselMain.querySelectorAll('img');
+      if (!imgs.length) {
+        if (counterContainer) counterContainer.style.display = 'none';
+        return;
+      }
+      var activeIdx = -1;
+      for (var i = 0; i < imgs.length; i++) {
+        if (imgs[i].classList.contains('active')) { activeIdx = i; break; }
+      }
+      if (activeIdx === -1) activeIdx = 0;
+      counterEl.textContent = (activeIdx + 1) + ' / ' + imgs.length;
+      if (counterContainer) counterContainer.style.display = imgs.length > 1 ? '' : 'none';
+    }
+
+    if (carouselMain && counterEl) {
+      updateCounter();
+      var carouselObserver = new MutationObserver(function () { updateCounter(); });
+      carouselObserver.observe(carouselMain, {
+        childList: true, subtree: true,
+        attributes: true, attributeFilter: ['class']
+      });
+    }
+
+    /* ─────── 3. SECTION COMPLETION — show ✓ when section is filled ─────── */
+    function checkSectionComplete(section) {
+      if (!section) return false;
+      // For radio groups: at least one checked per radio name in section
+      var radios = section.querySelectorAll('input[type="radio"]');
+      var radioGroups = {};
+      radios.forEach(function (r) {
+        radioGroups[r.name] = radioGroups[r.name] || false;
+        if (r.checked) radioGroups[r.name] = true;
+      });
+      var anyRadioGroup = false;
+      for (var n in radioGroups) {
+        anyRadioGroup = true;
+        if (!radioGroups[n]) return false;
+      }
+      // For required text/date/number/email/tel/select: must have value
+      var required = section.querySelectorAll(
+        'input[required]:not([type="radio"]), select[required], textarea[required]'
+      );
+      for (var i = 0; i < required.length; i++) {
+        var f = required[i];
+        if (!f.value || !f.value.trim()) return false;
+        // For number/email types: also check validity
+        if (f.checkValidity && !f.checkValidity()) return false;
+      }
+      // If section has neither required fields nor radios, ignore (no "complete" state)
+      if (!anyRadioGroup && required.length === 0) return false;
+      return true;
+    }
+
+    function refreshAllSections() {
+      var sections = document.querySelectorAll('.booking-section[data-step]');
+      sections.forEach(function (s) {
+        if (checkSectionComplete(s)) s.classList.add('is-complete');
+        else s.classList.remove('is-complete');
+      });
+    }
+
+    // Bind to form input/change events (event delegation on the form)
+    var form = document.getElementById('contact_form');
+    if (form) {
+      ['input', 'change', 'blur'].forEach(function (evt) {
+        form.addEventListener(evt, refreshAllSections, true);
+      });
+      // Initial run after a short delay (forms populated by JS)
+      setTimeout(refreshAllSections, 300);
+      setTimeout(refreshAllSections, 1200);
+    }
+  })();
   </script>
 
 </body>
