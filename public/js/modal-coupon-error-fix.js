@@ -30,7 +30,7 @@
   const LOG = '[PR-COUPON-FIX]';
   function log() {
     // Uncomment next line to enable debug logging in production console
-     console.log.apply(console, [LOG].concat([].slice.call(arguments)));
+    // console.log.apply(console, [LOG].concat([].slice.call(arguments)));
   }
 
   function getApiBase() {
@@ -55,8 +55,8 @@
   }
 
   function showInlineError(message) {
-    const box = document.getElementById('coupon-error-message');
-    if (!box) { log('no #coupon-error-message in DOM'); return; }
+    const box = getOrCreateErrorBox();
+    if (!box) { log('cannot create error box — input not found either'); return; }
     if (!message) return;
 
     box.innerHTML =
@@ -82,6 +82,7 @@
     box.style.setProperty('font-weight', '500', 'important');
     box.style.setProperty('line-height', '1.4', 'important');
     box.style.setProperty('box-shadow', 'none', 'important');
+    box.style.setProperty('animation', 'pr-coupon-err-in 220ms ease', 'important');
 
     log('inline error shown:', message);
   }
@@ -92,6 +93,43 @@
     box.innerHTML = '';
     box.style.setProperty('display', 'none', 'important');
     log('inline error hidden');
+  }
+
+  // Find or create the error container. If the static HTML has been removed
+  // (modal is dynamically rendered, cloned without preserving children, etc.)
+  // we just inject it ourselves right after the discount input.
+  function getOrCreateErrorBox() {
+    let box = document.getElementById('coupon-error-message');
+    if (box) return box;
+
+    const input = document.getElementById('modal-discount-code');
+    if (!input || !input.parentNode) {
+      log('no input or parentNode — cannot create error box');
+      return null;
+    }
+
+    log('creating #coupon-error-message dynamically');
+    box = document.createElement('div');
+    box.id = 'coupon-error-message';
+    box.className = 'field-error pr-injected-error';
+    box.style.cssText = 'display: none; margin-top: 8px;';
+
+    // Inject keyframes once (for the fade-in animation set on the box itself)
+    if (!document.getElementById('pr-coupon-err-style')) {
+      const s = document.createElement('style');
+      s.id = 'pr-coupon-err-style';
+      s.textContent =
+        '@keyframes pr-coupon-err-in {' +
+        '  from { opacity: 0; transform: translateY(-4px); }' +
+        '  to   { opacity: 1; transform: translateY(0); }' +
+        '}';
+      document.head.appendChild(s);
+    }
+
+    // Insert right after the input. nextSibling can be null → insertBefore
+    // with null inserts at end of parent, which is also fine.
+    input.parentNode.insertBefore(box, input.nextSibling);
+    return box;
   }
 
   // Our independent coupon validator — runs in parallel to existing one.
