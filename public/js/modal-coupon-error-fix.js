@@ -1,33 +1,63 @@
 /*
- * modal-coupon-error-fix.js  (v2 — MutationObserver approach)
+ * modal-coupon-error-fix.js  (v3 — direct API call, bulletproof)
  * ----------------------------------------------------------------------------
- * Fix: coupon validation errors shown in toast (#toast-container at body level)
- * are visually hidden behind the price-calculator modal's backdrop. The modal
- * already has an empty <div id="coupon-error-message"> for inline errors but
- * it's unused.
+ * Renders coupon validation errors INSIDE the price-calculator modal,
+ * directly under the discount code input.
  *
- * v1 of this patch wrapped window.showError — that DID NOT WORK because
- * validation-booking.js calls the file-local `showError(...)` function directly
- * (line 1097: `showError(i18next.t(msgKey))`), bypassing window.showError.
+ * History:
+ *   v1: wrapped window.showError → didn't work (validation-booking.js calls
+ *       file-local showError, bypassing the wrap).
+ *   v2: MutationObserver on #toast-container → also didn't fire reliably for
+ *       reasons specific to the production environment.
+ *   v3 (this): bypass everything. Attach own blur handler on
+ *       #modal-discount-code, call the coupon API directly, render result
+ *       into #coupon-error-message with !important inline styles.
+ *       Independent of any other validation flow. Bulletproof.
  *
- * v2 approach: MutationObserver on #toast-container. When a new
- * .toast-notification.error is added AND the modal is open → copy its text
- * into #coupon-error-message. Works regardless of who created the toast.
+ * Required DOM:
+ *   - #modal-discount-code   (input where user enters coupon)
+ *   - #coupon-error-message  (empty div under the input — already in HTML)
+ *   - #phone                 (main form phone input — read for API call)
+ *
+ * API endpoint:
+ *   GET /api/coupons/lookup/{code}?phone={encodedPhone}
+ *   Response: { valid: bool, message: string }   (message is an i18n key)
  * ----------------------------------------------------------------------------
  */
 (function () {
   'use strict';
 
-  function isModalOpen() {
-    const modal = document.querySelector('.price-calculator-modal');
-    if (!modal) return false;
-    const cs = window.getComputedStyle(modal);
-    return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0;
+  const LOG = '[PR-COUPON-FIX]';
+  function log() {
+    // Uncomment next line to enable debug logging in production console
+    // console.log.apply(console, [LOG].concat([].slice.call(arguments)));
+  }
+
+  function getApiBase() {
+    return (typeof window.API_BASE_URL === 'string' && window.API_BASE_URL) || '';
+  }
+
+  function translateApiMessage(msg) {
+    if (!msg) return '';
+    if (typeof window.i18next === 'undefined' || !window.i18next.t) return msg;
+    // Translation key pattern: word.word(.word)+
+    if (/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(msg)) {
+      const t = window.i18next.t(msg);
+      if (t && t !== msg) return t;
+    }
+    return msg;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function showInlineError(message) {
     const box = document.getElementById('coupon-error-message');
-    if (!box || !message) return;
+    if (!box) { log('no #coupon-error-message in DOM'); return; }
+    if (!message) return;
 
     box.innerHTML =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
@@ -36,138 +66,137 @@
       '<line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
       '<span style="flex:1;">' + escapeHtml(message) + '</span>';
 
-    Object.assign(box.style, {
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '8px',
-      padding: '10px 12px',
-      marginTop: '8px',
-      borderRadius: '8px',
-      background: 'rgba(239, 68, 68, 0.08)',
-      border: '1px solid rgba(239, 68, 68, 0.28)',
-      color: '#b91c1c',
-      fontSize: '13px',
-      fontWeight: '500',
-      lineHeight: '1.4',
-      animation: 'pr-coupon-err-in 220ms ease',
-    });
+    // setProperty with 'important' to beat any CSS, including the
+    // `.field-error { display: none }` rule baked into the class.
+    box.style.setProperty('display', 'flex', 'important');
+    box.style.setProperty('align-items', 'flex-start', 'important');
+    box.style.setProperty('gap', '8px', 'important');
+    box.style.setProperty('padding', '10px 12px', 'important');
+    box.style.setProperty('margin-top', '8px', 'important');
+    box.style.setProperty('border-radius', '8px', 'important');
+    box.style.setProperty('background', 'rgba(239, 68, 68, 0.08)', 'important');
+    box.style.setProperty('border', '1px solid rgba(239, 68, 68, 0.28)', 'important');
+    box.style.setProperty('color', '#b91c1c', 'important');
+    box.style.setProperty('background-image', 'none', 'important');  // override .field-error gradient
+    box.style.setProperty('font-size', '13px', 'important');
+    box.style.setProperty('font-weight', '500', 'important');
+    box.style.setProperty('line-height', '1.4', 'important');
+    box.style.setProperty('box-shadow', 'none', 'important');
+
+    log('inline error shown:', message);
   }
 
   function hideInlineError() {
     const box = document.getElementById('coupon-error-message');
     if (!box) return;
     box.innerHTML = '';
-    box.style.display = 'none';
+    box.style.setProperty('display', 'none', 'important');
+    log('inline error hidden');
   }
 
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
+  // Our independent coupon validator — runs in parallel to existing one.
+  // Does not interfere with anything else; just shows result inline.
+  let currentAbort = null;
+  async function validateAndShowInline(code, phone) {
+    log('validateAndShowInline:', { code, phone });
+    if (!code || code.length < 3) { hideInlineError(); return; }
 
-  function extractToastMessage(toastNode) {
-    // Toast structure (from validation-booking.js:3274-3281):
-    //   <div class="toast-notification error">
-    //     <div class="toast-icon">✕</div>
-    //     <div class="toast-content">
-    //       <div class="toast-title">Error</div>
-    //       <div class="toast-message">{actual text}</div>
-    //     </div>
-    //     <button class="toast-close">×</button>
-    //   </div>
-    const msgEl = toastNode.querySelector && toastNode.querySelector('.toast-message');
-    if (msgEl) return msgEl.textContent.trim();
-    // Fallback: take all text minus the close button "×"
-    return (toastNode.textContent || '').replace(/×/g, '').trim();
+    if (currentAbort) currentAbort.abort();
+    currentAbort = new AbortController();
+
+    const url = getApiBase() + '/api/coupons/lookup/' +
+                encodeURIComponent(code) +
+                (phone ? '?phone=' + encodeURIComponent(phone) : '');
+
+    log('fetching:', url);
+    try {
+      const resp = await fetch(url, { signal: currentAbort.signal });
+      const data = await resp.json();
+      log('response:', data);
+
+      if (data && data.valid) {
+        hideInlineError();
+      } else {
+        // Translate i18n message key (e.g. "coupons.invalid_code",
+        // "coupons.phone_not_authorized", "coupons.expired", etc.)
+        const raw = (data && (data.message || data.error)) || 'coupons.invalid_code';
+        let msg = translateApiMessage(raw);
+        if (!msg || msg === raw) {
+          // Final fallback if i18next can't translate
+          msg = (window.i18next && window.i18next.t)
+            ? window.i18next.t('coupons.invalid_code', { defaultValue: 'Промокод недействителен' })
+            : 'Промокод недействителен';
+        }
+        showInlineError(msg);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') { log('aborted'); return; }
+      log('fetch failed:', err);
+      const msg = (window.i18next && window.i18next.t)
+        ? window.i18next.t('errors.error_validating_coupon', { defaultValue: 'Ошибка проверки промокода' })
+        : 'Ошибка проверки промокода';
+      showInlineError(msg);
+    } finally {
+      currentAbort = null;
+    }
   }
 
   function init() {
-    // Inject fade-in keyframe once
-    if (!document.getElementById('pr-coupon-err-style')) {
-      const s = document.createElement('style');
-      s.id = 'pr-coupon-err-style';
-      s.textContent =
-        '@keyframes pr-coupon-err-in {' +
-        '  from { opacity: 0; transform: translateY(-4px); }' +
-        '  to   { opacity: 1; transform: translateY(0); }' +
-        '}';
-      document.head.appendChild(s);
-    }
+    log('init() running, readyState=', document.readyState);
 
-    // (1) Primary mechanism — MutationObserver on toast container
-    // When a new error toast appears AND the modal is open → mirror inline.
-    const toastContainer = document.getElementById('toast-container');
-    if (toastContainer && !toastContainer.__prCouponPatched) {
-      const obs = new MutationObserver(function (mutations) {
-        if (!isModalOpen()) return;
-        for (const m of mutations) {
-          if (m.type !== 'childList') continue;
-          for (const node of m.addedNodes) {
-            if (node.nodeType !== 1) continue; // ELEMENT_NODE
-            if (!node.classList) continue;
-            if (!node.classList.contains('toast-notification')) continue;
-            // Only mirror errors (not success/info/warning)
-            if (!node.classList.contains('error')) continue;
-            const msg = extractToastMessage(node);
-            if (msg) showInlineError(msg);
-          }
-        }
-      });
-      obs.observe(toastContainer, { childList: true });
-      toastContainer.__prCouponPatched = true;
-    }
-
-    // (2) Auto-hide inline error on relevant state changes
     const input = document.getElementById('modal-discount-code');
-    if (input && !input.__prCouponPatched) {
-      input.addEventListener('input', function () {
-        if (this.value.trim() === '') {
-          hideInlineError();
-          this.classList.remove('is-valid', 'is-invalid');
-        }
-      });
-      const inputObs = new MutationObserver(function (mutations) {
-        for (const m of mutations) {
-          if (m.attributeName === 'class' && input.classList.contains('is-valid')) {
-            hideInlineError();
-            return;
-          }
-        }
-      });
-      inputObs.observe(input, { attributes: true, attributeFilter: ['class'] });
-      input.__prCouponPatched = true;
-    }
+    if (!input) { log('no #modal-discount-code yet, retrying...'); return false; }
+    if (input.__prDirectFix) { log('already initialized'); return true; }
+    input.__prDirectFix = true;
 
-    // (3) Clear when modal closes (button or close-handler)
+    log('attaching blur/input handlers to #modal-discount-code');
+
+    // Blur → validate via direct API call
+    input.addEventListener('blur', function () {
+      const code = (input.value || '').trim();
+      const phoneEl = document.getElementById('phone') ||
+                      document.querySelector('input[name="phone"]') ||
+                      document.querySelector('input[name="customer_phone"]');
+      const phone = phoneEl ? (phoneEl.value || '').trim() : '';
+      // Small delay so any existing handler that may briefly clear classes runs first
+      setTimeout(function () { validateAndShowInline(code, phone); }, 20);
+    });
+
+    // Clear inline error as user starts typing (gives fresh state)
+    input.addEventListener('input', function () {
+      const code = (input.value || '').trim();
+      if (code.length === 0) hideInlineError();
+    });
+
+    // Hide error when modal closes (multiple paths)
     document.addEventListener('click', function (e) {
       if (!e.target) return;
-      const closer = e.target.closest && e.target.closest('.close-modal, .btn-close-calc');
+      const closer = e.target.closest && e.target.closest('.close-modal, .btn-close-calc, .btn-close');
       if (closer) hideInlineError();
     }, true);
 
-    if (typeof window.closePriceCalculator === 'function' && !window.closePriceCalculator.__prCouponPatched) {
-      const origClose = window.closePriceCalculator;
+    if (typeof window.closePriceCalculator === 'function' && !window.closePriceCalculator.__prDirectFix) {
+      const orig = window.closePriceCalculator;
       window.closePriceCalculator = function () {
         hideInlineError();
-        return origClose.apply(this, arguments);
+        return orig.apply(this, arguments);
       };
-      window.closePriceCalculator.__prCouponPatched = true;
+      window.closePriceCalculator.__prDirectFix = true;
     }
+
+    return true;
   }
 
-  // The toast-container and modal might not exist at DOMContentLoaded
-  // (if they are injected later). Be defensive — try once at ready, then once
-  // 200ms later as a safety net.
-  function tryInit() {
-    init();
-    // Re-try once more in case toast-container was injected late
-    setTimeout(init, 250);
+  // Retry init until input appears (modal HTML might be injected late on some flows)
+  function tryInit(attemptsLeft) {
+    if (init()) return;
+    if (attemptsLeft <= 0) { log('giving up after retries'); return; }
+    setTimeout(function () { tryInit(attemptsLeft - 1); }, 200);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInit);
+    document.addEventListener('DOMContentLoaded', function () { tryInit(15); });
   } else {
-    tryInit();
+    tryInit(15);
   }
 })();
