@@ -3058,4 +3058,194 @@ select[name="Collection Time"].form-control:focus {
   border-radius: 999px;
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   20. PRICE SUMMARY — integrate JS-injected price-content with section
+   ──────────────────────────────────────────────────────────────────
+   price-calculator.js injects inline-styled HTML with its own white
+   card + duplicate h5. We strip that wrapping via attribute selectors
+   and turn it into a clean breakdown matching the v2 design.
+*/
+
+/* Strip the JS-injected white card wrapper around the price breakdown */
+#price-content > div {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Hide the JS-injected "Price Breakdown" h5 — outer section header already
+   says "Total Price" so the inner one is a duplicate */
+#price-content > div > h5 {
+  display: none !important;
+}
+
+/* Style each line-item row (space-between rows with margin-bottom: 6px) */
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"] {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 11px 14px !important;
+  background: linear-gradient(180deg, #ffffff 0%, var(--pr2-cream-3) 100%) !important;
+  border: 1px solid rgba(180, 83, 9, 0.08) !important;
+  border-left: 3px solid var(--c-brand-400) !important;
+  border-radius: 10px !important;
+  margin: 0 0 6px 0 !important;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  transition: background var(--t-fast), transform var(--t-fast) !important;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"]:hover {
+  transform: translateX(2px);
+  background: linear-gradient(90deg, var(--c-brand-50), transparent) !important;
+  border-left-color: var(--c-brand-600) !important;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"] > span:first-child {
+  color: var(--c-slate-700) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em !important;
+  flex: 1;
+  padding-right: 12px;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"] > span:last-child {
+  color: var(--c-slate-900) !important;
+  font-weight: 700 !important;
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Discount row — green accent (when span text starts with "-") */
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"]:has(> span:last-child:where([class]):where(:not(:empty))) {
+  /* fallback no-op for browsers without :has */
+}
+/* Style any row whose value contains a leading "-" (discount) with green */
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"] > span:last-child {
+  /* base — overridden by :has() below where supported */
+}
+@supports selector(:has(*)) {
+  #price-content > div > div[style*="space-between"]:has(> span:last-child:not(:empty)) {
+    /* placeholder */
+  }
+}
+
+/* Hide the JS separator (border-top div) — we use spacing instead */
+#price-content > div > div[style*="border-top"] {
+  display: none !important;
+}
+
+/* DISCOUNT row — green accent, marked by JS via .price-row-discount.
+   Selectors mirror the general row pattern + extra .class to win specificity (1,3,2) > (1,2,2). */
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"].price-row-discount {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+  border-left-color: var(--pr2-success) !important;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"].price-row-discount:hover {
+  background: linear-gradient(90deg, #d1fae5, transparent) !important;
+  border-left-color: #059669 !important;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"].price-row-discount > span:first-child {
+  color: #047857 !important;
+  font-weight: 600 !important;
+}
+#price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"].price-row-discount > span:last-child {
+  color: var(--pr2-success) !important;
+  font-weight: 800 !important;
+}
+
+/* TOTAL row — gold gradient hero card, big number in DM Sans */
+#price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"] {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 16px 18px !important;
+  margin: 14px 0 0 0 !important;
+  background: linear-gradient(135deg, var(--c-brand-50) 0%, #fff7e6 50%, var(--c-brand-100) 100%) !important;
+  border: 1.5px solid var(--c-brand-300) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 6px 18px -6px rgba(245, 158, 11, 0.35),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  position: relative;
+  overflow: hidden;
+  font-size: 16px !important;
+}
+#price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"]::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--c-brand-500), var(--c-brand-700));
+}
+#price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"] > span:first-child {
+  color: var(--c-brand-900) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  font-family: var(--pr2-font-display) !important;
+}
+#price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"] > span:last-child {
+  font-family: var(--pr2-font-display) !important;
+  font-weight: 800 !important;
+  font-size: 28px !important;
+  color: var(--c-brand-900) !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1 !important;
+  font-feature-settings: 'tnum', 'lnum' !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty/error state (single centered div, no h5 inside) — clean message */
+#price-content > div:not(:has(> h5)):not(:has(> div)) {
+  text-align: center !important;
+  padding: 18px 16px !important;
+  background: var(--c-bg-soft) !important;
+  border: 1px dashed rgba(180, 83, 9, 0.25) !important;
+  border-radius: 12px !important;
+  color: var(--c-slate-600) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+}
+
+/* Loading state — bigger, more polished spinner */
+#price-loading {
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+}
+#price-loading i.fa-spinner {
+  font-size: 28px !important;
+  color: var(--c-brand-500) !important;
+}
+#price-loading span {
+  font-size: 13px !important;
+  color: var(--c-slate-500) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+}
+
+/* On mobile — slightly tighter padding */
+@media (max-width: 575px) {
+  #price-content > div > div[style*="space-between"][style*="margin-bottom: 6px"] {
+    padding: 10px 12px !important;
+    font-size: 13.5px !important;
+  }
+  #price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"] {
+    padding: 14px 16px !important;
+  }
+  #price-content > div > div[style*="font-weight: 700"][style*="font-size: 18px"] > span:last-child {
+    font-size: 24px !important;
+  }
+}
+
+/* === END PRICE SUMMARY SECTION === */
 /* === END SINGLECAR REDESIGN V2 === */
