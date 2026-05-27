@@ -112,11 +112,14 @@
     //    - is NOT a registered modal/header itself/menu
     //    - is currently visible
     const autoDetected = new Set();
-    const excludeIds = ['contactPopup', 'price-calculator-modal', 'mobile-filter-overlay', 'mainmenu', 'de-sidebar'];
+    // toast-container excluded: it's a fixed/high-z container for transient
+    // notifications. Hiding it makes errors invisible while a modal is open
+    // (the toast appears in DOM but with opacity 0 → user sees nothing).
+    const excludeIds = ['contactPopup', 'price-calculator-modal', 'mobile-filter-overlay', 'mainmenu', 'de-sidebar', 'toast-container'];
     document.querySelectorAll('a, button, div').forEach(el => {
       if (excludeIds.includes(el.id)) return;
       if (el.tagName === 'HEADER' || el.tagName === 'NAV') return;
-      if (el.closest('[aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay, nav ul, .menu, #mainmenu')) return;
+      if (el.closest('[aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay, #toast-container, nav ul, .menu, #mainmenu')) return;
       const cs = window.getComputedStyle(el);
       if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
       const z = parseInt(cs.zIndex, 10);
