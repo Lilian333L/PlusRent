@@ -1557,14 +1557,47 @@
       imagesDiv.innerHTML = '';
       thumbsDiv.innerHTML = '';
 
+      // ── Robust image fallback chain ──
+      // Many platforms return 200-OK with zero-byte/corrupt images that don't trigger onerror.
+      // We use: 1) original URL → 2) /uploads/placeholder.png → 3) inline SVG car silhouette
+      const PR_PLACEHOLDER_URL = window.API_BASE_URL + '/uploads/placeholder.png';
+      const PR_SVG_FALLBACK = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240">' +
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient></defs>' +
+        '<rect width="400" height="240" fill="url(#g)"/>' +
+        '<g fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(110 90)">' +
+        '<path d="M11 67c0-3 3-6 6-6h2l3-15c1-3 4-5 8-5h120c4 0 7 2 8 5l3 15h2c3 0 6 3 6 6v18c0 2-1 4-3 4h-9c-1 4-5 8-10 8-6 0-10-4-10-8H40c-1 4-5 8-10 8-6 0-10-4-10-8h-6c-2 0-4-2-4-4z"/>' +
+        '<circle cx="30" cy="85" r="6"/><circle cx="150" cy="85" r="6"/>' +
+        '<path d="M30 46h120"/></g>' +
+        '<text x="200" y="200" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="14" font-weight="500">No image available</text>' +
+        '</svg>'
+      );
+
+      function attachImageFallback(img) {
+        img.onerror = function () {
+          // Step through fallback chain
+          if (this.src.indexOf('placeholder.png') === -1 && this.src.indexOf('data:image') === -1) {
+            this.src = PR_PLACEHOLDER_URL;
+          } else if (this.src.indexOf('data:image') === -1) {
+            // placeholder.png also failed → use inline SVG (always works)
+            this.src = PR_SVG_FALLBACK;
+            this.onerror = null;
+          }
+        };
+        img.onload = function () {
+          // Catch 200-OK-but-empty images (server returned bad data without firing onerror)
+          if (this.naturalWidth === 0 || this.naturalHeight === 0) {
+            this.onerror();
+          }
+        };
+      }
+
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Car image ${index + 1}`;
-        img.onerror = function () {
-          this.onerror = null;
-          this.src = window.API_BASE_URL + '/uploads/placeholder.png';
-        };
+        attachImageFallback(img);
         img.style.display = index === 0 ? 'block' : 'none';
         if (index === 0) img.classList.add('active');
         imagesDiv.appendChild(img);
@@ -1574,10 +1607,7 @@
         const img = document.createElement('img');
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Thumbnail ${index + 1}`;
-        img.onerror = function () {
-          this.onerror = null;
-          this.src = window.API_BASE_URL + '/uploads/placeholder.png';
-        };
+        attachImageFallback(img);
         img.onclick = () => goToSlide(index);
         if (index === 0) img.classList.add('active');
         thumbsDiv.appendChild(img);
@@ -1935,6 +1965,18 @@
           const code = this.value.trim();
           const self = this;
 
+          // Helper — translate API messages that look like i18n keys (e.g. "coupons.invalid_code")
+          function translateApiMessage(msg) {
+            if (!msg) return '';
+            if (typeof i18next === 'undefined' || !i18next.t) return msg;
+            // Key pattern: word.word(.word)+  →  consider it a translation key
+            if (/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(msg)) {
+              const translated = i18next.t(msg);
+              if (translated && translated !== msg) return translated;
+            }
+            return msg;
+          }
+
           // Helper — render feedback message under the input
           function showCouponFeedback(type, text) {
             removeCouponFeedback();
@@ -1978,10 +2020,13 @@
                   existingMessage.remove();
                 }
 
-                // Show success message if API returned one
-                const successText = result.message
-                  || (typeof i18next !== 'undefined' && i18next.t && i18next.t('coupons.applied_successfully'))
-                  || 'Купон применён';
+                // Show success message — translate if it's an i18n key
+                let successText = translateApiMessage(result.message);
+                if (!successText) {
+                  successText = (typeof i18next !== 'undefined' && i18next.t)
+                    ? i18next.t('coupons.applied_successfully', { defaultValue: 'Купон применён' })
+                    : 'Купон применён';
+                }
                 showCouponFeedback('success', successText);
 
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
@@ -1996,20 +2041,22 @@
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
 
-                // Show API error message (e.g. "Phone number not authorized for this coupon")
-                const errorText = result.message
-                  || result.error
-                  || (typeof i18next !== 'undefined' && i18next.t && i18next.t('coupons.invalid'))
-                  || 'Промокод недействителен';
+                // Show API error message — translate i18n keys like "coupons.invalid_code"
+                let errorText = translateApiMessage(result.message || result.error);
+                if (!errorText) {
+                  errorText = (typeof i18next !== 'undefined' && i18next.t)
+                    ? i18next.t('coupons.invalid_code', { defaultValue: 'Промокод недействителен' })
+                    : 'Промокод недействителен';
+                }
                 showCouponFeedback('error', errorText);
               }
             } catch (error) {
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
-              showCouponFeedback('error',
-                (typeof i18next !== 'undefined' && i18next.t && i18next.t('errors.network'))
-                || 'Ошибка проверки промокода. Проверьте соединение.'
-              );
+              const netErrText = (typeof i18next !== 'undefined' && i18next.t)
+                ? i18next.t('errors.network', { defaultValue: 'Ошибка проверки промокода. Проверьте соединение.' })
+                : 'Ошибка проверки промокода. Проверьте соединение.';
+              showCouponFeedback('error', netErrText);
             }
           } else if (code.length === 0) {
             if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
