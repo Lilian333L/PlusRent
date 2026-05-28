@@ -1406,7 +1406,70 @@
         onError: function (errorMessage) {
           // Error handling
         },
-        onValidationError: function (errorMessage) {
+        onValidationError: function (errorMessage, field, errorKey) {
+          // ─── Special case: coupon ↔ phone restriction errors ───
+          // When the server rejects the coupon for the entered phone, we
+          // don't want the ugly browser alert. Instead, mark the discount
+          // field invalid, render an inline error under it (same look as
+          // the live blur-validation), scroll it into view and focus it.
+          const couponErrorKeys = [
+            'coupons.phone_not_authorized',
+            'coupons.not_available_for_phone',
+            'coupons.already_used_with_phone'
+          ];
+          if (field === 'discount_code' && couponErrorKeys.indexOf(errorKey) !== -1) {
+            const discountInput = document.querySelector('input[name="discount_code"]');
+            if (discountInput) {
+              // Visual state — red border
+              discountInput.classList.remove('is-valid');
+              discountInput.classList.add('is-invalid');
+
+              // Clear cached coupon so price recalculates without the discount
+              window.cachedCouponData = null;
+              window.lastValidatedCouponCode = null;
+
+              // Replace any existing feedback box under the input
+              const oldFeedback = discountInput.parentNode.querySelector('.coupon-feedback');
+              if (oldFeedback) oldFeedback.remove();
+
+              const errIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+              const box = document.createElement('div');
+              box.className = 'coupon-feedback coupon-error';
+              box.innerHTML = errIcon + '<span>' + errorMessage + '</span>';
+              discountInput.parentNode.appendChild(box);
+
+              // Drop any discount line from the price summary
+              if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
+                window.priceCalculator.hideFloatingFreeDaysNotification();
+              }
+              if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+                window.priceCalculator.recalculatePrice();
+              }
+
+              // Make sure the contact section is open on mobile so the
+              // field is actually visible after scrolling.
+              const contactSection = document.querySelector('.booking-section[data-section="contact"]');
+              if (contactSection && contactSection.classList.contains('collapsed')) {
+                contactSection.classList.remove('collapsed');
+              }
+
+              // Smooth scroll into view, then focus (preventScroll so focus
+              // doesn't jerk the page back).
+              setTimeout(function () {
+                try {
+                  discountInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (e) {
+                  discountInput.scrollIntoView();
+                }
+                setTimeout(function () {
+                  try { discountInput.focus({ preventScroll: true }); }
+                  catch (e) { discountInput.focus(); }
+                }, 400);
+              }, 80);
+            }
+            return; // Don't fall through to toast/alert
+          }
+
           setTimeout(() => {
             if (window.showError && typeof window.showError === 'function') {
               window.showError(errorMessage);
@@ -2014,13 +2077,13 @@
               const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
               const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
 
-              let response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
-              let result = await response.json();
-
-              if (!result.valid) {
-                response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
-                result = await response.json();
-              }
+              // IMPORTANT: do NOT fall back to /api/coupons/validate/${code}
+              // when the lookup with phone fails. The /validate/ endpoint
+              // ignores phone restrictions entirely, so falling back would
+              // mark phone-restricted coupons as valid (false green check)
+              // and only fail loudly at booking submit time.
+              const response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
+              const result = await response.json();
 
               if (result.valid) {
                 this.classList.remove("is-invalid");
