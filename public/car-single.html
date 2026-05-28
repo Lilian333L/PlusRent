@@ -250,8 +250,9 @@
   transform: translateY(0);
 }
 
-/* ─────────── SUBMIT BUTTON STATES — disabled / ready / loading ─────────── */
-/* DISABLED — required fields not filled yet. Gray, no shadow, not-allowed cursor. */
+/* ─────────── SUBMIT BUTTON STATES — disabled / ready ─────────── */
+/* DISABLED — required fields not filled yet. Also covers loading
+   (booking-form-handler sets disabled=true during submit). */
 #send_message[disabled],
 .btn-main.btn-fullwidth[disabled] {
   background: #e5e7eb !important;
@@ -267,8 +268,7 @@
   transform: none !important;
   box-shadow: none !important;
 }
-
-/* READY — all required fields filled, gentle pulse to invite the click. */
+/* READY — all required fields filled, gentle pulse to invite the click */
 #send_message.is-ready {
   animation: srSubmitPulse 2.4s ease-in-out infinite;
 }
@@ -277,24 +277,11 @@
   50%      { box-shadow: var(--pr-shadow-gold), 0 0 0 10px rgba(245,158,11,0); }
 }
 #send_message.is-ready:hover { animation: none; }
-
-/* LOADING — submit is in flight. Overrides the disabled gray with gold so
-   the user clearly sees "we're working on it". */
-#send_message.is-loading,
-.btn-main.btn-fullwidth.is-loading {
-  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
-  color: var(--pr-black) !important;
-  opacity: 1 !important;
-  cursor: wait !important;
-  animation: none !important;
-  pointer-events: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   #send_message.is-ready { animation: none; }
 }
 
-/* HINT under the submit button — visible while disabled, fades out when ready. */
+/* HINT under the submit button — visible while disabled, hidden when ready */
 .pr-submit-hint {
   font-size: 0.82rem;
   color: #6b7280;
@@ -2828,17 +2815,32 @@
     }
 
     function refreshAllSections() {
-      var sections = document.querySelectorAll('.booking-section[data-step]');
-      var allComplete = true;
-      var anyError = false;
-      sections.forEach(function (s) {
-        var state = getSectionState(s);
-        s.classList.toggle('is-complete', state === 'complete');
-        s.classList.toggle('is-error', state === 'error');
-        if (state !== 'complete') allComplete = false;
-        if (state === 'error') anyError = true;
-      });
-      updateSubmitButton(allComplete && !anyError);
+      // ─── Re-entry guard (safety net #1): never run twice in parallel.
+      if (refreshAllSections.__busy) return;
+      refreshAllSections.__busy = true;
+      try {
+        var sections = document.querySelectorAll('.booking-section[data-step]');
+        var allComplete = true;
+        var anyError = false;
+        sections.forEach(function (s) {
+          var state = getSectionState(s);
+          // ─── Idempotent DOM ops (safety net #2): only mutate the class
+          //     attribute when the desired state differs from the current
+          //     one. Without this, even classList.toggle() may queue a
+          //     mutation record and re-fire the observer.
+          var hasComplete = s.classList.contains('is-complete');
+          var hasError = s.classList.contains('is-error');
+          var wantComplete = state === 'complete';
+          var wantError = state === 'error';
+          if (hasComplete !== wantComplete) s.classList.toggle('is-complete', wantComplete);
+          if (hasError !== wantError) s.classList.toggle('is-error', wantError);
+          if (!wantComplete) allComplete = false;
+          if (wantError) anyError = true;
+        });
+        updateSubmitButton(allComplete && !anyError);
+      } finally {
+        refreshAllSections.__busy = false;
+      }
     }
 
     function updateSubmitButton(formReady) {
@@ -2846,19 +2848,19 @@
       var hint = document.getElementById('pr-submit-hint');
       if (!btn) return;
 
-      // Don't override while the submit is in flight. booking-form-handler.js
-      // adds .is-loading on submit and removes it in finally — at that point
-      // the next refresh will run and put the button into the correct state.
-      if (btn.classList.contains('is-loading')) return;
+      // Idempotent DOM ops — read current state, only write if it differs.
+      var isDisabled = btn.hasAttribute('disabled');
+      var hasReady = btn.classList.contains('is-ready');
+      var hintHidden = hint ? hint.classList.contains('is-hidden') : true;
 
       if (formReady) {
-        btn.removeAttribute('disabled');
-        btn.classList.add('is-ready');
-        if (hint) hint.classList.add('is-hidden');
+        if (isDisabled) btn.removeAttribute('disabled');
+        if (!hasReady) btn.classList.add('is-ready');
+        if (hint && !hintHidden) hint.classList.add('is-hidden');
       } else {
-        btn.setAttribute('disabled', 'disabled');
-        btn.classList.remove('is-ready');
-        if (hint) hint.classList.remove('is-hidden');
+        if (!isDisabled) btn.setAttribute('disabled', 'disabled');
+        if (hasReady) btn.classList.remove('is-ready');
+        if (hint && hintHidden) hint.classList.remove('is-hidden');
       }
     }
 
@@ -2890,18 +2892,20 @@
 
       // MutationObserver on form — watches value/checked AND class changes.
       // We need `class` so we react when the discount field gets
-      // .is-invalid (set by the async coupon validation), but watching
-      // class also picks up our OWN class changes on .booking-section
-      // (is-complete / is-error). To avoid an infinite loop, we ignore
-      // mutations whose target IS a .booking-section.
+      // .is-invalid (set by the async coupon validation). But the form
+      // subtree also contains elements WE ourselves modify in
+      // refreshAllSections/updateSubmitButton (.booking-section,
+      // #send_message, #pr-submit-hint). To avoid an infinite loop, we
+      // skip mutations whose target is one of those.
       var formObserver = new MutationObserver(function (mutations) {
         for (var i = 0; i < mutations.length; i++) {
           var m = mutations[i];
           if (m.attributeName === 'class' &&
-              m.target && m.target.nodeType === 1 &&
-              m.target.classList &&
-              m.target.classList.contains('booking-section')) {
-            continue; // self-mutation — skip
+              m.target && m.target.nodeType === 1) {
+            var t = m.target;
+            if (t.classList && t.classList.contains('booking-section')) continue;
+            if (t.id === 'send_message') continue;
+            if (t.id === 'pr-submit-hint') continue;
           }
           refreshAllSections();
           return;
