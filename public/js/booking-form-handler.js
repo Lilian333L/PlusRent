@@ -53,7 +53,13 @@ class BookingFormHandler {
       
       if (!validationResult.isValid) {
         // Call validation error handler directly instead of throwing
-        this.onValidationError(validationResult.error);
+        // Pass field + raw i18n key so page handlers can route specific
+        // errors (e.g. coupon/phone restriction) to inline UI.
+        this.onValidationError(
+          validationResult.error,
+          validationResult.field,
+          validationResult.errorKey
+        );
         return; // Exit early without proceeding to server submission
       }
 
@@ -342,6 +348,9 @@ class BookingFormHandler {
         if (!response.ok || !result.valid) {
           // Server may return an i18n key (e.g. "coupons.phone_not_authorized")
           // as result.message. Translate it before showing to the user.
+          // Keep the raw key around so the page-level handler can route
+          // coupon-specific errors to an inline UI instead of a toast/alert.
+          const rawKey = (result && typeof result.message === 'string') ? result.message : null;
           let errMsg = result.message || getError('invalidCoupon');
           if (
             typeof errMsg === 'string' &&
@@ -352,11 +361,11 @@ class BookingFormHandler {
             const t = window.i18next.t(errMsg);
             if (t && t !== errMsg) errMsg = t;
           }
-          return { isValid: false, error: errMsg };
+          return { isValid: false, error: errMsg, field: 'discount_code', errorKey: rawKey };
         }
       } catch (error) {
         console.error('Error validating coupon:', error);
-        return { isValid: false, error: getError('couponError') };
+        return { isValid: false, error: getError('couponError'), field: 'discount_code' };
       }
     }
 

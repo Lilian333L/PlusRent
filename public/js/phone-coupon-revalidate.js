@@ -25,7 +25,13 @@
   'use strict';
 
   function init() {
-    const phoneInput = document.getElementById('phone');
+    // The phone input on car-single.html uses name="customer_phone" and has
+    // no id. Old selector `#phone` only matched the booking modal — keep it
+    // as a fallback and add the real selectors so this works on both pages.
+    const phoneInput =
+      document.getElementById('phone') ||
+      document.querySelector('input[name="customer_phone"]') ||
+      document.querySelector('input[name="phone"]');
     const discountInput = document.querySelector('input[name="discount_code"]');
     if (!phoneInput || !discountInput) return false;
     if (phoneInput.__prPhoneCouponRevalidate) return true;
