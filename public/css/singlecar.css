@@ -2378,6 +2378,29 @@ footer,
   opacity: 1;
 }
 
+/* ─── ERROR STATE — when any field inside is invalid (e.g. bad coupon) ─── */
+/* Placed AFTER is-complete so it wins if both classes ever coexist. */
+.booking-section.is-error {
+  border-color: var(--c-error-border) !important;
+  background: linear-gradient(180deg, var(--c-error-bg) 0%, #ffffff 70%) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.08), var(--shadow-sm);
+}
+.booking-section.is-error h5::before {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+/* Red ✕ badge on the right of h5 when in error state */
+.booking-section.is-error h5::after {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+  background: var(--c-error-border);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'><path fill-rule='evenodd' d='M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM8.7 7.3a1 1 0 0 0-1.4 1.4L8.6 10l-1.3 1.3a1 1 0 0 0 1.4 1.4L10 11.4l1.3 1.3a1 1 0 0 0 1.4-1.4L11.4 10l1.3-1.3a1 1 0 0 0-1.4-1.4L10 8.6 8.7 7.3z' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px;
+}
+
 /* ──────────────────────────────────────────────────────────────────
    7. LOCATION RADIO CARDS — with icon + sub-label
    ────────────────────────────────────────────────────────────────── */
