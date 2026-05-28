@@ -62,11 +62,6 @@
   
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-  <!-- ===== Premium display font: DM Sans (used for headings & price) ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
   
   <!-- API Configuration -->
   <script>
@@ -250,14 +245,14 @@
   transform: translateY(0);
 }
 
-/* ─────────── FLOATING CONTACT BUTTON — black with white icon (matches index.html) ─────────── */
+/* ─────────── FLOATING CONTACT BUTTON — copied from index.html ─────────── */
 .floating-contact-btn {
   position: fixed;
   bottom: 28px; right: 28px;
   width: 56px; height: 56px;
   border-radius: 50%;
   background: var(--pr-black);
-  color: #ffffff;
+  color: var(--pr-gold);
   border: 1.5px solid rgba(245,158,11,0.35);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.4rem; cursor: pointer;
@@ -289,42 +284,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .floating-contact-btn { animation: none !important; }
-}
-
-/* ─────────── BACK-TO-TOP — luxury black with gold arrow (matches index.html exactly) ─────────── */
-#back-to-top {
-  position: fixed !important;
-  bottom: 96px !important; right: 28px !important; left: auto !important;
-  width: 40px !important; height: 40px !important;
-  border-radius: 50% !important;
-  background-color: var(--pr-black) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  background-size: 18px 18px !important;
-  border: 1.5px solid rgba(245,158,11,0.35) !important;
-  color: transparent !important;
-  font-size: 0 !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
-  z-index: calc(var(--pr-z-float) - 1) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translateY(8px) !important;
-  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease !important;
-}
-#back-to-top::before, #back-to-top::after { display: none !important; content: none !important; }
-#back-to-top:hover {
-  background-color: var(--pr-gold-dark) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'/%3E%3C/svg%3E") !important;
-  border-color: transparent !important;
-  box-shadow: var(--pr-shadow-gold-lg) !important;
-}
-/* Show only when .show class is added by JS scroll handler (>400px scroll) */
-#back-to-top.show {
-  opacity: 1 !important; pointer-events: auto !important; transform: translateY(0) !important;
-}
-@media (max-width: 768px) {
-  #back-to-top { bottom: 84px !important; right: 22px !important; width: 36px !important; height: 36px !important; background-size: 16px 16px !important; }
 }
 
 /* ─────────── CONTACT POPUP — copied from index.html aesthetic ─────────── */
@@ -524,11 +483,8 @@
 
           <div class="topbar-right">
             <div class="social-icons">
-              <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
-              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
-              <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram fa-lg"></i></a>
-              <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp fa-lg"></i></a>
-              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok fa-lg"></i></a>
+              <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram fa-lg"></i></a>
+              <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok fa-lg"></i></a>
             </div>
           </div>
           <div class="clearfix"></div>
@@ -553,31 +509,9 @@
                 <ul id="mainmenu">
                   <li><a class="menu-item" href="/" data-i18n="menu.home"></a></li>
                   <li><a class="menu-item" href="/cars" data-i18n="menu.cars"></a></li>
-                  <li class="pr-services-li" id="prServicesLi">
-                    <a class="pr-services-trigger"
-                       href="#"
-                       id="prServicesTrigger"
-                       aria-haspopup="true"
-                       aria-expanded="false"
-                       role="button">
-                      <b class="pr-services-label"></b>
-                      <svg class="pr-chevron" width="12" height="12" viewBox="0 0 20 20"
-                           fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M5 7.5L10 12.5L15 7.5"
-                              stroke="currentColor" stroke-width="2.2"
-                              stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </a>
-                    <div class="pr-mega-menu" id="prMegaMenu" role="menu" aria-label="Services menu" style="display:none">
-                      <a href="/cars">Chirie Auto</a>
-                      <a href="/sofer-treaz">Șofer Treaz</a>
-                      <a href="/transfer-chisinau">Transfer Aeroport KIV</a>
-                      <a href="/transfer-iasi">Transfer Aeroport IAS</a>
-                      <a href="/sofer-personal">Șofer Personal</a>
-                    </div>
-                  </li>
                   <li><a class="menu-item" href="/about" data-i18n="menu.about"></a></li>
                   <li><a class="menu-item" href="/contact" data-i18n="menu.contact"></a></li>
+                  <li><a class="menu-item" href="/sofer-treaz" data-i18n="menu.sober_driver"></a></li>
                 </ul>
               </div>
 
@@ -672,13 +606,8 @@
                     <div class="custom-carousel-main" id="car-images" onclick="openLightbox(window.currentCarSlide)">
                       <!-- Main images will be inserted here -->
                     </div>
-                    <!-- Gallery counter overlay (updated by JS via MutationObserver) -->
-                    <div class="carousel-counter" id="carousel-counter" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                      <span id="carousel-counter-text">1 / 1</span>
-                    </div>
-                    <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)" aria-label="Previous image">‹</button>
-                    <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)" aria-label="Next image">›</button>
+                    <button class="custom-carousel-arrow custom-carousel-prev" onclick="changeSlide(-1)">‹</button>
+                    <button class="custom-carousel-arrow custom-carousel-next" onclick="changeSlide(1)">›</button>
                     <div class="custom-carousel-nav" id="car-thumbs">
                       <!-- Thumbnail images will be inserted here -->
                     </div>
@@ -687,10 +616,7 @@
 
                 <!-- Price Sidebar -->
                 <div class="col-lg-4">
-                  <h3 id="car-name" style="margin-bottom: 12px; font-size: 1.8rem; font-weight: 700; color: #1a202c;"></h3>
-
-                  <!-- Quick info chips (populated by JS from #car-specs-compact data) -->
-                  <div class="car-quick-chips" id="car-quick-chips" aria-live="polite"></div>
+                  <h3 id="car-name" style="margin-bottom: 20px; font-size: 1.8rem; font-weight: 700; color: #1a202c;"></h3>
                   
                   <!-- Daily Rate Card -->
                   <div class="price-sidebar-card">
@@ -713,48 +639,6 @@
 
               <!-- BOOKING FORM -->
               <div class="spacer-single"></div>
-
-              <!-- ═════════ TRUST RIBBON — confidence boosters before form ═════════ -->
-              <div class="trust-ribbon" role="list">
-                <div class="trust-item" role="listitem">
-                  <span class="trust-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 6h18l-2 13H5L3 6z"/><path d="M3 6L2 3H0"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/><path d="M9 12l2 2 4-4"/></svg>
-                  </span>
-                  <span class="trust-text">
-                    <strong data-i18n="cars.trust_cancellation">Free cancellation</strong>
-                    <span data-i18n="cars.trust_cancellation_sub">Until 24h before pickup</span>
-                  </span>
-                </div>
-                <div class="trust-item" role="listitem">
-                  <span class="trust-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  </span>
-                  <span class="trust-text">
-                    <strong data-i18n="cars.trust_verified">Verified vehicle</strong>
-                    <span data-i18n="cars.trust_verified_sub">RCA + roadside assistance</span>
-                  </span>
-                </div>
-                <div class="trust-item" role="listitem">
-                  <span class="trust-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  </span>
-                  <span class="trust-text">
-                    <strong data-i18n="cars.trust_support">24/7 support</strong>
-                    <span data-i18n="cars.trust_support_sub">Phone & WhatsApp</span>
-                  </span>
-                </div>
-                <div class="trust-item" role="listitem">
-                  <span class="trust-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  </span>
-                  <span class="trust-text">
-                    <strong data-i18n="cars.trust_mileage">200 km / day</strong>
-                    <span data-i18n="cars.trust_mileage_sub">Free included mileage</span>
-                  </span>
-                </div>
-              </div>
-              <!-- ═════════ END TRUST RIBBON ═════════ -->
-
               <div class="booking-form-main">
 
                 <!-- Booking Success Notification -->
@@ -791,7 +675,7 @@
                   <div class="booking-form-grid">
 
                     <!-- Booking Details Section -->
-                    <div class="booking-section" data-step="1" data-section="dates">
+                    <div class="booking-section">
                       <h5>
                         <i class="fa fa-calendar"></i>
                         <span data-i18n="cars.booking_details">Booking Details</span>
@@ -882,8 +766,8 @@
                           </div>
                           <div id="outside-hours-details"></div>
                           <div style="font-size: 12px;">
-                            <strong data-i18n="price_calculator.working_hours">Working Hours (8:00 - 18:00)</strong> |
-                            <span id="outside-hours-fee">+€15</span>
+                            <strong data-i18n="price_calculator.working_hours">Working Hours:</strong> 08:00 - 18:00 |
+                            <strong data-i18n="price_calculator.fee">Fee:</strong> <span id="outside-hours-fee">€15</span>
                             <span data-i18n="price_calculator.per_pickup_return"></span>
                           </div>
                         </div>
@@ -891,7 +775,7 @@
                     </div>
 
                     <!-- Location Details Section -->
-                    <div class="booking-section" data-step="2" data-section="location">
+                    <div class="booking-section">
                       <h5>
                         <i class="fa fa-map-marker"></i>
                         <span data-i18n="cars.location_details">Location Details</span>
@@ -901,33 +785,18 @@
                         <!-- Pickup Location -->
                         <div class="form-group mb20">
                           <label class="form-label" data-i18n="cars.pickup_location">Pickup Location<span class="required-marker" aria-hidden="true">*</span></label>
-                          <div class="radio-group radio-group-location">
+                          <div class="radio-group">
                             <label class="radio-label">
                               <input type="radio" name="pickup_location" value="Chisinau Airport">
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
-                              </span>
+                              <span data-i18n="cars.chisinau_airport">Chisinau Airport</span>
                             </label>
                             <label class="radio-label">
-                              <input type="radio" name="pickup_location" value="Our Office" checked>
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h0M9 12h0M9 15h0M9 18h0M15 9h0M15 12h0M15 15h0M15 18h0"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
-                              </span>
+                              <input type="radio" name="pickup_location" value="Our Office">
+                              <span data-i18n="cars.our_office">Our Office</span>
                             </label>
                             <label class="radio-label">
-                              <input type="radio" name="pickup_location" value="Iasi Airport">
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
-                              </span>
+                              <input type="radio" name="pickup_location" value="Iasi Airport" checked>
+                              <span data-i18n="cars.iasi_airport">Iasi Airport</span>
                             </label>
                           </div>
                         </div>
@@ -935,33 +804,18 @@
                         <!-- Dropoff Location -->
                         <div class="form-group">
                           <label class="form-label" data-i18n="cars.dropoff_location">Dropoff Location<span class="required-marker" aria-hidden="true">*</span></label>
-                          <div class="radio-group radio-group-location">
+                          <div class="radio-group">
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Chisinau Airport">
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.chisinau_airport">Chisinau Airport</span>
-                              </span>
+                              <span data-i18n="cars.chisinau_airport">Chisinau Airport</span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Our Office" checked>
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h0M9 12h0M9 15h0M9 18h0M15 9h0M15 12h0M15 15h0M15 18h0"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.our_office">Our Office</span>
-                              </span>
+                              <span data-i18n="cars.our_office">Our Office</span>
                             </label>
                             <label class="radio-label">
                               <input type="radio" name="dropoff_location" value="Iasi Airport">
-                              <span class="loc-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-                              </span>
-                              <span class="loc-content">
-                                <span class="loc-name" data-i18n="cars.iasi_airport">Iasi Airport</span>
-                              </span>
+                              <span data-i18n="cars.iasi_airport">Iasi Airport</span>
                             </label>
                           </div>
                         </div>
@@ -969,7 +823,7 @@
                     </div>
 
                     <!-- Contact Information Section -->
-                    <div class="booking-section" data-step="3" data-section="contact">
+                    <div class="booking-section">
                       <h5>
                         <i class="fa fa-user"></i>
                         <span data-i18n="cars.contact_information">Contact Information</span>
@@ -977,27 +831,27 @@
                       
                       <div class="booking-section-content">
                         <div class="form-group mb15">
-                          <label class="form-label" data-i18n="cars.email_address">Email Address <span class="optional-marker" data-i18n="cars.optional">(opțional)</span></label>
-                          <input type="email" name="customer_email" placeholder="your.email@example.com" class="form-control" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false">
+                          <label class="form-label" data-i18n="cars.email_address">Email Address <span class="optional-marker">(opțional)</span></label>
+                          <input type="email" name="customer_email" placeholder="your.email@example.com" class="form-control">
                         </div>
                         <div class="form-group mb15">
                           <label class="form-label" data-i18n="cars.phone_number">Phone Number<span class="required-marker" aria-hidden="true">*</span></label>
-                          <input type="tel" name="customer_phone" placeholder="+373 60 000 000" required class="form-control" inputmode="tel" autocomplete="tel" pattern="[\+]?[\d\s\-\(\)]{7,20}" title="Только цифры и + (минимум 7)">
+                          <input type="tel" name="customer_phone" placeholder="+1 234 567 8900" required class="form-control">
                         </div>
                         <div class="form-group mb15">
                           <label class="form-label" data-i18n="cars.customer_age">Age<span class="required-marker" aria-hidden="true">*</span></label>
-                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required class="form-control" inputmode="numeric">
+                          <input type="number" name="customer_age" placeholder="25" min="18" max="100" required class="form-control">
                         </div>
                         <div class="form-group">
-                          <label class="form-label" data-i18n="cars.discount_code">Discount Code <span class="optional-marker" data-i18n="cars.optional">(opțional)</span></label>
+                          <label class="form-label" data-i18n="cars.discount_code">Discount Code <span class="optional-marker">(opțional)</span></label>
                           <input type="text" name="discount_code" placeholder="Enter discount code"
-                            data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input class="form-control" autocapitalize="characters" spellcheck="false">
+                            data-i18n-placeholder="cars.discount_code_placeholder" data-coupon-input class="form-control">
                         </div>
                       </div>
                     </div>
 
                     <!-- Price Summary Section -->
-                    <div class="booking-section booking-section-summary" data-section="summary">
+                    <div class="booking-section">
                       <h5>
                         <i class="fa fa-calculator"></i>
                         <span data-i18n="cars.total_price_breakdown">Total Price</span>
@@ -1015,24 +869,6 @@
                       </div>
                     </div>
 
-                  </div>
-
-                  <!-- ═════════ CTA TRUST ROW — reassurance right before submit ═════════ -->
-                  <div class="cta-trust-row" aria-hidden="true">
-                    <span class="cta-trust-item">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span data-i18n="cars.cta_no_card">No card required</span>
-                    </span>
-                    <span class="cta-trust-sep">·</span>
-                    <span class="cta-trust-item">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span data-i18n="cars.cta_free_cancel">Free cancellation</span>
-                    </span>
-                    <span class="cta-trust-sep">·</span>
-                    <span class="cta-trust-item">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span data-i18n="cars.cta_instant">Instant confirmation</span>
-                    </span>
                   </div>
 
                   <button type='submit' id='send_message' class="btn-main btn-fullwidth" data-i18n="cars.book_now">Book Now</button>
@@ -1161,10 +997,9 @@
             <div class="widget">
               <h5 data-i18n="footer.contact_info">Contact Info</h5>
               <address class="s1">
-                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica Moldova</span>
-                <a href="tel:+37360000500" style="text-decoration:underline !important;display:block;margin-top:6px;"><i class="id-color fa fa-phone fa-lg" style="margin-right:14px;"></i>+373 60 000 500</a>
-                <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important;display:block;margin-top:7px;"><i class="id-color fab fa-whatsapp fa-lg" style="margin-right:14px;"></i>WhatsApp</a>
-                <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" style="text-decoration:underline !important;display:block;margin-top:7px;"><i class="id-color fab fa-telegram fa-lg" style="margin-right:14px;"></i>Telegram @plusrent</a>
+                <span><i class="id-color fa fa-map-marker fa-lg"></i>Meșterul Manole 20, Chișinău, Republica
+                  Moldova</span>
+                <a href="tel:+37360000500"> <i class="id-color fa fa-phone fa-lg" style="margin-right:15px;"></i>+373 60 000 500 </a>
                 <span><i class="id-color fa fa-envelope-o fa-lg"></i><a href="mailto:support@plusrent.md">support@plusrent.md</a></span>
               </address>
             </div>
@@ -1176,12 +1011,9 @@
               <ul>
                 <li><a href="/" data-i18n="menu.home">Home</a></li>
                 <li><a href="/cars" data-i18n="menu.cars">Cars</a></li>
-                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
-                <li><a href="/transfer-chisinau" data-i18n="menu.transfer_chisinau">Transfer Chișinău Airport</a></li>
-                <li><a href="/transfer-iasi" data-i18n="menu.transfer_iasi">Transfer Iași Airport</a></li>
-                <li><a href="/sofer-personal" data-i18n="menu.personal_driver">Personal Driver</a></li>
                 <li><a href="/about" data-i18n="menu.about">About</a></li>
                 <li><a href="/contact" data-i18n="menu.contact">Contact</a></li>
+                <li><a href="/sofer-treaz" data-i18n="menu.sober_driver">Sober Driver</a></li>
               </ul>
             </div>
           </div>
@@ -1190,11 +1022,10 @@
             <div class="widget">
               <h5 data-i18n="footer.social_network">Social Network</h5>
               <div class="social-icons">
-                <a href="https://www.facebook.com/plusrent.md" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
-                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram fa-lg"></i></a>
-                <a href="https://t.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><i class="fab fa-telegram fa-lg"></i></a>
-                <a href="https://wa.me/37360000500" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp fa-lg"></i></a>
-                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok fa-lg"></i></a>
+                <a href="https://www.instagram.com/plusrent.md/" target="_blank" rel="noopener noreferrer"><i
+                    class="fab fa-instagram fa-lg"></i></a>
+                <a href="https://tiktok.me/plusrent" target="_blank" rel="noopener noreferrer"><i
+                    class="fab fa-tiktok fa-lg"></i></a>
               </div>
             </div>
           </div>
@@ -1232,7 +1063,7 @@
   <script src="js/price-calculator.js"></script>
   <script src="js/booking-form-handler.js?v=1.1"></script>
   <script src="js/validation-booking.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
@@ -1255,9 +1086,6 @@
 
   <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.js" defer></script>
-
-  <!-- Services Dropdown (mega-menu for "Services" item) -->
-  <script src="js/services-nav.js" defer></script>
 
   <script>
     // Global formatting function
@@ -1551,63 +1379,14 @@
       imagesDiv.innerHTML = '';
       thumbsDiv.innerHTML = '';
 
-      // ── Robust image fallback chain ──
-      // Many platforms return 200-OK with zero-byte/corrupt images that don't trigger onerror.
-      // We use: 1) original URL → 2) /uploads/placeholder.png → 3) inline SVG car silhouette
-      const PR_PLACEHOLDER_URL = window.API_BASE_URL + '/uploads/placeholder.png';
-      const PR_SVG_FALLBACK = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240">' +
-        '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient></defs>' +
-        '<rect width="400" height="240" fill="url(#g)"/>' +
-        '<g fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(110 90)">' +
-        '<path d="M11 67c0-3 3-6 6-6h2l3-15c1-3 4-5 8-5h120c4 0 7 2 8 5l3 15h2c3 0 6 3 6 6v18c0 2-1 4-3 4h-9c-1 4-5 8-10 8-6 0-10-4-10-8H40c-1 4-5 8-10 8-6 0-10-4-10-8h-6c-2 0-4-2-4-4z"/>' +
-        '<circle cx="30" cy="85" r="6"/><circle cx="150" cy="85" r="6"/>' +
-        '<path d="M30 46h120"/></g>' +
-        '<text x="200" y="200" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="14" font-weight="500">No image available</text>' +
-        '</svg>'
-      );
-
-      function attachImageFallback(img) {
-        img.onerror = function () {
-          // Step through fallback chain
-          if (this.src.indexOf('placeholder.png') === -1 && this.src.indexOf('data:image') === -1) {
-            this.src = PR_PLACEHOLDER_URL;
-          } else if (this.src.indexOf('data:image') === -1) {
-            // placeholder.png also failed → use inline SVG (always works)
-            this.src = PR_SVG_FALLBACK;
-            this.onerror = null;
-          }
-        };
-        img.onload = function () {
-          // Catch 200-OK-but-empty images (server returned bad data without firing onerror)
-          if (this.naturalWidth === 0 || this.naturalHeight === 0) {
-            this.onerror();
-            return;
-          }
-          // Fade in once actually loaded
-          this.classList.add('pr-img-loaded');
-        };
-        // If already cached and loaded synchronously, fire load handler manually
-        if (img.complete && img.naturalWidth > 0) {
-          img.classList.add('pr-img-loaded');
-        }
-      }
-
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
-        // First image gets browser-level priority hints → starts downloading immediately
-        if (index === 0) {
-          img.loading = 'eager';
-          if ('fetchPriority' in img) img.fetchPriority = 'high';
-          img.decoding = 'async';
-        } else {
-          img.loading = 'lazy';
-          img.decoding = 'async';
-        }
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Car image ${index + 1}`;
-        attachImageFallback(img);
+        img.onerror = function () {
+          this.onerror = null;
+          this.src = window.API_BASE_URL + '/uploads/placeholder.png';
+        };
         img.style.display = index === 0 ? 'block' : 'none';
         if (index === 0) img.classList.add('active');
         imagesDiv.appendChild(img);
@@ -1615,11 +1394,12 @@
 
       thumbImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
-        img.loading = 'lazy';
-        img.decoding = 'async';
         img.src = imagePath + '?v=' + Date.now();
         img.alt = `Thumbnail ${index + 1}`;
-        attachImageFallback(img);
+        img.onerror = function () {
+          this.onerror = null;
+          this.src = window.API_BASE_URL + '/uploads/placeholder.png';
+        };
         img.onclick = () => goToSlide(index);
         if (index === 0) img.classList.add('active');
         thumbsDiv.appendChild(img);
@@ -1955,11 +1735,6 @@
             window.lastValidatedCouponCode = null;
           }
 
-          // Remove any previous feedback message + valid/invalid classes while editing
-          this.classList.remove('is-valid', 'is-invalid');
-          const oldFeedback = this.parentNode.querySelector('.coupon-feedback');
-          if (oldFeedback) oldFeedback.remove();
-
           if (validationTimeout) {
             clearTimeout(validationTimeout);
           }
@@ -1975,51 +1750,26 @@
 
         discountInput.addEventListener('blur', async function () {
           const code = this.value.trim();
-          const self = this;
-
-          // Helper — translate API messages that look like i18n keys (e.g. "coupons.invalid_code")
-          function translateApiMessage(msg) {
-            if (!msg) return '';
-            if (typeof i18next === 'undefined' || !i18next.t) return msg;
-            // Key pattern: word.word(.word)+  →  consider it a translation key
-            if (/^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(msg)) {
-              const translated = i18next.t(msg);
-              if (translated && translated !== msg) return translated;
-            }
-            return msg;
-          }
-
-          // Helper — render feedback message under the input
-          function showCouponFeedback(type, text) {
-            removeCouponFeedback();
-            if (!text) return;
-            const wrap = self.parentNode;
-            const box = document.createElement('div');
-            box.className = 'coupon-feedback coupon-' + type;
-            const iconSvg = type === 'error'
-              ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
-              : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-            box.innerHTML = iconSvg + '<span>' + text + '</span>';
-            wrap.appendChild(box);
-          }
-          function removeCouponFeedback() {
-            const existing = self.parentNode.querySelector('.coupon-feedback');
-            if (existing) existing.remove();
-          }
 
           if (code && code.length >= 3) {
             try {
-              const phoneInput = document.querySelector('input[name="customer_phone"]');
+              // Read phone from MAIN booking form. The field name is "phone"
+              // (NOT "customer_phone" — that was a bug). Without phone the
+              // server can't enforce per-phone restrictions and a restricted
+              // coupon would falsely appear valid here.
+              const phoneInput =
+                document.getElementById('phone') ||
+                document.querySelector('input[name="phone"]') ||
+                document.querySelector('input[name="customer_phone"]');
               const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
               const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
 
-              let response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
-              let result = await response.json();
-
-              if (!result.valid) {
-                response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
-                result = await response.json();
-              }
+              // Use ONLY the lookup endpoint with phone. The old code had a
+              // fallback to /validate/{code} that didn't check phone — that
+              // bypassed phone-restriction and caused phone-not-authorized
+              // coupons to falsely show as valid (green checkmark + discount).
+              const response = await fetch(`${window.API_BASE_URL || ''}/api/coupons/lookup/${encodeURIComponent(code)}${phoneParam}`);
+              const result = await response.json();
 
               if (result.valid) {
                 this.classList.remove("is-invalid");
@@ -2032,15 +1782,6 @@
                   existingMessage.remove();
                 }
 
-                // Show success message — translate if it's an i18n key
-                let successText = translateApiMessage(result.message);
-                if (!successText) {
-                  successText = (typeof i18next !== 'undefined' && i18next.t)
-                    ? i18next.t('coupons.applied_successfully', { defaultValue: 'Купон применён' })
-                    : 'Купон применён';
-                }
-                showCouponFeedback('success', successText);
-
                 if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
                   window.priceCalculator.recalculatePrice();
                 }
@@ -2050,25 +1791,22 @@
                 if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
                   window.priceCalculator.hideFloatingFreeDaysNotification();
                 }
+                // Clear cached data so the discount line is removed from the
+                // price summary and the total recalculated without discount.
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
-
-                // Show API error message — translate i18n keys like "coupons.invalid_code"
-                let errorText = translateApiMessage(result.message || result.error);
-                if (!errorText) {
-                  errorText = (typeof i18next !== 'undefined' && i18next.t)
-                    ? i18next.t('coupons.invalid_code', { defaultValue: 'Промокод недействителен' })
-                    : 'Промокод недействителен';
+                if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+                  window.priceCalculator.recalculatePrice();
                 }
-                showCouponFeedback('error', errorText);
               }
             } catch (error) {
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
-              const netErrText = (typeof i18next !== 'undefined' && i18next.t)
-                ? i18next.t('errors.network', { defaultValue: 'Ошибка проверки промокода. Проверьте соединение.' })
-                : 'Ошибка проверки промокода. Проверьте соединение.';
-              showCouponFeedback('error', netErrText);
+              window.cachedCouponData = null;
+              window.lastValidatedCouponCode = null;
+              if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
+                window.priceCalculator.recalculatePrice();
+              }
             }
           } else if (code.length === 0) {
             if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
@@ -2077,7 +1815,6 @@
             this.classList.remove("is-valid", "is-invalid");
             window.cachedCouponData = null;
             window.lastValidatedCouponCode = null;
-            removeCouponFeedback();
           }
         });
 
@@ -2550,183 +2287,6 @@
         }, true); // capture phase — important!
       });
     });
-  </script>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SINGLECAR REDESIGN V2 — UX enhancement scripts
-       1. Quick chips renderer (mirror from #car-specs-compact)
-       2. Gallery counter (MutationObserver on .custom-carousel-main)
-       3. Section completion indicator (input → is-complete class)
-       ═══════════════════════════════════════════════════════════════════ -->
-  <script>
-  (function () {
-    'use strict';
-
-    /* ─────── 1. QUICK CHIPS — mirror first 4 specs into hero chips ─────── */
-    var chipsTarget = document.getElementById('car-quick-chips');
-    var specsSource = document.getElementById('car-specs-compact');
-
-    function renderChips() {
-      if (!chipsTarget || !specsSource) return;
-      var cards = specsSource.querySelectorAll('.spec-card');
-      if (!cards.length) return;
-      var html = '';
-      var max = Math.min(cards.length, 4);
-      for (var i = 0; i < max; i++) {
-        var card = cards[i];
-        // last child div contains the text label
-        var textNode = card.querySelector('div:last-child');
-        var iconNode = card.querySelector('div:first-child');
-        var text = textNode ? textNode.textContent.trim() : '';
-        if (!text) continue;
-        var iconHTML = '';
-        if (iconNode) {
-          var svg = iconNode.querySelector('svg, i');
-          if (svg) iconHTML = svg.outerHTML;
-        }
-        html += '<span class="car-quick-chip">' + iconHTML + '<span>' + text + '</span></span>';
-      }
-      chipsTarget.innerHTML = html;
-    }
-
-    if (chipsTarget && specsSource) {
-      // initial attempt
-      renderChips();
-      // re-render whenever specs are populated by dynamic-cars-loader.js
-      var specsObserver = new MutationObserver(function () { renderChips(); });
-      specsObserver.observe(specsSource, { childList: true, subtree: true });
-    }
-
-    /* ─────── 2. GALLERY COUNTER — watch active image, update counter ─────── */
-    var carouselMain = document.getElementById('car-images');
-    var counterEl = document.getElementById('carousel-counter-text');
-    var counterContainer = document.getElementById('carousel-counter');
-
-    function updateCounter() {
-      if (!carouselMain || !counterEl) return;
-      var imgs = carouselMain.querySelectorAll('img');
-      if (!imgs.length) {
-        if (counterContainer) counterContainer.style.display = 'none';
-        return;
-      }
-      var activeIdx = -1;
-      for (var i = 0; i < imgs.length; i++) {
-        if (imgs[i].classList.contains('active')) { activeIdx = i; break; }
-      }
-      if (activeIdx === -1) activeIdx = 0;
-      counterEl.textContent = (activeIdx + 1) + ' / ' + imgs.length;
-      if (counterContainer) counterContainer.style.display = imgs.length > 1 ? '' : 'none';
-    }
-
-    if (carouselMain && counterEl) {
-      updateCounter();
-      var carouselObserver = new MutationObserver(function () { updateCounter(); });
-      carouselObserver.observe(carouselMain, {
-        childList: true, subtree: true,
-        attributes: true, attributeFilter: ['class']
-      });
-    }
-
-    /* ─────── 3. PRICE ROW TAGGER — mark discount rows green ─────── */
-    var priceContent = document.getElementById('price-content');
-    function tagPriceRows() {
-      if (!priceContent) return;
-      // Find every row "<div style='...space-between...margin-bottom: 6px'>" inside #price-content
-      var rows = priceContent.querySelectorAll('div[style*="space-between"][style*="margin-bottom: 6px"]');
-      rows.forEach(function (row) {
-        var lastSpan = row.lastElementChild;
-        if (!lastSpan || lastSpan.tagName !== 'SPAN') return;
-        var val = (lastSpan.textContent || '').trim();
-        // Discount rows have a leading "-"
-        if (val.charAt(0) === '-') {
-          row.classList.add('price-row-discount');
-        } else {
-          row.classList.remove('price-row-discount');
-        }
-      });
-    }
-    if (priceContent) {
-      tagPriceRows();
-      var priceObserver = new MutationObserver(tagPriceRows);
-      priceObserver.observe(priceContent, { childList: true, subtree: true, characterData: true });
-    }
-
-    /* ─────── 4. SECTION COMPLETION — show ✓ when section is filled ─────── */
-    function checkSectionComplete(section) {
-      if (!section) return false;
-      // For radio groups: at least one checked per radio name in section
-      var radios = section.querySelectorAll('input[type="radio"]');
-      var radioGroups = {};
-      radios.forEach(function (r) {
-        radioGroups[r.name] = radioGroups[r.name] || false;
-        if (r.checked) radioGroups[r.name] = true;
-      });
-      var anyRadioGroup = false;
-      for (var n in radioGroups) {
-        anyRadioGroup = true;
-        if (!radioGroups[n]) return false;
-      }
-      // For required text/date/number/email/tel/select: must have value
-      var required = section.querySelectorAll(
-        'input[required]:not([type="radio"]), select[required], textarea[required]'
-      );
-      for (var i = 0; i < required.length; i++) {
-        var f = required[i];
-        if (!f.value || !f.value.trim()) return false;
-        // For number/email types: also check validity
-        if (f.checkValidity && !f.checkValidity()) return false;
-      }
-      // If section has neither required fields nor radios, ignore (no "complete" state)
-      if (!anyRadioGroup && required.length === 0) return false;
-      return true;
-    }
-
-    function refreshAllSections() {
-      var sections = document.querySelectorAll('.booking-section[data-step]');
-      sections.forEach(function (s) {
-        if (checkSectionComplete(s)) s.classList.add('is-complete');
-        else s.classList.remove('is-complete');
-      });
-    }
-
-    // Bind to form input/change events (event delegation on the form)
-    var form = document.getElementById('contact_form');
-    if (form) {
-      // Listen on BOTH form AND document — flatpickr sometimes sets value
-      // programmatically without bubbling a 'change' event. Document-level
-      // capture catches everything regardless of source.
-      ['input', 'change', 'blur', 'click', 'keyup'].forEach(function (evt) {
-        form.addEventListener(evt, refreshAllSections, true);
-        document.addEventListener(evt, refreshAllSections, true);
-      });
-
-      // Initial runs after a short delay (forms populated by JS)
-      setTimeout(refreshAllSections, 300);
-      setTimeout(refreshAllSections, 1200);
-      setTimeout(refreshAllSections, 2500);
-
-      // Polling fallback for the first 20 seconds — handles cases where
-      // flatpickr/datepicker-manager.js updates input.value via JS property
-      // (which fires NO native events). After 20s, event listeners take over.
-      var pollCount = 0;
-      var pollInterval = setInterval(function () {
-        refreshAllSections();
-        pollCount++;
-        if (pollCount > 20) clearInterval(pollInterval); // ~20 seconds @ 1Hz
-      }, 1000);
-
-      // MutationObserver on form — watches for `value`/`checked` attribute
-      // changes (flatpickr/datepicker often mirror to attributes). We deliberately
-      // do NOT watch `class` here, because refreshAllSections() itself adds/removes
-      // the `is-complete` class — watching `class` would create an infinite loop.
-      var formObserver = new MutationObserver(refreshAllSections);
-      formObserver.observe(form, {
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['value', 'checked']
-      });
-    }
-  })();
   </script>
 
 </body>
