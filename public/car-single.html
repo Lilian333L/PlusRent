@@ -250,6 +250,66 @@
   transform: translateY(0);
 }
 
+/* ─────────── SUBMIT BUTTON STATES — disabled / ready / loading ─────────── */
+/* DISABLED — required fields not filled yet. Gray, no shadow, not-allowed cursor. */
+#send_message[disabled],
+.btn-main.btn-fullwidth[disabled] {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+  transform: none !important;
+  pointer-events: none;
+}
+#send_message[disabled]:hover,
+.btn-main.btn-fullwidth[disabled]:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* READY — all required fields filled, gentle pulse to invite the click. */
+#send_message.is-ready {
+  animation: srSubmitPulse 2.4s ease-in-out infinite;
+}
+@keyframes srSubmitPulse {
+  0%, 100% { box-shadow: var(--pr-shadow-gold), 0 0 0 0 rgba(245,158,11,0.45); }
+  50%      { box-shadow: var(--pr-shadow-gold), 0 0 0 10px rgba(245,158,11,0); }
+}
+#send_message.is-ready:hover { animation: none; }
+
+/* LOADING — submit is in flight. Overrides the disabled gray with gold so
+   the user clearly sees "we're working on it". */
+#send_message.is-loading,
+.btn-main.btn-fullwidth.is-loading {
+  background: linear-gradient(135deg, var(--pr-gold) 0%, var(--pr-gold-dark) 100%) !important;
+  color: var(--pr-black) !important;
+  opacity: 1 !important;
+  cursor: wait !important;
+  animation: none !important;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #send_message.is-ready { animation: none; }
+}
+
+/* HINT under the submit button — visible while disabled, fades out when ready. */
+.pr-submit-hint {
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-align: center;
+  margin: 10px 0 0;
+  transition: opacity 0.25s ease, height 0.25s ease, margin 0.25s ease;
+}
+.pr-submit-hint.is-hidden {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 /* ─────────── FLOATING CONTACT BUTTON — black with white icon (matches index.html) ─────────── */
 .floating-contact-btn {
   position: fixed;
@@ -1035,7 +1095,8 @@
                     </span>
                   </div>
 
-                  <button type='submit' id='send_message' class="btn-main btn-fullwidth" data-i18n="cars.book_now">Book Now</button>
+                  <button type='submit' id='send_message' class="btn-main btn-fullwidth pr-submit-btn" disabled data-i18n="cars.book_now">Book Now</button>
+                  <p class="pr-submit-hint" id="pr-submit-hint" data-i18n="cars.submit_hint">Please fill in all required fields to continue</p>
 
                   <div class="clearfix"></div>
                 </form>
@@ -2768,11 +2829,37 @@
 
     function refreshAllSections() {
       var sections = document.querySelectorAll('.booking-section[data-step]');
+      var allComplete = true;
+      var anyError = false;
       sections.forEach(function (s) {
         var state = getSectionState(s);
         s.classList.toggle('is-complete', state === 'complete');
         s.classList.toggle('is-error', state === 'error');
+        if (state !== 'complete') allComplete = false;
+        if (state === 'error') anyError = true;
       });
+      updateSubmitButton(allComplete && !anyError);
+    }
+
+    function updateSubmitButton(formReady) {
+      var btn = document.getElementById('send_message');
+      var hint = document.getElementById('pr-submit-hint');
+      if (!btn) return;
+
+      // Don't override while the submit is in flight. booking-form-handler.js
+      // adds .is-loading on submit and removes it in finally — at that point
+      // the next refresh will run and put the button into the correct state.
+      if (btn.classList.contains('is-loading')) return;
+
+      if (formReady) {
+        btn.removeAttribute('disabled');
+        btn.classList.add('is-ready');
+        if (hint) hint.classList.add('is-hidden');
+      } else {
+        btn.setAttribute('disabled', 'disabled');
+        btn.classList.remove('is-ready');
+        if (hint) hint.classList.remove('is-hidden');
+      }
     }
 
     // Bind to form input/change events (event delegation on the form)
