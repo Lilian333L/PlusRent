@@ -499,8 +499,6 @@ class BookingFormHandler {
     };
 
     button.disabled = true;
-    button.classList.add('is-loading');
-    button.classList.remove('is-ready');
     const displayText = loadingText[lang] || loadingText['ro'];
     
     if (button.tagName === 'INPUT') {
@@ -514,7 +512,6 @@ class BookingFormHandler {
   // Restore button to normal state
   setButtonNormal(button, text) {
     button.disabled = false;
-    button.classList.remove('is-loading');
     if (button.tagName === 'INPUT') {
       button.value = text;
     } else {
