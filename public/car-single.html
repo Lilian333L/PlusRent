@@ -1060,6 +1060,7 @@
   <script src="js/designesia.js" defer></script>
   <script src="js/config.js"></script>
   <script src="js/burger-menu-fix.js" defer></script>
+  <script src="js/phone-coupon-revalidate.js" defer></script>
   <script src="js/price-calculator.js"></script>
   <script src="js/booking-form-handler.js?v=1.1"></script>
   <script src="js/validation-booking.js" defer></script>
@@ -1753,23 +1754,17 @@
 
           if (code && code.length >= 3) {
             try {
-              // Read phone from MAIN booking form. The field name is "phone"
-              // (NOT "customer_phone" — that was a bug). Without phone the
-              // server can't enforce per-phone restrictions and a restricted
-              // coupon would falsely appear valid here.
-              const phoneInput =
-                document.getElementById('phone') ||
-                document.querySelector('input[name="phone"]') ||
-                document.querySelector('input[name="customer_phone"]');
+              const phoneInput = document.querySelector('input[name="customer_phone"]');
               const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
               const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
 
-              // Use ONLY the lookup endpoint with phone. The old code had a
-              // fallback to /validate/{code} that didn't check phone — that
-              // bypassed phone-restriction and caused phone-not-authorized
-              // coupons to falsely show as valid (green checkmark + discount).
-              const response = await fetch(`${window.API_BASE_URL || ''}/api/coupons/lookup/${encodeURIComponent(code)}${phoneParam}`);
-              const result = await response.json();
+              let response = await fetch(`${window.API_BASE_URL}/api/coupons/lookup/${code}${phoneParam}`);
+              let result = await response.json();
+
+              if (!result.valid) {
+                response = await fetch(`${window.API_BASE_URL}/api/coupons/validate/${code}`);
+                result = await response.json();
+              }
 
               if (result.valid) {
                 this.classList.remove("is-invalid");
@@ -1791,22 +1786,12 @@
                 if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
                   window.priceCalculator.hideFloatingFreeDaysNotification();
                 }
-                // Clear cached data so the discount line is removed from the
-                // price summary and the total recalculated without discount.
                 window.cachedCouponData = null;
                 window.lastValidatedCouponCode = null;
-                if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-                  window.priceCalculator.recalculatePrice();
-                }
               }
             } catch (error) {
               this.classList.remove("is-valid");
               this.classList.add("is-invalid");
-              window.cachedCouponData = null;
-              window.lastValidatedCouponCode = null;
-              if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === 'function') {
-                window.priceCalculator.recalculatePrice();
-              }
             }
           } else if (code.length === 0) {
             if (window.priceCalculator && typeof window.priceCalculator.hideFloatingFreeDaysNotification === 'function') {
