@@ -340,8 +340,19 @@ class BookingFormHandler {
         const result = await response.json();
         
         if (!response.ok || !result.valid) {
-          // Use server message if available, otherwise use localized default
-          return { isValid: false, error: result.message || getError('invalidCoupon') };
+          // Server may return an i18n key (e.g. "coupons.phone_not_authorized")
+          // as result.message. Translate it before showing to the user.
+          let errMsg = result.message || getError('invalidCoupon');
+          if (
+            typeof errMsg === 'string' &&
+            /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/i.test(errMsg) &&
+            typeof window.i18next !== 'undefined' &&
+            typeof window.i18next.t === 'function'
+          ) {
+            const t = window.i18next.t(errMsg);
+            if (t && t !== errMsg) errMsg = t;
+          }
+          return { isValid: false, error: errMsg };
         }
       } catch (error) {
         console.error('Error validating coupon:', error);
