@@ -556,40 +556,19 @@ class BookingFormHandler {
 
   // Default validation error handler
   defaultValidationErrorHandler(errorMessage) {
-    // Try to use the showError function if available (preferred — nice toast)
+    // Try to use the showError function if available
     if (window.showError && typeof window.showError === 'function') {
       window.showError(errorMessage);
-      return;
+    } else {
+      const lang = this.getCurrentLanguage();
+      const alertPrefix = {
+        en: 'Please fix the following issues:\n',
+        ru: 'Пожалуйста, исправьте следующие проблемы:\n',
+        ro: 'Vă rugăm să corectați următoarele probleme:\n'
+      };
+      // Fallback to alert
+      alert((alertPrefix[lang] || alertPrefix['ro']) + errorMessage);
     }
-    // Fallback: try showErrorToast / showToast directly (also defined in
-    // validation-booking.js as window globals)
-    if (window.showErrorToast && typeof window.showErrorToast === 'function') {
-      window.showErrorToast(errorMessage);
-      return;
-    }
-    if (window.showToast && typeof window.showToast === 'function') {
-      window.showToast(errorMessage, 'error');
-      return;
-    }
-    // Final fallback: log to console — NEVER use native alert(), it spawns
-    // an ugly browser confirm dialog ("Подтвердите действие на plusrent.md")
-    // that's a terrible UX. If toast system isn't loaded, render an inline
-    // banner at the top of the form as a graceful degradation.
-    try {
-      const form = document.querySelector('#booking_form, form[data-booking-form]');
-      if (form) {
-        let banner = document.getElementById('pr-fallback-error-banner');
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.id = 'pr-fallback-error-banner';
-          banner.style.cssText = 'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:14px;font-weight:500;';
-          form.insertBefore(banner, form.firstChild);
-        }
-        banner.textContent = errorMessage;
-        setTimeout(() => { if (banner && banner.parentNode) banner.parentNode.removeChild(banner); }, 6000);
-      }
-    } catch (e) { /* swallow */ }
-    console.error('[PlusRent] Validation error:', errorMessage);
   }
 
   // Initialize form handler for a specific form
