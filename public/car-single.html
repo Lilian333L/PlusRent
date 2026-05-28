@@ -2715,10 +2715,32 @@
       priceObserver.observe(priceContent, { childList: true, subtree: true, characterData: true });
     }
 
-    /* ─────── 4. SECTION COMPLETION — show ✓ when section is filled ─────── */
-    function checkSectionComplete(section) {
-      if (!section) return false;
-      // For radio groups: at least one checked per radio name in section
+    /* ─────── 4. SECTION COMPLETION — three states: idle / complete / error ─────── */
+    function getSectionState(section) {
+      if (!section) return 'idle';
+
+      // ── ERROR has priority ─────────────────────────────────────────
+      // (a) Any field server-marked invalid (e.g. discount_code that
+      //     failed phone-restriction check) → red regardless of whether
+      //     required fields are filled.
+      if (section.querySelector('.is-invalid')) return 'error';
+
+      // (b) Any field with a value that fails HTML5 validity, EXCEPT the
+      //     one the user is currently editing (so we don't flash red
+      //     while they're still typing). On blur it'll re-check.
+      var allInputs = section.querySelectorAll(
+        'input:not([type="radio"]):not([type="checkbox"]), select, textarea'
+      );
+      for (var k = 0; k < allInputs.length; k++) {
+        var fi = allInputs[k];
+        if (fi === document.activeElement) continue;
+        if (fi.value && fi.value.trim() && fi.checkValidity && !fi.checkValidity()) {
+          return 'error';
+        }
+      }
+
+      // ── COMPLETE check ─────────────────────────────────────────────
+      // Radio groups: at least one checked per radio name in section
       var radios = section.querySelectorAll('input[type="radio"]');
       var radioGroups = {};
       radios.forEach(function (r) {
@@ -2728,28 +2750,28 @@
       var anyRadioGroup = false;
       for (var n in radioGroups) {
         anyRadioGroup = true;
-        if (!radioGroups[n]) return false;
+        if (!radioGroups[n]) return 'idle';
       }
-      // For required text/date/number/email/tel/select: must have value
+      // Required text/date/number/email/tel/select: must have value
       var required = section.querySelectorAll(
         'input[required]:not([type="radio"]), select[required], textarea[required]'
       );
       for (var i = 0; i < required.length; i++) {
         var f = required[i];
-        if (!f.value || !f.value.trim()) return false;
-        // For number/email types: also check validity
-        if (f.checkValidity && !f.checkValidity()) return false;
+        if (!f.value || !f.value.trim()) return 'idle';
+        if (f.checkValidity && !f.checkValidity()) return 'idle';
       }
-      // If section has neither required fields nor radios, ignore (no "complete" state)
-      if (!anyRadioGroup && required.length === 0) return false;
-      return true;
+      // If section has neither required fields nor radios, no "complete" state
+      if (!anyRadioGroup && required.length === 0) return 'idle';
+      return 'complete';
     }
 
     function refreshAllSections() {
       var sections = document.querySelectorAll('.booking-section[data-step]');
       sections.forEach(function (s) {
-        if (checkSectionComplete(s)) s.classList.add('is-complete');
-        else s.classList.remove('is-complete');
+        var state = getSectionState(s);
+        s.classList.toggle('is-complete', state === 'complete');
+        s.classList.toggle('is-error', state === 'error');
       });
     }
 
@@ -2759,7 +2781,7 @@
       // Listen on BOTH form AND document — flatpickr sometimes sets value
       // programmatically without bubbling a 'change' event. Document-level
       // capture catches everything regardless of source.
-      ['input', 'change', 'blur', 'click', 'keyup'].forEach(function (evt) {
+      ['input', 'change', 'blur', 'click', 'keyup', 'focus'].forEach(function (evt) {
         form.addEventListener(evt, refreshAllSections, true);
         document.addEventListener(evt, refreshAllSections, true);
       });
@@ -2779,15 +2801,29 @@
         if (pollCount > 20) clearInterval(pollInterval); // ~20 seconds @ 1Hz
       }, 1000);
 
-      // MutationObserver on form — watches for `value`/`checked` attribute
-      // changes (flatpickr/datepicker often mirror to attributes). We deliberately
-      // do NOT watch `class` here, because refreshAllSections() itself adds/removes
-      // the `is-complete` class — watching `class` would create an infinite loop.
-      var formObserver = new MutationObserver(refreshAllSections);
+      // MutationObserver on form — watches value/checked AND class changes.
+      // We need `class` so we react when the discount field gets
+      // .is-invalid (set by the async coupon validation), but watching
+      // class also picks up our OWN class changes on .booking-section
+      // (is-complete / is-error). To avoid an infinite loop, we ignore
+      // mutations whose target IS a .booking-section.
+      var formObserver = new MutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+          var m = mutations[i];
+          if (m.attributeName === 'class' &&
+              m.target && m.target.nodeType === 1 &&
+              m.target.classList &&
+              m.target.classList.contains('booking-section')) {
+            continue; // self-mutation — skip
+          }
+          refreshAllSections();
+          return;
+        }
+      });
       formObserver.observe(form, {
         subtree: true,
         attributes: true,
-        attributeFilter: ['value', 'checked']
+        attributeFilter: ['value', 'checked', 'class']
       });
     }
   })();
