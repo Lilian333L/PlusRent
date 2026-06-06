@@ -100,8 +100,7 @@
     "priceSpecification": [
       { "@type": "UnitPriceSpecification", "name": "Standard Privat", "priceCurrency": "EUR", "price": "140", "description": "Transfer one-way Iași Airport → Chișinău Centru. Audi A4 / Toyota Auris, 6+1 locuri, WiFi, apă, asistență vamă, 30 min așteptare." },
       { "@type": "UnitPriceSpecification", "name": "Business Comfort", "priceCurrency": "EUR", "price": "175", "description": "Transfer one-way cu Audi A6 2022 / Lexus NX300h. Snacks premium, șofer multilingv RO/RU/EN." },
-      { "@type": "UnitPriceSpecification", "name": "VIP Executive", "priceCurrency": "EUR", "price": "230", "description": "Transfer one-way cu Mercedes E / BMW 7. Meet & greet, 60 min așteptare, concierge." },
-      { "@type": "UnitPriceSpecification", "name": "Airport Concierge Package", "priceCurrency": "EUR", "price": "195", "description": "Meet & greet la terminal, asistență bagaje, snacks premium, 60 min așteptare, prioritate la vamă Sculeni-Albița." }
+      { "@type": "UnitPriceSpecification", "name": "VIP Executive", "priceCurrency": "EUR", "price": "230", "description": "Transfer one-way cu Mercedes E / BMW 7. Meet & greet, 60 min așteptare, concierge." }
     ]
   }
 }
@@ -125,7 +124,7 @@
       "name": "Cât costă transferul Iași - Chișinău?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Avem 4 pachete: Standard Privat €140 , Business Comfort €175 (cea mai aleasă), VIP Executive €230 și Pachet Concierge Aeroport €195 . Toate prețurile sunt per mașină (6+1 locuri), all-inclusive: WiFi, apă, asistență vamă Sculeni-Albița. Fără costuri ascunse. Plata la destinație."
+        "text": "Avem 3 pachete: Standard Privat €140, Business Comfort €175 (cea mai aleasă) și VIP Executive €230. Toate prețurile sunt per mașină (6+1 locuri), all-inclusive: WiFi, apă, asistență vamă Sculeni-Albița. Fără costuri ascunse. Plata la destinație."
       }
     },
     {
@@ -189,7 +188,7 @@
 </script>
 
 <script type="application/ld+json">
-{ "@context": "https://schema.org", "@type": "HowTo", "name": "Cum rezervi un transfer Iași → Chișinău cu PlusRent", "description": "Rezervă transferul tău de la aeroportul Iași la Chișinău în 4 pași.", "totalTime": "PT5M", "estimatedCost": { "@type": "MonetaryAmount", "currency": "EUR", "minValue": "140" }, "step": [ { "@type": "HowToStep", "position": 1, "name": "Contactează PlusRent", "text": "Sună +373 60 000 500 sau scrie pe WhatsApp/Telegram — răspuns în 3–5 minute.", "url": "https://plusrent.md/ro/transfer-iasi" }, { "@type": "HowToStep", "position": 2, "name": "Alege pachetul", "text": "Standard, Business, VIP sau Concierge. Comunică data, ora zborului și destinația." }, { "@type": "HowToStep", "position": 3, "name": "Primești confirmarea", "text": "SMS cu datele șoferului: nume, marcă mașină, număr contact." }, { "@type": "HowToStep", "position": 4, "name": "Călătorie cu asistență vamă", "text": "Șoferul te întâmpină la terminal. Vama inclusă. Plata la destinație EUR/MDL sau card." } ] }
+{ "@context": "https://schema.org", "@type": "HowTo", "name": "Cum rezervi un transfer Iași → Chișinău cu PlusRent", "description": "Rezervă transferul tău de la aeroportul Iași la Chișinău în 4 pași.", "totalTime": "PT5M", "estimatedCost": { "@type": "MonetaryAmount", "currency": "EUR", "minValue": "140" }, "step": [ { "@type": "HowToStep", "position": 1, "name": "Contactează PlusRent", "text": "Sună +373 60 000 500 sau scrie pe WhatsApp/Telegram — răspuns în 3–5 minute.", "url": "https://plusrent.md/ro/transfer-iasi" }, { "@type": "HowToStep", "position": 2, "name": "Alege pachetul", "text": "Standard, Business sau VIP. Comunică data, ora zborului și destinația." }, { "@type": "HowToStep", "position": 3, "name": "Primești confirmarea", "text": "SMS cu datele șoferului: nume, marcă mașină, număr contact." }, { "@type": "HowToStep", "position": 4, "name": "Călătorie cu asistență vamă", "text": "Șoferul te întâmpină la terminal. Vama inclusă. Plata la destinație EUR/MDL sau card." } ] }
 </script>
 
 <script type="application/ld+json">
@@ -1542,6 +1541,54 @@ input:focus-visible,
     font-size: 1.25rem !important;
   }
 }
+
+/* === Mobile Pricing Table → Card Layout === */
+@media (max-width: 600px) {
+  .price-table { display: block; border: none; background: transparent; box-shadow: none; }
+  .price-table thead { display: none; }
+  .price-table tbody { display: block; }
+  .price-table tr {
+    display: block;
+    background: var(--white, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .price-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border: none;
+    font-size: 0.95rem;
+  }
+  .price-table td:first-child {
+    font-weight: 700;
+    color: var(--dark, #1a1a1a);
+    font-size: 1.02rem;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    display: block;
+  }
+  .price-table td:not(:first-child)::before {
+    font-weight: 600;
+    color: var(--gray, #64748b);
+    font-size: 0.85rem;
+  }
+  .price-table td.p-std::before { content: "Standard"; }
+  .price-table td.p-biz::before { content: "Business"; }
+  .price-table td.p-vip::before { content: "VIP"; }
+}
+
+/* === FAQ accordion min 48px click target === */
+.faq-summary { min-height: 48px !important; padding-top: 14px !important; padding-bottom: 14px !important; }
+
+/* === Expandable round-trip details — rotate + on open === */
+details.rt-collapsible[open] .rt-icon { transform: rotate(45deg); }
+
 </style>
 </head>
 <body>
@@ -1762,15 +1809,6 @@ input:focus-visible,
         <button onclick="openPopup('vip')" class="tier-cta">Rezervă VIP <i class="fa fa-arrow-right"></i></button>
       </div>
     </div>
-    <div class="concierge-banner fade-in">
-      <h3>✈️ Pachet Concierge Aeroport</h3>
-      <div class="conc-price">&euro;195</div>
-      <p class="conc-desc">Soluția completă pentru familii, vârstnici și călători internaționali care doresc zero stres de la aeroport până la destinație.<br><strong style="color:var(--gold);">✓ Întâlnire &amp; Primire la terminal &nbsp;&middot;&nbsp; ✓ Asistență bagaje &nbsp;&middot;&nbsp; ✓ 60 min așteptare &nbsp;&middot;&nbsp; ✓ Prioritate la vamă &nbsp;&middot;&nbsp; ✓ Gustări + apă</strong></p>
-      <button onclick="openPopup('concierge')" class="btn-concierge"><i class="fa fa-phone"></i> Rezervă Pachetul Concierge</button>
-    </div>
-    <p style="text-align:center;color:var(--gray);font-size:0.88rem;margin-top:20px;">
-      <i class="fa fa-info-circle" style="color:var(--gold-dark);"></i> Prețuri tur-retur: Standard €260, Business €310, VIP €400 (așteptare 4–8h, reducere -10%).
-    </p>
   </div>
 </section>
 
@@ -1825,9 +1863,9 @@ input:focus-visible,
       <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-globe"></i></div><div><div class="included-name">Asistență Vamă</div><div class="included-desc">Sculeni-Albița — șoferii trec zilnic, gestionează rapid formalitățile</div></div></div>
       <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-wifi"></i></div><div><div class="included-name">WiFi 4G Inclus</div><div class="included-desc">Internet rapid pe tot drumul de 130 km</div></div></div>
       <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-tint"></i></div><div><div class="included-name">Apă &amp; Gustări</div><div class="included-desc">Apă minerală gratuită, gustări premium pentru Business+</div></div></div>
-      <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-suitcase"></i></div><div><div class="included-name">Bagaj Nelimitat</div><div class="included-desc">6+1 locuri, spațiu generos — fără taxă suplimentară</div></div></div>
+      
       <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-clock-o"></i></div><div><div class="included-name">Așteptare Gratuită</div><div class="included-desc">30 min Standard / 60 min Business &amp; VIP — monitorizăm zborul</div></div></div>
-      <div class="included-item fade-in"><div class="included-icon"><i class="fa fa-handshake"></i></div><div><div class="included-name">Întâlnire &amp; Primire</div><div class="included-desc">Plăcuță cu numele tău la terminal (Business, VIP, Concierge)</div></div></div>
+      
     </div>
   </div>
 </section>
@@ -1898,14 +1936,22 @@ input:focus-visible,
             <tr><td>Soroca</td><td class="p-std">&euro;260</td><td class="p-biz">&euro;310</td><td class="p-vip">&euro;390</td></tr>
           </tbody>
         </table>
-        <div class="table-section-label">Tur-Retur cu Așteptare 4–8h</div>
-        <table class="price-table">
+        <details class="rt-collapsible" style="margin-top:18px;">
+          <summary style="cursor:pointer;padding:14px 22px;background:var(--gold-light,#fef3c7);border:1px solid var(--gold-border,rgba(245,158,11,0.3));border-radius:10px;font-weight:700;color:var(--gold-dark,#d97706);font-size:0.95rem;list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:48px;">
+            <span><i class="fa fa-exchange-alt" style="margin-right:8px;"></i>Vezi prețurile tur-retur</span>
+            <span class="rt-icon" style="font-size:1.2rem;font-weight:300;transition:transform 0.2s;">+</span>
+          </summary>
+          <div style="margin-top:14px;">
+            <div class="table-section-label">Tur-Retur cu Așteptare 4–8h</div>
+            <table class="price-table">
           <thead><tr><th>Rută</th><th>Standard</th><th>Business</th><th>VIP</th></tr></thead>
           <tbody>
             <tr><td>Iași Aeroport ↔ Chișinău Centru</td><td class="p-std">&euro;260</td><td class="p-biz">&euro;310</td><td class="p-vip">&euro;400</td></tr>
             <tr><td>Iași Aeroport ↔ alte zone Chișinău</td><td class="p-std">&euro;280</td><td class="p-biz">&euro;330</td><td class="p-vip">&euro;420</td></tr>
           </tbody>
         </table>
+          </div>
+        </details>
         <p style="padding:18px 22px;color:var(--gray);font-size:0.88rem;border-top:1px solid var(--border);">
           <i class="fa fa-info-circle" style="color:var(--gold-dark);margin-right:6px;"></i>
           Pentru rute speciale sau distanțe personalizate, sună <a href="tel:+37360000500" style="color:var(--gold-dark);font-weight:700;">+373 60 000 500</a>.
@@ -1914,18 +1960,6 @@ input:focus-visible,
     </div>
   </div>
 </section>
-
-<section class="section section-green" style="padding:52px 0;">
-  <div class="container">
-    <div class="risk-grid">
-      <div class="risk-item fade-in"><div class="risk-icon">💳</div><div class="risk-title">Plată la Destinație</div><div class="risk-desc">Fără avans. Cash EUR/MDL sau card la final.</div></div>
-      <div class="risk-item fade-in"><div class="risk-icon">✕</div><div class="risk-title">Anulare Gratuită</div><div class="risk-desc">Până la 12 ore înainte — zero taxe.</div></div>
-      <div class="risk-item fade-in"><div class="risk-icon">🛃</div><div class="risk-title">Asistență Vamă</div><div class="risk-desc">Sculeni-Albița — includem asistența, tu te relaxezi.</div></div>
-      <div class="risk-item fade-in"><div class="risk-icon">⭐</div><div class="risk-title">Mașină Premium</div><div class="risk-desc">Audi A6 / Lexus / Mercedes garantat.</div></div>
-    </div>
-  </div>
-</section>
-
 <section class="section section-dark">
   <div class="container" style="position:relative;z-index:1;">
     <div class="col-lg-8 offset-lg-2 text-center">
@@ -1954,7 +1988,7 @@ input:focus-visible,
       <p class="section-sub">Răspunsuri complete înainte de a rezerva transferul Iași - Chișinău.</p>
     </div>
     <div class="faq-list">
-      <details class="faq-item"><summary class="faq-summary"><span>Cât costă transferul Iași - Chișinău?</span><span class="faq-icon">+</span></summary><div class="faq-answer">Avem 4 pachete: <strong>Standard Privat €140</strong>, <strong>Business Comfort €175</strong> (cea mai aleasă), <strong>VIP Executive €230</strong> și <strong>Pachet Concierge Aeroport €195</strong>. Toate prețurile sunt per mașină (6+1 locuri), all-inclusive: WiFi, apă, asistență vamă Sculeni-Albița. Fără costuri ascunse. Plata la destinație.</div></details>
+      <details class="faq-item"><summary class="faq-summary"><span>Cât costă transferul Iași - Chișinău?</span><span class="faq-icon">+</span></summary><div class="faq-answer">Avem 3 pachete: <strong>Standard Privat €140</strong>, <strong>Business Comfort €175</strong> (cea mai aleasă) și <strong>VIP Executive €230</strong>. Toate prețurile sunt per mașină (6+1 locuri), all-inclusive: WiFi, apă, asistență vamă Sculeni-Albița. Fără costuri ascunse. Plata la destinație.</div></details>
       <details class="faq-item"><summary class="faq-summary"><span>Cât durează drumul de la Iași la Chișinău?</span><span class="faq-icon">+</span></summary><div class="faq-answer">Distanța este de <strong>~130 km</strong>. Drumul propriu-zis: 2–2,5 ore. La vama <strong>Sculeni-Albița</strong>: 30–60 minute. Total: <strong>~3–3,5 ore</strong>. Șoferii noștri trec frontiera zilnic și cunosc toate procedurile pentru a minimiza așteptarea.</div></details>
       <details class="faq-item"><summary class="faq-summary"><span>Câți pasageri pot călători?</span><span class="faq-icon">+</span></summary><div class="faq-answer">Mașinile noastre au <strong>6+1 locuri</strong> (6 pasageri + șofer). <strong>Prețul este per mașină, nu per persoană</strong> — indiferent că ești singur sau cu 6 persoane, costul rămâne același. Bagajul este inclus fără limite.</div></details>
       <details class="faq-item"><summary class="faq-summary"><span>Cum funcționează asistența la vamă?</span><span class="faq-icon">+</span></summary><div class="faq-answer">Punctul de trecere este <strong>Sculeni-Albița</strong>. Necesită pașaport valabil. Procesul durează 30–60 minute în medie. Șoferii noștri te asistă cu formalitățile, explică procesul și ajută cu documentele dacă e nevoie. <strong>Asistența la vamă este inclusă în toate pachetele.</strong></div></details>
@@ -1982,7 +2016,7 @@ input:focus-visible,
     <div class="col-lg-10 offset-lg-1">
       <div class="geo-block-inner fade-in">
         <div class="geo-block-title"><i class="fa fa-info-circle"></i>Despre Serviciul de Transfer Iași Aeroport — Chișinău</div>
-        <p class="geo-block-text"><strong>PlusRent</strong> oferă transfer privat premium între Aeroportul Internațional Iași (IATA: IAS, România) și Chișinău (Republica Moldova), activ din 2022, cu sediul în Chișinău (str. Meșterul Manole 20). <strong>Distanța Iași – Chișinău este aproximativ 130 km</strong>, cu durată totală de călătorie de 3–3,5 ore (2–2,5h drum + 30–60 min la vama Sculeni-Albița). <strong>Tarifele pornesc de la €140 per mașină</strong> (6+1 locuri), nu per persoană — indiferent că călătorești singur sau în grup de 6, costul rămâne același. Flota include <strong>Audi A6 2022, Lexus NX300h și Mercedes E-Class</strong>. Asistența la vama <strong>Sculeni-Albița</strong> este inclusă în toate pachetele — șoferii trec frontiera zilnic și cunosc procedurile. Serviciul este disponibil non-stop (24/7), inclusiv sărbători. <strong>Fără plată în avans</strong> — achitarea se face la destinație, numerar (EUR/MDL) sau card bancar. Disponibil și Pachet Concierge Aeroport la €195 cu Întâlnire &amp; Primire, asistență bagaje și prioritate la vamă. Tur-retur disponibil: Standard €260, Business €310, VIP €400. PlusRent a finalizat peste <strong>439 de comenzi</strong> cu nota Google ★ 5.0 (6 recenzii Google verificate + 5 Trustpilot + 3 Tripadvisor).</p>
+        <p class="geo-block-text"><strong>PlusRent</strong> oferă transfer privat premium între Aeroportul Internațional Iași (IATA: IAS, România) și Chișinău (Republica Moldova), activ din 2022, cu sediul în Chișinău (str. Meșterul Manole 20). <strong>Distanța Iași – Chișinău este aproximativ 130 km</strong>, cu durată totală de călătorie de 3–3,5 ore (2–2,5h drum + 30–60 min la vama Sculeni-Albița). <strong>Tarifele pornesc de la €140 per mașină</strong> (6+1 locuri), nu per persoană — indiferent că călătorești singur sau în grup de 6, costul rămâne același. Flota include <strong>Audi A6 2022, Lexus NX300h și Mercedes E-Class</strong>. Asistența la vama <strong>Sculeni-Albița</strong> este inclusă în toate pachetele — șoferii trec frontiera zilnic și cunosc procedurile. Serviciul este disponibil non-stop (24/7), inclusiv sărbători. <strong>Fără plată în avans</strong> — achitarea se face la destinație, numerar (EUR/MDL) sau card bancar. Tur-retur disponibil: Standard €260, Business €310, VIP €400. PlusRent a finalizat peste <strong>439 de comenzi</strong> cu nota Google ★ 5.0 (6 recenzii Google verificate + 5 Trustpilot + 3 Tripadvisor).</p>
       </div>
     </div>
   </div>
