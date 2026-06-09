@@ -61,20 +61,48 @@
     return false;
   }
 </script>
-
+<!-- ==== Resource hints (preconnect) ==== -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link rel="preload" as="image" href="/images/background/2.webp" fetchpriority="high" type="image/webp">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- ==== Critical preloads (HIGH priority) ==== -->
+<link rel="preload"
+      href="https://fonts.gstatic.com/s/sora/v12/xMQOuFFYT72X5wkB_18qmnndmSdSnk-DKQ.woff2"
+      as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image"
+      href="/images/background/2-mobile.webp"
+      media="(max-width: 768px)" fetchpriority="high">
+<link rel="preload" as="image"
+      href="/images/background/2-tablet.webp"
+      media="(min-width: 769px) and (max-width: 1280px)" fetchpriority="high">
+<link rel="preload" as="image"
+      href="/images/background/2.webp"
+      media="(min-width: 1281px)" fetchpriority="high">
+
+<!-- ==== CRITICAL CSS (render-blocking, needed for above-the-fold) ==== -->
+<link rel="stylesheet" href="/css/bootstrap.min.css" id="bootstrap">
+<link rel="stylesheet" href="/css/soferum.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/coloring.css">
+<link rel="stylesheet" href="/css/colors/scheme-01.css" id="colors">
+
+<!-- ==== Font-Awesome (нужен для иконок в hero — телефон/часы) ==== -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-<link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" id="bootstrap">
-<link href="/css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
-<link href="/css/soferum.css" rel="stylesheet" type="text/css">
-<link href="/css/plugins.css" rel="stylesheet" type="text/css">
-<link href="/css/style.css" rel="stylesheet" type="text/css">
-<link href="/css/coloring.css" rel="stylesheet" type="text/css">
-<link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
+
+<!-- ==== Google Fonts: defer (display=swap покажет fallback пока грузится) ==== -->
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap"
+      media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap"></noscript>
+
+<!-- ==== NON-CRITICAL CSS (defer через media="print" trick) ==== -->
+<link rel="stylesheet" href="/css/mdb.min.css" media="print" onload="this.media='all'" id="mdb">
+<link rel="stylesheet" href="/css/plugins.css" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="/css/mdb.min.css">
+  <link rel="stylesheet" href="/css/plugins.css">
+</noscript>
 <script>
 /* Pre-init language detection (runs before defer scripts like universal-include.js
    so they see the correct language from storage, not a stale value) */
@@ -2345,7 +2373,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
         <div class="de-flex sm-pt10">
           <div class="de-flex-col">
             <div id="logo">
-              <a href="/ro/"><img class="logo-1" src="/images/LOGO-4-demo.png" alt="PlusRent Logo" loading="lazy"><img class="logo-2" src="/images/LOGO-5-demo.png" alt="PlusRent Logo" loading="lazy"></a>
+              <a href="/ro/"><img class="logo-1" src="/images/LOGO-4-demo.png" alt="PlusRent Logo" width="140" height="40" loading="eager" fetchpriority="high" decoding="async"><img class="logo-2" src="/images/LOGO-5-demo.png" alt="PlusRent Logo" width="430" height="149" loading="eager" fetchpriority="high" decoding="async"></a>
             </div>
           </div>
 <div class="de-flex-col">
@@ -2418,7 +2446,19 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 <!-- HERO -->
 <section id="subheader" class="jarallax text-light hero-padded-st">
-  <img src="/images/background/2.webp" class="jarallax-img" width="2560" height="1440" fetchpriority="high" alt="Sofer Treaz Chisinau - PlusRent">
+  <picture>
+  <source media="(max-width: 768px)"
+          srcset="/images/background/2-mobile.webp"
+          width="640" height="360">
+  <source media="(max-width: 1280px)"
+          srcset="/images/background/2-tablet.webp"
+          width="1280" height="720">
+  <img src="/images/background/2.webp"
+       class="jarallax-img"
+       width="2560" height="1440"
+       fetchpriority="high"
+       alt="Sofer Treaz Chisinau - PlusRent">
+</picture>
   <div class="relative text-center" style="position:relative;z-index:10;">
     <div class="container">
       <div class="col-md-12 text-center">
