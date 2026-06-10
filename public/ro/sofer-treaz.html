@@ -2354,6 +2354,15 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
   }
 }
 </style>
+
+<!-- ==== FONT-SWAP CLS FIX: fallback fonts with metric overrides (size-adjust + ascent/descent-override) make Arial occupy same space as Outfit/Inter/Sora. Swap happens but layout doesn't shift. Placed at end of <head> to win cascade over design-system body{font-family:Sora} block. ==== -->
+<style>
+@font-face{font-family:"Outfit Fallback";src:local("Arial");size-adjust:102.61%;ascent-override:100.18%;descent-override:26.05%;line-gap-override:0%}
+@font-face{font-family:"Inter Fallback";src:local("Arial");size-adjust:107.40%;ascent-override:90.49%;descent-override:22.55%;line-gap-override:0%}
+@font-face{font-family:"Sora Fallback";src:local("Arial");size-adjust:105.21%;ascent-override:95.42%;descent-override:24.49%;line-gap-override:0%}
+*{--title-font:"Outfit","Outfit Fallback",Helvetica,Arial,sans-serif;--body-font:"Inter","Inter Fallback",Helvetica,Arial,sans-serif}
+body{font-family:"Sora","Sora Fallback",-apple-system,BlinkMacSystemFont,sans-serif}
+</style>
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress"></div>
