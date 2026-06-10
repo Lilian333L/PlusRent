@@ -78,15 +78,11 @@ function initI18n() {
           // Fallback: try to load with a different approach
           loadFallbackTranslations(initialLang);
         } else {
-          if (!savedLang) {
-            i18next.changeLanguage(defaultLang, function() {
-              updateContent();
-              updateLangPickerUI();
-            });
-          } else {
-            updateContent();
-            updateLangPickerUI();
-          }
+          // URL is already the source of truth (set via lng: initialLang above).
+          // Do NOT override with browser default — that bug caused /ro/... pages
+          // to flip to system language for first-time visitors.
+          updateContent();
+          updateLangPickerUI();
         }
       });
   } catch (error) {
