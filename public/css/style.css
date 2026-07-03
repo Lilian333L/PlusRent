@@ -19561,3 +19561,28 @@ body.mobile-filter-open {
     width: 100% !important;
   }
 }
+
+/* ============================================================
+   CLS FIX — pre-position jarallax hero image before JS init.
+   Without this, the 2560x1440 hero <img> renders in normal flow
+   (pushing all content ~700px down), then jarallax absolutizes
+   it after load -> Cumulative Layout Shift ~1.0.
+   These rules replicate jarallax's final layout from first paint.
+   After init, jarallax moves the img into its own container, so
+   the child selector no longer matches and nothing conflicts.
+   ============================================================ */
+.jarallax {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+.jarallax > .jarallax-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+}
