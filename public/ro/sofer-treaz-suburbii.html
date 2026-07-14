@@ -2045,6 +2045,115 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 @media(max-width:768px){.pr-s .pr-bar{display:grid} .pr-s{padding-bottom:64px}}
 @media(prefers-reduced-motion:reduce){.pr-s .pr-ic{animation:none}}
 
+/* ================================================================
+   БРОНЕБОЙНАЯ ЧИТАЕМОСТЬ (pr-s)
+   Глобальные bootstrap/mdb/style.css красят body/p/a/h в свои цвета.
+   Задаём явно КАЖДОМУ элементу, чтобы ничего не пробилось.
+   ================================================================ */
+.pr-s{color:#EDF1F5 !important}
+.pr-s h1,.pr-s h2,.pr-s h3,.pr-s h4,.pr-s h5,.pr-s h6{color:#EDF1F5 !important}
+.pr-s p,.pr-s li,.pr-s dd,.pr-s dt,.pr-s figcaption,.pr-s blockquote,
+.pr-s label,.pr-s strong,.pr-s b,.pr-s small,.pr-s em,.pr-s i{color:inherit !important}
+.pr-s th,.pr-s td,.pr-s caption{color:inherit !important}
+.pr-s summary{color:#EDF1F5 !important}
+/* приглушённые подписи — только там, где мы это задали классом */
+.pr-s .sub,.pr-s .k,.pr-s .sec-k,.pr-s .hp-note,.pr-s .hp-micro,.pr-s .note,
+.pr-s .honest,.pr-s .sec-sub,.pr-s .disc,.pr-s .cta p,.pr-s .fact span,
+.pr-s details p,.pr-s .guest .who span,.pr-s .stop p,.pr-s .beat p span,
+.pr-s .node .l,.pr-s .doc span,.pr-s .pr-cross-k,.pr-s .pr-cx span{color:#8C9AA8 !important}
+/* ссылки внутри контента не должны синеть (bootstrap a{color:#0d6efd}) */
+.pr-s a{color:inherit}
+.pr-s a.pr-cx b{color:#EDF1F5 !important}
+.pr-s a.pr-cx em{color:var(--mark) !important}
+/* акценты и цены — вернуть акцентный цвет поверх inherit */
+.pr-s h1 em,.pr-s h1 i,.pr-s .hp-value,.pr-s .bar-num.ok,.pr-s .verdict b,
+.pr-s tbody td,.pr-s .fact b,.pr-s .stop.crit h3,.pr-s .compare .n,
+.pr-s .n,.pr-s .row .val,.pr-s .call-txt em{color:var(--mark) !important}
+/* кнопки-CTA: текст на цветном фоне — НЕ трогаем (у них свой явный цвет в базовом CSS) */
+.pr-s .call,.pr-s .call *,.pr-s .pr-call-big,.pr-s .pr-call-big *,
+.pr-s .b-call,.pr-s .pr-bar a{color:inherit}
+
+/* ================================================================
+   ПОЛИРОВКА ДИЗАЙНА (pr-s)
+   ================================================================ */
+
+/* 1. ДЕСКТОП: контент шире, дышит. Было 760px в пустоте → адаптивная сетка */
+@media(min-width:1024px){
+  .pr-s .wrap{max-width:1080px}
+  /* hero: заголовок слева крупно, контакт-блок справа — используем ширину */
+  .pr-s .hero{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;
+    text-align:left;padding:80px 0 56px;min-height:62vh;
+  }
+  .pr-s .hero .eyebrow{grid-column:1;justify-self:start}
+  .pr-s .hero h1{grid-column:1;margin-top:8px}
+  .pr-s .hero .sub{grid-column:1;margin-left:0;max-width:34ch}
+  /* правую колонку формируем из первого «якорного» блока страницы */
+  .pr-s .hero .headline-price,
+  .pr-s .hero .pr-contact,
+  .pr-s .hero .facts{grid-column:2;grid-row:1 / span 4;align-self:center;margin-top:0}
+  .pr-s .hero .facts{flex-direction:column;gap:0}
+}
+
+/* 2. Секции чередуют «поверхность» — визуальный ритм, глазу есть за что зацепиться */
+.pr-s .scale,.pr-s .roster,.pr-s .map,.pr-s .board,.pr-s .split,
+.pr-s .ticket,.pr-s .prices,.pr-s .zones,.pr-s .real,.pr-s .quote,.pr-s .tbl-sec{
+  position:relative;
+}
+.pr-s table{border-radius:14px;overflow:hidden}
+
+/* 3. Крупные цифры получают свечение — притягивают взгляд к цене */
+.pr-s .hp-value,.pr-s .n,.pr-s .compare .n{
+  text-shadow:0 0 34px rgba(242,201,76,0.35);
+}
+
+/* 4. Карточки кросс-линков — hover приподнимает + акцентная рамка */
+.pr-s .pr-cx{position:relative;overflow:hidden}
+.pr-s .pr-cx::after{
+  content:"";position:absolute;left:0;top:0;height:100%;width:3px;
+  background:#F2C94C;transform:scaleY(0);transform-origin:top;transition:transform .22s ease;
+}
+.pr-s .pr-cx:hover::after,.pr-s .pr-cx:focus-visible::after{transform:scaleY(1)}
+
+/* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
+.pr-s tbody tr{transition:background .15s ease}
+.pr-s tbody tr:hover{background:rgba(242,201,76,0.06)}
+
+/* 6. Плавное появление секций при скролле (без JS, чистый CSS) */
+@media(prefers-reduced-motion:no-preference){
+  .pr-s section{animation:pr-s-rise .6s cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 22%}
+  @keyframes pr-s-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+}
+
+/* 7. CTA-кнопка: живой блик при наведении */
+.pr-s .call,.pr-s .pr-call-big{position:relative;overflow:hidden}
+.pr-s .call::after,.pr-s .pr-call-big::after{
+  content:"";position:absolute;top:0;left:-80%;width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);
+  transform:skewX(-18deg);transition:left .5s ease;
+}
+.pr-s .call:hover::after,.pr-s .pr-call-big:hover::after{left:130%}
+
+
+.pr-s{
+  background-image:
+    radial-gradient(90% 55% at 50% -8%, rgba(242,201,76,0.16), transparent 62%),
+    radial-gradient(70% 50% at 100% 0%, rgba(242,201,76,0.07), transparent 55%),
+    radial-gradient(60% 60% at 0% 30%, rgba(242,201,76,0.05), transparent 55%) !important;
+  background-attachment:fixed !important;
+}
+/* тонкая «городская» дымка-сетка на фоне hero */
+.pr-s .hero::before{
+  content:"";position:absolute;inset:-40px 0 auto;height:340px;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(242,201,76,0.05),transparent),
+    repeating-linear-gradient(90deg, rgba(242,201,76,0.04) 0 1px, transparent 1px 46px);
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent);
+          mask-image:linear-gradient(180deg,#000,transparent);
+}
+
+.pr-s .hero > *{position:relative;z-index:1}
+
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
 .pr-s .pr-cross{margin-top:72px;padding-top:44px;border-top:1px solid var(--line,#2A3642)}
@@ -2064,6 +2173,20 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 .pr-s .pr-cx span{display:block;font-size:13.5px;line-height:1.55;color:var(--mist,#8B97A6);margin-bottom:10px}
 .pr-s .pr-cx em{font-style:normal;font-family:var(--f-meter,monospace);font-size:13px;font-weight:700;
   color:var(--mark)}
+
+
+.pr-s .pr-bar{z-index:2147483000 !important}
+@media(max-width:768px){
+  body:has(.pr-s) [class*="elfsight"],
+  body:has(.pr-s) [class*="whatsapp-"],
+  body:has(.pr-s) [class*="float"],
+  body:has(.pr-s) [class*="fab"],
+  body:has(.pr-s) [id*="chat"],
+  body:has(.pr-s) .scroll-to-top,
+  body:has(.pr-s) #back-to-top{
+    bottom:74px !important;
+  }
+}
 </style></head>
 <body>
 <div class="scroll-progress" id="scrollProgress"></div>
@@ -2152,15 +2275,15 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 </div>
 </div>
 </header>
-<main class="no-bottom no-top" id="content"><section class="breadcrumb-section" style="background:#fafaf9;border-bottom:1px solid #e7e5e4;padding:110px 0 14px 0;position:relative;z-index:1;">
-<div class="container">
+<main class="no-bottom no-top" id="content"><section class="breadcrumb-section" style="background:#10151C;border-bottom:1px solid #2C3742;padding:110px 0 14px 0;position:relative;z-index:1;">
+<div class="container" style="color:#8C9AA8">
 <nav aria-label="breadcrumb">
 <ol style="list-style:none;padding:0;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:0.92rem;color:#78716c;">
-<li><a href="/ro/" style="color:#78716c;text-decoration:none;">Acasă</a></li>
-<li>›</li>
-<li><a href="/ro/sofer-treaz" style="color:#d97706;text-decoration:none;font-weight:600;">Șofer Treaz</a></li>
-<li>›</li>
-<li aria-current="page" style="color:#1C1917;font-weight:600;">Suburbii</li>
+<li style="color:#8C9AA8"><a href="/ro/" style="text-decoration:none;;color:#8C9AA8">Acasă</a></li>
+<li style="color:#8C9AA8">›</li>
+<li style="color:#8C9AA8"><a href="/ro/sofer-treaz" style="text-decoration:none;font-weight:600;;color:#8C9AA8">Șofer Treaz</a></li>
+<li style="color:#8C9AA8">›</li>
+<li aria-current="page" style="font-weight:600;;color:#8C9AA8">Suburbii</li>
 </ol>
 </nav>
 </div>
@@ -2178,7 +2301,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <span class="pr-call-tx"><em>Sună acum · non-stop</em><b>+373 60 000 500</b></span>
 </a>
 <div class="pr-msg">
-<a aria-label="Scrie pe WhatsApp" class="pr-wa" href="https://wa.me/37360000500" rel="noopener" target="_blank">
+<a aria-label="Scrie pe WhatsApp" class="pr-wa" href="https://wa.me/37360000500?text=Bun%C4%83%20ziua%21%20Am%20nevoie%20de%20un%20%C8%99ofer%20treaz%20%C3%AEn%20suburbii%20%28%C3%AEn%20afara%20Chi%C8%99in%C4%83ului%29." rel="noopener" target="_blank">
 <svg aria-hidden="true" fill="currentColor" height="19" viewbox="0 0 24 24" width="19"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7.9-.8 1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.5-.8-2-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.5.6.2 1.2.2 1.6.1.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.4z"></path><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 13.9 3.6 12.5 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.2-8.4 8.2z"></path></svg>
       WhatsApp
     </a>
@@ -2315,7 +2438,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 </div>
 <div aria-label="Contact rapid" class="pr-bar" role="group">
 <a class="b-call" href="tel:+37360000500">☎ Sună acum</a>
-<a aria-label="WhatsApp" class="b-wa" href="https://wa.me/37360000500" rel="noopener" target="_blank">
+<a aria-label="WhatsApp" class="b-wa" href="https://wa.me/37360000500?text=Bun%C4%83%20ziua%21%20Am%20nevoie%20de%20un%20%C8%99ofer%20treaz%20%C3%AEn%20suburbii%20%28%C3%AEn%20afara%20Chi%C8%99in%C4%83ului%29." rel="noopener" target="_blank">
 <svg aria-hidden="true" fill="currentColor" height="20" viewbox="0 0 24 24" width="20"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm3.5 12.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2-.2.3-.7.9-.8 1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.6-1.5-.8-2-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.8 2.8 4.4 3.9 2.1.9 2.5.7 3 .7.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.3-.2-.6-.4z"></path></svg>
 </a>
 <a aria-label="Telegram" class="b-tg" href="https://t.me/plusrent" rel="noopener" target="_blank">
