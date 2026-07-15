@@ -2300,6 +2300,27 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 @media(max-width:768px){.pr-n-scene{height:42%;opacity:.6}}
 
+/* FIX: убрать белую полосу под breadcrumb + лишний отступ hero */
+.pr-n .hero:first-child,.pr-n .doc-head:first-child{margin-top:0 !important}
+.pr-n > .wrap > .hero:first-of-type{margin-top:0 !important}
+.pr-n section:first-of-type{margin-top:0 !important}
+/* root заливает фон полностью, без просветов сайта */
+.pr-n{background-color:#2A0E1E !important;margin-top:0 !important}
+/* breadcrumb сайта прижат к контенту — без зазора */
+body:has(.pr-n) main{background-color:#2A0E1E}
+body:has(.pr-n) .breadcrumb-section{margin-bottom:0 !important}
+
+/* FIX: hero не раздувается сценой, разумная высота */
+.pr-n .hero{padding-top:56px !important;padding-bottom:44px !important}
+@media(min-width:1024px){.pr-n .hero{padding-top:64px !important;min-height:auto !important}}
+/* сцена абсолютная — фикс высота в px, не % (чтобы не растягивала hero) */
+.pr-n-scene{height:min(58%,420px) !important}
+@media(max-width:768px){.pr-n-scene{height:min(45%,240px) !important}}
+
+/* FIX: сцена строго absolute — не занимает место в потоке */
+.pr-n-scene{position:absolute !important;height:min(58%,400px) !important;top:auto !important;bottom:0 !important}
+@media(max-width:768px){.pr-n-scene{height:min(42%,220px) !important}}
+
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
 .pr-n .pr-cross{margin-top:72px;padding-top:44px;border-top:1px solid var(--line,#2A3642)}
