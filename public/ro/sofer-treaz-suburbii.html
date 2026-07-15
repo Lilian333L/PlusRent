@@ -59,7 +59,7 @@
 <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link crossorigin="" href="https://cdnjs.cloudflare.com" rel="preconnect"/>
-<link as="image" fetchpriority="high" href="/images/background/2.webp" rel="preload" type="image/webp"/>
+
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -2354,6 +2354,37 @@ body:has(.pr-s) .breadcrumb-section{margin-bottom:0 !important}
   .pr-s .hero .eyebrow{position:relative;z-index:3}
 }
 
+/* FIX: breadcrumb не просвечивает за контейнером — фон на всю ширину */
+body:has(.pr-s) .breadcrumb-section{
+  width:100% !important;max-width:100% !important;margin-left:0 !important;margin-right:0 !important;
+  background:#10151C !important;
+}
+@media(max-width:768px){
+  body:has(.pr-s) .breadcrumb-section{padding-left:16px !important;padding-right:16px !important}
+  body:has(.pr-s) .breadcrumb-section > *{max-width:100%}
+}
+
+/* FIX: карта suburbii — крупные точки и названия на мобиле */
+@media(max-width:768px){
+  .pr-s .map svg{min-height:500px !important}
+  .pr-s .map svg circle[r="6"]{r:9 !important}
+  .pr-s .map svg circle[r="10"]{r:13 !important}
+  .pr-s .map svg text{font-size:16px !important;font-weight:600}
+  .pr-s .map svg text[font-size="10"]{font-size:13px !important}
+  .pr-s .map svg text[font-size="13"]{font-size:17px !important}
+}
+@media(max-width:480px){
+  .pr-s .map svg{min-height:540px !important}
+  .pr-s .map svg text{font-size:17px !important}
+}
+
+/* карта на мобиле: крупнее целиком + жирнее подписи */
+@media(max-width:768px){
+  .pr-s .map svg{min-height:520px !important}
+  .pr-s .map svg text{font-weight:700 !important}
+  .pr-s .map svg circle{stroke-width:0}
+}
+
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
 .pr-s .pr-cross{margin-top:72px;padding-top:44px;border-top:1px solid var(--line,#2A3642)}
@@ -2501,38 +2532,6 @@ body:has(.pr-s) .breadcrumb-section{margin-bottom:0 !important}
 <div class="pr-contact">
 <a aria-label="Sună la +373 60 000 500" class="pr-call-big" href="tel:+37360000500">
 <span aria-hidden="true" class="pr-ic">
-<svg aria-labelledby="mt md" role="img" viewbox="0 0 660 420">
-<title id="mt">Harta suburbiilor Chișinăului deservite de PlusRent</title>
-<desc id="md">Localitățile din jurul Chișinăului la distanțe reale: Codru, Durlești, Stăuceni, Cricova, Trușeni, Băcioi, Ialoveni, Sîngera.</desc>
-<!-- кольца расстояния -->
-<circle cx="330" cy="210" fill="none" r="185" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
-<circle cx="330" cy="210" fill="none" r="135" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
-<circle cx="330" cy="210" fill="none" r="87" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
-<text fill="#4A5568" font-family="Roboto Mono,monospace" font-size="10" x="424" y="210">10 km</text>
-<text fill="#4A5568" font-family="Roboto Mono,monospace" font-size="10" x="472" y="210">15 km</text>
-<!-- лучи -->
-<g stroke="#242C36" stroke-width="1">
-<line x1="330" x2="233" y1="210" y2="210"></line><line x1="330" x2="280" y1="210" y2="282"></line>
-<line x1="330" x2="330" y1="210" y2="84"></line><line x1="330" x2="407" y1="210" y2="45"></line>
-<line x1="330" x2="235" y1="210" y2="115"></line><line x1="330" x2="330" y1="210" y2="354"></line>
-<line x1="330" x2="277" y1="210" y2="355"></line><line x1="330" x2="452" y1="210" y2="332"></line>
-</g>
-<!-- центр -->
-<circle cx="330" cy="210" fill="#F2C94C" r="10"></circle>
-<text fill="#F2C94C" font-family="Roboto Mono,monospace" font-size="13" font-weight="700" text-anchor="middle" x="330" y="238">CHIȘINĂU</text>
-<text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="253">oraș · 500 MDL</text>
-<!-- города (реальные направления) -->
-<g>
-<circle cx="280" cy="282" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="280" y="302">Codru</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="280" y="316">5 km · SV</text>
-<circle cx="233" cy="210" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="216" y="200">Durlești</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="216" y="214">6 km · V</text>
-<circle cx="235" cy="115" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="222" y="108">Trușeni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="222" y="122">10 km · NV</text>
-<circle cx="330" cy="84" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="330" y="70">Stăuceni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="56">9 km · N</text>
-<circle cx="407" cy="45" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="start" x="420" y="40">Cricova</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="start" x="420" y="54">15 km · N</text>
-<circle cx="452" cy="332" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="start" x="465" y="330">Sîngera</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="start" x="465" y="344">14 km · SE</text>
-<circle cx="330" cy="354" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="330" y="374">Băcioi</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="388">11 km · S</text>
-<circle cx="277" cy="355" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="264" y="374">Ialoveni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="264" y="388">12 km · S</text>
-</g>
-</svg>
 </span>
 <span class="pr-call-tx"><em>Sună acum · non-stop</em><b>+373 60 000 500</b></span>
 </a>
@@ -2550,44 +2549,29 @@ body:has(.pr-s) .breadcrumb-section{margin-bottom:0 !important}
 <!-- SEMNĂTURA: harta radială -->
 <section class="map">
 <h2>Zonele în care venim</h2>
-<p class="k">Distanța de la centrul Chișinăului</p>
-<svg aria-labelledby="mt md" role="img" viewbox="0 0 660 400">
-<title id="mt">Harta suburbiilor Chișinăului deservite</title>
-<desc id="md">Centrul Chișinăului cu localitățile din jur: Durlești, Codru, Stăuceni, Cricova, Ialoveni, Băcioi, Sîngera, Trușeni, la distanțe între 5 și 20 de kilometri.</desc>
-<circle cx="330" cy="200" fill="none" r="155" stroke="#2C3742" stroke-dasharray="4 6" stroke-width="1"></circle>
-<circle cx="330" cy="200" fill="none" r="100" stroke="#2C3742" stroke-dasharray="4 6" stroke-width="1"></circle>
-<circle cx="330" cy="200" fill="none" r="52" stroke="#2C3742" stroke-dasharray="4 6" stroke-width="1"></circle>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="180" y1="200" y2="130"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="330" y1="200" y2="60"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="480" y1="200" y2="120"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="510" y1="200" y2="240"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="400" y1="200" y2="330"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="250" y1="200" y2="335"></line>
-<line stroke="#2C3742" stroke-width="1" x1="330" x2="140" y1="200" y2="260"></line>
-<circle cx="330" cy="200" fill="#F2C94C" r="9"></circle>
-<text fill="#F2C94C" font-family="Roboto Mono, monospace" font-size="13" font-weight="700" text-anchor="middle" x="330" y="228">CHIȘINĂU</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="330" y="245">500 MDL</text>
-<circle cx="180" cy="130" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="180" y="115">Durlești</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="180" y="99">6 km</text>
-<circle cx="330" cy="60" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="330" y="45">Stăuceni</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="330" y="29">9 km</text>
-<circle cx="480" cy="120" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="480" y="105">Cricova</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="480" y="89">15 km</text>
-<circle cx="510" cy="240" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="start" x="536" y="238">Sîngera</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="start" x="536" y="255">14 km</text>
-<circle cx="400" cy="330" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="400" y="355">Ialoveni</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="400" y="372">12 km</text>
-<circle cx="250" cy="335" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="250" y="360">Băcioi</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="middle" x="250" y="377">11 km</text>
-<circle cx="140" cy="260" fill="#4ADE80" r="6"></circle>
-<text fill="#EDF1F5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="end" x="114" y="258">Codru</text>
-<text fill="#8C9AA8" font-family="Roboto Mono, monospace" font-size="11" text-anchor="end" x="114" y="275">5 km</text>
+<p class="k">Distanța de la centrul Chișinăului</p><svg aria-label="Harta suburbiilor Chișinăului" role="img" style="width:100%;height:auto" viewBox="0 0 660 440">
+<circle cx="330" cy="220" fill="none" r="190" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<circle cx="330" cy="220" fill="none" r="140" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<circle cx="330" cy="220" fill="none" r="90" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<g stroke="#242C36" stroke-width="1">
+<line x1="330" x2="240" y1="220" y2="220"></line><line x1="330" x2="285" y1="220" y2="292"></line>
+<line x1="330" x2="330" y1="220" y2="90"></line><line x1="330" x2="410" y1="220" y2="52"></line>
+<line x1="330" x2="242" y1="220" y2="122"></line><line x1="330" x2="330" y1="220" y2="360"></line>
+<line x1="330" x2="282" y1="220" y2="360"></line><line x1="330" x2="452" y1="220" y2="340"></line>
+</g>
+<circle cx="330" cy="220" fill="#F2C94C" r="12"></circle>
+<text fill="#F2C94C" font-family="Roboto Mono,monospace" font-size="16" font-weight="700" text-anchor="middle" x="330" y="250">CHIȘINĂU</text>
+<text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="middle" x="330" y="268">oraș · 500 MDL</text>
+<g font-family="Inter,sans-serif">
+<circle cx="285" cy="292" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="middle" x="285" y="315">Codru</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="middle" x="285" y="331">5 km · SV</text>
+<circle cx="240" cy="220" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="end" x="222" y="210">Durlești</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="end" x="222" y="226">6 km · V</text>
+<circle cx="242" cy="122" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="end" x="228" y="115">Trușeni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="end" x="228" y="131">10 km · NV</text>
+<circle cx="330" cy="90" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="middle" x="330" y="74">Stăuceni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="middle" x="330" y="58">9 km · N</text>
+<circle cx="410" cy="52" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="start" x="426" y="46">Cricova</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="start" x="426" y="62">15 km · N</text>
+<circle cx="452" cy="340" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="start" x="468" y="338">Sîngera</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="start" x="468" y="354">14 km · SE</text>
+<circle cx="330" cy="360" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="middle" x="330" y="383">Băcioi</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="middle" x="330" y="399">11 km · S</text>
+<circle cx="282" cy="360" fill="#4ADE80" r="8"></circle><text fill="#EDF1F5" font-size="16" font-weight="600" text-anchor="end" x="266" y="383">Ialoveni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="13" text-anchor="end" x="266" y="399">12 km · S</text>
+</g>
 </svg>
 <div class="legend">
 <span><i style="background:#F2C94C"></i>Oraș — 500 MDL</span>
@@ -2725,7 +2709,7 @@ body:has(.pr-s) .breadcrumb-section{margin-bottom:0 !important}
 (function(){var p=window.location.pathname.split('/')[1];if(!['ro','ru','en'].includes(p))return;function f(){if(typeof i18next!=='undefined'&&i18next.isInitialized){if(i18next.language!==p)i18next.changeLanguage(p);}else setTimeout(f,50);}f();})();
 </script>
 <script>
-document.getElementById('callbackForm').addEventListener('submit',async function(e){
+var _cbf=document.getElementById('callbackForm'); if(_cbf) _cbf.addEventListener('submit',async function(e){
   e.preventDefault();
   var phone=document.getElementById('callbackPhone').value.trim();
   if(!phone){alert('Vă rugăm introduceți un număr de telefon valid');return;}

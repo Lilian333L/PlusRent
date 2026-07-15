@@ -59,7 +59,7 @@
 <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link crossorigin="" href="https://cdnjs.cloudflare.com" rel="preconnect"/>
-<link as="image" fetchpriority="high" href="/images/background/2.webp" rel="preload" type="image/webp"/>
+
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -2336,6 +2336,16 @@ body:has(.pr-v) .breadcrumb-section{margin-bottom:0 !important}
   .pr-v .hero .eyebrow{position:relative;z-index:3}
 }
 
+/* FIX: breadcrumb не просвечивает за контейнером — фон на всю ширину */
+body:has(.pr-v) .breadcrumb-section{
+  width:100% !important;max-width:100% !important;margin-left:0 !important;margin-right:0 !important;
+  background:#0E1116 !important;
+}
+@media(max-width:768px){
+  body:has(.pr-v) .breadcrumb-section{padding-left:16px !important;padding-right:16px !important}
+  body:has(.pr-v) .breadcrumb-section > *{max-width:100%}
+}
+
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
 .pr-v .pr-cross{margin-top:72px;padding-top:44px;border-top:1px solid var(--line,#2A3642)}
@@ -2650,7 +2660,7 @@ body:has(.pr-v) .breadcrumb-section{margin-bottom:0 !important}
 (function(){var p=window.location.pathname.split('/')[1];if(!['ro','ru','en'].includes(p))return;function f(){if(typeof i18next!=='undefined'&&i18next.isInitialized){if(i18next.language!==p)i18next.changeLanguage(p);}else setTimeout(f,50);}f();})();
 </script>
 <script>
-document.getElementById('callbackForm').addEventListener('submit',async function(e){
+var _cbf=document.getElementById('callbackForm'); if(_cbf) _cbf.addEventListener('submit',async function(e){
   e.preventDefault();
   var phone=document.getElementById('callbackPhone').value.trim();
   if(!phone){alert('Vă rugăm introduceți un număr de telefon valid');return;}
