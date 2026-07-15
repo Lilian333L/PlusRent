@@ -2133,7 +2133,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 /* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
 .pr-n tbody tr{transition:background .15s ease}
-.pr-n tbody tr:hover{background:rgba(232,197,121,0.06)}
+
 
 /* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
@@ -2164,6 +2164,141 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 
 .pr-n .hero > *{position:relative;z-index:1}
+
+/* ========== UPGRADE 9/10 (pr-n) ========== */
+
+/* A. ТИПОГРАФИКА: единая вертикальная сетка, воздух между блоками */
+.pr-n h1{letter-spacing:-.025em;line-height:1.05}
+.pr-n h2{letter-spacing:-.015em}
+.pr-n .sub,.pr-n .lede{line-height:1.6;letter-spacing:.005em}
+.pr-n p{max-width:68ch}
+.pr-n section{margin-top:clamp(48px,8vw,88px)}
+
+/* B. HERO: больше воздуха и презентности на десктопе */
+@media(min-width:1024px){
+  .pr-n .hero,.pr-n .doc-head{padding-top:72px}
+  .pr-n .hero h1{font-size:clamp(38px,4.6vw,60px)}
+}
+
+/* C. КАРТОЧКИ/ПАНЕЛИ: мягкая глубина вместо плоскости */
+.pr-n .scale,.pr-n .roster,.pr-n .map,.pr-n .board,.pr-n .ticket,
+.pr-n .headline-price,.pr-n .cta,.pr-n .col,.pr-n .car-count,.pr-n .pr-s-price{
+  box-shadow:0 1px 0 rgba(232,197,121,0.06) inset, 0 18px 50px -30px rgba(0,0,0,.6);
+}
+
+/* D. РАЗДЕЛИТЕЛИ-СЕКЦИЙ: тонкая акцентная риска перед заголовком секции */
+.pr-n h2.sec{position:relative;padding-top:22px}
+.pr-n h2.sec::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;border-radius:2px;background:#E8C579;opacity:.9;
+}
+
+/* E. FAQ: плавное раскрытие, крупнее тап-зона */
+.pr-n details{transition:background .2s ease}
+.pr-n details[open]{background:rgba(232,197,121,0.04);border-radius:12px;padding-left:14px;padding-right:14px}
+.pr-n summary{padding:4px 0;min-height:44px;align-items:center}
+
+/* F. ТАБЛИЦЫ: зебра + акцент на итоговой строке */
+
+
+
+/* G. КНОПКИ: тактильный отклик при нажатии */
+.pr-n .call:active,.pr-n .pr-call-big:active,.pr-n .b-call:active{transform:translateY(1px) scale(.995)}
+
+/* H. FOCUS-состояния для доступности (клавиатура) */
+.pr-n a:focus-visible,.pr-n summary:focus-visible{
+  outline:2px solid #E8C579;outline-offset:3px;border-radius:4px;
+}
+
+/* I. ПЛАВНЫЕ переходы везде — премиальное ощущение */
+.pr-n a,.pr-n .pr-cx,.pr-n button,.pr-n details{transition-duration:.2s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+.pr-n tbody tr:nth-child(even){background:rgba(128,128,128,.028)}
+.pr-n tbody tr:hover{background:rgba(128,128,128,.07)}
+
+/* FIX: тёмный текст на светлой кнопке звонка (читаемость номера) */
+.pr-n .pr-call-big,.pr-n .pr-call-big *,
+.pr-n .call,.pr-n .call *,
+.pr-n .b-call{color:#2A1400 !important}
+.pr-n .pr-call-big .pr-ic{background:rgba(0,0,0,.16)}
+
+/* ===== МИКРО-АНИМАЦИИ ВХОДА (безопасные) ===== */
+/* По умолчанию всё ВИДИМО. Анимация включается только когда JS подтвердил готовность. */
+@media (prefers-reduced-motion: no-preference){
+  html.anim-ready .pr-n section,
+  html.anim-ready .pr-n .pr-cross{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  html.anim-ready .pr-n section.in-view,
+  html.anim-ready .pr-n .pr-cross.in-view{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  /* hero — сразу, с лёгким «подъёмом» дочерних элементов по очереди */
+  html.anim-ready .pr-n .hero > *,
+  html.anim-ready .pr-n .doc-head,
+  html.anim-ready .pr-n .doc-head + h1,
+  html.anim-ready .pr-n .lede{
+    animation:pr-n-hero-in .8s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-n .hero > *:nth-child(1){animation-delay:.02s}
+  html.anim-ready .pr-n .hero > *:nth-child(2){animation-delay:.10s}
+  html.anim-ready .pr-n .hero > *:nth-child(3){animation-delay:.18s}
+  html.anim-ready .pr-n .hero > *:nth-child(4){animation-delay:.26s}
+  html.anim-ready .pr-n .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes pr-n-hero-in{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  /* внутри секции — дочерние элементы всплывают каскадом */
+  html.anim-ready .pr-n section.in-view > *{
+    animation:pr-n-child-in .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-n section.in-view > *:nth-child(2){animation-delay:.06s}
+  html.anim-ready .pr-n section.in-view > *:nth-child(3){animation-delay:.12s}
+  html.anim-ready .pr-n section.in-view > *:nth-child(4){animation-delay:.18s}
+  @keyframes pr-n-child-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* цифры-счётчики и цены «пружинят» при входе */
+  html.anim-ready .pr-n section.in-view .hp-value,
+  html.anim-ready .pr-n section.in-view .cc-n,
+  html.anim-ready .pr-n section.in-view .n,
+  html.anim-ready .pr-n section.in-view .pv{
+    animation:pr-n-pop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pr-n-pop{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+}
+
+/* ===== ОПТИЧЕСКИЙ КЕРНИНГ ЗАГОЛОВКОВ ===== */
+.pr-n h1,.pr-n h2,.pr-n h3,.pr-n .hp-value,.pr-n .pv,.pr-n .cc-n,.pr-n .n{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1;
+  font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+/* крупные дисплейные заголовки — плотнее (оптическая компенсация) */
+.pr-n h1{letter-spacing:-.028em}
+@media(min-width:1024px){.pr-n h1{letter-spacing:-.032em}}
+/* моноширинные цифры — чуть разреженнее для читаемости чисел */
+.pr-n .hp-value,.pr-n .pv,.pr-n .cc-n,.pr-n .n,.pr-n tbody td{letter-spacing:.01em;font-variant-numeric:tabular-nums lining-nums}
+/* капс-подписи (eyebrow) — разрядка для «воздуха» */
+.pr-n .eyebrow,.pr-n thead th,.pr-n .hp-label,.pr-n .cc-l{font-feature-settings:"kern" 1}
+/* висячая пунктуация и переносы — аккуратные абзацы */
+.pr-n p,.pr-n .sub,.pr-n .lede{text-wrap:pretty;hyphens:none}
+.pr-n h1,.pr-n h2{text-wrap:balance}
+
+.pr-n .hero{position:relative;overflow:hidden}
+.pr-n-scene{position:absolute;left:0;right:0;top:0;width:100%;height:56%;z-index:0;opacity:.85;pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent);mask-image:linear-gradient(180deg,#000 55%,transparent)}
+.pr-n .hero > *:not(.pr-n-scene){position:relative;z-index:2}
+@media(prefers-reduced-motion:no-preference){
+  html.anim-ready .pr-n-scene circle[r="2.5"]{animation:pr-n-twinkle 3s ease-in-out infinite}
+  html.anim-ready .pr-n-scene circle[r="2.5"]:nth-of-type(even){animation-delay:1.5s}
+  @keyframes pr-n-twinkle{0%,100%{opacity:1}50%{opacity:.4}}
+}
+@media(max-width:768px){.pr-n-scene{height:42%;opacity:.6}}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2300,7 +2435,39 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 </div>
 </section><div class="pr-n">
 <div class="wrap">
-<section class="hero">
+<section class="hero"><svg aria-hidden="true" class="pr-n-scene" preserveaspectratio="xMidYMid slice" viewbox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialgradient cx="50%" cy="40%" id="champGlow" r="60%">
+<stop offset="0%" stop-color="#E8C579" stop-opacity=".4"></stop>
+<stop offset="100%" stop-color="#E8C579" stop-opacity="0"></stop>
+</radialgradient>
+<lineargradient id="glassLiq" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#E8C579" stop-opacity=".9"></stop>
+<stop offset="100%" stop-color="#C9A24C" stop-opacity=".7"></stop>
+</lineargradient>
+</defs>
+<ellipse cx="240" cy="130" fill="url(#champGlow)" rx="200" ry="120"></ellipse>
+<!-- гирлянда огней -->
+<path d="M20 40 Q120 70 240 45 Q360 70 460 40" fill="none" stroke="#5A2A47" stroke-width="1.5"></path>
+<g fill="#E8C579">
+<circle cx="60" cy="52" r="2.5"></circle><circle cx="120" cy="60" r="2.5"></circle><circle cx="180" cy="52" r="2.5"></circle>
+<circle cx="240" cy="48" r="2.5"></circle><circle cx="300" cy="52" r="2.5"></circle><circle cx="360" cy="60" r="2.5"></circle><circle cx="420" cy="52" r="2.5"></circle>
+</g>
+<g fill="#E8C579" opacity=".3">
+<circle cx="60" cy="52" r="6"></circle><circle cx="180" cy="52" r="6"></circle><circle cx="300" cy="52" r="6"></circle><circle cx="420" cy="52" r="6"></circle>
+</g>
+<!-- два бокала флейты -->
+<g transform="translate(195,120)">
+<path d="M0 0 Q0 40 15 55 L15 100 L5 110 L25 110 L15 100 L15 55 Q30 40 30 0 Z" fill="#2A1830" stroke="#5A2A47" stroke-width="1"></path>
+<path d="M3 4 Q3 36 15 50 Q27 36 27 4 Z" fill="url(#glassLiq)"></path>
+<circle cx="10" cy="20" fill="#FFF" opacity=".6" r="1"></circle><circle cx="18" cy="30" fill="#FFF" opacity=".5" r="0.8"></circle>
+</g>
+<g transform="translate(255,120)">
+<path d="M0 0 Q0 40 15 55 L15 100 L5 110 L25 110 L15 100 L15 55 Q30 40 30 0 Z" fill="#2A1830" stroke="#5A2A47" stroke-width="1"></path>
+<path d="M3 4 Q3 36 15 50 Q27 36 27 4 Z" fill="url(#glassLiq)"></path>
+<circle cx="12" cy="18" fill="#FFF" opacity=".6" r="1"></circle><circle cx="20" cy="28" fill="#FFF" opacity=".5" r="0.8"></circle>
+</g>
+</svg>
 <div class="eyebrow">Nuntă · Chișinău · 24/7</div>
 <h1>Nunta se termină la trei.<br/><em>Cine conduce?</em></h1>
 <p class="sub">Venim la restaurant la ora stabilită și ducem acasă mașina ta — și pe tine. Fără taxi, fără mașina lăsată în parcare până dimineață.</p>
@@ -2602,5 +2769,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 {"@type":"Question","name":"Cu cât timp înainte trebuie rezervat șoferul pentru nuntă?","acceptedAnswer":{"@type":"Answer","text":"În sezonul mai–septembrie recomandăm rezervarea cu 2–3 săptămâni înainte, pe dată și oră fixă."}},
 {"@type":"Question","name":"Puteți conduce acasă și mașinile invitaților?","acceptedAnswer":{"@type":"Answer","text":"Da, trimitem mai mulți șoferi simultan pentru nași, părinți și invitați. Prețul se calculează pe grup."}}
 ]}
+</script><script>
+(function(){
+  // Прогрессивное улучшение: если что-то не так — контент остаётся видимым.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return; // старый браузер → без анимаций, всё видимо
+
+  var html = document.documentElement;
+  html.classList.add('anim-ready');
+
+  // СТРАХОВКА 1: таймаут — если через 3.5с что-то не показалось, показать всё принудительно
+  var failsafe = setTimeout(function(){
+    document.querySelectorAll('.pr-n section, .pr-n .pr-cross').forEach(function(el){
+      el.classList.add('in-view');
+    });
+  }, 1500);
+
+  function reveal(){
+    var targets = document.querySelectorAll('.pr-n section, .pr-n .pr-cross');
+    if (!targets.length){ clearTimeout(failsafe); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function(t){
+      var r = t.getBoundingClientRect();
+      // элементы уже во вьюпорте при загрузке — показать сразу
+      if (r.top < window.innerHeight){ t.classList.add('in-view'); }
+      else { io.observe(t); }
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', reveal);
+  } else { reveal(); }
+
+  // СТРАХОВКА 2: на всякий — при полной загрузке ещё раз проверить видимое
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.pr-n section, .pr-n .pr-cross').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) el.classList.add('in-view');
+    });
+  });
+
+  // СТРАХОВКА 3: на скролл — показать всё, что уже прошло верх вьюпорта
+  var scrollReveal_added=true;
+  var sr=function(){document.querySelectorAll('.pr-n section, .pr-n .pr-cross').forEach(function(el){
+    if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
+  window.addEventListener('scroll', sr, {passive:true});
+})();
 </script></body>
 </html>

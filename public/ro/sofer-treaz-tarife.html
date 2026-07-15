@@ -2177,7 +2177,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 /* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
 .pr-t tbody tr{transition:background .15s ease}
-.pr-t tbody tr:hover{background:rgba(255,176,32,0.06)}
+
 
 /* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
@@ -2208,6 +2208,145 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 
 .pr-t .hero > *{position:relative;z-index:1}
+
+/* ========== UPGRADE 9/10 (pr-t) ========== */
+
+/* A. ТИПОГРАФИКА: единая вертикальная сетка, воздух между блоками */
+.pr-t h1{letter-spacing:-.025em;line-height:1.05}
+.pr-t h2{letter-spacing:-.015em}
+.pr-t .sub,.pr-t .lede{line-height:1.6;letter-spacing:.005em}
+.pr-t p{max-width:68ch}
+.pr-t section{margin-top:clamp(48px,8vw,88px)}
+
+/* B. HERO: больше воздуха и презентности на десктопе */
+@media(min-width:1024px){
+  .pr-t .hero,.pr-t .doc-head{padding-top:72px}
+  .pr-t .hero h1{font-size:clamp(38px,4.6vw,60px)}
+}
+
+/* C. КАРТОЧКИ/ПАНЕЛИ: мягкая глубина вместо плоскости */
+.pr-t .scale,.pr-t .roster,.pr-t .map,.pr-t .board,.pr-t .ticket,
+.pr-t .headline-price,.pr-t .cta,.pr-t .col,.pr-t .car-count,.pr-t .pr-s-price{
+  box-shadow:0 1px 0 rgba(255,176,32,0.06) inset, 0 18px 50px -30px rgba(0,0,0,.6);
+}
+
+/* D. РАЗДЕЛИТЕЛИ-СЕКЦИЙ: тонкая акцентная риска перед заголовком секции */
+.pr-t h2.sec{position:relative;padding-top:22px}
+.pr-t h2.sec::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;border-radius:2px;background:#FFB020;opacity:.9;
+}
+
+/* E. FAQ: плавное раскрытие, крупнее тап-зона */
+.pr-t details{transition:background .2s ease}
+.pr-t details[open]{background:rgba(255,176,32,0.04);border-radius:12px;padding-left:14px;padding-right:14px}
+.pr-t summary{padding:4px 0;min-height:44px;align-items:center}
+
+/* F. ТАБЛИЦЫ: зебра + акцент на итоговой строке */
+
+
+
+/* G. КНОПКИ: тактильный отклик при нажатии */
+.pr-t .call:active,.pr-t .pr-call-big:active,.pr-t .b-call:active{transform:translateY(1px) scale(.995)}
+
+/* H. FOCUS-состояния для доступности (клавиатура) */
+.pr-t a:focus-visible,.pr-t summary:focus-visible{
+  outline:2px solid #FFB020;outline-offset:3px;border-radius:4px;
+}
+
+/* I. ПЛАВНЫЕ переходы везде — премиальное ощущение */
+.pr-t a,.pr-t .pr-cx,.pr-t button,.pr-t details{transition-duration:.2s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+.pr-t tbody tr:nth-child(even){background:rgba(128,128,128,.028)}
+.pr-t tbody tr:hover{background:rgba(128,128,128,.07)}
+
+/* ===== МИКРО-АНИМАЦИИ ВХОДА (безопасные) ===== */
+/* По умолчанию всё ВИДИМО. Анимация включается только когда JS подтвердил готовность. */
+@media (prefers-reduced-motion: no-preference){
+  html.anim-ready .pr-t section,
+  html.anim-ready .pr-t .pr-cross{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  html.anim-ready .pr-t section.in-view,
+  html.anim-ready .pr-t .pr-cross.in-view{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  /* hero — сразу, с лёгким «подъёмом» дочерних элементов по очереди */
+  html.anim-ready .pr-t .hero > *,
+  html.anim-ready .pr-t .doc-head,
+  html.anim-ready .pr-t .doc-head + h1,
+  html.anim-ready .pr-t .lede{
+    animation:pr-t-hero-in .8s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-t .hero > *:nth-child(1){animation-delay:.02s}
+  html.anim-ready .pr-t .hero > *:nth-child(2){animation-delay:.10s}
+  html.anim-ready .pr-t .hero > *:nth-child(3){animation-delay:.18s}
+  html.anim-ready .pr-t .hero > *:nth-child(4){animation-delay:.26s}
+  html.anim-ready .pr-t .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes pr-t-hero-in{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  /* внутри секции — дочерние элементы всплывают каскадом */
+  html.anim-ready .pr-t section.in-view > *{
+    animation:pr-t-child-in .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-t section.in-view > *:nth-child(2){animation-delay:.06s}
+  html.anim-ready .pr-t section.in-view > *:nth-child(3){animation-delay:.12s}
+  html.anim-ready .pr-t section.in-view > *:nth-child(4){animation-delay:.18s}
+  @keyframes pr-t-child-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* цифры-счётчики и цены «пружинят» при входе */
+  html.anim-ready .pr-t section.in-view .hp-value,
+  html.anim-ready .pr-t section.in-view .cc-n,
+  html.anim-ready .pr-t section.in-view .n,
+  html.anim-ready .pr-t section.in-view .pv{
+    animation:pr-t-pop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pr-t-pop{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+}
+
+/* ===== ОПТИЧЕСКИЙ КЕРНИНГ ЗАГОЛОВКОВ ===== */
+.pr-t h1,.pr-t h2,.pr-t h3,.pr-t .hp-value,.pr-t .pv,.pr-t .cc-n,.pr-t .n{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1;
+  font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+/* крупные дисплейные заголовки — плотнее (оптическая компенсация) */
+.pr-t h1{letter-spacing:-.028em}
+@media(min-width:1024px){.pr-t h1{letter-spacing:-.032em}}
+/* моноширинные цифры — чуть разреженнее для читаемости чисел */
+.pr-t .hp-value,.pr-t .pv,.pr-t .cc-n,.pr-t .n,.pr-t tbody td{letter-spacing:.01em;font-variant-numeric:tabular-nums lining-nums}
+/* капс-подписи (eyebrow) — разрядка для «воздуха» */
+.pr-t .eyebrow,.pr-t thead th,.pr-t .hp-label,.pr-t .cc-l{font-feature-settings:"kern" 1}
+/* висячая пунктуация и переносы — аккуратные абзацы */
+.pr-t p,.pr-t .sub,.pr-t .lede{text-wrap:pretty;hyphens:none}
+.pr-t h1,.pr-t h2{text-wrap:balance}
+
+/* Кастомная ночная сцена — фон hero, текст поверх */
+.pr-t .hero{position:relative;overflow:hidden;border-radius:0 0 24px 24px}
+.pr-t-scene{
+  position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;height:64%;
+  z-index:0;opacity:.9;pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 40%);
+          mask-image:linear-gradient(180deg,transparent,#000 40%);
+}
+.pr-t .hero > *:not(.pr-t-scene){position:relative;z-index:2}
+/* машина медленно «подъезжает» при загрузке */
+@media(prefers-reduced-motion:no-preference){
+  html.anim-ready .pr-t-scene g[transform^="translate(150"]{
+    animation:pr-t-car 1.4s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes pr-t-car{from{transform:translate(210px,200px);opacity:0}to{transform:translate(150px,200px);opacity:1}}
+  /* фонарь мерцает */
+  html.anim-ready .pr-t-scene circle[cx="260"][cy="46"]{animation:pr-t-flick 4s ease-in-out infinite}
+  @keyframes pr-t-flick{0%,100%{opacity:1}48%{opacity:.85}50%{opacity:.6}52%{opacity:.9}}
+}
+@media(max-width:768px){.pr-t-scene{height:52%;opacity:.7}}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2344,7 +2483,65 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 </div>
 </section><div class="pr-t">
 <div class="wrap">
-<section class="hero">
+<section class="hero"><svg aria-hidden="true" class="pr-t-scene" preserveaspectratio="xMidYMid slice" viewbox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialgradient cx="50%" cy="20%" id="lampGlow" r="60%">
+<stop offset="0%" stop-color="#FFB020" stop-opacity=".55"></stop>
+<stop offset="45%" stop-color="#FFB020" stop-opacity=".14"></stop>
+<stop offset="100%" stop-color="#FFB020" stop-opacity="0"></stop>
+</radialgradient>
+<lineargradient id="skyGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0A0F1C"></stop>
+<stop offset="100%" stop-color="#121A2B"></stop>
+</lineargradient>
+<lineargradient id="carBody" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2A3550"></stop>
+<stop offset="100%" stop-color="#1B2438"></stop>
+</lineargradient>
+</defs>
+<rect fill="url(#skyGrad)" height="300" width="480"></rect>
+<!-- звёзды -->
+<g fill="#FFF" opacity=".5">
+<circle cx="60" cy="40" r="1"></circle><circle cx="120" cy="70" r="1.3"></circle><circle cx="200" cy="35" r="1"></circle>
+<circle cx="300" cy="55" r="1.2"></circle><circle cx="380" cy="30" r="1"></circle><circle cx="430" cy="65" r="1.4"></circle>
+<circle cx="160" cy="95" r="0.9"></circle><circle cx="350" cy="90" r="1"></circle><circle cx="90" cy="110" r="0.8"></circle>
+</g>
+<!-- силуэт города -->
+<g fill="#161F33" opacity=".85">
+<rect height="90" width="40" x="0" y="150"></rect><rect height="110" width="30" x="45" y="130"></rect>
+<rect height="80" width="34" x="80" y="160"></rect><rect height="100" width="26" x="120" y="140"></rect>
+<rect height="95" width="32" x="360" y="145"></rect><rect height="115" width="28" x="398" y="125"></rect>
+<rect height="85" width="40" x="432" y="155"></rect>
+</g>
+<!-- окошки в домах -->
+<g fill="#FFB020" opacity=".35">
+<rect height="6" width="4" x="52" y="145"></rect><rect height="6" width="4" x="62" y="160"></rect>
+<rect height="6" width="4" x="127" y="155"></rect><rect height="6" width="4" x="405" y="140"></rect>
+<rect height="6" width="4" x="415" y="165"></rect><rect height="6" width="4" x="440" y="170"></rect>
+</g>
+<!-- свет фонаря -->
+<ellipse cx="240" cy="120" fill="url(#lampGlow)" rx="180" ry="150"></ellipse>
+<!-- фонарный столб -->
+<rect fill="#2A3550" height="150" width="6" x="236" y="60"></rect>
+<path d="M239 60 Q239 44 258 44" fill="none" stroke="#2A3550" stroke-width="5"></path>
+<circle cx="260" cy="46" fill="#FFB020" r="8"></circle>
+<circle cx="260" cy="46" fill="#FFB020" opacity=".3" r="14"></circle>
+<!-- дорога -->
+<rect fill="#0D1220" height="60" width="480" x="0" y="240"></rect>
+<g opacity=".3" stroke="#FFB020" stroke-dasharray="20 16" stroke-width="3"><line x1="0" x2="480" y1="270" y2="270"></line></g>
+<!-- машина (седан, силуэт) -->
+<g transform="translate(150,200)">
+<ellipse cx="90" cy="48" fill="#000" opacity=".3" rx="90" ry="10"></ellipse>
+<path d="M10 40 Q12 20 40 18 L70 6 Q90 -2 120 6 L150 18 Q175 20 178 40 L178 44 Q178 48 172 48 L16 48 Q10 48 10 44 Z" fill="url(#carBody)"></path>
+<path d="M52 18 L72 8 Q90 2 112 8 L134 18 Z" fill="#0F1626" opacity=".8"></path>
+<line stroke="#2A3550" stroke-width="1.5" x1="94" x2="94" y1="8" y2="18"></line>
+<circle cx="46" cy="46" fill="#0A0F1C" r="14"></circle><circle cx="46" cy="46" fill="#2A3550" r="7"></circle>
+<circle cx="142" cy="46" fill="#0A0F1C" r="14"></circle><circle cx="142" cy="46" fill="#2A3550" r="7"></circle>
+<!-- фары -->
+<ellipse cx="176" cy="34" fill="#FFE9B0" rx="5" ry="4"></ellipse>
+<path d="M181 30 L230 22 L230 46 L181 38 Z" fill="#FFE9B0" opacity=".18"></path>
+</g>
+</svg>
 <div class="eyebrow"><span class="dot"></span> Disponibil acum · 24/7</div>
 <h1>Cât costă un <em>șofer treaz</em> în Chișinău?</h1>
 <p class="sub">Preț fix, spus din start. Fără avans, fără suprataxe de noapte, fără surprize la final.</p>
@@ -2663,5 +2860,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 {"@type":"Question","name":"Cât costă așteptarea?","acceptedAnswer":{"@type":"Answer","text":"200 MDL pentru fiecare oră de așteptare. Pentru nuntă sau cumătrie există pachet complet de la 3.000 MDL."}},
 {"@type":"Question","name":"Când se face plata?","acceptedAnswer":{"@type":"Answer","text":"La final, după ce ați ajuns acasă. Card sau numerar. Nu se cere avans."}}
 ]}
+</script><script>
+(function(){
+  // Прогрессивное улучшение: если что-то не так — контент остаётся видимым.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return; // старый браузер → без анимаций, всё видимо
+
+  var html = document.documentElement;
+  html.classList.add('anim-ready');
+
+  // СТРАХОВКА 1: таймаут — если через 3.5с что-то не показалось, показать всё принудительно
+  var failsafe = setTimeout(function(){
+    document.querySelectorAll('.pr-t section, .pr-t .pr-cross').forEach(function(el){
+      el.classList.add('in-view');
+    });
+  }, 1500);
+
+  function reveal(){
+    var targets = document.querySelectorAll('.pr-t section, .pr-t .pr-cross');
+    if (!targets.length){ clearTimeout(failsafe); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function(t){
+      var r = t.getBoundingClientRect();
+      // элементы уже во вьюпорте при загрузке — показать сразу
+      if (r.top < window.innerHeight){ t.classList.add('in-view'); }
+      else { io.observe(t); }
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', reveal);
+  } else { reveal(); }
+
+  // СТРАХОВКА 2: на всякий — при полной загрузке ещё раз проверить видимое
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.pr-t section, .pr-t .pr-cross').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) el.classList.add('in-view');
+    });
+  });
+
+  // СТРАХОВКА 3: на скролл — показать всё, что уже прошло верх вьюпорта
+  var scrollReveal_added=true;
+  var sr=function(){document.querySelectorAll('.pr-t section, .pr-t .pr-cross').forEach(function(el){
+    if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
+  window.addEventListener('scroll', sr, {passive:true});
+})();
 </script></body>
 </html>

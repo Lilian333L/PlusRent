@@ -2149,7 +2149,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 /* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
 .pr-a tbody tr{transition:background .15s ease}
-.pr-a tbody tr:hover{background:rgba(179,38,30,0.06)}
+
 
 /* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
@@ -2197,6 +2197,124 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
   display:inline-block;background:#F4F2ED}
 @media(max-width:640px){.pr-a .stamp-wrap{justify-content:center;margin-top:8px}
   .pr-a .stamp{transform:none !important}}
+
+/* ========== UPGRADE 9/10 (pr-a) ========== */
+
+/* A. ТИПОГРАФИКА: единая вертикальная сетка, воздух между блоками */
+.pr-a h1{letter-spacing:-.025em;line-height:1.05}
+.pr-a h2{letter-spacing:-.015em}
+.pr-a .sub,.pr-a .lede{line-height:1.6;letter-spacing:.005em}
+.pr-a p{max-width:68ch}
+.pr-a section{margin-top:clamp(48px,8vw,88px)}
+
+/* B. HERO: больше воздуха и презентности на десктопе */
+@media(min-width:1024px){
+  .pr-a .hero,.pr-a .doc-head{padding-top:72px}
+  .pr-a .hero h1{font-size:clamp(38px,4.6vw,60px)}
+}
+
+/* C. КАРТОЧКИ/ПАНЕЛИ: мягкая глубина вместо плоскости */
+.pr-a .scale,.pr-a .roster,.pr-a .map,.pr-a .board,.pr-a .ticket,
+.pr-a .headline-price,.pr-a .cta,.pr-a .col,.pr-a .car-count,.pr-a .pr-s-price{
+  box-shadow:0 1px 0 rgba(179,38,30,0.06) inset, 0 18px 50px -30px rgba(0,0,0,.6);
+}
+
+/* D. РАЗДЕЛИТЕЛИ-СЕКЦИЙ: тонкая акцентная риска перед заголовком секции */
+.pr-a h2.sec{position:relative;padding-top:22px}
+.pr-a h2.sec::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;border-radius:2px;background:#B3261E;opacity:.9;
+}
+
+/* E. FAQ: плавное раскрытие, крупнее тап-зона */
+.pr-a details{transition:background .2s ease}
+.pr-a details[open]{background:rgba(179,38,30,0.04);border-radius:12px;padding-left:14px;padding-right:14px}
+.pr-a summary{padding:4px 0;min-height:44px;align-items:center}
+
+/* F. ТАБЛИЦЫ: зебра + акцент на итоговой строке */
+
+
+
+/* G. КНОПКИ: тактильный отклик при нажатии */
+.pr-a .call:active,.pr-a .pr-call-big:active,.pr-a .b-call:active{transform:translateY(1px) scale(.995)}
+
+/* H. FOCUS-состояния для доступности (клавиатура) */
+.pr-a a:focus-visible,.pr-a summary:focus-visible{
+  outline:2px solid #B3261E;outline-offset:3px;border-radius:4px;
+}
+
+/* I. ПЛАВНЫЕ переходы везде — премиальное ощущение */
+.pr-a a,.pr-a .pr-cx,.pr-a button,.pr-a details{transition-duration:.2s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+.pr-a tbody tr:nth-child(even){background:rgba(128,128,128,.028)}
+.pr-a tbody tr:hover{background:rgba(128,128,128,.07)}
+
+/* ===== МИКРО-АНИМАЦИИ ВХОДА (безопасные) ===== */
+/* По умолчанию всё ВИДИМО. Анимация включается только когда JS подтвердил готовность. */
+@media (prefers-reduced-motion: no-preference){
+  html.anim-ready .pr-a section,
+  html.anim-ready .pr-a .pr-cross{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  html.anim-ready .pr-a section.in-view,
+  html.anim-ready .pr-a .pr-cross.in-view{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  /* hero — сразу, с лёгким «подъёмом» дочерних элементов по очереди */
+  html.anim-ready .pr-a .hero > *,
+  html.anim-ready .pr-a .doc-head,
+  html.anim-ready .pr-a .doc-head + h1,
+  html.anim-ready .pr-a .lede{
+    animation:pr-a-hero-in .8s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-a .hero > *:nth-child(1){animation-delay:.02s}
+  html.anim-ready .pr-a .hero > *:nth-child(2){animation-delay:.10s}
+  html.anim-ready .pr-a .hero > *:nth-child(3){animation-delay:.18s}
+  html.anim-ready .pr-a .hero > *:nth-child(4){animation-delay:.26s}
+  html.anim-ready .pr-a .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes pr-a-hero-in{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  /* внутри секции — дочерние элементы всплывают каскадом */
+  html.anim-ready .pr-a section.in-view > *{
+    animation:pr-a-child-in .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-a section.in-view > *:nth-child(2){animation-delay:.06s}
+  html.anim-ready .pr-a section.in-view > *:nth-child(3){animation-delay:.12s}
+  html.anim-ready .pr-a section.in-view > *:nth-child(4){animation-delay:.18s}
+  @keyframes pr-a-child-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* цифры-счётчики и цены «пружинят» при входе */
+  html.anim-ready .pr-a section.in-view .hp-value,
+  html.anim-ready .pr-a section.in-view .cc-n,
+  html.anim-ready .pr-a section.in-view .n,
+  html.anim-ready .pr-a section.in-view .pv{
+    animation:pr-a-pop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pr-a-pop{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+}
+
+/* ===== ОПТИЧЕСКИЙ КЕРНИНГ ЗАГОЛОВКОВ ===== */
+.pr-a h1,.pr-a h2,.pr-a h3,.pr-a .hp-value,.pr-a .pv,.pr-a .cc-n,.pr-a .n{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1;
+  font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+/* крупные дисплейные заголовки — плотнее (оптическая компенсация) */
+.pr-a h1{letter-spacing:-.028em}
+@media(min-width:1024px){.pr-a h1{letter-spacing:-.032em}}
+/* моноширинные цифры — чуть разреженнее для читаемости чисел */
+.pr-a .hp-value,.pr-a .pv,.pr-a .cc-n,.pr-a .n,.pr-a tbody td{letter-spacing:.01em;font-variant-numeric:tabular-nums lining-nums}
+/* капс-подписи (eyebrow) — разрядка для «воздуха» */
+.pr-a .eyebrow,.pr-a thead th,.pr-a .hp-label,.pr-a .cc-l{font-feature-settings:"kern" 1}
+/* висячая пунктуация и переносы — аккуратные абзацы */
+.pr-a p,.pr-a .sub,.pr-a .lede{text-wrap:pretty;hyphens:none}
+.pr-a h1,.pr-a h2{text-wrap:balance}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2637,5 +2755,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 {"@type":"Question","name":"Ce se întâmplă dacă refuz etilotestul?","acceptedAnswer":{"@type":"Answer","text":"Refuzul testării se sancționează separat și, de regulă, mai sever decât un rezultat pozitiv."}},
 {"@type":"Question","name":"Cât timp se suspendă permisul pentru conducere în stare de ebrietate?","acceptedAnswer":{"@type":"Answer","text":"Între 6 luni și 3 ani, în funcție de circumstanțe."}}
 ]}
+</script><script>
+(function(){
+  // Прогрессивное улучшение: если что-то не так — контент остаётся видимым.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return; // старый браузер → без анимаций, всё видимо
+
+  var html = document.documentElement;
+  html.classList.add('anim-ready');
+
+  // СТРАХОВКА 1: таймаут — если через 3.5с что-то не показалось, показать всё принудительно
+  var failsafe = setTimeout(function(){
+    document.querySelectorAll('.pr-a section, .pr-a .pr-cross').forEach(function(el){
+      el.classList.add('in-view');
+    });
+  }, 1500);
+
+  function reveal(){
+    var targets = document.querySelectorAll('.pr-a section, .pr-a .pr-cross');
+    if (!targets.length){ clearTimeout(failsafe); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function(t){
+      var r = t.getBoundingClientRect();
+      // элементы уже во вьюпорте при загрузке — показать сразу
+      if (r.top < window.innerHeight){ t.classList.add('in-view'); }
+      else { io.observe(t); }
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', reveal);
+  } else { reveal(); }
+
+  // СТРАХОВКА 2: на всякий — при полной загрузке ещё раз проверить видимое
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.pr-a section, .pr-a .pr-cross').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) el.classList.add('in-view');
+    });
+  });
+
+  // СТРАХОВКА 3: на скролл — показать всё, что уже прошло верх вьюпорта
+  var scrollReveal_added=true;
+  var sr=function(){document.querySelectorAll('.pr-a section, .pr-a .pr-cross').forEach(function(el){
+    if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
+  window.addEventListener('scroll', sr, {passive:true});
+})();
 </script></body>
 </html>

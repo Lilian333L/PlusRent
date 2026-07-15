@@ -2102,7 +2102,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 /* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
 .pr-s tbody tr{transition:background .15s ease}
-.pr-s tbody tr:hover{background:rgba(242,201,76,0.06)}
+
 
 /* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
@@ -2176,6 +2176,130 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
   text-shadow:0 0 30px rgba(242,201,76,.4)}
 .pr-s .pr-s-price .pv small{font-size:.36em;color:var(--paper) !important;letter-spacing:.04em}
 .pr-s .pr-s-price .pn{display:block;font-size:13px;color:var(--mist);margin-top:8px}
+
+/* ========== UPGRADE 9/10 (pr-s) ========== */
+
+/* A. ТИПОГРАФИКА: единая вертикальная сетка, воздух между блоками */
+.pr-s h1{letter-spacing:-.025em;line-height:1.05}
+.pr-s h2{letter-spacing:-.015em}
+.pr-s .sub,.pr-s .lede{line-height:1.6;letter-spacing:.005em}
+.pr-s p{max-width:68ch}
+.pr-s section{margin-top:clamp(48px,8vw,88px)}
+
+/* B. HERO: больше воздуха и презентности на десктопе */
+@media(min-width:1024px){
+  .pr-s .hero,.pr-s .doc-head{padding-top:72px}
+  .pr-s .hero h1{font-size:clamp(38px,4.6vw,60px)}
+}
+
+/* C. КАРТОЧКИ/ПАНЕЛИ: мягкая глубина вместо плоскости */
+.pr-s .scale,.pr-s .roster,.pr-s .map,.pr-s .board,.pr-s .ticket,
+.pr-s .headline-price,.pr-s .cta,.pr-s .col,.pr-s .car-count,.pr-s .pr-s-price{
+  box-shadow:0 1px 0 rgba(242,201,76,0.06) inset, 0 18px 50px -30px rgba(0,0,0,.6);
+}
+
+/* D. РАЗДЕЛИТЕЛИ-СЕКЦИЙ: тонкая акцентная риска перед заголовком секции */
+.pr-s h2.sec{position:relative;padding-top:22px}
+.pr-s h2.sec::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;border-radius:2px;background:#F2C94C;opacity:.9;
+}
+
+/* E. FAQ: плавное раскрытие, крупнее тап-зона */
+.pr-s details{transition:background .2s ease}
+.pr-s details[open]{background:rgba(242,201,76,0.04);border-radius:12px;padding-left:14px;padding-right:14px}
+.pr-s summary{padding:4px 0;min-height:44px;align-items:center}
+
+/* F. ТАБЛИЦЫ: зебра + акцент на итоговой строке */
+
+
+
+/* G. КНОПКИ: тактильный отклик при нажатии */
+.pr-s .call:active,.pr-s .pr-call-big:active,.pr-s .b-call:active{transform:translateY(1px) scale(.995)}
+
+/* H. FOCUS-состояния для доступности (клавиатура) */
+.pr-s a:focus-visible,.pr-s summary:focus-visible{
+  outline:2px solid #F2C94C;outline-offset:3px;border-radius:4px;
+}
+
+/* I. ПЛАВНЫЕ переходы везде — премиальное ощущение */
+.pr-s a,.pr-s .pr-cx,.pr-s button,.pr-s details{transition-duration:.2s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+.pr-s tbody tr:nth-child(even){background:rgba(128,128,128,.028)}
+.pr-s tbody tr:hover{background:rgba(128,128,128,.07)}
+
+/* FIX: тёмный текст на светлой кнопке звонка (читаемость номера) */
+.pr-s .pr-call-big,.pr-s .pr-call-big *,
+.pr-s .call,.pr-s .call *,
+.pr-s .b-call{color:#1C1500 !important}
+.pr-s .pr-call-big .pr-ic{background:rgba(0,0,0,.16)}
+
+/* ===== МИКРО-АНИМАЦИИ ВХОДА (безопасные) ===== */
+/* По умолчанию всё ВИДИМО. Анимация включается только когда JS подтвердил готовность. */
+@media (prefers-reduced-motion: no-preference){
+  html.anim-ready .pr-s section,
+  html.anim-ready .pr-s .pr-cross{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  html.anim-ready .pr-s section.in-view,
+  html.anim-ready .pr-s .pr-cross.in-view{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  /* hero — сразу, с лёгким «подъёмом» дочерних элементов по очереди */
+  html.anim-ready .pr-s .hero > *,
+  html.anim-ready .pr-s .doc-head,
+  html.anim-ready .pr-s .doc-head + h1,
+  html.anim-ready .pr-s .lede{
+    animation:pr-s-hero-in .8s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-s .hero > *:nth-child(1){animation-delay:.02s}
+  html.anim-ready .pr-s .hero > *:nth-child(2){animation-delay:.10s}
+  html.anim-ready .pr-s .hero > *:nth-child(3){animation-delay:.18s}
+  html.anim-ready .pr-s .hero > *:nth-child(4){animation-delay:.26s}
+  html.anim-ready .pr-s .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes pr-s-hero-in{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  /* внутри секции — дочерние элементы всплывают каскадом */
+  html.anim-ready .pr-s section.in-view > *{
+    animation:pr-s-child-in .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-s section.in-view > *:nth-child(2){animation-delay:.06s}
+  html.anim-ready .pr-s section.in-view > *:nth-child(3){animation-delay:.12s}
+  html.anim-ready .pr-s section.in-view > *:nth-child(4){animation-delay:.18s}
+  @keyframes pr-s-child-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* цифры-счётчики и цены «пружинят» при входе */
+  html.anim-ready .pr-s section.in-view .hp-value,
+  html.anim-ready .pr-s section.in-view .cc-n,
+  html.anim-ready .pr-s section.in-view .n,
+  html.anim-ready .pr-s section.in-view .pv{
+    animation:pr-s-pop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pr-s-pop{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+}
+
+/* ===== ОПТИЧЕСКИЙ КЕРНИНГ ЗАГОЛОВКОВ ===== */
+.pr-s h1,.pr-s h2,.pr-s h3,.pr-s .hp-value,.pr-s .pv,.pr-s .cc-n,.pr-s .n{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1;
+  font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+/* крупные дисплейные заголовки — плотнее (оптическая компенсация) */
+.pr-s h1{letter-spacing:-.028em}
+@media(min-width:1024px){.pr-s h1{letter-spacing:-.032em}}
+/* моноширинные цифры — чуть разреженнее для читаемости чисел */
+.pr-s .hp-value,.pr-s .pv,.pr-s .cc-n,.pr-s .n,.pr-s tbody td{letter-spacing:.01em;font-variant-numeric:tabular-nums lining-nums}
+/* капс-подписи (eyebrow) — разрядка для «воздуха» */
+.pr-s .eyebrow,.pr-s thead th,.pr-s .hp-label,.pr-s .cc-l{font-feature-settings:"kern" 1}
+/* висячая пунктуация и переносы — аккуратные абзацы */
+.pr-s p,.pr-s .sub,.pr-s .lede{text-wrap:pretty;hyphens:none}
+.pr-s h1,.pr-s h2{text-wrap:balance}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2324,7 +2448,38 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <div class="pr-contact">
 <a aria-label="Sună la +373 60 000 500" class="pr-call-big" href="tel:+37360000500">
 <span aria-hidden="true" class="pr-ic">
-<svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+<svg aria-labelledby="mt md" role="img" viewbox="0 0 660 420">
+<title id="mt">Harta suburbiilor Chișinăului deservite de PlusRent</title>
+<desc id="md">Localitățile din jurul Chișinăului la distanțe reale: Codru, Durlești, Stăuceni, Cricova, Trușeni, Băcioi, Ialoveni, Sîngera.</desc>
+<!-- кольца расстояния -->
+<circle cx="330" cy="210" fill="none" r="185" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<circle cx="330" cy="210" fill="none" r="135" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<circle cx="330" cy="210" fill="none" r="87" stroke="#2C3742" stroke-dasharray="3 7" stroke-width="1"></circle>
+<text fill="#4A5568" font-family="Roboto Mono,monospace" font-size="10" x="424" y="210">10 km</text>
+<text fill="#4A5568" font-family="Roboto Mono,monospace" font-size="10" x="472" y="210">15 km</text>
+<!-- лучи -->
+<g stroke="#242C36" stroke-width="1">
+<line x1="330" x2="233" y1="210" y2="210"></line><line x1="330" x2="280" y1="210" y2="282"></line>
+<line x1="330" x2="330" y1="210" y2="84"></line><line x1="330" x2="407" y1="210" y2="45"></line>
+<line x1="330" x2="235" y1="210" y2="115"></line><line x1="330" x2="330" y1="210" y2="354"></line>
+<line x1="330" x2="277" y1="210" y2="355"></line><line x1="330" x2="452" y1="210" y2="332"></line>
+</g>
+<!-- центр -->
+<circle cx="330" cy="210" fill="#F2C94C" r="10"></circle>
+<text fill="#F2C94C" font-family="Roboto Mono,monospace" font-size="13" font-weight="700" text-anchor="middle" x="330" y="238">CHIȘINĂU</text>
+<text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="253">oraș · 500 MDL</text>
+<!-- города (реальные направления) -->
+<g>
+<circle cx="280" cy="282" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="280" y="302">Codru</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="280" y="316">5 km · SV</text>
+<circle cx="233" cy="210" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="216" y="200">Durlești</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="216" y="214">6 km · V</text>
+<circle cx="235" cy="115" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="222" y="108">Trușeni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="222" y="122">10 km · NV</text>
+<circle cx="330" cy="84" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="330" y="70">Stăuceni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="56">9 km · N</text>
+<circle cx="407" cy="45" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="start" x="420" y="40">Cricova</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="start" x="420" y="54">15 km · N</text>
+<circle cx="452" cy="332" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="start" x="465" y="330">Sîngera</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="start" x="465" y="344">14 km · SE</text>
+<circle cx="330" cy="354" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="middle" x="330" y="374">Băcioi</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="middle" x="330" y="388">11 km · S</text>
+<circle cx="277" cy="355" fill="#4ADE80" r="6"></circle><text fill="#EDF1F5" font-family="Inter,sans-serif" font-size="13" font-weight="600" text-anchor="end" x="264" y="374">Ialoveni</text><text fill="#8C9AA8" font-family="Roboto Mono,monospace" font-size="10" text-anchor="end" x="264" y="388">12 km · S</text>
+</g>
+</svg>
 </span>
 <span class="pr-call-tx"><em>Sună acum · non-stop</em><b>+373 60 000 500</b></span>
 </a>
@@ -2629,5 +2784,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 {"@type":"Question","name":"În cât timp ajunge șoferul în suburbii?","acceptedAnswer":{"@type":"Answer","text":"În 20–25 de minute pentru majoritatea suburbiilor, până la 30 de minute pentru Cricova."}},
 {"@type":"Question","name":"Există suprataxă de noapte în suburbii?","acceptedAnswer":{"@type":"Answer","text":"Nu. Tariful este identic la orice oră și în weekend."}}
 ]}
+</script><script>
+(function(){
+  // Прогрессивное улучшение: если что-то не так — контент остаётся видимым.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return; // старый браузер → без анимаций, всё видимо
+
+  var html = document.documentElement;
+  html.classList.add('anim-ready');
+
+  // СТРАХОВКА 1: таймаут — если через 3.5с что-то не показалось, показать всё принудительно
+  var failsafe = setTimeout(function(){
+    document.querySelectorAll('.pr-s section, .pr-s .pr-cross').forEach(function(el){
+      el.classList.add('in-view');
+    });
+  }, 1500);
+
+  function reveal(){
+    var targets = document.querySelectorAll('.pr-s section, .pr-s .pr-cross');
+    if (!targets.length){ clearTimeout(failsafe); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function(t){
+      var r = t.getBoundingClientRect();
+      // элементы уже во вьюпорте при загрузке — показать сразу
+      if (r.top < window.innerHeight){ t.classList.add('in-view'); }
+      else { io.observe(t); }
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', reveal);
+  } else { reveal(); }
+
+  // СТРАХОВКА 2: на всякий — при полной загрузке ещё раз проверить видимое
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.pr-s section, .pr-s .pr-cross').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) el.classList.add('in-view');
+    });
+  });
+
+  // СТРАХОВКА 3: на скролл — показать всё, что уже прошло верх вьюпорта
+  var scrollReveal_added=true;
+  var sr=function(){document.querySelectorAll('.pr-s section, .pr-s .pr-cross').forEach(function(el){
+    if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
+  window.addEventListener('scroll', sr, {passive:true});
+})();
 </script></body>
 </html>

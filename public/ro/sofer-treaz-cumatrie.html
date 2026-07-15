@@ -2120,7 +2120,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 
 /* 5. Таблицы: строка при наведении подсвечивается — читается как интерактив */
 .pr-c tbody tr{transition:background .15s ease}
-.pr-c tbody tr:hover{background:rgba(210,162,76,0.06)}
+
 
 /* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
@@ -2160,6 +2160,171 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
   .pr-c .guest .st{font-size:11px;padding:4px 9px}
   .pr-c .guest .who b{font-size:14.5px}
 }
+
+/* FINAL: строка гостя через GRID — бейдж всегда справа, на любой ширине */
+.pr-c .guest{
+  display:grid !important;
+  grid-template-columns:auto 1fr auto !important;
+  align-items:center !important;gap:14px !important;
+}
+.pr-c .guest .av{grid-column:1}
+.pr-c .guest .who{grid-column:2;min-width:0}
+.pr-c .guest .st{
+  grid-column:3 !important;justify-self:end !important;
+  display:inline-flex !important;align-items:center;gap:6px;white-space:nowrap;
+}
+.pr-c .guest .st svg{flex:none;opacity:.85}
+@media(max-width:560px){
+  .pr-c .guest{grid-template-columns:auto 1fr !important;grid-template-rows:auto auto;gap:4px 12px !important}
+  .pr-c .guest .av{grid-row:1 / span 2}
+  .pr-c .guest .who{grid-column:2;grid-row:1}
+  .pr-c .guest .st{grid-column:2;grid-row:2;justify-self:start !important;
+    font-size:11px;padding:3px 8px}
+}
+
+/* Счётчик машин вместо повторяющихся бейджей — одна сильная мысль */
+.pr-c .car-count{
+  display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
+  margin:0 0 30px;padding:22px 20px;border-radius:14px;
+  background:var(--pine);border:1px solid var(--line);
+}
+.pr-c .cc-item{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:92px}
+.pr-c .cc-n{font-family:var(--f-meter);font-weight:700;font-size:38px;line-height:1;
+  color:var(--cream) !important;font-variant-numeric:tabular-nums}
+.pr-c .cc-n.accent{color:var(--brass) !important;text-shadow:0 0 26px rgba(210,162,76,.4)}
+.pr-c .cc-n.ok{color:#5FD39A !important}
+.pr-c .cc-l{font-size:12px;color:var(--mist) !important;text-align:center;line-height:1.35;max-width:120px}
+.pr-c .cc-x{font-family:var(--f-meter);color:var(--mist);font-size:20px;opacity:.6}
+@media(max-width:560px){
+  .pr-c .car-count{gap:10px;padding:18px 14px}
+  .pr-c .cc-n{font-size:30px}
+  .pr-c .cc-x{display:none}
+  .pr-c .cc-item{min-width:0;flex:1}
+}
+
+/* ========== UPGRADE 9/10 (pr-c) ========== */
+
+/* A. ТИПОГРАФИКА: единая вертикальная сетка, воздух между блоками */
+.pr-c h1{letter-spacing:-.025em;line-height:1.05}
+.pr-c h2{letter-spacing:-.015em}
+.pr-c .sub,.pr-c .lede{line-height:1.6;letter-spacing:.005em}
+.pr-c p{max-width:68ch}
+.pr-c section{margin-top:clamp(48px,8vw,88px)}
+
+/* B. HERO: больше воздуха и презентности на десктопе */
+@media(min-width:1024px){
+  .pr-c .hero,.pr-c .doc-head{padding-top:72px}
+  .pr-c .hero h1{font-size:clamp(38px,4.6vw,60px)}
+}
+
+/* C. КАРТОЧКИ/ПАНЕЛИ: мягкая глубина вместо плоскости */
+.pr-c .scale,.pr-c .roster,.pr-c .map,.pr-c .board,.pr-c .ticket,
+.pr-c .headline-price,.pr-c .cta,.pr-c .col,.pr-c .car-count,.pr-c .pr-s-price{
+  box-shadow:0 1px 0 rgba(210,162,76,0.06) inset, 0 18px 50px -30px rgba(0,0,0,.6);
+}
+
+/* D. РАЗДЕЛИТЕЛИ-СЕКЦИЙ: тонкая акцентная риска перед заголовком секции */
+.pr-c h2.sec{position:relative;padding-top:22px}
+.pr-c h2.sec::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:44px;height:3px;border-radius:2px;background:#D2A24C;opacity:.9;
+}
+
+/* E. FAQ: плавное раскрытие, крупнее тап-зона */
+.pr-c details{transition:background .2s ease}
+.pr-c details[open]{background:rgba(210,162,76,0.04);border-radius:12px;padding-left:14px;padding-right:14px}
+.pr-c summary{padding:4px 0;min-height:44px;align-items:center}
+
+/* F. ТАБЛИЦЫ: зебра + акцент на итоговой строке */
+
+
+
+/* G. КНОПКИ: тактильный отклик при нажатии */
+.pr-c .call:active,.pr-c .pr-call-big:active,.pr-c .b-call:active{transform:translateY(1px) scale(.995)}
+
+/* H. FOCUS-состояния для доступности (клавиатура) */
+.pr-c a:focus-visible,.pr-c summary:focus-visible{
+  outline:2px solid #D2A24C;outline-offset:3px;border-radius:4px;
+}
+
+/* I. ПЛАВНЫЕ переходы везде — премиальное ощущение */
+.pr-c a,.pr-c .pr-cx,.pr-c button,.pr-c details{transition-duration:.2s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+
+.pr-c tbody tr:nth-child(even){background:rgba(128,128,128,.028)}
+.pr-c tbody tr:hover{background:rgba(128,128,128,.07)}
+
+/* FIX: тёмный текст на светлой кнопке звонка (читаемость номера) */
+.pr-c .pr-call-big,.pr-c .pr-call-big *,
+.pr-c .call,.pr-c .call *,
+.pr-c .b-call{color:#241802 !important}
+.pr-c .pr-call-big .pr-ic{background:rgba(0,0,0,.16)}
+
+/* ===== МИКРО-АНИМАЦИИ ВХОДА (безопасные) ===== */
+/* По умолчанию всё ВИДИМО. Анимация включается только когда JS подтвердил готовность. */
+@media (prefers-reduced-motion: no-preference){
+  html.anim-ready .pr-c section,
+  html.anim-ready .pr-c .pr-cross{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+  }
+  html.anim-ready .pr-c section.in-view,
+  html.anim-ready .pr-c .pr-cross.in-view{
+    opacity:1 !important;
+    transform:none !important;
+  }
+  /* hero — сразу, с лёгким «подъёмом» дочерних элементов по очереди */
+  html.anim-ready .pr-c .hero > *,
+  html.anim-ready .pr-c .doc-head,
+  html.anim-ready .pr-c .doc-head + h1,
+  html.anim-ready .pr-c .lede{
+    animation:pr-c-hero-in .8s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-c .hero > *:nth-child(1){animation-delay:.02s}
+  html.anim-ready .pr-c .hero > *:nth-child(2){animation-delay:.10s}
+  html.anim-ready .pr-c .hero > *:nth-child(3){animation-delay:.18s}
+  html.anim-ready .pr-c .hero > *:nth-child(4){animation-delay:.26s}
+  html.anim-ready .pr-c .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes pr-c-hero-in{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  /* внутри секции — дочерние элементы всплывают каскадом */
+  html.anim-ready .pr-c section.in-view > *{
+    animation:pr-c-child-in .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  html.anim-ready .pr-c section.in-view > *:nth-child(2){animation-delay:.06s}
+  html.anim-ready .pr-c section.in-view > *:nth-child(3){animation-delay:.12s}
+  html.anim-ready .pr-c section.in-view > *:nth-child(4){animation-delay:.18s}
+  @keyframes pr-c-child-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  /* цифры-счётчики и цены «пружинят» при входе */
+  html.anim-ready .pr-c section.in-view .hp-value,
+  html.anim-ready .pr-c section.in-view .cc-n,
+  html.anim-ready .pr-c section.in-view .n,
+  html.anim-ready .pr-c section.in-view .pv{
+    animation:pr-c-pop .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pr-c-pop{0%{opacity:0;transform:scale(.82)}60%{transform:scale(1.04)}100%{opacity:1;transform:none}}
+}
+
+/* ===== ОПТИЧЕСКИЙ КЕРНИНГ ЗАГОЛОВКОВ ===== */
+.pr-c h1,.pr-c h2,.pr-c h3,.pr-c .hp-value,.pr-c .pv,.pr-c .cc-n,.pr-c .n{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1;
+  font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+/* крупные дисплейные заголовки — плотнее (оптическая компенсация) */
+.pr-c h1{letter-spacing:-.028em}
+@media(min-width:1024px){.pr-c h1{letter-spacing:-.032em}}
+/* моноширинные цифры — чуть разреженнее для читаемости чисел */
+.pr-c .hp-value,.pr-c .pv,.pr-c .cc-n,.pr-c .n,.pr-c tbody td{letter-spacing:.01em;font-variant-numeric:tabular-nums lining-nums}
+/* капс-подписи (eyebrow) — разрядка для «воздуха» */
+.pr-c .eyebrow,.pr-c thead th,.pr-c .hp-label,.pr-c .cc-l{font-feature-settings:"kern" 1}
+/* висячая пунктуация и переносы — аккуратные абзацы */
+.pr-c p,.pr-c .sub,.pr-c .lede{text-wrap:pretty;hyphens:none}
+.pr-c h1,.pr-c h2{text-wrap:balance}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2322,30 +2487,32 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <section class="roster">
 <h2>Cine ajunge acasă și cum</h2>
 <p class="k">O cumătrie obișnuită, la un restaurant din Chișinău.</p>
+<div class="car-count">
+<div class="cc-item"><span class="cc-n">5</span><span class="cc-l">mașini în parcare</span></div>
+<div class="cc-x">→</div>
+<div class="cc-item"><span class="cc-n accent">5</span><span class="cc-l">șoferi trimiși</span></div>
+<div class="cc-x">→</div>
+<div class="cc-item"><span class="cc-n ok">0</span><span class="cc-l">mașini lăsate la restaurant</span></div>
+</div>
 <div class="guest">
 <span class="av">N</span>
 <span class="who"><b>Nașul</b><span>A venit cu mașina. A ținut toastul. A băut.</span></span>
-<span class="st car">are mașină</span>
 </div>
 <div class="guest">
 <span class="av">C</span>
 <span class="who"><b>Cumătrii</b><span>Au venit împreună, cu mașina lor.</span></span>
-<span class="st car">are mașină</span>
 </div>
 <div class="guest">
 <span class="av">P</span>
 <span class="who"><b>Părinții copilului</b><span>Gazdele. Ei pleacă ultimii.</span></span>
-<span class="st car">are mașină</span>
 </div>
 <div class="guest">
 <span class="av">B</span>
 <span class="who"><b>Bunicii</b><span>Pleacă devreme, dar tot cu mașina.</span></span>
-<span class="st car">are mașină</span>
 </div>
 <div class="guest">
 <span class="av">F</span>
 <span class="who"><b>Frații și prietenii apropiați</b><span>Doi–trei, fiecare cu mașina lui.</span></span>
-<span class="st car">are mașină</span>
 </div>
 <p class="tally">Trimitem <b>câți șoferi e nevoie</b> — simultan, la aceeași oră. Fiecare urcă la volanul unei mașini și o duce acasă, cu proprietarul pe locul din dreapta. Nimeni nu-și lasă mașina în parcare până dimineață.</p>
 </section>
@@ -2586,5 +2753,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
 {"@type":"Question","name":"Puteți trimite mai mulți șoferi la aceeași cumătrie?","acceptedAnswer":{"@type":"Answer","text":"Da. Trimitem simultan câți șoferi sunt necesari, pentru nași, cumătri și părinți. Pentru trei sau mai multe mașini calculăm preț de grup."}},
 {"@type":"Question","name":"Trebuie să rezerv șoferul din timp pentru cumătrie?","acceptedAnswer":{"@type":"Answer","text":"Pentru o singură mașină puteți suna în aceeași seară. Pentru grupuri de trei sau mai multe mașini, rezervați cu câteva zile înainte."}}
 ]}
+</script><script>
+(function(){
+  // Прогрессивное улучшение: если что-то не так — контент остаётся видимым.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return; // старый браузер → без анимаций, всё видимо
+
+  var html = document.documentElement;
+  html.classList.add('anim-ready');
+
+  // СТРАХОВКА 1: таймаут — если через 3.5с что-то не показалось, показать всё принудительно
+  var failsafe = setTimeout(function(){
+    document.querySelectorAll('.pr-c section, .pr-c .pr-cross').forEach(function(el){
+      el.classList.add('in-view');
+    });
+  }, 1500);
+
+  function reveal(){
+    var targets = document.querySelectorAll('.pr-c section, .pr-c .pr-cross');
+    if (!targets.length){ clearTimeout(failsafe); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function(t){
+      var r = t.getBoundingClientRect();
+      // элементы уже во вьюпорте при загрузке — показать сразу
+      if (r.top < window.innerHeight){ t.classList.add('in-view'); }
+      else { io.observe(t); }
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', reveal);
+  } else { reveal(); }
+
+  // СТРАХОВКА 2: на всякий — при полной загрузке ещё раз проверить видимое
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.pr-c section, .pr-c .pr-cross').forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight) el.classList.add('in-view');
+    });
+  });
+
+  // СТРАХОВКА 3: на скролл — показать всё, что уже прошло верх вьюпорта
+  var scrollReveal_added=true;
+  var sr=function(){document.querySelectorAll('.pr-c section, .pr-c .pr-cross').forEach(function(el){
+    if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
+  window.addEventListener('scroll', sr, {passive:true});
+})();
 </script></body>
 </html>
