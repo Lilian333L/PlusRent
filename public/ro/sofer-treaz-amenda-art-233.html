@@ -2124,23 +2124,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
    ПОЛИРОВКА ДИЗАЙНА (pr-a)
    ================================================================ */
 
-/* 1. ДЕСКТОП: контент шире, дышит. Было 760px в пустоте → адаптивная сетка */
-@media(min-width:1024px){
-  .pr-a .wrap{max-width:1080px}
-  /* hero: заголовок слева крупно, контакт-блок справа — используем ширину */
-  .pr-a .hero{
-    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;
-    text-align:left;padding:80px 0 56px;min-height:62vh;
-  }
-  .pr-a .hero .eyebrow{grid-column:1;justify-self:start}
-  .pr-a .hero h1{grid-column:1;margin-top:8px}
-  .pr-a .hero .sub{grid-column:1;margin-left:0;max-width:34ch}
-  /* правую колонку формируем из первого «якорного» блока страницы */
-  .pr-a .hero .headline-price,
-  .pr-a .hero .pr-contact,
-  .pr-a .hero .facts{grid-column:2;grid-row:1 / span 4;align-self:center;margin-top:0}
-  .pr-a .hero .facts{flex-direction:column;gap:0}
-}
+/* десктоп-ширина без ломки hero */
+@media(min-width:1024px){.pr-a .wrap{max-width:1080px}}
 
 /* 2. Секции чередуют «поверхность» — визуальный ритм, глазу есть за что зацепиться */
 .pr-a .scale,.pr-a .roster,.pr-a .map,.pr-a .board,.pr-a .split,
@@ -2166,12 +2151,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 .pr-a tbody tr{transition:background .15s ease}
 .pr-a tbody tr:hover{background:rgba(179,38,30,0.06)}
 
-/* 6. Плавное появление секций при скролле (без JS, чистый CSS) */
-@media(prefers-reduced-motion:no-preference){
-  .pr-a section{animation:pr-a-rise .6s cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 22%}
-  @keyframes pr-a-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-}
-
+/* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
 .pr-a .call,.pr-a .pr-call-big{position:relative;overflow:hidden}
 .pr-a .call::after,.pr-a .pr-call-big::after{
@@ -2188,6 +2168,35 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
     radial-gradient(50% 30% at 0% 100%, rgba(0,0,0,.03), transparent 70%) !important;
 }
 
+
+/* FIX: WhatsApp/Telegram на светлой бумаге — тёмный читаемый текст + видимая рамка */
+.pr-a .pr-wa,.pr-a .pr-tg{
+  color:#16150F !important;background:#FFFFFF !important;
+  border:1.5px solid #C9C4B8 !important;font-weight:700 !important;
+}
+.pr-a .pr-wa:hover,.pr-a .pr-wa:focus-visible{border-color:#25D366 !important;background:#F3FBF6 !important}
+.pr-a .pr-tg:hover,.pr-a .pr-tg:focus-visible{border-color:#2AABEE !important;background:#F0F9FE !important}
+.pr-a .pr-wa svg{color:#25D366 !important} .pr-a .pr-tg svg{color:#2AABEE !important}
+
+/* FIX: штамп «Se aplică imediat» не должен лезть на текст «La repetare» */
+.pr-a .ticket .body{padding-bottom:64px !important}
+.pr-a .stamp{
+  position:absolute !important;right:16px !important;bottom:14px !important;
+  transform:rotate(-8deg) !important;
+}
+@media(max-width:640px){
+  .pr-a .stamp{position:static !important;transform:none !important;
+    display:inline-block;margin-top:16px}
+  .pr-a .ticket .body{padding-bottom:24px !important}
+}
+
+/* FIX2: штамп ПОД тикетом, не перекрывает строки */
+.pr-a .ticket .body{padding-bottom:24px !important}
+.pr-a .stamp-wrap{display:flex;justify-content:flex-end;margin-top:-14px;padding-right:8px}
+.pr-a .stamp{position:static !important;transform:rotate(-7deg) !important;
+  display:inline-block;background:#F4F2ED}
+@media(max-width:640px){.pr-a .stamp-wrap{justify-content:center;margin-top:8px}
+  .pr-a .stamp{transform:none !important}}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2372,9 +2381,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <span class="lab">La repetare — răspundere penală</span>
 <span class="val">posibilă</span>
 </div>
-<span class="stamp">Se aplică<br/>imediat</span>
 </div>
-</div>
+</div><div class="stamp-wrap"><span class="stamp">Se aplică<br/>imediat</span></div>
 <section class="law">
 <h2>Ce spune articolul</h2>
 <p class="art">

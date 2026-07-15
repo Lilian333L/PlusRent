@@ -2095,23 +2095,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
    ПОЛИРОВКА ДИЗАЙНА (pr-c)
    ================================================================ */
 
-/* 1. ДЕСКТОП: контент шире, дышит. Было 760px в пустоте → адаптивная сетка */
-@media(min-width:1024px){
-  .pr-c .wrap{max-width:1080px}
-  /* hero: заголовок слева крупно, контакт-блок справа — используем ширину */
-  .pr-c .hero{
-    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;
-    text-align:left;padding:80px 0 56px;min-height:62vh;
-  }
-  .pr-c .hero .eyebrow{grid-column:1;justify-self:start}
-  .pr-c .hero h1{grid-column:1;margin-top:8px}
-  .pr-c .hero .sub{grid-column:1;margin-left:0;max-width:34ch}
-  /* правую колонку формируем из первого «якорного» блока страницы */
-  .pr-c .hero .headline-price,
-  .pr-c .hero .pr-contact,
-  .pr-c .hero .facts{grid-column:2;grid-row:1 / span 4;align-self:center;margin-top:0}
-  .pr-c .hero .facts{flex-direction:column;gap:0}
-}
+/* десктоп-ширина без ломки hero */
+@media(min-width:1024px){.pr-c .wrap{max-width:1080px}}
 
 /* 2. Секции чередуют «поверхность» — визуальный ритм, глазу есть за что зацепиться */
 .pr-c .scale,.pr-c .roster,.pr-c .map,.pr-c .board,.pr-c .split,
@@ -2137,12 +2122,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 .pr-c tbody tr{transition:background .15s ease}
 .pr-c tbody tr:hover{background:rgba(210,162,76,0.06)}
 
-/* 6. Плавное появление секций при скролле (без JS, чистый CSS) */
-@media(prefers-reduced-motion:no-preference){
-  .pr-c section{animation:pr-c-rise .6s cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 22%}
-  @keyframes pr-c-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-}
-
+/* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
 .pr-c .call,.pr-c .pr-call-big{position:relative;overflow:hidden}
 .pr-c .call::after,.pr-c .pr-call-big::after{
@@ -2171,6 +2151,15 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 
 .pr-c .hero > *{position:relative;z-index:1}
+
+/* FIX: строка гостя — имя слева, статус прижат вправо, не по центру */
+.pr-c .guest{display:flex !important;align-items:center !important;gap:14px !important}
+.pr-c .guest .who{flex:1 1 auto !important;min-width:0}
+.pr-c .guest .st{flex:0 0 auto !important;margin-left:auto !important;white-space:nowrap}
+@media(max-width:520px){
+  .pr-c .guest .st{font-size:11px;padding:4px 9px}
+  .pr-c .guest .who b{font-size:14.5px}
+}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */

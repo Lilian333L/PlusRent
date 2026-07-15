@@ -2152,23 +2152,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
    ПОЛИРОВКА ДИЗАЙНА (pr-t)
    ================================================================ */
 
-/* 1. ДЕСКТОП: контент шире, дышит. Было 760px в пустоте → адаптивная сетка */
-@media(min-width:1024px){
-  .pr-t .wrap{max-width:1080px}
-  /* hero: заголовок слева крупно, контакт-блок справа — используем ширину */
-  .pr-t .hero{
-    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;
-    text-align:left;padding:80px 0 56px;min-height:62vh;
-  }
-  .pr-t .hero .eyebrow{grid-column:1;justify-self:start}
-  .pr-t .hero h1{grid-column:1;margin-top:8px}
-  .pr-t .hero .sub{grid-column:1;margin-left:0;max-width:34ch}
-  /* правую колонку формируем из первого «якорного» блока страницы */
-  .pr-t .hero .headline-price,
-  .pr-t .hero .pr-contact,
-  .pr-t .hero .facts{grid-column:2;grid-row:1 / span 4;align-self:center;margin-top:0}
-  .pr-t .hero .facts{flex-direction:column;gap:0}
-}
+/* десктоп-ширина без ломки hero */
+@media(min-width:1024px){.pr-t .wrap{max-width:1080px}}
 
 /* 2. Секции чередуют «поверхность» — визуальный ритм, глазу есть за что зацепиться */
 .pr-t .scale,.pr-t .roster,.pr-t .map,.pr-t .board,.pr-t .split,
@@ -2194,12 +2179,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 .pr-t tbody tr{transition:background .15s ease}
 .pr-t tbody tr:hover{background:rgba(255,176,32,0.06)}
 
-/* 6. Плавное появление секций при скролле (без JS, чистый CSS) */
-@media(prefers-reduced-motion:no-preference){
-  .pr-t section{animation:pr-t-rise .6s cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 22%}
-  @keyframes pr-t-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-}
-
+/* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
 .pr-t .call,.pr-t .pr-call-big{position:relative;overflow:hidden}
 .pr-t .call::after,.pr-t .pr-call-big::after{

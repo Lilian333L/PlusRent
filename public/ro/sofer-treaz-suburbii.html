@@ -2077,23 +2077,8 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
    ПОЛИРОВКА ДИЗАЙНА (pr-s)
    ================================================================ */
 
-/* 1. ДЕСКТОП: контент шире, дышит. Было 760px в пустоте → адаптивная сетка */
-@media(min-width:1024px){
-  .pr-s .wrap{max-width:1080px}
-  /* hero: заголовок слева крупно, контакт-блок справа — используем ширину */
-  .pr-s .hero{
-    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;
-    text-align:left;padding:80px 0 56px;min-height:62vh;
-  }
-  .pr-s .hero .eyebrow{grid-column:1;justify-self:start}
-  .pr-s .hero h1{grid-column:1;margin-top:8px}
-  .pr-s .hero .sub{grid-column:1;margin-left:0;max-width:34ch}
-  /* правую колонку формируем из первого «якорного» блока страницы */
-  .pr-s .hero .headline-price,
-  .pr-s .hero .pr-contact,
-  .pr-s .hero .facts{grid-column:2;grid-row:1 / span 4;align-self:center;margin-top:0}
-  .pr-s .hero .facts{flex-direction:column;gap:0}
-}
+/* десктоп-ширина без ломки hero */
+@media(min-width:1024px){.pr-s .wrap{max-width:1080px}}
 
 /* 2. Секции чередуют «поверхность» — визуальный ритм, глазу есть за что зацепиться */
 .pr-s .scale,.pr-s .roster,.pr-s .map,.pr-s .board,.pr-s .split,
@@ -2119,12 +2104,7 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 .pr-s tbody tr{transition:background .15s ease}
 .pr-s tbody tr:hover{background:rgba(242,201,76,0.06)}
 
-/* 6. Плавное появление секций при скролле (без JS, чистый CSS) */
-@media(prefers-reduced-motion:no-preference){
-  .pr-s section{animation:pr-s-rise .6s cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 22%}
-  @keyframes pr-s-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-}
-
+/* 6. (scroll-анимации убраны — риск скрытого контента) */
 /* 7. CTA-кнопка: живой блик при наведении */
 .pr-s .call,.pr-s .pr-call-big{position:relative;overflow:hidden}
 .pr-s .call::after,.pr-s .pr-call-big::after{
@@ -2153,6 +2133,49 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 }
 
 .pr-s .hero > *{position:relative;z-index:1}
+
+/* FIX: карта читаема на телефоне — крупнее, подписи больше */
+@media(max-width:768px){
+  .pr-s .map svg{min-height:340px}
+  .pr-s .map svg text{font-size:15px !important}
+  .pr-s .map svg text[font-size="11"]{font-size:12px !important}
+}
+/* FIX: таблица зон → карточки на мобиле (не сжатые колонки) */
+@media(max-width:600px){
+  .pr-s .zones table,.pr-s .zones thead,.pr-s .zones tbody,
+  .pr-s .zones tr,.pr-s .zones th,.pr-s .zones td{display:block;width:100%}
+  .pr-s .zones thead{display:none}
+  .pr-s .zones tbody tr{
+    border:1px solid var(--line);border-radius:12px;margin-bottom:10px;
+    padding:14px 16px;background:var(--asf-2);position:relative;
+  }
+  .pr-s .zones tbody th{
+    font-size:17px !important;padding:0 0 10px !important;border:0 !important;
+    color:var(--paper) !important;
+  }
+  .pr-s .zones tbody td{
+    text-align:left !important;padding:6px 0 !important;border:0 !important;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:14px !important;color:var(--mist) !important;
+  }
+  .pr-s .zones tbody td::before{
+    content:attr(data-label);font-family:var(--f-body);font-size:12px;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--mist);
+  }
+  .pr-s .zones tbody td.price{color:var(--mark) !important;font-size:16px !important;font-weight:700}
+}
+
+/* плашка цены в hero suburbii — заметная, как 500 у tarife */
+.pr-s .pr-s-price{margin:26px auto 4px;max-width:420px;padding:22px 20px;
+  background:var(--asf-2);border:1px solid var(--line);border-radius:16px;text-align:center;
+  box-shadow:0 0 50px rgba(242,201,76,.10)}
+.pr-s .pr-s-price .pl{display:block;font-family:var(--f-meter);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mist);margin-bottom:6px}
+.pr-s .pr-s-price .pv{display:block;font-family:var(--f-meter);font-weight:700;
+  font-size:clamp(40px,10vw,58px);color:var(--mark) !important;line-height:1;
+  text-shadow:0 0 30px rgba(242,201,76,.4)}
+.pr-s .pr-s-price .pv small{font-size:.36em;color:var(--paper) !important;letter-spacing:.04em}
+.pr-s .pr-s-price .pn{display:block;font-size:13px;color:var(--mist);margin-top:8px}
 
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
@@ -2293,6 +2316,11 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <div class="eyebrow">Rază 30 km · non-stop</div>
 <h1>Locuiești în<br/><em>afara orașului?</em></h1>
 <p class="sub">Ajungem și acolo. Ialoveni, Codru, Cricova, Stăuceni, Durlești, Băcioi, Sîngera, Trușeni — de la 600 MDL, în 20–25 de minute.</p>
+<div class="pr-s-price">
+<span class="pl">Suburbii Chișinău</span>
+<span class="pv">de la 600 <small>MDL</small></span>
+<span class="pn">oraș — 500 MDL · sosim în 20–25 min</span>
+</div>
 <div class="pr-contact">
 <a aria-label="Sună la +373 60 000 500" class="pr-call-big" href="tel:+37360000500">
 <span aria-hidden="true" class="pr-ic">
@@ -2368,14 +2396,14 @@ a[href^="tel"], button, .btn-request-call, .phone-number {
 <tr><th scope="col">Localitate</th><th scope="col">Distanță</th><th scope="col">Sosim în</th><th scope="col">Preț</th></tr>
 </thead>
 <tbody>
-<tr><th scope="row">Codru</th><td>5 km</td><td>20 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Durlești</th><td>6 km</td><td>20 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Stăuceni</th><td>9 km</td><td>20–25 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Trușeni</th><td>10 km</td><td>25 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Băcioi</th><td>11 km</td><td>25 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Ialoveni</th><td>12 km</td><td>25 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Sîngera</th><td>14 km</td><td>25 min</td><td class="price">600 MDL</td></tr>
-<tr><th scope="row">Cricova</th><td>15 km</td><td>25–30 min</td><td class="price">de la 700 MDL</td></tr>
+<tr><th scope="row">Codru</th><td data-label="Distanță">5 km</td><td data-label="Sosim în">20 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Durlești</th><td data-label="Distanță">6 km</td><td data-label="Sosim în">20 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Stăuceni</th><td data-label="Distanță">9 km</td><td data-label="Sosim în">20–25 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Trușeni</th><td data-label="Distanță">10 km</td><td data-label="Sosim în">25 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Băcioi</th><td data-label="Distanță">11 km</td><td data-label="Sosim în">25 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Ialoveni</th><td data-label="Distanță">12 km</td><td data-label="Sosim în">25 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Sîngera</th><td data-label="Distanță">14 km</td><td data-label="Sosim în">25 min</td><td class="price" data-label="Preț">600 MDL</td></tr>
+<tr><th scope="row">Cricova</th><td data-label="Distanță">15 km</td><td data-label="Sosim în">25–30 min</td><td class="price" data-label="Preț">de la 700 MDL</td></tr>
 </tbody>
 </table>
 <p class="note">Localitatea ta nu e în listă? <b>Sună oricum.</b> Deservim o rază de aproximativ 30 km în jurul Chișinăului — îți spunem prețul exact la telefon, înainte să pornim.</p>
