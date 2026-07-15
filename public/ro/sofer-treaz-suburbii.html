@@ -2325,6 +2325,35 @@ body:has(.pr-s) .breadcrumb-section{margin-bottom:0 !important}
   .pr-s .hero,.pr-s .doc-head{padding-top:20px !important}
 }
 
+/* FIX: eyebrow не обрезается сверху на мобиле */
+@media(max-width:768px){
+  .pr-s .hero{padding-top:40px !important;overflow:visible !important}
+  .pr-s .hero .eyebrow{margin-top:6px;white-space:normal;line-height:1.4}
+  /* сцена не вылезает, но hero её не режет */
+  .pr-s-scene{overflow:hidden;border-radius:inherit}
+}
+
+/* FIX: suburbii — WhatsApp/Telegram иконки нормального размера */
+@media(max-width:768px){
+  .pr-s .pr-msg{grid-template-columns:1fr 1fr;gap:10px}
+  .pr-s .pr-wa svg,.pr-s .pr-tg svg{width:20px !important;height:20px !important}
+  .pr-s .pr-wa,.pr-s .pr-tg{min-height:52px;font-size:16px;padding:14px}
+  /* карта крупнее и читабельнее */
+  .pr-s .map{padding:20px 12px}
+  .pr-s .map svg{min-height:420px !important;width:100% !important}
+  .pr-s .map svg text{font-size:14px !important}
+  .pr-s .map svg text[font-size="10"]{font-size:11px !important}
+}
+@media(max-width:480px){
+  .pr-s .map svg{min-height:460px !important}
+}
+
+/* FIX: eyebrow гарантированно не под шапкой (страховка при fixed-header) */
+@media(max-width:768px){
+  .pr-s .hero{padding-top:44px !important}
+  .pr-s .hero .eyebrow{position:relative;z-index:3}
+}
+
 
 /* ---------- Alte servicii: кросс-линки на весь бизнес ---------- */
 .pr-s .pr-cross{margin-top:72px;padding-top:44px;border-top:1px solid var(--line,#2A3642)}
