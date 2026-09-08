@@ -4748,7 +4748,7 @@ ${booking.coupon_details ? `
               const headImageBase64 = await fileToBase64(headImageFile);
               imageData.head_image = {
                 data: headImageBase64,
-                extension: headImageFile.name.split('.').pop()
+                extension: 'jpg'
               };
             }
 
@@ -4760,7 +4760,7 @@ ${booking.coupon_details ? `
                   const galleryImageBase64 = await fileToBase64(file);
                   imageData.gallery_images.push({
                     data: galleryImageBase64,
-                    extension: file.name.split('.').pop()
+                    extension: 'jpg'
                   });
                 }
               }
@@ -4954,16 +4954,54 @@ ${booking.coupon_details ? `
     }
 
     // Helper function to convert file to base64
-    function fileToBase64(file) {
+    // Compresses/resizes the image first so the resulting JSON payload
+    // stays under Vercel's 4.5MB serverless function body limit
+    // (base64 encoding alone adds ~33% overhead on top of the file size).
+    function fileToBase64(file, maxWidth = 1920, quality = 0.85) {
       return new Promise((resolve, reject) => {
+        if (!file || !file.type || !file.type.startsWith('image/')) {
+          // Not an image (shouldn't happen given accept="image/*"), just read as-is
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = error => reject(error);
+          return;
+        }
+
+        const img = new Image();
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          // Remove the data:image/...;base64, prefix
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
+
+        reader.onload = (e) => {
+          img.onload = () => {
+            let { width, height } = img;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                reject(new Error('Image compression failed'));
+                return;
+              }
+              const blobReader = new FileReader();
+              blobReader.onload = () => resolve(blobReader.result.split(',')[1]);
+              blobReader.onerror = error => reject(error);
+              blobReader.readAsDataURL(blob);
+            }, 'image/jpeg', quality);
+          };
+          img.onerror = () => reject(new Error('Failed to load image for compression'));
+          img.src = e.target.result;
         };
         reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
       });
     }
 
@@ -5373,7 +5411,7 @@ ${booking.coupon_details ? `
               const headImageBase64 = await fileToBase64(headImageFile);
               carDataWithImages.head_image = {
                 data: headImageBase64,
-                extension: headImageFile.name.split('.').pop()
+                extension: 'jpg'
               };
             }
 
@@ -5385,7 +5423,7 @@ ${booking.coupon_details ? `
                   const galleryImageBase64 = await fileToBase64(file);
                   carDataWithImages.gallery_images.push({
                     data: galleryImageBase64,
-                    extension: file.name.split('.').pop()
+                    extension: 'jpg'
                   });
                 }
               }
