@@ -680,6 +680,7 @@ router.post(
       }
 
       // Process gallery images if provided
+      const galleryUploadErrors = [];
       if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
         console.log("🔄 Processing gallery images for car ID:", carId);
         console.log("📸 Number of gallery images:", req.body.gallery_images.length);
@@ -700,6 +701,7 @@ router.post(
               console.log(`✅ Gallery image ${index + 1} uploaded successfully:`, galleryImageUrl);
             } catch (error) {
               console.error(`❌ Error uploading gallery image ${index + 1} to Supabase:`, error);
+              galleryUploadErrors.push({ index, message: error.message || String(error) });
             }
           }
         }
@@ -751,7 +753,16 @@ router.post(
         console.error("Error sending Telegram notification:", error);
       }
 
-      res.json({ success: true, id: carId });
+      res.json({
+        success: true,
+        id: carId,
+        ...(galleryUploadErrors.length > 0
+          ? {
+              gallery_upload_errors: galleryUploadErrors,
+              warning: `${galleryUploadErrors.length} of ${req.body.gallery_images?.length || 0} gallery image(s) failed to upload`,
+            }
+          : {}),
+      });
     } catch (error) {
       console.error("❌ Supabase car creation error:", error);
       res.status(500).json({ error: "Database error: " + error.message });
@@ -1291,6 +1302,7 @@ router.post(
       }
 
       // Process gallery images if provided
+      const galleryUploadErrors = [];
       if (req.body.gallery_images && Array.isArray(req.body.gallery_images)) {
         for (let index = 0; index < req.body.gallery_images.length; index++) {
           const imageData = req.body.gallery_images[index];
@@ -1300,10 +1312,14 @@ router.post(
               const imageBuffer = Buffer.from(imageData.data, "base64");
 
               // Create a file object for Supabase upload
+              // Filename must be unique (timestamp + random + index) to avoid
+              // colliding with images already stored for this car, which
+              // otherwise causes silent "resource already exists" failures.
+              const uniqueSuffix = `${Date.now()}_${index}_${Math.random().toString(36).slice(2, 8)}`;
               const galleryFile = {
                 buffer: imageBuffer,
                 mimetype: `image/${imageData.extension || "jpeg"}`,
-                originalname: `gallery_${index}.${
+                originalname: `gallery_${uniqueSuffix}.${
                   imageData.extension || "jpg"
                 }`,
               };
@@ -1320,6 +1336,10 @@ router.post(
                 `❌ Error uploading gallery image ${index} to Supabase:`,
                 error
               );
+              galleryUploadErrors.push({
+                index,
+                message: error.message || String(error),
+              });
             }
           }
         }
@@ -1348,6 +1368,12 @@ router.post(
         success: true,
         head_image: headImagePath,
         gallery_images: galleryImagePaths,
+        ...(galleryUploadErrors.length > 0
+          ? {
+              gallery_upload_errors: galleryUploadErrors,
+              warning: `${galleryUploadErrors.length} of ${req.body.gallery_images?.length || 0} gallery image(s) failed to upload`,
+            }
+          : {}),
       });
     } catch (error) {
       console.error("❌ Car image upload error:", error);
