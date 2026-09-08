@@ -1939,7 +1939,7 @@
                               <i class="fa fa-upload admin-upload-icon"></i>
                               <div class="admin-upload-text">Upload Head Image</div>
                             </div>
-                            <input type="file" id="addHeadImageInput" name="head_image" accept="image/*"
+                            <input type="file" id="addHeadImageInput" name="head_image" accept="image/*,.heic,.heif,image/heic,image/heif"
                               class="admin-upload-input">
                           </div>
                           <div id="addHeadImagePreview" class="admin-image-preview"></div>
@@ -1951,7 +1951,7 @@
                               <i class="fa fa-upload admin-upload-icon"></i>
                               <div class="admin-upload-text">Upload Gallery Images</div>
                             </div>
-                            <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*"
+                            <input type="file" id="addGalleryImagesInput" name="gallery_images" accept="image/*,.heic,.heif,image/heic,image/heif"
                               multiple class="admin-upload-input">
                           </div>
                           <div id="addGalleryImagesPreview"></div>
@@ -2296,7 +2296,7 @@
                               <i class="fa fa-upload admin-upload-icon"></i>
                               <div class="admin-upload-text">Upload Head Image</div>
                             </div>
-                            <input type="file" id="editHeadImageInput" name="head_image" accept="image/*"
+                            <input type="file" id="editHeadImageInput" name="head_image" accept="image/*,.heic,.heif,image/heic,image/heif"
                               class="admin-upload-input">
                           </div>
                           <div id="editHeadImagePreview" class="admin-image-preview"></div>
@@ -2308,7 +2308,7 @@
                               <i class="fa fa-upload admin-upload-icon"></i>
                               <div class="admin-upload-text">Upload Gallery Images</div>
                             </div>
-                            <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*"
+                            <input type="file" id="editGalleryImagesInput" name="gallery_images" accept="image/*,.heic,.heif,image/heic,image/heif"
                               multiple class="admin-upload-input">
                           </div>
                           <div id="editGalleryImagesPreview"></div>
@@ -3131,6 +3131,8 @@
 
   <!-- Javascript Files
     ================================================== -->
+  <!-- HEIC/HEIF to JPEG conversion (Chrome/Firefox/Edge can't decode HEIC natively via canvas) -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
   <script src="js/plugins.js" defer></script>
   <script src="js/designesia.js" defer></script>
   <!-- <script src="js/master-include.js"></script> -->
@@ -4953,16 +4955,56 @@ ${booking.coupon_details ? `
       initializeFuelTypeListener();
     }
 
+    // Detects HEIC/HEIF files by MIME type or extension (Windows/some browsers
+    // report an empty or generic MIME type for HEIC, so extension is checked too).
+    function isHeicFile(file) {
+      const type = (file.type || '').toLowerCase();
+      const name = (file.name || '').toLowerCase();
+      return type === 'image/heic' || type === 'image/heif' ||
+             name.endsWith('.heic') || name.endsWith('.heif');
+    }
+
+    // Converts a HEIC/HEIF file to a JPEG Blob using the heic2any library.
+    // Returns the original file unchanged if it isn't HEIC/HEIF, or if
+    // conversion fails for some reason (falls back gracefully).
+    async function convertHeicToJpeg(file) {
+      if (!isHeicFile(file)) return file;
+      if (typeof window.heic2any !== 'function') {
+        console.warn('heic2any library not loaded yet; uploading HEIC as-is (may not preview correctly).');
+        return file;
+      }
+      try {
+        const convertedBlob = await window.heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9
+        });
+        // heic2any can return an array of blobs for multi-frame HEIC; take the first
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        return new File(
+          [blob],
+          file.name.replace(/\.(heic|heif)$/i, '.jpg'),
+          { type: 'image/jpeg' }
+        );
+      } catch (err) {
+        console.error('HEIC conversion failed for', file.name, err);
+        throw new Error(`Failed to convert ${file.name} from HEIC. Please try converting it to JPEG manually.`);
+      }
+    }
+
     // Helper function to convert file to base64
-    // Compresses/resizes the image first so the resulting JSON payload
-    // stays under Vercel's 4.5MB serverless function body limit
+    // Converts HEIC/HEIF to JPEG first (browsers other than Safari can't
+    // decode HEIC), then compresses/resizes the image so the resulting JSON
+    // payload stays under Vercel's 4.5MB serverless function body limit
     // (base64 encoding alone adds ~33% overhead on top of the file size).
-    function fileToBase64(file, maxWidth = 1920, quality = 0.85) {
+    async function fileToBase64(file, maxWidth = 1920, quality = 0.85) {
+      const normalizedFile = await convertHeicToJpeg(file);
+
       return new Promise((resolve, reject) => {
-        if (!file || !file.type || !file.type.startsWith('image/')) {
-          // Not an image (shouldn't happen given accept="image/*"), just read as-is
+        if (!normalizedFile || !normalizedFile.type || !normalizedFile.type.startsWith('image/')) {
+          // Not an image (shouldn't happen given accept="image/*,.heic,.heif,image/heic,image/heif"), just read as-is
           const reader = new FileReader();
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(normalizedFile);
           reader.onload = () => resolve(reader.result.split(',')[1]);
           reader.onerror = error => reject(error);
           return;
@@ -5001,7 +5043,7 @@ ${booking.coupon_details ? `
           img.src = e.target.result;
         };
         reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(normalizedFile);
       });
     }
 
@@ -5065,10 +5107,18 @@ ${booking.coupon_details ? `
 
           addHeadImageInput.click();
         });
-        addHeadImageInput.addEventListener('change', (e) => {
+        addHeadImageInput.addEventListener('change', async (e) => {
 
           const file = e.target.files[0];
           if (file) {
+            let previewFile = file;
+            try {
+              previewFile = await convertHeicToJpeg(file);
+            } catch (err) {
+              showCustomAlert(err.message, 'error');
+              addHeadImageInput.value = '';
+              return;
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
               addHeadImagePreview.innerHTML = `
@@ -5078,7 +5128,7 @@ ${booking.coupon_details ? `
                 </div>
               `;
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(previewFile);
           }
         });
       }
@@ -5096,11 +5146,18 @@ ${booking.coupon_details ? `
 
           addGalleryImagesInput.click();
         });
-        addGalleryImagesInput.addEventListener('change', (e) => {
+        addGalleryImagesInput.addEventListener('change', async (e) => {
 
           const files = Array.from(e.target.files);
 
-          files.forEach(file => {
+          for (const file of files) {
+            let previewFile = file;
+            try {
+              previewFile = await convertHeicToJpeg(file);
+            } catch (err) {
+              showCustomAlert(err.message, 'error');
+              continue;
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
               addGalleryImagesPreview.innerHTML += `
@@ -5110,8 +5167,8 @@ ${booking.coupon_details ? `
                 </div>
               `;
             };
-            reader.readAsDataURL(file);
-          });
+            reader.readAsDataURL(previewFile);
+          }
         });
       }
 
@@ -5125,9 +5182,17 @@ ${booking.coupon_details ? `
         editHeadImageInput.dataset.initialized = 'true';
 
         editHeadImageButton.addEventListener('click', () => editHeadImageInput.click());
-        editHeadImageInput.addEventListener('change', (e) => {
+        editHeadImageInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (file) {
+            let previewFile = file;
+            try {
+              previewFile = await convertHeicToJpeg(file);
+            } catch (err) {
+              showCustomAlert(err.message, 'error');
+              editHeadImageInput.value = '';
+              return;
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
               editHeadImagePreview.innerHTML = `
@@ -5137,7 +5202,7 @@ ${booking.coupon_details ? `
                 </div>
               `;
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(previewFile);
           }
         });
       }
@@ -5151,10 +5216,17 @@ ${booking.coupon_details ? `
         editGalleryImagesInput.dataset.initialized = 'true';
 
         editGalleryImagesButton.addEventListener('click', () => editGalleryImagesInput.click());
-        editGalleryImagesInput.addEventListener('change', (e) => {
+        editGalleryImagesInput.addEventListener('change', async (e) => {
           const files = Array.from(e.target.files);
 
-          files.forEach(file => {
+          for (const file of files) {
+            let previewFile = file;
+            try {
+              previewFile = await convertHeicToJpeg(file);
+            } catch (err) {
+              showCustomAlert(err.message, 'error');
+              continue;
+            }
             const reader = new FileReader();
             reader.onload = (e) => {
               editGalleryImagesPreview.innerHTML += `
@@ -5164,8 +5236,8 @@ ${booking.coupon_details ? `
                 </div>
               `;
             };
-            reader.readAsDataURL(file);
-          });
+            reader.readAsDataURL(previewFile);
+          }
         });
       }
 
