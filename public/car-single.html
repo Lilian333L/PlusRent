@@ -1278,7 +1278,7 @@
   <!-- Javascript Files -->
   <script src="js/plugins.js" defer></script>
   <script src="js/designesia.js?v=20260918" defer></script>
-  <script src="js/car-image.js"></script>
+  <script src="js/car-image.js?v=202609186"></script>
   <script src="js/config.js"></script>
   <script src="js/burger-menu-fix.js" defer></script>
   <script src="js/price-calculator.js"></script>
@@ -1658,11 +1658,13 @@
         thumbImages = mainImages;
       }
 
+      // Originals (up to ~3000 px) stay untouched for the full-screen lightbox;
+      // the main slider gets a high-quality srcset, thumbnails a small 480 px version
+      const originalImages = mainImages.slice();
       if (window.carImageUrl) {
         thumbImages = thumbImages.map(url => window.carImageUrl(url, 480));
-        mainImages = mainImages.map(url => window.carImageUrl(url, 1080));
       }
-      lightboxImages = mainImages;
+      lightboxImages = originalImages;
 
       let currentSlide = 0;
       window.currentCarSlide = 0;
@@ -1714,8 +1716,14 @@
         }
       }
 
-      thumbImages.forEach((imagePath, index) => {
+      originalImages.forEach((imagePath, index) => {
         const img = document.createElement('img');
+        const gallerySrcset = window.carImageSrcset ? window.carImageSrcset(imagePath, [828, 1080, 1920], 90) : '';
+        if (gallerySrcset) {
+          img.srcset = gallerySrcset;
+          img.sizes = '(max-width: 991px) 100vw, 900px';
+          imagePath = window.carImageUrl(imagePath, 1080).replace('&q=75', '&q=90');
+        }
         // First image gets browser-level priority hints → starts downloading immediately
         if (index === 0) {
           img.loading = 'eager';

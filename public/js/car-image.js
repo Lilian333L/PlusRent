@@ -36,6 +36,14 @@
     img.src = original;
   }, true);
 
+  /** srcset string for large gallery photos (higher quality than cards) */
+  window.carImageSrcset = function (url, widths, quality) {
+    if (!canOptimize(url)) return "";
+    return widths.map(function (w) {
+      return "/_vercel/image?url=" + encodeURIComponent(url) + "&w=" + w + "&q=" + (quality || 75) + " " + w + "w";
+    }).join(", ");
+  };
+
   /** src + srcset + sizes attributes for an <img> inside a car card */
   window.carImageAttrs = function (url, sizes) {
     var attrs = 'src="' + optimizedUrl(url, 828) + '"';
