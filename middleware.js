@@ -39,7 +39,23 @@ export const config = {
     '/ro/sofer-personal/',
     '/ru/sofer-personal/',
     '/en/sofer-personal/',
-    '/terms/'
+    '/terms/',
+    '/ro/sofer-treaz-nunta/',
+    '/ro/sofer-treaz-cumatrie/',
+    '/ro/sofer-treaz-eveniment-corporate/',
+    '/ro/sofer-treaz-tarife/',
+    '/ro/sofer-treaz-suburbii/',
+    '/ro/sofer-treaz-amenda-art-233/',
+    '/ro/sofer-treaz-vs-taxi/',
+    '/terms',
+    '/privacy',
+    '/privacy/',
+    '/ro/terms/',
+    '/ro/privacy/',
+    '/ru/terms/',
+    '/ru/privacy/',
+    '/en/terms/',
+    '/en/privacy/'
   ]
 };
 
@@ -106,6 +122,16 @@ export default function middleware(request) {
       ro: '/ro/sofer-personal',
       ru: '/ru/sofer-personal',
       en: '/en/sofer-personal'
+    },
+    '/terms': {
+      ro: '/ro/terms',
+      ru: '/ru/terms',
+      en: '/en/terms'
+    },
+    '/privacy': {
+      ro: '/ro/privacy',
+      ru: '/ru/privacy',
+      en: '/en/privacy'
     }
   };
 
