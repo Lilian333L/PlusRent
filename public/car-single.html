@@ -1725,7 +1725,8 @@
           img.loading = 'lazy';
           img.decoding = 'async';
         }
-        img.src = imagePath + '?v=' + Date.now();
+        // Optimized URLs already have a query string and are cached by Vercel for 1 day
+        img.src = imagePath.indexOf('/_vercel/image?') === 0 ? imagePath : imagePath + '?v=' + Date.now();
         img.alt = `Car image ${index + 1}`;
         attachImageFallback(img);
         img.style.display = index === 0 ? 'block' : 'none';
@@ -1737,7 +1738,8 @@
         const img = document.createElement('img');
         img.loading = 'lazy';
         img.decoding = 'async';
-        img.src = imagePath + '?v=' + Date.now();
+        // Optimized URLs already have a query string and are cached by Vercel for 1 day
+        img.src = imagePath.indexOf('/_vercel/image?') === 0 ? imagePath : imagePath + '?v=' + Date.now();
         img.alt = `Thumbnail ${index + 1}`;
         attachImageFallback(img);
         img.onclick = () => goToSlide(index);
