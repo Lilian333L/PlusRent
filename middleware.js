@@ -137,6 +137,7 @@ export default function middleware(request) {
 
   let finalDestination = normalizedPath;
   let cacheMaxAge = 31536000; // 1 year for trailing-slash canonicalization
+  let languageRedirect = false;
 
   // Check if the normalized path needs language-based redirect
   if (pathMap[normalizedPath]) {
@@ -167,14 +168,17 @@ export default function middleware(request) {
     finalDestination = pathMap[normalizedPath][targetLang];
     needsRedirect = true;
     cacheMaxAge = 3600; // 1 hour — language preference may change
+    languageRedirect = true;
   }
 
   // ============================================================
   // STEP 3 — SINGLE REDIRECT (if needed)
   // ============================================================
   if (needsRedirect && finalDestination !== pathname) {
+    // A language choice is not permanent: keep it a temporary redirect so a browser
+    // or proxy never pins one visitor's language onto the bare URL.
     return new Response(null, {
-      status: 301,
+      status: languageRedirect ? 302 : 301,
       headers: {
         'Location': url.origin + finalDestination + search,
         'Cache-Control': `public, max-age=${cacheMaxAge}`,
