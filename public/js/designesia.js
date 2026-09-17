@@ -1636,8 +1636,11 @@ var loading_text = loadingTranslations[currentLang];
 
         function formatState (state) {
           if (!state.id) { return state.text; }
+          // The thumbnail is ~60px wide; ask for a resized copy instead of the original photo
+          var src = $(state.element).attr('data-src');
+          if (window.carImageUrl) { src = window.carImageUrl(src, 480); }
           var $state = $(
-            '<span><img src="' + $(state.element).attr('data-src') + '" class="img-flag" /> ' + state.text + '</span>'
+            '<span><img src="' + src + '" class="img-flag" alt="" /> ' + state.text + '</span>'
           );
           return $state;
         };
