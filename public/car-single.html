@@ -58,7 +58,7 @@
   <link href="css/mdb.min.css" rel="stylesheet" type="text/css" id="mdb">
   <link href="css/singlecar.css" rel="stylesheet" type="text/css">
   <link href="css/plugins.css" rel="stylesheet" type="text/css">
-  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link href="css/style.css?v=20260917" rel="stylesheet" type="text/css">
   <link href="css/coloring.css" rel="stylesheet" type="text/css">
   <link id="colors" href="css/colors/scheme-01.css" rel="stylesheet" type="text/css">
   
@@ -591,8 +591,8 @@
                 <div class="de-flex-col">
                   <div id="logo">
                     <a href="/">
-                      <img class="logo-1" src="images/LOGO-4-demo.png" alt="">
-                      <img class="logo-2" src="images/LOGO-5-demo.png" alt="">
+                      <img class="logo-1" src="images/LOGO-4-demo.webp" alt="">
+                      <img class="logo-2" src="images/LOGO-5-demo.webp" alt="">
                     </a>
                   </div>
                 </div>
@@ -1263,7 +1263,7 @@
                 </div>
                 <ul class="menu-simple">
                   <li><a href="/ro/terms" data-i18n="terms.footer_terms">Terms &amp; Conditions</a></li>
-                  <li><a href="/ro/privacy">Politica de Confidențialitate</a></li>
+                  <li><a href="/ro/privacy" data-i18n="terms.footer_privacy">Politica de Confidențialitate</a></li>
                 </ul>
               </div>
             </div>
@@ -1277,7 +1277,8 @@
 
   <!-- Javascript Files -->
   <script src="js/plugins.js" defer></script>
-  <script src="js/designesia.js" defer></script>
+  <script src="js/designesia.js?v=20260917" defer></script>
+  <script src="js/car-image.js"></script>
   <script src="js/config.js"></script>
   <script src="js/burger-menu-fix.js" defer></script>
   <script src="js/price-calculator.js"></script>
@@ -1300,7 +1301,7 @@
   <script src="https://unpkg.com/i18next-http-backend@1.4.3/i18nextHttpBackend.min.js" defer></script>
 
   <!-- Translation System -->
-  <script src="js/i18n-init.js"></script>
+  <script src="js/i18n-init.js?v=20260917"></script>
 
   <!-- Universal Spinning Wheel -->
   <script src="js/universal-include.js" defer></script>
@@ -1657,6 +1658,10 @@
         thumbImages = mainImages;
       }
 
+      if (window.carImageUrl) {
+        thumbImages = thumbImages.map(url => window.carImageUrl(url, 480));
+        mainImages = mainImages.map(url => window.carImageUrl(url, 1080));
+      }
       lightboxImages = mainImages;
 
       let currentSlide = 0;

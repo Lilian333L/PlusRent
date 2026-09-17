@@ -64,7 +64,7 @@ function initI18n() {
         fallbackLng: 'ro',
         debug: false,
         backend: {
-          loadPath: '/js/locales/{{lng}}.json'
+          loadPath: '/js/locales/{{lng}}.json?v=20260917'
         },
         interpolation: {
           escapeValue: false // allow HTML in translations
@@ -536,11 +536,11 @@ function loadFallbackTranslations(lang) {
           if (value && value[k]) {
             value = value[k];
           } else {
-            value = key; // fallback to key if translation not found
+            value = null; // keep the HTML default text instead of showing the raw key
             break;
           }
         }
-        
+        if (typeof value !== 'string') return;
         if (el.childElementCount === 0) {
           if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
             el.setAttribute('placeholder', value);

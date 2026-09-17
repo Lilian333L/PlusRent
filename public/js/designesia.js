@@ -1621,7 +1621,13 @@ var loading_text = loadingTranslations[currentLang];
          dropdown('#select_hour_format');
          de_sidebar();
          de_share();
-         $(".jarallax").jarallax();
+         // Mobile: keep the top hero static (CSS already positions its image), so jarallax
+         // does not re-render the LCP image seconds after first paint
+         var $jarallax = $(".jarallax");
+         if (window.matchMedia("(max-width: 991px)").matches) {
+             $jarallax = $jarallax.not("#section-hero, #subheader");
+         }
+         $jarallax.jarallax();
 
         $(function() {
             $('.lazy').lazy();
