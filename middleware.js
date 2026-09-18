@@ -175,10 +175,14 @@ export default function middleware(request) {
   // STEP 3 — SINGLE REDIRECT (if needed)
   // ============================================================
   if (needsRedirect && finalDestination !== pathname) {
-    // A language choice is not permanent: keep it a temporary redirect so a browser
-    // or proxy never pins one visitor's language onto the bare URL.
+    // Permanent, so Google folds "/" into the language URL instead of keeping two
+    // entries for the same page. Search Console showed both "/" and "/ro/" ranking
+    // for the same searches, which splits the signals between them; the canonical,
+    // the sitemap and the hreflang all name the language URL, and a 301 is the only
+    // redirect that agrees with them. Vary plus a one-hour cache keeps a visitor's
+    // language from being pinned for everyone behind a proxy.
     return new Response(null, {
-      status: languageRedirect ? 302 : 301,
+      status: 301,
       headers: {
         'Location': url.origin + finalDestination + search,
         'Cache-Control': `public, max-age=${cacheMaxAge}`,
