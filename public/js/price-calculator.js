@@ -29,7 +29,7 @@ class PriceCalculator {
 
     // Legacy location fees (for backward compatibility)
     this.locationFees = {
-      "Chisinau Airport": 25,
+      "Chisinau Airport": 15,
       "Our Office": 0,
       "Iasi Airport": 35,
     };
@@ -57,9 +57,9 @@ class PriceCalculator {
         // Update legacy properties for backward compatibility
         this.outsideHoursFee = this.feeSettings.outside_hours_fee || 15;
         this.locationFees = {
-          "Chisinau Airport": this.feeSettings.chisinau_airport_pickup || 0,
+          "Chisinau Airport": this.feeSettings.chisinau_airport_pickup ?? 15,
           "Our Office": 0,
-          "Iasi Airport": this.feeSettings.iasi_airport_pickup || 35,
+          "Iasi Airport": this.feeSettings.iasi_airport_pickup || 175,
         };
 
         // Trigger price recalculation after fee settings are loaded
@@ -89,12 +89,52 @@ class PriceCalculator {
   }
 
   // Calculate number of days between two dates
-  calculateDays(pickupDate, returnDate) {
-    const pickup = new Date(pickupDate);
-    const return_ = new Date(returnDate);
-    const diffTime = return_.getTime() - pickup.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays); // Minimum 1 day
+  /**
+   * A rental day is 24 hours from the moment the car is handed over.
+   * Collect at 12:00 and return the next day at 12:00 and that is one day;
+   * return it at 13:00 and the second day has started. Times are optional:
+   * without them the calculation falls back to whole calendar days.
+   * GRACE_MINUTES can be raised if late returns should not tip over at once.
+   */
+  calculateDays(pickupDate, returnDate, pickupTime, returnTime) {
+    const GRACE_MINUTES = 0;
+    const DAY_MS = 1000 * 60 * 60 * 24;
+    const at = (date, time) => {
+      const d = new Date(date);
+      if (time && /^\d{1,2}:\d{2}/.test(time)) {
+        const [h, m] = time.split(":");
+        d.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+      } else {
+        d.setHours(0, 0, 0, 0);
+      }
+      return d;
+    };
+    const pickup = at(pickupDate, pickupTime);
+    const back = at(returnDate, returnTime);
+    const diffMs = back.getTime() - pickup.getTime() - GRACE_MINUTES * 60 * 1000;
+    return Math.max(1, Math.ceil(diffMs / DAY_MS));
+  }
+
+  /**
+   * Fee for collecting or returning the car at a given location.
+   * Chisinau delivery (airport or an address in town) is free from
+   * FREE_DELIVERY_FROM_DAYS rental days up, inside working hours.
+   */
+  locationFee(location, direction, days) {
+    const FREE_DELIVERY_FROM_DAYS = 7;
+    const long = Number(days) >= FREE_DELIVERY_FROM_DAYS;
+    const key = direction === "dropoff" ? "dropoff" : "pickup";
+    if (location === "Chisinau Airport") {
+      return long ? 0 : (this.feeSettings["chisinau_airport_" + key] ?? 15);
+    }
+    if (location === "Iasi Airport") {
+      return this.feeSettings["iasi_airport_" + key] ?? 175;
+    }
+    return this.feeSettings["office_" + key] ?? 0;
+  }
+
+  isDeliveryFree(days) {
+    return Number(days) >= 7;
   }
 
   // Helper function to convert dd-mm-yyyy to YYYY-MM-DD
@@ -301,7 +341,12 @@ async validateAndShowCoupon(couponCode) {
     } = rentalData;
 
     // Calculate days
-    const days = this.calculateDays(pickupDate, returnDate);
+    const days = this.calculateDays(
+      pickupDate,
+      returnDate,
+      pickupTime,
+      returnTime
+    );
 
     // Calculate base price
     const basePrice = this.calculateBasePrice(days);
@@ -314,31 +359,8 @@ async validateAndShowCoupon(couponCode) {
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
 
-    // Chisinau airport delivery is waived from 7 rental days up, as advertised on the site
-    const CHISINAU_AIRPORT_FREE_FROM_DAYS = 7;
-    const chisinauAirportWaived = days >= CHISINAU_AIRPORT_FREE_FROM_DAYS;
-
-    // Pickup fees
-    if (pickupLocation === "Chisinau Airport") {
-      pickupLocationFee = chisinauAirportWaived
-        ? 0
-        : this.feeSettings.chisinau_airport_pickup ?? 15;
-    } else if (pickupLocation === "Iasi Airport") {
-      pickupLocationFee = this.feeSettings.iasi_airport_pickup || 175;
-    } else {
-      pickupLocationFee = this.feeSettings.office_pickup || 0;
-    }
-
-    // Dropoff fees
-    if (dropoffLocation === "Chisinau Airport") {
-      dropoffLocationFee = chisinauAirportWaived
-        ? 0
-        : this.feeSettings.chisinau_airport_dropoff ?? 15;
-    } else if (dropoffLocation === "Iasi Airport") {
-      dropoffLocationFee = this.feeSettings.iasi_airport_dropoff || 175;
-    } else {
-      dropoffLocationFee = this.feeSettings.office_dropoff || 0;
-    }
+    pickupLocationFee = this.locationFee(pickupLocation, "pickup", days);
+    dropoffLocationFee = this.locationFee(dropoffLocation, "dropoff", days);
 
     const totalLocationFee = pickupLocationFee + dropoffLocationFee;
 
@@ -526,14 +548,12 @@ async validateAndShowCoupon(couponCode) {
       this.getSelectedRadioValue("dropoff_location") || "Our Office";
 
     if (pickupLocation !== "Our Office") {
-      let pickupFee = 0;
       let locationName = pickupLocation;
-
-      if (pickupLocation === "Chisinau Airport") {
-        pickupFee = this.feeSettings.chisinau_airport_pickup ?? 0;
-      } else if (pickupLocation === "Iasi Airport") {
-        pickupFee = this.feeSettings.iasi_airport_pickup ?? 35;
-      }
+      const pickupFee = this.locationFee(
+        pickupLocation,
+        "pickup",
+        priceData.rentalDays
+      );
 
       if (pickupFee > 0) {
         html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(
@@ -543,14 +563,12 @@ async validateAndShowCoupon(couponCode) {
     }
 
     if (dropoffLocation !== "Our Office") {
-      let dropoffFee = 0;
       let locationName = dropoffLocation;
-
-      if (dropoffLocation === "Chisinau Airport") {
-        dropoffFee = this.feeSettings.chisinau_airport_dropoff ?? 25;
-      } else if (dropoffLocation === "Iasi Airport") {
-        dropoffFee = this.feeSettings.iasi_airport_dropoff ?? 35;
-      }
+      const dropoffFee = this.locationFee(
+        dropoffLocation,
+        "dropoff",
+        priceData.rentalDays
+      );
 
       if (dropoffFee > 0) {
         html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(

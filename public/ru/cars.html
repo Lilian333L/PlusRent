@@ -1720,6 +1720,11 @@ html body section#subheader h1 span.gold,
 .mobile-filter-overlay { display: none !important; }
 @media (max-width: 991px) {
   .mobile-filter-overlay.active { display: flex !important; }
+    /* the inline calendars inside the mobile filter panel */
+    .mobile-filter-overlay .flatpickr-wrapper { display: block; width: 100%; }
+    .mobile-filter-overlay .flatpickr-calendar.static { position: relative; top: 4px; z-index: 10002; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+    .mobile-filter-overlay .flatpickr-calendar.static.open { display: block; margin: 0 auto 6px; }
+
 }
 
 /* === CATALOG container === */
@@ -3596,13 +3601,16 @@ input[type="radio"][name="mobile-price-category"] {
         ...commonConfig,
         onChange: function() { updateFiltersAndFetch(); }
       });
+      // Inside the filter panel the body is shifted for the scroll lock, so a
+      // calendar appended to the body lands away from its input. Render inline.
+      const mobileConfig = { ...commonConfig, static: true, appendTo: undefined };
       mobileDateFromPicker = flatpickr('#mobile-filter-date-from', {
-        ...commonConfig,
+        ...mobileConfig,
         onChange: function(selectedDates, dateStr) {
           if (mobileDateToPicker) mobileDateToPicker.set('minDate', dateStr);
         }
       });
-      mobileDateToPicker = flatpickr('#mobile-filter-date-to', { ...commonConfig });
+      mobileDateToPicker = flatpickr('#mobile-filter-date-to', { ...mobileConfig });
       const params = new URLSearchParams(window.location.search);
       const dateFrom = params.get('date_from');
       const dateTo = params.get('date_to');
