@@ -2817,6 +2817,32 @@ body:has(.pr-t) .breadcrumb-section{
 <a class="call" href="tel:+37360000500">☎ +373 60 000 500</a>
 <small>Non-stop · Vorbim română, rusă și engleză</small>
 </section>
+<style>
+  .pr-callback{padding:44px 16px;background:#111827;color:#fff;text-align:center}
+  .pr-callback .pr-cb-in{max-width:620px;margin:0 auto}
+  .pr-callback h2{font-size:1.5rem;font-weight:900;margin:0 0 8px;color:#fff}
+  .pr-callback p{color:#cbd5e1;margin:0 0 18px;font-size:1.02rem;line-height:1.6}
+  .pr-cb-form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .pr-cb-form input{flex:1;min-width:210px;padding:14px 18px;border:2px solid #334155;border-radius:999px;
+    font-size:1rem;outline:none;background:#0b1220;color:#fff;font-family:inherit}
+  .pr-cb-form input:focus{border-color:#f59e0b}
+  .pr-cb-form input::placeholder{color:#64748b}
+  .pr-cb-btn{padding:14px 26px;border:0;border-radius:999px;font-weight:800;font-size:1rem;cursor:pointer;
+    background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-family:inherit}
+  .pr-cb-btn:disabled{opacity:.6;cursor:default}
+  .pr-cb-note{display:block;margin-top:12px;color:#94a3b8;font-size:.88rem}
+</style>
+<section class="pr-callback" aria-labelledby="pr-cb-h">
+  <div class="pr-cb-in">
+    <h2 id="pr-cb-h">Nu vrei să suni? Lasă numărul.</h2>
+    <p>Te sunăm în 3 la 5 minute și îți spunem prețul exact pentru adresa ta, fără obligații.</p>
+    <form class="pr-cb-form" id="callbackForm" novalidate>
+      <input id="callbackPhone" inputmode="tel" autocomplete="tel" placeholder="Numărul tău de telefon" required type="tel">
+      <button class="pr-cb-btn" type="submit">Solicită apel</button>
+    </form>
+    <small class="pr-cb-note">Non-stop. Vorbim română, rusă și engleză. De la 500 MDL în Chișinău.</small>
+  </div>
+</section>
 <!-- FAQ -->
 <section class="faq">
 <h2 class="sec">Întrebări despre preț</h2>
@@ -3095,5 +3121,45 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
     if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('in-view');});};
   window.addEventListener('scroll', sr, {passive:true});
 })();
-</script></body>
+</script><script>
+(function () {
+  var form = document.getElementById('callbackForm');
+  if (!form) return;
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var input = document.getElementById('callbackPhone');
+    var phone = input.value.trim();
+    if (phone.replace(/\D/g, '').length < 8) {
+      alert('Introduceți un număr de telefon valid.');
+      return;
+    }
+    var btn = form.querySelector('.pr-cb-btn');
+    var original = btn.textContent;
+    btn.textContent = 'Se trimite...';
+    btn.disabled = true;
+    try {
+      var res = await fetch('/api/bookings/sofer-treaz-callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone_number: phone,
+          service_type: 'sofer_treaz',
+          special_instructions: 'Solicitare de pe pagina de tarife'
+        })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'HTTP ' + res.status);
+      if (typeof window.gtag_report_conversion === 'function') window.gtag_report_conversion();
+      input.value = '';
+      alert('Cererea a fost trimisă. Te sunăm în câteva minute.');
+    } catch (err) {
+      alert('Nu s-a putut trimite. Sună direct: +373 60 000 500');
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
 </html>
