@@ -56,6 +56,7 @@
 <link href="/css/soferum.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link href="/css/plugins.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link href="/css/style.css?v=202609188" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+    <link rel="stylesheet" href="/css/airport-transfer-form.css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=202609190" media="print" data-deferred-css>
@@ -1025,6 +1026,35 @@ details.rt-collapsible[open] .rt-icon { transform: rotate(45deg); }
   </div>
 </section>
 
+<section class="section" id="rezerva-transfer">
+  <div class="container">
+    <div class="text-center">
+      <span class="eyebrow center">БЫСТРОЕ БРОНИРОВАНИЕ</span>
+      <h2 class="section-title">Забронируйте трансфер Яссы Кишинёв за 1 минуту</h2>
+      <p class="section-sub">Заполните, мы перезвоним и подтвердим машину, время и точную цену. Без предоплаты.</p>
+    </div>
+    <div class="airport-booking-wrap">
+      <form id="airportBookingForm" novalidate
+        data-endpoint="/api/bookings/transfer-iasi-callback" data-service="transfer_iasi"
+        data-pickup="Яссы" data-label-flight="Номер рейса" data-label-passengers="Пассажиры" data-label-pickup="Подача"
+        data-msg-phone="Введите корректный номер телефона." data-msg-sending="Отправляем..."
+        data-msg-success="Заявка отправлена. Мы скоро позвоним." data-msg-error="Не удалось отправить. Позвоните напрямую: +373 60 000 500">
+        <div class="airport-booking-grid">
+          <label class="span-2">Откуда вас забрать<input type="text" name="pickup_location" placeholder="напр. аэропорт Яссы (IAS), вокзал, отель, адрес" required></label>
+          <label class="span-2">Куда едете в Молдове<input type="text" name="destination" placeholder="напр. центр Кишинёва, Бельцы, Орхей, Крикова" required></label>
+          <label>Дата<input type="date" name="pickup_date" required></label>
+          <label>Время<input type="time" name="pickup_time" required></label>
+          <label>Пассажиры<select name="passengers"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5+">5+</option></select></label>
+          <label>Номер рейса <span style="font-weight:400;color:#78716c">(необязательно)</span><input type="text" name="flight_number" placeholder="напр. RO 0301" autocomplete="off"></label>
+          <label class="span-2">Телефон (WhatsApp / Viber)<input type="tel" name="phone_number" placeholder="+373 …" inputmode="tel" autocomplete="tel" required></label>
+        </div>
+        <button type="submit" class="airport-booking-submit">Отправить заявку</button>
+        <p class="airport-booking-note">Без предоплаты. Оплата в конце, наличными или картой. От €140 за машину (4+1 мест), помощь на границе включена.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
 <section id="tarife" class="section section-alt">
   <div class="container">
     <div class="text-center">
@@ -1514,5 +1544,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
+  <script src="/js/airport-transfer-form.js?v=20260918" defer></script>
 </body>
 </html>

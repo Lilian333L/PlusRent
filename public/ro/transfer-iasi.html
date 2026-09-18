@@ -56,6 +56,7 @@
 <link href="/css/soferum.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link href="/css/plugins.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link href="/css/style.css?v=202609188" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+    <link rel="stylesheet" href="/css/airport-transfer-form.css">
 <link href="/css/coloring.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=202609190" media="print" data-deferred-css>
@@ -1964,6 +1965,35 @@ details.rt-collapsible[open] .rt-icon { transform: rotate(45deg); }
   </div>
 </section>
 
+<section class="section" id="rezerva-transfer">
+  <div class="container">
+    <div class="text-center">
+      <span class="eyebrow center">REZERVARE RAPIDĂ</span>
+      <h2 class="section-title">Rezervă transferul Iași Chișinău în 1 minut</h2>
+      <p class="section-sub">Completezi, te sunăm și confirmăm mașina, ora și prețul exact. Fără avans.</p>
+    </div>
+    <div class="airport-booking-wrap">
+      <form id="airportBookingForm" novalidate
+        data-endpoint="/api/bookings/transfer-iasi-callback" data-service="transfer_iasi"
+        data-pickup="Iași" data-label-flight="Numărul cursei" data-label-passengers="Pasageri" data-label-pickup="Preluare"
+        data-msg-phone="Introduceți un număr de telefon valid." data-msg-sending="Se trimite..."
+        data-msg-success="Cererea a fost trimisă. Vă sunăm în curând." data-msg-error="Nu s-a putut trimite. Sunați direct: +373 60 000 500">
+        <div class="airport-booking-grid">
+          <label class="span-2">De unde vă preluăm<input type="text" name="pickup_location" placeholder="ex. Aeroport Iași (IAS), gară, hotel, adresă" required></label>
+          <label class="span-2">Unde mergeți în Moldova<input type="text" name="destination" placeholder="ex. Chișinău centru, Bălți, Orhei, Cricova" required></label>
+          <label>Data<input type="date" name="pickup_date" required></label>
+          <label>Ora<input type="time" name="pickup_time" required></label>
+          <label>Pasageri<select name="passengers"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5+">5+</option></select></label>
+          <label>Numărul cursei <span style="font-weight:400;color:#78716c">(opțional)</span><input type="text" name="flight_number" placeholder="ex. RO 0301" autocomplete="off"></label>
+          <label class="span-2">Telefon (WhatsApp / Viber)<input type="tel" name="phone_number" placeholder="+373 …" inputmode="tel" autocomplete="tel" required></label>
+        </div>
+        <button type="submit" class="airport-booking-submit">Trimite cererea</button>
+        <p class="airport-booking-note">Fără avans. Plata la final, numerar sau card. De la €140 per mașină (4+1 locuri), asistență la vamă inclusă.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
 <section id="tarife" class="section section-alt">
   <div class="container">
     <div class="text-center">
@@ -2431,5 +2461,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
+  <script src="/js/airport-transfer-form.js?v=20260918" defer></script>
 </body>
 </html>

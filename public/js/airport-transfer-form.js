@@ -6,6 +6,8 @@
 (function () {
   var form = document.getElementById('airportBookingForm');
   if (!form) return;
+  var endpoint = form.dataset.endpoint || '/api/bookings/transfer-chisinau-callback';
+  var service = form.dataset.service || 'transfer_chisinau';
 
   var dateInput = form.querySelector('[name="pickup_date"]');
   if (dateInput) dateInput.min = new Date().toISOString().slice(0, 10);
@@ -26,6 +28,7 @@
     var notes = [];
     if (field('flight_number')) notes.push(form.dataset.labelFlight + ': ' + field('flight_number'));
     if (field('passengers')) notes.push(form.dataset.labelPassengers + ': ' + field('passengers'));
+    if (field('pickup_location')) notes.push((form.dataset.labelPickup || 'Pickup') + ': ' + field('pickup_location'));
 
     var btn = form.querySelector('button[type="submit"]');
     var originalText = btn.textContent;
@@ -33,13 +36,13 @@
     btn.disabled = true;
 
     try {
-      var res = await fetch('/api/bookings/transfer-chisinau-callback', {
+      var res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone_number: phone,
-          service_type: 'transfer_chisinau',
-          pickup_location: form.dataset.pickup,
+          service_type: service,
+          pickup_location: field('pickup_location') || form.dataset.pickup,
           destination: field('destination') || null,
           pickup_date: field('pickup_date') || null,
           pickup_time: field('pickup_time') || null,
