@@ -3,10 +3,10 @@ let cachedCouponData = null;
 let lastValidatedCouponCode = null;
 let modalFeeSettings = {
   outside_hours_fee: 15,
-  chisinau_airport_pickup: 0,
-  chisinau_airport_dropoff: 25,
-  iasi_airport_pickup: 35,
-  iasi_airport_dropoff: 35,
+  chisinau_airport_pickup: 15,
+  chisinau_airport_dropoff: 15,
+  iasi_airport_pickup: 175,
+  iasi_airport_dropoff: 175,
   office_pickup: 0,
   office_dropoff: 0,
 };
@@ -1224,11 +1224,12 @@ async function calculateModalPrice() {
   const returnDateISO = convertDateFormatToISO(returnDateStr);
 
   // Calculate base pr
-  const pickup = new Date(pickupDateISO + "T00:00:00");
-  const return_dt = new Date(returnDateISO + "T00:00:00");
-  const days = Math.max(
-    1,
-    Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24))
+  // A rental day is 24 hours from handover, not a calendar date difference
+  const days = window.RentalFees.rentalDays(
+    pickupDateISO,
+    returnDateISO,
+    pickupTime,
+    returnTime
   );
 
   // Get base price
@@ -1269,30 +1270,22 @@ async function calculateModalPrice() {
 
   const baseCost = dailyRate * days;
 
-  // Calculate location fees
-  let locationFees = 0;
-  if (pickupLocation === "Chisinau Airport") {
-  locationFees += modalFeeSettings.chisinau_airport_pickup || 0;
-} else if (pickupLocation === "Iasi Airport") {
-  locationFees += modalFeeSettings.iasi_airport_pickup || 0;
-} else {
-  locationFees += modalFeeSettings.office_pickup || 0;
-}
-
-if (dropoffLocation === "Chisinau Airport") {
-  locationFees += modalFeeSettings.chisinau_airport_dropoff || 0;
-} else if (dropoffLocation === "Iasi Airport") {
-  locationFees += modalFeeSettings.iasi_airport_dropoff || 0;
-} else {
-  locationFees += modalFeeSettings.office_dropoff || 0;
-}
-
-  // Calculate outside hours fees
-  let outsideHoursFees = 0;
-  const pickupHour = parseInt(pickupTime.split(":")[0]);
-  const returnHour = parseInt(returnTime.split(":")[0]);
-  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += modalFeeSettings.outside_hours_fee || 0;
-  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += modalFeeSettings.outside_hours_fee || 0;
+  // Location and out-of-hours fees come from the shared rules in rental-fees.js,
+  // so the home page modal and the car page always agree.
+  const locationFees = window.RentalFees.locationFees(
+    pickupLocation,
+    dropoffLocation,
+    days,
+    modalFeeSettings
+  );
+  const outsideHoursFees = window.RentalFees.outsideHoursFees(
+    pickupTime,
+    returnTime,
+    days,
+    pickupLocation,
+    dropoffLocation,
+    modalFeeSettings
+  );
   // Calculate subtotal before discount
   const subtotal = baseCost + locationFees + outsideHoursFees;
 
@@ -1382,12 +1375,11 @@ async function calculateModalPriceFallback(rentalData) {
     dropoffLocation,
   } = rentalData;
 
-  // Calculate days
-  const pickup = new Date(pickupDate + "T00:00:00");
-  const return_dt = new Date(returnDate + "T00:00:00");
-  const days = Math.max(
-    1,
-    Math.ceil((return_dt - pickup) / (1000 * 60 * 60 * 24))
+  const days = window.RentalFees.rentalDays(
+    pickupDate,
+    returnDate,
+    pickupTime,
+    returnTime
   );
 
   // Get base price
@@ -1406,19 +1398,20 @@ async function calculateModalPriceFallback(rentalData) {
 
   const baseCost = dailyRate * days;
 
-  // Simple location fees
-  let locationFees = 0;
-  if (pickupLocation === "Chisinau Airport") locationFees += 25;
-  if (pickupLocation === "Iasi Airport") locationFees += 35;
-  if (dropoffLocation === "Chisinau Airport") locationFees += 25;
-  if (dropoffLocation === "Iasi Airport") locationFees += 35;
-
-  // Simple outside hours calculation
-  let outsideHoursFees = 0;
-  const pickupHour = parseInt(pickupTime.split(":")[0]);
-  const returnHour = parseInt(returnTime.split(":")[0]);
-  if (pickupHour < 8 || pickupHour >= 18) outsideHoursFees += 15;
-  if (returnHour < 8 || returnHour >= 18) outsideHoursFees += 15;
+  const locationFees = window.RentalFees.locationFees(
+    pickupLocation,
+    dropoffLocation,
+    days,
+    modalFeeSettings
+  );
+  const outsideHoursFees = window.RentalFees.outsideHoursFees(
+    pickupTime,
+    returnTime,
+    days,
+    pickupLocation,
+    dropoffLocation,
+    modalFeeSettings
+  );
 
   const totalEstimate = baseCost + locationFees + outsideHoursFees;
 

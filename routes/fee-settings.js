@@ -322,6 +322,9 @@ router.post('/initialize', authenticateToken, async (req, res) => {
       { setting_key: 'office_dropoff', setting_name: 'Office Drop-off Fee', amount: 0.00, description: 'Fee for dropping off car at office (usually free)' },
       { setting_key: 'office_pickup', setting_name: 'Office Pickup Fee', amount: 0.00, description: 'Fee for picking up car from office (usually free)' },
       
+      // Delivery policy
+      { setting_key: 'free_delivery_from_days', setting_name: 'Free delivery from (days)', amount: 7.00, description: 'Rentals of this many days or more get Chisinau delivery free, at any hour. Iasi airport is always charged.' },
+      
       // Time-based fees
       { setting_key: 'outside_hours_fee', setting_name: 'Outside Working Hours Fee', amount: 25.00, description: 'Additional fee for pickup/dropoff outside working hours' },
       

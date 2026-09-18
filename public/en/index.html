@@ -1844,7 +1844,13 @@ input[type="radio"] {
     <link href="/css/scroll-lock.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/modal-ux.css">
   </noscript>
-  <style>.pr-pickup-note{margin:8px 0 0;font-size:.86rem;line-height:1.55;color:#78716c}.pr-pickup-note b{color:#57534e}</style>
+  
+  <style>
+  .pr-pickup-note{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+  .pr-pickup-note li{display:flex;gap:8px;align-items:flex-start;font-size:.86rem;line-height:1.5;color:#57534e}
+  .pr-pickup-note li i{flex:0 0 auto;margin-top:2px;color:#d97706;font-size:.9rem}
+  .pr-pickup-note b{color:#44403c;font-weight:700}
+</style>
 </head>
 <body>
   <!-- Skip to main content (keyboard + screen-reader a11y) -->
@@ -2077,7 +2083,7 @@ input[type="radio"] {
                             <span data-i18n="cars.iasi_airport">Iasi Airport</span>
                           </label>
                         </div>
-                        <p class="pr-pickup-note">We send you the exact pickup address a few days before the date, because where the cars are kept varies. From 7 rental days, delivery within Chisinau is free during working hours.</p>
+                        <ul class="pr-pickup-note"><li><i class="fa fa-map-marker"></i><span><b>You get the exact address in advance.</b> We send it a few days before pickup, because where the cars are kept varies.</span></li><li><i class="fa fa-check-circle"></i><span><b>From 7 days delivery is free</b> in Chisinau and at the airport, at any hour.</span></li></ul>
                       </div>
 
                       <div class="col-lg-6">
@@ -2107,7 +2113,7 @@ input[type="radio"] {
                         <div class="location-info">
                           <small class="text-muted">
                             <i class="fa fa-exclamation-circle me-1"></i>
-                            <span data-i18n="booking.location_warning">Select your preferred pickup and return locations. Airport delivery and out-of-hours pickup/return may incur additional fees.</span>
+                            <span data-i18n="booking.location_warning">Select your preferred pickup and drop-off locations. Under 7 days, airport and after-hours delivery is charged; from 7 days it is free, at any hour.</span>
                           </small>
                         </div>
                       </div>
@@ -2786,11 +2792,12 @@ input[type="radio"] {
   <script src="/js/dynamic-cars-loader.js" defer></script>
   <script src="/js/vendor/flatpickr-4.6.13.min.js" defer></script>
   <script src="/js/date-picker-manager.js" defer></script>
-  <script src="/js/validation-booking.js" defer></script>
+  <script src="/js/rental-fees.js?v=20260918"></script>
+  <script src="/js/validation-booking.js?v=20260918" defer></script>
   <script src="/js/burger-menu-fix.js" defer></script>
   <script src="/js/vendor/i18next-21.6.16.min.js" defer></script>
   <script src="/js/vendor/i18next-http-backend-1.4.3.min.js" defer></script>
-  <script src="/js/i18n-init.js?v=202609186" defer></script>
+  <script src="/js/i18n-init.js?v=202609187" defer></script>
   <script src="/js/services-nav.js" defer></script>
 
 <script>
@@ -3091,10 +3098,6 @@ input[type="radio"] {
 
         <div class="calculator-section">
           <h5><i class="fa fa-car"></i> <span data-i18n="price_calculator.selected_vehicle">Selected vehicle</span></h5>
-          <div class="mb-2">
-            <label class="form-label small" for="modal-vehicle-select">Change car</label>
-            <select id="modal-vehicle-select" class="form-control form-select form-select-sm" aria-label="Change car"></select>
-          </div>
           <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
             <div class="row align-items-center g-2">
               <div class="col-3">
@@ -3543,7 +3546,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ── REMOVED v9 (refactor): inline wrapper around window.openPriceCalculator.
  * Was ~180 lines of code duplicating body-lock setup, iOS scroll kicks,
  * wheel/key handlers and syncVehicleDataToModal. All consolidated in:
- *   - /js/validation-booking.js  (openPriceCalculator + syncVehicleDataToModal)
+ *   - /js/validation-booking.js?v=20260918  (openPriceCalculator + syncVehicleDataToModal)
  *   - /js/burger-menu-fix.js     (PlusRentModal.openManaged / iosScrollKick)
  * The new architecture has a SINGLE body-lock manager and SINGLE close
  * pathway. Adding new modals: call PlusRentModal.openManaged(modal, opts). */
@@ -3662,8 +3665,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
 /* ── REMOVED v9 (refactor): inline closePriceCalculator + outside-click handler.
- * Both are now provided by validation-booking.js + PlusRentModal:
- *   - closePriceCalculator: validation-booking.js (calls PlusRentModal.closeManaged)
+ * Both are now provided by validation-booking.js?v=20260918 + PlusRentModal:
+ *   - closePriceCalculator: validation-booking.js?v=20260918 (calls PlusRentModal.closeManaged)
  *   - Backdrop click: PlusRentModal.openManaged({closeOnBackdropClick: true}) */
 </script>
 
@@ -3727,6 +3730,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 })();
 </script>
-  <script src="/js/modal-vehicle-switch.js?v=20260918" defer></script>
+  <script src="/js/modal-vehicle-switch.js?v=20260919" defer></script>
 </body>
 </html>

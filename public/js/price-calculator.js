@@ -97,8 +97,15 @@ class PriceCalculator {
    * GRACE_MINUTES can be raised if late returns should not tip over at once.
    */
   calculateDays(pickupDate, returnDate, pickupTime, returnTime) {
-    const GRACE_MINUTES = 0;
-    const DAY_MS = 1000 * 60 * 60 * 24;
+    if (window.RentalFees) {
+      return window.RentalFees.rentalDays(
+        pickupDate,
+        returnDate,
+        pickupTime,
+        returnTime
+      );
+    }
+    const DAY_MS = 86400000;
     const at = (date, time) => {
       const d = new Date(date);
       if (time && /^\d{1,2}:\d{2}/.test(time)) {
@@ -109,10 +116,10 @@ class PriceCalculator {
       }
       return d;
     };
-    const pickup = at(pickupDate, pickupTime);
-    const back = at(returnDate, returnTime);
-    const diffMs = back.getTime() - pickup.getTime() - GRACE_MINUTES * 60 * 1000;
-    return Math.max(1, Math.ceil(diffMs / DAY_MS));
+    return Math.max(
+      1,
+      Math.ceil((at(returnDate, returnTime) - at(pickupDate, pickupTime)) / DAY_MS)
+    );
   }
 
   /**
@@ -120,12 +127,25 @@ class PriceCalculator {
    * Chisinau delivery (airport or an address in town) is free from
    * FREE_DELIVERY_FROM_DAYS rental days up, inside working hours.
    */
+  /** The label for a fee line; translations differ on whether they carry a colon. */
+  feeLabel(key) {
+    const text = i18next.t(key) || "";
+    return text.replace(/\s*:\s*$/, "") + ": ";
+  }
+
   locationFee(location, direction, days) {
-    const FREE_DELIVERY_FROM_DAYS = 7;
-    const long = Number(days) >= FREE_DELIVERY_FROM_DAYS;
+    if (window.RentalFees) {
+      return window.RentalFees.locationFee(
+        location,
+        direction,
+        days,
+        this.feeSettings
+      );
+    }
+    const long = Number(days) >= 7;
     const key = direction === "dropoff" ? "dropoff" : "pickup";
     if (location === "Chisinau Airport") {
-      return long ? 0 : (this.feeSettings["chisinau_airport_" + key] ?? 15);
+      return long ? 0 : this.feeSettings["chisinau_airport_" + key] ?? 15;
     }
     if (location === "Iasi Airport") {
       return this.feeSettings["iasi_airport_" + key] ?? 175;
@@ -204,21 +224,30 @@ class PriceCalculator {
   }
 
   // Calculate outside working hours fees
-  calculateOutsideHoursFees(pickupTime, returnTime) {
+  calculateOutsideHoursFees(
+    pickupTime,
+    returnTime,
+    days,
+    pickupLocation,
+    dropoffLocation
+  ) {
+    if (window.RentalFees) {
+      return window.RentalFees.outsideHoursFees(
+        pickupTime,
+        returnTime,
+        days,
+        pickupLocation,
+        dropoffLocation,
+        this.feeSettings
+      );
+    }
     let fees = 0;
-
-    // Check if pickup is outside working hours (8:00-18:00)
-    const pickupOutside = this.isOutsideWorkingHours(pickupTime);
-    if (pickupOutside) {
-      fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for pickup outside working hours
+    if (this.isOutsideWorkingHours(pickupTime)) {
+      fees += this.feeSettings.outside_hours_fee ?? 15;
     }
-
-    // Check if return is outside working hours (8:00-18:00)
-    const returnOutside = this.isOutsideWorkingHours(returnTime);
-    if (returnOutside) {
-      fees += this.feeSettings.outside_hours_fee ?? 15; // Dynamic fee for return outside working hours
+    if (this.isOutsideWorkingHours(returnTime)) {
+      fees += this.feeSettings.outside_hours_fee ?? 15;
     }
-
     return fees;
   }
 
@@ -370,7 +399,10 @@ async validateAndShowCoupon(couponCode) {
     // Calculate outside hours fees
     const outsideHoursFees = this.calculateOutsideHoursFees(
       pickupTime,
-      returnTime
+      returnTime,
+      days,
+      pickupLocation,
+      dropoffLocation
     );
 
     // Calculate subtotal
@@ -556,9 +588,9 @@ async validateAndShowCoupon(couponCode) {
       );
 
       if (pickupFee > 0) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${this.feeLabel(
           "price_calculator.pickup_location"
-        )} ${locationName}</span><span>${pickupFee}€</span></div>`;
+        )}${locationName}</span><span>${pickupFee}€</span></div>`;
       }
     }
 
@@ -571,9 +603,9 @@ async validateAndShowCoupon(couponCode) {
       );
 
       if (dropoffFee > 0) {
-        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${i18next.t(
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>${this.feeLabel(
           "price_calculator.dropoff_location"
-        )}: ${locationName}</span><span>${dropoffFee}€</span></div>`;
+        )}${locationName}</span><span>${dropoffFee}€</span></div>`;
       }
     }
 
