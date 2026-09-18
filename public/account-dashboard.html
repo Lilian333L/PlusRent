@@ -3139,6 +3139,7 @@
     ================================================== -->
   <!-- HEIC/HEIF to JPEG conversion (Chrome/Firefox/Edge can't decode HEIC natively via canvas) -->
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
+  <script src="/js/admin-gallery.js?v=20260918"></script>
   <script src="/js/plugins.js?v=20260918" defer></script>
   <script src="js/designesia.js?v=20260919" defer></script>
   <!-- <script src="js/master-include.js"></script> -->
@@ -4562,7 +4563,7 @@ ${booking.coupon_details ? `
         // Reset form and clear image previews
         editCarForm.reset();
         document.getElementById('editHeadImagePreview').innerHTML = '';
-        document.getElementById('editGalleryImagesPreview').innerHTML = '';
+        window.AdminGallery.reset('editGalleryImagesInput');
         document.getElementById('editHeadImageInput').value = '';
         document.getElementById('editGalleryImagesInput').value = '';
 
@@ -4617,7 +4618,7 @@ ${booking.coupon_details ? `
             addCarForm.reset();
             // Clear any image previews
             document.getElementById('addHeadImagePreview').innerHTML = '';
-            document.getElementById('addGalleryImagesPreview').innerHTML = '';
+            window.AdminGallery.reset('addGalleryImagesInput');
             document.getElementById('addHeadImageInput').value = '';
             document.getElementById('addGalleryImagesInput').value = '';
           }
@@ -4747,6 +4748,14 @@ ${booking.coupon_details ? `
           const headImageFile = document.getElementById('editHeadImageInput').files[0];
           const galleryImageFiles = Array.from(document.getElementById('editGalleryImagesInput').files);
 
+          // The order the photos are shown in after dragging. Without an upload the
+          // server can take it as is; with one, the freshly uploaded photos come back
+          // appended and are placed after the ones that were already arranged.
+          const galleryOrder = window.AdminGallery.currentOrder('editGalleryImagesPreview');
+          if (galleryImageFiles.length === 0 && galleryOrder.length > 0) {
+            carData.gallery_images_order = galleryOrder;
+          }
+
           // If there are images to upload, upload them first
           if (headImageFile || galleryImageFiles.length > 0) {
             const imageData = {};
@@ -4789,8 +4798,12 @@ ${booking.coupon_details ? `
                 // Get the updated image data from the response
                 const imageResult = await imageResponse.json();
                 if (imageResult.gallery_images) {
-                  // Update carData with the new gallery images
-                  carData.gallery_images = JSON.stringify(imageResult.gallery_images);
+                  // keep the arranged order, with the new photos after it
+                  const arranged = galleryOrder.filter(u => imageResult.gallery_images.includes(u));
+                  const added = imageResult.gallery_images.filter(u => !arranged.includes(u));
+                  const finalOrder = arranged.concat(added);
+                  carData.gallery_images = JSON.stringify(finalOrder);
+                  if (arranged.length > 0) carData.gallery_images_order = finalOrder;
                 }
               } else {
 
@@ -4934,7 +4947,7 @@ ${booking.coupon_details ? `
                 // Reset form and clear image previews
                 editCarForm.reset();
                 document.getElementById('editHeadImagePreview').innerHTML = '';
-                document.getElementById('editGalleryImagesPreview').innerHTML = '';
+                window.AdminGallery.reset('editGalleryImagesInput');
                 document.getElementById('editHeadImageInput').value = '';
                 document.getElementById('editGalleryImagesInput').value = '';
 
@@ -5152,30 +5165,10 @@ ${booking.coupon_details ? `
 
           addGalleryImagesInput.click();
         });
-        addGalleryImagesInput.addEventListener('change', async (e) => {
-
-          const files = Array.from(e.target.files);
-
-          for (const file of files) {
-            let previewFile = file;
-            try {
-              previewFile = await convertHeicToJpeg(file);
-            } catch (err) {
-              showCustomAlert(err.message, 'error');
-              continue;
-            }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              addGalleryImagesPreview.innerHTML += `
-                <div style="position: relative; display: inline-block; margin: 5px;">
-                  <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
-                </div>
-              `;
-            };
-            reader.readAsDataURL(previewFile);
-          }
-        });
+        // admin-gallery.js keeps the chosen files in its own list, so a second
+        // selection adds to the first instead of replacing it, and each preview
+        // is appended rather than rewritten. It also makes them draggable.
+        window.AdminGallery.wire(addGalleryImagesInput, addGalleryImagesPreview);
       }
 
       // Edit Car Image Uploads
@@ -5222,29 +5215,7 @@ ${booking.coupon_details ? `
         editGalleryImagesInput.dataset.initialized = 'true';
 
         editGalleryImagesButton.addEventListener('click', () => editGalleryImagesInput.click());
-        editGalleryImagesInput.addEventListener('change', async (e) => {
-          const files = Array.from(e.target.files);
-
-          for (const file of files) {
-            let previewFile = file;
-            try {
-              previewFile = await convertHeicToJpeg(file);
-            } catch (err) {
-              showCustomAlert(err.message, 'error');
-              continue;
-            }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              editGalleryImagesPreview.innerHTML += `
-                <div style="position: relative; display: inline-block; margin: 5px;">
-                  <img src="${e.target.result}" alt="Gallery image preview" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-                  <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">×</button>
-                </div>
-              `;
-            };
-            reader.readAsDataURL(previewFile);
-          }
-        });
+        window.AdminGallery.wire(editGalleryImagesInput, editGalleryImagesPreview);
       }
 
       // Image removal functions
@@ -5524,7 +5495,7 @@ ${booking.coupon_details ? `
                 // Reset form and clear image previews
                 carForm.reset();
                 document.getElementById('addHeadImagePreview').innerHTML = '';
-                document.getElementById('addGalleryImagesPreview').innerHTML = '';
+                window.AdminGallery.reset('addGalleryImagesInput');
                 document.getElementById('addHeadImageInput').value = '';
                 document.getElementById('addGalleryImagesInput').value = '';
 
@@ -5567,7 +5538,7 @@ ${booking.coupon_details ? `
                 // Reset form and clear image previews
                 carForm.reset();
                 document.getElementById('addHeadImagePreview').innerHTML = '';
-                document.getElementById('addGalleryImagesPreview').innerHTML = '';
+                window.AdminGallery.reset('addGalleryImagesInput');
                 document.getElementById('addHeadImageInput').value = '';
                 document.getElementById('addGalleryImagesInput').value = '';
 
@@ -6180,14 +6151,10 @@ ${booking.coupon_details ? `
 
         const editGalleryImagesPreview = document.getElementById('editGalleryImagesPreview');
         if (car.gallery_images && car.gallery_images.length > 0 && editGalleryImagesPreview) {
-          editGalleryImagesPreview.innerHTML = car.gallery_images.map((img, index) => `
-            <div style="position: relative; display: inline-block; margin: 5px;">
-              <img src="${img.startsWith('http') ? img : window.API_BASE_URL + img}" alt="Gallery image" style="max-width: 100px; max-height: 75px; border-radius: 4px;">
-              <button type="button" class="btn btn-danger btn-sm" style="position: absolute; top: -8px; right: -8px; border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 12px;" onclick="removeGalleryImageByUrl('${img}')">×</button>
-            </div>
-          `).join('');
+          // drawn by admin-gallery.js so the photos can be dragged into order
+          window.AdminGallery.showExisting('editGalleryImagesPreview', car.gallery_images, window.API_BASE_URL);
         } else {
-          if (editGalleryImagesPreview) editGalleryImagesPreview.innerHTML = '';
+          window.AdminGallery.reset('editGalleryImagesInput');
         }
 
         // Store car ID for form submission

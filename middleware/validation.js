@@ -91,6 +91,15 @@ const registerSchema = Joi.object({
 });
 
 // Car schemas
+// Image formats a browser can display. Matched without regard to case, because a
+// phone may hand over "JPG" or "PNG" and a rejected upload looks like a broken form.
+const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'jpe', 'jfif', 'png', 'webp', 'avif', 'gif', 'bmp', 'svg'];
+const imageExtension = Joi.string()
+  .lowercase()
+  .replace(/^\./, '')
+  .valid(...IMAGE_EXTENSIONS)
+  .required();
+
 const carCreateSchema = Joi.object({
   make_name: Joi.string().min(1).max(100).required().trim(),
   model_name: Joi.string().min(1).max(100).required().trim(),
@@ -138,13 +147,13 @@ const carCreateSchema = Joi.object({
   description_ru: Joi.string().max(2000).trim().allow(null,''),
   head_image: Joi.object({
     data: Joi.string().base64().required(),
-    extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+    extension: imageExtension
   }).allow(null,''),
   gallery_images: Joi.alternatives().try(
     Joi.array().items(
       Joi.object({
         data: Joi.string().base64().required(),
-        extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+        extension: imageExtension
       })
     ),
     Joi.string().allow('').empty('').default([]),
@@ -182,12 +191,15 @@ const carUpdateSchema = Joi.object({
     Joi.array().items(
       Joi.object({
         data: Joi.string().base64().required(),
-        extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+        extension: imageExtension
       })
     ),
     Joi.string().allow('').empty('').default([]),
     Joi.allow(null).default([])
   ).default([]),
+  // The order the images should be kept in, as a list of paths already stored on
+  // the car. Sent when the admin drags the gallery around.
+  gallery_images_order: Joi.array().items(Joi.string().max(600)).optional(),
   luggage: Joi.string().valid(
     '1_small', '2_small', '1_large', '2_large', '3_large',
     '1_small_1_large', '2_small_1_large', '1_small_2_large', 
@@ -214,7 +226,7 @@ const carUpdateSchema = Joi.object({
   head_image: Joi.alternatives().try(
     Joi.object({
       data: Joi.string().base64().required(),
-      extension: Joi.string().valid('jpg', 'jpeg', 'png', 'webp').required()
+      extension: imageExtension
     }),
     Joi.string().allow(''),
     Joi.allow(null)

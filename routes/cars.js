@@ -792,6 +792,7 @@ router.put(
       booked,
       booked_until,
       gallery_images,
+      gallery_images_order,
       luggage,
       mileage,
       drive,
@@ -957,6 +958,12 @@ router.put(
         likes: likesValue,
         description: descriptionJson,
       };
+
+      // The admin can drag the gallery into a different order; when that list
+      // arrives, it is the order the car keeps.
+      if (Array.isArray(gallery_images_order)) {
+        updateData.gallery_images = JSON.stringify(gallery_images_order);
+      }
 
 
       // Remove null/undefined values to avoid Supabase errors
