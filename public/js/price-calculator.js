@@ -19,10 +19,10 @@ class PriceCalculator {
     // Dynamic fee settings - will be loaded from API
     this.feeSettings = {
       outside_hours_fee: 15,
-      chisinau_airport_pickup: 0,
-      chisinau_airport_dropoff: 25,
-      iasi_airport_pickup: 35,
-      iasi_airport_dropoff: 35,
+      chisinau_airport_pickup: 15,
+      chisinau_airport_dropoff: 15,
+      iasi_airport_pickup: 175,
+      iasi_airport_dropoff: 175,
       office_pickup: 0,
       office_dropoff: 0,
     };
@@ -314,20 +314,28 @@ async validateAndShowCoupon(couponCode) {
     let pickupLocationFee = 0;
     let dropoffLocationFee = 0;
 
+    // Chisinau airport delivery is waived from 7 rental days up, as advertised on the site
+    const CHISINAU_AIRPORT_FREE_FROM_DAYS = 7;
+    const chisinauAirportWaived = days >= CHISINAU_AIRPORT_FREE_FROM_DAYS;
+
     // Pickup fees
     if (pickupLocation === "Chisinau Airport") {
-      pickupLocationFee = this.feeSettings.chisinau_airport_pickup || 0;
+      pickupLocationFee = chisinauAirportWaived
+        ? 0
+        : this.feeSettings.chisinau_airport_pickup ?? 15;
     } else if (pickupLocation === "Iasi Airport") {
-      pickupLocationFee = this.feeSettings.iasi_airport_pickup || 35;
+      pickupLocationFee = this.feeSettings.iasi_airport_pickup || 175;
     } else {
       pickupLocationFee = this.feeSettings.office_pickup || 0;
     }
 
     // Dropoff fees
     if (dropoffLocation === "Chisinau Airport") {
-      dropoffLocationFee = this.feeSettings.chisinau_airport_dropoff || 25;
+      dropoffLocationFee = chisinauAirportWaived
+        ? 0
+        : this.feeSettings.chisinau_airport_dropoff ?? 15;
     } else if (dropoffLocation === "Iasi Airport") {
-      dropoffLocationFee = this.feeSettings.iasi_airport_dropoff || 35;
+      dropoffLocationFee = this.feeSettings.iasi_airport_dropoff || 175;
     } else {
       dropoffLocationFee = this.feeSettings.office_dropoff || 0;
     }
