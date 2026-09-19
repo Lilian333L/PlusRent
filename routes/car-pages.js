@@ -87,8 +87,25 @@ router.use((req, res, next) => {
   next();
 });
 
+/**
+ * These routes sit on the API app, so the API's CSP middleware has already run
+ * and stamped its policy on the response. That policy ends in
+ * `script-src-attr 'none'`, which is right for a JSON API and fatal for a page:
+ * it silently kills every onclick and onchange attribute in the markup. The
+ * catalogue has 17 of them and a car page 14, which is how the mobile filter
+ * button came to light up and do nothing.
+ *
+ * A page served here is the same page that would be served as a static file, so
+ * it gets the same header those get from vercel.json.
+ */
+function pageSecurityHeaders(res) {
+  res.set("Content-Security-Policy", "frame-ancestors 'self'");
+  res.removeHeader("Content-Security-Policy-Report-Only");
+}
+
 function noStoreHtml(res, seconds) {
   res.set("Content-Type", "text/html; charset=utf-8");
+  pageSecurityHeaders(res);
   // short shared cache so a price change shows up quickly but the function is
   // not hit for every visitor
   res.set("Cache-Control", `public, max-age=0, s-maxage=${seconds}, stale-while-revalidate=600`);
