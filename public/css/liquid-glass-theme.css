@@ -588,6 +588,24 @@
   display: block !important;
 }
 
+/* The catalogue wraps the photo in a link that carries its own
+   position:relative, so that link became the image's containing block and,
+   with the image taken out of flow, collapsed to no height at all. The home
+   page has no such wrapper, which is why only one of the two pages broke.
+   The link now fills the box, so the image inside it does too, and both
+   markups behave the same. */
+.de-item .d-img > a {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+}
+
+/* the badge sits on top of the photo, whatever wraps it */
+.de-item .d-img .premium-badge,
+.de-item .d-img .pr-badge {
+  z-index: 2;
+}
+
 /* Filling the box by absolute position rather than height:100%. A percentage
    height needs a parent with a definite height, and this box takes its height
    from aspect-ratio, so on the catalogue the image kept its own square height
