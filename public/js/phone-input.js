@@ -209,14 +209,11 @@
       }
     } else if (digits.indexOf(country.dial) === 0) {
       national = digits.slice(country.dial.length);
-    } else {
-      var other = countryByDigits(digits);
-      // without a +, only believe another country if a whole number follows
-      if (other && other.iso !== country.iso && digits.length - other.dial.length >= 7) {
-        country = other;
-        national = digits.slice(other.dial.length);
-      }
     }
+    // Without a leading +, the number is read against the country that is
+    // selected and nothing else. Guessing here got it wrong: a Romanian mobile
+    // starts with 7, +7 is Russia's whole dial code, so 721234567 typed under
+    // Romania was being sent to Russia. A bare number is a local number.
 
     // the trunk zero people keep in front of a local number
     national = national.replace(/^0+/, "");
