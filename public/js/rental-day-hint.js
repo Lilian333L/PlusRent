@@ -90,18 +90,44 @@
     return null;
   }
 
+  /**
+   * Where the hint belongs: under the price breakdown, not under the dates.
+   * Next to the date fields it told the customer the rental is two days before
+   * any price was on screen, which reads as a warning rather than an
+   * explanation. Beside the total it answers the question actually being asked.
+   */
+  function placeAfter() {
+    var priceHosts = [
+      ".modal-price-summary",      // the calculator modal
+      "#price-content",            // the booking form on a car page
+      "#price-summary",            // the inline summary on the home page form
+      ".price-breakdown-compact",
+    ];
+    for (var i = 0; i < priceHosts.length; i++) {
+      var host = document.querySelector(priceHosts[i]);
+      if (host && host.offsetParent !== null) return host;
+    }
+    // nothing visible to hang it on yet, fall back to the dates
+    return null;
+  }
+
   function box(anchor) {
+    var host = placeAfter();
+    if (!host && anchor) {
+      host = anchor.closest(".calculator-section") || anchor.closest(".row") || anchor.parentElement;
+    }
+    if (!host || !host.parentElement) return null;
+
     var el = document.getElementById(HINT_ID);
-    // The modal rebuilds its body, which takes the hint with it. If the old one
-    // is no longer attached anywhere, drop it and build a fresh one next to the
-    // dates that are on screen now.
-    if (el && el.isConnected) return el;
+    // The modal rebuilds its body, which takes the hint with it, and the price
+    // block only appears once a price exists. Rebuild whenever the hint is
+    // detached or is no longer sitting next to the block it belongs to.
+    if (el && el.isConnected && el.previousElementSibling === host) return el;
     if (el) el.remove();
+
     el = document.createElement("div");
     el.id = HINT_ID;
     el.setAttribute("role", "note");
-    var host = anchor.closest(".calculator-section") || anchor.closest(".row") || anchor.parentElement;
-    if (!host || !host.parentElement) return null;
     host.parentElement.insertBefore(el, host.nextSibling);
     return el;
   }
@@ -139,6 +165,29 @@
       if (/pickup|return|collection|date-picker/.test(e.target.id)) setTimeout(update, 60);
     });
   });
+
+  /**
+   * The price blocks are filled in asynchronously, and on a car page the hint
+   * has nowhere to sit until that happens. Watch them and place the hint as
+   * soon as the breakdown appears or changes.
+   */
+  function watchPrices() {
+    if (typeof MutationObserver === "undefined") return;
+    var seen = [];
+    var obs = new MutationObserver(function () { setTimeout(update, 40); });
+    function attach() {
+      [".modal-price-summary", "#price-content", "#price-summary"].forEach(function (sel) {
+        var el = document.querySelector(sel);
+        if (el && seen.indexOf(el) === -1) {
+          seen.push(el);
+          obs.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["style"] });
+        }
+      });
+    }
+    attach();
+    setInterval(attach, 3000);
+  }
+  watchPrices();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () { setTimeout(update, 800); });
