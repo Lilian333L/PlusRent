@@ -71,14 +71,20 @@
     "US,1,United States|UY,598,Uruguay|UZ,998,Uzbekistan|VU,678,Vanuatu|VA,379,Vatican City|" +
     "VE,58,Venezuela|VN,84,Vietnam|YE,967,Yemen|ZM,260,Zambia|ZW,263,Zimbabwe|";
 
-  // Expected national length, only where we are sure. Everywhere else no length
-  // rule is applied at all and the number is judged by the E.164 range alone,
-  // so an unusual country can never block a real customer.
+  // National number length, without the dial code and without the trunk zero.
+  // A single value means exactly that many digits; two values mean a range.
+  // A country that is not listed here has no length rule at all and is judged
+  // only by the international limit, so an unusual country can never turn a
+  // real customer away.
   var LEN = {
-    MD: [8], RO: [9], UA: [9], RU: [10], IT: [9, 10], DE: [10, 11], FR: [9],
-    GB: [10], ES: [9], PT: [9], IL: [9], TR: [10], PL: [9], CZ: [9], SK: [9],
-    AT: [10, 11], BE: [9], NL: [9], IE: [9], GR: [10], BG: [9], HU: [9],
-    CH: [9], SE: [9], NO: [8], DK: [8], FI: [9, 10], US: [10], CA: [10],
+    MD: [8], RO: [9], UA: [9], RU: [10], BY: [9], KZ: [10],
+    IT: [9, 11], DE: [10, 11], FR: [9], GB: [10], ES: [9], PT: [9],
+    IL: [8, 9], TR: [10], PL: [9], CZ: [9], SK: [9], AT: [10, 13],
+    BE: [8, 9], NL: [9], IE: [7, 9], GR: [10], BG: [8, 9], HU: [8, 9],
+    CH: [9], SE: [7, 13], NO: [8], DK: [8], FI: [5, 12], IS: [7],
+    US: [10], CA: [10], EE: [7, 8], LV: [8], LT: [8], HR: [8, 9],
+    SI: [8], RS: [8, 9], ME: [8], MK: [8], AL: [9], BA: [8],
+    CY: [8], MT: [8], LU: [9], AE: [9], QA: [8], SA: [9],
   };
 
   // Shown first, because this is where PlusRent's customers actually call from.
@@ -126,6 +132,8 @@
       search: "Caută țara",
       hint: "Alege țara, apoi scrie numărul. Merge și cu prefix, și fără.",
       example: "Exemplu",
+      wrongLength: "Un numar din {c} are {n} cifre. Ai scris {g}.",
+      wrongLength: "Un număr din {c} are {n} cifre. Ai scris {g}.",
       tooShort: "Numărul pare prea scurt. Verifică-l, te rugăm.",
       tooLong: "Numărul pare prea lung. Verifică-l, te rugăm.",
       notANumber: "Scrie numărul de telefon la care te putem suna.",
@@ -136,6 +144,7 @@
       search: "Поиск страны",
       hint: "Выберите страну и введите номер. Можно с кодом и без.",
       example: "Например",
+      wrongLength: "Номер из {c}: {n} цифр. Вы ввели {g}.",
       tooShort: "Номер выглядит коротким. Проверьте, пожалуйста.",
       tooLong: "Номер выглядит длинным. Проверьте, пожалуйста.",
       notANumber: "Введите номер, по которому мы сможем позвонить.",
@@ -146,6 +155,7 @@
       search: "Search country",
       hint: "Pick the country, then type the number. With or without the code.",
       example: "For example",
+      wrongLength: "A {c} number has {n} digits. You typed {g}.",
       tooShort: "That looks too short. Please check it.",
       tooLong: "That looks too long. Please check it.",
       notANumber: "Enter a number we can call you on.",
@@ -233,12 +243,12 @@
     }
 
     if (country.len && country.len.length) {
-      var min = Math.min.apply(null, country.len);
-      var max = Math.max.apply(null, country.len);
-      // one digit either side of the expected length is accepted: a real
-      // customer must never be blocked by our table being slightly off
-      if (national.length < min - 1) return Object.assign(res, { ok: false, reason: "tooShort" });
-      if (national.length > max + 1) return Object.assign(res, { ok: false, reason: "tooLong" });
+      var min = country.len[0];
+      var max = country.len.length > 1 ? country.len[1] : country.len[0];
+      res.expected = min === max ? String(min) : min + "–" + max;
+      res.got = national.length;
+      if (national.length < min) return Object.assign(res, { ok: false, reason: "wrongLength" });
+      if (national.length > max) return Object.assign(res, { ok: false, reason: "wrongLength" });
     }
     return Object.assign(res, { ok: true });
   }
@@ -442,6 +452,9 @@
       function setState(bad) {
         wrap.classList.toggle("is-bad", !!bad);
         input.setAttribute("aria-invalid", bad ? "true" : "false");
+        input.classList.toggle("error_input", !!bad);
+        var legacy = input.closest(".pr-phone-wrap");
+        if (legacy) legacy.classList.toggle("is-valid", !bad && !!input.value.trim());
         // role=alert only while there is an error, so the hint is not announced
         // every time somebody types a digit
         if (bad) note.setAttribute("role", "alert");
@@ -469,7 +482,13 @@
       } else {
         setState(true);
         note.className = "pr-phone-note is-bad";
-        note.textContent = t(r.reason);
+        var msg = t(r.reason);
+        if (r.reason === "wrongLength") {
+          msg = msg.replace("{c}", r.country.name)
+                   .replace("{n}", r.expected)
+                   .replace("{g}", r.got);
+        }
+        note.textContent = msg;
       }
       return r;
     }
