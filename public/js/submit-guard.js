@@ -36,28 +36,43 @@
     var st = document.createElement("style");
     st.id = "pr-busy-css";
     st.textContent = [
-      ".pr-busy{position:relative;cursor:progress!important;opacity:.85}",
-      ".pr-busy>*{visibility:hidden}",
-      ".pr-busy::after{content:attr(data-busy-label);position:absolute;inset:0;display:flex;",
-      "align-items:center;justify-content:center;gap:9px;visibility:visible;",
-      "font:inherit;color:inherit;white-space:nowrap}",
-      ".pr-busy::before{content:'';position:absolute;left:50%;top:50%;width:17px;height:17px;",
-      "margin-top:-8.5px;margin-left:calc(-1 * (var(--pr-busy-w,150px) / 2) - 13px);",
-      "border:2px solid currentColor;border-right-color:transparent;border-radius:50%;",
-      "visibility:visible;animation:pr-spin .7s linear infinite}",
+      ".pr-busy{cursor:progress!important;opacity:.9}",
+      ".pr-busy-inner{display:inline-flex;align-items:center;justify-content:center;gap:10px}",
+      ".pr-busy-spin{width:16px;height:16px;flex:none;border:2px solid currentColor;",
+      "border-right-color:transparent;border-radius:50%;animation:pr-spin .7s linear infinite}",
       "@keyframes pr-spin{to{transform:rotate(360deg)}}",
-      "@media (prefers-reduced-motion:reduce){.pr-busy::before{animation-duration:2.4s}}",
+      "@media (prefers-reduced-motion:reduce){.pr-busy-spin{animation-duration:2.4s}}",
     ].join("");
     document.head.appendChild(st);
   }
 
+  /**
+   * Swap the button's contents for a spinner and a label, and put the original
+   * back afterwards. Replacing the contents rather than overlaying them with a
+   * pseudo-element means the spinner sits correctly whatever the button's
+   * width, padding or icon happens to be.
+   */
   function markBusy(el) {
     if (!el) return function () {};
     css();
+    var prevHTML = el.innerHTML;
     var prevDisabled = el.disabled;
-    var label = t("sending");
-    el.dataset.busyLabel = label;
-    el.style.setProperty("--pr-busy-w", (label.length * 7.5) + "px");
+    var prevWidth = el.style.width;
+
+    // hold the width so the button does not jump as the label changes
+    var w = el.getBoundingClientRect().width;
+    if (w > 0) el.style.width = Math.round(w) + "px";
+
+    var inner = document.createElement("span");
+    inner.className = "pr-busy-inner";
+    var spin = document.createElement("span");
+    spin.className = "pr-busy-spin";
+    spin.setAttribute("aria-hidden", "true");
+    inner.appendChild(spin);
+    inner.appendChild(document.createTextNode(t("sending")));
+    el.innerHTML = "";
+    el.appendChild(inner);
+
     el.classList.add(BUSY);
     el.setAttribute("aria-busy", "true");
     if ("disabled" in el) el.disabled = true;
@@ -68,7 +83,8 @@
       released = true;
       el.classList.remove(BUSY);
       el.removeAttribute("aria-busy");
-      delete el.dataset.busyLabel;
+      el.style.width = prevWidth;
+      el.innerHTML = prevHTML;
       if ("disabled" in el) el.disabled = prevDisabled;
     };
   }
