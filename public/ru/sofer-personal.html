@@ -3026,11 +3026,11 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
       if(!res.ok) throw new Error();
       const cars=await res.json();
       if(!Array.isArray(cars)||!cars.length){ fallback(); return; }
-      const g={vip:[],business:[],standard:[]};
+      const g={exclusive:[],vip:[],business:[],standard:[]};
       cars.forEach(c=>g[tier(c)].push(c));
       const show=[];
-      ['vip','business','standard'].forEach(t=>{ if(g[t].length) show.push({car:g[t][0],t}); });
-      ['business','standard','vip'].forEach(t=>{ g[t].slice(1,3).forEach(c=>{ if(show.length<6) show.push({car:c,t}); }); });
+      ['exclusive','vip','business','standard'].forEach(t=>{ if(g[t].length) show.push({car:g[t][0],t}); });
+      ['business','standard','vip','exclusive'].forEach(t=>{ g[t].slice(1,3).forEach(c=>{ if(show.length<6) show.push({car:c,t}); }); });
       if(!show.length){ fallback(); return; }
       grid.innerHTML=show.map(x=>card(x.car,x.t)).join('');
     } catch(e){ fallback(); }
