@@ -3667,7 +3667,13 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ── REMOVED v9 (refactor): inline wrapper around window.openPriceCalculator.
  * Was ~180 lines of code duplicating body-lock setup, iOS scroll kicks,
  * wheel/key handlers and syncVehicleDataToModal. All consolidated in:
- *   - /js/validation-booking.js?v=20260919q"/js/universal-include.js" defer></script>
+ *   - /js/validation-booking.js?v=20260918  (openPriceCalculator + syncVehicleDataToModal)
+ *   - /js/burger-menu-fix.js     (PlusRentModal.openManaged / iosScrollKick)
+ * The new architecture has a SINGLE body-lock manager and SINGLE close
+ * pathway. Adding new modals: call PlusRentModal.openManaged(modal, opts). */
+</script>
+
+  <script src="/js/universal-include.js" defer></script>
   <script src="/js/auto-apply-coupon.js" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -3780,7 +3786,72 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
 /* ── REMOVED v9 (refactor): inline closePriceCalculator + outside-click handler.
- * Both are now provided by validation-booking.js?v=20260919q"/js/modal-vehicle-switch.js?v=20260919b" defer></script>
+ * Both are now provided by validation-booking.js?v=20260918 + PlusRentModal:
+ *   - closePriceCalculator: validation-booking.js?v=20260918 (calls PlusRentModal.closeManaged)
+ *   - Backdrop click: PlusRentModal.openManaged({closeOnBackdropClick: true}) */
+</script>
+
+<script>
+// select2-img-alt-fix: Add alt to dynamically injected select2 images
+(function() {
+  var ob = new MutationObserver(function() {
+    document.querySelectorAll('.select2-selection img:not([alt]), .select2-results img:not([alt])').forEach(function(img) {
+      var text = img.closest('li, span')?.textContent?.trim() || '';
+      img.setAttribute('alt', text || 'Автомобиль');
+    });
+    document.querySelectorAll('.img-flag:not([alt])').forEach(function(img) {
+      img.setAttribute('alt', '');
+    });
+  });
+  ob.observe(document.body, { childList: true, subtree: true });
+})();
+</script><script>
+// ═══════════════════════════════════════════════════════════════
+// COUNT-UP ANIMATION — animates numbers when scrolled into view
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.pr-count-up');
+    if (!elements.length) return;
+
+    const animate = (el) => {
+      const target = parseFloat(el.dataset.countTo);
+      if (isNaN(target)) return;
+      const decimals = parseInt(el.dataset.countDecimals || '0', 10);
+      const duration = 1400;
+      const startTime = performance.now();
+      el.classList.add('is-counting');
+
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out-cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = target * eased;
+        el.textContent = decimals > 0 ? value.toFixed(decimals) : Math.round(value);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.classList.remove('is-counting');
+      }
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.counted) {
+          entry.target.dataset.counted = '1';
+          animate(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5, rootMargin: '0px 0px -50px 0px' });
+
+    elements.forEach(el => observer.observe(el));
+  });
+})();
+</script>
+  <script src="/js/modal-vehicle-switch.js?v=20260919b" defer></script>
   <script src="/js/phone-input.js?v=20260919p" defer></script>
   <script src="/js/submit-guard.js?v=20260919i" defer></script>
 </body>
