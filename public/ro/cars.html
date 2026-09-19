@@ -1854,6 +1854,11 @@ html body section#subheader h1 span.gold,
 }
 
 .pr-filter-body { padding: 0 16px 14px 16px; }
+/* A closed accordion section was still laying out its body, which then painted
+   over the sections beneath it. The options you could see belonged to a closed
+   section, so the click landed on whichever title was really at that point and
+   nothing happened. */
+.pr-filter-section:not([open]) > .pr-filter-body { display: none !important; }
 
 /* Date inputs */
 .date-range-filter { display: flex; flex-direction: column; gap: 6px; }
