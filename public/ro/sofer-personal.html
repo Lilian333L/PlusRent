@@ -2031,6 +2031,7 @@ input:focus-visible,
     <link href="/css/coloring.css" rel="stylesheet" type="text/css">
     <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
   </noscript>
+  <style>.fleet-tier-badge.exclusive{background:linear-gradient(135deg,#1c1917,#3f3f46);color:#fde68a;border:1px solid #a16207}.fleet-note{margin:6px 0 0;font-size:.82rem;line-height:1.5;color:#92400e;background:#fffbeb;border-left:3px solid #f59e0b;padding:7px 10px;border-radius:0 7px 7px 0}</style>
 </head>
 <body>
 
@@ -2930,21 +2931,24 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
   const grid = document.getElementById('fleetGrid');
   if(!grid) return;
   function tier(car){
-    const mk=(car.make_name||'').toLowerCase(), mo=(car.model_name||'').toLowerCase(), yr=parseInt(car.production_year)||0;
-    if(mk==='mercedes'&&(mo.includes('e')||mo.includes('s'))) return 'vip';
-    if(mk==='bmw'&&(mo.includes('5')||mo.includes('7'))) return 'vip';
-    if(mk==='audi'&&mo.includes('a6')&&yr>=2021) return 'vip';
-    if(mk==='audi'&&mo.includes('a6')) return 'business';
-    if(mk==='lexus') return 'business';
-    if(mk==='bmw'&&mo.includes('3')) return 'business';
-    if(mk==='mercedes'&&mo.includes('c')) return 'business';
-    if(mk==='audi'&&mo.includes('a4')&&yr>=2018) return 'business';
+    // Price decides, because the owner sets it and it is what the tier means.
+    // Reading the model name got this wrong: "M8 Competition" matched none of
+    // the old patterns, so a 369 EUR car was offered as standard.
+    var p = car.price_policy;
+    if (typeof p === 'string') { try { p = JSON.parse(p); } catch(e) { p = {}; } }
+    var vals = Object.keys(p || {}).map(function(k){ return parseFloat(p[k]); })
+                     .filter(function(v){ return isFinite(v) && v > 0; });
+    var low = vals.length ? Math.min.apply(null, vals) : 0;
+    if (low >= 150) return 'exclusive';
+    if (low >= 90)  return 'vip';
+    if (low >= 45)  return 'business';
     return 'standard';
   }
-  const TIER_LABELS = {standard:'STANDARD', business:'BUSINESS', vip:'VIP'};
-  const TIER_CLASS  = {standard:'Clasă confort', business:'Clasă premium', vip:'Clasă lux'};
+  const TIER_LABELS = {standard:'STANDARD', business:'BUSINESS', vip:'VIP', exclusive:'EXCLUSIV'};
+  const TIER_NOTE = { exclusive: "Doar cu șofer. Pentru nunți, cumătrii, filmări și ședințe foto." };
+  const TIER_CLASS  = {standard:'Clasă confort', business:'Clasă premium', vip:'Clasă lux', exclusive:'Clasă exclusivistă'};
   function features(car,t){
-    const f = t==='vip'?['Lux','WiFi','Climatizare','Șofer VIP']:t==='business'?['Premium','WiFi','Climatizare','Multilingv']:['Confort','WiFi','AC'];
+    const f = t==='exclusive'?['Doar cu șofer','Evenimente','Ședințe foto','Nunți']:t==='vip'?['Lux','WiFi','Climatizare','Șofer VIP']:t==='business'?['Premium','WiFi','Climatizare','Multilingv']:['Confort','WiFi','AC'];
     if(car.gearbox_name) f.push(car.gearbox_name);
     if(car.fuel_type_name) f.push(car.fuel_type_name);
     return f.slice(0,4);
@@ -2953,7 +2957,7 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
     const name=`${car.make_name||''} ${car.model_name||''}`.trim();
     const yr=car.production_year||'';
     const img=car.head_image||'';
-    const ctx=t==='vip'?'our-vip':t==='business'?'our-business':'our-standard';
+    const ctx=t==='exclusive'?'our-exclusive':t==='vip'?'our-vip':t==='business'?'our-business':'our-standard';
     const lbl=TIER_LABELS[t];
     return `<div class="fleet-card">
       <div class="fleet-image">
@@ -2963,6 +2967,7 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
       <div class="fleet-content">
         <div class="fleet-name">${name}</div>
         <div class="fleet-year">${yr?yr+' · ':''}${TIER_CLASS[t]}</div>
+        ${TIER_NOTE[t]?`<p class="fleet-note">${TIER_NOTE[t]}</p>`:''}
         <ul class="fleet-features">${features(car,t).map(f=>`<li>${f}</li>`).join('')}</ul>
         <button onclick="openContactPopup('${ctx}')" class="fleet-cta">Rezervă Această Mașină</button>
       </div>

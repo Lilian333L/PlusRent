@@ -2660,10 +2660,16 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { clo
   if (!grid) return;
 
   function tier(car) {
-    var mk = (car.make_name||'').toLowerCase();
-    var md = (car.model_name||'').toLowerCase();
-    if ((mk==='mercedes'&&/[es]/.test(md))||(mk==='bmw'&&/[57]/.test(md))||(mk==='audi'&&md.includes('a8'))) return 'vip';
-    if ((mk==='audi'&&md.includes('a6'))||(mk==='lexus')||(mk==='bmw'&&md.includes('3'))||(mk==='mercedes'&&md.includes('c'))) return 'business';
+    // Price decides. Reading the model name put a 369 EUR car in the standard
+    // transfer tier, because "M8 Competition" contains no 5, 7 or 3.
+    var p = car.price_policy;
+    if (typeof p === 'string') { try { p = JSON.parse(p); } catch(e) { p = {}; } }
+    var vals = Object.keys(p || {}).map(function(k){ return parseFloat(p[k]); })
+                     .filter(function(v){ return isFinite(v) && v > 0; });
+    var low = vals.length ? Math.min.apply(null, vals) : 0;
+    if (low >= 150) return 'exclusive';
+    if (low >= 90)  return 'vip';
+    if (low >= 45)  return 'business';
     return 'standard';
   }
   function tierLabel(t) { return {vip:'VIP',business:'BUSINESS',standard:'STANDARD'}[t]; }
@@ -2703,7 +2709,11 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { clo
       var cars = await res.json();
       if (!Array.isArray(cars)||!cars.length) { fallback(); return; }
       var g = {vip:[],business:[],standard:[]};
-      cars.forEach(function(c){ g[tier(c)].push(c); });
+      cars.forEach(function(c){
+        var t = tier(c);
+        if (t === 'exclusive') return; // event car, not a transfer vehicle
+        g[t].push(c);
+      });
       var show = [];
       ['vip','business','standard'].forEach(function(t){ if(g[t].length) show.push({car:g[t][0],t:t}); });
       ['business','standard','vip'].forEach(function(t){
