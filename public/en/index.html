@@ -3503,8 +3503,15 @@ document.addEventListener('DOMContentLoaded', function() {
   var bookingForm = phoneInput ? phoneInput.closest('form') : null;
   if (!phoneInput || !submitBtn) return;
 
-  // Light phone validator: must be 8+ digits (covers 60000500, +373 60 000 500, etc.)
+  // phone-input.js knows the country and how many digits it uses, so it decides.
+  // This used to accept any 8 digits on its own, which is how a nine-digit
+  // Moldovan number got a green tick next to a red "has 8 digits" message, and
+  // how the submit button unlocked on a number we could not call.
   function isValidPhone(v) {
+    if (phoneInput && phoneInput.prPhone) return phoneInput.prPhone.value().ok;
+    if (phoneInput && phoneInput.dataset && phoneInput.dataset.prPhone) {
+      return !!(phoneInput.dataset.e164 || '').length;
+    }
     var digits = (v || '').replace(/\D+/g, '');
     return digits.length >= 8;
   }
@@ -3833,7 +3840,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
   <script src="/js/modal-vehicle-switch.js?v=20260919b" defer></script>
-  <script src="/js/phone-input.js?v=20260919p" defer></script>
+  <script src="/js/phone-input.js?v=20260920a" defer></script>
   <script src="/js/submit-guard.js?v=20260919i" defer></script>
 </body>
 </html>

@@ -174,6 +174,30 @@
     return TEXT[lang()][key];
   }
 
+  // The countries customers actually call from, in the language of the page.
+  // Everywhere else the English name is shown, which is still recognisable and
+  // findable, and the search matches the local name either way.
+  var LOCAL = {
+    ro: { MD: "Moldova", RO: "România", UA: "Ucraina", RU: "Rusia", IT: "Italia",
+          DE: "Germania", FR: "Franța", GB: "Marea Britanie", ES: "Spania",
+          PT: "Portugalia", IL: "Israel", TR: "Turcia", PL: "Polonia",
+          CZ: "Cehia", AT: "Austria", BE: "Belgia", NL: "Olanda", IE: "Irlanda",
+          GR: "Grecia", BG: "Bulgaria", HU: "Ungaria", CH: "Elveția",
+          SE: "Suedia", US: "Statele Unite", CA: "Canada", ES2: "" },
+    ru: { MD: "Молдова", RO: "Румыния", UA: "Украина", RU: "Россия", IT: "Италия",
+          DE: "Германия", FR: "Франция", GB: "Великобритания", ES: "Испания",
+          PT: "Португалия", IL: "Израиль", TR: "Турция", PL: "Польша",
+          CZ: "Чехия", AT: "Австрия", BE: "Бельгия", NL: "Нидерланды",
+          IE: "Ирландия", GR: "Греция", BG: "Болгария", HU: "Венгрия",
+          CH: "Швейцария", SE: "Швеция", US: "США", CA: "Канада" },
+    en: {},
+  };
+
+  function displayName(c) {
+    var m = LOCAL[lang()] || {};
+    return m[c.iso] || c.name;
+  }
+
   function byIso(iso) {
     for (var i = 0; i < COUNTRIES.length; i++) if (COUNTRIES[i].iso === iso) return COUNTRIES[i];
     return COUNTRIES[0];
@@ -364,7 +388,7 @@
       pick.appendChild(f);
       pick.appendChild(d);
       pick.appendChild(c);
-      pick.setAttribute("aria-label", country.name + " +" + country.dial);
+      pick.setAttribute("aria-label", displayName(country) + " +" + country.dial);
       input.placeholder = EXAMPLE[country.iso] || "";
     }
 
@@ -386,7 +410,7 @@
         b.setAttribute("aria-selected", c.iso === country.iso ? "true" : "false");
         b.innerHTML = '<span class="pr-phone-iso"></span><span class="n"></span><span class="d"></span>';
         b.querySelector(".pr-phone-iso").textContent = c.iso;
-        b.querySelector(".n").textContent = c.name;
+        b.querySelector(".n").textContent = displayName(c);
         b.querySelector(".d").textContent = "+" + c.dial;
         b.addEventListener("click", function () {
           country = c;
@@ -448,6 +472,12 @@
 
       hidden.value = r.ok ? r.e164 : "";
       input.dataset.e164 = hidden.value;
+      // the page's own submit-state listener runs on input, so tell it whenever
+      // the verdict changes for a reason other than a keystroke
+      if (input.dataset.lastVerdict !== String(r.ok)) {
+        input.dataset.lastVerdict = String(r.ok);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
 
       function setState(bad) {
         wrap.classList.toggle("is-bad", !!bad);
@@ -484,7 +514,7 @@
         note.className = "pr-phone-note is-bad";
         var msg = t(r.reason);
         if (r.reason === "wrongLength") {
-          msg = msg.replace("{c}", r.country.name)
+          msg = msg.replace("{c}", displayName(r.country))
                    .replace("{n}", r.expected)
                    .replace("{g}", r.got);
         }
