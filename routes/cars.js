@@ -164,6 +164,79 @@ const tempUpload = multer({
   },
 });
 
+/**
+ * Which car of a duplicate group is the one search engines are pointed at.
+ *
+ * Several cars can be the same make, model and year. Only one of them gets an
+ * indexable page, and by default that is whichever was added first. The owner
+ * may want a different one, for instance after deleting the first, so the
+ * choice is stored as a map of "make|model|year" to a car id. It lives in
+ * global_settings rather than on the car itself, so it survives the chosen car
+ * being deleted and needs no change to the cars table.
+ *
+ * Declared before router.get("/:id"), which would otherwise treat
+ * "seo-primary" as a car id.
+ */
+const SEO_PRIMARY_KEY = "seo_primary_cars";
+
+async function readSeoPrimary() {
+  const { data, error } = await supabase
+    .from("global_settings")
+    .select("setting_value")
+    .eq("setting_key", SEO_PRIMARY_KEY)
+    .maybeSingle();
+  if (error && error.code !== "PGRST116") throw error;
+  if (!data || !data.setting_value) return {};
+  try {
+    const parsed = JSON.parse(data.setting_value);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+router.get("/seo-primary", async (req, res) => {
+  try {
+    res.json({ success: true, overrides: await readSeoPrimary() });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to read: " + error.message });
+  }
+});
+
+router.post("/seo-primary", authenticateToken, async (req, res) => {
+  const { group_key, car_id } = req.body || {};
+  if (!group_key || typeof group_key !== "string") {
+    return res.status(400).json({ error: "group_key is required" });
+  }
+  try {
+    const overrides = await readSeoPrimary();
+    if (car_id === null || car_id === "" || car_id === undefined) {
+      delete overrides[group_key]; // back to the default, the first one added
+    } else {
+      overrides[group_key] = String(car_id);
+    }
+    const value = JSON.stringify(overrides);
+    const now = new Date().toISOString();
+
+    const { data: updated, error: updateError } = await supabase
+      .from("global_settings")
+      .update({ setting_value: value, updated_at: now })
+      .eq("setting_key", SEO_PRIMARY_KEY)
+      .select();
+    if (updateError && updateError.code !== "PGRST116") throw updateError;
+
+    if (!updated || updated.length === 0) {
+      const { error: insertError } = await supabase
+        .from("global_settings")
+        .insert({ setting_key: SEO_PRIMARY_KEY, setting_value: value, updated_at: now });
+      if (insertError) throw insertError;
+    }
+    res.json({ success: true, overrides });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save: " + error.message });
+  }
+});
+
 // Get all cars with filtering
 router.get("/", async (req, res) => {
   // Use native Supabase client for filtering
@@ -1660,3 +1733,4 @@ router.get("/:id/booking-dates", async (req, res) => {
 });
 
 module.exports = router;
+module.exports.readSeoPrimary = readSeoPrimary;

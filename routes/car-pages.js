@@ -36,7 +36,7 @@ function template(relPath) {
 }
 
 // The fleet changes rarely compared with how often these pages are hit.
-let carsCache = { at: 0, rows: null };
+let carsCache = { at: 0, rows: null, overrides: null };
 const CARS_TTL_MS = 60 * 1000;
 
 async function allCars() {
@@ -45,8 +45,22 @@ async function allCars() {
   const { data, error } = await supabase.from("cars").select("*");
   if (error) throw error;
   const rows = (data || []).filter((c) => c && c.id != null);
-  carsCache = { at: now, rows };
+  carsCache = { at: now, rows, overrides: carsCache.overrides };
   return rows;
+}
+
+/** Which car of a duplicate group the owner picked to be the indexed one. */
+async function seoPrimaryOverrides() {
+  const now = Date.now();
+  if (carsCache.overrides && now - carsCache.at < CARS_TTL_MS) return carsCache.overrides;
+  let overrides = {};
+  try {
+    overrides = await require("./cars").readSeoPrimary();
+  } catch (e) {
+    overrides = {};
+  }
+  carsCache.overrides = overrides;
+  return overrides;
 }
 
 function langOf(req, fallback) {
@@ -113,7 +127,8 @@ const carPage = async (req, res, next) => {
       return res.redirect(301, canonical);
     }
 
-    const html = render(template("car-template.html"), car, lang, cars);
+    const overrides = await seoPrimaryOverrides();
+    const html = render(template("car-template.html"), car, lang, cars, overrides);
     noStoreHtml(res, 300);
     return res.status(200).send(html);
   } catch (err) {
@@ -198,12 +213,13 @@ router.get("/:lang(ro|ru|en)/cars", carsPage);
 const sitemapCars = async (req, res, next) => {
   try {
     const cars = await allCars();
+    const overrides = await seoPrimaryOverrides();
     const map = slugs.slugMap(cars);
     const today = new Date().toISOString().slice(0, 10);
 
     const urls = cars
       // only the page each duplicate group points at; the copies are noindex
-      .filter((c) => map.get(String(c.id)) && slugs.isPrimary(c, cars))
+      .filter((c) => map.get(String(c.id)) && slugs.isPrimary(c, cars, overrides))
       .map((car) => {
         const alt = LANGS.map(
           (l) =>

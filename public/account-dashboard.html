@@ -3140,6 +3140,7 @@
   <!-- HEIC/HEIF to JPEG conversion (Chrome/Firefox/Edge can't decode HEIC natively via canvas) -->
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
   <script src="/js/admin-gallery.js?v=20260918"></script>
+  <script src="/js/admin-seo-primary.js?v=20260919f" defer></script>
   <script src="/js/plugins.js?v=20260918" defer></script>
   <script src="js/designesia.js?v=20260919" defer></script>
   <!-- <script src="js/master-include.js"></script> -->
@@ -6159,6 +6160,10 @@ ${booking.coupon_details ? `
 
         // Store car ID for form submission
         editForm.dataset.carId = carId;
+        // only shows itself when this car has identical twins
+        if (typeof window.showSeoPrimaryControl === 'function') {
+          window.showSeoPrimaryControl(car);
+        }
 
         // Show the edit panel
         const editCarPanel = document.getElementById('editCarPanel');
