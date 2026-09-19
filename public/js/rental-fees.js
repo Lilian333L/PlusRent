@@ -31,6 +31,22 @@
     return isFinite(n) ? n : fallback;
   }
 
+  /**
+   * The date pickers hand over d-m-Y ("19-09-2026") because that is what the
+   * visitor reads, and new Date() cannot parse it: it returns Invalid Date, the
+   * rental silently became one day and the extra-day hint never appeared. Accept
+   * both spellings so every caller can pass whatever it has.
+   */
+  function toISO(date) {
+    if (typeof date !== "string") return date;
+    var s = date.trim();
+    var dmy = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(s);
+    if (dmy) {
+      return dmy[3] + "-" + ("0" + dmy[2]).slice(-2) + "-" + ("0" + dmy[1]).slice(-2);
+    }
+    return s;
+  }
+
   function freeFromDays(feeSettings) {
     var raw = feeSettings && feeSettings.free_delivery_from_days;
     var n = num(raw, DEFAULT_FREE_FROM_DAYS);
@@ -52,7 +68,7 @@
     var GRACE_MINUTES = 60;
     var DAY_MS = 86400000;
     function at(date, time) {
-      var d = new Date(date);
+      var d = new Date(toISO(date));
       if (isNaN(d.getTime())) return null;
       if (time && /^\d{1,2}:\d{2}/.test(time)) {
         var parts = time.split(":");
@@ -149,6 +165,7 @@
     DEFAULT_FREE_FROM_DAYS: DEFAULT_FREE_FROM_DAYS,
     CHISINAU_AIRPORT: CHISINAU_AIRPORT,
     IASI_AIRPORT: IASI_AIRPORT,
+    toISO: toISO,
     freeFromDays: freeFromDays,
     deliveryIsFree: deliveryIsFree,
     rentalDays: rentalDays,

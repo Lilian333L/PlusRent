@@ -131,8 +131,21 @@
       if (window.priceCalculator && d && d.price_policy) window.priceCalculator.car = d;
     }
     if (typeof window.syncVehicleDataToModal === "function") window.syncVehicleDataToModal();
+    // The car page keeps its rates in priceCalculator; the home page modal reads
+    // them straight off the selected option and recalculates in calculateModalPrice.
+    // Only the first was called here, so on the home page the total stayed on the
+    // car that was picked first no matter which one you switched to.
     if (window.priceCalculator && typeof window.priceCalculator.recalculatePrice === "function") {
       window.priceCalculator.recalculatePrice();
+    }
+    if (typeof window.updateVehiclePriceDisplay === "function") {
+      window.updateVehiclePriceDisplay();
+    }
+    if (typeof window.calculateModalPrice === "function") {
+      window.calculateModalPrice();
+    }
+    if (typeof window.updateRentalDayHint === "function") {
+      window.updateRentalDayHint();
     }
     build();
     close();

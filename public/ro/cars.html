@@ -124,7 +124,7 @@
   <link href="/css/style.css?v=202609188" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link href="/css/coloring.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
-  <link href="/css/liquid-glass-theme.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link href="/css/liquid-glass-theme.css?v=20260919b" rel="stylesheet" type="text/css" media="print" data-deferred-css>
 
   <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=202609190" media="print" data-deferred-css>
 
@@ -2340,7 +2340,7 @@ input[type="radio"][name="mobile-price-category"] {
     <link href="/css/style.css?v=202609188" rel="stylesheet" type="text/css">
     <link href="/css/coloring.css" rel="stylesheet" type="text/css">
     <link id="colors" href="/css/colors/scheme-01.css" rel="stylesheet" type="text/css">
-    <link href="/css/liquid-glass-theme.css" rel="stylesheet" type="text/css">
+    <link href="/css/liquid-glass-theme.css?v=20260919b" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=202609190">
   </noscript>
 </head>
@@ -3743,6 +3743,18 @@ input[type="radio"][name="mobile-price-category"] {
       fetchAndRenderCars();
     }
 
+    // The active-filter chips run in a separate script block. Without these they
+    // could clear an input but never drop the parameter from the URL, so the
+    // filter stayed on until "Resetează" was pressed.
+    window.clearAllFilters = clearAllFilters;
+    window.updateFiltersAndFetch = updateFiltersAndFetch;
+    window.prClearDateFilter = function () {
+      [dateFromPickerDesktop, dateToPickerDesktop, mobileDateFromPicker, mobileDateToPicker]
+        .forEach(function (fp) { if (fp && typeof fp.clear === 'function') fp.clear(); });
+      ['filter-date-from', 'filter-date-to', 'mobile-filter-date-from', 'mobile-filter-date-to']
+        .forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    };
+
     document.addEventListener('DOMContentLoaded', async function() {
       console.log('🚀 Initializing cars page...');
       await loadPriceFilterSettings();
@@ -3992,13 +4004,16 @@ function openMapsOnMobileCars(event, address) {
         group: 'date',
         groupLabel: 'Date',
         value: dateFrom.value + ' – ' + dateTo.value,
-        clear: function() { dateFrom.value = ''; dateTo.value = ''; }
+        clear: function() {
+          if (typeof window.prClearDateFilter === 'function') window.prClearDateFilter();
+          else { dateFrom.value = ''; dateTo.value = ''; }
+        }
       });
     }
 
     // Price range
-    var priceMin = document.getElementById('price-min');
-    var priceMax = document.getElementById('price-max');
+    var priceMin = document.getElementById('filter-price-min');
+    var priceMax = document.getElementById('filter-price-max');
     if (priceMin && priceMax && (priceMin.value || priceMax.value)) {
       var pmin = priceMin.value || '0';
       var pmax = priceMax.value || '∞';
@@ -4037,8 +4052,12 @@ function openMapsOnMobileCars(event, address) {
         }
         if (typeof chip.clear === 'function') {
           chip.clear();
-          // Trigger generic filter change event
           document.dispatchEvent(new CustomEvent('pr-filters-changed'));
+        }
+        // Rewrite the URL and reload the list, otherwise the parameter survives
+        // the chip that represented it.
+        if (typeof window.updateFiltersAndFetch === 'function') {
+          window.updateFiltersAndFetch();
         }
         renderActiveChips();
       });

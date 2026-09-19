@@ -92,7 +92,11 @@
 
   function box(anchor) {
     var el = document.getElementById(HINT_ID);
-    if (el) return el;
+    // The modal rebuilds its body, which takes the hint with it. If the old one
+    // is no longer attached anywhere, drop it and build a fresh one next to the
+    // dates that are on screen now.
+    if (el && el.isConnected) return el;
+    if (el) el.remove();
     el = document.createElement("div");
     el.id = HINT_ID;
     el.setAttribute("role", "note");

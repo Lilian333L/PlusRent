@@ -572,3 +572,27 @@
     transform: none !important;
   }
 }
+
+/* pr-uniform-card-photo
+   Every card shows the same shape whatever the photo's own proportions. A square
+   photo used to stay square next to the 4:3 ones because .img-fluid and
+   indstyle.css both leave the image at height:auto. The box fixes the ratio and
+   the photo is cropped to fill it, centred, so one odd upload cannot break the
+   row. */
+.de-item .d-img {
+  aspect-ratio: 4 / 3 !important;
+  height: auto !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+
+.de-item .d-img img,
+.de-item .d-img img.img-fluid {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+}
