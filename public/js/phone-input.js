@@ -297,7 +297,9 @@
     input.dataset.prPhone = "1";
     css();
 
-    var country = byIso(input.dataset.country || "MD");
+    var fallback = byIso(input.dataset.country || "MD");
+    var chosen = null;   // set only when the visitor picks from the menu
+    var country = fallback;
 
     var wrap = document.createElement("div");
     wrap.className = "pr-phone";
@@ -381,6 +383,7 @@
         b.querySelector(".d").textContent = "+" + c.dial;
         b.addEventListener("click", function () {
           country = c;
+          chosen = c;
           drawPick();
           close();
           input.focus();
@@ -419,6 +422,13 @@
     });
 
     function validate(quiet) {
+      // A country detected from a pasted +code must not outlive that number.
+      // Without this, pasting +679… and then typing a local number sent it to
+      // Fiji: the field kept a country the visitor never chose.
+      var text = (input.value || "").trim();
+      var statesItsOwn = text.charAt(0) === "+" || /^00\d/.test(text.replace(/\s/g, ""));
+      if (!statesItsOwn) country = chosen || fallback;
+
       var r = parse(input.value, country);
 
       // Follow the country the number states as soon as it states it, while it
@@ -426,8 +436,8 @@
       // than waiting for the number to be complete.
       if (r.country && r.country.iso !== country.iso) {
         country = r.country;
-        drawPick();
       }
+      drawPick();
 
       hidden.value = r.ok ? r.e164 : "";
       input.dataset.e164 = hidden.value;
