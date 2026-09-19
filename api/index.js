@@ -22,6 +22,7 @@ const spinningWheelRoutes = require('../routes/spinning-wheels');
 const feeSettingsRoutes = require('../routes/fee-settings');
 const settingsRoutes = require('../routes/settings');
 const contactRoutes = require('../routes/contact');
+const carPageRoutes = require('../routes/car-pages');
 const app = express();
 
 // Middleware
@@ -109,6 +110,14 @@ app.get('/simple-test', (req, res) => {
 });
   
 // Try to mount routes with error handling
+// Pages rendered from the database: one per car, the fleet table, the sitemap.
+// Mounted at the root because these are public page URLs, not API endpoints.
+try {
+  app.use('/', carPageRoutes);
+} catch (error) {
+  console.error('Failed to mount car page routes:', error);
+}
+
 try {
   app.use('/auth', authRoutes);
 } catch (error) {

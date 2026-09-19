@@ -2993,7 +2993,7 @@ input[type="radio"][name="mobile-price-category"] {
             </thead>
             <tbody>
         <tr>
-          <th scope="row">Lexus NX 300h</th>
+          <th scope="row"><a href="/en/car-rental/lexus-nx-300h-2022">Lexus NX 300h</a></th>
           <td>2022</td>
           <td>Crossover</td>
           <td>Automatic</td>
@@ -3006,7 +3006,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;50</td>
         </tr>
         <tr>
-          <th scope="row">Audi A6</th>
+          <th scope="row"><a href="/en/car-rental/audi-a6-2022">Audi A6</a></th>
           <td>2022</td>
           <td>Sedan</td>
           <td>Automatic</td>
@@ -3019,7 +3019,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;50</td>
         </tr>
         <tr>
-          <th scope="row">Dacia Duster <span class="pr-fleet-busy">booked right now</span></th>
+          <th scope="row"><a href="/en/car-rental/dacia-duster-2022">Dacia Duster</a> <span class="pr-fleet-busy">booked right now</span></th>
           <td>2022</td>
           <td>Crossover</td>
           <td>Manual</td>
@@ -3032,7 +3032,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;25</td>
         </tr>
         <tr>
-          <th scope="row">BMW X5</th>
+          <th scope="row"><a href="/en/car-rental/bmw-x5-2017">BMW X5</a></th>
           <td>2017</td>
           <td>SUV</td>
           <td>Automatic</td>
@@ -3045,7 +3045,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;55</td>
         </tr>
         <tr>
-          <th scope="row">Volkswagen Jetta</th>
+          <th scope="row"><a href="/en/car-rental/volkswagen-jetta-2019">Volkswagen Jetta</a></th>
           <td>2019</td>
           <td>Sedan</td>
           <td>Automatic</td>
@@ -3058,7 +3058,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;25</td>
         </tr>
         <tr>
-          <th scope="row">Audi A4 <span class="pr-fleet-busy">booked right now</span></th>
+          <th scope="row"><a href="/en/car-rental/audi-a4-2017">Audi A4</a> <span class="pr-fleet-busy">booked right now</span></th>
           <td>2017</td>
           <td>Sedan</td>
           <td>Automatic</td>
@@ -3071,7 +3071,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;40</td>
         </tr>
         <tr>
-          <th scope="row">Toyota Auris <span class="pr-fleet-busy">booked right now</span></th>
+          <th scope="row"><a href="/en/car-rental/toyota-auris-2015">Toyota Auris</a> <span class="pr-fleet-busy">booked right now</span></th>
           <td>2015</td>
           <td>Hatchback</td>
           <td>Automatic</td>
@@ -3084,7 +3084,7 @@ input[type="radio"][name="mobile-price-category"] {
           <td>&euro;15</td>
         </tr>
         <tr>
-          <th scope="row">Volkswagen Golf Plus <span class="pr-fleet-busy">booked right now</span></th>
+          <th scope="row"><a href="/en/car-rental/volkswagen-golf-plus-2009">Volkswagen Golf Plus</a> <span class="pr-fleet-busy">booked right now</span></th>
           <td>2009</td>
           <td>Hatchback</td>
           <td>Automatic</td>
@@ -3483,6 +3483,7 @@ input[type="radio"][name="mobile-price-category"] {
   </div>
 
   <!-- Javascript Files -->
+  <script src="/js/car-url.js?v=20260919e" defer></script>
   <script src="/js/plugins.js?v=20260918" defer></script>
   <script src="/js/burger-menu-fix.js" defer></script>
   <script src="/js/designesia.js?v=20260919" defer></script>
@@ -3812,7 +3813,7 @@ input[type="radio"][name="mobile-price-category"] {
         }
         const carsHtml = cars.map((car, index) => {
           const isPremium = car.is_premium === 1 || car.is_premium === true;
-          const rentNowUrl = `/car-single.html?id=${car.id}`;
+          const rentNowUrl = window.CarUrl ? window.CarUrl.pathFor(car, allCarsFullCache.length ? allCarsFullCache : cars) : `/car-single.html?id=${car.id}`;
           const lowestPrice = getLowestPrice(car);
           const fuelType = translateCarSpec(car.fuel_type, 'fuel_types');
           const gearType = translateCarSpec(car.gear_type, 'gear_types');
