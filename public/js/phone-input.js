@@ -23,34 +23,103 @@
 (function () {
   "use strict";
 
-  // dial code, flag, and how many digits the national part has (a list means
-  // several lengths are valid, null means do not check the length)
-  var COUNTRIES = [
-    { iso: "MD", name: "Moldova", dial: "373", len: [8] },
-    { iso: "RO", name: "România", dial: "40", len: [9] },
-    { iso: "UA", name: "Україна", dial: "380", len: [9] },
-    { iso: "RU", name: "Россия", dial: "7", len: [10] },
-    { iso: "IT", name: "Italia", dial: "39", len: [9, 10] },
-    { iso: "DE", name: "Deutschland", dial: "49", len: [10, 11] },
-    { iso: "FR", name: "France", dial: "33", len: [9] },
-    { iso: "GB", name: "United Kingdom", dial: "44", len: [10] },
-    { iso: "ES", name: "España", dial: "34", len: [9] },
-    { iso: "PT", name: "Portugal", dial: "351", len: [9] },
-    { iso: "IL", name: "ישראל", dial: "972", len: [9] },
-    { iso: "TR", name: "Türkiye", dial: "90", len: [10] },
-    { iso: "PL", name: "Polska", dial: "48", len: [9] },
-    { iso: "CZ", name: "Česko", dial: "420", len: [9] },
-    { iso: "AT", name: "Österreich", dial: "43", len: [10, 11] },
-    { iso: "BE", name: "Belgique", dial: "32", len: [9] },
-    { iso: "NL", name: "Nederland", dial: "31", len: [9] },
-    { iso: "IE", name: "Ireland", dial: "353", len: [9] },
-    { iso: "GR", name: "Ελλάδα", dial: "30", len: [10] },
-    { iso: "BG", name: "България", dial: "359", len: [9] },
-    { iso: "HU", name: "Magyarország", dial: "36", len: [9] },
-    { iso: "CH", name: "Schweiz", dial: "41", len: [9] },
-    { iso: "SE", name: "Sverige", dial: "46", len: [9] },
-    { iso: "US", name: "United States", dial: "1", len: [10] },
-  ];
+  /**
+   * Every country, so nobody is ever turned away for calling from somewhere the
+   * list forgot. The table is "ISO,dial,name" joined with a pipe and split at
+   * load, which keeps the file small.
+   */
+  var RAW =
+    "AF,93,Afghanistan|AL,355,Albania|DZ,213,Algeria|AS,1684,American Samoa|AD,376,Andorra|" +
+    "AO,244,Angola|AI,1264,Anguilla|AG,1268,Antigua and Barbuda|AR,54,Argentina|AM,374,Armenia|" +
+    "AW,297,Aruba|AU,61,Australia|AT,43,Austria|AZ,994,Azerbaijan|BS,1242,Bahamas|BH,973,Bahrain|" +
+    "BD,880,Bangladesh|BB,1246,Barbados|BY,375,Belarus|BE,32,Belgium|BZ,501,Belize|BJ,229,Benin|" +
+    "BM,1441,Bermuda|BT,975,Bhutan|BO,591,Bolivia|BA,387,Bosnia and Herzegovina|BW,267,Botswana|" +
+    "BR,55,Brazil|BN,673,Brunei|BG,359,Bulgaria|BF,226,Burkina Faso|BI,257,Burundi|" +
+    "KH,855,Cambodia|CM,237,Cameroon|CA,1,Canada|CV,238,Cape Verde|KY,1345,Cayman Islands|" +
+    "CF,236,Central African Republic|TD,235,Chad|CL,56,Chile|CN,86,China|CO,57,Colombia|" +
+    "KM,269,Comoros|CG,242,Congo|CD,243,Congo (DRC)|CR,506,Costa Rica|CI,225,Cote d Ivoire|" +
+    "HR,385,Croatia|CU,53,Cuba|CW,599,Curacao|CY,357,Cyprus|CZ,420,Czechia|DK,45,Denmark|" +
+    "DJ,253,Djibouti|DM,1767,Dominica|DO,1809,Dominican Republic|EC,593,Ecuador|EG,20,Egypt|" +
+    "SV,503,El Salvador|GQ,240,Equatorial Guinea|ER,291,Eritrea|EE,372,Estonia|SZ,268,Eswatini|" +
+    "ET,251,Ethiopia|FJ,679,Fiji|FI,358,Finland|FR,33,France|GF,594,French Guiana|" +
+    "PF,689,French Polynesia|GA,241,Gabon|GM,220,Gambia|GE,995,Georgia|DE,49,Germany|" +
+    "GH,233,Ghana|GI,350,Gibraltar|GR,30,Greece|GL,299,Greenland|GD,1473,Grenada|" +
+    "GP,590,Guadeloupe|GU,1671,Guam|GT,502,Guatemala|GN,224,Guinea|GW,245,Guinea-Bissau|" +
+    "GY,592,Guyana|HT,509,Haiti|HN,504,Honduras|HK,852,Hong Kong|HU,36,Hungary|IS,354,Iceland|" +
+    "IN,91,India|ID,62,Indonesia|IR,98,Iran|IQ,964,Iraq|IE,353,Ireland|IL,972,Israel|IT,39,Italy|" +
+    "JM,1876,Jamaica|JP,81,Japan|JO,962,Jordan|KZ,7,Kazakhstan|KE,254,Kenya|KI,686,Kiribati|" +
+    "KW,965,Kuwait|KG,996,Kyrgyzstan|LA,856,Laos|LV,371,Latvia|LB,961,Lebanon|LS,266,Lesotho|" +
+    "LR,231,Liberia|LY,218,Libya|LI,423,Liechtenstein|LT,370,Lithuania|LU,352,Luxembourg|" +
+    "MO,853,Macao|MG,261,Madagascar|MW,265,Malawi|MY,60,Malaysia|MV,960,Maldives|ML,223,Mali|" +
+    "MT,356,Malta|MH,692,Marshall Islands|MQ,596,Martinique|MR,222,Mauritania|MU,230,Mauritius|" +
+    "MX,52,Mexico|FM,691,Micronesia|MD,373,Moldova|MC,377,Monaco|MN,976,Mongolia|" +
+    "ME,382,Montenegro|MS,1664,Montserrat|MA,212,Morocco|MZ,258,Mozambique|MM,95,Myanmar|" +
+    "NA,264,Namibia|NR,674,Nauru|NP,977,Nepal|NL,31,Netherlands|NC,687,New Caledonia|" +
+    "NZ,64,New Zealand|NI,505,Nicaragua|NE,227,Niger|NG,234,Nigeria|MK,389,North Macedonia|" +
+    "NO,47,Norway|OM,968,Oman|PK,92,Pakistan|PW,680,Palau|PS,970,Palestine|PA,507,Panama|" +
+    "PG,675,Papua New Guinea|PY,595,Paraguay|PE,51,Peru|PH,63,Philippines|PL,48,Poland|" +
+    "PT,351,Portugal|PR,1787,Puerto Rico|QA,974,Qatar|RE,262,Reunion|RO,40,Romania|RU,7,Russia|" +
+    "RW,250,Rwanda|KN,1869,Saint Kitts and Nevis|LC,1758,Saint Lucia|VC,1784,Saint Vincent|" +
+    "WS,685,Samoa|SM,378,San Marino|ST,239,Sao Tome and Principe|SA,966,Saudi Arabia|" +
+    "SN,221,Senegal|RS,381,Serbia|SC,248,Seychelles|SL,232,Sierra Leone|SG,65,Singapore|" +
+    "SK,421,Slovakia|SI,386,Slovenia|SB,677,Solomon Islands|SO,252,Somalia|ZA,27,South Africa|" +
+    "KR,82,South Korea|SS,211,South Sudan|ES,34,Spain|LK,94,Sri Lanka|SD,249,Sudan|" +
+    "SR,597,Suriname|SE,46,Sweden|CH,41,Switzerland|SY,963,Syria|TW,886,Taiwan|TJ,992,Tajikistan|" +
+    "TZ,255,Tanzania|TH,66,Thailand|TL,670,Timor-Leste|TG,228,Togo|TO,676,Tonga|" +
+    "TT,1868,Trinidad and Tobago|TN,216,Tunisia|TR,90,Turkiye|TM,993,Turkmenistan|TV,688,Tuvalu|" +
+    "UG,256,Uganda|UA,380,Ukraine|AE,971,United Arab Emirates|GB,44,United Kingdom|" +
+    "US,1,United States|UY,598,Uruguay|UZ,998,Uzbekistan|VU,678,Vanuatu|VA,379,Vatican City|" +
+    "VE,58,Venezuela|VN,84,Vietnam|YE,967,Yemen|ZM,260,Zambia|ZW,263,Zimbabwe|";
+
+  // Expected national length, only where we are sure. Everywhere else no length
+  // rule is applied at all and the number is judged by the E.164 range alone,
+  // so an unusual country can never block a real customer.
+  var LEN = {
+    MD: [8], RO: [9], UA: [9], RU: [10], IT: [9, 10], DE: [10, 11], FR: [9],
+    GB: [10], ES: [9], PT: [9], IL: [9], TR: [10], PL: [9], CZ: [9], SK: [9],
+    AT: [10, 11], BE: [9], NL: [9], IE: [9], GR: [10], BG: [9], HU: [9],
+    CH: [9], SE: [9], NO: [8], DK: [8], FI: [9, 10], US: [10], CA: [10],
+  };
+
+  // Shown first, because this is where PlusRent's customers actually call from.
+  var TOP = ["MD", "RO", "UA", "RU", "IT", "DE", "FR", "GB", "ES", "PT", "IL", "TR"];
+
+  // So that a Russian or Romanian speaker finds the country by the name they use
+  var ALIAS = {
+    MD: "moldova молдова", RO: "romania românia румыния", UA: "ukraine ucraina украина україна",
+    RU: "russia rusia россия", IT: "italy italia италия", DE: "germany germania германия deutschland",
+    FR: "france franta франция", GB: "uk england marea britanie великобритания англия",
+    ES: "spain spania испания", PT: "portugal portugalia португалия", IL: "israel израиль",
+    TR: "turkey turcia турция türkiye", US: "usa sua сша america",
+    GR: "greece grecia греция", PL: "poland polonia польша", CZ: "czech cehia чехия",
+    AT: "austria австрия", BE: "belgium belgia бельгия", NL: "netherlands olanda нидерланды",
+    IE: "ireland irlanda ирландия", CH: "switzerland elvetia швейцария",
+  };
+
+  var COUNTRIES = (function () {
+    var out = [];
+    RAW.split("|").forEach(function (row) {
+      if (!row) return;
+      var bits = row.split(",");
+      if (bits.length < 3) return;
+      out.push({
+        iso: bits[0],
+        dial: bits[1],
+        name: bits.slice(2).join(","),
+        len: LEN[bits[0]] || null,
+        alias: ALIAS[bits[0]] || "",
+      });
+    });
+    var rank = {};
+    TOP.forEach(function (iso, i) { rank[iso] = i; });
+    out.sort(function (a, b) {
+      var ra = rank[a.iso] === undefined ? 999 : rank[a.iso];
+      var rb = rank[b.iso] === undefined ? 999 : rank[b.iso];
+      if (ra !== rb) return ra - rb;
+      return a.name.localeCompare(b.name);
+    });
+    return out;
+  })();
 
   var TEXT = {
     ro: {
@@ -61,7 +130,7 @@
       tooLong: "Numărul pare prea lung. Verifică-l, te rugăm.",
       notANumber: "Scrie numărul de telefon la care te putem suna.",
       noCountry: "Alege țara numărului.",
-      willSend: "Te sunăm la",
+      willSend: "Îți scriem pe WhatsApp sau Telegram, ori te sunăm la",
     },
     ru: {
       search: "Поиск страны",
@@ -71,7 +140,7 @@
       tooLong: "Номер выглядит длинным. Проверьте, пожалуйста.",
       notANumber: "Введите номер, по которому мы сможем позвонить.",
       noCountry: "Выберите страну номера.",
-      willSend: "Позвоним на",
+      willSend: "Напишем в WhatsApp или Telegram, либо позвоним на",
     },
     en: {
       search: "Search country",
@@ -81,7 +150,7 @@
       tooLong: "That looks too long. Please check it.",
       notANumber: "Enter a number we can call you on.",
       noCountry: "Choose the country for this number.",
-      willSend: "We will call",
+      willSend: "We will message you on WhatsApp or Telegram, or call",
     },
   };
 
@@ -118,20 +187,32 @@
    * case where the dial code was typed again inside the number.
    */
   function parse(raw, country) {
-    var digits = String(raw || "").replace(/\D/g, "");
+    var text = String(raw || "").trim();
+    var digits = text.replace(/\D/g, "");
     if (!digits) return { ok: false, reason: "notANumber", e164: "", national: "" };
 
     // 00373… and 011373… are the international prefix, drop it
+    var hadZeroZero = /^(00|011)/.test(digits);
     digits = digits.replace(/^00/, "").replace(/^011/, "");
+    var explicit = text.charAt(0) === "+" || hadZeroZero;
 
     var national = digits;
 
-    if (digits.indexOf(country.dial) === 0) {
+    // A leading + or 00 is the caller stating this is the full international
+    // number, so whatever dial code follows decides the country even when the
+    // rest is still half typed: +380 86… switches to Ukraine immediately.
+    if (explicit) {
+      var stated = countryByDigits(digits);
+      if (stated) {
+        country = stated;
+        national = digits.slice(stated.dial.length);
+      }
+    } else if (digits.indexOf(country.dial) === 0) {
       national = digits.slice(country.dial.length);
     } else {
       var other = countryByDigits(digits);
-      // only believe another country if what follows is a plausible number
-      if (other && other.iso !== country.iso && digits.length - other.dial.length >= 8) {
+      // without a +, only believe another country if a whole number follows
+      if (other && other.iso !== country.iso && digits.length - other.dial.length >= 7) {
         country = other;
         national = digits.slice(other.dial.length);
       }
@@ -147,8 +228,12 @@
 
     var res = { country: country, national: national, e164: "+" + country.dial + national };
 
-    if (national.length < 6) return Object.assign(res, { ok: false, reason: "tooShort" });
-    if (national.length > 13) return Object.assign(res, { ok: false, reason: "tooLong" });
+    // E.164 allows at most 15 digits including the dial code; below 4 national
+    // digits nothing in the world is reachable
+    if (national.length < 4) return Object.assign(res, { ok: false, reason: "tooShort" });
+    if (national.length + country.dial.length > 15) {
+      return Object.assign(res, { ok: false, reason: "tooLong" });
+    }
 
     if (country.len && country.len.length) {
       var min = Math.min.apply(null, country.len);
@@ -278,8 +363,12 @@
       list.innerHTML = "";
       var q = (filter || "").trim().toLowerCase();
       COUNTRIES.filter(function (c) {
-        return !q || c.name.toLowerCase().indexOf(q) !== -1 ||
-          c.dial.indexOf(q.replace("+", "")) === 0 || c.iso.toLowerCase().indexOf(q) === 0;
+        if (!q) return true;
+        var num = q.replace(/[^0-9]/g, "");
+        return c.name.toLowerCase().indexOf(q) !== -1 ||
+          (c.alias && c.alias.indexOf(q) !== -1) ||
+          c.iso.toLowerCase().indexOf(q) === 0 ||
+          (num && c.dial.indexOf(num) === 0);
       }).forEach(function (c) {
         var b = document.createElement("button");
         b.type = "button";
@@ -331,6 +420,15 @@
 
     function validate(quiet) {
       var r = parse(input.value, country);
+
+      // Follow the country the number states as soon as it states it, while it
+      // is still being typed: +380 8… flips to Ukraine straight away rather
+      // than waiting for the number to be complete.
+      if (r.country && r.country.iso !== country.iso) {
+        country = r.country;
+        drawPick();
+      }
+
       hidden.value = r.ok ? r.e164 : "";
       input.dataset.e164 = hidden.value;
 
@@ -350,8 +448,6 @@
         return r;
       }
       if (r.ok) {
-        // the country was corrected from what was typed, show it
-        if (r.country.iso !== country.iso) { country = r.country; drawPick(); }
         setState(false);
         note.className = "pr-phone-note is-ok";
         note.innerHTML = "";
