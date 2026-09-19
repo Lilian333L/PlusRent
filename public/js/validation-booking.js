@@ -1,3 +1,21 @@
+/**
+ * Whether a phone field holds a usable number.
+ *
+ * phone-input.js knows which country the number is from and how many digits
+ * that country uses, so where it is present it is the answer. The old pattern
+ * is kept only for a field it has not reached: it accepts almost anything with
+ * eight characters, which is how a number this file called valid could sit in
+ * a box the component had already marked wrong.
+ */
+function prPhoneLooksValid(value, el) {
+  var field = el || document.getElementById("phone");
+  if (field && field.prPhone) return field.prPhone.value().ok;
+  if (field && field.dataset && field.dataset.prPhone) {
+    return !!(field.dataset.e164 || "").length;
+  }
+  return /^[+]?[0-9\s\-()]{8,}$/.test(String(value || "").trim());
+}
+
 // Global variables for coupon caching
 let cachedCouponData = null;
 let lastValidatedCouponCode = null;
@@ -87,8 +105,7 @@ $(document).ready(function () {
 
     // Phone validation
     const phone = $("#phone").val();
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
-    if (phone && !phoneRegex.test(phone)) {
+    if (phone && !prPhoneLooksValid(phone)) {
       $("#phone").addClass("error_input");
       $("#phone").after(
         `<div class="field-error text-danger small mt-1">${i18next.t(
@@ -344,8 +361,7 @@ $(document).ready(function () {
       showError(i18next.t("errors.phone_required"));
       return;
     }
-    const phoneRegex = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,9}$/;
-    if (!phoneRegex.test(phone.trim())) {
+    if (!prPhoneLooksValid(phone)) {
       showError(i18next.t("errors.please_enter_valid_phone") || "Please enter a valid phone number");
       return;
     }
@@ -491,8 +507,7 @@ $(document).ready(function () {
 
   $("#phone").on("blur", function () {
     const phone = $(this).val();
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
-    if (phone && !phoneRegex.test(phone)) {
+    if (phone && !prPhoneLooksValid(phone)) {
       $(this).addClass("error_input");
       if (!$(this).siblings(".field-error").length) {
         $(this).after(
@@ -559,10 +574,9 @@ $(document).ready(function () {
 
   $("#phone").on("blur", function () {
     const phone = $(this).val();
-    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
     $(this).siblings(".field-error").remove();
 
-    if (phone && !phoneRegex.test(phone)) {
+    if (phone && !prPhoneLooksValid(phone, this)) {
       $(this).addClass("error_input");
       $(this).after(
         `<div class="field-error text-danger small mt-1">${i18next.t(
