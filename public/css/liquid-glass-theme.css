@@ -580,6 +580,7 @@
    the photo is cropped to fill it, centred, so one odd upload cannot break the
    row. */
 .de-item .d-img {
+  position: relative !important;
   aspect-ratio: 4 / 3 !important;
   height: auto !important;
   width: 100% !important;
@@ -587,8 +588,16 @@
   display: block !important;
 }
 
+/* Filling the box by absolute position rather than height:100%. A percentage
+   height needs a parent with a definite height, and this box takes its height
+   from aspect-ratio, so on the catalogue the image kept its own square height
+   and simply overflowed: 360x360 inside a 360x270 box, showing the top of the
+   picture and pushing the car down. Inset fills the box however its height was
+   arrived at, so both pages frame identically. */
 .de-item .d-img img,
 .de-item .d-img img.img-fluid {
+  position: absolute !important;
+  inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   max-height: none !important;
