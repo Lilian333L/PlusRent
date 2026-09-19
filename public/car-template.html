@@ -2663,27 +2663,43 @@
       });
     });
 
-    /* ════ Language switcher fix (no ro/ru/en variant of car-single exists) ════
-     * The default handler in i18n-init.js redirects to /ru/car-single.html
-     * which doesn't exist → user lands on /ru/ home page. Fix: reload current
-     * URL with new language stored in localStorage/cookie; i18n-init.js will
-     * apply translations to data-i18n attributes after reload.
-     * Uses capture phase + stopImmediatePropagation to run BEFORE i18n-init's
-     * bubble-phase click handler.
+    /* ════ Language switcher on a car page ════
+     * A car now lives at an address that carries the language and a translated
+     * segment: /ru/arenda-avto/<slug> against /ro/chirie-auto/<slug>. Reloading
+     * the same URL therefore kept the visitor on the Russian page with Romanian
+     * labels. The server already prints the other two addresses as hreflang
+     * alternates, so switching language means following the matching one.
+     * i18n-init.js would send us to /ru/car-single.html, which is why this runs
+     * first, on the capture phase.
      */
     document.addEventListener('DOMContentLoaded', function () {
+      var HREFLANG = { ro: 'ro-MD', ru: 'ru-MD', en: 'en' };
+
+      function alternateFor(lang) {
+        var link = document.querySelector(
+          'link[rel="alternate"][hreflang="' + (HREFLANG[lang] || lang) + '"]'
+        );
+        return link ? link.getAttribute('href') : null;
+      }
+
       document.querySelectorAll('.lang-option').forEach(function (el) {
         el.addEventListener('click', function (e) {
           e.stopImmediatePropagation();
           var lang = this.getAttribute('data-lang');
           var currentLang = localStorage.getItem('lang') || localStorage.getItem('i18nextLng') || 'ro';
-          if (lang === currentLang) return; // same language → do nothing
+          if (lang === currentLang) return;
           document.cookie = 'lang=' + lang + '; path=/; max-age=2592000; SameSite=Lax';
           localStorage.setItem('i18nextLng', lang);
           localStorage.setItem('lang', lang);
-          // Reload current URL (preserves ?id=N query string) — stay on car-single.html
+
+          var target = alternateFor(lang);
+          if (target) {
+            window.location.href = target;
+            return;
+          }
+          // the plain template, reached without a car: nothing to move to
           window.location.reload();
-        }, true); // capture phase — important!
+        }, true); // capture phase, before i18n-init's own handler
       });
     });
   </script>

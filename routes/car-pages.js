@@ -202,7 +202,8 @@ const sitemapCars = async (req, res, next) => {
     const today = new Date().toISOString().slice(0, 10);
 
     const urls = cars
-      .filter((c) => map.get(String(c.id)))
+      // only the page each duplicate group points at; the copies are noindex
+      .filter((c) => map.get(String(c.id)) && slugs.isPrimary(c, cars))
       .map((car) => {
         const alt = LANGS.map(
           (l) =>
