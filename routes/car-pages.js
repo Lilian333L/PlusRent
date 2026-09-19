@@ -113,7 +113,7 @@ const carPage = async (req, res, next) => {
       return res.redirect(301, canonical);
     }
 
-    const html = render(template("car-single.html"), car, lang, cars);
+    const html = render(template("car-template.html"), car, lang, cars);
     noStoreHtml(res, 300);
     return res.status(200).send(html);
   } catch (err) {
