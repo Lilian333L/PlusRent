@@ -55,6 +55,16 @@ class CarMetaUpdater {
       return;
     }
 
+    // A car page used to be car-single.html?id=, which arrived with no title of
+    // its own, so this filled one in. The server writes the real one now, along
+    // with the description, the canonical, the alternates and the structured
+    // data, and it writes better ones: "Chirie BMW X5 2017 în Chișinău: preț pe
+    // zi" rather than "BMW X5 2017 – Închiriere". Google runs this script, so
+    // leaving it to overwrite them means the weaker set is what gets indexed.
+    if (window.__PR_CAR__) {
+      return;
+    }
+
     try {
       // Update document title
       this.updateTitle(car);
