@@ -7,8 +7,43 @@
  * eight characters, which is how a number this file called valid could sit in
  * a box the component had already marked wrong.
  */
+/**
+ * The page's phone field, wherever it is.
+ *
+ * The homepage form calls it #phone. The form on a car page calls it
+ * customer_phone and gives it no id, so every lookup written as $("#phone")
+ * finds nothing there and reads an empty value, which is how a number with a
+ * green tick beside it was refused as missing.
+ */
+function prPhoneField() {
+  return (
+    document.getElementById("phone") ||
+    document.querySelector('input[name="customer_phone"]') ||
+    document.querySelector('form input[type="tel"]')
+  );
+}
+
+/**
+ * Is this one of the car pages, which has its own booking handler?
+ *
+ * They used to live at car-single.html?id=, and this file recognised them by
+ * that word in the address. They moved to /ro/chirie-auto/<slug> and the test
+ * stopped matching, so the old validation kept running on a form it was never
+ * written for. The bootstrap object the server injects is the reliable answer;
+ * the other two are there for the old address and for anything served before
+ * that object exists.
+ */
+function prIsCarPage() {
+  var path = window.location.pathname;
+  return (
+    !!window.__PR_CAR__ ||
+    path.indexOf("car-single") !== -1 ||
+    /\/(chirie-auto|arenda-avto|car-rental)\//.test(path)
+  );
+}
+
 function prPhoneLooksValid(value, el) {
-  var field = el || document.getElementById("phone");
+  var field = el || prPhoneField();
   if (field && field.prPhone) return field.prPhone.value().ok;
   if (field && field.dataset && field.dataset.prPhone) {
     return !!(field.dataset.e164 || "").length;
@@ -104,7 +139,7 @@ $(document).ready(function () {
     }
 
     // Phone validation
-    const phone = $("#phone").val();
+    const phone = $(prPhoneField()).val();
     if (phone && !prPhoneLooksValid(phone)) {
       $("#phone").addClass("error_input");
       $("#phone").after(
@@ -346,8 +381,12 @@ $(document).ready(function () {
 
   // Handle form submission - now opens price calculator modal
   submitButton.click(function (e) {
-    // Skip old validation system if we're on car-single page (using new BookingFormHandler)
-    if (window.location.pathname.includes("car-single")) {
+    // Skip old validation system on a car page: BookingFormHandler owns that
+    // form. Recognised by the object the server injects rather than by the word
+    // car-single in the address, which stopped being true when the car pages
+    // moved to /ro/chirie-auto/<slug> and left this validation running on a
+    // form whose fields it cannot find.
+    if (prIsCarPage()) {
       return; // Don't prevent default, let the new BookingFormHandler handle it
     }
     e.preventDefault();
@@ -358,7 +397,7 @@ $(document).ready(function () {
     hideUniversalError();
 
     // Check only the most essential fields before opening modal
-    const phone = $("#phone").val();
+    const phone = $(prPhoneField()).val();
     const vehicleType = $("#vehicle_type").val();
 
     if (!phone || phone.trim() === "") {
