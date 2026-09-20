@@ -128,7 +128,7 @@ class TelegramNotifier {
     const value = String(phone).trim();
     return value.startsWith('+')
       ? value
-      : `${value}  ⚠️ fără prefix de țară, cere-l clientului`;
+      : `${value}  ⚠️ NUMĂR INCOMPLET, lipsește prefixul de țară. Scrie-i pe emailul de mai sus, nu încerca să suni.`;
   }
 
   formatBookingMessage(bookingData) {
