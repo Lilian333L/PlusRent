@@ -34,6 +34,7 @@ const PUBLIC = path.join(__dirname, "..", "public");
 const SKIP = [
   /\.min\.(css|js)$/,
   /^css\/critical-/,        // generated from the page stylesheets, already dense
+  /^css\/page\//,           // extracted from the pages and minified on the way out
   /^css\/plugins\.css$/,    // template bundle, already minified
   /^css\/fonts\.css$/,      // already dense
   /\.map$/,
