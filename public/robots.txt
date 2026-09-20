@@ -1,55 +1,69 @@
 # ==========================================================
 # plusrent.md — robots.txt
-# Posture: Maximum AI visibility + proper security + SEO
-# Last updated: 2026-04-23
+# Open to search engines and to AI crawlers; closed on the
+# admin tools, the API and the parameter noise.
+# Last updated: 2026-09-20
 # Docs: https://plusrent.md/llms.txt
 # Full AI reference: https://plusrent.md/llms-full.txt
 # ==========================================================
 
-# ==========================================================
-# DEFAULT RULES — apply to ALL crawlers (including AI bots)
-# AI bots inherit these rules when they have no explicit block
-# Explicit AI bot blocks below override ONLY where needed
-# ==========================================================
+# ----------------------------------------------------------
+# Everyone, search and AI alike. A crawler with no group of
+# its own below reads this one, and this one allows the site.
+# ----------------------------------------------------------
 User-agent: *
 Allow: /
 
-# Security: prevent indexing of private areas
+# The rendering engines need the stylesheets, the scripts and
+# the translation files, or they judge the page half-built.
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+Allow: /images/
+Allow: /uploads/
+
+# The car pages are generated, and they are meant to be found.
+Allow: /ro/chirie-auto/
+Allow: /ru/arenda-avto/
+Allow: /en/car-rental/
+
+# The sitemaps stay readable whatever the rules below say.
+Allow: /sitemap.xml
+Allow: /sitemap-cars.xml
+
+# Private areas
 Disallow: /api/
 Disallow: /admin
 Disallow: /admin/
 Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /login
+Disallow: /login.html
 Disallow: /register
-Disallow: /account-dashboard
 Disallow: /account/
+Disallow: /account-dashboard
+Disallow: /account-dashboard.html
 Disallow: /profile/
 Disallow: /all-codes
+Disallow: /all-codes.html
 Disallow: /coupon-management
+Disallow: /coupon-management.html
 Disallow: /cart
 Disallow: /checkout
 Disallow: /order-confirmation
 Disallow: /booking-confirmation
 
-# Explicit block on legacy / private utility files (defense-in-depth)
+# Fragments and internal tools that are not pages
 Disallow: /1ktjwoy-calc-7x9k2.html
 Disallow: /text-boss.html
 Disallow: /car-single.html
 Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /login.html
 Disallow: /returning-customer-modal.html
 Disallow: /spinning-wheel-modal.html
 Disallow: /spinning-wheel-standalone.html
+Disallow: /demo/
 
-# Allow image search to index product/uploads
-Allow: /uploads/
-Allow: /images/
-
-# Security: prevent sensitive URL parameters
+# Addresses that would carry private data
 Disallow: /*?token=
 Disallow: /*?session=
 Disallow: /*?auth=
@@ -58,487 +72,153 @@ Disallow: /*?password=
 Disallow: /*?email=
 Disallow: /*?phone=
 
-# SEO: prevent duplicate content from URL parameters
+# Parameters that duplicate a page that already exists
 Disallow: /*?search=
 Disallow: /*?sort=
 Disallow: /*?filter=
-Disallow: /*?page=
 Disallow: /*?utm_
 Disallow: /*?gclid=
 Disallow: /*?fbclid=
 Disallow: /*?ref=
 Disallow: /*?source=
 
-# Don't index technical pages
-Disallow: /404
-Disallow: /500
-Disallow: /_next/
-Disallow: /*.json$
-Disallow: /*.xml$
-Allow: /sitemap.xml
-Allow: /sitemap-*.xml
-
-# ==========================================================
-# AI CRAWLERS — all follow default rules above
-# (no override needed unless we want different behavior)
-# Listed explicitly for transparency and llms.txt linking
-# ==========================================================
-
-# ---------- OpenAI ----------
+# ----------------------------------------------------------
+# AI crawlers. The rules match the group above; they are
+# written out so the welcome is on the record, and so that a
+# change here is a deliberate one rather than a side effect.
+# ----------------------------------------------------------
 User-agent: GPTBot
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Anthropic ----------
 User-agent: ClaudeBot
 User-agent: anthropic-ai
 User-agent: Claude-Web
 User-agent: Claude-SearchBot
 User-agent: Claude-User
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Google (Search + AI) ----------
-User-agent: Googlebot
-User-agent: Googlebot-Image
-User-agent: Googlebot-News
-User-agent: Googlebot-Video
-User-agent: Googlebot-Mobile
-User-agent: AdsBot-Google
-User-agent: AdsBot-Google-Mobile
 User-agent: Google-Extended
 User-agent: GoogleOther
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Microsoft / Bing / Copilot ----------
-User-agent: Bingbot
-User-agent: msnbot
-User-agent: BingPreview
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Yandex (Russian + CIS market) ----------
-User-agent: YandexBot
-User-agent: YandexImages
-User-agent: YandexMedia
-User-agent: YandexMobileBot
-User-agent: YandexDirect
-User-agent: YandexMetrika
-User-agent: YandexMarket
-User-agent: YandexNews
-User-agent: YandexBlogs
-User-agent: YandexCalendar
-User-agent: YandexAccessibilityBot
-User-agent: YandexOntoDBAPI
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-# Yandex-specific: clean tracking parameters
-Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term /
-Clean-param: gclid&fbclid&yclid&ref&source /
-
-# ---------- Perplexity ----------
 User-agent: PerplexityBot
 User-agent: Perplexity-User
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Apple Intelligence ----------
 User-agent: Applebot
 User-agent: Applebot-Extended
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Meta / Facebook / Llama ----------
 User-agent: Meta-ExternalAgent
 User-agent: Meta-ExternalFetcher
 User-agent: FacebookBot
 User-agent: facebookexternalhit
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Cohere ----------
 User-agent: cohere-ai
 User-agent: cohere-training-data-crawler
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- ByteDance / TikTok AI ----------
 User-agent: Bytespider
-User-agent: ByteDance
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Common Crawl ----------
 User-agent: CCBot
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- DuckDuckGo ----------
 User-agent: DuckDuckBot
 User-agent: DuckAssistBot
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Mistral AI ----------
 User-agent: MistralAI-User
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Amazon ----------
 User-agent: Amazonbot
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- xAI / Grok ----------
 User-agent: xAI-Bot
-User-agent: Grok
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- You.com ----------
 User-agent: YouBot
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Brave AI ----------
 User-agent: BraveBot
-Disallow: /api/
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
-Disallow: /login.html
-Disallow: /car-single.html
-Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
-Disallow: /*?utm_
-
-# ---------- Archive.org (historical SEO) ----------
 User-agent: ia_archiver
+Allow: /
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+Allow: /images/
+Allow: /uploads/
+Allow: /ro/chirie-auto/
+Allow: /ru/arenda-avto/
+Allow: /en/car-rental/
 Disallow: /api/
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
-Disallow: /account-dashboard
-Disallow: /*?token=
-Disallow: /*?session=
-Disallow: /text-boss.html
-Disallow: /1ktjwoy-calc-7x9k2.html
-Disallow: /spinning-wheel-standalone.html
-Disallow: /spinning-wheel-modal.html
-Disallow: /returning-customer-modal.html
 Disallow: /login.html
+Disallow: /register
+Disallow: /account-dashboard
+Disallow: /account-dashboard.html
+Disallow: /all-codes
+Disallow: /all-codes.html
+Disallow: /coupon-management
+Disallow: /coupon-management.html
+Disallow: /1ktjwoy-calc-7x9k2.html
+Disallow: /text-boss.html
 Disallow: /car-single.html
 Disallow: /car-template.html
-Allow: /ro/chirie-auto/
-Allow: /ru/arenda-avto/
-Allow: /en/car-rental/
+Disallow: /returning-customer-modal.html
+Disallow: /spinning-wheel-modal.html
+Disallow: /spinning-wheel-standalone.html
+Disallow: /demo/
+Disallow: /*?token=
+Disallow: /*?session=
+Disallow: /*?auth=
+Disallow: /*?email=
+Disallow: /*?phone=
 Disallow: /*?utm_
+Disallow: /*?gclid=
+Disallow: /*?fbclid=
 
-# ==========================================================
-# AGGRESSIVE SEO / SCRAPER BOTS — crawl-delay to prevent abuse
-# Keep allowed for backlink analysis and monitoring
-# ==========================================================
-
+# ----------------------------------------------------------
+# SEO crawlers: same rules, slower, so an audit cannot become
+# a load problem. The list repeats because a crawler with its
+# own group stops reading the group above.
+# ----------------------------------------------------------
 User-agent: AhrefsBot
 Crawl-delay: 10
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+Allow: /images/
+Allow: /uploads/
 Disallow: /api/
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
+Disallow: /login.html
 Disallow: /account-dashboard
+Disallow: /account-dashboard.html
+Disallow: /all-codes
+Disallow: /all-codes.html
+Disallow: /coupon-management
+Disallow: /coupon-management.html
+Disallow: /1ktjwoy-calc-7x9k2.html
+Disallow: /text-boss.html
+Disallow: /car-single.html
+Disallow: /car-template.html
+Disallow: /returning-customer-modal.html
+Disallow: /spinning-wheel-modal.html
+Disallow: /spinning-wheel-standalone.html
+Disallow: /demo/
+Disallow: /*?utm_
+Disallow: /*?token=
+Disallow: /*?session=
 
 User-agent: SemrushBot
 Crawl-delay: 10
+Allow: /css/
+Allow: /js/
+Allow: /fonts/
+Allow: /images/
+Allow: /uploads/
 Disallow: /api/
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
+Disallow: /login.html
 Disallow: /account-dashboard
+Disallow: /account-dashboard.html
+Disallow: /all-codes
+Disallow: /all-codes.html
+Disallow: /coupon-management
+Disallow: /coupon-management.html
+Disallow: /1ktjwoy-calc-7x9k2.html
+Disallow: /text-boss.html
+Disallow: /car-single.html
+Disallow: /car-template.html
+Disallow: /returning-customer-modal.html
+Disallow: /spinning-wheel-modal.html
+Disallow: /spinning-wheel-standalone.html
+Disallow: /demo/
+Disallow: /*?utm_
+Disallow: /*?token=
+Disallow: /*?session=
 
 User-agent: MJ12bot
 Crawl-delay: 10
@@ -547,6 +227,10 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
 Disallow: /account-dashboard
+Disallow: /car-template.html
+Disallow: /car-single.html
+Disallow: /text-boss.html
+Disallow: /demo/
 
 User-agent: DotBot
 Crawl-delay: 10
@@ -555,11 +239,14 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
 Disallow: /account-dashboard
+Disallow: /car-template.html
+Disallow: /car-single.html
+Disallow: /text-boss.html
+Disallow: /demo/
 
-# ==========================================================
-# BLOCKED: Known bad scrapers / content thieves
-# ==========================================================
-
+# ----------------------------------------------------------
+# Scrapers that give nothing back
+# ----------------------------------------------------------
 User-agent: PetalBot
 Disallow: /
 
@@ -569,16 +256,8 @@ Disallow: /
 User-agent: MegaIndex
 Disallow: /
 
-# ==========================================================
-# SITEMAPS
-# ==========================================================
-
+# ----------------------------------------------------------
+# Sitemaps
+# ----------------------------------------------------------
 Sitemap: https://plusrent.md/sitemap.xml
 Sitemap: https://plusrent.md/sitemap-cars.xml
-
-# ==========================================================
-# AI MACHINE-READABLE DOCUMENTATION
-# PlusRent provides llms.txt (concise entry point) and llms-full.txt (complete reference) for AI systems:
-# https://plusrent.md/llms.txt
-# https://plusrent.md/llms-full.txt
-# ==========================================================
