@@ -252,7 +252,11 @@ $(document).ready(function () {
       car_id: selectedOption.attr("data-car-id"),
       customer_name: safeTrim("#name"),
       customer_email: safeTrim("#email"),
-      customer_phone: safeTrim("#phone"),
+      // international form when the phone widget has worked one out, otherwise
+      // what was typed; without this the country code never leaves the page
+      customer_phone:
+        (window.PhoneInput && window.PhoneInput.full("#phone")) ||
+        safeTrim("#phone"),
       customer_age:
         safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
       pickup_date: (() => {

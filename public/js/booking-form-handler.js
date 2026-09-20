@@ -178,7 +178,9 @@ class BookingFormHandler {
       price_breakdown: this.getPriceBreakdown(),
       customer_name: formData.get('customer_name'),
       customer_email: formData.get('customer_email'),
-      customer_phone: formData.get('customer_phone'),
+      // the widget keeps the international form in a hidden twin; the visible
+      // field holds only what was typed, which has no country code in it
+      customer_phone: formData.get('customer_phone_e164') || formData.get('customer_phone'),
       customer_age: formData.get('customer_age')
     };
     

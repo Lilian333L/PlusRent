@@ -551,5 +551,28 @@
   }
   setTimeout(start, 1200);
 
-  window.PhoneInput = { enhance: enhance, parse: parse, countries: COUNTRIES, start: start };
+  /**
+   * The number to actually send: international, with the country code.
+   *
+   * The visible field holds what the person typed, which is their number the
+   * way they say it out loud, without a country code. The widget works out the
+   * full form and keeps it on the element and in a hidden twin, and until now
+   * nothing read either: every booking arrived with the country code missing,
+   * so a number could not be dialled back.
+   *
+   * Takes an element or a selector. Falls back to the typed value, so a form
+   * whose widget has not started yet still sends something rather than nothing.
+   */
+  function full(el) {
+    if (typeof el === "string") el = document.querySelector(el);
+    if (!el) return "";
+    if (el.dataset && el.dataset.e164) return el.dataset.e164;
+    if (el.form && el.name) {
+      var twin = el.form.querySelector('input[name="' + el.name + '_e164"]');
+      if (twin && twin.value) return twin.value;
+    }
+    return (el.value || "").trim();
+  }
+
+  window.PhoneInput = { enhance: enhance, parse: parse, countries: COUNTRIES, start: start, full: full };
 })();

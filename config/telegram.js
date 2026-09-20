@@ -113,13 +113,31 @@ class TelegramNotifier {
     `;
   }
 
+  /**
+   * A number you cannot dial is worth saying out loud.
+   *
+   * Bookings arrived for a while with the country code missing, because the
+   * form sent what the customer typed rather than the international form the
+   * phone widget had worked out. That is fixed at the source, but if it ever
+   * happens again, through an older cached script or a form nobody wired up,
+   * the message should say so while the booking is still fresh rather than
+   * leave it to be discovered when somebody tries to call.
+   */
+  formatPhone(phone) {
+    if (!phone) return 'Nu este informație adăugată.';
+    const value = String(phone).trim();
+    return value.startsWith('+')
+      ? value
+      : `${value}  ⚠️ fără prefix de țară, cere-l clientului`;
+  }
+
   formatBookingMessage(bookingData) {
     return `
   📆 <b>Cerere De Rezervare</b>
-  
+
   <b>Detalii client:</b>
   • Nume: ${bookingData.contact_person || 'Nu este informație adăugată.'}
-  • Telefon: ${bookingData.contact_phone || 'Nu este informație adăugată.'}
+  • Telefon: ${this.formatPhone(bookingData.contact_phone)}
   • Email: ${bookingData.email || 'Nu este informație adăugată.'}
   • Vârsta: ${bookingData.age || 'Nu este informație adăugată.'}
   

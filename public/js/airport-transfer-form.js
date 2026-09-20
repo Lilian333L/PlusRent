@@ -19,7 +19,9 @@
       return el ? el.value.trim() : '';
     };
 
-    var phone = field('phone_number');
+    // the international form, so the number can be dialled back from anywhere
+    var phoneEl = form.querySelector('[name="phone_number"]');
+    var phone = (window.PhoneInput && window.PhoneInput.full(phoneEl)) || field('phone_number');
     if (phone.replace(/\D/g, '').length < 8) {
       alert(form.dataset.msgPhone);
       return;
