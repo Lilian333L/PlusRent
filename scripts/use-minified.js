@@ -13,6 +13,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const ROOT = path.join(__dirname, "..");
 const PUBLIC = path.join(ROOT, "public");
@@ -36,17 +37,38 @@ function targets() {
 
 const hasMin = (rel) => fs.existsSync(path.join(PUBLIC, rel.replace(/\.(css|js)$/, ".min.$1")));
 
+/**
+ * A short fingerprint of what the file actually contains.
+ *
+ * /css and /js are cached for a year and marked immutable, so a browser that
+ * has a file never asks for it again. Editing a script and redeploying is
+ * therefore invisible to everyone who already loaded the old one, which is a
+ * silent failure that can last a year. Stamping the reference with a hash of
+ * the contents means the address changes exactly when the file does, and never
+ * otherwise, so the diff stays small.
+ */
+const fingerprints = new Map();
+function fingerprint(rel) {
+  if (!fingerprints.has(rel)) {
+    const body = fs.readFileSync(path.join(PUBLIC, rel));
+    fingerprints.set(rel, crypto.createHash("sha1").update(body).digest("hex").slice(0, 8));
+  }
+  return fingerprints.get(rel);
+}
+
 function rewrite(text) {
   let changes = 0;
   // css/foo.css or /css/foo.css, with or without a ?v= after it
   const out = text.replace(
-    /(["'(])(\/?)((?:css|js)\/(?:[a-z0-9._-]+\/)*[a-z0-9._-]+)\.(css|js)((?:\?[^"')]*)?)(["')])/gi,
+    /(["'(])(\/?)((?:css|js)\/[a-z0-9._\/-]+?)\.(css|js)((?:\?[^"')]*)?)(["')])/gi,
     (whole, open, slash, stem, ext, query, close) => {
-      const rel = stem + "." + ext;
-      if (/\.min$/.test(stem)) return whole;
-      if (!hasMin(rel)) return whole;
-      changes++;
-      return open + slash + stem + ".min." + ext + query + close;
+      // the stem may or may not already carry .min; work from the bare name
+      const base = stem.replace(/\.min$/, "");
+      const minRel = base + ".min." + ext;
+      if (!fs.existsSync(path.join(PUBLIC, minRel))) return whole;
+      const stamped = open + slash + base + ".min." + ext + "?v=" + fingerprint(minRel) + close;
+      if (stamped !== whole) changes++;
+      return stamped;
     }
   );
   return { out, changes };
