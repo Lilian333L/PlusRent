@@ -43,6 +43,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone_number: phone,
+          phone_country: (phoneEl && phoneEl.dataset && phoneEl.dataset.country) || null,
           service_type: service,
           pickup_location: field('pickup_location') || form.dataset.pickup,
           destination: field('destination') || null,

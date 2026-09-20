@@ -1,3 +1,4 @@
+const { describe: describeCountry } = require('../lib/phone-countries');
 const axios = require('axios');
 
 class TelegramNotifier {
@@ -123,12 +124,18 @@ class TelegramNotifier {
    * the message should say so while the booking is still fresh rather than
    * leave it to be discovered when somebody tries to call.
    */
-  formatPhone(phone) {
+  formatPhone(phone, iso) {
     if (!phone) return 'Nu este informație adăugată.';
     const value = String(phone).trim();
-    return value.startsWith('+')
-      ? value
-      : `${value}  ⚠️ NUMĂR INCOMPLET, lipsește prefixul de țară. Scrie-i pe emailul de mai sus, nu încerca să suni.`;
+    if (!value.startsWith('+')) {
+      return `${value}\n  ⚠️ NUMĂR INCOMPLET, lipsește prefixul de țară. Scrie-i pe emailul de mai sus, nu încerca să suni.`;
+    }
+    // knowing the country tells you which hours to call in and whether to
+    // expect WhatsApp rather than a ring
+    const country = describeCountry(value, iso);
+    return country
+      ? `${value}\n  ${country.flag ? country.flag + ' ' : ''}${country.name}${country.certain ? '' : ' (prefixul e folosit de ambele)'}`
+      : value;
   }
 
   formatBookingMessage(bookingData) {
@@ -137,7 +144,7 @@ class TelegramNotifier {
 
   <b>Detalii client:</b>
   • Nume: ${bookingData.contact_person || 'Nu este informație adăugată.'}
-  • Telefon: ${this.formatPhone(bookingData.contact_phone)}
+  • Telefon: ${this.formatPhone(bookingData.contact_phone, bookingData.contact_phone_country)}
   • Email: ${bookingData.email || 'Nu este informație adăugată.'}
   • Vârsta: ${bookingData.age || 'Nu este informație adăugată.'}
   
@@ -225,7 +232,7 @@ ${couponData.expires_at ? `• Expires: ${new Date(couponData.expires_at).toLoca
 🚗 <b>Cerere de Șofer Treaz</b>
 
 <b>Detalii client:</b>
-• Număr de contact: ${callbackData.phone_number}
+• Număr de contact: ${this.formatPhone(callbackData.phone_number, callbackData.phone_country)}
 • Numele: ${callbackData.customer_name || 'Nu este informație adăugată.'}
 • Email: ${callbackData.customer_email || 'Nu este informație adăugată.'}
 

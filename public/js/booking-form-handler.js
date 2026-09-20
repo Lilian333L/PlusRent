@@ -181,6 +181,7 @@ class BookingFormHandler {
       // the widget keeps the international form in a hidden twin; the visible
       // field holds only what was typed, which has no country code in it
       customer_phone: formData.get('customer_phone_e164') || formData.get('customer_phone'),
+      customer_phone_country: formData.get('customer_phone_country') || null,
       customer_age: formData.get('customer_age')
     };
     

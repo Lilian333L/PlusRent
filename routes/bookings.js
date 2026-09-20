@@ -34,6 +34,7 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
     customer_name,
     customer_email,
     customer_phone,
+    customer_phone_country,
     customer_age,
   } = req.body;
 
@@ -253,6 +254,7 @@ try {
       const telegramData = {
         contact_person: customer_name || "Not provided",
         contact_phone: customer_phone || "Not provided",
+        contact_phone_country: customer_phone_country || null,
         email: customer_email || "Not provided",
         age: customer_age || "Not provided",
         make_name: car.make_name,
@@ -1066,7 +1068,7 @@ async function restoreCouponToAvailable(discountCode, customerPhone) {
 
 // Sober driver callback request
 router.post("/sofer-treaz-callback", async (req, res) => {
-  const { phone_number, customer_name, customer_email, special_instructions } =
+  const { phone_number, phone_country, customer_name, customer_email, special_instructions } =
     req.body;
 
   // Validate required fields
@@ -1100,6 +1102,7 @@ router.post("/sofer-treaz-callback", async (req, res) => {
       const telegram = new TelegramNotifier();
       const telegramData = {
         phone_number,
+        phone_country,
         customer_name,
         customer_email,
         special_instructions,
@@ -1339,7 +1342,7 @@ async function sendServiceCallbackTelegram(serviceType, body) {
     const serviceName = serviceNames[serviceType] || serviceType;
     
     let message = `🆕 <b>${serviceName} — Callback Request</b>\n\n`;
-    message += `📞 <b>Telefon:</b> ${body.phone_number}\n`;
+    message += `📞 <b>Telefon:</b> ${telegram.formatPhone(body.phone_number, body.phone_country)}\n`;
     
     if (body.customer_name) {
       message += `👤 <b>Nume:</b> ${body.customer_name}\n`;

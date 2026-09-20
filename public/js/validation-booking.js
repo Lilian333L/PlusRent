@@ -292,6 +292,9 @@ $(document).ready(function () {
       customer_phone:
         (window.PhoneInput && window.PhoneInput.full("#phone")) ||
         safeTrim("#phone"),
+      customer_phone_country: (prPhoneField() || {}).dataset
+        ? (prPhoneField().dataset.country || null)
+        : null,
       customer_age:
         safeTrim("#modal-customer-age") || safeTrim("#customer_age"),
       pickup_date: (() => {

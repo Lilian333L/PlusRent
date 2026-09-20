@@ -375,6 +375,14 @@
     hidden.name = input.name ? input.name + "_e164" : "phone_e164";
     wrap.parentNode.insertBefore(hidden, note);
 
+    // and which flag the customer picked. +1 and +7 each cover two countries,
+    // so the dial code alone cannot say whether a number is Russian or Kazakh;
+    // this can, because the person chose.
+    var hiddenIso = document.createElement("input");
+    hiddenIso.type = "hidden";
+    hiddenIso.name = input.name ? input.name + "_country" : "phone_country";
+    wrap.parentNode.insertBefore(hiddenIso, note);
+
     function drawPick() {
       pick.innerHTML = "";
       var f = document.createElement("span");
@@ -472,6 +480,8 @@
 
       hidden.value = r.ok ? r.e164 : "";
       input.dataset.e164 = hidden.value;
+      hiddenIso.value = country ? country.iso : "";
+      input.dataset.country = hiddenIso.value;
       // the page's own submit-state listener runs on input, so tell it whenever
       // the verdict changes for a reason other than a keystroke
       if (input.dataset.lastVerdict !== String(r.ok)) {
