@@ -1315,11 +1315,17 @@
 
   <script>
     // Global formatting function
+    //
+    // It used to lowercase everything after the first letter, which is right
+    // for "sedan" and wrong for every make that is written in capitals: BMW
+    // came out as Bmw and NX300h as Nx300h, in the h1 and in the car name. A
+    // word that already carries a capital is left exactly as the database
+    // spells it; only an all-lowercase word gets its first letter raised.
     function formatDisplayText(rawKey) {
       if (!rawKey) return '';
-      return rawKey
+      return String(rawKey)
         .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(word => (/[A-Z]/.test(word) ? word : word.charAt(0).toUpperCase() + word.slice(1)))
         .join(' ');
     }
 
@@ -1396,7 +1402,9 @@
       const carName = document.getElementById('car-name');
       
       // ✅ ПОКАЗЫВАЕМ SKELETON СРАЗУ
-      if (carTitle) {
+      // but not over a heading the server already wrote: blanking it would
+      // throw away the one h1 a crawler can read before any of this runs
+      if (carTitle && !carTitle.textContent.trim()) {
         carTitle.innerHTML = '<span class="skeleton skeleton-title"></span>';
       }
       if (carName) {
