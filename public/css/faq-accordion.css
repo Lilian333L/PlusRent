@@ -1,0 +1,106 @@
+/**
+ * A plain question-and-answer list.
+ *
+ * The contact pages carried six questions in their structured data and showed
+ * none of them, which Google's guidelines do not allow and which leaves an AI
+ * free to quote an answer no visitor can find. The answers were already
+ * written; they only needed somewhere to appear.
+ *
+ * Self-contained on purpose: the contact pages do not load the stylesheets
+ * that the service pages' accordions rely on, and pulling one of those in for
+ * six items would cost far more than these rules do.
+ */
+
+.pr-faq {
+  padding: 56px 0;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pr-faq h2 {
+  margin: 0 0 6px;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #1c1917;
+  text-align: center;
+}
+
+.pr-faq .pr-faq-sub {
+  margin: 0 0 28px;
+  text-align: center;
+  color: #78716c;
+  font-size: .95rem;
+}
+
+.pr-faq-list {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.pr-faq-item {
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.pr-faq-item[open] {
+  border-color: #f59e0b;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, .08);
+}
+
+.pr-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #1c1917;
+  line-height: 1.45;
+  list-style: none;
+}
+
+/* Safari draws its own triangle without this */
+.pr-faq-q::-webkit-details-marker { display: none; }
+
+.pr-faq-q:hover { background: #fffbeb; }
+
+.pr-faq-q:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: -2px;
+}
+
+.pr-faq-mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background: #f5f5f4;
+  color: #78716c;
+  font-weight: 700;
+  transition: transform .18s ease, background .18s ease, color .18s ease;
+}
+
+.pr-faq-item[open] .pr-faq-mark {
+  transform: rotate(45deg);
+  background: #f59e0b;
+  color: #fff;
+}
+
+.pr-faq-a {
+  padding: 0 20px 18px;
+  color: #57534e;
+  line-height: 1.6;
+}
+
+@media (max-width: 575px) {
+  .pr-faq { padding: 40px 0; }
+  .pr-faq h2 { font-size: 1.4rem; }
+  .pr-faq-q { padding: 14px 16px; }
+  .pr-faq-a { padding: 0 16px 16px; }
+}
