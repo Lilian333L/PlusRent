@@ -64,7 +64,7 @@ function initI18n() {
         fallbackLng: 'ro',
         debug: false,
         backend: {
-          loadPath: '/js/locales/{{lng}}.json?v=20260919p'
+          loadPath: '/js/locales/{{lng}}.json?v=20260922a'
         },
         interpolation: {
           escapeValue: false // allow HTML in translations
