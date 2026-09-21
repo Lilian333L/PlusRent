@@ -271,7 +271,7 @@ class CarMetaUpdater {
             "@type": "PostalAddress",
             "streetAddress": "str. Meșterul Manole 20",
             "addressLocality": "Chișinău",
-            "postalCode": "MD-2001",
+            "postalCode": "MD-2044",
             "addressCountry": "MD"
           }
         }
