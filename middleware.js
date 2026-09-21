@@ -55,7 +55,19 @@ export const config = {
     '/ru/terms/',
     '/ru/privacy/',
     '/en/terms/',
-    '/en/privacy/'
+    '/en/privacy/',
+    // The airport and town pages, and every car page, are rewritten in vercel.json
+    // like the rest, but were never listed here, so a link written with a trailing
+    // slash reached a 404 instead of the page and passed nothing on.
+    '/ro/chirie-auto-aeroport-chisinau/',
+    '/ru/arenda-avto-aeroport-kishinev/',
+    '/en/car-rental-chisinau-airport/',
+    '/ro/chirie-auto-balti/',
+    '/ro/chirie-auto-cahul/',
+    '/ro/chirie-auto-ungheni/',
+    '/ro/chirie-auto/:slug/',
+    '/ru/arenda-avto/:slug/',
+    '/en/car-rental/:slug/'
   ]
 };
 
