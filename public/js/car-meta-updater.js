@@ -222,6 +222,11 @@ class CarMetaUpdater {
    * Update Schema.org structured data
    */
   updateSchema(car) {
+    // Belt and braces: updateAll already stands aside on a server-rendered
+    // page, and the server's own Product is the better of the two. Called
+    // directly, this one must not write a second, competing Product either.
+    if (window.__PR_CAR__) return;
+
     const price = this.getDailyPrice(car);
     const carImages = this.getAllCarImages(car);
     
@@ -249,7 +254,13 @@ class CarMetaUpdater {
         "availability": car.booked ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
         "price": price,
         "priceCurrency": "EUR",
-        "priceValidUntil": "2025-12-31",
+        "validFrom": new Date().toISOString().slice(0, 10),
+        "priceValidUntil": (function () {
+          // a year from today, never a date that has already gone by
+          const d = new Date();
+          d.setFullYear(d.getFullYear() + 1);
+          return d.toISOString().slice(0, 10);
+        })(),
         "itemCondition": "https://schema.org/UsedCondition",
         "seller": {
           "@type": "Organization",
