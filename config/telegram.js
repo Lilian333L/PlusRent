@@ -1,4 +1,4 @@
-const { describe: describeCountry } = require('../lib/phone-countries');
+const { describe: describeCountry, normalize: normalizePhone } = require('../lib/phone-countries');
 const axios = require('axios');
 
 class TelegramNotifier {
@@ -126,15 +126,20 @@ class TelegramNotifier {
    */
   formatPhone(phone, iso) {
     if (!phone) return 'Nu este informație adăugată.';
-    const value = String(phone).trim();
+    // Whatever shape the number arrived in, it is shown in one canonical form,
+    // so the country code can never appear twice and the digits can be dialled
+    // straight from the message.
+    const value = normalizePhone(phone, iso) || String(phone).trim();
     if (!value.startsWith('+')) {
-      return `${value}\n  ⚠️ NUMĂR INCOMPLET, lipsește prefixul de țară. Scrie-i pe emailul de mai sus, nu încerca să suni.`;
+      return `${value}
+  ⚠️ NUMĂR INCOMPLET, lipsește prefixul de țară. Scrie-i pe emailul de mai sus, nu încerca să suni.`;
     }
     // knowing the country tells you which hours to call in and whether to
     // expect WhatsApp rather than a ring
     const country = describeCountry(value, iso);
     return country
-      ? `${value}\n  ${country.flag ? country.flag + ' ' : ''}${country.name}${country.certain ? '' : ' (prefixul e folosit de ambele)'}`
+      ? `${value}
+  ${country.flag ? country.flag + ' ' : ''}${country.name}${country.certain ? '' : ' (prefixul e folosit de ambele)'}`
       : value;
   }
 

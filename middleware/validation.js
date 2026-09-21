@@ -271,13 +271,25 @@ const bookingCreateSchema = Joi.object({
   price_breakdown: Joi.object().required(),
   customer_name: Joi.string().min(1).max(100).trim().allow(null, ''),
   customer_email: Joi.string().email().trim().allow(null, ''),
-  customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\(\)]{8,20}$/).required()
+  customer_phone: Joi.string().pattern(/^[\+]?[0-9\s\-\.\(\)]{8,20}$/).required()
     .messages({
       'string.pattern.base': 'Please enter a valid phone number.',
       'any.required': 'Phone number is required'
     }),
+  // Which country the visitor's phone widget settled on, as an ISO code. +1 and
+  // +7 each cover two countries, so the dial code alone cannot say whether a
+  // number is Russian or Kazakh; this can, because the person chose.
+  customer_phone_country: Joi.string().uppercase().length(2).allow(null, '').optional(),
   customer_age: Joi.number().integer().min(18).max(100).required()
-});
+})
+  // A booking is the only thing on this site that earns money, and Joi's
+  // default is to reject a body outright for carrying one field the schema has
+  // not heard of. That is how "customer_phone_country is not allowed" turned
+  // every booking into a dead end the moment the phone widget started sending
+  // the country. Nothing downstream reads the body wholesale (the route
+  // destructures the fields it wants), so an unexpected extra key is harmless,
+  // and far cheaper than a lost customer.
+  .unknown(true);
 
 const bookingStatusSchema = Joi.object({
   status: Joi.string().valid('pending', 'confirmed', 'cancelled', 'completed', 'rejected', 'finished').required()

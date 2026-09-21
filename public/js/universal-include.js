@@ -13,7 +13,7 @@
     
     // Create script element
     const script = document.createElement('script');
-    script.src = '/js/universal-spinning-wheel.min.js?v=1a14c295';
+    script.src = '/js/universal-spinning-wheel.min.js?v=3043e6b5';
     script.async = true;
     
     // Add error handling

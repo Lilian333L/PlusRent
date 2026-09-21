@@ -843,7 +843,7 @@
   })();
   </script>
 
-  <script src="/js/universal-include.min.js?v=8ca833b0" defer></script>
+  <script src="/js/universal-include.min.js?v=1f23018b" defer></script>
 
   <!-- Language Switcher -->
   <script>
@@ -956,10 +956,23 @@
           submitButton.disabled = true;
           submitButton.value = "Sending...";
 
+          const phoneEl = document.getElementById("phone");
+          if (phoneEl && phoneEl.prPhone && phoneEl.value.trim() &&
+              !phoneEl.prPhone.validate().ok) {
+            submitButton.disabled = false;
+            submitButton.value = originalButtonValue;
+            phoneEl.focus();
+            return;
+          }
+
           const formData = {
             name: document.getElementById("name").value,
             email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
+            // the international form, so the number in the Telegram message
+            // can be dialled back
+            phone: (window.PhoneInput && window.PhoneInput.full(phoneEl)) ||
+                   (phoneEl ? phoneEl.value : ""),
+            phone_country: (phoneEl && phoneEl.dataset && phoneEl.dataset.country) || null,
             message: document.getElementById("message").value
           };
 
@@ -1033,6 +1046,6 @@
     }
   })();
   </script>
-  <script src="/js/phone-input.min.js?v=1fce33ae" defer></script>
+  <script src="/js/phone-input.min.js?v=5173709e" defer></script>
 </body>
 </html>

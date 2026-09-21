@@ -620,20 +620,27 @@
 <script defer="" src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0"></script>
 <script defer="" src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b"></script>
 <script defer="" src="/js/i18n-init.min.js?v=3cc7f997"></script>
-<script defer="" src="/js/universal-include.min.js?v=8ca833b0"></script>
+<script defer="" src="/js/universal-include.min.js?v=1f23018b"></script>
 <script>
 (function(){var p=window.location.pathname.split('/')[1];if(!['ro','ru','en'].includes(p))return;function f(){if(typeof i18next!=='undefined'&&i18next.isInitialized){if(i18next.language!==p)i18next.changeLanguage(p);}else setTimeout(f,50);}f();})();
 </script>
 <script>
 var _cbf=document.getElementById('callbackForm'); if(_cbf) _cbf.addEventListener('submit',async function(e){
   e.preventDefault();
-  var phone=document.getElementById('callbackPhone').value.trim();
+  var phoneEl=document.getElementById('callbackPhone');
+  // the international form the country picker worked out, so the number in
+  // the Telegram message can be dialled back
+  var phone=(window.PhoneInput&&window.PhoneInput.full(phoneEl))||phoneEl.value.trim();
+  var phoneCountry=(phoneEl.dataset&&phoneEl.dataset.country)||null;
+  // the picker already says what is wrong, under the field; an alert on top
+  // of it would only say it again, less clearly
+  if(phoneEl.prPhone&&!phoneEl.prPhone.validate().ok){phoneEl.focus();return;}
   if(!phone){alert('Vă rugăm introduceți un număr de telefon valid');return;}
   var btn=this.querySelector('.btn-request-call');var orig=btn.textContent;
   btn.textContent='Se trimite...';btn.disabled=true;
   try{
     var base=window.location.hostname==='localhost'?'http://localhost:3000':'';
-    var res=await fetch(base+'/api/bookings/sofer-treaz-callback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone_number:phone,service_type:'sofer_treaz',customer_name:null,customer_email:null,special_instructions:null})});
+    var res=await fetch(base+'/api/bookings/sofer-treaz-callback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone_number:phone,phone_country:phoneCountry,service_type:'sofer_treaz',customer_name:null,customer_email:null,special_instructions:null})});
     if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     if(data.success){gtag_report_conversion();document.getElementById('successModal').style.display='flex';document.getElementById('callbackPhone').value='';}

@@ -5,7 +5,7 @@ const TelegramNotifier = require('../config/telegram');
 // Contact form submission
 router.post('/', async (req, res) => {
     try {
-        const { name, email, phone, message } = req.body;
+        const { name, email, phone, phone_country, message } = req.body;
 
         // Validate required fields
         if (!name || !email || !message) {
@@ -15,13 +15,17 @@ router.post('/', async (req, res) => {
             });
         }
 
+        // Built before the message, because the phone is formatted through it:
+        // one country code, and a warning when the number arrived without one.
+        const telegramNotifier = new TelegramNotifier();
+
         // Format the message for Telegram
         const telegramMessage = `
 📧 *New Contact Form Submission*
 
 👤 *Name:* ${name}
 📧 *Email:* ${email}
-📞 *Phone:* ${phone || 'Not provided'}
+📞 *Phone:* ${phone ? telegramNotifier.formatPhone(phone, phone_country) : 'Not provided'}
 💬 *Message:*
 ${message}
 
@@ -31,7 +35,6 @@ ${message}
         `;
 
         // Send Telegram notification
-        const telegramNotifier = new TelegramNotifier();
         await telegramNotifier.sendMessage(telegramMessage);
 
         res.json({

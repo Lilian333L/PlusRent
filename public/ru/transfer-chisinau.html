@@ -671,7 +671,7 @@
           <label>Дата прилёта<input type="date" name="pickup_date" required></label>
           <label>Время прилёта<input type="time" name="pickup_time" required></label>
           <label class="span-2">Куда ехать<input type="text" name="destination" placeholder="напр. центр Кишинёва, отель, адрес" required></label>
-          <label class="span-2">Телефон (WhatsApp / Viber)<input type="tel" name="phone_number" placeholder="+373 …" inputmode="tel" autocomplete="tel" required></label>
+          <label class="span-2">Телефон (WhatsApp / Viber)<input type="tel" name="phone_number" placeholder="69 123 456" inputmode="tel" autocomplete="tel" required></label>
         </div>
         <button type="submit" class="airport-booking-submit">Отправить заявку</button>
         <p class="airport-booking-note">Без предоплаты. Оплата в конце — наличными или картой. Цена от €45 / 800 лей за машину.</p>
@@ -1181,7 +1181,7 @@
 <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
 <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
 <script src="/js/i18n-init.min.js?v=3cc7f997" defer></script>
-<script src="/js/universal-include.min.js?v=8ca833b0" defer></script>
+<script src="/js/universal-include.min.js?v=1f23018b" defer></script>
 <script src="/js/services-nav.min.js?v=c2b617f1" defer></script>
 
 <script>
@@ -1258,7 +1258,14 @@ document.getElementById('contactPopup').addEventListener('click', function(e) {
    ============================================================ */
 document.getElementById('callbackForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const phone = document.getElementById('callbackPhone').value.trim();
+  const phoneEl = document.getElementById('callbackPhone');
+  // the international form the country picker worked out, so the number in
+  // the Telegram message can be dialled back
+  const phone = (window.PhoneInput && window.PhoneInput.full(phoneEl)) || phoneEl.value.trim();
+  const phoneCountry = (phoneEl.dataset && phoneEl.dataset.country) || null;
+  // the picker already says what is wrong, under the field; an alert on top
+  // of it would only say it again, less clearly
+  if (phoneEl.prPhone && !phoneEl.prPhone.validate().ok) { phoneEl.focus(); return; }
   if (!phone) { alert('Пожалуйста, введите действительный номер телефона'); return; }
   const btn = this.querySelector('.btn-callback');
   const orig = btn.textContent;
@@ -1269,7 +1276,7 @@ document.getElementById('callbackForm').addEventListener('submit', async functio
     const res = await fetch(`${base}/api/bookings/transfer-chisinau-callback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone_number: phone, service_type: 'transfer_chisinau', customer_name: null, customer_email: null, special_instructions: null })
+      body: JSON.stringify({ phone_number: phone, phone_country: phoneCountry, service_type: 'transfer_chisinau', customer_name: null, customer_email: null, special_instructions: null })
     });
     if (!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -1428,7 +1435,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script src="/js/airport-transfer-form.min.js?v=58cad596" defer></script>
-  <script src="/js/phone-input.min.js?v=1fce33ae" defer></script>
+<script src="/js/airport-transfer-form.min.js?v=daad62cb" defer></script>
+  <script src="/js/phone-input.min.js?v=5173709e" defer></script>
 </body>
 </html>

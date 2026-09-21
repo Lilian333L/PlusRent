@@ -31,7 +31,20 @@ const widget = new Map(
   })
 );
 
-const { COUNTRIES } = require("../lib/phone-countries");
+// The length rules are duplicated the same way, and a number is judged
+// against them on both sides, so they have to agree too.
+const lenAt = widgetSource.indexOf("var LEN = {");
+if (lenAt === -1) {
+  console.error("could not find the length table in phone-input.js");
+  process.exit(1);
+}
+const lenBlock = widgetSource.slice(lenAt, widgetSource.indexOf("};", lenAt) + 2);
+const widgetLen = {};
+for (const m of lenBlock.matchAll(/([A-Z]{2}):\s*\[([0-9,\s]+)\]/g)) {
+  widgetLen[m[1]] = m[2].split(",").map((n) => Number(n.trim()));
+}
+
+const { COUNTRIES, LEN: serverLen } = require("../lib/phone-countries");
 const server = new Map(COUNTRIES.map((c) => [c.iso, { dial: c.dial, name: c.name }]));
 
 const problems = [];
@@ -45,7 +58,15 @@ for (const iso of server.keys()) {
   if (!widget.has(iso)) problems.push("missing in the widget: " + iso);
 }
 
+const lenIsos = new Set([...Object.keys(widgetLen), ...Object.keys(serverLen)]);
+for (const iso of lenIsos) {
+  const a = JSON.stringify(widgetLen[iso] || null);
+  const b = JSON.stringify(serverLen[iso] || null);
+  if (a !== b) problems.push(iso + " length " + a + " vs " + b);
+}
+
 console.log("widget: " + widget.size + " countries, server: " + server.size);
+console.log("length rules: " + Object.keys(widgetLen).length + " vs " + Object.keys(serverLen).length);
 if (problems.length) {
   console.log("\nthe two tables disagree:");
   for (const p of problems) console.log("  " + p);

@@ -3,6 +3,7 @@ const router = express.Router();
 const { supabase, supabaseAdmin } = require("../lib/supabaseClient");
 const TelegramNotifier = require("../config/telegram");
 const { trackPhoneNumberForBooking } = require("../lib/phoneNumberTracker");
+const { normalize: normalizePhone } = require("../lib/phone-countries");
 
 // Import validation middleware and schemas
 const {
@@ -37,6 +38,16 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
     customer_phone_country,
     customer_age,
   } = req.body;
+
+  // One number, one country code.
+  //
+  // Whatever the page sent (a stale cached script with no code at all, a
+  // pasted "+7 +7 985...", the trunk 8 a Russian writes in front of a local
+  // number) is put into the same canonical +E.164 form here, once, so the
+  // coupon lookup, the saved booking, the phone tracker and the Telegram
+  // message all speak about the same number.
+  const customerPhone =
+    normalizePhone(customer_phone, customer_phone_country) || customer_phone;
 
   // Validate required fields
   if (
@@ -99,12 +110,12 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
     if (discount_code) {
       try {
         // Use the new lookup endpoint for efficient validation
-        const customerPhone = customer_phone;
-        const lookupUrl = customerPhone
+        const lookupPhone = customerPhone;
+        const lookupUrl = lookupPhone
           ? `${req.protocol}://${req.get(
               "host"
             )}/api/coupons/lookup/${discount_code}?phone=${encodeURIComponent(
-              customerPhone
+              lookupPhone
             )}`
           : `${req.protocol}://${req.get(
               "host"
@@ -133,7 +144,7 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
               .update({
                 status: "redeemed",
                 redeemed_at: new Date().toISOString(),
-                redeemed_by_phone: customer_phone || null,
+                redeemed_by_phone: customerPhone || null,
                 updated_at: new Date().toISOString(),
               })
               .eq("id", lookupResult.redemption_id);
@@ -176,7 +187,7 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
       insurance_type: "Basic", // Default insurance type for database compatibility
       customer_name: customer_name || "Not provided",
       customer_email: customer_email || "Not provided",
-      customer_phone: customer_phone || "Not provided",
+      customer_phone: customerPhone || "Not provided",
       customer_age: customer_age || null,
       status: "pending",
       created_at: new Date().toISOString(),
@@ -198,9 +209,9 @@ router.post("/", validate(bookingCreateSchema), async (req, res) => {
 // ========== RETURN GIFT LOGIC - AWARD AT EVERY NTH BOOKING ==========
 try {
   // Track phone number first
-  if (customer_phone) {
+  if (customerPhone) {
     const { normalizePhoneNumber } = require("../lib/phoneNumberTracker");
-    const normalizedPhoneNumber = normalizePhoneNumber(customer_phone);
+    const normalizedPhoneNumber = normalizePhoneNumber(customerPhone);
     
     // Get phone number record to check booking count
     const { data: phoneRecord, error: phoneError } = await supabase
@@ -253,7 +264,7 @@ try {
       const telegram = new TelegramNotifier();
       const telegramData = {
         contact_person: customer_name || "Not provided",
-        contact_phone: customer_phone || "Not provided",
+        contact_phone: customerPhone || "Not provided",
         contact_phone_country: customer_phone_country || null,
         email: customer_email || "Not provided",
         age: customer_age || "Not provided",
@@ -1076,13 +1087,16 @@ router.post("/sofer-treaz-callback", async (req, res) => {
     return res.status(400).json({ error: "Phone number is required" });
   }
 
+  // The number as it will be dialled: one country code, always present.
+  const phone = normalizePhone(phone_number, phone_country) || phone_number;
+
   try {
     // Insert into sober_driver_callbacks table
     const { data: callback, error } = await supabase
       .from("sober_driver_callbacks")
       .insert([
         {
-          phone_number,
+          phone_number: phone,
           customer_name,
           customer_email,
           special_instructions,
@@ -1101,7 +1115,7 @@ router.post("/sofer-treaz-callback", async (req, res) => {
     try {
       const telegram = new TelegramNotifier();
       const telegramData = {
-        phone_number,
+        phone_number: phone,
         phone_country,
         customer_name,
         customer_email,
@@ -1288,6 +1302,7 @@ router.post("/mark-return-gift-redeemed", async (req, res) => {
 async function saveServiceCallback(serviceType, body) {
   const { 
     phone_number, 
+    phone_country,
     customer_name, 
     customer_email, 
     special_instructions,
@@ -1302,12 +1317,15 @@ async function saveServiceCallback(serviceType, body) {
     throw new Error('Phone number is required');
   }
  
+  // Saved the way it will be dialled, with the country code exactly once.
+  const phone = normalizePhone(phone_number, phone_country) || phone_number.trim();
+ 
   const { data, error } = await supabaseAdmin
     .from("service_callbacks")
     .insert([
       {
         service_type: serviceType,
-        phone_number: phone_number.trim(),
+        phone_number: phone,
         customer_name: customer_name || null,
         customer_email: customer_email || null,
         special_instructions: special_instructions || null,

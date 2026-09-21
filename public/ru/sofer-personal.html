@@ -1331,7 +1331,7 @@
 <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
 <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
 <script src="/js/i18n-init.min.js?v=3cc7f997" defer></script>
-<script src="/js/universal-include.min.js?v=8ca833b0" defer></script>
+<script src="/js/universal-include.min.js?v=1f23018b" defer></script>
 
 <script>
 const WHATSAPP_TEXTS = {
@@ -1379,7 +1379,14 @@ document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeContactPo
 <script>
 document.getElementById('callbackForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const phone = document.getElementById('callbackPhone').value.trim();
+  const phoneEl = document.getElementById('callbackPhone');
+  // the international form the country picker worked out, so the number in
+  // the Telegram message can be dialled back
+  const phone = (window.PhoneInput && window.PhoneInput.full(phoneEl)) || phoneEl.value.trim();
+  const phoneCountry = (phoneEl.dataset && phoneEl.dataset.country) || null;
+  // the picker already says what is wrong, under the field; an alert on top
+  // of it would only say it again, less clearly
+  if (phoneEl.prPhone && !phoneEl.prPhone.validate().ok) { phoneEl.focus(); return; }
   if(!phone){ alert('Пожалуйста, введите действительный номер телефона'); return; }
   const btn = this.querySelector('.btn-request-call');
   const orig = btn.textContent; btn.textContent = 'Отправляется...'; btn.disabled = true;
@@ -1387,7 +1394,7 @@ document.getElementById('callbackForm').addEventListener('submit', async functio
     const base = window.location.hostname==='localhost' ? 'http://localhost:3000' : '';
     const res = await fetch(`${base}/api/bookings/sofer-personal-callback`,{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ phone_number:phone, service_type:'sofer_personal', customer_name:null, customer_email:null, special_instructions:null })
+      body: JSON.stringify({ phone_number:phone, phone_country:phoneCountry, service_type:'sofer_personal', customer_name:null, customer_email:null, special_instructions:null })
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -1572,6 +1579,6 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
 </script>
 
 
-  <script src="/js/phone-input.min.js?v=1fce33ae" defer></script>
+  <script src="/js/phone-input.min.js?v=5173709e" defer></script>
 </body>
 </html>

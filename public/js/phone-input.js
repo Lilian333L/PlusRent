@@ -166,6 +166,58 @@
 
   var EXAMPLE = { MD: "69 123 456", RO: "721 234 567", UA: "67 123 4567", RU: "912 345 67 89" };
 
+  /**
+   * What to show inside the field before anything is typed.
+   *
+   * Never a country code. The picker to the left already says +373, and a
+   * placeholder that repeats it invites the visitor to type it a second time,
+   * which is how a number arrives with its prefix twice.
+   */
+  function example(c) {
+    if (EXAMPLE[c.iso]) return EXAMPLE[c.iso];
+    var n = c.len && c.len.length ? c.len[0] : 0;
+    if (!n) return "";
+    var out = "";
+    for (var i = 0; i < n; i++) out += (i && i % 3 === 0 ? " " : "") + "X";
+    return out;
+  }
+
+  // The trunk prefix people put in front of a local number. Moldova, Romania
+  // and Ukraine use 0, which is handled everywhere; these three use 8, and
+  // without it a Russian writing 8 985 826 14 55, the way Russians write their
+  // own number, was told it was too long.
+  var TRUNK = { RU: "8", KZ: "8", BY: "8" };
+
+  function minLen(c) { return c && c.len && c.len.length ? c.len[0] : 4; }
+  function maxLen(c) {
+    if (!c || !c.len || !c.len.length) return 15;
+    return c.len.length > 1 ? c.len[1] : c.len[0];
+  }
+  /** Whether a national number of this many digits is a plausible one. */
+  function fits(n, c) { return n >= minLen(c) && n <= maxLen(c); }
+
+  /**
+   * Drop the 0 or the 8 that belongs to dialling inside the country.
+   *
+   * Only when the number is too long without it: Russia's 8 800 numbers start
+   * with the same 8 a Russian writes in front of a local number, and taking it
+   * off one of those leaves a number nobody can call.
+   */
+  function stripTrunk(national, c) {
+    var out = String(national || "");
+    if (!out) return out;
+
+    var noZero = out.replace(/^0+/, "");
+    if (noZero && (out.length > maxLen(c) || !fits(out.length, c))) out = noZero;
+
+    var trunk = c && TRUNK[c.iso];
+    if (trunk && out.indexOf(trunk) === 0 && out.length > maxLen(c)) {
+      var rest = out.slice(trunk.length);
+      if (fits(rest.length, c)) out = rest;
+    }
+    return out;
+  }
+
   function lang() {
     var l = (document.documentElement.lang || "ro").slice(0, 2);
     return TEXT[l] ? l : "ro";
@@ -230,7 +282,7 @@
     digits = digits.replace(/^00/, "").replace(/^011/, "");
     var explicit = text.charAt(0) === "+" || hadZeroZero;
 
-    var national = digits;
+    var national;
 
     // A leading + or 00 is the caller stating this is the full international
     // number, so whatever dial code follows decides the country even when the
@@ -240,21 +292,42 @@
       if (stated) {
         country = stated;
         national = digits.slice(stated.dial.length);
+      } else {
+        national = digits;
       }
-    } else if (digits.indexOf(country.dial) === 0) {
-      national = digits.slice(country.dial.length);
-    }
-    // Without a leading +, the number is read against the country that is
-    // selected and nothing else. Guessing here got it wrong: a Romanian mobile
-    // starts with 7, +7 is Russia's whole dial code, so 721234567 typed under
-    // Romania was being sent to Russia. A bare number is a local number.
-
-    // the trunk zero people keep in front of a local number
-    national = national.replace(/^0+/, "");
-
-    // the code typed twice, "+373 0373 69…"
-    if (national.indexOf(country.dial) === 0 && national.length > country.dial.length + 6) {
-      national = national.slice(country.dial.length).replace(/^0+/, "");
+      national = stripTrunk(national, country);
+      // the code stated twice, "+373 0373 69…" or a pasted "+7 +7 985…"
+      var again = 0;
+      while (
+        again++ < 3 &&
+        national.indexOf(country.dial) === 0 &&
+        !fits(national.length, country) &&
+        fits(stripTrunk(national.slice(country.dial.length), country).length, country)
+      ) {
+        national = stripTrunk(national.slice(country.dial.length), country);
+      }
+    } else {
+      // Without a leading +, the number is read against the country that is
+      // selected and nothing else. Guessing here got it wrong: a Romanian
+      // mobile starts with 7, +7 is Russia's whole dial code, so 721234567
+      // typed under Romania was being sent to Russia. A bare number is a
+      // local number.
+      //
+      // The dial code is taken off the front only when the shorter reading is
+      // the plausible one, so 79858261455 under Russia loses its 7 while a
+      // Kazakh 7012345678, whose national part genuinely starts with the dial
+      // code, keeps every digit.
+      national = stripTrunk(digits, country);
+      for (var round = 0; round < 3; round++) {
+        if (national.indexOf(country.dial) !== 0) break;
+        var rest = stripTrunk(national.slice(country.dial.length), country);
+        var restFits = fits(rest.length, country);
+        var keepFits = fits(national.length, country);
+        if (keepFits && !restFits) break;
+        if (restFits) { national = rest; continue; }
+        if (!keepFits && rest.length >= minLen(country)) { national = rest; continue; }
+        break;
+      }
     }
 
     var res = { country: country, national: national, e164: "+" + country.dial + national };
@@ -282,9 +355,10 @@
     var st = document.createElement("style");
     st.id = "pr-phone-css";
     st.textContent = [
-      ".pr-phone{position:relative;display:flex;align-items:stretch;width:100%;",
-      "border:1px solid var(--pr-phone-border,#d6d3d1);border-radius:12px;background:#fff;",
-      "transition:border-color .15s,box-shadow .15s}",
+      ".pr-phone{position:relative;display:flex;align-items:stretch;width:100%;max-width:100%;",
+      "box-sizing:border-box;border:1px solid var(--pr-phone-border,#d6d3d1);border-radius:12px;",
+      "background:#fff;transition:border-color .15s,box-shadow .15s}",
+      ".pr-phone *{box-sizing:border-box}",
       ".pr-phone:focus-within{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.16)}",
       ".pr-phone.is-bad{border-color:#dc2626}",
       ".pr-phone.is-bad:focus-within{box-shadow:0 0 0 3px rgba(220,38,38,.14)}",
@@ -298,10 +372,21 @@
       ".pr-phone-dial{font-weight:700;font-variant-numeric:tabular-nums}",
       ".pr-phone-caret{width:7px;height:7px;border-right:2px solid #a8a29e;border-bottom:2px solid #a8a29e;",
       "transform:rotate(45deg);margin-top:-3px;flex:none}",
-      ".pr-phone input{flex:1;min-width:0;border:0;background:transparent;padding:0 14px;font:inherit;",
-      "color:#1c1917;min-height:52px;border-radius:0 12px 12px 0}",
-      ".pr-phone input:focus{outline:none}",
-      ".pr-phone-note{display:block;margin-top:6px;font-size:.82rem;line-height:1.45;color:#78716c}",
+      // The field inside the wrapper belongs to the widget, and the pages keep
+      // trying to take it back: the callback forms style input[type=tel] more
+      // specifically than a plain ".pr-phone input", and the booking modal
+      // sets its border, padding and radius with !important. Either way the
+      // field kept its own rounded box and sat inside the widget as a second
+      // box. So every property a page sets is named here, and named louder.
+      ".pr-phone input.pr-phone-field[type=\"tel\"]{flex:1 1 auto!important;width:auto!important;",
+      "min-width:0!important;max-width:none!important;border:0!important;outline:0!important;",
+      "box-shadow:none!important;background:transparent!important;padding:0 14px!important;",
+      "margin:0!important;font:inherit;color:#1c1917;height:auto!important;min-height:52px;",
+      "border-radius:0 12px 12px 0!important;box-sizing:border-box}",
+      ".pr-phone input.pr-phone-field[type=\"tel\"]:focus{outline:0!important;border:0!important;",
+      "box-shadow:none!important;background:transparent!important}",
+      ".pr-phone-note{display:block;margin-top:6px;margin-bottom:12px;font-size:.82rem;",
+      "line-height:1.45;color:#78716c}",
       ".pr-phone-note.is-bad{color:#b91c1c}",
       ".pr-phone-note.is-ok{color:#15803d}",
       ".pr-phone-note b{font-variant-numeric:tabular-nums}",
@@ -326,6 +411,7 @@
   function enhance(input) {
     if (!input || input.dataset.prPhone) return;
     input.dataset.prPhone = "1";
+    input.classList.add("pr-phone-field");
     css();
 
     var fallback = byIso(input.dataset.country || "MD");
@@ -397,7 +483,10 @@
       pick.appendChild(d);
       pick.appendChild(c);
       pick.setAttribute("aria-label", displayName(country) + " +" + country.dial);
-      input.placeholder = EXAMPLE[country.iso] || "";
+      // Re-asserted on every draw, because a page script that writes its own
+      // placeholder would otherwise leave "+373 XX XXX XXX" sitting next to a
+      // picker that already says +373, and the visitor types the code twice.
+      input.placeholder = example(country);
     }
 
     function drawList(filter) {

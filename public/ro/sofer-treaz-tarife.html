@@ -679,30 +679,9 @@
 <script defer="" src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0"></script>
 <script defer="" src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b"></script>
 <script defer="" src="/js/i18n-init.min.js?v=3cc7f997"></script>
-<script defer="" src="/js/universal-include.min.js?v=8ca833b0"></script>
+<script defer="" src="/js/universal-include.min.js?v=1f23018b"></script>
 <script>
 (function(){var p=window.location.pathname.split('/')[1];if(!['ro','ru','en'].includes(p))return;function f(){if(typeof i18next!=='undefined'&&i18next.isInitialized){if(i18next.language!==p)i18next.changeLanguage(p);}else setTimeout(f,50);}f();})();
-</script>
-<script>
-var _cbf=document.getElementById('callbackForm'); if(_cbf) _cbf.addEventListener('submit',async function(e){
-  e.preventDefault();
-  var phone=document.getElementById('callbackPhone').value.trim();
-  if(!phone){alert('Vă rugăm introduceți un număr de telefon valid');return;}
-  var btn=this.querySelector('.btn-request-call');var orig=btn.textContent;
-  btn.textContent='Se trimite...';btn.disabled=true;
-  try{
-    var base=window.location.hostname==='localhost'?'http://localhost:3000':'';
-    var res=await fetch(base+'/api/bookings/sofer-treaz-callback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone_number:phone,service_type:'sofer_treaz',customer_name:null,customer_email:null,special_instructions:null})});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    var data=await res.json();
-    if(data.success){gtag_report_conversion();document.getElementById('successModal').style.display='flex';document.getElementById('callbackPhone').value='';}
-    else alert('Eroare: '+(data.error||'Nu s-a putut trimite.'));
-  }catch(err){alert('Eroare de rețea. Sunați direct: +373 60 000 500');}
-  finally{btn.textContent=orig;btn.disabled=false;}
-});
-function closeModal(){document.getElementById('successModal').style.display='none';}
-window.addEventListener('click',function(e){var m=document.getElementById('successModal');if(e.target===m)m.style.display='none';});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('successModal').style.display='none';});
 </script>
 <script>
 (function(){
@@ -853,7 +832,13 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     var input = document.getElementById('callbackPhone');
-    var phone = input.value.trim();
+    // the international form the country picker worked out, so the number in
+    // the Telegram message can be dialled back
+    var phone = (window.PhoneInput && window.PhoneInput.full(input)) || input.value.trim();
+    var phoneCountry = (input.dataset && input.dataset.country) || null;
+    // the picker already says what is wrong, under the field; an alert on
+    // top of it would only say it again, less clearly
+    if (input.prPhone && !input.prPhone.validate().ok) { input.focus(); return; }
     if (phone.replace(/\D/g, '').length < 8) {
       alert('Introduceți un număr de telefon valid.');
       return;
@@ -868,6 +853,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone_number: phone,
+          phone_country: phoneCountry,
           service_type: 'sofer_treaz',
           special_instructions: 'Solicitare de pe pagina de tarife'
         })
@@ -886,6 +872,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')document.get
   });
 })();
 </script>
-  <script src="/js/phone-input.min.js?v=1fce33ae" defer></script>
+  <script src="/js/phone-input.min.js?v=5173709e" defer></script>
 </body>
 </html>

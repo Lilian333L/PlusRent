@@ -137,7 +137,7 @@
             subtitle: 'Spin the wheel and win amazing discounts!',
             enterPhoneTitle: 'Enter Your Number',
             phoneDescription: 'We\'ll send you exclusive offers and your lucky discount code!',
-            phonePlaceholder: '+373 XX XXX XXX',
+            phonePlaceholder: '69 123 456',
             continueButton: 'Continue',
             privacyText: 'Your data is secure',
             emptyPhone: 'Please enter a phone number',
@@ -150,7 +150,7 @@
             subtitle: 'Крути колесо и выигрывай удивительные скидки!',
             enterPhoneTitle: 'Введите Ваш Номер',
             phoneDescription: 'Мы отправим вам эксклюзивные предложения и ваш счастливый код скидки!',
-            phonePlaceholder: '+373 XX XXX XXX',
+            phonePlaceholder: '69 123 456',
             continueButton: 'Продолжить',
             privacyText: 'Ваши данные защищены',
             emptyPhone: 'Пожалуйста, введите номер телефона',
@@ -163,7 +163,7 @@
             subtitle: 'Rotește roata și câștigă reduceri uimitoare!',
             enterPhoneTitle: 'Introdu Numărul Tău',
             phoneDescription: 'Îți vom trimite oferte exclusive și codul tău de reducere norocos!',
-            phonePlaceholder: '+373 XX XXX XXX',
+            phonePlaceholder: '69 123 456',
             continueButton: 'Continuă',
             privacyText: 'Datele tale sunt securizate',
             emptyPhone: 'Vă rugăm introduceți numărul de telefon',
@@ -935,8 +935,13 @@
         const phoneDescElement = state.modal.querySelector('.phone-description');
         if (phoneDescElement) phoneDescElement.textContent = t('phoneDescription');
         
+        // The country picker owns the placeholder once it has enhanced the
+        // field: it shows an example without a dial code, because the code is
+        // already displayed to the left of the field.
         const phoneInputElement = state.modal.querySelector('#universalPhoneInput');
-        if (phoneInputElement) phoneInputElement.placeholder = t('phonePlaceholder');
+        if (phoneInputElement && !phoneInputElement.dataset.prPhone) {
+            phoneInputElement.placeholder = t('phonePlaceholder');
+        }
         
         const phoneBtnText = state.modal.querySelector('.phone-btn-text');
         if (phoneBtnText) phoneBtnText.textContent = t('continueButton');
@@ -1273,12 +1278,23 @@ function closeModal() {
             return;
         }
 
-        if (!validatePhoneNumber(phoneNumber)) {
+        // The picker knows the country and how many digits it uses, so it has
+        // the final word; formatPhoneNumber is the fallback for a page where
+        // the widget never loaded.
+        const widget = phoneInput.prPhone;
+        if (widget) {
+            const verdict = widget.validate();
+            if (!verdict.ok) return;
+        } else if (!validatePhoneNumber(phoneNumber)) {
             showPhoneError(phoneInput, t('invalidPhone'));
             return;
         }
 
-        const formattedPhone = formatPhoneNumber(phoneNumber);
+        // Stored and tracked with the country code, so the coupon a returning
+        // customer earned here is still found when they book.
+        const formattedPhone =
+            (window.PhoneInput && window.PhoneInput.full(phoneInput)) ||
+            formatPhoneNumber(phoneNumber);
 
         // Disable button during request
         const submitBtn = document.querySelector('.phone-submit-btn');
@@ -1857,6 +1873,16 @@ function closeModal() {
         const phoneInput = document.getElementById('universalPhoneInput');
         if (phoneInput) {
             phoneInput.addEventListener('input', handlePhoneInput);
+            // The wheel builds its field long after the page has loaded, so the
+            // country picker has to be attached here or this one field is the
+            // only place on the site where a number can be left without its
+            // country code, which is exactly the number we then cannot call.
+            if (window.PhoneInput && window.PhoneInput.enhance) {
+                window.PhoneInput.enhance(phoneInput);
+                // The picker stands where the little handset icon used to.
+                const icon = document.querySelector('.input-wrapper .input-icon');
+                if (icon) icon.style.display = 'none';
+            }
         }
         
         window.addEventListener('message', handleWheelMessage);
