@@ -33,7 +33,7 @@
     // Load i18n init if not already loaded
     if (!document.querySelector('script[src*="i18n-init.js"]') && !window.PREVENT_DUPLICATE_I18NEXT) {
         const i18nInitScript = document.createElement('script');
-        i18nInitScript.src = 'js/i18n-init.min.js?v=f288750d';
+        i18nInitScript.src = 'js/i18n-init.min.js?v=1f6f4dfc';
         i18nInitScript.async = true;
         document.head.appendChild(i18nInitScript);
     }

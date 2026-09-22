@@ -48,24 +48,37 @@
   <meta name="twitter:image" content="https://plusrent.md/images/LOGO-5-demo.png">
 
   <!-- Car Meta Updater -->
-  <script src="js/car-meta-updater.min.js?v=29b1f874"></script>
+  <script src="js/car-meta-updater.min.js?v=29b1f874" defer></script>
   
-  <!-- CSS Files -->
-  <link href="css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap">
-  <link href="css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb">
-  <link href="css/singlecar.min.css?v=43f95e3e" rel="stylesheet" type="text/css">
-  <link href="css/plugins.css" rel="stylesheet" type="text/css">
+  <!-- First screen from critical-car.css; the full sheets load without blocking
+       and js/deferred-css.js switches them on together once all have arrived -->
+  <link rel="stylesheet" href="/css/critical-car.css?v=78788859">
+  <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
+  <link href="css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap" media="print" data-deferred-css>
+  <link href="css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb" media="print" data-deferred-css>
+  <link href="css/singlecar.min.css?v=43f95e3e" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link href="css/plugins.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link rel="stylesheet" href="/css/fonts.css?v=202609187" media="print" data-deferred-css>
+  <link href="css/style.min.css?v=d0592cf1" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link href="css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link id="colors" href="css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=ca368157" media="print" data-deferred-css>
+  <noscript>
+    <link href="css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap">
+    <link href="css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb">
+    <link href="css/singlecar.min.css?v=43f95e3e" rel="stylesheet" type="text/css">
+    <link href="css/plugins.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/fonts.css?v=202609187">
+    <link href="css/style.min.css?v=d0592cf1" rel="stylesheet" type="text/css">
+    <link href="css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css">
+    <link id="colors" href="css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=ca368157">
+  </noscript>
   <!-- Self-hosted fonts: preload what the first screen needs -->
   <link rel="preload" as="font" type="font/woff2" href="/fonts/gf/v20-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/gf/v20-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7SUc.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/gf/v15-QGYvz_MVcBeNP4NJtEtq.woff2" crossorigin>
-  <link rel="stylesheet" href="/css/fonts.css?v=202609187">
-  <link href="css/style.min.css?v=d0592cf1" rel="stylesheet" type="text/css">
-  <link href="css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css">
-  <link id="colors" href="css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css">
   
-  <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="/css/fontawesome-6.6.0.min.css?v=ca368157">
 
   <!-- ===== Premium display font: DM Sans (used for headings & price) ===== -->
   
@@ -905,11 +918,11 @@
                         <div id="outside-hours-notice">
                           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                             <i class="fa fa-clock-o"></i>
-                            <strong data-i18n="price_calculator.outside_hours">Outside Working Hours</strong>
+                            <strong data-i18n="price_calculator.outside_hours">Between 18:00 and 08:00</strong>
                           </div>
                           <div id="outside-hours-details"></div>
                           <div style="font-size: 12px;">
-                            <strong data-i18n="price_calculator.working_hours">Working Hours (8:00 - 18:00)</strong> |
+                            <strong data-i18n="price_calculator.working_hours">Standard hours (8:00 - 18:00)</strong> |
                             <span id="outside-hours-fee">+€15</span>
                             <span data-i18n="price_calculator.per_pickup_return"></span>
                           </div>
@@ -1281,7 +1294,7 @@
   <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
 
   <!-- Translation System -->
-  <script src="js/i18n-init.min.js?v=f288750d"></script>
+  <script src="js/i18n-init.min.js?v=1f6f4dfc"></script>
 
   <!-- Universal Spinning Wheel -->
   <script src="js/universal-include.min.js?v=1f23018b" defer></script>
@@ -1663,6 +1676,8 @@
       window.currentCarSlide = 0;
       const totalSlides = thumbImages.length;
 
+      // the server already put the first photo in the page; keep it if it is the same one
+      const ssrPhoto = imagesDiv.querySelector('img[data-ssr-photo]');
       imagesDiv.innerHTML = '';
       thumbsDiv.innerHTML = '';
 
@@ -1727,7 +1742,13 @@
           img.decoding = 'async';
         }
         // Optimized URLs already have a query string and are cached by Vercel for 1 day
-        img.src = imagePath.indexOf('/_vercel/image?') === 0 ? imagePath : imagePath + '?v=' + Date.now();
+        const finalSrc = imagePath.indexOf('/_vercel/image?') === 0 ? imagePath : imagePath + '?v=' + Date.now();
+        if (index === 0 && ssrPhoto && ssrPhoto.getAttribute('src') === finalSrc) {
+          attachImageFallback(ssrPhoto);
+          imagesDiv.appendChild(ssrPhoto);
+          return;
+        }
+        img.src = finalSrc;
         img.alt = `Car image ${index + 1}`;
         attachImageFallback(img);
         img.style.display = index === 0 ? 'block' : 'none';
