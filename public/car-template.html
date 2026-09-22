@@ -1261,10 +1261,10 @@
   <script src="js/burger-menu-fix.min.js?v=2a151aaf" defer></script>
   <script src="/js/rental-fees.min.js?v=b42aa517"></script>
   <script src="/js/rental-day-hint.min.js?v=afdb8aaa" defer></script>
-  <script src="js/price-calculator.min.js?v=e24da4be"></script>
-  <script src="js/booking-form-handler.min.js?v=25a31894"></script>
-  <script src="js/phone-coupon-revalidate.min.js?v=dc19cf58"></script>
-  <script src="js/validation-booking.min.js?v=c405f011" defer></script>
+  <script src="js/price-calculator.min.js?v=9aca1a48"></script>
+  <script src="js/booking-form-handler.min.js?v=73da7d23"></script>
+  <script src="js/phone-coupon-revalidate.min.js?v=88e1a6c9"></script>
+  <script src="js/validation-booking.min.js?v=6ca6e552" defer></script>
   <script src="/js/vendor/slick-1.8.1.min.js?v=3b41b3bc" defer></script>
 
   <!-- Flatpickr JS -->
@@ -2133,7 +2133,10 @@
           if (code && code.length >= 3) {
             try {
               const phoneInput = document.querySelector('input[name="customer_phone"]');
-              const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
+              // The number with the chosen country code, as the wheel stored it
+              const phoneNumber = phoneInput
+                ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim())
+                : '';
               const phoneParam = phoneNumber ? `?phone=${encodeURIComponent(phoneNumber)}` : '';
 
               // IMPORTANT: do NOT fall back to /api/coupons/validate/${code}

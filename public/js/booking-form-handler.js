@@ -653,7 +653,7 @@ class BookingFormHandler {
     // Use provided phone number or get from form input
     if (!phoneNumber) {
       const phoneInput = document.querySelector('input[name="customer_phone"]');
-      phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+      phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
     }
     
     if (!phoneNumber) {
@@ -1526,7 +1526,7 @@ class BookingFormHandler {
     try {
       // Get the phone number from the form
       const phoneInput = document.querySelector('input[name="customer_phone"]');
-      const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+      const phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
       
       if (!phoneNumber) {
         return;
@@ -1575,7 +1575,7 @@ class BookingFormHandler {
     if (window.UniversalSpinningWheel && window.UniversalSpinningWheel.show) {
       // Get the phone number from the form
       const phoneInput = document.querySelector('input[name="customer_phone"]');
-      const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+      const phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
       
       // Show the spinning wheel modal with the specified wheel ID, skipping phone step
       window.UniversalSpinningWheel.show({

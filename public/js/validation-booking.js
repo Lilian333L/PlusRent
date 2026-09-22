@@ -1068,7 +1068,9 @@ async function openPriceCalculator() {
   // Add coupon validation on focus out (when user finishes typing)
   $("#modal-discount-code").on("blur", function () {
     const couponCode = $(this).val().trim();
-    const customerPhone = $("#phone").val();
+    const customerPhone =
+      (window.PhoneInput && window.PhoneInput.full(prPhoneField())) ||
+      $(prPhoneField()).val();
 
     if (couponCode.length >= 3) {
       // Only validate if at least 3 characters

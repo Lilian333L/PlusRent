@@ -37,11 +37,17 @@
     if (phoneInput.__prPhoneCouponRevalidate) return true;
     phoneInput.__prPhoneCouponRevalidate = true;
 
-    let lastSeenPhone = (phoneInput.value || '').trim();
+    // With the country code, so picking another country also re-checks
+    function currentValue() {
+      return (window.PhoneInput && window.PhoneInput.full(phoneInput)) ||
+        (phoneInput.value || '').trim();
+    }
+
+    let lastSeenPhone = currentValue();
     let timer = null;
 
     function maybeRevalidate() {
-      const currentPhone = (phoneInput.value || '').trim();
+      const currentPhone = currentValue();
       if (currentPhone === lastSeenPhone) return;
       lastSeenPhone = currentPhone;
 

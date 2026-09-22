@@ -311,7 +311,10 @@ async validateAndShowCoupon(couponCode) {
       document.getElementById('phone') ||
       document.querySelector('input[name="phone"]') ||
       document.querySelector('input[name="customer_phone"]');
-    const customerPhone = phoneInput ? (phoneInput.value || '').trim() : '';
+    // With the chosen country code, the shape the wheel stored the number in
+    const customerPhone = phoneInput
+      ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || (phoneInput.value || '').trim())
+      : '';
 
     // Use the lookup endpoint (same one used in modal + on submit).
     // It accepts an optional phone and returns valid:false with a specific
@@ -455,9 +458,12 @@ async validateAndShowCoupon(couponCode) {
 
     try {
       // Get customer phone number for validation
-      const customerPhone =
-        document.querySelector("#phone")?.value?.trim() ||
-        document.querySelector('[name="customer_phone"]')?.value?.trim();
+      const phoneEl =
+        document.querySelector("#phone") ||
+        document.querySelector('[name="customer_phone"]');
+      const customerPhone = phoneEl
+        ? (window.PhoneInput && window.PhoneInput.full(phoneEl)) || phoneEl.value.trim()
+        : "";
 
       // First try to validate as a redemption code (individual codes) with phone number if available
       let redemptionResponse;
