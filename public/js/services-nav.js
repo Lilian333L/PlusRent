@@ -6,7 +6,7 @@
       trigger : 'Servicii',
       label   : 'Servicii PlusRent',
       items: [
-        { name: 'Chirie Auto',                   badge: '24/7',    car: true,   live: true,  url: '/ro/cars'              },
+        { name: 'Prețuri și flotă',              badge: '24/7',    car: true,   live: true,  url: '/ro/cars'              },
         { name: 'Șofer Treaz',                   badge: '24/7',    live: true,  url: '/ro/sofer-treaz'       },
         { name: 'Transfer Aeroport Chișinău',    badge: 'Premium', live: false, url: '/ro/transfer-chisinau' },
         { name: 'Transfer Aeroport Iași',        badge: 'Premium', live: false, url: '/ro/transfer-iasi'     },
@@ -17,7 +17,7 @@
       trigger : 'Услуги',
       label   : 'Услуги PlusRent',
       items: [
-        { name: 'Аренда авто',                   badge: '24/7',    car: true,   live: true,  url: '/ru/cars'              },
+        { name: 'Цены и автопарк',               badge: '24/7',    car: true,   live: true,  url: '/ru/cars'              },
         { name: 'Трезвый водитель',              badge: '24/7',    live: true,  url: '/ru/sofer-treaz'       },
         { name: 'Трансфер аэропорт Кишинёв',    badge: 'Premium', live: false, url: '/ru/transfer-chisinau' },
         { name: 'Трансфер аэропорт Яссы',       badge: 'Premium', live: false, url: '/ru/transfer-iasi'     },
@@ -28,7 +28,7 @@
       trigger : 'Services',
       label   : 'PlusRent Services',
       items: [
-        { name: 'Car Rental',                    badge: '24/7',    car: true,   live: true,  url: '/en/cars'              },
+        { name: 'Prices & fleet',                badge: '24/7',    car: true,   live: true,  url: '/en/cars'              },
         { name: 'Sober Driver',                  badge: '24/7',    live: true,  url: '/en/sofer-treaz'       },
         { name: 'Airport Transfer Chișinău',     badge: 'Premium', live: false, url: '/en/transfer-chisinau' },
         { name: 'Airport Transfer Iași',         badge: 'Premium', live: false, url: '/en/transfer-iasi'     },

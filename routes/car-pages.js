@@ -246,8 +246,6 @@ const sitemapCars = async (req, res, next) => {
           (l) => `  <url>
     <loc>${slugs.urlFor(car, l, cars)}</loc>
     <lastmod>${(car.updated_at || car.created_at || today).slice(0, 10)}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
 ${alt}
     <xhtml:link rel="alternate" hreflang="x-default" href="${slugs.urlFor(car, "ro", cars)}"/>
   </url>`

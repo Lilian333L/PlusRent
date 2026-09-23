@@ -6,7 +6,7 @@
  */
 (function () {
   var SUPABASE_PREFIX = 'https://ncmqbrhlxjrjgnkaafhv.supabase.co/storage/v1/object/public/car-images/';
-  var WIDTHS = [480, 828, 1080];
+  var WIDTHS = [480, 640, 828, 1080];
   var CARD_SIZES = '(max-width: 767px) 100vw, (max-width: 1199px) 50vw, 400px';
 
   function canOptimize(url) {
