@@ -2406,7 +2406,9 @@ footer,
    ────────────────────────────────────────────────────────────────── */
 .radio-group-location {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr): a long name (e.g. "Аэропорт Яссы") must not widen its
+     column past the box; it wraps inside the card instead */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 @media (max-width: 575px) {
@@ -2418,7 +2420,8 @@ footer,
 .radio-group-location .radio-label {
   display: flex !important;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
   padding: 12px 12px !important;
   background: var(--c-bg);
   border: 1.5px solid var(--c-border);
@@ -2464,9 +2467,7 @@ footer,
   color: var(--c-slate-900);
   line-height: 1.25;
   letter-spacing: -0.005em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
 }
 /* loc-sub removed from HTML — keeping this rule as no-op safety net */
 .radio-group-location .radio-label .loc-sub {
