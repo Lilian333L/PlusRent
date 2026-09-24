@@ -71,13 +71,13 @@
   <!-- CSS Files -->
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
   <link rel="preload" as="image" href="/images/background/subheader-1920.webp" imagesrcset="/images/background/subheader-828.webp 828w, /images/background/subheader-1920.webp 1920w" imagesizes="100vw" fetchpriority="high">
-          <link rel="stylesheet" href="/css/critical-about.css?v=0bf93713">
+          <link rel="stylesheet" href="/css/critical-about.css?v=0ccb5eb6">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
 <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap" media="print" data-deferred-css>
   <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb" media="print" data-deferred-css>
   <link href="/css/abouting.min.css?v=b7f167f0" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link href="/css/plugins.css" rel="stylesheet" type="text/css" media="print" data-deferred-css>
-  <link href="/css/style.min.css?v=2f782ccc" rel="stylesheet" type="text/css" media="print" data-deferred-css>
+  <link href="/css/style.min.css?v=53989d3c" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link href="/css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link id="colors" href="/css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css" media="print" data-deferred-css>
   <link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531" media="print" data-deferred-css>
@@ -512,7 +512,7 @@
     <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb">
     <link href="/css/abouting.min.css?v=b7f167f0" rel="stylesheet" type="text/css">
     <link href="/css/plugins.css" rel="stylesheet" type="text/css">
-    <link href="/css/style.min.css?v=2f782ccc" rel="stylesheet" type="text/css">
+    <link href="/css/style.min.css?v=53989d3c" rel="stylesheet" type="text/css">
     <link href="/css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css">
     <link id="colors" href="/css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531">
@@ -1139,7 +1139,7 @@
 
   <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
   <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
-  <script src="/js/i18n-init.min.js?v=8bfba56c"></script>
+  <script src="/js/i18n-init.min.js?v=d609046c"></script>
   <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
 
 
@@ -1269,17 +1269,18 @@
           if (entry.isIntersecting && !statsAnimated) {
             statsAnimated = true;
             stats.forEach(stat => {
-              const target = parseInt(stat.getAttribute('data-to'));
+              const target = parseFloat(stat.getAttribute('data-to'));
+              const decimals = parseInt(stat.getAttribute('data-decimals') || '0', 10);
               const speed = parseInt(stat.getAttribute('data-speed'));
               const increment = target / (speed / 16);
               let current = 0;
               const updateCounter = () => {
                 current += increment;
                 if (current < target) {
-                  stat.textContent = Math.floor(current);
+                  stat.textContent = decimals ? current.toFixed(decimals) : Math.floor(current);
                   requestAnimationFrame(updateCounter);
                 } else {
-                  stat.textContent = target;
+                  stat.textContent = target.toFixed(decimals);
                 }
               };
               updateCounter();
