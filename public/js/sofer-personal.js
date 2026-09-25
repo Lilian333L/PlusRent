@@ -252,7 +252,7 @@
     var next = new Image();
     next.onload = next.onerror = function () {
       // the photo carries a srcset, which wins over src, so both are swapped
-      if (optimise) el.img.srcset = carSrc(img, 640) + ' 640w, ' + carSrc(img, 1080) + ' 1080w';
+      if (optimise) el.img.srcset = carSrc(img, 640) + ' 640w, ' + carSrc(img, 828) + ' 828w, ' + carSrc(img, 1080) + ' 1080w';
       else el.img.removeAttribute('srcset');
       el.img.src = next.src;
       el.img.alt = T.alt(M[model]);
