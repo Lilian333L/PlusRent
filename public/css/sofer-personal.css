@@ -603,3 +603,8 @@ body:has(.sp-page) #wrapper { overflow: clip; }
 .sp-ticket-proof .sp-stars { font-size: .82rem; letter-spacing: 1px; }
 @media (min-width: 961px) and (max-height: 880px) { .sp-ticket-proof { display: block; } }
 @media (max-width: 600px) { .sp-proof { flex-direction: column; align-items: flex-start; gap: 2px; } .sp-proof > a + a { padding-left: 0; } .sp-proof > a + a::before { display: none; } }
+
+/* sections below the first screen are laid out and painted only when they come
+   near the viewport; the page is long, and a full layout on load cost ~450 ms on phones */
+.sp-section, .sp-final { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
+body:has(.sp-page) footer { content-visibility: auto; contain-intrinsic-size: auto 700px; }
