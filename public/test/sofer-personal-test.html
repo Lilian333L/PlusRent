@@ -64,7 +64,7 @@
    so they read the correct language from storage on first load. */
 (function(){
   try {
-    /* test page lives under /test/, not /en/, so the language is set here */
+    var p = window.location.pathname;
     var l = 'en';
     document.cookie = 'lang=' + l + ';path=/;max-age=2592000;SameSite=Lax';
     if (window.localStorage) { localStorage.setItem('i18nextLng', l); localStorage.setItem('lang', l); }
@@ -1856,7 +1856,7 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
           document.cookie = 'lang=' + newLang + ';path=/;max-age=2592000;SameSite=Lax';
           localStorage.setItem('i18nextLng', newLang);
         } catch(_){}
-        window.location.href = '/' + newLang + '/sofer-personal';
+        window.location.href = ({en:'/test/sofer-personal-test',ro:'/test/ro/sofer-personal-test',ru:'/test/ru/sofer-personal-test'})[newLang] || '/' + newLang + '/sofer-personal';
       }, true);
     });
   }
@@ -1870,6 +1870,6 @@ window.addEventListener('click', e=>{ const m=document.getElementById('successMo
 
 
   <script src="/js/phone-input.min.js?v=5173709e" defer></script>
-<script src="/js/sofer-personal-test.js?v=319823" defer></script>
+<script src="/js/sofer-personal-test.js?v=321967" defer></script>
 </body>
 </html>
