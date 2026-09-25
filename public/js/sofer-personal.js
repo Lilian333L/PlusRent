@@ -1,4 +1,4 @@
-/* Configurator for the personal driver test pages (en, ro, ru).
+/* Configurator for the personal driver pages (en, ro, ru).
    Prices are the owner-approved ones (Sept 2026). The HTML already shows the
    default day (our car, Standard 8 h, Audi A6, 175 €), so the page reads
    correctly without this script; the script only recalculates.
@@ -194,12 +194,13 @@
     var orig = SUPABASE + 'car-' + id + '/head.jpg';
     return optimise ? '/_vercel/image?url=' + encodeURIComponent(orig) + '&w=' + w + '&q=75' : orig;
   }
-  if (!optimise) {
-    document.querySelectorAll('img[data-car]').forEach(function (img) {
-      img.removeAttribute('srcset');
-      img.src = carSrc(img.getAttribute('data-car'), 1080);
-    });
-  }
+  // off the live host the /_vercel/image URLs do not exist; on it, any photo
+  // that reached the page without a src still gets one
+  document.querySelectorAll('img[data-car]').forEach(function (img) {
+    if (optimise && img.getAttribute('src')) return;
+    img.removeAttribute('srcset');
+    img.src = carSrc(img.getAttribute('data-car'), 1080);
+  });
 
   function eur(n) {
     var r = Math.round(n * 100) / 100;
