@@ -782,14 +782,28 @@ var loading_text = loadingTranslations[currentLang];
          if (scrollTop < scrollTrigger && t == 1) {
              $('#back-to-top').addClass('hide');
          }
-
-         $('#back-to-top').on('click', function(e) {
-             e.preventDefault();
-             $('html,body').stop(true).animate({
-                 scrollTop: 0
-             }, 700);
-         });
      };
+
+     // Bound once. It used to be re-bound on every scroll event, and jQuery's
+     // frame-by-frame scrollTop animation fought scroll-behavior: smooth and the
+     // finger's momentum on phones, so the page stalled halfway up.
+     $(document).on('click', '#back-to-top', function(e) {
+         e.preventDefault();
+         var tookOver = false;
+         function takeOver() { tookOver = true; }
+         function finish() {
+             window.removeEventListener('touchstart', takeOver);
+             window.removeEventListener('wheel', takeOver);
+             // sections laid out only near the viewport change height on the way
+             // up and can leave the smooth scroll short of the top
+             if (!tookOver && window.scrollY > 0) window.scrollTo(0, 0);
+         }
+         window.addEventListener('touchstart', takeOver, { passive: true });
+         window.addEventListener('wheel', takeOver, { passive: true });
+         window.scrollTo({ top: 0, behavior: 'smooth' });
+         if ('onscrollend' in window) window.addEventListener('scrollend', finish, { once: true });
+         else setTimeout(finish, 1500);
+     });
      /* --------------------------------------------------
       * plugin | scroll to
       * --------------------------------------------------*/
