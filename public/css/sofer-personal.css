@@ -608,8 +608,281 @@ body:has(.sp-page) #wrapper { overflow: clip; }
    near the viewport; the page is long, and a full layout on load cost ~450 ms on phones */
 .sp-section, .sp-final { content-visibility: auto; contain-intrinsic-size: auto 1000px; }
 body:has(.sp-page) footer { content-visibility: auto; contain-intrinsic-size: auto 700px; }
+
+/* ══════════════════════════════════════════════════════
+   V2: one page, one surface
+   ══════════════════════════════════════════════════════ */
+
+/* the page sits on the ink; the light part is one sheet with rounded corners,
+   so dark to light is a shape, not a hard line */
+body:has(.sp-page), #content.sp-page { background: var(--sp-ink); }
+.sp-config { padding-bottom: 140px; }
+.sp-sheet { position: relative; z-index: 2; margin-top: -56px; padding: 16px 0 24px; background: var(--sp-paper); border-radius: 40px; box-shadow: 0 -30px 60px -40px rgba(0,0,0,.6); }
+.sp-sheet .sp-section, .sp-sheet .sp-section--paper { background: transparent; }
+.sp-sheet .sp-section { padding: 88px 0; }
+.sp-sheet > .sp-section:first-child { padding-top: 72px; }
+.sp-sheet .sp-faq details { border-color: #dfe2e7; }
+
+/* final call becomes a card inside the sheet */
+.sp-sheet .sp-final { background: none; padding: 24px 0 8px; }
+.sp-sheet .sp-final::before { display: none; }
+.sp-sheet .sp-final-in { position: relative; overflow: hidden; overflow: clip; padding: 56px; border-radius: 32px; background: var(--sp-ink); }
+.sp-sheet .sp-final-in::before { content: ""; position: absolute; inset: 0; background: radial-gradient(600px 400px at 0% 120%, rgba(245,158,11,.18), transparent 70%); pointer-events: none; }
+.sp-sheet .sp-final-in > * { position: relative; }
+
+/* header: the ink of the page, the same at the top and while scrolling */
+body:has(.sp-page) header,
+body:has(.sp-page) header.transparent,
+body:has(.sp-page) header.header-mobile,
+body:has(.sp-page) header.smaller,
+body:has(.sp-page) header.sticky-active { background: rgba(20, 23, 28, .94) !important; -webkit-backdrop-filter: saturate(140%) blur(14px); backdrop-filter: saturate(140%) blur(14px); border-bottom: 1px solid rgba(255,255,255,.07) !important; box-shadow: none !important; }
+body:has(.sp-page) header.smaller,
+body:has(.sp-page) header.sticky-active { box-shadow: 0 10px 30px -18px rgba(0,0,0,.8) !important; }
+body:has(.sp-page) #topbar { background: transparent !important; border-bottom: 1px solid rgba(255,255,255,.06); }
+
+/* ticket total: label on top, the figure right under it */
+.sp-total { display: block; margin: 8px 14px 0; padding: 18px 18px 16px; border-radius: 20px; background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(245,158,11,.07)); border: 1px solid rgba(245,158,11,.38); }
+.sp-total-label { display: block; font-size: .9rem; font-weight: 600; color: var(--sp-amber-hi); }
+.sp-total output { display: block; margin-top: 2px; font-family: var(--sp-head); font-size: 3rem; font-weight: 700; line-height: 1.05; color: #fff; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.sp-total .sp-formula { margin-top: 6px !important; color: rgba(255,255,255,.72); }
+
+/* days: type a number or tap a preset */
+.sp-days { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; }
+.sp-stepper { background: rgba(255,255,255,.03); }
+.sp-stepper input { width: 64px; height: 48px; border: 0; background: transparent; color: #fff; text-align: center; font: 700 1.15rem var(--sp-body); font-variant-numeric: tabular-nums; -moz-appearance: textfield; appearance: textfield; }
+.sp-stepper input:focus-visible { outline: none; background: rgba(255,255,255,.07); }
+.sp-days-unit { color: var(--sp-on-dark-2); font-weight: 600; }
+.sp-presets { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-preset { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--sp-glass-line-2); background: transparent; color: var(--sp-on-dark-2); font: 600 .88rem var(--sp-body); cursor: pointer; transition: background-color .2s, color .2s, border-color .2s; }
+.sp-preset b { color: var(--sp-green-dark); font-weight: 700; margin-left: 4px; }
+.sp-preset:hover { border-color: rgba(255,255,255,.45); color: #fff; }
+.sp-preset.is-on { background: #fff; color: var(--sp-heading); border-color: #fff; }
+.sp-preset.is-on b { color: var(--sp-green); }
+
+/* start date: an optional chip, not a form field */
+.sp-when { position: relative; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--sp-glass-line); }
+.sp-when-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.sp-when-btn { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 999px; border: 1px dashed rgba(255,255,255,.32); background: transparent; color: #fff; font: 600 .92rem var(--sp-body); cursor: pointer; transition: border-color .2s, background-color .2s; }
+.sp-when-btn:hover { border-color: rgba(255,255,255,.6); }
+.sp-when-btn .sp-ico { width: 18px; height: 18px; color: var(--sp-amber); }
+.sp-when-btn small { font-weight: 500; font-size: .82rem; color: var(--sp-on-dark-3); }
+.sp-when.has-date .sp-when-btn { border-style: solid; border-color: var(--sp-amber); background: rgba(245,158,11,.1); }
+.sp-when.has-date .sp-when-btn small { display: none; }
+.sp-when-clear { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.08); color: #fff; display: none; place-items: center; cursor: pointer; }
+.sp-when-clear .sp-ico { width: 16px; height: 16px; }
+.sp-when.has-date .sp-when-clear { display: inline-grid; }
+.sp-when-hint { margin-top: 8px !important; font-size: .82rem; color: var(--sp-on-dark-3); }
+
+/* calendar */
+.sp-cal { position: absolute; z-index: 30; left: 0; bottom: calc(100% + 10px); width: 320px; padding: 16px; border-radius: 22px; background: #232830; border: 1px solid var(--sp-glass-line-2); box-shadow: 0 30px 60px -20px rgba(0,0,0,.85); color: #fff; }
+.sp-cal[hidden] { display: none; }
+.sp-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sp-cal-title { font-family: var(--sp-head); font-weight: 700; font-size: 1.05rem; }
+.sp-cal-nav { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--sp-glass-line-2); background: transparent; color: #fff; display: grid; place-items: center; cursor: pointer; }
+.sp-cal-nav .sp-ico { width: 16px; height: 16px; }
+.sp-cal-nav.is-prev .sp-ico { transform: rotate(180deg); }
+.sp-cal-nav:disabled { opacity: .3; cursor: default; }
+.sp-cal-nav:not(:disabled):hover { background: rgba(255,255,255,.08); }
+.sp-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.sp-cal-wd { text-align: center; font-size: .74rem; font-weight: 600; color: var(--sp-on-dark-3); padding: 4px 0; }
+.sp-cal-day { aspect-ratio: 1; border: 0; border-radius: 12px; background: transparent; color: #fff; font: 600 .92rem var(--sp-body); cursor: pointer; font-variant-numeric: tabular-nums; }
+.sp-cal-day:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+.sp-cal-day:disabled { color: rgba(255,255,255,.22); cursor: default; }
+.sp-cal-day.is-today { box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }
+.sp-cal-day.is-sel { background: var(--sp-amber); color: #16130c; }
+.sp-cal-day:focus-visible { outline: 2px solid var(--sp-amber); outline-offset: 1px; }
+.sp-cal-foot { margin-top: 10px !important; font-size: .8rem; color: var(--sp-on-dark-3); }
+
+/* contact popup */
+.sp-pop { position: fixed; inset: 0; z-index: 10050; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(8, 10, 13, .62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.sp-pop-card { position: relative; width: 100%; max-width: 420px; padding: 26px 22px 20px; border-radius: 28px; background: #1d2129; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 40px 80px -30px rgba(0,0,0,.9); color: #fff; font-family: var(--sp-body); animation: sp-pop-in .35s cubic-bezier(.2,.7,.2,1); }
+@keyframes sp-pop-in { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes sp-sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+.sp-pop-close { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.08); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.sp-pop-close:hover { background: rgba(255,255,255,.16); }
+.sp-pop-close .sp-ico { width: 18px; height: 18px; }
+.sp-pop-status { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; color: #bdf0cf; }
+.sp-pop-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 4px rgba(52,211,153,.2); }
+.sp-pop h3 { margin: 10px 0 4px; font-family: var(--sp-head); font-size: 1.6rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+.sp-pop p { margin: 0; color: rgba(255,255,255,.66); font-size: .95rem; }
+.sp-pop-list { margin-top: 20px; display: grid; gap: 10px; }
+.sp-pop-opt { display: flex; align-items: center; gap: 14px; min-height: 68px; padding: 12px 16px 12px 12px; border-radius: 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); color: #fff !important; text-decoration: none !important; transition: background-color .2s, border-color .2s, transform .2s cubic-bezier(.2,.7,.2,1); }
+.sp-pop-opt:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); transform: translateY(-1px); }
+.sp-pop-ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0; font-size: 1.35rem; color: #fff; }
+.sp-pop-ic .sp-ico { width: 22px; height: 22px; }
+.sp-pop-opt.is-wa { background: rgba(37,211,102,.1); border-color: rgba(37,211,102,.35); }
+.sp-pop-opt.is-wa .sp-pop-ic { background: #25d366; }
+.sp-pop-opt.is-tg .sp-pop-ic { background: #229ed9; }
+.sp-pop-opt.is-call .sp-pop-ic { background: var(--sp-amber); color: #16130c; }
+.sp-pop-txt { flex: 1; min-width: 0; }
+.sp-pop-txt strong { display: block; font-size: 1.02rem; }
+.sp-pop-txt span { font-size: .85rem; color: rgba(255,255,255,.6); }
+.sp-pop-go { color: rgba(255,255,255,.45); display: grid; }
+.sp-pop-go .sp-ico { width: 18px; height: 18px; }
+
+/* footer */
+.sp-footer { background: var(--sp-ink); color: rgba(255,255,255,.7); padding: 72px 0 0; font-family: var(--sp-body); font-size: .95rem; line-height: 1.6; }
+.sp-footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1.3fr .8fr; gap: 40px; }
+.sp-footer h2 { margin: 0 0 16px; font-family: var(--sp-head); font-size: 1rem; font-weight: 700; color: #fff; letter-spacing: 0; }
+.sp-footer a { color: rgba(255,255,255,.78) !important; text-decoration: none !important; transition: color .2s; }
+.sp-footer a:hover { color: #fff !important; }
+.sp-footer-logo { display: inline-block; }
+.sp-footer-logo img { height: 38px; width: auto; }
+.sp-footer-brand p { margin: 16px 0 0; max-width: 34ch; }
+.sp-footer-reviews { margin-top: 18px; display: grid; gap: 4px; font-size: .88rem; }
+.sp-footer-reviews .sp-stars { font-size: .8rem; letter-spacing: 1px; margin-right: 6px; }
+.sp-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.sp-footer-contact a, .sp-footer-contact span { display: inline-flex; align-items: center; gap: 12px; min-height: 28px; }
+.sp-footer-contact .sp-ico { width: 18px; height: 18px; color: var(--sp-amber); }
+.sp-footer-contact i { width: 18px; font-size: 1.05rem; color: var(--sp-amber); text-align: center; flex-shrink: 0; }
+.sp-footer-links { grid-template-columns: 1fr 1fr; column-gap: 20px; }
+.sp-footer-social { display: flex; gap: 10px; flex-wrap: wrap; }
+.sp-footer-social a { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); font-size: 1.15rem; }
+.sp-footer-social a:hover { background: rgba(255,255,255,.12); }
+.sp-footer-bottom { margin-top: 56px; padding: 22px 0 28px; border-top: 1px solid rgba(255,255,255,.08); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; font-size: .86rem; color: rgba(255,255,255,.5); }
+.sp-footer-bottom ul { display: flex; flex-wrap: wrap; gap: 20px; }
+.sp-footer-bottom a { color: rgba(255,255,255,.6) !important; }
+
+@media (max-width: 960px) {
+  .sp-sheet { border-radius: 32px; }
+  .sp-footer-grid { grid-template-columns: 1fr 1fr; }
+  .sp-cal { bottom: auto; top: calc(100% + 10px); }
+}
+@media (max-width: 600px) {
+  .sp-config { padding-bottom: 112px; }
+  .sp-sheet { margin-top: -44px; border-radius: 28px; }
+  .sp-sheet .sp-section { padding: 64px 0; }
+  .sp-sheet > .sp-section:first-child { padding-top: 56px; }
+  .sp-sheet .sp-final-in { padding: 36px 22px; border-radius: 26px; }
+  .sp-total output { font-size: 2.6rem; }
+  .sp-cal { position: fixed; left: 10px; right: 10px; top: auto; bottom: calc(10px + env(safe-area-inset-bottom)); width: auto; z-index: 10060; }
+  .sp-pop { align-items: flex-end; padding: 0; }
+  .sp-pop-card { max-width: none; border-radius: 28px 28px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom)); animation-name: sp-sheet-up; }
+  .sp-footer { padding-top: 56px; }
+  .sp-footer-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { .sp-pop-card { animation: none; } }
+.sp-pop-close:focus-visible { outline: 2px solid rgba(255,255,255,.45); outline-offset: 2px; }
+/* the template sets nav { height: 0 } for its mobile menu; these two are ordinary blocks */
+.sp-page nav.sp-related, .sp-footer nav { height: auto !important; }
 /* the template mobile menu rule paints every nav link white with !important; these navs keep their own colours */
+.sp-page nav.sp-related, .sp-footer nav { height: auto !important; }
+.sp-page nav.sp-related a, .sp-page nav.sp-related a *, .sp-footer nav a { -webkit-text-fill-color: currentColor !important; }
 .sp-page nav.sp-related a strong { color: var(--sp-heading) !important; }
 .sp-page nav.sp-related a span { color: var(--sp-muted) !important; }
-.sp-page nav.sp-related { height: auto !important; }
-.sp-page nav.sp-related a, .sp-page nav.sp-related a * { -webkit-text-fill-color: currentColor !important; }
+.sp-footer nav a { color: rgba(255,255,255,.78) !important; }
+.sp-footer nav a:hover { color: #fff !important; }
+body:has(.sp-page) header.menu-open { background: #14171c !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ══════════════════════════════════════════════════════
+   V2 DARK: the whole page stays on the ink, no dark-to-light edge.
+   The lower part keeps its markup; its colour tokens turn dark here.
+   ══════════════════════════════════════════════════════ */
+.sp-sheet {
+  --sp-paper: #14171c;
+  --sp-white: #1b1f26;
+  --sp-text: rgba(255, 255, 255, .8);
+  --sp-heading: #ffffff;
+  --sp-muted: rgba(255, 255, 255, .62);
+  --sp-line: rgba(255, 255, 255, .1);
+  --sp-amber-deep: #fbbf24;
+  --sp-amber-soft: rgba(245, 158, 11, .12);
+  --sp-green: #4ade80;
+  --sp-green-soft: rgba(74, 222, 128, .12);
+  margin-top: 0; padding: 0 0 24px; border-radius: 0; box-shadow: none;
+  background: var(--sp-ink); color: var(--sp-text);
+}
+.sp-config { padding-bottom: 72px; }
+.sp-sheet > .sp-section:first-child { padding-top: 56px; border-top: 1px solid rgba(255,255,255,.07); }
+/* one soft glow per screen or so keeps the long dark page from feeling flat */
+.sp-sheet .sp-section { position: relative; }
+.sp-sheet #variante::before, .sp-sheet #flota::before, .sp-sheet #contact::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(700px 420px at 85% 10%, rgba(245,158,11,.07), transparent 70%);
+}
+.sp-sheet #flota::before { background: radial-gradient(700px 420px at 10% 20%, rgba(245,158,11,.07), transparent 70%); }
+.sp-sheet .sp-section > .sp-wrap { position: relative; }
+
+/* cards: a step lighter than the page, with a hairline */
+.sp-sheet .sp-card, .sp-sheet .sp-route, .sp-sheet .sp-car, .sp-sheet .sp-rate, .sp-sheet .sp-related a { border-color: rgba(255,255,255,.09); box-shadow: none; }
+.sp-sheet .sp-rate { box-shadow: 0 30px 60px -40px rgba(0,0,0,.8); }
+
+/* rate card */
+.sp-sheet .sp-table thead th { background: rgba(255,255,255,.03); }
+.sp-sheet .sp-table thead .sp-a { background: rgba(245,158,11,.1); }
+.sp-sheet .sp-table tbody .sp-a { background: rgba(245,158,11,.05); }
+.sp-sheet .sp-rate-foot { background: rgba(255,255,255,.03); }
+
+/* included / added */
+.sp-sheet .sp-checks .sp-ico { background: rgba(74,222,128,.14); color: #4ade80; }
+.sp-sheet .sp-promise span { background: rgba(74,222,128,.12); color: #4ade80; }
+
+/* routes */
+.sp-sheet .sp-route-stats { background: rgba(0,0,0,.28); border-bottom: 1px solid rgba(255,255,255,.07); }
+.sp-sheet .sp-sum { background: rgba(255,255,255,.05); }
+
+/* fleet */
+.sp-sheet .sp-car-img { background: #0e1014; }
+.sp-sheet .sp-car-specs li { background: rgba(255,255,255,.07); color: #fff; }
+.sp-sheet .sp-car--more { background: linear-gradient(135deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border-color: rgba(245,158,11,.3); }
+
+/* how it works */
+.sp-sheet .sp-how li::before { background: var(--sp-amber); color: #16130c; box-shadow: 0 0 0 6px var(--sp-ink); }
+.sp-sheet .sp-how li::after { background: repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 6px, transparent 6px 12px); }
+
+/* who + corporate */
+.sp-sheet .sp-who { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.08); }
+.sp-sheet .sp-quote { border-left-color: var(--sp-amber); }
+.sp-sheet .sp-corp { background: linear-gradient(135deg, #222831, #171a20); border: 1px solid rgba(255,255,255,.1); }
+
+/* contact */
+.sp-sheet .sp-channel { border-color: rgba(255,255,255,.12); }
+.sp-sheet .sp-channel:hover { border-color: rgba(255,255,255,.4); }
+.sp-sheet .sp-btn--dark { background: #fff; color: #14171c !important; }
+.sp-sheet .sp-btn--dark:hover { background: #e9ebef; }
+.sp-sheet .sp-callback label { color: rgba(255,255,255,.85); }
+
+/* FAQ */
+.sp-sheet .sp-faq, .sp-sheet .sp-faq details { border-color: rgba(255,255,255,.1); }
+.sp-sheet .sp-faq summary::after {
+  background: rgba(255,255,255,.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / 14px no-repeat;
+  border-color: rgba(255,255,255,.12);
+}
+.sp-sheet .sp-faq details[open] summary::after { background-color: rgba(245,158,11,.22); border-color: transparent; }
+.sp-sheet .sp-faq-a a { color: var(--sp-amber-hi); }
+
+/* facts */
+.sp-sheet .sp-tldr { background: linear-gradient(135deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border: 1px solid rgba(245,158,11,.3); }
+.sp-sheet .sp-fact strong { color: #fff; }
+
+/* final call and related links */
+.sp-sheet .sp-final-in { background: linear-gradient(135deg, #232931, #171a20); border: 1px solid rgba(255,255,255,.1); }
+.sp-sheet .sp-related a:hover { border-color: rgba(255,255,255,.4); }
+.sp-sheet .sp-meta, .sp-sheet .sp-meta a { color: rgba(255,255,255,.55) !important; }
+
+/* the footer continues the same ink; a hairline marks where it starts */
+.sp-footer { border-top: 1px solid rgba(255,255,255,.07); }
+
+@media (max-width: 600px) {
+  .sp-config { padding-bottom: 56px; }
+  .sp-sheet { margin-top: 0; border-radius: 0; }
+  .sp-sheet .sp-table tbody th { background: rgba(255,255,255,.04); }
+}
+
+/* phone widget (js/phone-input) injects light styles after this file, so these go one class louder */
+.sp-sheet .sp-callback .pr-phone { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.16); }
+.sp-sheet .sp-callback .pr-phone-pick { color: #fff; border-right-color: rgba(255,255,255,.12); }
+.sp-sheet .sp-callback .pr-phone-pick:hover { background: rgba(255,255,255,.05); }
+.sp-sheet .sp-callback .pr-phone-iso { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.sp-sheet .sp-callback .pr-phone-caret { border-color: rgba(255,255,255,.5); }
+.sp-sheet .sp-callback .pr-phone input.pr-phone-field[type="tel"] { color: #fff; }
+.sp-sheet .sp-callback .pr-phone input.pr-phone-field[type="tel"]::placeholder { color: rgba(255,255,255,.4); }
+.sp-sheet .sp-callback .pr-phone-note { color: rgba(255,255,255,.6); }
+.sp-sheet .sp-callback .pr-phone-note.is-bad { color: #f87171; }
+.sp-sheet .sp-callback .pr-phone-note.is-ok { color: #4ade80; }
+.sp-sheet .sp-callback .pr-phone-menu { background: #1b1f26; border-color: rgba(255,255,255,.12); box-shadow: 0 18px 40px rgba(0,0,0,.5); }
+.sp-sheet .sp-callback .pr-phone-search { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14); color: #fff; }
+.sp-sheet .sp-callback .pr-phone-opt { color: #fff; }
+.sp-sheet .sp-callback .pr-phone-opt:hover, .sp-sheet .sp-callback .pr-phone-opt.active { background: rgba(245,158,11,.12); }
+.sp-sheet .sp-callback .pr-phone-opt[aria-selected=true] { background: rgba(245,158,11,.22); }
+.sp-sheet .sp-callback .pr-phone-opt .d { color: rgba(255,255,255,.55); }

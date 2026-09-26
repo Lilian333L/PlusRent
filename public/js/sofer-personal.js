@@ -1,4 +1,4 @@
-/* Configurator for the personal driver pages (en, ro, ru).
+/* Configurator for the personal driver pages (en, ro, ru), version 2.
    Prices are the owner-approved ones (Sept 2026). The HTML already shows the
    default day (our car, Standard 8 h, Audi A6, 175 €), so the page reads
    correctly without this script; the script only recalculates.
@@ -14,9 +14,9 @@
   var TIER = { 8: 'Standard', 10: 'Business', 12: 'VIP' };
   var CROSSING = 25;
   var GUIDE = { 8: 90, 10: 130, 12: 150 };
-  var MAX_DAYS = 29;
+  var MAX_DAYS = 365;
   var MODEL_IMG = { a6: 12, a4: 15, lexus: 13, bmw5: 22, merc: null };
-  var PKG_MODELS = { 8: ['a6', 'a4', 'lexus'], 10: ['a6', 'lexus'], 12: ['bmw5', 'merc', 'lexus', 'a6'] };
+  var PKG_MODELS = { 8: ['a6', 'a4', 'lexus'], 10: ['a6', 'lexus'], 12: ['a6', 'bmw5', 'merc', 'lexus'] };
 
   function ruPlural(n, one, few, many) {
     var m10 = n % 10, m100 = n % 100;
@@ -27,14 +27,17 @@
 
   var I18N = {
     en: {
-      locale: 'en-US',
+      locale: 'en-US', dateLocale: 'en-GB',
+      unit: function (n) { return n === 1 ? 'day' : 'days'; },
+      when: 'Add a start date', whenOpt: 'optional', starts: 'Starts', clear: 'Remove the date', prev: 'Previous month', next: 'Next month',
+      calFoot: 'Not sure yet? Leave it empty, we agree the date in chat.', fromWord: 'from',
       hours: { 8: '8 hours', 10: '10 hours', 12: '12 hours or on demand' },
       models: { a6: 'Audi A6 2022', a4: 'Audi A4 2017', lexus: 'Lexus NX300h', bmw5: 'BMW 5 Series', merc: 'Mercedes E-Class' },
       alt: function (n) { return n + ', PlusRent chauffeur car'; },
       note: {
         8: 'Usually an Audi A6, otherwise an Audi A4 2017 or a Lexus NX300h.',
-        10: 'Audi A6 2022 or Lexus NX300h. Driver in business attire.',
-        12: 'Mercedes E, BMW 5, Lexus NX300h or Audi A6. VIP driver in a suit.'
+        10: 'Usually an Audi A6 2022, otherwise a Lexus NX300h. Driver in business attire.',
+        12: 'Usually an Audi A6 2022, or a Mercedes E, BMW 5 or Lexus NX300h. VIP driver in a suit.'
       },
       perks: {
         8: ['Professional driver (EN/RO/RU)', '8 hours of service', 'Punctuality guaranteed', 'Luggage assistance', 'You pay only for the driver, your car = your fuel'],
@@ -74,14 +77,17 @@
       }
     },
     ro: {
-      locale: 'ro-RO',
+      locale: 'ro-RO', dateLocale: 'ro-RO',
+      unit: function (n) { return n === 1 ? 'zi' : 'zile'; },
+      when: 'Adaugă data de început', whenOpt: 'opțional', starts: 'Începe', clear: 'Șterge data', prev: 'Luna anterioară', next: 'Luna următoare',
+      calFoot: 'Nu știi încă? Lasă gol, stabilim data în chat.', fromWord: 'din',
       hours: { 8: '8 ore', 10: '10 ore', 12: '12 ore sau la cerere' },
       models: { a6: 'Audi A6 2022', a4: 'Audi A4 2017', lexus: 'Lexus NX300h', bmw5: 'BMW Seria 5', merc: 'Mercedes E-Class' },
       alt: function (n) { return n + ', mașină cu șofer PlusRent'; },
       note: {
         8: 'De obicei un Audi A6, altfel un Audi A4 2017 sau un Lexus NX300h.',
-        10: 'Audi A6 2022 sau Lexus NX300h. Șofer în ținută business.',
-        12: 'Mercedes E, BMW Seria 5, Lexus NX300h sau Audi A6. Șofer VIP la costum.'
+        10: 'De obicei un Audi A6 2022, altfel un Lexus NX300h. Șofer în ținută business.',
+        12: 'De obicei un Audi A6 2022, sau Mercedes E, BMW Seria 5, Lexus NX300h. Șofer VIP la costum.'
       },
       perks: {
         8: ['Șofer profesionist (RO/RU/EN)', '8 ore de serviciu', 'Punctualitate garantată', 'Ajutor cu bagajele', 'Plătești doar șoferul, mașina ta = combustibilul tău'],
@@ -121,14 +127,17 @@
       }
     },
     ru: {
-      locale: 'ru-RU',
+      locale: 'ru-RU', dateLocale: 'ru-RU',
+      unit: function (n) { return ruPlural(n, 'день', 'дня', 'дней'); },
+      when: 'Указать дату начала', whenOpt: 'необязательно', starts: 'Начало', clear: 'Убрать дату', prev: 'Предыдущий месяц', next: 'Следующий месяц',
+      calFoot: 'Ещё не знаете? Оставьте пустым, дату согласуем в чате.', fromWord: 'с',
       hours: { 8: '8 часов', 10: '10 часов', 12: '12 часов или по запросу' },
       models: { a6: 'Audi A6 2022', a4: 'Audi A4 2017', lexus: 'Lexus NX300h', bmw5: 'BMW 5 серии', merc: 'Mercedes E-Class' },
       alt: function (n) { return n + ', машина с водителем PlusRent'; },
       note: {
         8: 'Обычно Audi A6, иначе Audi A4 2017 или Lexus NX300h.',
-        10: 'Audi A6 2022 или Lexus NX300h. Водитель в деловом стиле.',
-        12: 'Mercedes E, BMW 5 серии, Lexus NX300h или Audi A6. VIP-водитель в костюме.'
+        10: 'Обычно Audi A6 2022, иначе Lexus NX300h. Водитель в деловом стиле.',
+        12: 'Обычно Audi A6 2022, или Mercedes E, BMW 5 серии, Lexus NX300h. VIP-водитель в костюме.'
       },
       perks: {
         8: ['Профессиональный водитель (RU/RO/EN)', '8 часов работы', 'Пунктуальность гарантирована', 'Помощь с багажом', 'Платите только за водителя, ваша машина = ваше топливо'],
@@ -178,7 +187,8 @@
     perks: $('spDriverPerks'), kicker: $('spStageKicker'), name: $('spStageName'), note: $('spStageNote'),
     stagePrice: $('spStagePrice'), pick: $('spCarPick'),
     lines: $('spLines'), total: $('spTotal'), formula: $('spFormula'), notes: $('spNotes'),
-    days: $('spDays'), minus: $('spDaysMinus'), plus: $('spDaysPlus'), date: $('spDate'),
+    daysInput: $('spDaysInput'), daysUnit: $('spDaysUnit'), minus: $('spDaysMinus'), plus: $('spDaysPlus'),
+    when: $('spWhen'), whenBtn: $('spWhenBtn'), whenText: $('spWhenText'), whenClear: $('spWhenClear'), cal: $('spCal'),
     guideRow: $('spGuideRow'), guidePrice: $('spGuidePrice'), guideSub: $('spGuideSub'),
     wa: $('spWhatsApp'), tg: $('spTelegram'), foot: $('spTicketFoot'),
     bar: $('spBar'), barTotal: $('spBarTotal'), barLabel: $('spBarLabel'), barWa: $('spBarWa')
@@ -211,12 +221,12 @@
     var c = form.querySelector('input[name="' + name + '"]:checked');
     return c ? c.value : null;
   }
-  function discountFor(d) { return d >= 10 ? 15 : d >= 5 ? 10 : 0; }
+  function discountFor(d) { return d >= 30 ? 20 : d >= 10 ? 15 : d >= 5 ? 10 : 0; }
   function check(name, value) {
     var i = form.querySelector('input[name="' + name + '"][value="' + value + '"]');
     if (i) i.checked = true;
   }
-  function modelName(s) { return M[s.model] + (s.hours === 8 && s.model === 'a6' ? ' (' + T.usually + ')' : ''); }
+  function modelName(s) { return M[s.model] + (s.model === 'a6' ? ' (' + T.usually + ')' : ''); }
 
   function state() {
     return {
@@ -236,7 +246,7 @@
     var html = '<span class="sp-carpick-label">' + T.pickLabel + '</span>';
     list.forEach(function (m) {
       html += '<label><input type="radio" name="model" value="' + m + '"' + (m === chosen ? ' checked' : '') + '><span>' +
-        M[m] + (hours === 8 && m === 'a6' ? ' <em>' + T.usually + '</em>' : '') + '</span></label>';
+        M[m] + (m === 'a6' ? ' <em>' + T.usually + '</em>' : '') + '</span></label>';
     });
     html += '<span class="sp-carpick-more">' + T.more + '</span>';
     el.pick.innerHTML = html;
@@ -360,11 +370,110 @@
     form.querySelectorAll('[data-mode]').forEach(function (n) { n.hidden = n.getAttribute('data-mode') !== s.car; });
     el.guidePrice.textContent = '+' + eur(GUIDE[s.hours]);
     el.guideSub.textContent = T.guideSub(s.hours);
-    el.days.textContent = T.day(s.days);
+    if (document.activeElement !== el.daysInput) el.daysInput.value = s.days;
+    el.daysUnit.textContent = T.unit(s.days);
     el.minus.disabled = s.days <= 1;
     el.plus.disabled = s.days >= MAX_DAYS;
     var pct = discountFor(s.days);
-    form.querySelectorAll('[data-disc]').forEach(function (n) { n.classList.toggle('is-on', parseInt(n.getAttribute('data-disc'), 10) === pct); });
+    form.querySelectorAll('[data-days]').forEach(function (n) { n.classList.toggle('is-on', parseInt(n.getAttribute('data-days'), 10) === s.days); });
+  }
+
+  /* ── start date: an optional chip that opens a small calendar in the page language.
+     Month and weekday names come from Intl, weeks start on Monday, past days are off. ── */
+  var startDate = null;
+  var viewY, viewM;
+  function today0() { var d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function cap(x) { return x.charAt(0).toUpperCase() + x.slice(1); }
+  function fmtDate(d) { return new Intl.DateTimeFormat(T.dateLocale, { weekday: 'short', day: 'numeric', month: 'long' }).format(d); }
+  function sameDay(a, b) { return !!(a && b) && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function renderWhen() {
+    el.when.classList.toggle('has-date', !!startDate);
+    el.whenText.textContent = startDate ? T.starts + ': ' + fmtDate(startDate) : T.when;
+  }
+  function renderCal(focusDay) {
+    var t = today0();
+    var first = new Date(viewY, viewM, 1);
+    var atStart = viewY === t.getFullYear() && viewM === t.getMonth();
+    var title = cap(new Intl.DateTimeFormat(T.dateLocale, { month: 'long', year: 'numeric' }).format(first)).replace(/\s*г\.$/, '');
+    var wdFmt = new Intl.DateTimeFormat(T.dateLocale, { weekday: 'short' });
+    var longFmt = new Intl.DateTimeFormat(T.dateLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    var html = '<div class="sp-cal-head">' +
+      '<button type="button" class="sp-cal-nav is-prev" data-nav="-1" aria-label="' + T.prev + '"' + (atStart ? ' disabled' : '') + '><svg class="sp-ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>' +
+      '<span class="sp-cal-title" aria-live="polite">' + title + '</span>' +
+      '<button type="button" class="sp-cal-nav" data-nav="1" aria-label="' + T.next + '"><svg class="sp-ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>' +
+      '</div><div class="sp-cal-grid">';
+    for (var i = 0; i < 7; i++) {
+      html += '<span class="sp-cal-wd" aria-hidden="true">' + cap(wdFmt.format(new Date(2024, 0, 1 + i))).replace('.', '') + '</span>';   // 1 Jan 2024 was a Monday
+    }
+    var lead = (first.getDay() + 6) % 7;
+    for (var k = 0; k < lead; k++) html += '<span></span>';
+    var dim = new Date(viewY, viewM + 1, 0).getDate();
+    for (var d = 1; d <= dim; d++) {
+      var dt = new Date(viewY, viewM, d);
+      var sel = sameDay(dt, startDate);
+      html += '<button type="button" tabindex="-1" class="sp-cal-day' + (sameDay(dt, t) ? ' is-today' : '') + (sel ? ' is-sel' : '') +
+        '" data-day="' + d + '"' + (dt < t ? ' disabled' : '') + (sel ? ' aria-pressed="true"' : '') +
+        ' aria-label="' + longFmt.format(dt) + '">' + d + '</button>';
+    }
+    html += '</div><p class="sp-cal-foot">' + T.calFoot + '</p>';
+    el.cal.innerHTML = html;
+    var want = focusDay || (startDate && startDate.getMonth() === viewM && startDate.getFullYear() === viewY ? startDate.getDate() : (atStart ? t.getDate() : 1));
+    var target = el.cal.querySelector('[data-day="' + want + '"]');
+    if (!target || target.disabled) target = el.cal.querySelector('.sp-cal-day:not(:disabled)');
+    if (target) target.tabIndex = 0;
+    return target;
+  }
+  function openCal() {
+    var base = startDate || today0();
+    viewY = base.getFullYear(); viewM = base.getMonth();
+    el.cal.hidden = false;
+    el.whenBtn.setAttribute('aria-expanded', 'true');
+    var target = renderCal();
+    if (target) target.focus({ preventScroll: true });
+  }
+  function closeCal(back) {
+    el.cal.hidden = true;
+    el.whenBtn.setAttribute('aria-expanded', 'false');
+    if (back) el.whenBtn.focus({ preventScroll: true });
+  }
+  function initCalendar() {
+    if (!el.when) return;
+    renderWhen();
+    el.whenBtn.addEventListener('click', function () { if (el.cal.hidden) openCal(); else closeCal(false); });
+    el.whenClear.addEventListener('click', function () { startDate = null; renderWhen(); update(); el.whenBtn.focus(); });
+    el.cal.addEventListener('click', function (e) {
+      e.stopPropagation();   // the calendar re-renders, so the clicked node may be gone before the outside-click check
+      var nav = e.target.closest('[data-nav]');
+      if (nav) {
+        if (nav.disabled) return;
+        viewM += parseInt(nav.getAttribute('data-nav'), 10);
+        if (viewM < 0) { viewM = 11; viewY--; }
+        if (viewM > 11) { viewM = 0; viewY++; }
+        renderCal();
+        return;
+      }
+      var day = e.target.closest('[data-day]');
+      if (day && !day.disabled) {
+        startDate = new Date(viewY, viewM, parseInt(day.getAttribute('data-day'), 10));
+        renderWhen(); update(); closeCal(true);
+      }
+    });
+    el.cal.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeCal(true); return; }
+      var cur = document.activeElement;
+      if (!cur || !cur.hasAttribute('data-day')) return;
+      var step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      var dt = new Date(viewY, viewM, parseInt(cur.getAttribute('data-day'), 10) + step);
+      if (dt < today0()) return;
+      viewY = dt.getFullYear(); viewM = dt.getMonth();
+      var target = renderCal(dt.getDate());
+      if (target) target.focus();
+    });
+    document.addEventListener('click', function (e) {
+      if (!el.cal.hidden && !el.when.contains(e.target)) closeCal(false);
+    });
   }
 
   var lastText = '';
@@ -377,7 +486,7 @@
     renderNotes(s);
     tweenTotal(r.total);
     el.formula.textContent = formula(s, r);
-    lastText = T.msg(s, M[s.model], T.route[s.route].name, eur(r.total), el.date.value);
+    lastText = T.msg(s, M[s.model], T.route[s.route].name, eur(r.total), startDate ? fmtDate(startDate) : '');
     var href = 'https://wa.me/37360000500?text=' + encodeURIComponent(lastText);
     el.wa.href = href;
     el.barWa.href = href;
@@ -393,6 +502,21 @@
   form.addEventListener('submit', function (e) { e.preventDefault(); });
   el.minus.addEventListener('click', function () { if (days > 1) { days--; update(); } });
   el.plus.addEventListener('click', function () { if (days < MAX_DAYS) { days++; update(); } });
+  function setDays(n) { days = Math.max(1, Math.min(MAX_DAYS, n || 1)); update(); }
+  el.daysInput.addEventListener('input', function () {
+    var v = el.daysInput.value.replace(/[^0-9]/g, '').slice(0, 3);
+    if (el.daysInput.value !== v) el.daysInput.value = v;
+    if (v) setDays(parseInt(v, 10));
+  });
+  el.daysInput.addEventListener('blur', function () { el.daysInput.value = days; });
+  el.daysInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); el.daysInput.blur(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); setDays(days + 1); el.daysInput.value = days; }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setDays(days - 1); el.daysInput.value = days; }
+  });
+  form.querySelectorAll('[data-days]').forEach(function (b) {
+    b.addEventListener('click', function () { setDays(parseInt(b.getAttribute('data-days'), 10)); });
+  });
 
   /* ── shortcuts from the rest of the page ── */
   function pickModel(model) {
@@ -448,6 +572,6 @@
     if (mq.addEventListener) mq.addEventListener('change', set);
   }
 
-  el.date.min = new Date().toISOString().slice(0, 10);
+  initCalendar();
   update();
 })();
