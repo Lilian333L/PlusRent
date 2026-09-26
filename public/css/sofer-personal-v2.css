@@ -773,3 +773,116 @@ body:has(.sp-page) #topbar { background: transparent !important; border-bottom: 
 .sp-footer nav a { color: rgba(255,255,255,.78) !important; }
 .sp-footer nav a:hover { color: #fff !important; }
 body:has(.sp-page) header.menu-open { background: #14171c !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ══════════════════════════════════════════════════════
+   V2 DARK: the whole page stays on the ink, no dark-to-light edge.
+   The lower part keeps its markup; its colour tokens turn dark here.
+   ══════════════════════════════════════════════════════ */
+.sp-sheet {
+  --sp-paper: #14171c;
+  --sp-white: #1b1f26;
+  --sp-text: rgba(255, 255, 255, .8);
+  --sp-heading: #ffffff;
+  --sp-muted: rgba(255, 255, 255, .62);
+  --sp-line: rgba(255, 255, 255, .1);
+  --sp-amber-deep: #fbbf24;
+  --sp-amber-soft: rgba(245, 158, 11, .12);
+  --sp-green: #4ade80;
+  --sp-green-soft: rgba(74, 222, 128, .12);
+  margin-top: 0; padding: 0 0 24px; border-radius: 0; box-shadow: none;
+  background: var(--sp-ink); color: var(--sp-text);
+}
+.sp-config { padding-bottom: 72px; }
+.sp-sheet > .sp-section:first-child { padding-top: 56px; border-top: 1px solid rgba(255,255,255,.07); }
+/* one soft glow per screen or so keeps the long dark page from feeling flat */
+.sp-sheet .sp-section { position: relative; }
+.sp-sheet #variante::before, .sp-sheet #flota::before, .sp-sheet #contact::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(700px 420px at 85% 10%, rgba(245,158,11,.07), transparent 70%);
+}
+.sp-sheet #flota::before { background: radial-gradient(700px 420px at 10% 20%, rgba(245,158,11,.07), transparent 70%); }
+.sp-sheet .sp-section > .sp-wrap { position: relative; }
+
+/* cards: a step lighter than the page, with a hairline */
+.sp-sheet .sp-card, .sp-sheet .sp-route, .sp-sheet .sp-car, .sp-sheet .sp-rate, .sp-sheet .sp-related a { border-color: rgba(255,255,255,.09); box-shadow: none; }
+.sp-sheet .sp-rate { box-shadow: 0 30px 60px -40px rgba(0,0,0,.8); }
+
+/* rate card */
+.sp-sheet .sp-table thead th { background: rgba(255,255,255,.03); }
+.sp-sheet .sp-table thead .sp-a { background: rgba(245,158,11,.1); }
+.sp-sheet .sp-table tbody .sp-a { background: rgba(245,158,11,.05); }
+.sp-sheet .sp-rate-foot { background: rgba(255,255,255,.03); }
+
+/* included / added */
+.sp-sheet .sp-checks .sp-ico { background: rgba(74,222,128,.14); color: #4ade80; }
+.sp-sheet .sp-promise span { background: rgba(74,222,128,.12); color: #4ade80; }
+
+/* routes */
+.sp-sheet .sp-route-stats { background: rgba(0,0,0,.28); border-bottom: 1px solid rgba(255,255,255,.07); }
+.sp-sheet .sp-sum { background: rgba(255,255,255,.05); }
+
+/* fleet */
+.sp-sheet .sp-car-img { background: #0e1014; }
+.sp-sheet .sp-car-specs li { background: rgba(255,255,255,.07); color: #fff; }
+.sp-sheet .sp-car--more { background: linear-gradient(135deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border-color: rgba(245,158,11,.3); }
+
+/* how it works */
+.sp-sheet .sp-how li::before { background: var(--sp-amber); color: #16130c; box-shadow: 0 0 0 6px var(--sp-ink); }
+.sp-sheet .sp-how li::after { background: repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 6px, transparent 6px 12px); }
+
+/* who + corporate */
+.sp-sheet .sp-who { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.08); }
+.sp-sheet .sp-quote { border-left-color: var(--sp-amber); }
+.sp-sheet .sp-corp { background: linear-gradient(135deg, #222831, #171a20); border: 1px solid rgba(255,255,255,.1); }
+
+/* contact */
+.sp-sheet .sp-channel { border-color: rgba(255,255,255,.12); }
+.sp-sheet .sp-channel:hover { border-color: rgba(255,255,255,.4); }
+.sp-sheet .sp-btn--dark { background: #fff; color: #14171c !important; }
+.sp-sheet .sp-btn--dark:hover { background: #e9ebef; }
+.sp-sheet .sp-callback label { color: rgba(255,255,255,.85); }
+
+/* FAQ */
+.sp-sheet .sp-faq, .sp-sheet .sp-faq details { border-color: rgba(255,255,255,.1); }
+.sp-sheet .sp-faq summary::after {
+  background: rgba(255,255,255,.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / 14px no-repeat;
+  border-color: rgba(255,255,255,.12);
+}
+.sp-sheet .sp-faq details[open] summary::after { background-color: rgba(245,158,11,.22); border-color: transparent; }
+.sp-sheet .sp-faq-a a { color: var(--sp-amber-hi); }
+
+/* facts */
+.sp-sheet .sp-tldr { background: linear-gradient(135deg, rgba(245,158,11,.14), rgba(245,158,11,.04)); border: 1px solid rgba(245,158,11,.3); }
+.sp-sheet .sp-fact strong { color: #fff; }
+
+/* final call and related links */
+.sp-sheet .sp-final-in { background: linear-gradient(135deg, #232931, #171a20); border: 1px solid rgba(255,255,255,.1); }
+.sp-sheet .sp-related a:hover { border-color: rgba(255,255,255,.4); }
+.sp-sheet .sp-meta, .sp-sheet .sp-meta a { color: rgba(255,255,255,.55) !important; }
+
+/* the footer continues the same ink; a hairline marks where it starts */
+.sp-footer { border-top: 1px solid rgba(255,255,255,.07); }
+
+@media (max-width: 600px) {
+  .sp-config { padding-bottom: 56px; }
+  .sp-sheet { margin-top: 0; border-radius: 0; }
+  .sp-sheet .sp-table tbody th { background: rgba(255,255,255,.04); }
+}
+
+/* phone widget (js/phone-input) injects light styles after this file, so these go one class louder */
+.sp-sheet .sp-callback .pr-phone { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.16); }
+.sp-sheet .sp-callback .pr-phone-pick { color: #fff; border-right-color: rgba(255,255,255,.12); }
+.sp-sheet .sp-callback .pr-phone-pick:hover { background: rgba(255,255,255,.05); }
+.sp-sheet .sp-callback .pr-phone-iso { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); }
+.sp-sheet .sp-callback .pr-phone-caret { border-color: rgba(255,255,255,.5); }
+.sp-sheet .sp-callback .pr-phone input.pr-phone-field[type="tel"] { color: #fff; }
+.sp-sheet .sp-callback .pr-phone input.pr-phone-field[type="tel"]::placeholder { color: rgba(255,255,255,.4); }
+.sp-sheet .sp-callback .pr-phone-note { color: rgba(255,255,255,.6); }
+.sp-sheet .sp-callback .pr-phone-note.is-bad { color: #f87171; }
+.sp-sheet .sp-callback .pr-phone-note.is-ok { color: #4ade80; }
+.sp-sheet .sp-callback .pr-phone-menu { background: #1b1f26; border-color: rgba(255,255,255,.12); box-shadow: 0 18px 40px rgba(0,0,0,.5); }
+.sp-sheet .sp-callback .pr-phone-search { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14); color: #fff; }
+.sp-sheet .sp-callback .pr-phone-opt { color: #fff; }
+.sp-sheet .sp-callback .pr-phone-opt:hover, .sp-sheet .sp-callback .pr-phone-opt.active { background: rgba(245,158,11,.12); }
+.sp-sheet .sp-callback .pr-phone-opt[aria-selected=true] { background: rgba(245,158,11,.22); }
+.sp-sheet .sp-callback .pr-phone-opt .d { color: rgba(255,255,255,.55); }
