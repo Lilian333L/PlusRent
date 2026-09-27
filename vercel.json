@@ -149,6 +149,10 @@
   ],
   "rewrites": [
     {
+      "source": "/test/:lang(ro|ru|en)/:page(transfer-chisinau|transfer-iasi)",
+      "destination": "/test/:lang/:page.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
     },
@@ -366,6 +370,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/test/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
