@@ -16,7 +16,7 @@
   var rowsById = {};
   D.rows.forEach(function (r) { rowsById[r.id] = r; });
 
-  var state = { dir: D.dirs[0].id, cls: 'business', dest: D.rows[0].id, pax: 2, rt: false, date: null, time: '', flight: '', other: '' };
+  var state = { dir: D.dirs[0].id, cls: 'business', dest: D.rows[0].id, pax: 2, rt: false, seat: false, date: null, time: '', flight: '', other: '' };
 
   function fmtEur(n) { return (D.lang === 'en' ? '€' + n : n + ' €'); }
   function fmtNum(n) { return n.toLocaleString(D.locale); }
@@ -107,6 +107,7 @@
     if (t.name === 'hub') { syncHub(); update(); }
     if (t.name === 'cls') { state.cls = t.value; paintBoardPrices(); update(); }
     if (t.name === 'rt') { state.rt = t.checked; update(); }
+    if (t.name === 'seat') { state.seat = t.checked; update(false); }
   });
 
   /* ── passengers ───────────────────────────────────── */
@@ -332,6 +333,7 @@
     lines.push(T.waClass + ': ' + c.name + ' (' + c.car + ')');
     lines.push(T.waPax + ': ' + state.pax);
     if (state.rt) lines.push(T.roundTrip);
+    if (state.seat) lines.push(T.waSeat);
     if (state.date || state.time) lines.push(T.waWhen + ': ' + whenText());
     if (state.flight && flightApplies()) lines.push(T.waFlight + ': ' + state.flight);
     lines.push(T.waPrice + ': ' + (pr ? fmtEur(pr.total) : T.onRequest));
