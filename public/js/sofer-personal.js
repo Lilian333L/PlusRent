@@ -566,7 +566,9 @@
       document.body.classList.toggle('sp-bar-visible', on);
     };
     var watch = function (node, fn, opts) { if (node) new IntersectionObserver(function (en) { fn(en[0].isIntersecting); set(); }, opts).observe(node); };
-    watch(document.querySelector('.sp-hero-ctas'), function (v) { inHero = v; });
+    // the whole hero, not only its buttons: on a phone the buttons start below the fold,
+    // which showed the bar on load and shifted the floating buttons (CLS)
+    watch(document.querySelector('.sp-hero'), function (v) { inHero = v; });
     watch($('spReceipt'), function (v) { inTicket = v; }, { threshold: 0.2 });
     watch(document.querySelector('.sp-final'), function (v) { inFinal = v; });
     if (mq.addEventListener) mq.addEventListener('change', set);
