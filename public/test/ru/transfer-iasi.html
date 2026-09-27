@@ -42,7 +42,6 @@
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
           <link rel="stylesheet" href="/css/critical-transfer-ru.css?v=b155c386">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
-<link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531" media="print" data-deferred-css>
 <script>
 /* Pre-init language detection — runs before defer scripts (universal-include.js etc.)
    so they read the correct language from storage on first load. */
@@ -1085,9 +1084,8 @@
     <link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531">
   </noscript>
 
-  <link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46"></noscript>
-  <link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed"></noscript>
-  <link rel="stylesheet" href="/css/transfer.min.css?v=94d4fef4" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/transfer.min.css?v=94d4fef4"></noscript>
+<noscript id="lateCss"><link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531"><link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46"><link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed"><link rel="stylesheet" href="/css/transfer.min.css?v=e7ce5432"></noscript>
+<script src="/js/late-css.min.js?v=34dafd26" async></script>
 </head>
 <body>
 
@@ -1278,19 +1276,11 @@
           <label><input type="radio" name="dir" value="from-iasi"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-swap"/></svg>Яссы → Кишинёв</span></label>
         </div>
 
-        <div class="tr-hub-wrap">
-          <p class="tr-mini-label" id="trHubL">Где в Яссах</p>
-          <div class="sp-mode tr-hub" id="trHub" role="radiogroup" aria-labelledby="trHubL">
-            <span class="sp-mode-thumb" aria-hidden="true"></span>
-            <label><input type="radio" name="hub" value="IAS" data-code="IAS" data-name="Аэропорт Ясс (IAS)" data-flight="1" checked><span><svg class="sp-ico" aria-hidden="true"><use href="#i-plane"/></svg>Аэропорт IAS</span></label>
-            <label><input type="radio" name="hub" value="ЯССЫ" data-code="ЯССЫ" data-name="Яссы: вокзал, отель или адрес" data-flight="0"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-pin"/></svg>Город Яссы</span></label>
-          </div>
-        </div>
-        <div class="tr-board-wrap">
+        <div class="tr-board-wrap" id="trBoardWrap">
           <div id="trBoard">
             <div class="tr-board-top">
-              <p class="tr-board-title"><svg class="sp-ico" aria-hidden="true"><use href="#i-board"/></svg><span id="trBoardTitle" data-t0="Откуда едем в Молдове" data-t1="Куда едем в Молдове">Откуда едем в Молдове</span></p>
-              <div class="tr-groups" role="group" aria-label="Откуда едем в Молдове"><button type="button" class="tr-group is-on" data-group="chisinau" aria-pressed="true">Кишинёв</button><button type="button" class="tr-group" data-group="moldova" aria-pressed="false">Другие города</button><button type="button" class="tr-group" data-group="wine" aria-pressed="false">Винодельни</button></div>
+              <p class="tr-board-title"><svg class="sp-ico" aria-hidden="true"><use href="#i-board"/></svg><span id="trBoardTitle" data-t0="Откуда едете в Молдове" data-t1="Куда едете в Молдове">Откуда едете в Молдове</span></p>
+              <div class="tr-groups" role="group" aria-label="Откуда едете в Молдове"><button type="button" class="tr-group is-on" data-group="chisinau" aria-pressed="true">Кишинёв</button><button type="button" class="tr-group" data-group="moldova" aria-pressed="false">Другие города</button><button type="button" class="tr-group" data-group="wine" aria-pressed="false">Винодельни</button></div>
             </div>
             
             <div class="tr-board-head" aria-hidden="true"><span>Город</span><span>Расстояние</span><span>Время</span><span>Цена</span></div>
@@ -1340,6 +1330,15 @@
           <div class="tr-other">
             <label for="trOther">Адрес или населённый пункт</label>
             <input class="tr-input" type="text" id="trOther" autocomplete="street-address" placeholder="напр. Унгены, Орхей или ул. Измаил 1, Кишинёв">
+          </div>
+        </div>
+
+        <div class="tr-hub-wrap" id="trHubWrap">
+          <p class="tr-mini-label" id="trHubL" data-t0="Куда в Яссах" data-t1="Откуда забрать в Яссах">Куда в Яссах</p>
+          <div class="sp-mode tr-hub" id="trHub" role="radiogroup" aria-labelledby="trHubL">
+            <span class="sp-mode-thumb" aria-hidden="true"></span>
+            <label><input type="radio" name="hub" value="IAS" data-code="IAS" data-name="Аэропорт Ясс (IAS)" data-flight="1" checked><span><svg class="sp-ico" aria-hidden="true"><use href="#i-plane"/></svg>Аэропорт IAS</span></label>
+            <label><input type="radio" name="hub" value="ЯССЫ" data-code="ЯССЫ" data-name="Яссы, любой адрес" data-flight="0"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-pin"/></svg>Яссы, любой адрес</span></label>
           </div>
         </div>
 
@@ -1420,7 +1419,7 @@
           <label class="sp-toggle" id="trRtRow">
             <input type="checkbox" name="rt" value="1">
             <span class="sp-switch" aria-hidden="true"></span>
-            <span class="sp-toggle-text"><strong>Туда и обратно с ожиданием 4-8 ч</strong><span>Ждём в Яссах и привозим обратно в тот же день</span></span>
+            <span class="sp-toggle-text"><strong>Туда и обратно с ожиданием 4-8 ч</strong><span id="trRtSub" data-t0="Водитель ждёт 4-8 часов и привозит обратно в тот же день" data-t1="Водитель ждёт 4-8 часов и привозит обратно в тот же день">Водитель ждёт 4-8 часов и привозит обратно в тот же день</span></span>
             <span class="sp-toggle-price" id="trRtPrice">390 €</span>
           </label>
         </fieldset>
@@ -1797,7 +1796,7 @@ window.addEventListener('load', function(){
   });
 });
 </script>
-<script src="/js/burger-menu-fix.min.js?v=2a151aaf" defer></script>
+<script src="/js/burger-menu-fix.min.js?v=a44e84c1" defer></script>
 <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
 <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
 <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
@@ -1974,6 +1973,6 @@ window.addEventListener('load', function(){
   });
 });
 </script>
-<script src="/js/transfer.min.js?v=5e7c4d27" defer></script>
+<script src="/js/transfer.min.js?v=17bb6a95" defer></script>
 </body>
 </html>

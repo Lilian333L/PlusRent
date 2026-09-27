@@ -395,9 +395,11 @@
     teardownKeyboardHandlers();
     unlockScroll();
     // Restore focus to opener (e.g. burger button)
-    if (state.lastFocus && typeof state.lastFocus.focus === 'function') {
+    // keep the opener in a local: state.lastFocus is cleared below, before the frame runs
+    const opener = state.lastFocus;
+    if (opener && typeof opener.focus === 'function') {
       requestAnimationFrame(() => {
-        try { state.lastFocus.focus({ preventScroll: true }); } catch (e) { state.lastFocus.focus(); }
+        try { opener.focus({ preventScroll: true }); } catch (e) { opener.focus(); }
       });
     }
     state.activeModal = null;

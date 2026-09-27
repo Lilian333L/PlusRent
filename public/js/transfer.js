@@ -89,10 +89,21 @@
   if (otherInput) otherInput.addEventListener('input', function () { state.other = this.value.trim(); update(false); });
 
   /* ── direction, Iasi end, class, round trip ───────── */
+  /* every label follows the direction, and the Iasi end sits where it belongs in the
+     trip: after the Moldovan start when going to Iasi, before the Moldovan end when
+     coming from Iasi */
   function syncDir() {
-    $('trDir').classList.toggle('is-your', dirIndex() === 1);
-    var t = $('trBoardTitle');
-    if (t) t.textContent = t.dataset['t' + dirIndex()];
+    var i = dirIndex();
+    $('trDir').classList.toggle('is-your', i === 1);
+    ['trBoardTitle', 'trHubL', 'trRtSub'].forEach(function (id) {
+      var el = $(id); if (el && el.dataset['t' + i]) el.textContent = el.dataset['t' + i];
+    });
+    var hub = $('trHubWrap'), boardWrap = $('trBoardWrap');
+    if (hub && boardWrap) {
+      var hubFirst = D.dirs[i].hubFirst;
+      if (hubFirst && hub.nextElementSibling !== boardWrap) boardWrap.parentNode.insertBefore(hub, boardWrap);
+      if (!hubFirst && boardWrap.nextElementSibling !== hub) boardWrap.parentNode.insertBefore(hub, boardWrap.nextElementSibling);
+    }
   }
   function syncHub() {
     var hub = $('trHub'), h = hubInput();

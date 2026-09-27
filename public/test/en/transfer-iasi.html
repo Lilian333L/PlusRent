@@ -45,7 +45,6 @@
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
           <link rel="stylesheet" href="/css/critical-transfer.css?v=20ec6396">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
-<link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531" media="print" data-deferred-css>
 
 <script>
 /* Pre-init language detection — runs before defer scripts (universal-include.js etc.)
@@ -1089,9 +1088,8 @@
     <link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531">
   </noscript>
 
-  <link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46"></noscript>
-  <link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed"></noscript>
-  <link rel="stylesheet" href="/css/transfer.min.css?v=94d4fef4" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/transfer.min.css?v=94d4fef4"></noscript>
+<noscript id="lateCss"><link rel="stylesheet" href="/css/modal-ux.min.css?v=43e79531"><link rel="stylesheet" href="/css/sp-template.min.css?v=2cadbb46"><link rel="stylesheet" href="/css/sofer-personal.min.css?v=2e59dfed"><link rel="stylesheet" href="/css/transfer.min.css?v=e7ce5432"></noscript>
+<script src="/js/late-css.min.js?v=34dafd26" async></script>
 </head>
 <body>
 
@@ -1281,15 +1279,7 @@
           <label><input type="radio" name="dir" value="from-iasi"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-swap"/></svg>Iași → Chișinău</span></label>
         </div>
 
-        <div class="tr-hub-wrap">
-          <p class="tr-mini-label" id="trHubL">Where in Iași</p>
-          <div class="sp-mode tr-hub" id="trHub" role="radiogroup" aria-labelledby="trHubL">
-            <span class="sp-mode-thumb" aria-hidden="true"></span>
-            <label><input type="radio" name="hub" value="IAS" data-code="IAS" data-name="Iasi Airport (IAS)" data-flight="1" checked><span><svg class="sp-ico" aria-hidden="true"><use href="#i-plane"/></svg>IAS airport</span></label>
-            <label><input type="radio" name="hub" value="IAȘI" data-code="IAȘI" data-name="Iași: station, hotel or address" data-flight="0"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-pin"/></svg>Iași city</span></label>
-          </div>
-        </div>
-        <div class="tr-board-wrap">
+        <div class="tr-board-wrap" id="trBoardWrap">
           <div id="trBoard">
             <div class="tr-board-top">
               <p class="tr-board-title"><svg class="sp-ico" aria-hidden="true"><use href="#i-board"/></svg><span id="trBoardTitle" data-t0="Where you leave from in Moldova" data-t1="Where you go in Moldova">Where you leave from in Moldova</span></p>
@@ -1343,6 +1333,15 @@
           <div class="tr-other">
             <label for="trOther">Address or town</label>
             <input class="tr-input" type="text" id="trOther" autocomplete="street-address" placeholder="e.g. Ungheni, Orhei or 1 Ismail St, Chișinău">
+          </div>
+        </div>
+
+        <div class="tr-hub-wrap" id="trHubWrap">
+          <p class="tr-mini-label" id="trHubL" data-t0="Where to in Iași" data-t1="Pick-up point in Iași">Where to in Iași</p>
+          <div class="sp-mode tr-hub" id="trHub" role="radiogroup" aria-labelledby="trHubL">
+            <span class="sp-mode-thumb" aria-hidden="true"></span>
+            <label><input type="radio" name="hub" value="IAS" data-code="IAS" data-name="Iasi Airport (IAS)" data-flight="1" checked><span><svg class="sp-ico" aria-hidden="true"><use href="#i-plane"/></svg>IAS airport</span></label>
+            <label><input type="radio" name="hub" value="IAȘI" data-code="IAȘI" data-name="Iași, any address" data-flight="0"><span><svg class="sp-ico" aria-hidden="true"><use href="#i-pin"/></svg>Iași, any address</span></label>
           </div>
         </div>
 
@@ -1423,7 +1422,7 @@
           <label class="sp-toggle" id="trRtRow">
             <input type="checkbox" name="rt" value="1">
             <span class="sp-switch" aria-hidden="true"></span>
-            <span class="sp-toggle-text"><strong>Round trip with 4-8 h waiting</strong><span>We wait in Iași and bring you back the same day</span></span>
+            <span class="sp-toggle-text"><strong>Round trip with 4-8 h waiting</strong><span id="trRtSub" data-t0="The driver waits 4-8 hours and brings you back the same day" data-t1="The driver waits 4-8 hours and brings you back the same day">The driver waits 4-8 hours and brings you back the same day</span></span>
             <span class="sp-toggle-price" id="trRtPrice">€390</span>
           </label>
         </fieldset>
@@ -1800,7 +1799,7 @@ window.addEventListener('load', function(){
   });
 });
 </script>
-<script src="/js/burger-menu-fix.min.js?v=2a151aaf" defer></script>
+<script src="/js/burger-menu-fix.min.js?v=a44e84c1" defer></script>
 <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
 <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
 <script src="/js/i18n-init.min.js?v=d609046c" defer></script>
@@ -1978,6 +1977,6 @@ window.addEventListener('load', function(){
   });
 });
 </script>
-<script src="/js/transfer.min.js?v=5e7c4d27" defer></script>
+<script src="/js/transfer.min.js?v=17bb6a95" defer></script>
 </body>
 </html>
