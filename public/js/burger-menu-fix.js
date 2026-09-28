@@ -588,13 +588,24 @@
     });
   }
 
+  /* Popups count as open only when a script has shown them: every opener sets an
+   * inline display (or the managed 'open' class). The computed display is not a
+   * safe test. The rule that hides a popup lives in a deferred stylesheet, and when
+   * a page loads from cache the template writes to the popup's style attribute
+   * before that sheet applies. The popup then read as open, the page was locked and
+   * made inert, and nothing ever unlocked it: no scrolling, no taps. */
+  function shownByScript(el) {
+    const d = el.style.display;
+    return (!!d && d !== 'none') || el.classList.contains('open');
+  }
+
   /* ────────────── CONTACT POPUP ────────────── */
 
   const contactPopup = document.getElementById('contactPopup');
   if (contactPopup) {
     registerModal({
       element:    contactPopup,
-      isOpen:     () => window.getComputedStyle(contactPopup).display !== 'none',
+      isOpen:     () => shownByScript(contactPopup),
       onClose:    () => { contactPopup.style.display = 'none'; },
       attrFilter: ['style', 'class'],
     });
@@ -606,7 +617,7 @@
   if (priceModal) {
     registerModal({
       element:    priceModal,
-      isOpen:     () => window.getComputedStyle(priceModal).display !== 'none',
+      isOpen:     () => shownByScript(priceModal),
       /* Route ESC close through window.closePriceCalculator() so the full
        * body-lock cleanup runs (otherwise body stays position:fixed). */
       onClose:    () => {
