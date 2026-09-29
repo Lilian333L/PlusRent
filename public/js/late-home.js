@@ -64,6 +64,33 @@
     });
   }
 
-  if (document.readyState === 'complete') start();
-  else window.addEventListener('load', start);
+  // After the load event and the first contentful paint (PageSpeed's slow test
+  // phones paint late, and every request started before that paint counts),
+  // 3 s after load at most.
+  function afterPaint() {
+    var done = false;
+    function go() {
+      if (done) return;
+      done = true;
+      setTimeout(start, 0);
+    }
+    setTimeout(go, 3000);
+    try {
+      if (performance.getEntriesByName('first-contentful-paint').length) return go();
+      var types = window.PerformanceObserver && PerformanceObserver.supportedEntryTypes;
+      if (!types || types.indexOf('paint') < 0) throw 0;
+      var po = new PerformanceObserver(function (list) {
+        if (list.getEntriesByName('first-contentful-paint').length) {
+          po.disconnect();
+          go();
+        }
+      });
+      po.observe({ type: 'paint', buffered: true });
+    } catch (e) {
+      go();
+    }
+  }
+
+  if (document.readyState === 'complete') afterPaint();
+  else window.addEventListener('load', afterPaint);
 })();
