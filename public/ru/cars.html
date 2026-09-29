@@ -115,7 +115,7 @@
 
   <!-- CSS -->
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
-          <link rel="stylesheet" href="/css/critical-cars.css?v=d8e13644">
+          <link rel="stylesheet" href="/css/critical-cars.css?v=89359a51">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
 <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap" media="print" data-deferred-css>
   <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb" media="print" data-deferred-css>
@@ -1972,8 +1972,8 @@
           <div class="mobile-filter-overlay" id="mobile-filter-overlay">
             <div class="mobile-filter-sidebar">
               <div class="mobile-filter-header">
-                <h2 data-i18n="cars.filter_cars">Фильтр автомобилей</h2>
-                <button class="mobile-filter-close" onclick="toggleMobileFilter()"><i class="fa fa-times"></i></button>
+                <h2 data-i18n="cars.filters">Фильтры</h2>
+                <button type="button" class="mobile-filter-close" onclick="toggleMobileFilter()" aria-label="Закрыть фильтры"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="mobile-filter-content">
                   <details class="pr-filter-section" open>
@@ -2029,8 +2029,8 @@
                     </div>
                   </details>
                 <div class="mobile-filter-actions">
-                  <button class="btn btn-outline-secondary" onclick="clearAllFilters()"><i class="fa fa-times"></i> <span data-i18n="cars.filter_clear">Очистить</span></button>
-                  <button class="btn btn-primary" onclick="applyMobileFilters()"><i class="fa fa-check"></i> <span data-i18n="cars.apply_filters">Применить</span></button>
+                  <button type="button" class="pr-sheet-reset" onclick="clearAllFilters()">Сбросить</button>
+                  <button type="button" class="pr-sheet-apply" onclick="applyMobileFilters()"><span id="prApplyLabel">Показать машины</span></button>
                 </div>
               </div>
             </div>
@@ -2600,7 +2600,7 @@
   <!-- i18next CDN -->
   <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
   <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
-  <script src="/js/i18n-init.min.js?v=d609046c"></script>
+  <script src="/js/i18n-init.min.js?v=fa0a229c"></script>
   <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
 
   <script>
@@ -2656,7 +2656,8 @@
     let allCarsFullCache = [];
     let priceFilterSettings = {};
     let allOccupiedDatesCache = {};
-    let currentLanguage = localStorage.getItem('lang') || 'ro';
+    // the page language comes first: a visitor who never picked one has no localStorage value
+    let currentLanguage = ["ro", "ru", "en"].find(function (l) { return location.pathname.indexOf("/" + l + "/") === 0; }) || localStorage.getItem('lang') || 'ro';
     let dateFromPickerDesktop = null;
     let dateToPickerDesktop = null;
     let mobileDateFromPicker = null;
@@ -2928,7 +2929,7 @@
               <article class="pr-car${isPremium ? ' premium' : ''}">
                 <div class="pr-car-photo d-img">
                   <img ${(u => window.carImageAttrs ? window.carImageAttrs(u) : 'src="' + u + '"')(car.head_image && car.head_image.startsWith('http') ? car.head_image : (car.head_image ? window.API_BASE_URL + car.head_image : window.API_BASE_URL + '/uploads/placeholder.png'))} width="1080" height="810" alt="${formatDisplayText(car.make_name)} ${formatDisplayText(car.model_name)}" loading="${index < 2 ? 'eager' : 'lazy'}"${index === 0 ? ' fetchpriority="high"' : ''}>
-                  ${isPremium ? '<span class="pr-car-badge">HOT</span>' : ''}
+                  ${isPremium ? '<span class="pr-car-badge"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12 3.2 2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z"/></svg>Рекомендуем</span>' : ''}
                 </div>
                 <div class="pr-car-body">
                   <h3 class="pr-car-name"><a href="${rentNowUrl}">${car.make_name || ''} ${car.model_name || ''}</a>${car.production_year ? ` <span class="pr-car-year">${car.production_year}</span>` : ''}</h3>
@@ -3538,7 +3539,7 @@ function openMapsOnMobileCars(event, address) {
       el.className = 'pr-chip';
       el.innerHTML = '<span class="pr-chip-label">' + chip.groupLabel + ':</span>' +
                      '<span class="pr-chip-value"></span>' +
-                     '<button type="button" class="pr-chip-remove" aria-label="Elimină filtrul ' + chip.groupLabel + ' ' + chip.value + '">×</button>';
+                     '<button type="button" class="pr-chip-remove" aria-label="Убрать фильтр ' + chip.groupLabel + ' ' + chip.value + '">×</button>';
       el.querySelector('.pr-chip-value').textContent = chip.value;
       var btn = el.querySelector('.pr-chip-remove');
       btn.addEventListener('click', function() {
@@ -3564,7 +3565,7 @@ function openMapsOnMobileCars(event, address) {
     var clearAll = document.createElement('button');
     clearAll.type = 'button';
     clearAll.className = 'pr-chip-clear-all';
-    clearAll.innerHTML = '<i class="fa fa-eraser" aria-hidden="true"></i> Șterge toate';
+    clearAll.textContent = 'Сбросить все';
     clearAll.addEventListener('click', function() {
       /* Use the page's own clearAllFilters(): it already handles BOTH
          desktop and mobile filter checkboxes + URL state + re-fetch */
@@ -3721,6 +3722,7 @@ function openMapsOnMobileCars(event, address) {
 })();
 </script>
 
+  <script src="/js/cars-filters.min.js?v=4ce2dae8" defer></script>
   <script src="/js/car-photo-frame.min.js?v=86fe4fbb" defer></script>
 </body>
 </html>
