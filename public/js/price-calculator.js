@@ -262,16 +262,17 @@ class PriceCalculator {
       window.cachedCouponData &&
       window.lastValidatedCouponCode === discountCode.trim()
     ) {
-      // Handle percentage discount
-      if (window.cachedCouponData.type === "percentage") {
-        const discountPercentage = parseFloat(
-          window.cachedCouponData.discount_percentage || 0
-        );
-        if (discountPercentage > 0) {
-          const discountAmount = totalPrice * (discountPercentage / 100);
-          return totalPrice - discountAmount;
-        }
-      } else if (window.cachedCouponData.type === "free_days") {
+      // A percentage off, whatever the coupon's type: the lookup answers
+      // "main_coupon" for the site's own codes, and those were priced without
+      // their discount on the car pages (the home page calculator counted it).
+      const discountPercentage = parseFloat(
+        window.cachedCouponData.discount_percentage || 0
+      );
+      if (discountPercentage > 0) {
+        const discountAmount = totalPrice * (discountPercentage / 100);
+        return totalPrice - discountAmount;
+      }
+      if (window.cachedCouponData.type === "free_days" || parseInt(window.cachedCouponData.free_days || 0) > 0) {
         const freeDays = parseInt(window.cachedCouponData.free_days || 0);
         if (freeDays > 0) {
           // Don't show message here - it will be shown in price breakdown
@@ -1258,14 +1259,12 @@ async validateAndShowCoupon(couponCode) {
       window.cachedCouponData &&
       window.lastValidatedCouponCode === discountCode.trim()
     ) {
-      // Handle percentage discount
-      if (window.cachedCouponData.type === "percentage") {
-        const discountPercentage = parseFloat(
-          window.cachedCouponData.discount_percentage || 0
-        );
-        if (discountPercentage > 0) {
-          return totalPrice * (discountPercentage / 100);
-        }
+      // A percentage off, whatever the coupon's type (see applyDiscount)
+      const discountPercentage = parseFloat(
+        window.cachedCouponData.discount_percentage || 0
+      );
+      if (discountPercentage > 0) {
+        return totalPrice * (discountPercentage / 100);
       }
 
       // Handle free days discount - return 0 (no discount applied)

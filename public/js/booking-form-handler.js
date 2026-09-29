@@ -1014,12 +1014,26 @@ class BookingFormHandler {
     this._returnWheelOpened = false;
     const code = e && e.detail && e.detail.coupon ? String(e.detail.coupon).trim() : '';
     const field = pending.formElement.querySelector('input[name="discount_code"]');
-    if (code && field) {
-      field.value = code;
-      field.dispatchEvent(new Event('input', { bubbles: true }));
-      field.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    setTimeout(() => this.handleSubmit(pending.formElement, pending.submitButton), 400);
+    const send = () => this.handleSubmit(pending.formElement, pending.submitButton);
+    if (!code || !field) { setTimeout(send, 300); return; }
+    field.value = code;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    // the car page checks a code when its field loses focus; wait for that
+    // check, so the total that is sent has the discount in it
+    field.dispatchEvent(new Event('blur'));
+    const started = Date.now();
+    const wait = () => {
+      if (window.lastValidatedCouponCode === code || Date.now() - started > 4000) {
+        const recalc = window.priceCalculator && window.priceCalculator.recalculatePrice
+          ? Promise.resolve(window.priceCalculator.recalculatePrice()).catch(() => {})
+          : Promise.resolve();
+        recalc.then(() => setTimeout(send, 150));
+        return;
+      }
+      setTimeout(wait, 100);
+    };
+    wait();
   }
 
   // Mark return gift as redeemed

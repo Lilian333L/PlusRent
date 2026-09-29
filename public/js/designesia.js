@@ -2068,10 +2068,14 @@ var loading_text = loadingTranslations[currentLang];
              /* go to anchor */
              jQuery('#mainmenu li a').each(function() {
                  var cur = jQuery(this);
-                 if (this.href.indexOf('#') != -1) {
-                     var href = jQuery(this).attr('href');
+                 var href = jQuery(this).attr('href') || '';
+                 // only in-page anchors ("#section-cars"): a bare "#" (the
+                 // Services dropdown) or a page URL threw "unrecognized
+                 // expression" on every scroll once the address had a hash
+                 var target = /^#[A-Za-z][\w-]*$/.test(href) ? document.getElementById(href.slice(1)) : null;
+                 if (target) {
                     if (location.hash!=="") {
-                         if (jQuery(window).scrollTop() > jQuery(href).offset().top - 140) {
+                         if (jQuery(window).scrollTop() > jQuery(target).offset().top - 140) {
                              clearTimeout($.data(this, "scrollCheck"));
                              $.data(this, "scrollCheck", setTimeout(function() {
                                  jQuery('#mainmenu li a').removeClass('active');
