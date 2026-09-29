@@ -107,69 +107,106 @@
 
 /* ═════════════ the wheel modal ═════════════ */
 #universal-spinning-wheel-modal .spinning-wheel-modal-header {
-  padding: 24px 64px 4px 22px;
+  padding: 22px 64px 0 22px;
   text-align: left;
 }
 #universal-spinning-wheel-modal .spinning-wheel-modal-title {
   margin: 0;
   color: var(--sw-ink);
-  font-size: 22px;
+  font-family: Outfit, Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 24px;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -.02em;
 }
 #universal-spinning-wheel-modal .spinning-wheel-modal-subtitle {
   margin: 6px 0 0;
   color: var(--sw-muted);
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.45;
 }
 
-/* a small wheel on the phone step: what the number unlocks */
-#universal-spinning-wheel-modal .swm-teaser {
-  display: none;
+/* Phone step: the top half of the wheel turns slowly on the same dark stage
+   as the wheel step, so entering the number leads straight into it. */
+#universal-spinning-wheel-modal .swm-stage { display: none; }
+#universal-spinning-wheel-modal .phone-step .swm-stage {
+  display: block;
   position: relative;
-  width: 72px;
-  height: 72px;
-  margin: 14px 0 18px 8px;
+  height: 118px;
+  margin: 16px -42px 0 0;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 50% 100%, rgba(245, 158, 11, .22), transparent 60%),
+    linear-gradient(180deg, #292524, var(--sw-ink));
+  overflow: hidden;
+}
+#universal-spinning-wheel-modal .swm-teaser {
+  position: absolute;
+  left: 50%;
+  top: 26px;
+  width: 196px;
+  height: 196px;
+  margin-left: -98px;
   border-radius: 50%;
   background:
-    radial-gradient(circle, var(--sw-amber) 0 17%, var(--sw-ink) 17.5% 22%, transparent 22.5%),
-    conic-gradient(var(--sw-amber) 0 90deg, var(--sw-cream) 0 180deg, var(--sw-ink) 0 270deg, #44403c 0 360deg);
-  box-shadow: 0 0 0 5px var(--sw-ink), 0 0 0 7px rgba(245, 158, 11, .5), 0 12px 24px -8px rgba(0, 0, 0, .5);
+    radial-gradient(circle, #fbbf24 0 11%, var(--sw-ink) 11.5% 15%, transparent 15.5%),
+    repeating-conic-gradient(from -22.5deg,
+      var(--sw-cream) 0 45deg, var(--sw-amber) 0 90deg, #1c1917 0 135deg, #44403c 0 180deg);
+  box-shadow:
+    0 0 0 12px #1c1917,
+    0 0 0 13.5px rgba(245, 158, 11, .7),
+    0 -10px 40px rgba(245, 158, 11, .25);
+  animation: swm-idle 24s linear infinite;
 }
-#universal-spinning-wheel-modal .swm-teaser::after {
+/* the ticks on the rim */
+#universal-spinning-wheel-modal .swm-teaser::before {
   content: "";
   position: absolute;
-  top: -9px;
+  inset: -12px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from -1.5deg, rgba(250, 247, 242, .55) 0 3deg, transparent 3deg 22.5deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent calc(100% - 9px), #000 calc(100% - 8.5px) calc(100% - 4px), transparent calc(100% - 3.5px));
+  mask: radial-gradient(circle closest-side, transparent calc(100% - 9px), #000 calc(100% - 8.5px) calc(100% - 4px), transparent calc(100% - 3.5px));
+}
+/* the pointer stays still while the wheel turns */
+#universal-spinning-wheel-modal .swm-stage::after {
+  content: "";
+  position: absolute;
+  top: 8px;
   left: 50%;
-  width: 14px;
-  height: 16px;
-  margin-left: -7px;
+  width: 18px;
+  height: 22px;
+  margin-left: -9px;
   background: var(--sw-amber);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  filter: drop-shadow(0 1px 0 var(--sw-ink));
+  filter: drop-shadow(0 2px 0 var(--sw-ink));
 }
-#universal-spinning-wheel-modal .phone-step .swm-teaser { display: block; }
+@keyframes swm-idle { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  #universal-spinning-wheel-modal .swm-teaser { animation: none; }
+}
 
-#universal-spinning-wheel-modal .spinning-wheel-wheel-content { padding: 14px 22px 22px; }
+#universal-spinning-wheel-modal .spinning-wheel-wheel-content { padding: 18px 22px 22px; }
 
 /* phone step */
 #universal-spinning-wheel-modal .spinning-wheel-phone-step { flex-direction: column; }
 #universal-spinning-wheel-modal .phone-input-container { width: 100%; }
 #universal-spinning-wheel-modal .phone-icon-circle { display: none; }
 #universal-spinning-wheel-modal .phone-step-title {
-  margin: 0 0 4px;
+  display: block;
+  margin: 0 0 8px;
   color: var(--sw-ink);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.35;
 }
 #universal-spinning-wheel-modal .phone-description {
-  margin: 0 0 14px;
+  margin: 6px auto 0;
+  max-width: 330px;
   color: var(--sw-muted);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
+  text-align: center;
 }
 #universal-spinning-wheel-modal .phone-form { margin: 0; }
 #universal-spinning-wheel-modal .input-wrapper {
@@ -232,7 +269,9 @@
   cursor: pointer;
   transition: background-color .15s ease, transform .15s ease;
 }
-#universal-spinning-wheel-modal .phone-submit-btn:hover:not(:disabled) { background: #fbbf24; }
+@media (hover: hover) {
+  #universal-spinning-wheel-modal .phone-submit-btn:hover:not(:disabled) { background: #fbbf24; }
+}
 #universal-spinning-wheel-modal .phone-submit-btn:active:not(:disabled) { transform: scale(.98); }
 #universal-spinning-wheel-modal .phone-submit-btn:focus-visible { outline: 3px solid var(--sw-ink); outline-offset: 2px; }
 #universal-spinning-wheel-modal .phone-submit-btn:disabled { opacity: .6; cursor: progress; }
@@ -242,9 +281,10 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 12px;
-  color: var(--sw-muted);
+  margin-top: 14px;
+  color: var(--sw-ink-2);
   font-size: 13px;
+  font-weight: 600;
 }
 #universal-spinning-wheel-modal .privacy-badge svg { width: 15px; height: 15px; color: #16a34a; }
 
@@ -513,4 +553,42 @@
   #returningCustomerModal *,
   #coupon-applied-notification,
   .pr-ticket { animation: none !important; transition: none !important; }
+}
+
+/* ── phones: the wheel modals are sheets from the bottom edge ── */
+@media (max-width: 575px) {
+  #universal-spinning-wheel-modal,
+  #returningCustomerModal {
+    align-items: flex-end;
+    padding: 12px 0 0;
+  }
+  #universal-spinning-wheel-modal .spinning-wheel-modal-content,
+  #returningCustomerModal .pr-rc-card {
+    max-width: none;
+    max-height: calc(100dvh - 12px);
+    margin: auto 0 0;
+    border-radius: 24px 24px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateY(40px);
+  }
+  #returningCustomerModal .pr-rc-card { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+  /* grab handle */
+  #universal-spinning-wheel-modal .spinning-wheel-modal-content::before,
+  #returningCustomerModal .pr-rc-card::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 2px;
+    background: #d6d3d1;
+  }
+  #universal-spinning-wheel-modal .spinning-wheel-modal-header { padding-top: 24px; }
+}
+@media (max-width: 360px) {
+  #universal-spinning-wheel-modal .phone-step .swm-stage { height: 96px; }
+  #universal-spinning-wheel-modal .swm-teaser { top: 22px; width: 168px; height: 168px; margin-left: -84px; }
+  #universal-spinning-wheel-modal .spinning-wheel-modal-title { font-size: 22px; }
 }

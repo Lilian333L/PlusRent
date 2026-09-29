@@ -226,17 +226,16 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
                     </button>
                     <div class="spinning-wheel-modal-header">
-                        <div class="swm-teaser" aria-hidden="true"></div>
                         <h2 class="spinning-wheel-modal-title" id="swmTitle">${t('title')}</h2>
                         <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
+                        <div class="swm-stage" aria-hidden="true"><div class="swm-teaser"></div></div>
                     </div>
 
                     <div class="spinning-wheel-wheel-content">
                         <div class="spinning-wheel-phone-step" id="universalPhoneStep">
                             <div class="phone-input-container">
-                                <h3 class="phone-step-title">${t('enterPhoneTitle')}</h3>
-                                <p class="phone-description">${t('phoneDescription')}</p>
                                 <form class="phone-form" id="universalPhoneForm">
+                                    <label class="phone-step-title" for="universalPhoneInput">${t('enterPhoneTitle')}</label>
                                     <div class="input-wrapper">
                                         <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -254,6 +253,7 @@
                                         </svg>
                                         <span class="privacy-text">${t('privacyText')}</span>
                                     </div>
+                                    <p class="phone-description">${t('phoneDescription')}</p>
                                 </form>
                             </div>
                         </div>
@@ -302,7 +302,7 @@
     // The modals' styles live in css/spin-wheel.css and are fetched the first
     // time one of them opens (every page carries this script, few open it).
     // When the stylesheet changes, update its ?v= here.
-    const WHEEL_CSS = '/css/spin-wheel.min.css?v=56b05975';
+    const WHEEL_CSS = '/css/spin-wheel.min.css?v=0c3c75a2';
     let wheelCssPromise = null;
     function ensureWheelCss() {
         if (wheelCssPromise) return wheelCssPromise;

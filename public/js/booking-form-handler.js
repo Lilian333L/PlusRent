@@ -790,7 +790,7 @@ class BookingFormHandler {
       : new Promise((resolve) => {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
-          link.href = '/css/spin-wheel.min.css?v=56b05975';
+          link.href = '/css/spin-wheel.min.css?v=0c3c75a2';
           link.onload = link.onerror = resolve;
           document.head.appendChild(link);
           setTimeout(resolve, 3000);
