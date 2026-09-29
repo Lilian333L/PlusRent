@@ -115,7 +115,7 @@
 
   <!-- CSS -->
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
-          <link rel="stylesheet" href="/css/critical-cars.css?v=2a5d1e57">
+          <link rel="stylesheet" href="/css/critical-cars.css?v=5344e8a3">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
 <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet" type="text/css" id="bootstrap" media="print" data-deferred-css>
   <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet" type="text/css" id="mdb" media="print" data-deferred-css>
@@ -3064,7 +3064,9 @@
         allowInput: false,
         // the calendar speaks the page language; the field shows a short date ("2 oct.")
         // while the value the filters and the address use stays Y-m-d
-        locale: Object.assign({}, (window.flatpickr && flatpickr.l10ns && flatpickr.l10ns['ru']) || {}, { firstDayOfWeek: 1 }),
+        // weekdays in two letters and the month as text, as in the price calculator and on the car pages
+        locale: (function (b) { return Object.assign({}, b, { firstDayOfWeek: 1, weekdays: { shorthand: ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"], longhand: (b.weekdays && b.weekdays.longhand) || ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"] } }); })((window.flatpickr && flatpickr.l10ns && flatpickr.l10ns['ru']) || {}),
+        monthSelectorType: 'static',
         altInput: true,
         altFormat: 'j M',
         onReady: function(selectedDates, dateStr, instance) {
@@ -3730,5 +3732,7 @@ function openMapsOnMobileCars(event, address) {
 
   <script src="/js/cars-filters.min.js?v=7a0be3e0" defer></script>
   <script src="/js/car-photo-frame.min.js?v=86fe4fbb" defer></script>
+<!-- one calendar look for the rental pages; last, so it outranks the page stylesheets -->
+<link rel="stylesheet" href="/css/pr-calendar.min.css?v=bf655b3b" media="print" data-deferred-css><noscript><link rel="stylesheet" href="/css/pr-calendar.min.css?v=bf655b3b"></noscript>
 </body>
 </html>

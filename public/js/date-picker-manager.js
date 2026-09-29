@@ -30,6 +30,47 @@
   }
 // === FLATPICKR-INPUTS-HARDEN-V5 END ===
 
+// === CALENDAR LANGUAGE ===
+// The calendar speaks the page language (<html lang>), with the same short
+// weekday names as the /cars filters; the month is changed with the arrows.
+function _prCalendarLocale() {
+  var lang = (document.documentElement.lang || "ro").slice(0, 2).toLowerCase();
+  var L = {
+    ro: {
+      months: {
+        shorthand: ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"],
+        longhand: ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"],
+      },
+      weekdays: {
+        shorthand: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
+        longhand: ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"],
+      },
+    },
+    ru: {
+      months: {
+        shorthand: ["Янв", "Фев", "Март", "Апр", "Май", "Июнь", "Июль", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+        longhand: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+      },
+      weekdays: {
+        shorthand: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+        longhand: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+      },
+    },
+    en: {
+      months: {
+        shorthand: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        longhand: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      },
+      weekdays: {
+        shorthand: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+        longhand: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      },
+    },
+  };
+  return Object.assign({ firstDayOfWeek: 1, rangeSeparator: " - " }, L[lang] || L.ro);
+}
+// === CALENDAR LANGUAGE END ===
+
 class DatePickerManager {
   constructor(options = {}) {
     this.pickupInputId = options.pickupInputId || "date-picker";
@@ -646,30 +687,8 @@ this.pickupFlatpickr = flatpickr(pickupInput, {
   position: this.isModal ? "auto" : "below",
   closeOnSelect: true,
   disableMobile: true,
-  locale: { 
-    firstDayOfWeek: 1,
-    rangeSeparator: " - ",
-    weekAbbreviation: "Săp",
-    scrollTitle: "Derulează pentru a schimba",
-    toggleTitle: "Click pentru a schimba",
-    months: {
-      shorthand: [
-        "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
-        "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"
-      ],
-      longhand: [
-        "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
-        "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
-      ],
-    },
-    weekdays: {
-      shorthand: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
-      longhand: [
-        "Duminică", "Luni", "Marți", "Miercuri",
-        "Joi", "Vineri", "Sâmbătă"
-      ],
-    },
-  },
+  monthSelectorType: "static",
+  locale: _prCalendarLocale(),
   onDayCreate: addOccupiedClass,
   onOpen: (selectedDates, dateStr, instance) => {
     setTimeout(() => instance.redraw(), 0);
@@ -762,30 +781,8 @@ onReady: (selectedDates, dateStr, instance) => {
         position: this.isModal ? "auto right" : "below",
         disableMobile: true,
         closeOnSelect: true,
-        locale: {
-          firstDayOfWeek: 1,
-          rangeSeparator: " - ",
-          weekAbbreviation: "Săp",
-          scrollTitle: "Derulează pentru a schimba",
-          toggleTitle: "Click pentru a schimba",
-          months: {
-            shorthand: [
-              "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
-              "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"
-            ],
-            longhand: [
-              "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
-              "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"
-            ],
-          },
-          weekdays: {
-            shorthand: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
-            longhand: [
-              "Duminică", "Luni", "Marți", "Miercuri",
-              "Joi", "Vineri", "Sâmbătă"
-            ],
-          },
-        },
+        monthSelectorType: "static",
+  locale: _prCalendarLocale(),
 onDayCreate: addOccupiedClass,
 onOpen: (selectedDates, dateStr, instance) => {
   setTimeout(() => instance.redraw(), 0);
