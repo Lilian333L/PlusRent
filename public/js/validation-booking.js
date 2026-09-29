@@ -1065,8 +1065,10 @@ async function openPriceCalculator() {
   //   });
   // }, 100);
 
-  // Add coupon validation on focus out (when user finishes typing)
-  $("#modal-discount-code").on("blur", function () {
+  // Validate when the field is left, and on "change": a code put in by
+  // auto-apply-coupon.js (after the wheel) fires input/change but never blur,
+  // and the modal then priced the booking without the discount.
+  $("#modal-discount-code").on("blur change", function () {
     const couponCode = $(this).val().trim();
     const customerPhone =
       (window.PhoneInput && window.PhoneInput.full(prPhoneField())) ||
@@ -1106,7 +1108,10 @@ async function openPriceCalculator() {
   });
 
   // Clear auto-apply coupons when user starts typing
-$("#modal-discount-code").on("input", function () {
+$("#modal-discount-code").on("input", function (e) {
+  // Only real typing: auto-apply fires a synthetic input event, and clearing
+  // here threw away the code the visitor had just won.
+  if (!e.originalEvent || !e.originalEvent.isTrusted) return;
   // Clear auto-apply coupons to prevent overwriting user input
   localStorage.removeItem("autoApplyCoupon");
   localStorage.removeItem("spinningWheelWinningCoupon");
@@ -1176,9 +1181,10 @@ $("#modal-discount-code").on("input", function () {
   const existingCouponCode = $("#modal-discount-code").val().trim();
   if (existingCouponCode && existingCouponCode.length >= 3) {
     // Get customer phone if available
-    // const customerPhone = $("#modal-customer-phone").val() || $("#modal-customer-phone").val() || null;
-    // Validate the existing coupon
-    // validateCouponRealTime(existingCouponCode, customerPhone);
+    const customerPhone =
+      (window.PhoneInput && window.PhoneInput.full(prPhoneField())) ||
+      $(prPhoneField()).val();
+    validateCouponRealTime(existingCouponCode, customerPhone);
   } else {
     // Show free days notification if there's already a valid coupon cached
     if (
@@ -1423,6 +1429,23 @@ function updateModalPriceDisplay(priceData) {
   }
 
   $("#modal-total-estimate").html(totalText);
+
+  // The discount on its own line, as on the car pages: "Discount 7%: -€16.10"
+  var $total = $("#modal-total-estimate").closest(".modal-price-item");
+  var $row = $("#modal-discount-row");
+  if (priceData.discountAmount && priceData.discountAmount > 0) {
+    var lang = ((window.i18next && i18next.language) || document.documentElement.lang || "ro").slice(0, 2);
+    var label = { ro: "Reducere", ru: "Скидка", en: "Discount" }[lang] || "Reducere";
+    var pct = cachedCouponData && parseFloat(cachedCouponData.discount_percentage);
+    if (!$row.length) {
+      $row = $('<div class="modal-price-item modal-discount-item" id="modal-discount-row"><span class="md-label"></span><span class="md-value"></span></div>');
+      $row.insertBefore($total);
+    }
+    $row.find(".md-label").text(label + (pct ? " " + pct + "%" : "") + ":");
+    $row.find(".md-value").text("\u2212" + currencySymbol + priceData.discountAmount.toFixed(2));
+  } else if ($row.length) {
+    $row.remove();
+  }
 }
 
 // Fallback calculation (simplified version of original)
