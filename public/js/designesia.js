@@ -1849,6 +1849,9 @@ var loading_text = loadingTranslations[currentLang];
          // navigation for mobile
          // --------------------------------------------------
          jQuery('#menu-btn').on("click", function() {
+             // burger-menu-fix.js drives the button on the public pages, from before
+             // this bundle loads; toggling here as well would close what it opened
+             if (window.PlusRentModal && window.PlusRentModal.ownsMenuButton) return;
              if (mobile_menu_show == 0) {
                  jQuery('header').addClass('menu-open');
                  jQuery('header').css('height', $(window).innerHeight());

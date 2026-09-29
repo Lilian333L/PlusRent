@@ -567,12 +567,40 @@
   /* ────────────── BURGER MENU (header.menu-open) ────────────── */
 
   const header = document.querySelector('header');
+  const menuBtn = document.getElementById('menu-btn');
+
+  /* The burger button is driven from here, not from designesia.js. On the driver
+   * and transfer pages the template bundle only loads after the load event, so on
+   * a slow phone the button did nothing for the first seconds. This file loads
+   * early on every public page; designesia.js stands down when it sees
+   * ownsMenuButton (the admin pages, which do not load this file, keep its handler).
+   * State is read from the class, so nothing can fall out of step. */
+  function setMenu(open) {
+    if (!header) return;
+    header.classList.toggle('menu-open', open);
+    header.style.height = open ? window.innerHeight + 'px' : 'auto';
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
   if (header) {
     registerModal({
       element:    header,
       isOpen:     () => header.classList.contains('menu-open'),
-      onClose:    () => header.classList.remove('menu-open'),
+      onClose:    () => setMenu(false),
       attrFilter: ['class'],
+    });
+  }
+
+  if (header && menuBtn) {
+    menuBtn.addEventListener('click', function () {
+      setMenu(!header.classList.contains('menu-open'));
+    });
+    // role="button" on a div: Enter and Space should work like a click
+    menuBtn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        menuBtn.click();
+      }
     });
   }
 
@@ -655,6 +683,8 @@
     register:       registerModal,
     lock:           lockScroll,
     unlock:         unlockScroll,
+    // designesia.js checks this at click time and leaves the burger to us
+    ownsMenuButton: !!(header && menuBtn),
   };
 
 })();
