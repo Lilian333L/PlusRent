@@ -790,13 +790,15 @@ class BookingFormHandler {
       : new Promise((resolve) => {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
-          link.href = '/css/spin-wheel.min.css?v=0c3c75a2';
+          link.href = '/css/spin-wheel.min.css?v=5589ba66';
           link.onload = link.onerror = resolve;
           document.head.appendChild(link);
           setTimeout(resolve, 3000);
         });
     await showWhenStyled;
     document.body.appendChild(modalContainer);
+    // phones: pull the sheet down to close it (js/universal-spinning-wheel.js)
+    if (window.PrSheetSwipe) window.PrSheetSwipe(modalContainer.querySelector('.pr-rc-card'), '.pr-rc-close');
 
     // What each wheel can give, read from its prizes: "up to 14%", "up to 6 days"
     wheelConfigs.forEach((config) => {

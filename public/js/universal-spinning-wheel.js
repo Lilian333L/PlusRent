@@ -228,7 +228,7 @@
                     <div class="spinning-wheel-modal-header">
                         <h2 class="spinning-wheel-modal-title" id="swmTitle">${t('title')}</h2>
                         <p class="spinning-wheel-modal-subtitle">${t('subtitle')}</p>
-                        <div class="swm-stage" aria-hidden="true"><div class="swm-teaser"></div></div>
+                        <div class="swm-stage"><div class="swm-teaser" aria-hidden="true"></div><span class="swm-prize" hidden></span></div>
                     </div>
 
                     <div class="spinning-wheel-wheel-content">
@@ -272,7 +272,7 @@
     // form. On the others the wheel fetches it itself, so the number is always
     // entered with its country and checked ("valid Moldovan number") before a
     // code is tied to it. When phone-input.min.js changes, update its ?v= here.
-    const PHONE_WIDGET = '/js/phone-input.min.js?v=5173709e';
+    const PHONE_WIDGET = '/js/phone-input.min.js?v=f7d2bb02';
     let phoneWidgetPromise = null;
     function enhancePhoneField() {
         const input = document.getElementById('universalPhoneInput');
@@ -302,7 +302,7 @@
     // The modals' styles live in css/spin-wheel.css and are fetched the first
     // time one of them opens (every page carries this script, few open it).
     // When the stylesheet changes, update its ?v= here.
-    const WHEEL_CSS = '/css/spin-wheel.min.css?v=0c3c75a2';
+    const WHEEL_CSS = '/css/spin-wheel.min.css?v=5589ba66';
     let wheelCssPromise = null;
     function ensureWheelCss() {
         if (wheelCssPromise) return wheelCssPromise;
@@ -465,6 +465,71 @@ function showBonusNotification() {
     }, 1000);
 }
 
+// The best prize of the wheel on the phone step ("до 14%"), read from its
+// segments like the second-booking chooser does. Hidden if it cannot be read.
+function loadPrizeChip(wheelId) {
+    const chip = state.modal && state.modal.querySelector('.swm-prize');
+    if (!chip) return;
+    const base = window.API_BASE_URL || '';
+    const url = wheelId && wheelId !== 'active'
+        ? `${base}/api/spinning-wheels/${encodeURIComponent(wheelId)}/secure-data`
+        : `${base}/api/spinning-wheels/secure/active-data`;
+    fetch(url)
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
+            const segs = data && Array.isArray(data.segments) ? data.segments : [];
+            const max = Math.max.apply(null, segs.map(x => Number(x.value) || 0).concat(0));
+            if (!max) { chip.hidden = true; return; }
+            const lang = getCurrentLanguage();
+            const upto = { ro: 'până la', ru: 'до', en: 'up to' }[lang] || 'up to';
+            let label = `${upto} ${max}%`;
+            if (segs[0].type === 'free_days') {
+                const n10 = max % 10, n100 = max % 100;
+                const ru = n10 === 1 && n100 !== 11 ? 'день' : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? 'дня' : 'дней';
+                const word = { ro: max === 1 ? 'zi' : 'zile', ru: ru, en: max === 1 ? 'day' : 'days' }[lang] || 'days';
+                label = `${upto} ${max} ${word}`;
+            }
+            chip.textContent = label;
+            chip.hidden = false;
+        })
+        .catch(() => {});
+}
+
+// Phones: the modal is a sheet, and pulling it down from its top closes it.
+function enableSheetSwipe(card, closeBtnSelector) {
+    if (!card || card.dataset.swipe) return;
+    card.dataset.swipe = '1';
+    const narrow = window.matchMedia('(max-width: 575px)');
+    let y0 = 0, t0 = 0, dy = 0, dragging = false;
+    card.addEventListener('touchstart', e => {
+        if (!narrow.matches || e.touches.length !== 1 || card.scrollTop > 0) return;
+        if (e.target.closest('iframe, input, .pr-phone-menu')) return;
+        y0 = e.touches[0].clientY; t0 = Date.now(); dy = 0; dragging = true;
+    }, { passive: true });
+    card.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        dy = Math.max(0, e.touches[0].clientY - y0);
+        card.style.transition = 'none';
+        card.style.transform = dy ? `translateY(${dy}px)` : '';
+    }, { passive: true });
+    const end = () => {
+        if (!dragging) return;
+        dragging = false;
+        const fast = dy > 40 && dy / Math.max(1, Date.now() - t0) > 0.6;
+        card.style.transition = '';
+        if (dy > 110 || fast) {
+            card.style.transform = 'translateY(100%)';
+            const btn = card.querySelector(closeBtnSelector);
+            setTimeout(() => { if (btn) btn.click(); card.style.transform = ''; }, 180);
+        } else {
+            card.style.transform = '';
+        }
+    };
+    card.addEventListener('touchend', end);
+    card.addEventListener('touchcancel', end);
+}
+window.PrSheetSwipe = enableSheetSwipe;
+
 function showModalInternal(options = {}) {
     const waits = [ensureWheelCss()];
     if (!options.skipPhoneStep) waits.push(ensurePhoneWidget());
@@ -473,6 +538,8 @@ function showModalInternal(options = {}) {
 
 function showModalNow(options = {}) {
     document.body.style.overflow = 'hidden';
+    if (!options.skipPhoneStep) loadPrizeChip(options.wheelId);
+    enableSheetSwipe(state.modal.querySelector('.spinning-wheel-modal-content'), '.spinning-wheel-modal-close');
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
     document.body.style.top = `-${window.scrollY}px`;

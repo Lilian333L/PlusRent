@@ -526,7 +526,11 @@
       search.value = "";
       menu.classList.add("open");
       pick.setAttribute("aria-expanded", "true");
-      setTimeout(function () { search.focus(); }, 30);
+      setTimeout(function () {
+        search.focus({ preventScroll: true });
+        // the whole list in view (in a bottom sheet it opened below the screen edge)
+        if (menu.scrollIntoView) menu.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }, 30);
     }
     function close() {
       menu.classList.remove("open");
