@@ -86,14 +86,14 @@
     //    (which is NOT inside the menu navigation — that one stays visible)
     document.querySelectorAll('header a[href^="tel:"], header button[onclick*="tel:"]').forEach(el => {
       // Skip if it's INSIDE a menu list (those are the menu's own phone links)
-      if (el.closest('nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
+      if (el.closest('#prDrawer, nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
       explicit.add(el);
     });
 
     // 3. Catch CTA-style buttons in header (Sună Acum variations)
     document.querySelectorAll('header').forEach(header => {
       header.querySelectorAll('a, button').forEach(el => {
-        if (el.closest('nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
+        if (el.closest('#prDrawer, nav ul, .menu, #mainmenu, .navbar-collapse, ul.nav')) return;
         const text = (el.textContent || '').trim().toLowerCase();
         const className = (el.className || '').toString().toLowerCase();
         // Match common Sună Acum / Call Now / Звоните patterns
@@ -119,7 +119,7 @@
     document.querySelectorAll('a, button, div').forEach(el => {
       if (excludeIds.includes(el.id)) return;
       if (el.tagName === 'HEADER' || el.tagName === 'NAV') return;
-      if (el.closest('[aria-modal], #contactPopup, #price-calculator-modal, #mobile-filter-overlay, #toast-container, nav ul, .menu, #mainmenu')) return;
+      if (el.closest('[aria-modal], #prDrawer, #contactPopup, #price-calculator-modal, #mobile-filter-overlay, #toast-container, nav ul, .menu, #mainmenu')) return;
       const cs = window.getComputedStyle(el);
       if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
       const z = parseInt(cs.zIndex, 10);

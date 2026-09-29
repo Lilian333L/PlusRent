@@ -72,7 +72,7 @@
                 const elements = document.querySelectorAll(selector);
                 elements.forEach(el => {
                     // Исключаем логотип, переключатель языка и кнопку звонка
-                    if (!el.closest('#logo') && 
+                    if (!el.closest('#logo') && !el.closest('#prDrawer') && 
                         !el.closest('.lang-picker-wrapper') && 
                         !el.closest('.call-now-btn')) {
                         el.style.setProperty('color', '#ffffff', 'important');
