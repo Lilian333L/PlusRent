@@ -7,7 +7,9 @@
  *  1. A group with a single choice (every car has 4 doors today) is hidden:
  *     a filter that cannot narrow anything is noise. It comes back by itself
  *     when a car with another value is added.
- *  2. Every group starts open (the choices are small pills now).
+ *  2. On the phone every group starts open; in the desktop sidebar the groups
+ *     people use most (dates, make, body, gearbox) are open, the rest folded,
+ *     and a folded group that holds a choice opens by itself.
  *  3. On the phone, the apply button says how many cars the choice will show
  *     ("Show 7 cars") and is disabled when the answer is none, so nobody
  *     applies filters into an empty page. The count follows the API's rules:
@@ -124,10 +126,35 @@
     button.disabled = !n;
   }
 
+  var DESKTOP_OPEN = ['.date-range-filter', '#filter-make-options', '#filter-type-options', '#filter-gear-options'];
+
+  function hasChoice(section) {
+    if (section.querySelector('input[type=checkbox]:checked')) return true;
+    var radio = section.querySelector('input[type=radio]:checked');
+    if (radio && radio.value !== 'all') return true;
+    return Array.prototype.some.call(section.querySelectorAll('input[type=number], .date-range-filter input'), function (el) { return !!el.value; });
+  }
+
+  function openDesktopGroups() {
+    Array.prototype.forEach.call(document.querySelectorAll('.filter-sidebar details.pr-filter-section'), function (d) {
+      var main = DESKTOP_OPEN.some(function (sel) { return d.querySelector(sel); });
+      d.open = main || hasChoice(d);
+    });
+  }
+
+  // later changes only ever open a group, never fold one the visitor opened
+  function openChosen() {
+    Array.prototype.forEach.call(document.querySelectorAll('.filter-sidebar details.pr-filter-section'), function (d) {
+      if (!d.open && hasChoice(d)) d.open = true;
+    });
+  }
+
   function init() {
-    // choices are compact pills now, so every group starts open: one glance shows
-    // everything that can be chosen, with no extra tap per group
-    Array.prototype.forEach.call(document.querySelectorAll('.filter-sidebar details.pr-filter-section, #mobile-filter-overlay details.pr-filter-section'), function (d) { d.open = true; });
+    // Phone sheet: every group open (it scrolls, and the footer shows the result).
+    // Desktop sidebar: the groups people use most are open, the rest folded; a
+    // folded group that already holds a choice opens, so a choice is never hidden.
+    Array.prototype.forEach.call(document.querySelectorAll('#mobile-filter-overlay details.pr-filter-section'), function (d) { d.open = true; });
+    openDesktopGroups();
     var overlay = document.getElementById('mobile-filter-overlay');
     if (overlay) {
       overlay.addEventListener('change', function () { setTimeout(updateApply, 0); });
@@ -138,7 +165,7 @@
     new MutationObserver(function () {
       if (pending) return;
       pending = true;
-      requestAnimationFrame(function () { pending = false; tidyGroups(); updateApply(); });
+      requestAnimationFrame(function () { pending = false; tidyGroups(); updateApply(); openChosen(); });
     }).observe(document.getElementById('cars-catalog') || document.body, { childList: true, subtree: true });
     tidyGroups();
     updateApply();
