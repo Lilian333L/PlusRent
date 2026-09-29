@@ -1,5 +1,5 @@
 /**
- * /cars: the template bundle (jQuery and its plugins, 133 KB) and designesia.js
+ * /cars and the sober-driver pages: the template bundle (jQuery and its plugins, 133 KB) and designesia.js
  * only drive template helpers here (back-to-top, the header on scroll). None of
  * the page's own scripts use jQuery, and the burger menu is driven by
  * burger-menu-fix.js. So both start after the load event and stay out of the
