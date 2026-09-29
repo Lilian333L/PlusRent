@@ -10,7 +10,7 @@
  * The template's own #mainmenu stays in the HTML for crawlers and desktop, and
  * is only hidden under the panel on phones. Styles: css/mobile-menu.css (the
  * panel, loaded here) and css/menu-button.css (the burger, copied into every
- * critical-*.css by scripts/sync-menu-button-css.js so it is right on first paint).
+ * critical-*.css by scripts/sync-critical-css.js so it is right on first paint).
  *
  * Prices are the "from" prices the pages themselves show. When a tariff
  * changes, update it here as well.

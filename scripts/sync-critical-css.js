@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 /**
- * Copy css/menu-button.css (the burger button) into every css/critical-*.css.
+ * Copy hand-written stylesheets into the critical stylesheets that need them.
  *
- * The button is on the first screen of every page, and the first screen is
- * painted from the critical stylesheet alone, so its rules have to live there.
- * They sit between two marker comments at the end of each file; running this
- * again replaces that block, so menu-button.css stays the one place to edit.
+ * The first screen is painted from css/critical-*.css alone; everything else
+ * arrives later (css/deferred-css.js). Rules that must be right on the first
+ * paint therefore have to live inside the critical files. They are kept in
+ * their own readable source files and copied in between two marker comments,
+ * so running this again replaces the block and the source stays the one place
+ * to edit:
  *
- * Afterwards the ?v= of each critical stylesheet has to change on the pages
- * that link it (the /css folder is cached for a year): this script does that
- * too, using the same 8-character sha1 fingerprint as scripts/use-minified.js.
+ *   css/menu-button.css   -> every critical-*.css (the burger is on every page)
+ *   css/cars-catalog.css  -> critical-cars.css    (the /cars catalogue)
  *
- *   node scripts/sync-menu-button-css.js
+ * Afterwards the ?v= of each changed critical stylesheet has to change on the
+ * pages that link it (the /css folder is cached for a year): this script does
+ * that too, with the same 8-character sha1 fingerprint as scripts/use-minified.js.
+ *
+ *   node scripts/sync-critical-css.js
  */
 const fs = require("fs");
 const path = require("path");
@@ -20,33 +25,47 @@ const CleanCSS = require("clean-css");
 
 const PUBLIC = path.join(__dirname, "..", "public");
 const CSS = path.join(PUBLIC, "css");
-const START = "/* menu-button:start */";
-const END = "/* menu-button:end */";
 
-const source = fs.readFileSync(path.join(CSS, "menu-button.css"), "utf8");
-const min = new CleanCSS({ level: 1 }).minify(source);
-if (min.errors.length) throw new Error(min.errors.join("; "));
-const block = START + min.styles + END;
+const BLOCKS = [
+  { source: "menu-button.css", marker: "menu-button", targets: (name) => /^critical-.+\.css$/.test(name) },
+  { source: "cars-catalog.css", marker: "cars-catalog", targets: (name) => name === "critical-cars.css" },
+];
 
 const fingerprint = (buf) => crypto.createHash("sha1").update(buf).digest("hex").slice(0, 8);
 
-const changed = new Map(); // file name -> new fingerprint
+function withBlock(css, marker, body) {
+  const start = `/* ${marker}:start */`;
+  const end = `/* ${marker}:end */`;
+  const block = start + body + end;
+  const s = css.indexOf(start);
+  const e = css.indexOf(end);
+  return s >= 0 && e > s
+    ? css.slice(0, s) + block + css.slice(e + end.length)
+    : css.replace(/\s*$/, "\n") + block + "\n";
+}
+
+const minified = new Map();
+for (const b of BLOCKS) {
+  const out = new CleanCSS({ level: 1 }).minify(fs.readFileSync(path.join(CSS, b.source), "utf8"));
+  if (out.errors.length) throw new Error(b.source + ": " + out.errors.join("; "));
+  minified.set(b.marker, out.styles);
+}
+
+const changed = new Map(); // critical file name -> new fingerprint
 for (const name of fs.readdirSync(CSS)) {
-  if (!/^critical-.+\.css$/.test(name)) continue;
+  const blocks = BLOCKS.filter((b) => b.targets(name));
+  if (!blocks.length) continue;
   const file = path.join(CSS, name);
   const before = fs.readFileSync(file, "utf8");
-  const s = before.indexOf(START);
-  const e = before.indexOf(END);
-  const after = s >= 0 && e > s
-    ? before.slice(0, s) + block + before.slice(e + END.length)
-    : before.replace(/\s*$/, "\n") + block + "\n";
+  let after = before;
+  for (const b of blocks) after = withBlock(after, b.marker, minified.get(b.marker));
   if (after !== before) {
     fs.writeFileSync(file, after);
     changed.set(name, fingerprint(after));
   }
 }
 
-// every html page, plus the car page template that lib/render-car-page.js fills in
+// every html page, including the car page template that lib/render-car-page.js fills in
 const pages = [];
 (function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
