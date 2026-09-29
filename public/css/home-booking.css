@@ -134,35 +134,43 @@
   background: none !important;
   box-shadow: none !important;
 }
+/* the pill is the label's text; no :has() (it made every DOM change of the
+   template bundle re-check the form's styles: ~0.5 s in PageSpeed) */
 #section-hero #booking_form .radio-option {
   position: relative !important;
   display: inline-flex !important;
-  align-items: center !important;
   width: auto !important;
-  min-height: 44px !important;
+  min-height: 0 !important;
   margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+#section-hero #booking_form .radio-option .radio-custom { display: none !important; }
+#section-hero #booking_form .radio-option > span:last-child {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 44px !important;
   padding: 10px 16px !important;
   border: 1px solid var(--bk-line) !important;
   border-radius: 999px !important;
   background: var(--bk-field) !important;
-  box-shadow: none !important;
   color: var(--bk-text) !important;
   font-size: 14.5px !important;
   font-weight: 600 !important;
   line-height: 1.2 !important;
-  cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-#section-hero #booking_form .radio-option span { color: inherit !important; }
-#section-hero #booking_form .radio-option .radio-custom { display: none !important; }
-#section-hero #booking_form .radio-option:has(input:checked) {
+#section-hero #booking_form .radio-option input:checked ~ span:last-child {
   border-color: var(--bk-amber) !important;
   background: var(--bk-amber) !important;
   color: var(--bk-ink) !important;
 }
-#section-hero #booking_form .radio-option:has(input:focus-visible) { outline: 2px solid var(--bk-amber-2) !important; outline-offset: 2px !important; }
+#section-hero #booking_form .radio-option input:focus-visible ~ span:last-child { outline: 2px solid var(--bk-amber-2) !important; outline-offset: 2px !important; }
 @media (hover: hover) {
-  #section-hero #booking_form .radio-option:hover:not(:has(input:checked)) { border-color: rgba(245, 158, 11, .55) !important; }
+  #section-hero #booking_form .radio-option:hover input:not(:checked) ~ span:last-child { border-color: rgba(245, 158, 11, .55) !important; }
 }
 #section-hero #booking_form .row.g-4 > .col-lg-6 { margin-bottom: 4px; }
 
@@ -264,5 +272,5 @@
 /* phones */
 @media (max-width: 575px) {
   #section-hero .padding40 { padding: 16px 14px !important; border-radius: 22px !important; }
-  #section-hero #booking_form .radio-option { min-height: 42px !important; padding: 9px 14px !important; font-size: 14px !important; }
+  #section-hero #booking_form .radio-option > span:last-child { min-height: 42px !important; padding: 9px 14px !important; font-size: 14px !important; }
 }
