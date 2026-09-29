@@ -19,3 +19,15 @@
     contain-intrinsic-size: auto 900px;
   }
 }
+
+/* The first screen is painted visible. The reveal-on-scroll started every
+ * section at opacity 0, the hero too, so the headline and the price were never
+ * a Largest Contentful Paint candidate and LCP fell on the small header logo
+ * seconds later. Sections further down still fade in as before. */
+html.anim-ready :is(.pr-a, .pr-b, .pr-c, .pr-n, .pr-s, .pr-t, .pr-v) :is(section.hero, section.breadcrumb-section),
+.wrap > section.hero > * {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
