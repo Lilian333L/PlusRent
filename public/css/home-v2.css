@@ -141,50 +141,62 @@
 }
 @media (prefers-reduced-motion: reduce) { .pr-pop-card { animation: none; } }
 
-/* ═════════════ 2. price calculator ═════════════ */
+/* ═════════════ 2. price calculator ═════════════
+   A dark sheet in the brand's warm black (like the contact popup and the
+   wheel stage); the price is the one light card, a receipt. Only brand
+   colours: no Bootstrap blue/green (.text-primary/.text-success carry
+   !important, hence the explicit colours on the total). */
 #price-calculator-modal {
-  background: rgba(20, 17, 15, .62) !important;
+  --pc-bg: #1c1917;
+  --pc-raise: #292524;
+  --pc-line: rgba(250, 247, 242, .1);
+  --pc-text: #faf7f2;
+  --pc-soft: rgba(250, 247, 242, .64);
+  background: rgba(12, 10, 9, .66) !important;
   -webkit-backdrop-filter: blur(6px) !important;
   backdrop-filter: blur(6px) !important;
 }
 #price-calculator-modal .price-calculator-content {
+  display: flex !important;
+  flex-direction: column !important;
   width: 100% !important;
   max-width: 520px !important;
+  height: auto !important;
   max-height: calc(100dvh - 40px) !important;
   margin: auto !important;
   padding: 0 !important;
-  border: 0 !important;
-  border-radius: 24px !important;
-  background: #fff !important;
-  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .08) !important;
-  color: var(--h2-ink) !important;
+  border: 1px solid var(--pc-line) !important;
+  border-radius: 26px !important;
+  background: var(--pc-bg) !important;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .9) !important;
+  color: var(--pc-text) !important;
   overflow: hidden !important;
 }
 
 /* header */
 #price-calculator-modal .modal-header {
   position: relative !important;
+  flex: 0 0 auto !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   min-height: 0 !important;
   margin: 0 !important;
-  padding: 18px 16px 14px 22px !important;
+  padding: 20px 16px 14px 22px !important;
   border: 0 !important;
-  border-bottom: 1px solid var(--h2-line) !important;
   border-radius: 0 !important;
-  background: #fff !important;
+  background: var(--pc-bg) !important;
   box-shadow: none !important;
 }
 #price-calculator-modal .modal-header::before,
 #price-calculator-modal .modal-header::after { display: none !important; }
 #price-calculator-modal .modal-header h4 {
   margin: 0 !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
   font-family: var(--h2-head) !important;
-  font-size: 22px !important;
+  font-size: 24px !important;
   font-weight: 800 !important;
-  line-height: 1.2 !important;
+  line-height: 1.15 !important;
   letter-spacing: -.02em !important;
   text-transform: none !important;
   text-shadow: none !important;
@@ -200,27 +212,28 @@
   padding: 0 !important;
   border: 0 !important;
   border-radius: 50% !important;
-  background: #f5f5f4 !important;
+  background: rgba(250, 247, 242, .08) !important;
   box-shadow: none !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
   font-size: 26px !important;
   line-height: 1 !important;
   transform: none !important;
   cursor: pointer;
 }
-@media (hover: hover) { #price-calculator-modal .close-modal:hover { background: #e7e5e4 !important; } }
+#price-calculator-modal .close-modal:focus-visible { outline: 2px solid var(--h2-amber) !important; outline-offset: 2px !important; border-radius: 50% !important; }
+@media (hover: hover) { #price-calculator-modal .close-modal:hover { background: rgba(250, 247, 242, .16) !important; } }
 
 /* body */
-#price-calculator-modal .price-calculator-content { display: flex !important; flex-direction: column !important; height: auto !important; }
-#price-calculator-modal .modal-header { flex: 0 0 auto !important; }
 #price-calculator-modal .modal-body {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   max-height: none !important;
   height: auto !important;
-  padding: 18px 22px 0 !important;
+  padding: 6px 22px 0 !important;
   overflow-y: auto !important;
-  background: #fff !important;
+  background: var(--pc-bg) !important;
+  color: var(--pc-text) !important;
+  scrollbar-color: rgba(250, 247, 242, .2) transparent;
 }
 #price-calculator-modal .calculator-section {
   margin: 0 0 20px !important;
@@ -236,33 +249,34 @@
   padding: 0 !important;
   border: 0 !important;
   background: none !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   line-height: 1.3 !important;
   letter-spacing: 0 !important;
+  text-align: left !important;
   text-transform: none !important;
 }
-#price-calculator-modal .calculator-section h5::after,
-#price-calculator-modal .calculator-section h5::before { display: none !important; }
+#price-calculator-modal .calculator-section h5::before,
+#price-calculator-modal .calculator-section h5::after { display: none !important; }
 #price-calculator-modal .calculator-section h5 i,
 #price-calculator-modal .modal-price-summary h5 i { display: none !important; }
 
 /* the car */
 #price-calculator-modal .vehicle-card {
   padding: 10px !important;
-  border: 1px solid var(--h2-line) !important;
-  border-radius: 16px !important;
-  background: #fff !important;
+  border: 1px solid var(--pc-line) !important;
+  border-radius: 18px !important;
+  background: var(--pc-raise) !important;
   box-shadow: none !important;
   transform: none !important;
 }
 #price-calculator-modal .vehicle-card .row { flex-wrap: nowrap; }
-#price-calculator-modal .vehicle-card .col-3 { flex: 0 0 104px !important; max-width: 104px !important; }
+#price-calculator-modal .vehicle-card .col-3 { flex: 0 0 112px !important; max-width: 112px !important; }
 #price-calculator-modal .vehicle-card .col-9 { flex: 1 1 auto !important; max-width: none !important; min-width: 0; }
 #price-calculator-modal #modal-vehicle-image {
-  width: 104px !important;
-  height: 70px !important;
+  width: 112px !important;
+  height: 76px !important;
   max-height: none !important;
   border: 0 !important;
   border-radius: 12px !important;
@@ -270,27 +284,36 @@
 }
 #price-calculator-modal #modal-vehicle-name {
   margin: 0 0 2px !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
   font-family: var(--h2-head) !important;
-  font-size: 18px !important;
+  font-size: 19px !important;
   font-weight: 800 !important;
   letter-spacing: -.01em !important;
   text-transform: none !important;
 }
 #price-calculator-modal #modal-vehicle-details,
-#price-calculator-modal .vehicle-year .text-muted {
-  margin: 0 !important;
-  color: var(--h2-muted) !important;
-  font-size: 13px !important;
+#price-calculator-modal .vehicle-year .text-muted { margin: 0 !important; color: var(--pc-soft) !important; font-size: 13px !important; }
+#price-calculator-modal #modal-vehicle-year { color: var(--pc-text) !important; font-size: 13px !important; }
+#price-calculator-modal .mv-switch {
+  margin-top: 10px !important;
+  padding: 9px 14px !important;
+  border: 1px solid rgba(245, 158, 11, .35) !important;
+  border-radius: 999px !important;
+  background: rgba(245, 158, 11, .1) !important;
+  box-shadow: none !important;
+  color: var(--h2-amber-2) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
 }
-#price-calculator-modal #modal-vehicle-year { color: var(--h2-ink) !important; font-size: 13px !important; }
+#price-calculator-modal .mv-switch i,
+#price-calculator-modal .mv-switch span { color: inherit !important; }
 
 /* fields */
 #price-calculator-modal .form-label,
 #price-calculator-modal .location-card small {
   display: block !important;
   margin: 0 0 6px !important;
-  color: var(--h2-muted) !important;
+  color: var(--pc-soft) !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
@@ -303,107 +326,162 @@
   height: 50px !important;
   min-height: 50px !important;
   padding: 0 14px !important;
-  border: 1.5px solid var(--h2-line) !important;
+  border: 1px solid rgba(250, 247, 242, .14) !important;
   border-radius: 12px !important;
-  background-color: #fff !important;
+  background-color: var(--pc-raise) !important;
   box-shadow: none !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
+  -webkit-text-fill-color: var(--pc-text) !important;
   font-size: 16px !important; /* no iOS zoom */
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
+#price-calculator-modal input::placeholder { color: rgba(250, 247, 242, .38) !important; -webkit-text-fill-color: rgba(250, 247, 242, .38) !important; }
+#price-calculator-modal select {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  padding-right: 38px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-position: right 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px !important;
+}
+#price-calculator-modal select option { background: #fff; color: #1c1917; }
 #price-calculator-modal .form-control:focus,
 #price-calculator-modal select:focus,
 #price-calculator-modal input:focus {
   border-color: var(--h2-amber) !important;
   outline: none !important;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, .15) !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, .18) !important;
 }
+#price-calculator-modal .form-control.is-valid { border-color: rgba(245, 158, 11, .6) !important; background-image: none !important; }
 #price-calculator-modal .row.g-2 { --bs-gutter-x: 10px; --bs-gutter-y: 10px; }
+#price-calculator-modal .field-error { color: #fca5a5 !important; font-size: 13px !important; }
 
 /* where */
 #price-calculator-modal .location-card {
   padding: 12px 14px !important;
-  border: 0 !important;
+  border: 1px solid var(--pc-line) !important;
   border-radius: 14px !important;
-  background: var(--h2-cream) !important;
+  background: var(--pc-raise) !important;
   box-shadow: none !important;
   transform: none !important;
 }
-#price-calculator-modal .location-card .fw-bold { color: var(--h2-ink) !important; font-size: 15px !important; }
+#price-calculator-modal .location-card .fw-bold { color: var(--pc-text) !important; font-size: 15px !important; }
 
-/* the price, on a dark card */
+/* the applied coupon ticket (light variant from css/spin-wheel.css), dark here */
+#price-calculator-modal .pr-ticket-main { background: rgba(245, 158, 11, .1) !important; }
+#price-calculator-modal .pr-ticket-title { color: var(--pc-text) !important; }
+#price-calculator-modal .pr-ticket-sub { color: var(--pc-soft) !important; }
+#price-calculator-modal .pr-ticket-code { color: var(--h2-amber-2) !important; }
+
+/* the price: a light receipt */
 #price-calculator-modal .modal-price-summary {
   position: relative !important;
   margin: 4px 0 14px !important;
-  padding: 16px 18px !important;
+  padding: 18px 18px 16px !important;
   border: 0 !important;
-  border-radius: 18px !important;
-  background: var(--h2-ink) !important;
+  border-radius: 20px !important;
+  background: var(--h2-cream) !important;
   box-shadow: none !important;
-  color: #fff !important;
+  color: var(--h2-ink) !important;
   overflow: hidden !important;
 }
 #price-calculator-modal .modal-price-summary::before,
 #price-calculator-modal .modal-price-summary::after { display: none !important; }
-#price-calculator-modal .modal-price-summary h5 { color: #fff !important; text-align: left !important; }
+#price-calculator-modal .modal-price-summary h5 { color: var(--h2-ink) !important; }
 #price-calculator-modal .modal-price-item {
   display: flex !important;
   align-items: baseline !important;
   justify-content: space-between !important;
   gap: 12px !important;
   margin: 0 !important;
-  padding: 7px 0 !important;
+  padding: 6px 0 !important;
   border: 0 !important;
   background: none !important;
-  color: rgba(255, 255, 255, .7) !important;
+  color: var(--h2-muted) !important;
   font-size: 14px !important;
 }
-#price-calculator-modal .modal-price-item span:last-child { color: #fff !important; font-weight: 600 !important; text-align: right; }
+#price-calculator-modal .modal-price-item span { color: inherit !important; }
+#price-calculator-modal .modal-price-item > span:last-child,
+#price-calculator-modal .modal-price-item > span:last-child span { color: var(--h2-ink) !important; font-weight: 600 !important; text-align: right; }
 #price-calculator-modal .modal-price-item.modal-discount-item,
-#price-calculator-modal .modal-price-item.modal-discount-item span { color: #86efac !important; }
+#price-calculator-modal .modal-price-item.modal-discount-item span,
+#price-calculator-modal .modal-price-item.modal-discount-item > span:last-child { color: var(--h2-amber-deep) !important; font-weight: 700 !important; }
 #price-calculator-modal .modal-price-item.total {
+  align-items: center !important;
   margin-top: 8px !important;
-  padding: 14px 0 2px !important;
-  border-top: 1px solid rgba(255, 255, 255, .14) !important;
-  color: #fff !important;
+  padding: 14px 0 0 !important;
+  border-top: 1px dashed #d6d3d1 !important;
+  color: var(--h2-ink) !important;
   font-size: 15px !important;
   font-weight: 700 !important;
 }
-#price-calculator-modal .modal-price-item.total .text-primary,
-#price-calculator-modal #modal-total-estimate {
-  color: var(--h2-amber-2) !important;
+#price-calculator-modal .modal-price-item.total > span:first-child { color: var(--h2-ink) !important; }
+#price-calculator-modal #modal-total-estimate,
+#price-calculator-modal #modal-total-estimate span,
+#price-calculator-modal #modal-total-estimate .text-success,
+#price-calculator-modal #modal-total-estimate.text-primary {
+  color: var(--h2-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+  background: none !important;
   font-family: var(--h2-head) !important;
   font-size: 30px !important;
   font-weight: 800 !important;
   line-height: 1 !important;
   letter-spacing: -.02em !important;
-  -webkit-text-fill-color: currentColor !important;
-  background: none !important;
 }
-#price-calculator-modal .close-modal:focus-visible { border-radius: 50% !important; }
-#price-calculator-modal .btn-calculate { min-width: 0 !important; max-width: none !important; }
-#price-calculator-modal .btn-close-calc { min-width: 0 !important; max-width: none !important; }
-#price-calculator-modal .btn-calculate,
-#price-calculator-modal .btn-close-calc,
-#price-calculator-modal .btn-calculate * { text-shadow: none !important; }
-#price-calculator-modal .tariff-fold summary { display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 8px !important; text-align: left !important; }
-#price-calculator-modal .tariff-fold summary > span { flex: 1 1 auto; text-align: left !important; }
+/* the price before the discount, struck through */
+#price-calculator-modal #modal-total-estimate span:not(.text-success):first-child {
+  margin-right: 6px !important;
+  color: #a8a29e !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-decoration: line-through !important;
+}
+
+/* why an extra day (js/rental-day-hint.js) */
+#price-calculator-modal #rental-day-hint {
+  border: 0 !important;
+  border-left: 3px solid var(--h2-amber) !important;
+  border-radius: 12px !important;
+  background: rgba(245, 158, 11, .08) !important;
+  box-shadow: none !important;
+  color: var(--pc-soft) !important;
+}
+#price-calculator-modal #rental-day-hint b { color: var(--h2-amber-2) !important; }
+#price-calculator-modal #rental-day-hint span { color: rgba(250, 247, 242, .78) !important; }
+#price-calculator-modal #rental-day-hint em { color: var(--pc-soft) !important; }
 
 /* hours and fees, folded */
 #price-calculator-modal .tariff-fold {
   margin: 0 0 8px !important;
-  border: 1px solid var(--h2-line) !important;
+  border: 1px solid var(--pc-line) !important;
   border-radius: 14px !important;
-  background: #fff !important;
+  background: var(--pc-raise) !important;
+  color: var(--pc-text) !important;
 }
 #price-calculator-modal .tariff-fold summary {
-  padding: 12px 14px !important;
-  color: var(--h2-ink) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 13px 14px !important;
+  color: var(--pc-text) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
+  text-align: left !important;
 }
-#price-calculator-modal .tariff-fold summary i { color: var(--h2-amber-deep) !important; }
+#price-calculator-modal .tariff-fold summary > span { flex: 1 1 auto; text-align: left !important; }
+#price-calculator-modal .tariff-fold summary i { color: var(--h2-amber-2) !important; }
+#price-calculator-modal .tariff-info { padding: 0 14px 12px !important; border: 0 !important; background: none !important; }
+#price-calculator-modal .tariff-info h6 { display: none !important; }
+#price-calculator-modal .tariff-details,
+#price-calculator-modal .tariff-details * { color: rgba(250, 247, 242, .74) !important; font-size: 13.5px !important; line-height: 1.6 !important; }
+#price-calculator-modal .tariff-details .working-hours,
+#price-calculator-modal .tariff-details .outside-hours,
+#price-calculator-modal .tariff-details .location-fees { color: var(--pc-text) !important; font-weight: 700 !important; }
+#price-calculator-modal .tariff-details > div { padding: 3px 0 !important; border: 0 !important; background: none !important; }
 
 /* the buttons stay at the bottom of the sheet */
 #price-calculator-modal .modal-actions {
@@ -415,58 +493,56 @@
   flex-wrap: nowrap !important;
   gap: 10px !important;
   margin: 0 -22px !important;
-  padding: 12px 22px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  padding: 14px 22px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
   border: 0 !important;
-  background: linear-gradient(rgba(255, 255, 255, .86), #fff 30%) !important;
-  box-shadow: 0 -10px 24px -18px rgba(0, 0, 0, .45) !important;
+  background: linear-gradient(rgba(28, 25, 23, .82), var(--pc-bg) 30%) !important;
+  box-shadow: none !important;
 }
-#price-calculator-modal .btn-calculate {
+#price-calculator-modal .btn-calculate,
+#price-calculator-modal .btn-close-calc {
   display: flex !important;
-  flex: 1 1 auto !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
   width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
   min-height: 54px !important;
   margin: 0 !important;
   padding: 12px 18px !important;
-  border: 0 !important;
   border-radius: 14px !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+  text-transform: none !important;
+  transform: none !important;
+}
+#price-calculator-modal .btn-calculate {
+  flex: 1 1 auto !important;
+  border: 0 !important;
   background: var(--h2-amber) !important;
-  box-shadow: 0 10px 22px -10px rgba(217, 119, 6, .8) !important;
+  box-shadow: 0 12px 26px -12px rgba(245, 158, 11, .7) !important;
   color: var(--h2-ink) !important;
   font-size: 16px !important;
   font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  transform: none !important;
 }
+#price-calculator-modal .btn-calculate * { color: inherit !important; text-shadow: none !important; }
 #price-calculator-modal .btn-calculate i { font-size: 15px !important; }
 #price-calculator-modal .btn-close-calc {
-  display: flex !important;
   flex: 0 0 auto !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: auto !important;
-  min-height: 54px !important;
-  margin: 0 !important;
-  padding: 12px 18px !important;
-  border: 1.5px solid var(--h2-line) !important;
-  border-radius: 14px !important;
-  background: #fff !important;
+  border: 1px solid rgba(250, 247, 242, .18) !important;
+  background: transparent !important;
   box-shadow: none !important;
-  color: var(--h2-ink) !important;
+  color: var(--pc-text) !important;
   font-size: 15px !important;
   font-weight: 700 !important;
-  text-transform: none !important;
-  transform: none !important;
 }
+#price-calculator-modal .btn-close-calc * { color: inherit !important; }
 #price-calculator-modal .btn-close-calc i { display: none !important; }
 #price-calculator-modal .btn-calculate:focus-visible,
-#price-calculator-modal .btn-close-calc:focus-visible { outline: 3px solid var(--h2-ink) !important; outline-offset: 2px !important; }
+#price-calculator-modal .btn-close-calc:focus-visible { outline: 3px solid var(--h2-amber-2) !important; outline-offset: 2px !important; }
 @media (hover: hover) {
   #price-calculator-modal .btn-calculate:hover { background: var(--h2-amber-2) !important; }
-  #price-calculator-modal .btn-close-calc:hover { background: #f5f5f4 !important; }
+  #price-calculator-modal .btn-close-calc:hover { background: rgba(250, 247, 242, .08) !important; }
 }
 
 /* phones: a sheet from the bottom edge */
@@ -476,10 +552,11 @@
     max-width: none !important;
     max-height: calc(100dvh - 12px) !important;
     margin: auto 0 0 !important;
-    border-radius: 24px 24px 0 0 !important;
+    border-width: 1px 0 0 !important;
+    border-radius: 26px 26px 0 0 !important;
     animation: pr-sheet-up .35s var(--h2-ease);
   }
-  #price-calculator-modal .modal-header { padding: 22px 12px 12px 18px !important; }
+  #price-calculator-modal .modal-header { padding: 24px 12px 12px 18px !important; }
   #price-calculator-modal .modal-header::before {
     content: "" !important;
     display: block !important;
@@ -490,10 +567,12 @@
     height: 4px !important;
     margin-left: -20px !important;
     border-radius: 2px !important;
-    background: #d6d3d1 !important;
+    background: rgba(250, 247, 242, .22) !important;
   }
-  #price-calculator-modal .modal-body { padding: 16px 18px 0 !important; }
+  #price-calculator-modal .modal-body { padding: 4px 18px 0 !important; }
   #price-calculator-modal .modal-actions { margin: 0 -18px !important; padding-left: 18px !important; padding-right: 18px !important; }
+  /* one clear action on phones; the cross at the top closes the sheet */
+  #price-calculator-modal .btn-close-calc { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   #price-calculator-modal .price-calculator-content { animation: none !important; }
@@ -552,22 +631,7 @@
   .pr-reviews-grid > * { scroll-snap-align: start; }
 }
 
-/* ── brand strip; the cars section keeps its original header and white background (owner, 30 Sep 2026) ── */
-.pr-brands { padding: 22px 0 6px !important; background: var(--h2-ink) !important; }
-section.pr-brands[data-bgcolor] .de-marquee-list .d-item-txt {
-  color: rgba(250, 247, 242, .32) !important;
-  font-family: var(--h2-head) !important;
-  font-size: clamp(22px, 3.2vw, 34px) !important;
-  font-weight: 800 !important;
-  line-height: 1.2 !important;
-  letter-spacing: -.01em !important;
-  -webkit-text-stroke: 0 !important;
-  -webkit-text-fill-color: currentColor !important;
-  background: none !important;
-}
-section.pr-brands[data-bgcolor] .d-item-display { margin: 0 !important; }
-section.pr-brands[data-bgcolor] .de-marquee-list .d-item-dot { width: 7px !important; height: 7px !important; max-height: 7px !important; margin: 0 20px !important; border-radius: 50% !important; transform: none !important; background: var(--h2-amber) !important; }
-
+/* ── cars: original centred header, white background (owner, 30 Sep 2026); the brand strip keeps its original look ── */
 @media (min-width: 768px) {
   #fleet-car-grid {
     display: grid !important;
