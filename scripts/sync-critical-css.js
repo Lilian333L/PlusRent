@@ -13,6 +13,7 @@
  *   css/cars-catalog.css  -> critical-cars.css    (the /cars catalogue)
  *   css/premium-badge.css -> critical-home.css    (picked cars on the home page)
  *   css/home-perf.css     -> critical-home.css    (below-the-fold sections skipped)
+ *   css/home-booking.css  -> critical-home.css    (the booking form on the first screen)
  *   css/sober-perf.css    -> critical-sofer-treaz*.css (the same on the sober-driver pages)
  *
  * Afterwards the ?v= of each changed critical stylesheet has to change on the
@@ -34,6 +35,7 @@ const BLOCKS = [
   { source: "cars-catalog.css", marker: "cars-catalog", targets: (name) => name === "critical-cars.css" },
   { source: "premium-badge.css", marker: "premium-badge", targets: (name) => name === "critical-home.css" },
   { source: "home-perf.css", marker: "home-perf", targets: (name) => name === "critical-home.css" },
+  { source: "home-booking.css", marker: "home-booking", targets: (name) => name === "critical-home.css" },
   { source: "sober-perf.css", marker: "sober-perf", targets: (name) => /^critical-sofer-treaz(-landing|-ro)?\.css$/.test(name) },
 ];
 
