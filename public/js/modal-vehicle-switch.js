@@ -131,6 +131,16 @@
       if (window.priceCalculator && d && d.price_policy) window.priceCalculator.car = d;
     }
     if (typeof window.syncVehicleDataToModal === "function") window.syncVehicleDataToModal();
+    // seats, doors and body of the new car (built as in openPriceCalculator;
+    // the sync above copies the booking form's line, which can lag behind)
+    var det = document.getElementById("modal-vehicle-details");
+    if (det && o && window.i18next && i18next.t) {
+      var dd = detailsOf(o);
+      var typeKey = "price_calculator.vehicle_details.car_types." + dd.car_type;
+      det.textContent = (dd.num_passengers || "-") + " " + i18next.t("price_calculator.vehicle_details.passengers") +
+        " • " + (dd.num_doors || "-") + " " + i18next.t("price_calculator.vehicle_details.doors") +
+        " • " + (i18next.exists(typeKey) ? i18next.t(typeKey) : (dd.car_type || ""));
+    }
     // The car page keeps its rates in priceCalculator; the home page modal reads
     // them straight off the selected option and recalculates in calculateModalPrice.
     // Only the first was called here, so on the home page the total stayed on the
@@ -147,8 +157,49 @@
     if (typeof window.updateRentalDayHint === "function") {
       window.updateRentalDayHint();
     }
+    refreshBookedDates(o, carId);
     build();
     close();
+  }
+
+  // The calculator's calendars are built with the booked days of the car it was
+  // opened with, and nothing reloaded them after a switch: a busy car looked
+  // free. Build them again for the new car (as openPriceCalculator does) and
+  // keep the dates already picked when the new car is free on all of them.
+  function refreshBookedDates(option, carId) {
+    var old = window.modalDatePicker;
+    if (!old || typeof window.DatePickerManager !== "function") return;
+    var id = (option && option.getAttribute("data-car-id")) || carId;
+    var prevPick = old.pickupFlatpickr && old.pickupFlatpickr.selectedDates[0];
+    var prevRet = old.returnFlatpickr && old.returnFlatpickr.selectedDates[0];
+    [old.pickupFlatpickr, old.returnFlatpickr].forEach(function (fp) {
+      try { if (fp) fp.destroy(); } catch (e) {}
+    });
+    var dp = new window.DatePickerManager({
+      pickupInputId: "modal-pickup-date",
+      returnInputId: "modal-return-date",
+      carId: id,
+      isModal: true,
+      customClass: "modal-return-date-picker",
+      dateFormat: "d-m-Y",
+      onDateChange: old.onDateChange
+    });
+    window.modalDatePicker = dp;
+    dp.initialize().then(function () {
+      var p = dp.pickupFlatpickr, r = dp.returnFlatpickr;
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var free = !!(p && r && prevPick && prevRet && prevPick >= today && prevRet >= prevPick);
+      for (var d = prevPick && new Date(prevPick); free && d <= prevRet; d.setDate(d.getDate() + 1)) {
+        if (!p.isEnabled(d)) free = false;
+      }
+      if (free) {
+        p.setDate(prevPick, true);
+        r.setDate(prevRet, true);
+      }
+      if (typeof window.calculateModalPrice === "function") window.calculateModalPrice();
+      if (typeof window.updateRentalDayHint === "function") window.updateRentalDayHint();
+    }).catch(function () {});
   }
 
   function open() {
