@@ -1,0 +1,21 @@
+/* ============================================================================
+ * PlusRent, sober-driver pages: lay out the sections below the first screen
+ * only when they come near (phones and tablets), as on the home page.
+ *
+ * The hub is 17 000 px tall on a phone and every script that reads a size
+ * during load paid for laying all of it out (services-nav, the template).
+ * content-visibility:auto skips those sections until they are close to the
+ * viewport; "auto" in contain-intrinsic-size keeps each one's real height once
+ * it has been rendered, so scrolling does not jump.
+ *
+ * Copied into critical-sofer-treaz-landing.css, critical-sofer-treaz-ro.css and
+ * critical-sofer-treaz.css by scripts/sync-critical-css.js (in the deferred CSS
+ * it would do nothing for the first layout); edit it here and run the script.
+ * ========================================================================== */
+@media (max-width: 991.98px) {
+  .wrap > section.hero ~ section,
+  #content > #subheader + section ~ section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+}
