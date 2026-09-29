@@ -10,7 +10,7 @@
     // Load universal spinning wheel
     if (!window.UniversalSpinningWheel) {
         const spinningWheelScript = document.createElement('script');
-        spinningWheelScript.src = 'js/universal-spinning-wheel.min.js?v=9b075f6b';
+        spinningWheelScript.src = 'js/universal-spinning-wheel.min.js?v=da723d95';
         spinningWheelScript.async = true;
         document.head.appendChild(spinningWheelScript);
     }
@@ -33,7 +33,7 @@
     // Load i18n init if not already loaded
     if (!document.querySelector('script[src*="i18n-init.js"]') && !window.PREVENT_DUPLICATE_I18NEXT) {
         const i18nInitScript = document.createElement('script');
-        i18nInitScript.src = 'js/i18n-init.min.js?v=e56d8529';
+        i18nInitScript.src = 'js/i18n-init.min.js?v=a406a725';
         i18nInitScript.async = true;
         document.head.appendChild(i18nInitScript);
     }

@@ -776,8 +776,8 @@ class BookingFormHandler {
               <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
             </svg>
           </div>
-          <h2 class="pr-rc-title" id="prRcTitle" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
-          <p class="pr-rc-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
+          <h2 class="pr-rc-title" id="prRcTitle" data-i18n="wheel.welcome_back_title">Welcome back!</h2>
+          <p class="pr-rc-subtitle" data-i18n="wheel.welcome_back_subtitle">Your second booking comes with a gift. Choose a wheel and try your luck.</p>
           <div class="pr-rc-options">
             ${wheelOptionsHTML}
           </div>
@@ -790,7 +790,7 @@ class BookingFormHandler {
       : new Promise((resolve) => {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
-          link.href = '/css/spin-wheel.min.css?v=1d5b141b';
+          link.href = '/css/spin-wheel.min.css?v=56b05975';
           link.onload = link.onerror = resolve;
           document.head.appendChild(link);
           setTimeout(resolve, 3000);

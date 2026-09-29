@@ -136,7 +136,7 @@
             title: 'Try your luck!',
             subtitle: 'Spin the wheel and win a discount on your rental.',
             enterPhoneTitle: 'Enter your number',
-            phoneDescription: 'We\'ll send you exclusive offers and your lucky discount code!',
+            phoneDescription: 'Your discount code will be linked to this number, so nobody else can use it.',
             phonePlaceholder: '69 123 456',
             continueButton: 'Continue',
             privacyText: 'Your data is secure',
@@ -149,7 +149,7 @@
             title: 'Испытайте удачу!',
             subtitle: 'Крутите колесо и выиграйте скидку на аренду автомобиля.',
             enterPhoneTitle: 'Введите ваш номер',
-            phoneDescription: 'Мы отправим вам эксклюзивные предложения и ваш счастливый код скидки!',
+            phoneDescription: 'Код скидки привяжем к этому номеру, так им не сможет воспользоваться никто другой.',
             phonePlaceholder: '69 123 456',
             continueButton: 'Продолжить',
             privacyText: 'Ваши данные защищены',
@@ -162,7 +162,7 @@
             title: 'Încearcă-ți norocul!',
             subtitle: 'Învârte roata și câștigă o reducere la închirierea mașinii.',
             enterPhoneTitle: 'Introdu numărul tău',
-            phoneDescription: 'Îți vom trimite oferte exclusive și codul tău de reducere norocos!',
+            phoneDescription: 'Codul de reducere va fi legat de acest număr, așa că nimeni altcineva nu îl poate folosi.',
             phonePlaceholder: '69 123 456',
             continueButton: 'Continuă',
             privacyText: 'Datele tale sunt securizate',
@@ -268,10 +268,41 @@
         `;
     }
 
+    // The country picker (js/phone-input.js) is on the pages with a booking
+    // form. On the others the wheel fetches it itself, so the number is always
+    // entered with its country and checked ("valid Moldovan number") before a
+    // code is tied to it. When phone-input.min.js changes, update its ?v= here.
+    const PHONE_WIDGET = '/js/phone-input.min.js?v=5173709e';
+    let phoneWidgetPromise = null;
+    function enhancePhoneField() {
+        const input = document.getElementById('universalPhoneInput');
+        if (!input || !window.PhoneInput || !window.PhoneInput.enhance) return;
+        window.PhoneInput.enhance(input);
+        // The picker stands where the little handset icon used to.
+        const icon = state.modal && state.modal.querySelector('.input-wrapper .input-icon');
+        if (icon) icon.style.display = 'none';
+    }
+    function ensurePhoneWidget() {
+        if (window.PhoneInput && window.PhoneInput.enhance) {
+            enhancePhoneField();
+            return Promise.resolve();
+        }
+        if (phoneWidgetPromise) return phoneWidgetPromise;
+        phoneWidgetPromise = new Promise(function (resolve) {
+            const script = document.createElement('script');
+            script.src = PHONE_WIDGET;
+            script.onload = function () { enhancePhoneField(); resolve(); };
+            script.onerror = function () { resolve(); };
+            document.head.appendChild(script);
+            setTimeout(resolve, 4000);
+        });
+        return phoneWidgetPromise;
+    }
+
     // The modals' styles live in css/spin-wheel.css and are fetched the first
     // time one of them opens (every page carries this script, few open it).
     // When the stylesheet changes, update its ?v= here.
-    const WHEEL_CSS = '/css/spin-wheel.min.css?v=1d5b141b';
+    const WHEEL_CSS = '/css/spin-wheel.min.css?v=56b05975';
     let wheelCssPromise = null;
     function ensureWheelCss() {
         if (wheelCssPromise) return wheelCssPromise;
@@ -435,7 +466,9 @@ function showBonusNotification() {
 }
 
 function showModalInternal(options = {}) {
-    ensureWheelCss().then(function () { showModalNow(options); });
+    const waits = [ensureWheelCss()];
+    if (!options.skipPhoneStep) waits.push(ensurePhoneWidget());
+    Promise.all(waits).then(function () { showModalNow(options); });
 }
 
 function showModalNow(options = {}) {
@@ -767,58 +800,168 @@ function closeModal() {
         } catch (error) {}
     }
 
-    function showCouponAppliedNotification(couponCode) {
-        const currentLang = getCurrentLanguage();
-        
-        const notificationTranslations = {
-            en: {
-                title: 'Coupon applied',
-                codeLabel: 'Code:',
-                readyMessage: 'Ready to use on your next booking!'
-            },
-            ru: {
-                title: 'Купон применён',
-                codeLabel: 'Код:',
-                readyMessage: 'Готов к использованию при следующем бронировании!'
-            },
-            ro: {
-                title: 'Cupon aplicat',
-                codeLabel: 'Cod:',
-                readyMessage: 'Gata de utilizare la următoarea rezervare!'
-            }
-        };
-        
-        const nt = notificationTranslations[currentLang] || notificationTranslations['ro'];
+    // ========== The applied coupon, drawn as a ticket ==========
+    // A stub with the value (-14% or +2 days), a perforation, then the words.
+    // Dark as the toast after the wheel, light under the code field of the
+    // booking forms (car pages, the home page price calculator).
+    const TICKET_WORDS = {
+        ro: { applied: 'Cupon aplicat', pct: 'Reducere de {v}% aplicată', days1: '1 zi gratuită adăugată', daysN: '{v} zile gratuite adăugate', code: 'Cod', inForm: 'Codul e deja în formularul de rezervare.', saved: 'Codul e salvat și apare singur când rezervi.', daysNote: 'Zilele gratuite se aplică la preluarea mașinii.', day: 'zi', days: 'zile' },
+        ru: { applied: 'Купон применён', pct: 'Скидка {v}% применена', days1: 'Добавлен 1 бесплатный день', daysN: 'Добавлено {v} бесплатных {w}', code: 'Код', inForm: 'Код уже стоит в форме бронирования.', saved: 'Код сохранён и сам появится при бронировании.', daysNote: 'Бесплатные дни учтём при выдаче машины.', day: 'день', days: 'дня', days5: 'дней' },
+        en: { applied: 'Coupon applied', pct: '{v}% discount applied', days1: '1 free day added', daysN: '{v} free days added', code: 'Code', inForm: 'The code is already in the booking form.', saved: 'The code is saved and fills in when you book.', daysNote: 'Free days are applied when you pick up the car.', day: 'day', days: 'days' }
+    };
 
+    function ticketWords() {
+        return TICKET_WORDS[getCurrentLanguage()] || TICKET_WORDS.ro;
+    }
+
+    function ruDays(n) {
+        const w = TICKET_WORDS.ru, m10 = n % 10, m100 = n % 100;
+        if (m10 === 1 && m100 !== 11) return w.day;
+        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return w.days;
+        return w.days5;
+    }
+
+    const couponLookups = {};
+    function lookupCoupon(code) {
+        code = String(code || '').trim();
+        if (code.length < 3) return Promise.resolve(null);
+        if (couponLookups[code]) return couponLookups[code];
+        const phone = safeGetItem(localStorage, 'spinningWheelPhone');
+        const url = (window.API_BASE_URL || '') + '/api/coupons/lookup/' + encodeURIComponent(code) +
+            (phone ? '?phone=' + encodeURIComponent(phone) : '');
+        couponLookups[code] = fetch(url)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d || !d.valid) return null;
+                return {
+                    pct: Number(d.discount_percentage) || 0,
+                    days: Number(d.free_days) || 0
+                };
+            })
+            .catch(function () { delete couponLookups[code]; return null; });
+        return couponLookups[code];
+    }
+
+    function buildTicket(code, info, variant) {
+        const w = ticketWords();
+        const lang = getCurrentLanguage();
+        const el = document.createElement('div');
+        el.className = 'pr-ticket pr-ticket--' + variant;
+
+        const stub = document.createElement('span');
+        stub.className = 'pr-ticket-stub';
+        stub.setAttribute('aria-hidden', 'true');
+        const main = document.createElement('span');
+        main.className = 'pr-ticket-main';
+        const title = document.createElement('span');
+        title.className = 'pr-ticket-title';
+        const sub = document.createElement('span');
+        sub.className = 'pr-ticket-sub';
+        const codeEl = document.createElement('span');
+        codeEl.className = 'pr-ticket-code';
+        codeEl.textContent = code;
+
+        if (info && info.days > 0) {
+            stub.innerHTML = '<span class="pr-ticket-value">+' + info.days + '</span><span class="pr-ticket-unit">' +
+                (lang === 'ru' ? ruDays(info.days) : info.days === 1 ? w.day : w.days) + '</span>';
+            title.textContent = info.days === 1 ? w.days1 : w.daysN.replace('{v}', info.days).replace('{w}', ruDays(info.days));
+        } else if (info && info.pct > 0) {
+            stub.innerHTML = '<span class="pr-ticket-value">&minus;' + info.pct + '%</span>';
+            title.textContent = w.pct.replace('{v}', info.pct);
+        } else {
+            stub.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+            title.textContent = w.applied;
+        }
+
+        sub.append(w.code + ' ', codeEl);
+        main.append(title, sub);
+        if (variant === 'dark') {
+            const note = document.createElement('span');
+            note.className = 'pr-ticket-note';
+            const hasForm = document.querySelector('input[name="discount_code"], #modal-discount-code');
+            note.textContent = hasForm ? w.inForm : w.saved;
+            main.append(note);
+        } else if (info && info.days > 0) {
+            const note = document.createElement('span');
+            note.className = 'pr-ticket-note';
+            note.textContent = w.daysNote;
+            main.append(note);
+        }
+        el.append(stub, main);
+        return el;
+    }
+
+    function showCouponAppliedNotification(couponCode) {
         const old = document.getElementById('coupon-applied-notification');
         if (old) old.remove();
 
-        const notification = document.createElement('div');
-        notification.id = 'coupon-applied-notification';
-        notification.setAttribute('role', 'status');
-        const icon = document.createElement('span');
-        icon.className = 'sw-toast-icon';
-        icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-        const body = document.createElement('span');
-        const title = document.createElement('span');
-        title.className = 'sw-toast-title';
-        title.textContent = nt.title;
-        const text = document.createElement('span');
-        text.className = 'sw-toast-text';
-        const code = document.createElement('span');
-        code.className = 'sw-toast-code';
-        code.textContent = couponCode;
-        text.append(nt.codeLabel + ' ', code, '. ' + nt.readyMessage);
-        body.append(title, text);
-        notification.append(icon, body);
-
-        ensureWheelCss().then(function () {
+        Promise.all([ensureWheelCss(), lookupCoupon(couponCode)]).then(function (res) {
+            const notification = document.createElement('div');
+            notification.id = 'coupon-applied-notification';
+            notification.setAttribute('role', 'status');
+            const ticket = buildTicket(couponCode, res[1], 'dark');
+            const close = document.createElement('button');
+            close.type = 'button';
+            close.className = 'pr-ticket-close';
+            close.setAttribute('aria-label', '\u00d7');
+            close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+            ticket.append(close);
+            notification.append(ticket);
             document.body.appendChild(notification);
-            setTimeout(function () {
+
+            let timer = null;
+            const leave = function () {
+                clearTimeout(timer);
                 notification.classList.add('is-leaving');
                 setTimeout(function () { notification.remove(); }, 320);
-            }, 5000);
+            };
+            close.addEventListener('click', leave);
+            timer = setTimeout(leave, 7000);
         });
+    }
+
+    // Under the code field of a booking form: the ticket while the code is valid.
+    const CODE_FIELDS = 'input[name="discount_code"], #modal-discount-code';
+    const cardTimers = new WeakMap();
+    function refreshCouponCard(input) {
+        clearTimeout(cardTimers.get(input));
+        cardTimers.set(input, setTimeout(function () {
+            const code = (input.value || '').trim();
+            const next = input.nextElementSibling;
+            const card = next && next.classList && next.classList.contains('pr-ticket') ? next : null;
+            if (code.length < 3 || input.classList.contains('is-invalid')) {
+                if (card) card.remove();
+                return;
+            }
+            Promise.all([ensureWheelCss(), lookupCoupon(code)]).then(function (res) {
+                if ((input.value || '').trim() !== code) return;
+                const current = input.nextElementSibling;
+                if (current && current.classList && current.classList.contains('pr-ticket')) current.remove();
+                if (!res[1]) return;
+                const fresh = buildTicket(code, res[1], 'light');
+                fresh.setAttribute('role', 'status');
+                input.insertAdjacentElement('afterend', fresh);
+            });
+        }, 350));
+    }
+    function watchCouponFields() {
+        ['input', 'change', 'blur'].forEach(function (type) {
+            document.addEventListener(type, function (e) {
+                const t = e.target;
+                if (t && t.matches && t.matches(CODE_FIELDS)) refreshCouponCard(t);
+            }, true);
+        });
+        // a code put in by auto-apply before this ran, or by a page script without events
+        const scan = function () {
+            document.querySelectorAll(CODE_FIELDS).forEach(function (input) {
+                if ((input.value || '').trim().length >= 3) refreshCouponCard(input);
+            });
+        };
+        setTimeout(scan, 1500);
+        setTimeout(scan, 4000);
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && e.target.closest('[onclick*="openPriceCalculator"], .btn-calculate, #calculate-price-btn')) setTimeout(scan, 900);
+        }, true);
     }
 
     function handleOutsideClick(event) {}
@@ -957,12 +1100,7 @@ function closeModal() {
             // country picker has to be attached here or this one field is the
             // only place on the site where a number can be left without its
             // country code, which is exactly the number we then cannot call.
-            if (window.PhoneInput && window.PhoneInput.enhance) {
-                window.PhoneInput.enhance(phoneInput);
-                // The picker stands where the little handset icon used to.
-                const icon = document.querySelector('.input-wrapper .input-icon');
-                if (icon) icon.style.display = 'none';
-            }
+            if (window.PhoneInput && window.PhoneInput.enhance) enhancePhoneField();
         }
         
         window.addEventListener('message', handleWheelMessage);
@@ -1018,6 +1156,8 @@ function closeModal() {
             document.getElementById('universalWheelStep').style.display = 'flex';
         }
         
+        watchCouponFields();
+
         state.isInitialized = true;
         
         startTimer();
