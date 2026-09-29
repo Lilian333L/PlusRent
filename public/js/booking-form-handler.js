@@ -724,7 +724,7 @@ class BookingFormHandler {
         id: wheel.id,
         name: wheel.name || `Wheel ${index + 1}`,
         type: index === 0 ? 'percent' : 'free-days', // Assume first is percent, second is free-days
-        displayName: index === 0 ? 'Percentage Discount Wheel' : 'Free Days Wheel'
+        displayName: index === 0 ? 'Percentage discount wheel' : 'Free days wheel'
       }));
     } else {
       // Fallback: create default configs
@@ -738,627 +738,91 @@ class BookingFormHandler {
       ];
     }
 
-    // Create wheel options HTML based on enabled configurations
-    let wheelOptionsHTML = '';
-    
-    if (wheelConfigs.length > 0) {
-      wheelConfigs.forEach((config, index) => {
-        // Get translations
-        const titleKey = config.type === 'percent' ? 'wheel.percentage_discount_wheel' : 
-                        config.type === 'free-days' ? 'wheel.free_days_wheel' : 
-                        'wheel.title';
-        const descKey = config.type === 'percent' ? 'wheel.percentage_discount_description' : 
-                       config.type === 'free-days' ? 'wheel.free_days_description' : 
-                       'wheel.subtitle';
-        
-        // Get translations with fallback
-        let title = config.displayName;
-        let description = 'Win amazing rewards';
-        
-        // Set correct fallback descriptions based on wheel type
-        if (config.type === 'percent') {
-          title = 'Percentage Discount Wheel';
-          description = 'Win discount percentages on your rental';
-        } else if (config.type === 'free-days') {
-          title = 'Free Days Wheel';
-          description = 'Win free rental days for your next booking';
-        }
-        
-        if (typeof i18next !== 'undefined' && i18next.t) {
-          const translatedTitle = i18next.t(titleKey);
-          const translatedDesc = i18next.t(descKey);
-          
-          if (translatedTitle && translatedTitle !== titleKey) {
-            title = translatedTitle;
-          }
-          if (translatedDesc && translatedDesc !== descKey) {
-            description = translatedDesc;
-          }
-        }
-        
-        wheelOptionsHTML += `
-          <button class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
-            <div class="wheel-icon-circle">
-              ${config.type === 'percent' ? `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M8 8l8 8"></path>
-                  <circle cx="9" cy="9" r="1"></circle>
-                  <circle cx="15" cy="15" r="1"></circle>
-                </svg>
-              ` : `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="16" y1="2" x2="16" y2="6"></line>
-                  <line x1="8" y1="2" x2="8" y2="6"></line>
-                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-              `}
-            </div>
-            <div class="wheel-text-content">
-              <div class="wheel-button-title">${title}</div>
-              <div class="wheel-description">${description}</div>
-            </div>
-            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
-        `;
-      });
-    } else {
-      // Fallback if no configurations found
-      wheelOptionsHTML = `
-        <button class="wheel-button default-wheel" data-wheel-id="active">
-          <div class="wheel-icon-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-          </div>
-          <div class="wheel-text-content">
-            <div class="wheel-button-title">Spinning Wheel</div>
-            <div class="wheel-description">Win amazing rewards</div>
-          </div>
-          <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </button>
-      `;
-    }
+    // Words for the "up to" line under each wheel (the locale files do not have them)
+    const lang = this.getCurrentLanguage();
+    const UPTO = { ro: 'până la', ru: 'до', en: 'up to' }[lang] || 'up to';
 
-    // Create modal container
+    const icons = {
+      percent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>',
+      'free-days': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="3"/><path d="M16 2.5v4M8 2.5v4M3 10h18M9 15.5l2 2 4-4"/></svg>',
+      default: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4M12 12 5.6 18.4M12 12H3"/></svg>'
+    };
+
+    const wheelOptionsHTML = wheelConfigs.map((config) => `
+          <button type="button" class="wheel-button ${config.type}-wheel" data-wheel-id="${config.id}">
+            <span class="wheel-icon-circle">${icons[config.type] || icons.default}</span>
+            <span class="wheel-text-content">
+              <span class="wheel-button-title"></span>
+              <span class="wheel-description"></span>
+              <span class="pr-rc-range"></span>
+            </span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>`).join('');
+
+    // Styles: css/spin-wheel.css (scoped to #returningCustomerModal)
     const modalContainer = document.createElement('div');
     modalContainer.innerHTML = `
-      <div id="returningCustomerModal" class="returning-customer-modal">
-        <div class="modal-content">
-          <button class="modal-close" onclick="this.closest('.returning-customer-modal').classList.remove('show'); document.body.classList.remove('modal-open');">×</button>
-          <div class="modal-header">
-            <div class="gift-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 12v10H4V12"></path>
-                <path d="M22 7H2v5h20V7z"></path>
-                <path d="M12 22V7"></path>
-                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
-                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
-              </svg>
-            </div>
-            <h2 class="modal-title" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
-            <p class="modal-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
+      <div id="returningCustomerModal" class="returning-customer-modal" role="dialog" aria-modal="true" aria-labelledby="prRcTitle" tabindex="-1">
+        <div class="pr-rc-card">
+          <button type="button" class="pr-rc-close" aria-label="&times;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+          <div class="pr-rc-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 12v9H4v-9"></path>
+              <path d="M22 7H2v5h20V7z"></path>
+              <path d="M12 21V7"></path>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+            </svg>
           </div>
-          <div class="modal-body">
-            <div class="welcome-message" data-i18n="wheel.welcome_message">
-              As a returning customer, you have a special gift waiting! Choose one of the spinning wheels below to redeem your return gift and win amazing rewards.
-            </div>
-            <div class="wheel-options">
-              ${wheelOptionsHTML}
-            </div>
+          <h2 class="pr-rc-title" id="prRcTitle" data-i18n="wheel.welcome_back_title">Welcome Back!</h2>
+          <p class="pr-rc-subtitle" data-i18n="wheel.welcome_back_subtitle">You have an unredeemed return gift waiting for you!</p>
+          <div class="pr-rc-options">
+            ${wheelOptionsHTML}
           </div>
         </div>
       </div>
     `;
 
-    // Add modal styles
-    const modalStyles = document.createElement('style');
-    modalStyles.textContent = `
-      .returning-customer-modal {
-        display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(8px);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        padding: 20px;
-      }
-
-      .returning-customer-modal.show {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 1;
-      }
-      
-      .returning-customer-modal.show .modal-content {
-        transform: scale(1);
-        animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-
-      .modal-content {
-        background: white;
-        border-radius: 24px;
-        width: 100%;
-        max-width: 600px;
-        max-height: 90vh;
-        position: relative;
-        overflow: hidden;
-        transform: scale(0.9);
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      }
-
-      .modal-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        cursor: pointer;
-        color: white;
-        z-index: 10;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-        border: none;
-        outline: none;
-        box-shadow: none;
-      }
-      
-      .modal-close:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: rotate(90deg);
-        border: none;
-        outline: none;
-        box-shadow: none;
-      }
-
-      .modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 40px 32px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .modal-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: pulse 3s ease-in-out infinite;
-      }
-
-      .gift-icon {
-        width: 72px;
-        height: 72px;
-        margin: 0 auto 20px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: bounce 2s ease-in-out infinite;
-        position: relative;
-        z-index: 1;
-      }
-
-      .gift-icon svg {
-        width: 36px;
-        height: 36px;
-        color: white;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-      }
-
-      .modal-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0 0 12px 0;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        color: white;
-        position: relative;
-        z-index: 1;
-      }
-
-      .modal-subtitle {
-        font-size: 1.1rem;
-        margin: 0;
-        opacity: 0.95;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        color: white;
-        position: relative;
-        z-index: 1;
-        line-height: 1.5;
-      }
-
-      .modal-body {
-        padding: 40px 32px;
-        text-align: center;
-        background: white;
-      }
-
-      .welcome-message {
-        font-size: 1.1rem;
-        color: #4a5568;
-        margin-bottom: 32px;
-        line-height: 1.7;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      }
-
-      .wheel-options {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 32px;
-      }
-
-      .wheel-button {
-        padding: 24px;
-        border: none;
-        border-radius: 16px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        text-align: left;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .wheel-button::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s ease;
-      }
-
-      .wheel-button:hover::before {
-        left: 100%;
-      }
-
-      .wheel-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-      }
-
-      .wheel-button:active {
-        transform: translateY(0);
-      }
-
-      .wheel-button.percent-wheel {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-      }
-
-      .wheel-button.free-days-wheel {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-      }
-
-      .wheel-button.default-wheel {
-        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-        color: white;
-      }
-
-      .wheel-icon-circle {
-        width: 56px;
-        height: 56px;
-        min-width: 56px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        backdrop-filter: blur(10px);
-      }
-
-      .wheel-icon-circle svg {
-        width: 28px;
-        height: 28px;
-        color: white;
-      }
-
-      .wheel-text-content {
-        flex: 1;
-      }
-
-      .wheel-button-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        margin-bottom: 6px;
-        line-height: 1.3;
-      }
-      
-      .wheel-description {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        line-height: 1.4;
-      }
-
-      .arrow-icon {
-        width: 20px;
-        height: 20px;
-        min-width: 20px;
-        opacity: 0.7;
-        transition: transform 0.3s ease;
-      }
-
-      .wheel-button:hover .arrow-icon {
-        transform: translateX(4px);
-      }
-
-      /* Animations */
-      @keyframes modalSlideIn {
-        0% {
-          transform: translateY(-50px) scale(0.9);
-          opacity: 0;
-        }
-        60% {
-          transform: translateY(10px) scale(1.02);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      @keyframes pulse {
-        0%, 100% {
-          transform: scale(1);
-          opacity: 0.5;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 0.8;
-        }
-      }
-
-      @keyframes bounce {
-        0%, 100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-8px);
-        }
-      }
-
-      /* Desktop styles */
-      @media (min-width: 1024px) {
-        .modal-content {
-          max-width: 700px;
-        }
-
-        .modal-header {
-          padding: 48px 40px;
-        }
-
-        .gift-icon {
-          width: 80px;
-          height: 80px;
-          margin-bottom: 24px;
-        }
-
-        .gift-icon svg {
-          width: 40px;
-          height: 40px;
-        }
-
-        .modal-title {
-          font-size: 2.25rem;
-        }
-
-        .modal-subtitle {
-          font-size: 1.2rem;
-        }
-
-        .modal-body {
-          padding: 48px 40px;
-        }
-
-        .welcome-message {
-          font-size: 1.15rem;
-          margin-bottom: 40px;
-        }
-
-        .wheel-options {
-          gap: 20px;
-        }
-
-        .wheel-button {
-          padding: 28px;
-        }
-      }
-
-      /* Tablet styles */
-      @media (min-width: 768px) and (max-width: 1023px) {
-        .modal-content {
-          max-width: 650px;
-        }
-
-        .modal-header {
-          padding: 36px 28px;
-        }
-
-        .modal-body {
-          padding: 36px 28px;
-        }
-      }
-
-      /* Mobile styles */
-      @media (max-width: 767px) {
-        .returning-customer-modal {
-          padding: 12px;
-        }
-
-        .modal-content {
-          border-radius: 20px;
-          max-height: 92vh;
-        }
-
-        .modal-close {
-          top: 12px;
-          right: 12px;
-          width: 32px;
-          height: 32px;
-          font-size: 22px;
-        }
-
-        .modal-header {
-          padding: 28px 24px;
-        }
-
-        .gift-icon {
-          width: 64px;
-          height: 64px;
-          margin-bottom: 16px;
-        }
-
-        .gift-icon svg {
-          width: 32px;
-          height: 32px;
-        }
-
-        .modal-title {
-          font-size: 1.5rem;
-          margin-bottom: 10px;
-        }
-
-        .modal-subtitle {
-          font-size: 0.95rem;
-        }
-
-        .modal-body {
-          padding: 28px 20px;
-        }
-
-        .welcome-message {
-          font-size: 0.95rem;
-          margin-bottom: 24px;
-        }
-
-        .wheel-options {
-          gap: 12px;
-          margin-top: 24px;
-        }
-
-        .wheel-button {
-          padding: 20px;
-          gap: 12px;
-        }
-
-        .wheel-icon-circle {
-          width: 48px;
-          height: 48px;
-          min-width: 48px;
-        }
-
-        .wheel-icon-circle svg {
-          width: 24px;
-          height: 24px;
-        }
-
-        .wheel-button-title {
-          font-size: 1rem;
-          margin-bottom: 4px;
-        }
-
-        .wheel-description {
-          font-size: 0.85rem;
-        }
-
-        .arrow-icon {
-          width: 16px;
-          height: 16px;
-          min-width: 16px;
-        }
-      }
-
-      /* Extra small mobile */
-      @media (max-width: 400px) {
-        .returning-customer-modal {
-          padding: 8px;
-        }
-
-        .modal-header {
-          padding: 24px 20px;
-        }
-
-        .gift-icon {
-          width: 56px;
-          height: 56px;
-        }
-
-        .modal-title {
-          font-size: 1.3rem;
-        }
-
-        .modal-subtitle {
-          font-size: 0.875rem;
-        }
-
-        .modal-body {
-          padding: 24px 16px;
-        }
-
-        .welcome-message {
-          font-size: 0.875rem;
-        }
-
-        .wheel-button {
-          padding: 16px;
-        }
-
-        .wheel-button-title {
-          font-size: 0.95rem;
-        }
-
-        .wheel-description {
-          font-size: 0.8rem;
-        }
-      }
-
-      body.modal-open {
-        overflow: hidden;
-      }
-    `;
-
-    // Add styles and modal to document
-    document.head.appendChild(modalStyles);
+    const showWhenStyled = (window.UniversalSpinningWheel && window.UniversalSpinningWheel.ensureCss)
+      ? window.UniversalSpinningWheel.ensureCss()
+      : new Promise((resolve) => {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = '/css/spin-wheel.min.css?v=1d5b141b';
+          link.onload = link.onerror = resolve;
+          document.head.appendChild(link);
+          setTimeout(resolve, 3000);
+        });
+    await showWhenStyled;
     document.body.appendChild(modalContainer);
+
+    // What each wheel can give, read from its prizes: "up to 14%", "up to 6 days"
+    wheelConfigs.forEach((config) => {
+      if (!config.id || config.id === 'active') return;
+      fetch(`${API_BASE_URL}/api/spinning-wheels/${config.id}/secure-data`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          const segs = data && Array.isArray(data.segments) ? data.segments : [];
+          if (!segs.length) return;
+          const max = Math.max.apply(null, segs.map((x) => Number(x.value) || 0));
+          if (!max) return;
+          const days = segs[0].type === 'free_days';
+          let label;
+          if (days) {
+            const key = max === 1 ? '1_day' : `${max}_days`;
+            const t = (typeof i18next !== 'undefined' && i18next.t) ? i18next.t(`wheel.wheel_segments.${key}`) : '';
+            const word = { ro: max === 1 ? 'zi' : 'zile', ru: max === 1 ? 'день' : max < 5 ? 'дня' : 'дней', en: max === 1 ? 'day' : 'days' }[lang] || 'days';
+            label = `${UPTO} ${t && t.indexOf('wheel.') !== 0 ? t.toLowerCase() : `${max} ${word}`}`;
+          } else {
+            label = `${UPTO} ${max}%`;
+          }
+          const chip = document.querySelector(`#returningCustomerModal .wheel-button[data-wheel-id="${config.id}"] .pr-rc-range`);
+          if (chip) chip.textContent = label;
+        })
+        .catch(() => {});
+    });
 
     // Update translations for modal header
     this.updateModalHeaderTranslations();
@@ -1391,6 +855,8 @@ class BookingFormHandler {
     if (modal) {
       modal.classList.add('show');
       document.body.classList.add('modal-open');
+      modal.querySelectorAll('.wheel-button[aria-busy]').forEach((b) => b.removeAttribute('aria-busy'));
+      try { modal.focus({ preventScroll: true }); } catch (e) {}
     }
   }
 
@@ -1401,7 +867,7 @@ class BookingFormHandler {
     // Check if i18next is available
     if (typeof i18next !== 'undefined' && i18next.t) {
       // Update title
-      const titleElement = modal.querySelector('.modal-title[data-i18n="wheel.welcome_back_title"]');
+      const titleElement = modal.querySelector('[data-i18n="wheel.welcome_back_title"]');
       if (titleElement) {
         const translatedTitle = i18next.t('wheel.welcome_back_title');
         if (translatedTitle && translatedTitle !== 'wheel.welcome_back_title') {
@@ -1410,7 +876,7 @@ class BookingFormHandler {
       }
 
       // Update subtitle
-      const subtitleElement = modal.querySelector('.modal-subtitle[data-i18n="wheel.welcome_back_subtitle"]');
+      const subtitleElement = modal.querySelector('[data-i18n="wheel.welcome_back_subtitle"]');
       if (subtitleElement) {
         const translatedSubtitle = i18next.t('wheel.welcome_back_subtitle');
         if (translatedSubtitle && translatedSubtitle !== 'wheel.welcome_back_subtitle') {
@@ -1450,12 +916,12 @@ class BookingFormHandler {
           if (isPercentWheel) {
             titleKey = 'wheel.percentage_discount_wheel';
             descKey = 'wheel.percentage_discount_description';
-            fallbackTitle = 'Percentage Discount Wheel';
+            fallbackTitle = 'Percentage discount wheel';
             fallbackDesc = 'Win discount percentages on your rental';
           } else if (isFreeDaysWheel) {
             titleKey = 'wheel.free_days_wheel';
             descKey = 'wheel.free_days_description';
-            fallbackTitle = 'Free Days Wheel';
+            fallbackTitle = 'Free days wheel';
             fallbackDesc = 'Win free rental days for your next booking';
           } else {
             titleKey = 'wheel.title';
@@ -1490,6 +956,9 @@ class BookingFormHandler {
     const modal = document.getElementById('returningCustomerModal');
     if (!modal) return;
 
+    const closeBtn = modal.querySelector('.pr-rc-close');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.closeReturningCustomerModal());
+
     // Close modal when clicking outside
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
@@ -1511,6 +980,7 @@ class BookingFormHandler {
       button.addEventListener('click', async () => {
         const wheelId = button.getAttribute('data-wheel-id');
         if (wheelId) {
+          button.setAttribute('aria-busy', 'true');
           // Mark return gift as redeemed before opening the spinning wheel
           await this.markReturnGiftAsRedeemed();
           
