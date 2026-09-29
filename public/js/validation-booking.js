@@ -1601,18 +1601,55 @@ async function applyModalCalculation() {
     const modalCustomerAge = $("#modal-customer-age").val().trim();
     const ageInput = document.getElementById("modal-customer-age");
 
+    // The age field sits below the fold of the sheet: the browser's own bubble
+    // (reportValidity) was not visible there, so "Apply" seemed to do nothing.
+    // Scroll to it and say what is missing under it.
+    const showAgeError = (key, fallback) => {
+      // this page's language only (the RO fallback showed Romanian on /en/)
+      const own = (typeof i18next !== "undefined" && i18next.getResource) ? i18next.getResource(i18next.language, "translation", key) : "";
+      const t = own || fallback;
+      let msg = document.getElementById("modal-age-error");
+      if (!msg) {
+        msg = document.createElement("div");
+        msg.id = "modal-age-error";
+        msg.className = "pr-field-msg";
+        msg.setAttribute("role", "alert");
+        ageInput.insertAdjacentElement("afterend", msg);
+        ageInput.addEventListener("input", () => {
+          ageInput.classList.remove("is-invalid");
+          ageInput.removeAttribute("aria-invalid");
+          msg.textContent = "";
+        });
+      }
+      msg.textContent = t;
+      ageInput.classList.add("is-invalid");
+      ageInput.setAttribute("aria-invalid", "true");
+      ageInput.setAttribute("aria-describedby", "modal-age-error");
+      // scroll the sheet itself: the field lands in its upper third, above the pinned buttons
+      // (after the modal's iOS scroll "kick", which reacts to the message
+      // being added and cancelled a smooth scroll started at the same time)
+      const box = ageInput.closest(".modal-body");
+      setTimeout(() => {
+        if (box) {
+          const top = ageInput.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - box.clientHeight / 3;
+          box.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+        } else {
+          ageInput.scrollIntoView({ block: "center" });
+        }
+      }, 80);
+      setTimeout(() => { try { ageInput.focus({ preventScroll: true }); } catch (e) {} }, 350);
+    };
+
     // Check if age field is empty or invalid
     if (!modalCustomerAge) {
-      ageInput.focus();
-      ageInput.reportValidity(); // This will show the browser's native validation message
+      showAgeError("booking.validation.age_required", "Please enter your age");
       return; // Don't proceed with submission
     }
 
     // Check if age is within valid range
     const age = parseInt(modalCustomerAge);
     if (isNaN(age) || age < 18 || age > 100) {
-      ageInput.focus();
-      ageInput.reportValidity(); // This will show the browser's native validation message
+      showAgeError("booking.validation.age_invalid", "Please enter a valid age between 18 and 100 years.");
       return; // Don't proceed with submission
     }
 
@@ -2013,7 +2050,7 @@ async function showReturningCustomerAlert(phoneNumber = null) {
     if (!phoneInput) {
       phoneInput = document.querySelector("#phone");
     }
-    phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+    phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
   }
 
   if (!phoneNumber) {
@@ -2230,7 +2267,7 @@ async function loadReturningCustomerModal() {
           if (!phoneInput) {
             phoneInput = document.querySelector("#phone");
           }
-          const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+          const phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
 
           // Show the spinning wheel modal with the specified wheel ID, skipping phone step
           window.UniversalSpinningWheel.show({
@@ -2367,7 +2404,7 @@ async function markReturnGiftAsRedeemed() {
     if (!phoneInput) {
       phoneInput = document.querySelector("#phone");
     }
-    const phoneNumber = phoneInput ? phoneInput.value.trim() : null;
+    const phoneNumber = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : null;
 
     if (!phoneNumber) {
       return;

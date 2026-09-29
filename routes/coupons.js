@@ -657,8 +657,10 @@ router.get("/lookup/:code", async (req, res) => {
     // If phone number is provided, check if code is available for this phone
     if (phoneNumber) {
       try {
-        const { getPhoneNumberData } = require("../lib/phoneNumberTracker");
-        const phoneData = await getPhoneNumberData(phoneNumber);
+        // every row the number may be stored under (with or without its
+        // country code), see getCouponListsForPhone
+        const { getCouponListsForPhone } = require("../lib/phoneNumberTracker");
+        const phoneData = await getCouponListsForPhone(phoneNumber);
 
         if (!phoneData) {
           return res.json({
@@ -881,8 +883,10 @@ router.get("/validate-redemption/:code", async (req, res) => {
     // If phone number is provided, validate it against the phone_numbers table
     if (phoneNumber) {
       try {
-        const { getPhoneNumberData } = require("../lib/phoneNumberTracker");
-        const phoneData = await getPhoneNumberData(phoneNumber);
+        // every row the number may be stored under (with or without its
+        // country code), see getCouponListsForPhone
+        const { getCouponListsForPhone } = require("../lib/phoneNumberTracker");
+        const phoneData = await getCouponListsForPhone(phoneNumber);
 
         if (!phoneData) {
           return res.json({
