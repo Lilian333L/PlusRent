@@ -21,9 +21,7 @@
   padding: 22px !important;
   border: 1px solid rgba(250, 247, 242, .14) !important;
   border-radius: 26px !important;
-  background: rgba(28, 25, 23, .62) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.15);
-  backdrop-filter: blur(16px) saturate(1.15);
+  background: rgba(28, 25, 23, .86) !important;
   box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .06) !important;
   color: var(--bk-text) !important;
 }
@@ -252,6 +250,16 @@
 }
 @media (hover: hover) { #section-hero #booking_form .pr-submit-btn:not(:disabled):hover { background: var(--bk-amber-2) !important; } }
 #section-hero #booking_form .pr-submit-hint { color: var(--bk-faint) !important; font-size: 13px !important; }
+
+/* the blur only where it is cheap: on phones it cost up to 0.6 s of main
+   thread in PageSpeed; the denser background above looks the same there */
+@media (min-width: 992px) {
+  #section-hero .padding40 {
+    background: rgba(28, 25, 23, .62) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    backdrop-filter: blur(16px) saturate(1.15);
+  }
+}
 
 /* phones */
 @media (max-width: 575px) {
