@@ -21,8 +21,8 @@
   }
 
   function start() {
-    add('/js/plugins.js?v=20260918', function () {
-      add('/js/designesia.min.js?v=d403133d', function () {
+    add('/js/plugins.js?v=dc2ac48a', function () {
+      add('/js/designesia.min.js?v=d493db5b', function () {
         if (window.jQuery) window.jQuery(window).trigger('load');
       });
     });

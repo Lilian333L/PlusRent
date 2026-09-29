@@ -1275,8 +1275,8 @@
   </div>
 
   <!-- Javascript Files -->
-  <script src="/js/plugins.js?v=20260918" defer></script>
-  <script src="js/designesia.min.js?v=d403133d" defer></script>
+  <script src="/js/plugins.js?v=dc2ac48a" defer></script>
+  <script src="js/designesia.min.js?v=d493db5b" defer></script>
   <script src="js/car-image.min.js?v=658a3c07"></script>
   <script src="js/mobile-book-bar.min.js?v=f8d89b2d" defer></script>
   <script src="js/config.min.js?v=a63faff7"></script>
@@ -2406,9 +2406,7 @@
         }
         
         // Следим за изменениями в DOM
-        const observer = new MutationObserver(function(mutations) {
-            forceWhiteText();
-        });
+        const observer = new MutationObserver((function () { var pending = false; return function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; forceWhiteText(); }); }; })());
         
         // Наблюдаем за изменениями в body
         observer.observe(document.body, {

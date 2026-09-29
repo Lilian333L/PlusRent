@@ -100,9 +100,7 @@
         }
         
         // Следим за изменениями в DOM
-        const observer = new MutationObserver(function(mutations) {
-            forceWhiteText();
-        });
+        const observer = new MutationObserver((function () { var pending = false; return function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; forceWhiteText(); }); }; })());
         
         // Наблюдаем за изменениями в body
         observer.observe(document.body, {

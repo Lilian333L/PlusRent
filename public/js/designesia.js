@@ -891,24 +891,24 @@ var loading_text = loadingTranslations[currentLang];
       * custom background
       * --------------------------------------------------*/
      function custom_bg() {
-         $("body,div,section,span,form").css('background-color', function() {
-            if ($(this).is('[data-bgcolor]')) {
-                jQuery(this).addClass("bgcustom");
-            }
-             return jQuery(this).data('bgcolor');
+         // PlusRent: the template wrote four inline background properties on every
+         // body/div/section/span/form of the page, reading each value first, which
+         // cost a style pass per element on load (the largest share of Total Blocking
+         // Time on the home page). Same result, touching only what needs it:
+         // - colours and images only on elements that ask for them (data-bgcolor, data-bgimage);
+         // - "100% auto, no-repeat" on every body/div/section as before, but written
+         //   without reading first, so the browser recalculates styles once, not per element.
+         jQuery("[data-bgcolor]").each(function() {
+             this.style.backgroundColor = jQuery(this).data("bgcolor");
+             this.classList.add("bgcustom");
          });
-         $("body,div,section").css('background', function() {
-            if ($(this).is('[data-bgimage]')) {
-                jQuery(this).addClass("bgcustom");
-            }
-             return jQuery(this).data('bgimage');
+         jQuery("[data-bgimage]").each(function() {
+             this.style.background = jQuery(this).data("bgimage");
+             this.classList.add("bgcustom");
          });
-         $("body,div,section").css('background-size', function() {
-             return '100% auto';
-         });
-
-         $("body,div,section").css('background-repeat', function() {
-             return 'no-repeat';
+         document.querySelectorAll("body, div, section").forEach(function(el) {
+             el.style.backgroundSize = "100% auto";
+             el.style.backgroundRepeat = "no-repeat";
          });
      }
      /* --------------------------------------------------
@@ -1635,13 +1635,13 @@ var loading_text = loadingTranslations[currentLang];
          dropdown('#select_hour_format');
          de_sidebar();
          de_share();
-         // Mobile: keep the top hero static (CSS already positions its image), so jarallax
-         // does not re-render the LCP image seconds after first paint
-         var $jarallax = $(".jarallax");
-         if (window.matchMedia("(max-width: 991px)").matches) {
-             $jarallax = $jarallax.not("#section-hero, #subheader");
+         // Phones get no parallax at all: CSS already lays every .jarallax-img out as a
+         // static cover image, and jarallax runs a requestAnimationFrame loop that
+         // measures its sections on every frame, which on the home page took more
+         // main-thread time than everything else together (Total Blocking Time).
+         if (!window.matchMedia("(max-width: 991px)").matches) {
+             $(".jarallax").jarallax();
          }
-         $jarallax.jarallax();
 
         $(function() {
             $('.lazy').lazy();

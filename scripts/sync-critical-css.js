@@ -12,6 +12,7 @@
  *   css/menu-button.css   -> every critical-*.css (the burger is on every page)
  *   css/cars-catalog.css  -> critical-cars.css    (the /cars catalogue)
  *   css/premium-badge.css -> critical-home.css    (picked cars on the home page)
+ *   css/home-perf.css     -> critical-home.css    (below-the-fold sections skipped)
  *
  * Afterwards the ?v= of each changed critical stylesheet has to change on the
  * pages that link it (the /css folder is cached for a year): this script does
@@ -31,6 +32,7 @@ const BLOCKS = [
   { source: "menu-button.css", marker: "menu-button", targets: (name) => /^critical-.+\.css$/.test(name) },
   { source: "cars-catalog.css", marker: "cars-catalog", targets: (name) => name === "critical-cars.css" },
   { source: "premium-badge.css", marker: "premium-badge", targets: (name) => name === "critical-home.css" },
+  { source: "home-perf.css", marker: "home-perf", targets: (name) => name === "critical-home.css" },
 ];
 
 const fingerprint = (buf) => crypto.createHash("sha1").update(buf).digest("hex").slice(0, 8);

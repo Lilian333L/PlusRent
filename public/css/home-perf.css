@@ -1,0 +1,22 @@
+/* ============================================================================
+ * PlusRent — home page: lay out the sections below the first screen only when
+ * they come near (phones and tablets).
+ *
+ * On a phone the hero with the booking form is ~2450 px tall; the fleet, trust,
+ * services, about, questions, call-to-action and reviews sections below it are
+ * ~19 000 px more. Every script that reads a size during load paid for laying
+ * all of that out (the largest share of Total Blocking Time after jarallax).
+ * content-visibility:auto skips them until they are close to the viewport;
+ * "auto" in contain-intrinsic-size remembers each section's real height once it
+ * has been rendered, so scrolling does not jump.
+ *
+ * Copied into critical-home.css by scripts/sync-critical-css.js (in the deferred
+ * CSS it would do nothing for the first layout); edit it here and run the script.
+ * ========================================================================== */
+@media (max-width: 991.98px) {
+  #content > section:not(#section-hero):not(:nth-of-type(2)),
+  #wrapper > section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1200px;
+  }
+}

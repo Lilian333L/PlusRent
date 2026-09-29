@@ -118,7 +118,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 <!-- Inter is the body font (imported by style.css); load it early so the swap happens before much text is painted -->
-          <link rel="stylesheet" href="/css/critical-home.css?v=1e7c6521">
+          <link rel="stylesheet" href="/css/critical-home.css?v=50768883">
   <script src="/js/deferred-css.min.js?v=6f59963f" defer></script>
 
   <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet" media="print" data-deferred-css>
@@ -1637,8 +1637,8 @@
     </footer>
   </div>
 
-  <script src="/js/plugins.js?v=20260918" defer></script>
-  <script src="/js/designesia.min.js?v=d403133d" defer></script>
+  <script src="/js/plugins.js?v=dc2ac48a" defer></script>
+  <script src="/js/designesia.min.js?v=d493db5b" defer></script>
   <script src="/js/car-image.min.js?v=658a3c07" defer></script>
   <script src="/js/config.min.js?v=a63faff7" defer></script>
   <script src="/js/dynamic-cars-loader.min.js?v=6d102833" defer></script>
@@ -2508,9 +2508,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Следим за изменениями в DOM
-        const observer = new MutationObserver(function(mutations) {
-            forceWhiteText();
-        });
+        const observer = new MutationObserver((function () { var pending = false; return function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; forceWhiteText(); }); }; })());
         
         // Наблюдаем за изменениями в body
         observer.observe(document.body, {

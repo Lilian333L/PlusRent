@@ -2574,7 +2574,7 @@
 
   <!-- Javascript Files -->
   <script src="/js/car-url.min.js?v=b5232814" defer></script>
-  <script src="/js/late-template.min.js?v=dfb734e9" defer></script>
+  <script src="/js/late-template.min.js?v=f1f1cda0" defer></script>
   <script src="/js/burger-menu-fix.min.js?v=f7f6a95a" defer></script>
 <script src="/js/mobile-menu.min.js?v=4b0e74f0" defer></script>
   <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
@@ -3327,7 +3327,7 @@
           setTimeout(forceWhiteText, 200);
         });
       }
-      const observer = new MutationObserver(function() { forceWhiteText(); });
+      const observer = new MutationObserver((function () { var pending = false; return function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; forceWhiteText(); }); }; })());
       observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
       window.addEventListener('resize', forceWhiteText);
     }

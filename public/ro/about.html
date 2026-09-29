@@ -1124,11 +1124,11 @@
   </div>
 
   <!-- Javascript Files -->
-  <script src="/js/plugins.js?v=20260918" defer></script>
+  <script src="/js/plugins.js?v=dc2ac48a" defer></script>
   <script src="/js/burger-menu-fix.min.js?v=f7f6a95a" defer></script>
 <script src="/js/mobile-menu.min.js?v=4b0e74f0" defer></script>
   <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
-  <script src="/js/designesia.min.js?v=d403133d" defer></script>
+  <script src="/js/designesia.min.js?v=d493db5b" defer></script>
 
   <!-- i18next CDN -->
   <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
@@ -1424,7 +1424,7 @@
           setTimeout(forceWhiteText, 200);
         });
       }
-      const observer = new MutationObserver(function() { forceWhiteText(); });
+      const observer = new MutationObserver((function () { var pending = false; return function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; forceWhiteText(); }); }; })());
       observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
       window.addEventListener('resize', forceWhiteText);
     }
