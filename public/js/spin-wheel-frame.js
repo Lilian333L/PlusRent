@@ -94,7 +94,7 @@
     setLanguage(urlLang || parentLang || storedLang || 'en');
 
     try {
-      var r = await fetch('js/locales/' + currentLanguage + '.json?v=20260930b');
+      var r = await fetch('js/locales/' + currentLanguage + '.json?v=20260930c');
       translations = r.ok ? await r.json() : {};
     } catch (e) {
       translations = {};

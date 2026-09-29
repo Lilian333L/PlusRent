@@ -122,7 +122,7 @@
 
   <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet" media="print" data-deferred-css>
   <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet" media="print" data-deferred-css>
-  <link href="/css/indstyle.min.css?v=ca424a3f" rel="stylesheet" media="print" data-deferred-css>
+  <link href="/css/indstyle.min.css?v=1a60a00b" rel="stylesheet" media="print" data-deferred-css>
   <link href="/css/plugins.css" rel="stylesheet" media="print" data-deferred-css>
   <link href="/css/style.min.css?v=53989d3c" rel="stylesheet" media="print" data-deferred-css>
   <link href="/css/coloring.min.css?v=94ae6a9b" rel="stylesheet" media="print" data-deferred-css>
@@ -683,7 +683,7 @@
   <noscript>
     <link href="/css/bootstrap.min.css?v=21d575b0" rel="stylesheet">
     <link href="/css/mdb.min.css?v=3cc91d89" rel="stylesheet">
-    <link href="/css/indstyle.min.css?v=ca424a3f" rel="stylesheet">
+    <link href="/css/indstyle.min.css?v=1a60a00b" rel="stylesheet">
     <link href="/css/plugins.css" rel="stylesheet">
     <link href="/css/style.min.css?v=53989d3c" rel="stylesheet">
     <link href="/css/coloring.min.css?v=94ae6a9b" rel="stylesheet">
@@ -1667,12 +1667,12 @@
   <script src="/js/rental-fees.min.js?v=b42aa517"></script>
   <script src="/js/car-url.min.js?v=b5232814" defer></script>
   <script src="/js/rental-day-hint.min.js?v=afdb8aaa" defer></script>
-  <script src="/js/validation-booking.min.js?v=d59c9d6e" defer></script>
+  <script src="/js/validation-booking.min.js?v=d58ca249" defer></script>
   <script src="/js/burger-menu-fix.min.js?v=f7f6a95a" defer></script>
 <script src="/js/mobile-menu.min.js?v=4b0e74f0" defer></script>
   <script src="/js/vendor/i18next-21.6.16.min.js?v=44d62ee0" defer></script>
   <script src="/js/vendor/i18next-http-backend-1.4.3.min.js?v=6c807a2b" defer></script>
-  <script src="/js/i18n-init.min.js?v=a406a725" defer></script>
+  <script src="/js/i18n-init.min.js?v=5eea9efe" defer></script>
   <script src="/js/services-nav.min.js?v=dea5aeb0" defer></script>
 <script>
 // Принудительно переключаем язык по URL после инициализации i18next
@@ -1853,32 +1853,25 @@
        </div>
        <div class="modal-body">
          
-          <div class="tariff-info">
-              <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Время и доплаты за локацию</span></h6>
-              <div class="tariff-details" id="tariff-details-container">
-                  <div>
-                      <span class="working-hours" data-i18n="price_calculator.working_hours">Стандартное время (8:00 - 18:00):</span> 
-                      <span data-i18n="price_calculator.standard_pricing">Стандартные цены</span>
-                  </div>
-                  <div>
-                      <span class="outside-hours" data-i18n="price_calculator.outside_hours">С 18:00 до 08:00:</span>
-                      +<span id="index-outside-hours-fee">€15</span> 
-                      <span data-i18n="price_calculator.outside_hours_fee">сбор за выдачу/возврат</span>
-                  </div>
-                  <div>
-                      <span class="location-fees" data-i18n="price_calculator.airport_delivery">Доставка в аэропорт:</span>
-                      <span id="dynamic-airport-fees">
-                          <span data-i18n="location.chisinau_airport">Аэропорт Кишинева</span> +€<span id="chisinau-fee">0</span>, 
-                          <span data-i18n="location.iasi_airport">Аэропорт Ясс</span> +€<span id="iasi-fee">175</span>
-                      </span>
-                  </div>
-                  <div>
-                      <i class="fa fa-clock-o"></i> 
-                      <span data-i18n="price_calculator.minimum_rental">Минимальная аренда: 24 часа</span>
-                  </div>
+        <div class="calculator-section">
+          <h5><i class="fa fa-car"></i> <span data-i18n="price_calculator.selected_vehicle">Выбранный автомобиль</span></h5>
+          <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
+            <div class="row align-items-center g-2">
+              <div class="col-3">
+                <img id="modal-vehicle-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Выбранный автомобиль" class="img-fluid rounded"
+                  style="max-height: 60px; object-fit: cover;" loading="lazy">
               </div>
+              <div class="col-9">
+                <div class="mb-1 small pr-step-label" id="modal-vehicle-name"></div>
+                <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
+                <div class="vehicle-year">
+                  <span class="text-muted small" data-i18n="price_calculator.year">Год: </span>
+                  <span class="fw-bold small" id="modal-vehicle-year">-</span>
+                </div>
+              </div>
+            </div>
           </div>
-
+        </div>
 
         <div class="calculator-section">
           <h5><i class="fa fa-calendar"></i> <span data-i18n="price_calculator.rental_period">Период аренды</span></h5>
@@ -1971,26 +1964,6 @@
         </div>
 
         <div class="calculator-section">
-          <h5><i class="fa fa-car"></i> <span data-i18n="price_calculator.selected_vehicle">Выбранный автомобиль</span></h5>
-          <div id="modal-vehicle-info" class="vehicle-card p-2 bg-light rounded">
-            <div class="row align-items-center g-2">
-              <div class="col-3">
-                <img id="modal-vehicle-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Выбранный автомобиль" class="img-fluid rounded"
-                  style="max-height: 60px; object-fit: cover;" loading="lazy">
-              </div>
-              <div class="col-9">
-                <div class="mb-1 small pr-step-label" id="modal-vehicle-name"></div>
-                <p id="modal-vehicle-details" class="text-muted small mb-1"></p>
-                <div class="vehicle-year">
-                  <span class="text-muted small" data-i18n="price_calculator.year">Год: </span>
-                  <span class="fw-bold small" id="modal-vehicle-year">-</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="calculator-section">
           <h5><i class="fa fa-user"></i> <span data-i18n="price_calculator.customer_age">Возраст клиента</span></h5>
           <div class="row g-2">
             <div class="col-12">
@@ -2046,6 +2019,36 @@
           </div>
         </div>
 
+        <details class="tariff-fold">
+          <summary><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Время и доплаты за локацию</span></summary>
+          <div class="tariff-info">
+              <h6><i class="fa fa-info-circle"></i> <span data-i18n="price_calculator.working_hours_info">Время и доплаты за локацию</span></h6>
+              <div class="tariff-details" id="tariff-details-container">
+                  <div>
+                      <span class="working-hours" data-i18n="price_calculator.working_hours">Стандартное время (8:00 - 18:00):</span> 
+                      <span data-i18n="price_calculator.standard_pricing">Стандартные цены</span>
+                  </div>
+                  <div>
+                      <span class="outside-hours" data-i18n="price_calculator.outside_hours">С 18:00 до 08:00:</span>
+                      +<span id="index-outside-hours-fee">€15</span> 
+                      <span data-i18n="price_calculator.outside_hours_fee">сбор за выдачу/возврат</span>
+                  </div>
+                  <div>
+                      <span class="location-fees" data-i18n="price_calculator.airport_delivery">Доставка в аэропорт:</span>
+                      <span id="dynamic-airport-fees">
+                          <span data-i18n="location.chisinau_airport">Аэропорт Кишинева</span> +€<span id="chisinau-fee">0</span>, 
+                          <span data-i18n="location.iasi_airport">Аэропорт Ясс</span> +€<span id="iasi-fee">175</span>
+                      </span>
+                  </div>
+                  <div>
+                      <i class="fa fa-clock-o"></i> 
+                      <span data-i18n="price_calculator.minimum_rental">Минимальная аренда: 24 часа</span>
+                  </div>
+              </div>
+          </div>
+
+
+        </details>
         <div class="modal-actions">
           <button type="button" class="btn-calculate" onclick="applyModalCalculation()">
             <i class="fa fa-check"></i> <span data-i18n="price_calculator.apply_to_booking">Применить к бронированию</span>
