@@ -855,6 +855,9 @@ class BookingFormHandler {
   showReturningCustomerModal() {
     const modal = document.getElementById('returningCustomerModal');
     if (modal) {
+      // another open modal may have made the page inert (taps went through)
+      modal.removeAttribute('inert');
+      modal.removeAttribute('aria-hidden');
       modal.classList.add('show');
       document.body.classList.add('modal-open');
       modal.querySelectorAll('.wheel-button[aria-busy]').forEach((b) => b.removeAttribute('aria-busy'));

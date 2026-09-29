@@ -2469,8 +2469,19 @@ function showReturningCustomerModal() {
   const modal = document.getElementById("returningCustomerModal");
 
   if (modal) {
+    // The price calculator marks every other element of the page inert while
+    // it is open ([inert] also gets pointer-events:none), so this window showed
+    // but every tap went through to the calculator behind it, and the wheel
+    // chosen here waits for the calculator to close. Close it first.
+    var calc = document.getElementById("price-calculator-modal");
+    if (calc && calc.classList.contains("open") && typeof window.closePriceCalculator === "function") {
+      window.closePriceCalculator();
+    }
+    modal.removeAttribute("inert");
+    modal.removeAttribute("aria-hidden");
     modal.classList.add("show");
     document.body.classList.add("modal-open");
+    modal.querySelectorAll(".wheel-button[aria-busy]").forEach(function (b) { b.removeAttribute("aria-busy"); });
 
     // Update translations after modal is shown
     updateModalTranslations();

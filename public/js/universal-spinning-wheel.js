@@ -537,6 +537,8 @@ function showModalInternal(options = {}) {
 }
 
 function showModalNow(options = {}) {
+    // never shown while it is inert from another modal (taps would go through)
+    state.modal.removeAttribute('inert');
     document.body.style.overflow = 'hidden';
     if (!options.skipPhoneStep) loadPrizeChip(options.wheelId);
     enableSheetSwipe(state.modal.querySelector('.spinning-wheel-modal-content'), '.spinning-wheel-modal-close');
