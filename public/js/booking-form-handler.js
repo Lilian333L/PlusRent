@@ -70,6 +70,14 @@ class BookingFormHandler {
         if (isReturningCustomer) {
           const shouldShowPopup = await this.showReturningCustomerAlert(bookingData.customer_phone);
           if (shouldShowPopup) {
+            // The booking waits for the wheel and is sent by itself afterwards
+            // (resumeAfterWheel): before, the visitor had to send it again and
+            // closing the page lost it.
+            this._pendingReturn = { formElement, submitButton };
+            if (!this._wheelListener) {
+              this._wheelListener = (e) => this.resumeAfterWheel(e);
+              document.addEventListener('pr:wheel-closed', this._wheelListener);
+            }
             return; // Exit early for returning customers on their second booking
           }
           // If popup was already shown, continue with booking
@@ -986,6 +994,7 @@ class BookingFormHandler {
         const wheelId = button.getAttribute('data-wheel-id');
         if (wheelId) {
           button.setAttribute('aria-busy', 'true');
+          this._returnWheelOpened = true;
           // Mark return gift as redeemed before opening the spinning wheel
           await this.markReturnGiftAsRedeemed();
           
@@ -994,6 +1003,23 @@ class BookingFormHandler {
         }
       });
     });
+  }
+
+  // After the returning customer's wheel (won or closed): send the booking
+  // that waited for it, with the code won there when there is one.
+  resumeAfterWheel(e) {
+    const pending = this._pendingReturn;
+    if (!pending || !this._returnWheelOpened) return;
+    this._pendingReturn = null;
+    this._returnWheelOpened = false;
+    const code = e && e.detail && e.detail.coupon ? String(e.detail.coupon).trim() : '';
+    const field = pending.formElement.querySelector('input[name="discount_code"]');
+    if (code && field) {
+      field.value = code;
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    setTimeout(() => this.handleSubmit(pending.formElement, pending.submitButton), 400);
   }
 
   // Mark return gift as redeemed

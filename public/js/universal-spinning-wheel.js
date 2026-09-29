@@ -537,6 +537,7 @@ function showModalInternal(options = {}) {
 }
 
 function showModalNow(options = {}) {
+    state.lastCoupon = null; // the coupon won in this showing, see closeModal
     // never shown while it is inert from another modal (taps would go through)
     state.modal.removeAttribute('inert');
     document.body.style.overflow = 'hidden';
@@ -647,6 +648,9 @@ function closeModal() {
         document.body.style.width = '';
         state._weOwnBodyLock = false; // PlusRent v6: released our body lock
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        // The page can finish what waited for the wheel (a returning
+        // customer's booking, sent with the code won here).
+        document.dispatchEvent(new CustomEvent('pr:wheel-closed', { detail: { coupon: state.lastCoupon || null } }));
     }, 300);
 }
 
@@ -856,6 +860,7 @@ function closeModal() {
     }
 
     function handleAutoApplyCoupon(couponCode) {
+        state.lastCoupon = couponCode || state.lastCoupon;
         try {
             safeSetItem(localStorage, 'autoApplyCoupon', couponCode);
             

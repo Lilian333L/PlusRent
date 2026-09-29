@@ -10,7 +10,7 @@
     // Load universal spinning wheel
     if (!window.UniversalSpinningWheel) {
         const spinningWheelScript = document.createElement('script');
-        spinningWheelScript.src = 'js/universal-spinning-wheel.min.js?v=6454cff8';
+        spinningWheelScript.src = 'js/universal-spinning-wheel.min.js?v=ef5c26c9';
         spinningWheelScript.async = true;
         document.head.appendChild(spinningWheelScript);
     }

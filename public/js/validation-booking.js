@@ -1119,6 +1119,9 @@ $("#modal-discount-code").on("input", function (e) {
 });
   let currentValidationAbort;
 
+  // used by the returning-customer booking, sent by itself after the wheel
+  window.prValidateModalCoupon = function (code, phone) { return validateCouponRealTime(code, phone); };
+
   // Real-time coupon validation function
   async function validateCouponRealTime(couponCode, customerPhone) {
     if (!couponCode || couponCode.length < 3) return;
@@ -2241,6 +2244,11 @@ async function loadReturningCustomerModal() {
       button.addEventListener("click", async function () {
         const wheelId = this.getAttribute("data-wheel-id");
 
+        // The booking waits for the wheel and is then sent by itself with the
+        // code won there (pr:wheel-closed below): before, the visitor had to
+        // press "send" and "apply" again, and closing the page lost it.
+        window.__prReturnBookingPending = true;
+
         // Mark return gift as redeemed before opening the spinning wheel
         await markReturnGiftAsRedeemed();
         // ✅ ДОБАВЬТЕ ЭТУ СТРОКУ - Сбросить флаг закрытия рулетки
@@ -2394,6 +2402,26 @@ async function loadReturningCustomerModal() {
     console.error("Error loading returning customer modal:", error);
   }
 }
+
+// A returning customer's booking stopped at the wheel choice; once the wheel is
+// closed (won or not), send it, with the code won there when there is one.
+document.addEventListener("pr:wheel-closed", async function (e) {
+  if (!window.__prReturnBookingPending) return;
+  window.__prReturnBookingPending = false;
+  const code = e.detail && e.detail.coupon ? String(e.detail.coupon).trim() : "";
+  if (code) {
+    $("#modal-discount-code").val(code);
+    const phoneInput = document.querySelector("#phone");
+    const phone = phoneInput ? ((window.PhoneInput && window.PhoneInput.full(phoneInput)) || phoneInput.value.trim()) : "";
+    if (typeof window.prValidateModalCoupon === "function") {
+      try { await window.prValidateModalCoupon(code, phone); } catch (err) {}
+    }
+  }
+  if (typeof calculateModalPrice === "function") calculateModalPrice();
+  setTimeout(function () {
+    if (typeof window.applyModalCalculation === "function") window.applyModalCalculation();
+  }, 300);
+});
 
 // Удалите обе старые функции и добавьте эту ОДНУ правильную функцию
 
