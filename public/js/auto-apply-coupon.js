@@ -253,31 +253,27 @@
       removeCouponAfterBooking();
     });
 
-    // Also monitor for success modal appearance
+    // Also monitor for the success modal appearing. Only the body's own
+    // children: it is appended there. (A whole-page subtree observer running a
+    // querySelector for every added node cost hundreds of ms in PageSpeed.)
     const observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        if (mutation.type === "childList") {
-          mutation.addedNodes.forEach(function (node) {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Check if success modal was added
-              if (
-                node.id === "booking-success-modal" ||
-                (node.querySelector &&
-                  node.querySelector(CONFIG.successModalSelector))
-              ) {
-                removeCouponAfterBooking();
-              }
-            }
-          });
+      for (let i = 0; i < mutations.length; i++) {
+        const added = mutations[i].addedNodes;
+        for (let j = 0; j < added.length; j++) {
+          const node = added[j];
+          if (node.nodeType === 1 &&
+              (node.id === "booking-success-modal" ||
+               (node.matches && node.matches(CONFIG.successModalSelector + ", .booking-success-modal")) ||
+               (node.firstElementChild && node.firstElementChild.id === "booking-success-modal"))) {
+            removeCouponAfterBooking();
+            return;
+          }
         }
-      });
+      }
     });
 
     // Start observing
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    observer.observe(document.body, { childList: true });
   }
 
   // Initialize the auto-apply functionality
@@ -363,63 +359,28 @@
     checkForApplyModalCalculation();
   }
 
-  // Listen for price calculator modal opening
+  // Listen for the price calculator modal opening. It is in the page from the
+  // start and opens with a class (or a display style), so only its own
+  // attributes are watched: the old whole-page observer of every "style" and
+  // "class" change ran thousands of times while the template styled the page.
   function setupPriceCalculatorListener() {
-    // Use MutationObserver to detect when the price calculator modal is opened
-    const observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        if (mutation.type === "childList") {
-          mutation.addedNodes.forEach(function (node) {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Check if price calculator modal was added or made visible
-              const priceCalculator = node.querySelector
-                ? node.querySelector("#price-calculator-content")
-                : node.id === "price-calculator-content"
-                ? node
-                : null;
-
-              if (
-                priceCalculator ||
-                (node.classList &&
-                  node.classList.contains("price-calculator-content"))
-              ) {
-                // Small delay to ensure the modal is fully rendered
-                setTimeout(() => {
-                  autoApplyCoupon();
-                }, 200);
-              }
-            }
-          });
-        }
-
-        // Also check for style changes that might show the modal
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "style"
-        ) {
-          const target = mutation.target;
-          if (
-            target.id === "price-calculator-content" ||
-            target.classList.contains("price-calculator-content")
-          ) {
-            const style = target.style.display;
-            if (style === "block" || style === "flex" || !style) {
-              setTimeout(() => {
-                autoApplyCoupon();
-              }, 200);
-            }
-          }
-        }
-      });
+    const modal = document.getElementById("price-calculator-modal");
+    if (!modal) return;
+    const isOpen = () =>
+      modal.classList.contains("open") ||
+      modal.style.display === "flex" ||
+      modal.style.display === "block";
+    let wasOpen = isOpen();
+    const observer = new MutationObserver(function () {
+      const now = isOpen();
+      if (now && !wasOpen) {
+        setTimeout(() => {
+          autoApplyCoupon();
+        }, 200);
+      }
+      wasOpen = now;
     });
-
-    // Start observing
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["style", "class"],
-    });
+    observer.observe(modal, { attributes: true, attributeFilter: ["style", "class"] });
   }
 
   // Initialize when script loads
