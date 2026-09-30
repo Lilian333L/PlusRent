@@ -810,6 +810,28 @@ body,
   #fleet-car-grid .de-item.premium .btn-main:hover { background: var(--h2-amber-2) !important; color: var(--h2-ink) !important; }
 }
 #fleet-car-grid .btn-main:focus-visible { outline: 3px solid var(--h2-amber-2) !important; outline-offset: 2px !important; }
+/* the tap: pressed at once, then a spinner while the car page loads (js/tap-loading.js) */
+#fleet-car-grid .btn-main { -webkit-tap-highlight-color: transparent; transition: background-color .15s ease, transform .1s ease !important; }
+#fleet-car-grid .btn-main:active { transform: scale(.97) !important; background: #e7e0d4 !important; }
+#fleet-car-grid .de-item.premium .btn-main:active { background: #d97706 !important; }
+#fleet-car-grid .btn-main.is-opening,
+#cars-catalog .pr-car-cta.is-opening { gap: 10px !important; cursor: progress; }
+#fleet-car-grid .btn-main.is-opening::before,
+#cars-catalog .pr-car-cta.is-opening::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: pr-tap-spin .7s linear infinite;
+}
+@keyframes pr-tap-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  #fleet-car-grid .btn-main.is-opening::before,
+  #cars-catalog .pr-car-cta.is-opening::before { animation-duration: 2s; }
+}
 /* the placeholders while the cars load */
 #fleet-car-grid .pr-skeleton-card {
   border: 1px solid var(--h2-line-d) !important;

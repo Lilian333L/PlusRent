@@ -376,7 +376,21 @@
   transition: background-color .15s ease, transform .12s ease;
 }
 #cars-catalog .pr-car-cta:hover { background: #F59E0B; color: #1C1917 !important; }
-#cars-catalog .pr-car-cta:active { transform: scale(.98); }
+#cars-catalog .pr-car-cta:active { transform: scale(.97); background: #3a3431; }
+/* after the tap: a spinner while the car page loads (js/tap-loading.js) */
+#cars-catalog .pr-car-cta.is-opening { gap: 10px; cursor: progress; }
+#cars-catalog .pr-car-cta.is-opening::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: pr-tap-spin .7s linear infinite;
+}
+@keyframes pr-tap-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #cars-catalog .pr-car-cta.is-opening::before { animation-duration: 2s; } }
 #cars-catalog .pr-car-cta:focus-visible,
 #cars-catalog .pr-car-name a:focus-visible { outline: 2px solid #F59E0B; outline-offset: 3px; }
 
