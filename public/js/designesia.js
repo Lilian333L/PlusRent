@@ -4,8 +4,8 @@
      var rtl_mode = 'off'; // on - for enable RTL, off - for deactive RTL
      var preloader = 'on'; // on - for enable preloader, off - for disable preloader
      var preloader_custom_image = 'off'; // insert image url to enable custom image, off - for disable custom image
-     // Получаем текущий язык
-     var currentLang = localStorage.getItem('selectedLanguage') || 'ro';
+     // the page's own language (<html lang>): 'selectedLanguage' is no longer written by anything
+     var currentLang = (document.documentElement.lang || 'ro').slice(0, 2);
 
      // Переводы для прелоадера
     var loadingTranslations = {
@@ -14,7 +14,7 @@
         en: 'Loading...'
     };
 
-var loading_text = loadingTranslations[currentLang];
+var loading_text = loadingTranslations[currentLang] || loadingTranslations.ro;
      var loading_text_position = "0px"; // set position for loading text. Default value is 0px
 
      /* predefined vars begin */

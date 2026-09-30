@@ -22,7 +22,7 @@
 
   function start() {
     add('/js/plugins.js?v=dc2ac48a', function () {
-      add('/js/designesia.min.js?v=eef6b4c0', function () {
+      add('/js/designesia.min.js?v=a042fc57', function () {
         if (window.jQuery) window.jQuery(window).trigger('load');
       });
     });
