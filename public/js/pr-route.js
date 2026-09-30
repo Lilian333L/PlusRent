@@ -1,18 +1,25 @@
 /**
- * Home booking form: the pickup and return places as one compact "route"
- * (two <select>s, the phone's own picker) instead of two groups of three chips.
+ * Home booking form: the pickup and return places as one compact "route".
  *
- * The radio buttons stay in the form, hidden (.pr-places-legacy): the booking,
- * the price calculator and the fees read input[name="pickup_location"|"destination"].
- * This keeps both in step. It runs after the page has loaded (late-home.js),
- * so on start it copies the selects to the radios, in case a place was picked
- * before it arrived.
+ * The markup has two <select>s (they work before this script arrives); this
+ * replaces each with a button and a dark list in the look of the booking card
+ * (the browser's own list is white and cannot be styled), and keeps the hidden
+ * radio buttons in step: the booking, the price calculator and the fees read
+ * input[name="pickup_location"|"destination"]. It runs after the page has
+ * loaded (late-home.js), so on start it copies the selects to the radios, in
+ * case a place was picked before it arrived.
  */
 (function () {
   "use strict";
 
   var selects = [].slice.call(document.querySelectorAll("select[data-pr-route]"));
   if (!selects.length) return;
+
+  var ICON = {
+    plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
+  };
 
   function radios(name) {
     return [].slice.call(document.querySelectorAll('input[type="radio"][name="' + name + '"]'));
@@ -33,25 +40,173 @@
     });
   }
 
-  function toSelect(select) {
-    var name = select.getAttribute("data-pr-route");
-    var checked = document.querySelector('input[type="radio"][name="' + name + '"]:checked');
-    if (checked && select.value !== checked.value) select.value = checked.value;
+  function selectedText(select) {
+    var o = select.options[select.selectedIndex];
+    return o ? o.textContent.trim() : "";
   }
 
-  selects.forEach(function (select) {
-    toRadios(select);
-    select.addEventListener("change", function () { toRadios(select); });
-    radios(select.getAttribute("data-pr-route")).forEach(function (r) {
-      r.addEventListener("change", function () { toSelect(select); });
+  var openBox = null;
+
+  function closeList(focusButton) {
+    if (!openBox) return;
+    var box = openBox;
+    openBox = null;
+    box.list.hidden = true;
+    box.button.setAttribute("aria-expanded", "false");
+    box.row.classList.remove("is-open");
+    if (focusButton) box.button.focus();
+  }
+
+  function enhance(select, index) {
+    var row = select.closest(".pr-route-row");
+    if (!row) return null;
+    var id = "prRouteList" + index;
+
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "pr-route-btn";
+    button.setAttribute("aria-haspopup", "listbox");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", id);
+    var label = row.querySelector(".pr-route-k");
+    if (label) {
+      if (!label.id) label.id = id + "Label";
+      button.setAttribute("aria-labelledby", label.id + " " + id + "Value");
+    }
+    var value = document.createElement("span");
+    value.className = "pr-route-val";
+    value.id = id + "Value";
+    button.appendChild(value);
+
+    var list = document.createElement("div");
+    list.className = "pr-route-list";
+    list.id = id;
+    list.setAttribute("role", "listbox");
+    list.hidden = true;
+
+    select.insertAdjacentElement("afterend", button);
+    row.appendChild(list);
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+
+    var box = { select: select, row: row, button: button, list: list, value: value };
+
+    function paint() {
+      value.textContent = selectedText(select);
+      list.innerHTML = "";
+      [].forEach.call(select.options, function (o, i) {
+        var opt = document.createElement("div");
+        opt.className = "pr-route-opt";
+        opt.setAttribute("role", "option");
+        opt.id = id + "o" + i;
+        opt.setAttribute("aria-selected", i === select.selectedIndex ? "true" : "false");
+        opt.dataset.value = o.value;
+        opt.innerHTML = '<span class="pr-route-ic">' + (/airport/i.test(o.value) ? ICON.plane : ICON.pin) + "</span>" +
+          '<span class="pr-route-name"></span><span class="pr-route-tick">' + ICON.check + "</span>";
+        opt.querySelector(".pr-route-name").textContent = o.textContent.trim();
+        list.appendChild(opt);
+      });
+    }
+
+    function highlight(i) {
+      var opts = list.querySelectorAll(".pr-route-opt");
+      if (!opts.length) return;
+      i = (i + opts.length) % opts.length;
+      [].forEach.call(opts, function (o, k) { o.classList.toggle("is-active", k === i); });
+      list.setAttribute("aria-activedescendant", opts[i].id);
+      box.active = i;
+    }
+
+    function choose(v) {
+      if (select.value !== v) {
+        select.value = v;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      paint();
+      closeList(true);
+    }
+
+    function open() {
+      if (openBox && openBox !== box) closeList(false);
+      paint();
+      list.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      row.classList.add("is-open");
+      openBox = box;
+      highlight(select.selectedIndex);
+    }
+
+    button.addEventListener("click", function () {
+      if (openBox === box) closeList(true); else open();
     });
+    button.addEventListener("keydown", function (e) {
+      var isOpen = openBox === box;
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!isOpen) { open(); return; }
+        highlight(box.active + (e.key === "ArrowDown" ? 1 : -1));
+      } else if ((e.key === "Enter" || e.key === " ") && isOpen) {
+        e.preventDefault();
+        var a = list.querySelectorAll(".pr-route-opt")[box.active];
+        if (a) choose(a.dataset.value);
+      } else if (e.key === "Escape" && isOpen) {
+        e.preventDefault();
+        closeList(true);
+      }
+    });
+    list.addEventListener("click", function (e) {
+      // the row is a <label>: without this its click would reach the button
+      // and open the list again
+      e.preventDefault();
+      var o = e.target.closest(".pr-route-opt");
+      if (o) choose(o.dataset.value);
+    });
+    list.addEventListener("mousemove", function (e) {
+      var o = e.target.closest(".pr-route-opt");
+      if (o) highlight([].indexOf.call(list.children, o));
+    });
+
+    box.paint = paint;
+    paint();
+    row.classList.add("is-enhanced");
+    return box;
+  }
+
+  var boxes = [];
+  selects.forEach(function (select, i) {
+    toRadios(select);
+    var box = enhance(select, i);
+    if (box) boxes.push(box);
+    select.addEventListener("change", function () {
+      toRadios(select);
+      if (box) box.paint();
+    });
+    radios(select.getAttribute("data-pr-route")).forEach(function (r) {
+      r.addEventListener("change", function () {
+        if (r.checked && select.value !== r.value) {
+          select.value = r.value;
+          if (box) box.paint();
+        }
+      });
+    });
+  });
+
+  document.addEventListener("click", function (e) {
+    if (openBox && !openBox.row.contains(e.target)) closeList(false);
   });
 
   // form.reset() after a booking puts both back to their defaults; keep them equal
   var form = selects[0].form;
   if (form) {
     form.addEventListener("reset", function () {
-      setTimeout(function () { selects.forEach(toSelect); }, 0);
+      setTimeout(function () {
+        selects.forEach(function (select, i) {
+          var name = select.getAttribute("data-pr-route");
+          var checked = document.querySelector('input[type="radio"][name="' + name + '"]:checked');
+          if (checked) select.value = checked.value;
+        });
+        boxes.forEach(function (b) { b.paint(); });
+      }, 0);
     });
   }
 })();
