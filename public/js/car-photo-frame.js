@@ -101,6 +101,13 @@
     var box = img.closest(".d-img");
     if (!box || !img.naturalWidth || !img.naturalHeight) return;
 
+    // a thumbnail (the home page list on phones) is too small for the framing
+    // to show, and reading its pixels meant decoding the photo on the main
+    // thread (up to a second in PageSpeed)
+    if (box.getBoundingClientRect().width < 220) {
+      img.setAttribute(ATTR, "thumb");
+      return;
+    }
     var r = img.naturalWidth / img.naturalHeight;
     var R = boxRatio(box);
     if (Math.abs(r - R) <= TOLERANCE) {
