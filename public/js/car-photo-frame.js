@@ -108,6 +108,13 @@
       return;
     }
 
+    // wider than its box (the phone list): nothing is cropped vertically,
+    // so there is no need to read the pixels (decoding the photo for the
+    // canvas was the costly part)
+    if (r >= R) {
+      img.setAttribute(ATTR, "no-crop");
+      return;
+    }
     var centre = subjectCentre(img);
     if (centre === null) {
       img.setAttribute(ATTR, "unreadable");
@@ -132,12 +139,33 @@
       img.crossOrigin = "anonymous";
       img.src = src; // restart the load with the attribute set
     }
-    if (img.complete && img.naturalWidth) frame(img);
-    else img.addEventListener("load", function () { frame(img); }, { once: true });
+    if (img.complete && img.naturalWidth) later(img);
+    else img.addEventListener("load", function () { later(img); }, { once: true });
   }
 
+  // one photo per idle moment, not all of them in one long task
+  var queue = [], busy = false;
+  var idle = window.requestIdleCallback || function (cb) { return setTimeout(cb, 50); };
+  function later(img) {
+    queue.push(img);
+    if (busy) return;
+    busy = true;
+    idle(function run() {
+      var next = queue.shift();
+      if (next) frame(next);
+      if (queue.length) idle(run, { timeout: 2000 });
+      else busy = false;
+    }, { timeout: 2000 });
+  }
+
+  // cards arrive in bursts of DOM changes: scan once per burst
+  var scanT = 0;
   function scan() {
+    scanT = 0;
     document.querySelectorAll(".d-img img").forEach(prepare);
+  }
+  function scanSoon() {
+    if (!scanT) scanT = setTimeout(scan, 150);
   }
 
   if (document.readyState === "loading") {
@@ -149,7 +177,7 @@
   // the catalogue and the home page grid render their cards from the API, so
   // watch for cards arriving rather than assuming they are here at load
   if (typeof MutationObserver !== "undefined") {
-    var mo = new MutationObserver(function () { scan(); });
+    var mo = new MutationObserver(scanSoon);
     mo.observe(document.documentElement, { childList: true, subtree: true });
   }
   window.addEventListener("resize", function () {

@@ -2138,14 +2138,31 @@ document.addEventListener('DOMContentLoaded', function() {
       var bar = document.createElement('div');
       bar.id = 'pr-scroll-progress';
       document.body.appendChild(bar);
-      function update() {
+      // The page height is read only when the page changes size (reading it on
+      // every scroll forced a layout of the whole page: ~0.4 s in PageSpeed).
+      var max = 1, ticking = false;
+      function measure() {
         var h = document.documentElement;
-        var scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
-        bar.style.width = Math.max(0, Math.min(1, scrolled)) * 100 + '%';
+        max = Math.max(1, h.scrollHeight - h.clientHeight);
+      }
+      var measured = 0;
+      function paint() {
+        ticking = false;
+        // sections below the fold get their real height as they are reached
+        var now = Date.now();
+        if (now - measured > 1000) { measured = now; measure(); }
+        bar.style.width = Math.max(0, Math.min(1, window.scrollY / max)) * 100 + '%';
+      }
+      function update() {
+        if (!ticking) { ticking = true; requestAnimationFrame(paint); }
       }
       window.addEventListener('scroll', update, { passive: true });
-      window.addEventListener('resize', update, { passive: true });
-      update();
+      if (window.ResizeObserver) {
+        new ResizeObserver(function () { measure(); update(); }).observe(document.body);
+      } else {
+        window.addEventListener('resize', function () { measure(); update(); }, { passive: true });
+        measure();
+      }
     })();
 
     // ── Back-to-top: show ONLY after scrolling > 400px (UX improvement) ──
@@ -2178,13 +2195,11 @@ document.addEventListener('DOMContentLoaded', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
-      // Initial state
-      applyState();
-
-      // Defensive: if designesia.js later sets inline display, our class still wins via CSS
-      // But also re-assert state after DOM ready & 1s (in case other scripts toggle)
-      setTimeout(applyState, 100);
-      setTimeout(applyState, 1000);
+      // Initial state, and again after DOM ready & 1s (in case other scripts
+      // toggle it); in a frame, so reading scrollY never forces a layout mid-load
+      onScroll();
+      setTimeout(onScroll, 100);
+      setTimeout(onScroll, 1000);
     })();
 </script>
 <script>
@@ -2538,7 +2553,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <script data-late-src="/js/fleet-more.min.js?v=90df2b6e"></script>
   <script data-late-src="/js/phone-input.min.js?v=f7d2bb02"></script>
   <script data-late-src="/js/submit-guard.min.js?v=c4f643a7"></script>
-  <script data-late-src="/js/car-photo-frame.min.js?v=86fe4fbb"></script>
+  <script data-late-src="/js/car-photo-frame.min.js?v=b4764dc6"></script>
 <!-- one calendar look for the rental pages; last, so it outranks the page stylesheets -->
 <link data-href="/css/pr-calendar.min.css?v=bf655b3b" data-deferred-css><noscript><link rel="stylesheet" href="/css/pr-calendar.min.css?v=bf655b3b"></noscript>
 <link data-href="/css/home-v2.min.css?v=e9d7a061" data-deferred-css><noscript><link rel="stylesheet" href="/css/home-v2.min.css?v=e9d7a061"></noscript>
