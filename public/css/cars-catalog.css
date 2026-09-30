@@ -9,9 +9,42 @@
  * rules carry dozens of !important declarations, and new names are the stable
  * way out. Rules are scoped under #cars-catalog (an id) for the same reason.
  *
- * Palette: ink #1C1917, text #292524, muted #78716C, line #E7E5E4,
- * soft #F5F5F4, amber #F59E0B, amber text on light #B45309.
+ * Palette (dark since 30 Sep 2026): the --cc-* variables below; amber #F59E0B.
  * ========================================================================== */
+
+/* ── Dark canvas (owner, 30 Sep 2026): the page continues the hero's ink ───
+   Colours by role; the light values they replaced are in git history. */
+:root {
+  --cc-canvas: #14171C;
+  --cc-surface: #1B1F26;
+  --cc-surface-2: rgba(255, 255, 255, .05);
+  --cc-surface-3: #232833;
+  --cc-line: rgba(255, 255, 255, .1);
+  --cc-line-soft: rgba(255, 255, 255, .07);
+  --cc-line-strong: rgba(255, 255, 255, .22);
+  --cc-text: #F5F7FA;
+  --cc-text-2: rgba(255, 255, 255, .86);
+  --cc-text-3: rgba(255, 255, 255, .74);
+  --cc-muted: rgba(255, 255, 255, .64);
+  --cc-faint: rgba(255, 255, 255, .56);
+  --cc-amber-text: #FBBF24;
+  --cc-solid: #F5F2EC;
+  --cc-on-solid: #14171C;
+  --cc-solid-press: #E4DDD1;
+  --cc-disabled: rgba(255, 255, 255, .08);
+}
+html,
+body,
+#wrapper,
+#content { background-color: var(--cc-canvas) !important; }
+/* the template paints the catalogue container a light gradient */
+#cars-catalog#cars-catalog { background: transparent !important; }
+/* the catalogue on the container's edges: the fixed 240 px sidebar left 83 px empty on the right */
+@media (min-width: 768px) {
+  #cars-catalog#cars-catalog { padding-left: 12px !important; padding-right: 12px !important; }
+  #cars-catalog > .row { margin-left: 0 !important; margin-right: 0 !important; }
+  #cars-catalog > .row > .col-lg-9 { flex: 1 1 0 !important; max-width: none !important; width: auto !important; padding-right: 0 !important; }
+}
 
 /* ── First screen: the hero of the service pages (driver, transfers) ──────
    The ink background and type of .sp-hero; the car photo stays, dimmed under
@@ -129,7 +162,7 @@
 }
 #cars-catalog .pr-cars-toolbar .sort-label {
   margin: 0 !important;
-  color: #78716C !important;
+  color: var(--cc-muted) !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   letter-spacing: 0 !important;
@@ -147,8 +180,8 @@
   padding: 0 16px;
   border: 0;
   border-radius: 14px;
-  background: #1C1917;
-  color: #FAFAF9;
+  background: var(--cc-solid);
+  color: var(--cc-on-solid);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
@@ -158,7 +191,7 @@
   -webkit-tap-highlight-color: transparent;
   transition: background-color .15s ease, transform .12s ease;
 }
-#cars-catalog .pr-filter-btn:active { transform: scale(.98); background: #292524; }
+#cars-catalog .pr-filter-btn:active { transform: scale(.98); background: var(--cc-solid-press); }
 #cars-catalog .pr-filter-btn:focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; }
 #cars-catalog .pr-filter-btn svg { width: 18px; height: 18px; flex-shrink: 0; color: #F59E0B; }
 #cars-catalog .pr-filter-btn .pr-active-count:empty { display: none; }
@@ -168,7 +201,7 @@
   padding: 0 6px;
   border-radius: 11px;
   background: #F59E0B;
-  color: #1C1917;
+  color: var(--cc-text);
   font-size: 12px;
   font-weight: 700;
   line-height: 22px;
@@ -182,11 +215,11 @@
   min-height: 48px !important;
   margin: 0 !important;
   padding: 0 40px 0 40px !important;
-  border: 1px solid #E7E5E4 !important;
+  border: 1px solid var(--cc-line) !important;
   border-radius: 14px !important;
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23B45309%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3%27/%3E%3C/svg%3E") no-repeat left 13px center / 18px, #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center / 18px !important;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23FBBF24%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3%27/%3E%3C/svg%3E") no-repeat left 13px center / 18px, #1B1F26 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF9E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center / 18px !important;
   box-shadow: none !important;
-  color: #292524 !important;
+  color: var(--cc-text-2) !important;
   font-size: 15px !important;
   font-weight: 500 !important;
   -webkit-appearance: none;
@@ -217,15 +250,15 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border: 1px solid #E7E5E4;
+  border: 1px solid var(--cc-line);
   border-radius: 20px;
-  background: #FFFFFF;
+  background: var(--cc-surface);
   box-shadow: 0 1px 2px rgba(28, 25, 23, .04);
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 @media (hover: hover) {
   #cars-catalog .pr-car:hover {
-    border-color: #D6D3D1;
+    border-color: var(--cc-line-strong);
     box-shadow: 0 16px 36px -18px rgba(28, 25, 23, .28);
   }
   #cars-catalog .pr-car:hover .pr-car-photo img { transform: scale(1.03); }
@@ -240,7 +273,7 @@
   padding: 0 !important;
   overflow: hidden;
   border-radius: 0 !important;
-  background: #F5F5F4;
+  background: var(--cc-surface-3);
 }
 #cars-catalog .pr-car .pr-car-photo img {
   display: block;
@@ -261,7 +294,7 @@
   padding: 5px 10px;
   border-radius: 999px;
   background: #F59E0B;
-  color: #1C1917;
+  color: var(--cc-text);
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
@@ -278,7 +311,7 @@
 #cars-catalog .pr-car-name {
   margin: 0 !important;
   padding: 0 !important;
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   font-size: 19px !important;
   font-weight: 700 !important;
   line-height: 1.25 !important;
@@ -298,7 +331,7 @@
 }
 #cars-catalog .pr-car-year {
   margin-left: 4px;
-  color: #78716C;
+  color: var(--cc-muted);
   font-weight: 500;
 }
 
@@ -316,13 +349,13 @@
   gap: 6px;
   margin: 0 !important;
   padding: 0 !important;
-  color: #57534E;
+  color: var(--cc-text-3);
   font-size: 14px;
   line-height: 1.3;
   list-style: none !important;
 }
 #cars-catalog .pr-car-specs li::before { display: none !important; }
-#cars-catalog .pr-car-specs svg { width: 16px; height: 16px; flex-shrink: 0; color: #A8A29E; }
+#cars-catalog .pr-car-specs svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--cc-faint); }
 
 #cars-catalog .pr-car-foot {
   display: flex;
@@ -331,7 +364,7 @@
   gap: 12px;
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid #F0EFED;
+  border-top: 1px solid var(--cc-line-soft);
 }
 #cars-catalog .pr-car-price {
   display: flex;
@@ -341,13 +374,13 @@
   min-width: 0;
 }
 #cars-catalog .pr-car-price span {
-  color: #78716C;
+  color: var(--cc-muted);
   font-size: 12.5px;
   font-weight: 500;
   line-height: 1.2;
 }
 #cars-catalog .pr-car-price strong {
-  color: #1C1917;
+  color: var(--cc-text);
   font-size: 24px;
   font-weight: 800;
   line-height: 1.1;
@@ -364,8 +397,8 @@
   min-height: 48px;
   padding: 0 18px;
   border-radius: 14px;
-  background: #1C1917;
-  color: #FAFAF9 !important;
+  background: var(--cc-solid);
+  color: var(--cc-on-solid) !important;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
@@ -375,8 +408,8 @@
   -webkit-tap-highlight-color: transparent;
   transition: background-color .15s ease, transform .12s ease;
 }
-#cars-catalog .pr-car-cta:hover { background: #F59E0B; color: #1C1917 !important; }
-#cars-catalog .pr-car-cta:active { transform: scale(.97); background: #3a3431; }
+#cars-catalog .pr-car-cta:hover { background: #F59E0B; color: var(--cc-text) !important; }
+#cars-catalog .pr-car-cta:active { transform: scale(.97); background: var(--cc-solid-press); }
 /* after the tap: a spinner while the car page loads (js/tap-loading.js) */
 #cars-catalog .pr-car-cta.is-opening { gap: 10px; cursor: progress; }
 #cars-catalog .pr-car-cta.is-opening::before {
@@ -437,9 +470,9 @@
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 12px 6px;
     padding: 14px !important;
-    border: 1px solid #E7E5E4 !important;
+    border: 1px solid var(--cc-line) !important;
     border-radius: 16px;
-    background: #FFFFFF !important;
+    background: var(--cc-surface) !important;
   }
   .pr-fleet-table.pr-fleet-table tr > *,
   .pr-tariffs .pr-tariff-wrap tr > * {
@@ -454,13 +487,13 @@
   .pr-tariffs .pr-tariff-wrap tbody th {
     grid-column: 1 / -1;
     padding-bottom: 2px !important;
-    color: #1C1917 !important;
+    color: var(--cc-text) !important;
     font-size: 16px !important;
     font-weight: 700 !important;
   }
   .pr-fleet-table.pr-fleet-table td,
   .pr-tariffs .pr-tariff-wrap td {
-    color: #1C1917 !important;
+    color: var(--cc-text) !important;
     font-size: 14px !important;
     font-weight: 600 !important;
     line-height: 1.25 !important;
@@ -471,7 +504,7 @@
     content: attr(data-label);
     display: block;
     margin-bottom: 3px;
-    color: #78716C;
+    color: var(--cc-muted);
     font-size: 11px;
     font-weight: 500;
     line-height: 1.2;
@@ -482,12 +515,12 @@
   /* the prices always start their own line (the 6th cell is the first price) */
   .pr-fleet-table.pr-fleet-table td.pr-fleet-price:nth-of-type(6) { grid-column: 1 / span 6; }
   .pr-fleet-table.pr-fleet-table tbody th a {
-    color: #1C1917 !important;
+    color: var(--cc-text) !important;
     text-decoration: none !important;
   }
   .pr-fleet-table.pr-fleet-table tbody th a::after {
     content: " ›";
-    color: #B45309;
+    color: var(--cc-amber-text);
   }
   /* price cells: the period on top, the price on one shared baseline below */
   .pr-fleet-table.pr-fleet-table td.pr-fleet-price,
@@ -500,12 +533,12 @@
   .pr-fleet-table.pr-fleet-table td.pr-fleet-price {
     padding: 8px 6px !important;
     border-radius: 10px;
-    background: #FAFAF9 !important;
+    background: var(--cc-surface-2) !important;
   }
   .pr-tariffs .pr-tariff-wrap td {
     padding: 8px 6px !important;
     border-radius: 10px;
-    background: #FAFAF9 !important;
+    background: var(--cc-surface-2) !important;
   }
 }
 
@@ -537,8 +570,8 @@
   width: 9px;
   height: 9px;
   margin-top: -7px;
-  border-right: 2px solid #A8A29E;
-  border-bottom: 2px solid #A8A29E;
+  border-right: 2px solid var(--cc-faint);
+  border-bottom: 2px solid var(--cc-faint);
   transform: rotate(45deg);
   transition: transform .2s ease;
 }
@@ -561,7 +594,7 @@
   letter-spacing: 0 !important;
 }
 #cars-catalog .filter-sidebar .pr-filter-title-text {
-  color: #292524 !important;
+  color: var(--cc-text-2) !important;
   font-size: 15px !important;
   font-weight: 600 !important;
 }
@@ -587,9 +620,9 @@
   overscroll-behavior: contain;
   margin: 0 !important;
   padding: 4px 20px 12px !important;
-  border: 1px solid #E7E5E4 !important;
+  border: 1px solid var(--cc-line) !important;
   border-radius: 20px !important;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
   box-shadow: none !important;
 }
 #cars-catalog#cars-catalog .filter-sidebar .filter-title {
@@ -599,13 +632,13 @@
   margin: 0 !important;
   padding: 16px 0 12px !important;
   border: 0 !important;
-  border-bottom: 1px solid #F0EFED !important;
+  border-bottom: 1px solid var(--cc-line-soft) !important;
   background: none !important;
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   font-size: 18px !important;
   font-weight: 700 !important;
 }
-#cars-catalog#cars-catalog .filter-sidebar .filter-title > span { color: #1C1917 !important; }
+#cars-catalog#cars-catalog .filter-sidebar .filter-title > span { color: var(--cc-text) !important; }
 #cars-catalog#cars-catalog .filter-sidebar .filter-clear {
   display: inline-flex !important;
   align-items: center;
@@ -614,7 +647,7 @@
   border: 0 !important;
   background: none !important;
   box-shadow: none !important;
-  color: #B45309 !important;
+  color: var(--cc-amber-text) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   cursor: pointer;
@@ -627,7 +660,7 @@
   margin: 0 !important;
   padding: 14px 0 !important;
   border: 0 !important;
-  border-bottom: 1px solid #F0EFED !important;
+  border-bottom: 1px solid var(--cc-line-soft) !important;
   border-radius: 0 !important;
   background: none !important;
   box-shadow: none !important;
@@ -647,7 +680,7 @@
 }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .pr-filter-summary::-webkit-details-marker { display: none; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .pr-filter-title-text {
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   font-size: 15px !important;
   font-weight: 600 !important;
   letter-spacing: 0 !important;
@@ -660,8 +693,8 @@
   height: 10px !important;
   margin: 0 4px 4px 0 !important;
   border: 0 !important;
-  border-right: 2px solid #A8A29E !important;
-  border-bottom: 2px solid #A8A29E !important;
+  border-right: 2px solid var(--cc-faint) !important;
+  border-bottom: 2px solid var(--cc-faint) !important;
   background: none !important;
   transform: rotate(45deg);
   transition: transform .2s ease, margin .2s ease;
@@ -694,13 +727,13 @@
   min-height: 40px;
   margin: 0 !important;
   padding: 0 14px !important;
-  border: 1px solid #E7E5E4 !important;
+  border: 1px solid var(--cc-line) !important;
   border-radius: 999px !important;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
   box-shadow: none !important;
   transition: background-color .15s ease, border-color .15s ease;
 }
-#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:hover { border-color: #D6D3D1 !important; }
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:hover { border-color: var(--cc-line-strong) !important; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row label {
   display: inline-flex !important;
   align-items: center;
@@ -725,7 +758,7 @@
   pointer-events: none;
 }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row .option-label {
-  color: #292524 !important;
+  color: var(--cc-text-2) !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   line-height: 1.2 !important;
@@ -741,7 +774,7 @@
   border-radius: 0 !important;
   background: none !important;
   box-shadow: none !important;
-  color: #A8A29E !important;
+  color: var(--cc-faint) !important;
   font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 1 !important;
@@ -749,10 +782,10 @@
   pointer-events: none;
 }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) {
-  border-color: #1C1917 !important;
-  background: #1C1917 !important;
+  border-color: var(--cc-solid) !important;
+  background: var(--cc-solid) !important;
 }
-#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) .option-label { color: #FAFAF9 !important; }
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) .option-label { color: var(--cc-on-solid) !important; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) .option-count { color: #F59E0B !important; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:focus-visible) { outline: 2px solid #F59E0B; outline-offset: 2px; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:disabled) { opacity: .45; }
@@ -775,7 +808,7 @@
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .price-range-divider {
   margin: 0 !important;
   padding: 0 !important;
-  color: #A8A29E !important;
+  color: var(--cc-faint) !important;
   line-height: 1 !important;
 }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .date-input-wrapper {
@@ -788,7 +821,7 @@
   left: 12px !important;
   z-index: 1;
   margin: 0 !important;
-  color: #A8A29E !important;
+  color: var(--cc-faint) !important;
   font-size: 13px !important;
   transform: translateY(-50%);
   pointer-events: none;
@@ -799,21 +832,21 @@
   height: 44px !important;
   margin: 0 !important;
   padding: 0 12px !important;
-  border: 1px solid #E7E5E4 !important;
+  border: 1px solid var(--cc-line) !important;
   border-radius: 12px !important;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
   box-shadow: none !important;
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   font-size: 15px !important;
   text-align: left !important;
 }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .date-input-wrapper input { padding-left: 34px !important; cursor: pointer; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) :is(.date-input-wrapper input, .price-range-inputs input):focus {
-  border-color: #1C1917 !important;
+  border-color: var(--cc-solid) !important;
   outline: none;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, .25) !important;
 }
-#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) :is(.date-input-wrapper input, .price-range-inputs input)::placeholder { color: #A8A29E; }
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) :is(.date-input-wrapper input, .price-range-inputs input)::placeholder { color: var(--cc-faint); }
 
 /* ════════════════════════════════════════════════════════════════════════
  * Phone: the filters open as a sheet from the bottom
@@ -826,7 +859,7 @@
   align-items: flex-end !important;
   justify-content: center !important;
   padding: 0 !important;
-  background: rgba(28, 25, 23, .5) !important;
+  background: rgba(6, 8, 11, .66) !important;
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   opacity: 1 !important;
@@ -849,7 +882,7 @@
   overflow: hidden !important;
   border: 0 !important;
   border-radius: 24px 24px 0 0 !important;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
   box-shadow: 0 -16px 48px rgba(28, 25, 23, .28) !important;
   transform: none !important;
   animation: prSheetUp .28s cubic-bezier(.2, .8, .2, 1);
@@ -864,7 +897,7 @@
   margin: 8px auto 0 !important;
   border: 0 !important;
   border-radius: 2px !important;
-  background: #D6D3D1 !important;
+  background: var(--cc-line-strong) !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .mobile-filter-sidebar::after { display: none !important; }
 
@@ -877,14 +910,14 @@
   margin: 0 !important;
   padding: 10px 16px 10px 20px !important;
   border: 0 !important;
-  border-bottom: 1px solid #F0EFED !important;
+  border-bottom: 1px solid var(--cc-line-soft) !important;
   border-radius: 0 !important;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
   box-shadow: none !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .mobile-filter-header h2 {
   margin: 0 !important;
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   font-size: 20px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -902,9 +935,9 @@
   padding: 0 !important;
   border: 0 !important;
   border-radius: 50% !important;
-  background: #F5F5F4 !important;
+  background: var(--cc-surface-3) !important;
   box-shadow: none !important;
-  color: #292524 !important;
+  color: var(--cc-text-2) !important;
   cursor: pointer;
 }
 #mobile-filter-overlay#mobile-filter-overlay .mobile-filter-close svg { width: 18px; height: 18px; }
@@ -919,7 +952,7 @@
   overflow-y: auto !important;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  background: #FFFFFF !important;
+  background: var(--cc-surface) !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .filter-option-row { min-height: 44px; }
 
@@ -933,8 +966,8 @@
   margin: 8px -20px 0 !important;
   padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
   border: 0 !important;
-  border-top: 1px solid #F0EFED !important;
-  background: #FFFFFF !important;
+  border-top: 1px solid var(--cc-line-soft) !important;
+  background: var(--cc-surface) !important;
   box-shadow: none !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .pr-sheet-reset,
@@ -957,23 +990,23 @@
 #mobile-filter-overlay#mobile-filter-overlay .pr-sheet-reset {
   flex: 0 0 auto !important;
   padding: 0 18px !important;
-  border: 1px solid #E7E5E4 !important;
-  background: #FFFFFF !important;
-  color: #292524 !important;
+  border: 1px solid var(--cc-line) !important;
+  background: var(--cc-surface) !important;
+  color: var(--cc-text-2) !important;
   font-weight: 600 !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .pr-sheet-apply {
   flex: 1 1 auto !important;
   padding: 0 16px !important;
   border: 0 !important;
-  background: #1C1917 !important;
-  color: #FAFAF9 !important;
+  background: var(--cc-solid) !important;
+  color: var(--cc-on-solid) !important;
   font-weight: 700 !important;
 }
 #mobile-filter-overlay#mobile-filter-overlay .pr-sheet-apply:active:not(:disabled) { transform: scale(.98); }
 #mobile-filter-overlay#mobile-filter-overlay .pr-sheet-apply:disabled {
-  background: #E7E5E4 !important;
-  color: #78716C !important;
+  background: var(--cc-disabled) !important;
+  color: var(--cc-muted) !important;
   cursor: default;
 }
 #mobile-filter-overlay#mobile-filter-overlay :is(.pr-sheet-reset, .pr-sheet-apply):focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; }
@@ -1006,7 +1039,7 @@
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, .22);
-  color: #FAFAF9;
+  color: var(--cc-on-solid);
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
@@ -1039,7 +1072,7 @@
   padding: 0 4px 0 14px !important;
   border: 0 !important;
   border-radius: 999px !important;
-  background: #1C1917 !important;
+  background: var(--cc-solid) !important;
   box-shadow: none !important;
 }
 /* the value says enough ("BMW", "Diesel", "€0 – €40"); the group name stays for screen readers */
@@ -1050,7 +1083,7 @@
   white-space: nowrap;
 }
 #cars-catalog#cars-catalog .pr-active-chips .pr-chip-value {
-  color: #FAFAF9 !important;
+  color: var(--cc-on-solid) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   line-height: 1 !important;
@@ -1068,7 +1101,7 @@
   border: 0 !important;
   border-radius: 50% !important;
   background: rgba(250, 250, 249, .14) !important;
-  color: #FAFAF9 !important;
+  color: var(--cc-on-solid) !important;
   font-size: 16px !important;
   line-height: 1 !important;
   cursor: pointer;
@@ -1083,7 +1116,7 @@
   border-radius: 0 !important;
   background: none !important;
   box-shadow: none !important;
-  color: #B45309 !important;
+  color: var(--cc-amber-text) !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   text-transform: none !important;
@@ -1097,7 +1130,7 @@
   display: inline !important;
   visibility: visible !important;
   opacity: 1 !important;
-  color: #1C1917 !important;
+  color: var(--cc-text) !important;
   -webkit-text-fill-color: currentColor !important;
   font-size: 18px !important;
   font-weight: 700 !important;
@@ -1106,7 +1139,7 @@
 /* the calendar icon is drawn on the field itself, whatever the icon font holds */
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .date-input-wrapper i { display: none !important; }
 #cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .date-input-wrapper input {
-  background: #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A8A29E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.5'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") no-repeat 11px center / 16px !important;
+  background: #1B1F26 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15.5' rx='2.5'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") no-repeat 11px center / 16px !important;
 }
 
 /* the sidebar is narrow: the two dates stack, so "Până la" and a chosen date read in full */
@@ -1129,3 +1162,117 @@
 }
 .flatpickr-calendar.flatpickr-calendar.static:not(.open) { display: none !important; }
 #mobile-filter-overlay#mobile-filter-overlay .date-range-filter { grid-template-columns: 1fr !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * Dark canvas: the elements that change role, not only colour
+ * ════════════════════════════════════════════════════════════════════════ */
+#cars-catalog .pr-car {
+  background: linear-gradient(180deg, #20252E 0, var(--cc-surface) 60%);
+  box-shadow: 0 24px 44px -34px rgba(0, 0, 0, .9);
+}
+@media (hover: hover) {
+  #cars-catalog .pr-car:hover { box-shadow: 0 28px 50px -30px rgba(0, 0, 0, .95); }
+}
+#cars-catalog .pr-car.premium {
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, .1), 0 28px 60px -30px rgba(245, 158, 11, .35);
+}
+#cars-catalog .pr-car .pr-car-badge { color: var(--cc-text); }
+
+/* the main action: cream on the ink (the picked car: amber), amber under the pointer */
+#cars-catalog .pr-car.premium .pr-car-cta { background: #F59E0B; color: #14171C !important; }
+#cars-catalog .pr-car-cta:hover,
+#cars-catalog .pr-car.premium .pr-car-cta:hover { background: #FBBF24; color: #14171C !important; }
+#cars-catalog .pr-car.premium .pr-car-cta:active { background: #D97706; }
+
+/* toolbar */
+#cars-catalog .pr-filter-btn {
+  border: 1px solid var(--cc-line);
+  background: var(--cc-surface-3);
+  color: var(--cc-text);
+}
+#cars-catalog .pr-filter-btn:active { background: #2A303B; }
+#cars-catalog .pr-filter-btn .pr-active-count { color: #14171C; }
+#cars-catalog .pr-cars-toolbar .sort-select option { background: #1B1F26; color: #F5F7FA; }
+
+/* a chosen filter: amber, readable at a glance */
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) {
+  border-color: #F59E0B !important;
+  background: #F59E0B !important;
+}
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) .option-label { color: #14171C !important; }
+#cars-catalog#cars-catalog :is(.filter-sidebar, .mobile-filter-sidebar) .filter-option-row:has(input:checked) .option-count { color: rgba(20, 23, 28, .66) !important; }
+
+/* the chosen filters above the cars */
+#cars-catalog#cars-catalog .pr-active-chips .pr-chip {
+  border: 1px solid rgba(245, 158, 11, .45) !important;
+  background: var(--cc-surface-3) !important;
+}
+#cars-catalog#cars-catalog .pr-active-chips .pr-chip-value { color: var(--cc-text) !important; }
+#cars-catalog#cars-catalog .pr-active-chips .pr-chip-remove {
+  background: rgba(255, 255, 255, .1) !important;
+  color: var(--cc-text) !important;
+}
+
+/* the phone sheet: "Show N cars" is the one amber button */
+#mobile-filter-overlay#mobile-filter-overlay .pr-sheet-apply { background: #F59E0B !important; color: #14171C !important; }
+#mobile-filter-overlay#mobile-filter-overlay .pr-sheet-apply:disabled { background: var(--cc-disabled) !important; color: var(--cc-muted) !important; }
+#mobile-filter-overlay#mobile-filter-overlay .pr-sheet-reset { background: transparent !important; color: var(--cc-text-2) !important; }
+
+/* nothing found / loading */
+#cars-catalog .no-cars-message {
+  border: 1px solid var(--cc-line) !important;
+  background: var(--cc-surface) !important;
+  box-shadow: none !important;
+}
+#cars-catalog .no-cars-message p,
+#cars-catalog .loading-spinner p { color: var(--cc-text) !important; }
+#cars-catalog .no-cars-message small { color: var(--cc-muted) !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * Phones: the cars as a compact list, photo left (like the home page);
+ * eleven cars no longer take eleven screens
+ * ════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767.98px) {
+  #cars-catalog .car-list-row > [class*="col-"] { margin-bottom: 10px; }
+  #cars-catalog .pr-car {
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    column-gap: 12px;
+    width: 100%;
+    padding: 8px;
+    border-radius: 18px;
+  }
+  #cars-catalog .pr-car .pr-car-photo {
+    aspect-ratio: auto;
+    min-height: 150px !important;
+    border-radius: 12px !important;
+  }
+  /* the photo fills its box without setting the row height */
+  #cars-catalog .pr-car .pr-car-photo img { position: absolute; inset: 0; }
+  #cars-catalog .pr-car .pr-car-badge {
+    top: 6px;
+    left: 6px;
+    gap: 4px;
+    padding: 4px 8px 4px 6px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+  #cars-catalog .pr-car .pr-car-badge svg { width: 12px; height: 12px; }
+  #cars-catalog .pr-car-body { gap: 8px; padding: 2px 2px 2px 0; }
+  #cars-catalog .pr-car-name { font-size: 17px !important; }
+  #cars-catalog .pr-car-year { display: block; margin: 2px 0 0; font-size: 13px; }
+  #cars-catalog .pr-car-specs { gap: 4px 10px; }
+  #cars-catalog .pr-car-specs li { font-size: 12.5px; }
+  #cars-catalog .pr-car-specs svg { width: 14px; height: 14px; }
+  #cars-catalog .pr-car-specs li:nth-child(4) { display: none; }
+  #cars-catalog .pr-car-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 8px;
+  }
+  #cars-catalog .pr-car-price { flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; }
+  #cars-catalog .pr-car-price span { font-size: 12px; white-space: nowrap; }
+  #cars-catalog .pr-car-price strong { font-size: 21px; white-space: nowrap; }
+  #cars-catalog .pr-car-cta { width: 100%; min-height: 44px; padding: 0 12px; font-size: 14.5px; }
+}
