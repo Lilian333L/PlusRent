@@ -303,7 +303,8 @@ try {
 });
 
 // Admin: Get all bookings
-router.get("/", async (req, res) => {
+// Admin only: the list holds customers' names, phones and e-mails (was public until 1 Oct 2026)
+router.get("/", authenticateToken, async (req, res) => {
   try {
     const { data: bookings, error } = await supabase
       .from("bookings")
@@ -1142,7 +1143,8 @@ router.post("/sofer-treaz-callback", async (req, res) => {
 });
 
 // Get booking by ID
-router.get("/:id", async (req, res) => {
+// Admin only, like the list
+router.get("/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {

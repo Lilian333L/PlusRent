@@ -3523,7 +3523,9 @@
           </div>
         `;
 
-        const response = await fetch(`${window.API_BASE_URL}/api/bookings`);
+        const response = await fetch(`${window.API_BASE_URL}/api/bookings`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+        });
         const bookings = await response.json();
 
         // Store all bookings globally
