@@ -1548,3 +1548,5 @@ router.put("/service-callbacks/:id/status", authenticateToken, async (req, res) 
   }
 });
 module.exports = router;
+// used by routes/admin-dashboard.js when pending test bookings are deleted
+module.exports.restoreCouponToAvailable = restoreCouponToAvailable;

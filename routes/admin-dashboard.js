@@ -157,4 +157,43 @@ router.put("/site-requests/:id", async (req, res) => {
   res.json(data);
 });
 
+/**
+ * Delete pending bookings for good (owner, 1 Oct 2026: the test requests).
+ * Only bookings that are still "pending" are touched: the status is checked
+ * again here, so a confirmed or finished booking can never go. A coupon used
+ * by one of them is given back first, like a cancellation does.
+ * Body: { confirm: "DELETE", ids?: [..] }  (no ids = every pending booking)
+ */
+router.post("/bookings/delete-pending", async (req, res) => {
+  const { confirm, ids } = req.body || {};
+  if (confirm !== "DELETE") return res.status(400).json({ error: "confirm must be DELETE" });
+  try {
+    let q = supabaseAdmin.from("bookings").select("id, discount_code, customer_phone").eq("status", "pending");
+    if (Array.isArray(ids) && ids.length) q = q.in("id", ids.map(Number).filter(Number.isInteger));
+    const { data: pending, error } = await q;
+    if (error) throw error;
+    if (!pending.length) return res.json({ deleted: 0 });
+    const { restoreCouponToAvailable } = require("./bookings");
+    for (const b of pending) {
+      if (b.discount_code && typeof restoreCouponToAvailable === "function") {
+        await restoreCouponToAvailable(b.discount_code, b.customer_phone);
+      }
+    }
+    const list = pending.map((b) => b.id);
+    await supabaseAdmin.from("booked_cars").delete().in("booking_id", list);
+    const { data: gone, error: delError } = await supabaseAdmin
+      .from("bookings")
+      .delete()
+      .in("id", list)
+      .eq("status", "pending")
+      .select("id");
+    if (delError) throw delError;
+    console.log(`admin-dashboard: deleted ${gone.length} pending bookings by ${req.user && req.user.username}`);
+    res.json({ deleted: gone.length });
+  } catch (error) {
+    console.error("admin-dashboard delete-pending:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 module.exports = router;

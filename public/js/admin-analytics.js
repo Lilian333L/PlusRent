@@ -906,6 +906,44 @@
     });
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // MANAGE BOOKINGS: delete every booking still waiting for approve / reject
+  // ══════════════════════════════════════════════════════════════════════
+  (function bookingTools() {
+    var box = document.getElementById("aaBookingTools");
+    if (!box) return;
+    box.innerHTML =
+      '<div class="aa-card aa-panel" style="margin-top:12px">' +
+      '<h3 style="font-size:15px">Rezervări de test</h3>' +
+      '<p style="margin:4px 0 10px;color:var(--aa-muted);font-size:13px">Șterge definitiv toate rezervările care așteaptă Approve / Reject. Cele confirmate, finalizate sau anulate rămân.</p>' +
+      '<button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaDelPending">Șterge toate în așteptare</button>' +
+      '<div class="aa-confirm" id="aaDelConfirm" role="alert" style="margin:10px 0 0"><span id="aaDelText"></span>' +
+      '<button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaDelYes">Da, șterge definitiv</button><button type="button" class="aa-btn aa-btn-sm" id="aaDelNo">Renunță</button></div></div>';
+    var btn = document.getElementById("aaDelPending"), conf = document.getElementById("aaDelConfirm"), yes = document.getElementById("aaDelYes");
+    btn.onclick = function () {
+      btn.disabled = true;
+      api("/bookings").then(function (all) {
+        var n = (all || []).filter(function (b) { return b.status === "pending"; }).length;
+        btn.disabled = false;
+        if (!n) { toast("Nicio rezervare în așteptare."); return; }
+        document.getElementById("aaDelText").textContent = "Se șterg definitiv " + n + " rezervări în așteptare, inclusiv eventuale cereri reale neconfirmate. Nu se poate anula.";
+        conf.classList.add("is-on");
+        yes.focus();
+      }, function (e) { btn.disabled = false; toast(e.message); });
+    };
+    document.getElementById("aaDelNo").onclick = function () { conf.classList.remove("is-on"); };
+    yes.onclick = function () {
+      yes.disabled = true;
+      api("/admin-dashboard/bookings/delete-pending", { method: "POST", body: JSON.stringify({ confirm: "DELETE" }) }).then(function (r) {
+        yes.disabled = false;
+        conf.classList.remove("is-on");
+        toast("Șterse: " + r.deleted + " rezervări în așteptare");
+        if (typeof window.loadAllBookings === "function") { try { window.loadAllBookings("pending"); } catch (e) {} }
+        if (ov.data) loadOverview();
+      }, function (e) { yes.disabled = false; toast(e.message); });
+    };
+  })();
+
   // ── start: load a tab the first time it is shown ──────────────────────
   var started = { overview: false, journal: false };
   function show(tab) {
