@@ -297,7 +297,7 @@
                         
                         // Redirect to admin dashboard
                         setTimeout(() => {
-                            window.location.href = '/account-dashboard';
+                            var back = ''; try { back = sessionStorage.getItem('prAfterLogin') || ''; sessionStorage.removeItem('prAfterLogin'); } catch (e) {} window.location.href = '/account-dashboard' + (/^#req-\d+$/.test(back) ? back : '');
                         }, 1000);
                     } else {
                         showMessage(data.error || 'Login failed', 'danger');

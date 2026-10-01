@@ -1349,9 +1349,12 @@ async function saveServiceCallback(serviceType, body) {
 // ============================================================
 // HELPER: Send Telegram notification for service callback
 // ============================================================
-async function sendServiceCallbackTelegram(serviceType, body) {
+async function sendServiceCallbackTelegram(serviceType, body, callbackId) {
   try {
     const telegram = new TelegramNotifier();
+    // what the client typed goes into Telegram HTML: escape it, or one "<" loses the whole message
+    const h = (v) => String(v == null ? "" : v).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    body = Object.fromEntries(Object.entries(body || {}).map(([k, v]) => [k, typeof v === "string" ? h(v) : v]));
     
     const serviceNames = {
       'transfer_iasi': '🌍 Transfer Iași Aeroport',
@@ -1391,7 +1394,11 @@ async function sendServiceCallbackTelegram(serviceType, body) {
     
     message += `\n⏰ <i>${new Date().toLocaleString('ro-RO', { timeZone: 'Europe/Chisinau' })}</i>`;
     
-    await telegram.sendMessage(message);
+    // one tap from the chat to the admin agenda, the form filled from this request
+    const extra = callbackId
+      ? { reply_markup: { inline_keyboard: [[{ text: "➕ Adaugă în agendă", url: `https://plusrent.md/account-dashboard.html#req-${callbackId}` }]] } }
+      : undefined;
+    await telegram.sendMessage(message, extra);
   } catch (error) {
     console.error('❌ Error sending Telegram notification:', error);
     // Don't fail the callback if Telegram fails
@@ -1407,7 +1414,7 @@ router.post("/transfer-iasi-callback", async (req, res) => {
     const data = await saveServiceCallback('transfer_iasi', req.body);
     
     // Send Telegram notification (async, don't await)
-    sendServiceCallbackTelegram('transfer_iasi', req.body);
+    sendServiceCallbackTelegram('transfer_iasi', req.body, data?.id);
     
     console.log(`✅ Transfer Iași callback saved: ${req.body.phone_number}`);
     
@@ -1433,7 +1440,7 @@ router.post("/transfer-chisinau-callback", async (req, res) => {
   try {
     const data = await saveServiceCallback('transfer_chisinau', req.body);
     
-    sendServiceCallbackTelegram('transfer_chisinau', req.body);
+    sendServiceCallbackTelegram('transfer_chisinau', req.body, data?.id);
     
     console.log(`✅ Transfer Chișinău callback saved: ${req.body.phone_number}`);
     
@@ -1459,7 +1466,7 @@ router.post("/sofer-personal-callback", async (req, res) => {
   try {
     const data = await saveServiceCallback('sofer_personal', req.body);
     
-    sendServiceCallbackTelegram('sofer_personal', req.body);
+    sendServiceCallbackTelegram('sofer_personal', req.body, data?.id);
     
     console.log(`✅ Sofer Personal callback saved: ${req.body.phone_number}`);
     

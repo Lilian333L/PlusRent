@@ -606,6 +606,12 @@
       jr.requests = res[1] || [];
       jr.orders = (res[2] || []).filter(function (o) { var d = ymd(new Date(o.starts_at)); return d >= r.from && d <= r.to; });
       renderJournal();
+      if (pendingReq) {
+        var q = jr.requests.find(function (x) { return x.id === pendingReq; });
+        pendingReq = null;
+        try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+        if (q) openSheet(null, q); else toast("Cererea nu mai este în listă.");
+      }
     }).catch(function (e) { body.innerHTML = errorBox(e); });
   }
 
@@ -915,7 +921,7 @@
       '<div data-for="car"><div class="aa-row2"><label class="aa-field"><span>Mașina</span><select name="car_id"><option value="">Alege mașina</option></select></label><label class="aa-field"><span>Returnare</span><input type="date" name="ends_on"></label></div></div>' +
       '<div data-for="route"><div class="aa-row2"><label class="aa-field"><span>De la</span><input name="route_from" list="aaPlaces" autocomplete="off"></label><label class="aa-field"><span>Până la</span><input name="route_to" list="aaPlaces" autocomplete="off"></label></div></div>' +
       '<datalist id="aaPlaces">' + PLACES.map(function (p) { return '<option value="' + esc(p) + '">'; }).join("") + "</datalist>" +
-      '<div data-for="client"><div class="aa-row2"><label class="aa-field"><span>Client</span><input name="client_name" autocomplete="off"></label><label class="aa-field"><span>Telefon</span><input name="client_phone" type="tel" autocomplete="off"></label></div></div>' +
+      '<div data-for="client"><div class="aa-row2"><label class="aa-field"><span>Client</span><input name="client_name" autocomplete="off"></label><label class="aa-field"><span>Telefon</span><input name="client_phone" type="tel" autocomplete="off"></label></div><p class="aa-hint" id="aaClientHint" hidden></p></div>' +
       '<div data-for="tier"><fieldset class="aa-fieldset"><legend>Clasa</legend><div class="aa-chips">' + chip("tier", "standard", "Standard", true) + chip("tier", "business", "Business") + chip("tier", "vip", "VIP") + "</div></fieldset></div>" +
       '<div data-for="price"><div class="aa-row2"><label class="aa-field"><span>Preț</span><input name="price" type="number" min="0" step="1" inputmode="decimal"></label><label class="aa-field"><span>Valuta</span><select name="currency"><option value="EUR">€ euro</option><option value="MDL">lei</option></select></label></div></div>' +
       '<div data-for="pay"><div class="aa-row2"><label class="aa-field"><span>Pasageri</span><input name="passengers" type="number" min="1" max="20" inputmode="numeric"></label><fieldset class="aa-fieldset"><legend>Plată</legend><div class="aa-chips">' + chip("payment", "cash", "Numerar", true) + chip("payment", "card", "Card") + "</div></fieldset></div></div>" +
@@ -939,7 +945,7 @@
       if ((n === "service" || n === "tier") && !editing) applyPreset(n === "service");
       updateProfit();
     });
-    f.addEventListener("input", updateProfit);
+    f.addEventListener("input", function (e) { updateProfit(); if (e.target.name === "client_phone") lookupClient(); });
     f.addEventListener("submit", function (e) { e.preventDefault(); save(); });
   }
   function form() { return document.getElementById("aaForm"); }
@@ -991,6 +997,7 @@
     form().reset();
     fillCars();
     document.getElementById("aaFormErr").hidden = true;
+    document.getElementById("aaClientHint").hidden = true;
     document.getElementById("aaSheetH").textContent = order ? "Editează" : "Adaugă";
     if (order) {
       var dt = new Date(order.starts_at);
@@ -1023,6 +1030,27 @@
     setTimeout(function () { var first = form().querySelector("input:checked") || form().querySelector("input"); if (first) first.focus(); }, 30);
   }
   function closeSheet() { sheet.classList.remove("is-on"); backdrop.classList.remove("is-on"); }
+
+  // a client seen before: fill the empty name and notes, say who it is
+  var clientT;
+  function lookupClient() {
+    clearTimeout(clientT);
+    var phone = val("client_phone"), hint = document.getElementById("aaClientHint");
+    if (phone.replace(/\D/g, "").length < 7) { hint.hidden = true; return; }
+    clientT = setTimeout(function () {
+      api("/admin-dashboard/client?phone=" + encodeURIComponent(phone)).then(function (c) {
+        if (phone !== val("client_phone")) return;
+        if (!c.found) { hint.hidden = true; return; }
+        var filled = [];
+        if (c.name && !val("client_name").trim()) { setVal("client_name", c.name); filled.push("numele"); }
+        if (c.lastNotes && !val("notes").trim()) { setVal("notes", c.lastNotes); filled.push("ultimele notițe"); }
+        var n = c.orders + c.bookings;
+        hint.innerHTML = "Client cunoscut" + (c.name ? ": <b>" + esc(c.name) + "</b>" : "") + " · " + n + (n === 1 ? " comandă" : " comenzi") +
+          (c.last ? " · ultima " + esc(fmtShort.format(parseYmd(c.last))) : "") + (filled.length ? " · am completat " + filled.join(" și ") : "");
+        hint.hidden = false;
+      }, function () {});
+    }, 400);
+  }
   function save() {
     var err = document.getElementById("aaFormErr");
     var svc = val("service"), date = val("date"), time = val("time") || "09:00";
@@ -1122,6 +1150,9 @@
 
   // ── start: load a tab the first time it is shown ──────────────────────
   var started = { overview: false, journal: false };
+  // the "Adaugă în agendă" button of a Telegram notification opens #req-ID
+  var pendingReq = (location.hash.match(/^#req-(\d+)$/) || [])[1];
+  pendingReq = pendingReq ? +pendingReq : null;
   function show(tab) {
     if (tab === "overview" && !started.overview) { started.overview = true; overviewShell(); loadOverview(); }
     if (tab === "journal" && !started.journal) { started.journal = true; journalShell(); loadJournal(); }
@@ -1129,7 +1160,10 @@
   document.querySelectorAll('.admin-tab-btn[data-tab="overview"], .admin-tab-btn[data-tab="journal"]').forEach(function (b) {
     b.addEventListener("click", function () { show(b.dataset.tab); });
   });
-  if (document.getElementById("overview-tab").classList.contains("active")) show("overview");
+  if (pendingReq) {
+    var jb = document.querySelector('.admin-tab-btn[data-tab="journal"]');
+    if (jb) jb.click();
+  } else if (document.getElementById("overview-tab").classList.contains("active")) show("overview");
   var resizeT;
   window.addEventListener("resize", function () {
     clearTimeout(resizeT);

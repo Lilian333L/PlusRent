@@ -29,7 +29,7 @@
   <link href="css/coloring.min.css?v=94ae6a9b" rel="stylesheet" type="text/css">
   <!-- color scheme -->
   <link id="colors" href="css/colors/scheme-01.min.css?v=9e155c2f" rel="stylesheet" type="text/css">
-  <link rel="stylesheet" href="/css/admin-analytics.css?v=c4dcb012">
+  <link rel="stylesheet" href="/css/admin-analytics.css?v=a17e7a56">
 
   <!-- API Configuration -->
   <script>
@@ -3169,7 +3169,8 @@
       const user = localStorage.getItem('adminUser');
 
       if (!token || !user) {
-        // Redirect to login if not authenticated
+        // Redirect to login if not authenticated (a Telegram link #req-ID comes back after it)
+        try { if (location.hash) sessionStorage.setItem('prAfterLogin', location.hash); } catch (e) {}
         window.location.href = '/login';
         return;
       }
@@ -8303,7 +8304,7 @@ ${booking.coupon_details ? `
 
   <!-- Auto-Apply Coupon -->
   <script src="js/auto-apply-coupon.min.js?v=31d74c62" defer></script>
-  <script src="/js/admin-analytics.js?v=c0cc8855" defer></script>
+  <script src="/js/admin-analytics.js?v=17237dd0" defer></script>
 </body>
 
 </html>

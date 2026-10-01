@@ -23,7 +23,7 @@ class TelegramNotifier {
     }
   }
 
-  async sendMessage(message) {
+  async sendMessage(message, extra) {
     if (!this.botToken || !this.chatId) {
       return;
     }
@@ -32,7 +32,8 @@ class TelegramNotifier {
       const response = await axios.post(`${this.baseUrl}/sendMessage`, {
         chat_id: this.chatId,
         text: message,
-        parse_mode: 'HTML'
+        parse_mode: 'HTML',
+        ...(extra || {})
       });
       
       return response.data;

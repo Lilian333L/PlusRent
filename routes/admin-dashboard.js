@@ -83,6 +83,31 @@ router.get("/search", async (req, res) => {
   res.json({ orders: orders.error ? [] : orders.data || [], bookings: bookings.data || [] });
 });
 
+/** A client seen before, by phone: the name, how many orders, the last notes (agenda form autofill). */
+router.get("/client", async (req, res) => {
+  const digits = String(req.query.phone || "").replace(/\D/g, "").slice(-8);
+  if (digits.length < 6) return res.json({ found: false });
+  const [orders, bookings] = await Promise.all([
+    supabaseAdmin.from("service_orders").select("client_name, client_phone, notes, route_from, route_to, starts_at, service").ilike("client_phone", `%${digits}%`).order("starts_at", { ascending: false }).limit(20),
+    supabaseAdmin.from("bookings").select("customer_name, customer_phone, pickup_date, status").ilike("customer_phone", `%${digits}%`).order("pickup_date", { ascending: false }).limit(20),
+  ]);
+  const o = orders.error ? [] : orders.data || [];
+  const b = bookings.error ? [] : bookings.data || [];
+  if (!o.length && !b.length) return res.json({ found: false });
+  const realName = (n) => n && !/^not provided$/i.test(n.trim()) ? n.trim() : "";
+  const name = (o.map((x) => realName(x.client_name)).find(Boolean)) || (b.map((x) => realName(x.customer_name)).find(Boolean)) || "";
+  const lastOrder = o.find((x) => x.notes) || null;
+  const dates = o.map((x) => String(x.starts_at).slice(0, 10)).concat(b.map((x) => String(x.pickup_date).slice(0, 10))).sort();
+  res.json({
+    found: true,
+    name,
+    orders: o.length,
+    bookings: b.length,
+    last: dates[dates.length - 1] || null,
+    lastNotes: lastOrder ? lastOrder.notes : "",
+  });
+});
+
 /** Sign out every device: tokens issued before now stop working (middleware/auth.js). */
 router.post("/logout-all", async (req, res) => {
   const now = new Date().toISOString();
