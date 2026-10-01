@@ -131,6 +131,13 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>',
     right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16v-3l1.6-4a2 2 0 0 1 1.9-1.3h7a2 2 0 0 1 1.9 1.3L19 13v3"/><path d="M4 16h16"/><circle cx="8" cy="16.5" r="1.6"/><circle cx="16" cy="16.5" r="1.6"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+    tg: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 4.2 2.9 11.4c-1.2.5-1.2 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.8-1.4-1.4ZM8.6 14.1l9.5-6c.4-.3.9-.1.5.2l-8 7.3-.3 3.4-1.7-4.9Z"/></svg>',
+    filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   };
 
   function errorBox(e) {
@@ -568,10 +575,12 @@
   function journalShell() {
     JR.innerHTML =
       '<div class="aa-head"><div><h2>Agendă</h2><p>Notițele tale pe zile: transferuri, închirieri luate la telefon, șoferi, orice sarcină.</p></div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="aa-btn" id="aaTgNow" title="Același mesaj vine singur în fiecare seară">Agenda de mâine pe Telegram</button>' +
-      '<button type="button" class="aa-btn aa-btn-amber" id="aaNew">' + ICON.plus + " Adaugă</button></div></div>" +
+      '<div class="aa-head-actions"><button type="button" class="aa-btn" id="aaTgNow" title="Același mesaj vine singur în fiecare seară">' + ICON.tg + '<span>Mâine pe Telegram</span></button>' +
+      '<button type="button" class="aa-btn aa-btn-amber aa-hide-phone" id="aaNew">' + ICON.plus + " Adaugă</button></div></div>" +
+      '<button type="button" class="aa-fab" id="aaFab" aria-label="Adaugă în agendă">' + ICON.plus + "</button>" +
       '<div id="aaJrBody"><div class="aa-empty">Se încarcă…</div></div>';
     document.getElementById("aaNew").addEventListener("click", function () { openSheet(null, null, ymd(jr.mode === "day" ? jr.anchor : today())); });
+    document.getElementById("aaFab").addEventListener("click", function () { openSheet(null, null, ymd(jr.mode === "day" ? jr.anchor : today())); });
     document.getElementById("aaTgNow").addEventListener("click", function () {
       var b = this;
       b.disabled = true;
@@ -640,9 +649,9 @@
     var side = o.service === "task" ? "" : "<b>" + (o.currency === "MDL" ? lei(o.price) : eur(num(o.price))) + "</b>" + (orderCostsLei(o) ? "<small>profit " + lei(orderProfitLei(o)) + "</small><br>" : "<br>");
     var actions = o.status === "cancelled"
       ? '<button type="button" class="aa-btn aa-btn-sm" data-act="restore">Restabilește</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="purge">Șterge definitiv</button>'
-      : (o.status === "planned" ? '<button type="button" class="aa-btn aa-btn-sm' + (overdue ? " aa-btn-amber" : "") + '" data-act="done">' + (o.service === "task" ? "Gata" : overdue ? "A avut loc? Marchează efectuat" : "Marchează efectuat") + "</button>" : "") +
-        (o.client_phone && o.service !== "task" ? '<button type="button" class="aa-btn aa-btn-sm aa-btn-wa" data-act="wa">Confirmare WhatsApp</button>' : "") +
-        '<button type="button" class="aa-btn aa-btn-sm" data-act="edit">Editează</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="cancel">Anulează</button>';
+      : (o.status === "planned" ? '<button type="button" class="aa-btn aa-btn-sm aa-btn-done' + (overdue ? " aa-btn-amber" : "") + '" data-act="done">' + ICON.check + (o.service === "task" ? "Gata" : overdue ? "A avut loc? Efectuat" : "Efectuat") + "</button>" : "") +
+        (o.client_phone && o.service !== "task" ? '<button type="button" class="aa-btn aa-btn-sm aa-btn-wa" data-act="wa">WhatsApp</button>' : "") +
+        '<button type="button" class="aa-btn aa-btn-sm" data-act="edit">Editează</button><button type="button" class="aa-btn aa-btn-sm aa-btn-link" data-act="cancel">Anulează</button>';
     return '<div class="aa-item" data-id="' + o.id + '"><span class="aa-item-time">' + esc(timeLabel) + "</span>" +
       '<div class="aa-item-main"><strong>' + esc(orderTitle(o)) + "</strong><span>" +
       '<span class="aa-badge"><i style="background:' + s.color + '"></i>' + esc(s.label) + (o.tier && o.service !== "task" && o.service !== "rental" ? " · " + TIER[o.tier] : "") + "</span> " +
@@ -673,10 +682,14 @@
         return '<button type="button" data-jm="' + p[0] + '" aria-pressed="' + on + '">' + p[1] + "</button>";
       }).join("") + "</div>" +
       (up ? "" : '<span class="aa-month"><button type="button" class="aa-btn aa-btn-sm" id="aaPrevM" aria-label="Înapoi">' + ICON.left + "</button><b>" + esc(jrLabel(r)) + '</b><button type="button" class="aa-btn aa-btn-sm" id="aaNextM" aria-label="Înainte">' + ICON.right + "</button></span>") +
+      '<button type="button" class="aa-btn aa-btn-sm aa-filter-toggle" id="aaFilterToggle" aria-expanded="' + !!jr.filtersOpen + '" aria-controls="aaFilters">' + ICON.filter + "Filtre" + (filtersChanged() ? ' <span class="aa-dot" aria-label="filtre active"></span>' : "") + "</button>" +
+      (jr.filtersOpen ? '<div class="aa-filters-bg" id="aaFiltersBg"></div>' : "") +
+      '<div class="aa-filters' + (jr.filtersOpen ? " is-open" : "") + '" id="aaFilters">' +
+      '<div class="aa-filters-head"><b>Filtre</b><button type="button" class="aa-btn aa-btn-sm aa-btn-done" id="aaFiltersDone">Gata</button></div>' +
       '<div class="aa-tabs-mini" role="group" aria-label="Status">' + [["planned", "De făcut"], ["done", "Efectuate"], ["cancelled", "Anulate"], ["all", "Toate"]].map(function (s) { return '<button type="button" data-st="' + s[0] + '" aria-pressed="' + (jr.status === s[0]) + '">' + s[1] + "</button>"; }).join("") + "</div>" +
       '<select id="aaSvcFilter" aria-label="Tip"><option value="all">Toate tipurile</option>' +
       ORDER_SERVICES.map(function (s) { return '<option value="' + s.key + '"' + (jr.service === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("") + "</select>" +
-      '<label class="aa-switch"><input type="checkbox" id="aaShowSite"' + (jr.showSite ? " checked" : "") + "><span>Rezervări de pe site</span></label></div>";
+      '<label class="aa-switch"><input type="checkbox" id="aaShowSite"' + (jr.showSite ? " checked" : "") + "><span>Rezervări de pe site</span></label></div></div>";
 
     // ── search the whole history ──
     html += '<div class="aa-search"><label class="aa-sr" for="aaSearch">Caută</label><input id="aaSearch" type="search" placeholder="Caută client, telefon sau text din notițe (toată istoria)" autocomplete="off" value="' + esc(jr.q || "") + '"></div>';
@@ -784,6 +797,9 @@
     if (next) next.onclick = function () { shift(1); };
     body.querySelectorAll("[data-st]").forEach(function (b) { b.onclick = function () { jr.status = b.dataset.st; renderJournal(); }; });
     document.getElementById("aaSvcFilter").onchange = function (e) { jr.service = e.target.value; renderJournal(); };
+    document.getElementById("aaFilterToggle").onclick = function () { jr.filtersOpen = !jr.filtersOpen; renderJournal(); };
+    document.getElementById("aaFiltersDone").onclick = function () { jr.filtersOpen = false; renderJournal(); };
+    if (document.getElementById("aaFiltersBg")) document.getElementById("aaFiltersBg").onclick = function () { jr.filtersOpen = false; renderJournal(); };
     document.getElementById("aaShowSite").onchange = function (e) {
       jr.showSite = e.target.checked;
       try { localStorage.setItem("prAgendaSite", jr.showSite ? "1" : "0"); } catch (x) {}
@@ -1149,6 +1165,53 @@
   })();
 
   // ── start: load a tab the first time it is shown ──────────────────────
+  function filtersChanged() { return jr.status !== "planned" || jr.service !== "all" || !jr.showSite; }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // PHONE: the admin as an app (bottom tab bar, no banner, agenda first)
+  // ══════════════════════════════════════════════════════════════════════
+  var phone = window.matchMedia("(max-width: 767px)");
+  document.body.classList.add("aa-app");
+  (function tabBar() {
+    var items = [["journal", "Agendă", ICON.cal], ["overview", "Prezentare", ICON.chart], ["bookings", "Rezervări", ICON.car], ["more", "Mai mult", ICON.more]];
+    var bar = document.createElement("nav");
+    bar.className = "aa aa-tabbar";
+    bar.setAttribute("aria-label", "Secțiuni");
+    bar.innerHTML = items.map(function (t) { return '<button type="button" data-go="' + t[0] + '">' + t[2] + "<span>" + t[1] + "</span></button>"; }).join("");
+    document.body.appendChild(bar);
+    var more = document.createElement("div");
+    more.className = "aa aa-more-sheet";
+    more.hidden = true;
+    more.innerHTML = '<div class="aa-more-card" role="menu">' +
+      [["cars", "Mașini"], ["coupons", "Cupoane"], ["fee-settings", "Taxe"], ["spinning-wheel", "Roata norocului"]].map(function (t) { return '<button type="button" role="menuitem" data-go="' + t[0] + '">' + t[1] + "</button>"; }).join("") +
+      '<button type="button" role="menuitem" class="aa-more-out" data-go="logout">Ieșire din cont</button>' +
+      '<button type="button" class="aa-more-cancel" data-go="close">Închide</button></div>';
+    document.body.appendChild(more);
+    function sync() {
+      var act = document.querySelector(".admin-tab-btn.active"), tab = act ? act.dataset.tab : "";
+      bar.querySelectorAll("[data-go]").forEach(function (b) {
+        var on = b.dataset.go === tab || (b.dataset.go === "more" && ["cars", "coupons", "fee-settings", "spinning-wheel"].indexOf(tab) !== -1);
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-current", on ? "page" : "false");
+      });
+    }
+    function go(tab) {
+      if (tab === "more") { more.hidden = false; return; }
+      more.hidden = true;
+      if (tab === "close") return;
+      if (tab === "logout") { localStorage.removeItem("adminToken"); localStorage.removeItem("adminUser"); window.location.href = "/login"; return; }
+      var btn = document.querySelector('.admin-tab-btn[data-tab="' + tab + '"]');
+      if (btn) btn.click();
+      window.scrollTo({ top: 0 });
+      sync();
+    }
+    bar.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (b) go(b.dataset.go); });
+    more.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (b) go(b.dataset.go); else if (e.target === more) more.hidden = true; });
+    document.querySelectorAll(".admin-tab-btn").forEach(function (b) { b.addEventListener("click", function () { setTimeout(sync, 0); }); });
+    document.addEventListener("aa-tab", sync);
+    sync();
+  })();
+
   var started = { overview: false, journal: false };
   // the "Adaugă în agendă" button of a Telegram notification opens #req-ID
   var pendingReq = (location.hash.match(/^#req-(\d+)$/) || [])[1];
@@ -1160,10 +1223,18 @@
   document.querySelectorAll('.admin-tab-btn[data-tab="overview"], .admin-tab-btn[data-tab="journal"]').forEach(function (b) {
     b.addEventListener("click", function () { show(b.dataset.tab); });
   });
-  if (pendingReq) {
-    var jb = document.querySelector('.admin-tab-btn[data-tab="journal"]');
-    if (jb) jb.click();
-  } else if (document.getElementById("overview-tab").classList.contains("active")) show("overview");
+  // after the page's own DOMContentLoaded handlers, which bind the tab buttons
+  function firstTab() {
+    if (pendingReq || phone.matches) {
+      // the same classes the page's own tab handler sets (it may not be bound yet)
+      document.querySelectorAll(".admin-tab-btn").forEach(function (b) { b.classList.toggle("active", b.dataset.tab === "journal"); });
+      document.querySelectorAll(".admin-tab-content").forEach(function (c) { c.classList.toggle("active", c.id === "journal-tab"); });
+      show("journal");
+      document.dispatchEvent(new Event("aa-tab"));
+    } else if (document.getElementById("overview-tab").classList.contains("active")) show("overview");
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(firstTab, 0); });
+  else setTimeout(firstTab, 0);
   var resizeT;
   window.addEventListener("resize", function () {
     clearTimeout(resizeT);
