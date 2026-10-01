@@ -23,6 +23,7 @@ const feeSettingsRoutes = require('../routes/fee-settings');
 const settingsRoutes = require('../routes/settings');
 const contactRoutes = require('../routes/contact');
 const carPageRoutes = require('../routes/car-pages');
+const adminDashboardRoutes = require('../routes/admin-dashboard');
 const app = express();
 
 // Middleware
@@ -164,6 +165,12 @@ try {
   app.use('/contact', contactRoutes);
 } catch (error) {
   console.error('❌ Failed to mount contact routes:', error);
+}
+
+try {
+  app.use('/admin-dashboard', adminDashboardRoutes);
+} catch (error) {
+  console.error('❌ Failed to mount admin dashboard routes:', error);
 }
 
 // Note: Static file serving is handled by Vercel, not by the API
