@@ -532,15 +532,19 @@
   // ══════════════════════════════════════════════════════════════════════
   // AGENDĂ: everything planned, day by day (own entries + site bookings)
   // ══════════════════════════════════════════════════════════════════════
-  var jr = { mode: "week", anchor: today(), status: "all", service: "all", orders: [], ready: true, requests: [], bookings: [], cars: [] };
+  var jr = { mode: "upcoming", anchor: today(), status: "planned", service: "all", orders: [], overdue: [], ready: true, requests: [], bookings: [], cars: [], showSite: true };
+  try { jr.showSite = localStorage.getItem("prAgendaSite") !== "0"; } catch (e) {}
+  var UPCOMING_DAYS = 60;
 
   function jrRange() {
     var a = jr.anchor;
+    if (jr.mode === "upcoming") return { from: ymd(today()), to: ymd(addDays(today(), UPCOMING_DAYS)) };
     if (jr.mode === "day") return { from: ymd(a), to: ymd(a) };
     if (jr.mode === "week") { var mon = addDays(a, -((a.getDay() + 6) % 7)); return { from: ymd(mon), to: ymd(addDays(mon, 6)) }; }
     return { from: ymd(new Date(a.getFullYear(), a.getMonth(), 1)), to: ymd(new Date(a.getFullYear(), a.getMonth() + 1, 0)) };
   }
   function jrLabel(r) {
+    if (jr.mode === "upcoming") return "Azi și următoarele " + UPCOMING_DAYS + " de zile";
     if (jr.mode === "day") return cap(fmtDay.format(parseYmd(r.from)));
     if (jr.mode === "month") return cap(fmtMonth.format(parseYmd(r.from)));
     return fmtShort.format(parseYmd(r.from)) + " – " + fmtShort.format(parseYmd(r.to));
@@ -553,10 +557,10 @@
 
   function journalShell() {
     JR.innerHTML =
-      '<div class="aa-head"><div><h2>Agendă</h2><p>Transferuri, închirieri luate la telefon, șoferi și orice sarcină, pe zile. Rezervările de pe site apar singure.</p></div>' +
+      '<div class="aa-head"><div><h2>Agendă</h2><p>Notițele tale pe zile: transferuri, închirieri luate la telefon, șoferi, orice sarcină.</p></div>' +
       '<button type="button" class="aa-btn aa-btn-amber" id="aaNew">' + ICON.plus + " Adaugă</button></div>" +
       '<div id="aaJrBody"><div class="aa-empty">Se încarcă…</div></div>';
-    document.getElementById("aaNew").addEventListener("click", function () { openSheet(null, null, ymd(jr.mode === "day" ? jr.anchor : addDays(today(), 1))); });
+    document.getElementById("aaNew").addEventListener("click", function () { openSheet(null, null, ymd(jr.mode === "day" ? jr.anchor : today())); });
   }
 
   function loadJournal() {
@@ -570,7 +574,13 @@
         if (e.code === "service_orders_missing") { jr.ready = false; return []; }
         throw e;
       }),
+      // planned entries whose day has passed without "done": the overdue list
+      jr.mode === "upcoming"
+        ? api("/admin-dashboard/service-orders?from=" + ymd(addDays(today(), -120)) + "&to=" + ymd(addDays(today(), -1))).catch(function () { return []; })
+        : Promise.resolve([]),
     ]).then(function (res) {
+      var t0 = ymd(today());
+      jr.overdue = (res[3] || []).filter(function (o) { return o.status === "planned" && ymd(new Date(o.starts_at)) < t0; });
       jr.range = r;
       jr.bookings = res[0].bookings || [];
       jr.cars = res[0].cars || [];
@@ -599,52 +609,103 @@
     return [o.route_from, o.route_to].filter(Boolean).join(" → ") || (SVC[o.service] || SVC.other).label;
   }
 
+  function orderItem(o, timeLabel) {
+    var s = SVC[o.service] || SVC.other, dt = new Date(o.starts_at), overdue = o.status === "planned" && dt < new Date();
+    var who = [o.client_name ? esc(o.client_name) : "", o.client_phone ? '<a href="tel:' + esc(o.client_phone) + '">' + esc(o.client_phone) + "</a>" : ""].filter(Boolean);
+    var side = o.service === "task" ? "" : "<b>" + (o.currency === "MDL" ? lei(o.price) : eur(num(o.price))) + "</b>" + (orderCostsLei(o) ? "<small>profit " + lei(orderProfitLei(o)) + "</small><br>" : "<br>");
+    var actions = o.status === "cancelled"
+      ? '<button type="button" class="aa-btn aa-btn-sm" data-act="restore">Restabilește</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="purge">Șterge definitiv</button>'
+      : (o.status === "planned" ? '<button type="button" class="aa-btn aa-btn-sm' + (overdue ? " aa-btn-amber" : "") + '" data-act="done">' + (o.service === "task" ? "Gata" : overdue ? "A avut loc? Marchează efectuat" : "Marchează efectuat") + "</button>" : "") +
+        '<button type="button" class="aa-btn aa-btn-sm" data-act="edit">Editează</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="cancel">Anulează</button>';
+    return '<div class="aa-item" data-id="' + o.id + '"><span class="aa-item-time">' + esc(timeLabel) + "</span>" +
+      '<div class="aa-item-main"><strong>' + esc(orderTitle(o)) + "</strong><span>" +
+      '<span class="aa-badge"><i style="background:' + s.color + '"></i>' + esc(s.label) + (o.tier && o.service !== "task" && o.service !== "rental" ? " · " + TIER[o.tier] : "") + "</span> " +
+      who.join(" · ") + "</span></div>" +
+      '<div class="aa-item-side">' + side + '<span class="aa-badge aa-status-' + o.status + '">' + (o.service === "task" && o.status === "planned" ? "De făcut" : ORDER_STATUS[o.status]) + "</span></div>" +
+      (o.notes ? '<div class="aa-note">' + noteHtml(o.notes) + "</div>" : "") +
+      '<div class="aa-item-actions">' + actions + "</div></div>";
+  }
+
+  /** The notes as written (line breaks kept), phone numbers tappable. */
+  function noteHtml(text) {
+    return esc(text).replace(/(\+?\d[\d\s()-]{6,}\d)/g, function (m) {
+      var tel = m.replace(/[^\d+]/g, "");
+      return tel.replace(/\D/g, "").length >= 8 ? '<a href="tel:' + tel + '">' + m + "</a>" : m;
+    });
+  }
+
   function renderJournal() {
-    var body = document.getElementById("aaJrBody"), r = jr.range;
-    var live = jr.orders.filter(function (o) { return o.status !== "cancelled" && o.service !== "task"; });
-    var done = live.filter(function (o) { return o.status === "done"; });
-    var revLei = 0, costLei = 0;
-    done.forEach(function (o) { revLei += orderPriceLei(o); costLei += orderCostsLei(o); });
+    var body = document.getElementById("aaJrBody"), r = jr.range, up = jr.mode === "upcoming";
+    var money = jr.orders.filter(function (o) { return o.status !== "cancelled" && o.service !== "task"; });
     var html = "";
     if (!jr.ready) html += setupNotice();
+
+    // ── toolbar ──
     html += '<div class="aa-toolbar"><div class="aa-seg" role="group" aria-label="Perioada">' +
-      [["today", "Azi"], ["tomorrow", "Mâine"], ["week", "Săptămâna"], ["month", "Luna"]].map(function (p) {
+      [["upcoming", "De azi încolo"], ["today", "Azi"], ["tomorrow", "Mâine"], ["week", "Săptămâna"], ["month", "Luna"]].map(function (p) {
         var on = p[0] === "today" ? jr.mode === "day" && ymd(jr.anchor) === ymd(today()) : p[0] === "tomorrow" ? jr.mode === "day" && ymd(jr.anchor) === ymd(addDays(today(), 1)) : jr.mode === p[0];
         return '<button type="button" data-jm="' + p[0] + '" aria-pressed="' + on + '">' + p[1] + "</button>";
       }).join("") + "</div>" +
-      '<span class="aa-month"><button type="button" class="aa-btn aa-btn-sm" id="aaPrevM" aria-label="Înapoi">' + ICON.left + "</button><b>" + esc(jrLabel(r)) + '</b><button type="button" class="aa-btn aa-btn-sm" id="aaNextM" aria-label="Înainte">' + ICON.right + "</button></span>" +
-      '<select id="aaSvcFilter" aria-label="Tip"><option value="all">Tot</option><option value="bookings"' + (jr.service === "bookings" ? " selected" : "") + ">Rezervări de pe site</option>" +
+      (up ? "" : '<span class="aa-month"><button type="button" class="aa-btn aa-btn-sm" id="aaPrevM" aria-label="Înapoi">' + ICON.left + "</button><b>" + esc(jrLabel(r)) + '</b><button type="button" class="aa-btn aa-btn-sm" id="aaNextM" aria-label="Înainte">' + ICON.right + "</button></span>") +
+      '<div class="aa-tabs-mini" role="group" aria-label="Status">' + [["planned", "De făcut"], ["done", "Efectuate"], ["cancelled", "Anulate"], ["all", "Toate"]].map(function (s) { return '<button type="button" data-st="' + s[0] + '" aria-pressed="' + (jr.status === s[0]) + '">' + s[1] + "</button>"; }).join("") + "</div>" +
+      '<select id="aaSvcFilter" aria-label="Tip"><option value="all">Toate tipurile</option>' +
       ORDER_SERVICES.map(function (s) { return '<option value="' + s.key + '"' + (jr.service === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("") + "</select>" +
-      '<div class="aa-tabs-mini" role="group" aria-label="Status">' + [["all", "Toate"], ["planned", "De făcut"], ["done", "Efectuate"], ["cancelled", "Anulate"]].map(function (s) { return '<button type="button" data-st="' + s[0] + '" aria-pressed="' + (jr.status === s[0]) + '">' + s[1] + "</button>"; }).join("") + "</div></div>";
-    html += '<div class="aa-strip">' +
-      kpi("Înregistrări", live.length + jr.orders.filter(function (o) { return o.service === "task" && o.status !== "cancelled"; }).length, done.length + " efectuate · " + (live.length - done.length) + " de făcut") +
-      kpi("Venit efectuat", eur(revLei / rate()), lei(revLei)) +
-      kpi("Cheltuieli", lei(costLei), "combustibil, acte, spălare, altele") +
-      kpi("Profit net", lei(revLei - costLei), eur((revLei - costLei) / rate())) + "</div>";
+      '<label class="aa-switch"><input type="checkbox" id="aaShowSite"' + (jr.showSite ? " checked" : "") + "><span>Rezervări de pe site</span></label></div>";
 
-    // one list of the period: own entries + site bookings, grouped by day
-    var items = [];
-    if (jr.service === "all" || jr.service !== "bookings") {
-      jr.orders.forEach(function (o) {
-        if (jr.status !== "all" && o.status !== jr.status) return;
-        if (jr.service !== "all" && o.service !== jr.service) return;
-        var dt = new Date(o.starts_at);
-        items.push({ day: ymd(dt), time: fmtTime.format(dt), order: o });
-      });
+    // ── quick note: one line, Enter saves ──
+    html += '<form class="aa-quick aa-card" id="aaQuick"><label class="aa-sr" for="aaQuickText">Notiță rapidă</label>' +
+      '<input id="aaQuickText" maxlength="200" placeholder="Notiță rapidă: ce ai de făcut? Enter salvează" autocomplete="off">' +
+      '<input id="aaQuickDate" type="date" aria-label="Data" value="' + ymd(jr.mode === "day" ? jr.anchor : today()) + '">' +
+      '<input id="aaQuickTime" type="time" aria-label="Ora (opțional)">' +
+      '<button type="submit" class="aa-btn aa-btn-primary aa-btn-sm">Adaugă</button></form>';
+
+    // ── numbers of the period ──
+    if (up) {
+      var plan = money.filter(function (o) { return o.status === "planned"; }), pr = 0, pc = 0;
+      plan.forEach(function (o) { pr += orderPriceLei(o); pc += orderCostsLei(o); });
+      var todo = jr.orders.filter(function (o) { return o.status === "planned"; }).length;
+      html += '<div class="aa-strip">' +
+        kpi("De făcut", todo, (jr.overdue.length ? jr.overdue.length + " restanțe · " : "") + "în următoarele " + UPCOMING_DAYS + " de zile") +
+        kpi("Venit planificat", eur(pr / rate()), lei(pr)) +
+        kpi("Cheltuieli estimate", lei(pc), "combustibil, acte, spălare, altele") +
+        kpi("Profit estimat", lei(pr - pc), eur((pr - pc) / rate())) + "</div>";
+    } else {
+      var done = money.filter(function (o) { return o.status === "done"; }), dr = 0, dc = 0;
+      done.forEach(function (o) { dr += orderPriceLei(o); dc += orderCostsLei(o); });
+      html += '<div class="aa-strip">' +
+        kpi("Înregistrări", jr.orders.filter(function (o) { return o.status !== "cancelled"; }).length, done.length + " efectuate") +
+        kpi("Venit efectuat", eur(dr / rate()), lei(dr)) +
+        kpi("Cheltuieli", lei(dc), "combustibil, acte, spălare, altele") +
+        kpi("Profit net", lei(dr - dc), eur((dr - dc) / rate())) + "</div>";
     }
-    if ((jr.service === "all" || jr.service === "bookings") && (jr.status === "all" || jr.status === "planned")) {
-      bookingEvents(r).forEach(function (e) { items.push(e); });
+
+    // ── overdue: planned days that passed without "done" ──
+    if (up && (jr.status === "planned" || jr.status === "all") && jr.overdue.length) {
+      html += '<section class="aa-card aa-panel aa-overdue" aria-labelledby="aaOverH"><div class="aa-panel-head"><div><h3 id="aaOverH">Restanțe (' + jr.overdue.length + ')</h3><p>Planificate în zilele trecute și nemarcate. Marchează-le efectuate sau anulează-le.</p></div></div>' +
+        jr.overdue.map(function (o) { var d = new Date(o.starts_at); return orderItem(o, fmtShort.format(d)); }).join("") + "</section>";
+    }
+
+    // ── the list: own entries + site bookings, by day ──
+    var items = [];
+    jr.orders.forEach(function (o) {
+      if (jr.status !== "all" && o.status !== jr.status) return;
+      if (jr.service !== "all" && o.service !== jr.service) return;
+      var dt = new Date(o.starts_at);
+      items.push({ day: ymd(dt), time: fmtTime.format(dt), order: o });
+    });
+    if (jr.showSite && jr.service === "all" && (jr.status === "planned" || jr.status === "all")) {
+      bookingEvents(r).forEach(function (e) { if (!up || e.booking.status !== "finished") items.push(e); });
     }
     items.sort(function (a, b) { return a.day === b.day ? (a.time || "99").localeCompare(b.time || "99") : a.day < b.day ? -1 : 1; });
 
-    if (!items.length) html += '<div class="aa-card aa-empty">Nimic în această perioadă. Apasă „Adaugă”.</div>';
+    if (!items.length) html += '<div class="aa-card aa-empty">' + (up ? "Nimic de făcut de azi înainte. Scrie o notiță mai sus." : "Nimic în această perioadă.") + "</div>";
     else {
       html += '<div id="aaOrders">';
-      var lastDay = "";
+      var lastDay = "", t0 = ymd(today()), t1 = ymd(addDays(today(), 1));
       items.forEach(function (it) {
         if (it.day !== lastDay) {
           var n = items.filter(function (x) { return x.day === it.day; }).length;
-          html += '<p class="aa-day">' + esc(cap(fmtDay.format(parseYmd(it.day)))) + (it.day === ymd(today()) ? " · azi" : "") + " · " + n + "</p>";
+          html += '<p class="aa-day' + (it.day === t0 ? " is-today" : "") + '">' + (it.day === t0 ? "Azi · " : it.day === t1 ? "Mâine · " : "") + esc(cap(fmtDay.format(parseYmd(it.day)))) + " · " + n + "</p>";
           lastDay = it.day;
         }
         if (it.booking) {
@@ -652,17 +713,7 @@
             '</span></div><div class="aa-item-side"><b>' + eur(num(it.booking.total_price)) + '</b><span class="aa-badge">' + esc(BOOKING_STATUS[it.booking.status] || it.booking.status) + "</span></div></div>";
           return;
         }
-        var o = it.order, s = SVC[o.service] || SVC.other, dt = new Date(o.starts_at), overdue = o.status === "planned" && dt < new Date();
-        var who = [o.client_name, o.client_phone ? '<a href="tel:' + esc(o.client_phone) + '">' + esc(o.client_phone) + "</a>" : ""].filter(Boolean);
-        var side = o.service === "task" ? "" : "<b>" + (o.currency === "MDL" ? lei(o.price) : eur(num(o.price))) + "</b>" + (orderCostsLei(o) ? "<small>profit " + lei(orderProfitLei(o)) + "</small><br>" : "<br>");
-        html += '<div class="aa-item" data-id="' + o.id + '"><span class="aa-item-time">' + esc(it.time) + "</span>" +
-          '<div class="aa-item-main"><strong>' + esc(orderTitle(o)) + "</strong><span>" +
-          '<span class="aa-badge"><i style="background:' + s.color + '"></i>' + esc(s.label) + (o.tier && o.service !== "task" && o.service !== "rental" ? " · " + TIER[o.tier] : "") + "</span> " +
-          who.map(function (w, i) { return i === 0 && !/^<a/.test(w) ? esc(w) : w; }).join(" · ") + (o.service === "task" && o.notes ? " " + esc(o.notes) : "") + "</span></div>" +
-          '<div class="aa-item-side">' + side + '<span class="aa-badge aa-status-' + o.status + '">' + (o.service === "task" && o.status === "planned" ? "De făcut" : ORDER_STATUS[o.status]) + "</span></div>" +
-          '<div class="aa-item-actions">' + (o.status === "planned" ? '<button type="button" class="aa-btn aa-btn-sm' + (overdue ? " aa-btn-amber" : "") + '" data-act="done">' + (o.service === "task" ? "Gata" : overdue ? "A avut loc? Marchează efectuat" : "Marchează efectuat") + "</button>" : "") +
-          '<button type="button" class="aa-btn aa-btn-sm" data-act="edit">Editează</button>' +
-          (o.status !== "cancelled" ? '<button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="cancel">Anulează</button>' : '<button type="button" class="aa-btn aa-btn-sm" data-act="restore">Restabilește</button>') + "</div></div>";
+        html += orderItem(it.order, it.time);
       });
       html += "</div>";
     }
@@ -689,14 +740,48 @@
         loadJournal();
       };
     });
-    document.getElementById("aaPrevM").onclick = function () { shift(-1); };
-    document.getElementById("aaNextM").onclick = function () { shift(1); };
+    var prev = document.getElementById("aaPrevM"), next = document.getElementById("aaNextM");
+    if (prev) prev.onclick = function () { shift(-1); };
+    if (next) next.onclick = function () { shift(1); };
     body.querySelectorAll("[data-st]").forEach(function (b) { b.onclick = function () { jr.status = b.dataset.st; renderJournal(); }; });
     document.getElementById("aaSvcFilter").onchange = function (e) { jr.service = e.target.value; renderJournal(); };
+    document.getElementById("aaShowSite").onchange = function (e) {
+      jr.showSite = e.target.checked;
+      try { localStorage.setItem("prAgendaSite", jr.showSite ? "1" : "0"); } catch (x) {}
+      renderJournal();
+    };
+    document.getElementById("aaQuick").onsubmit = function (e) {
+      e.preventDefault();
+      var text = document.getElementById("aaQuickText").value.trim(), date = document.getElementById("aaQuickDate").value, time = document.getElementById("aaQuickTime").value || "09:00";
+      if (!text) { document.getElementById("aaQuickText").focus(); return; }
+      if (!jr.ready) { toast("Activează mai întâi agenda (vezi instrucțiunea de sus)."); return; }
+      if (!date) { toast("Alege data."); return; }
+      api("/admin-dashboard/service-orders", { method: "POST", body: JSON.stringify({ service: "task", title: text, starts_at: new Date(date + "T" + time).toISOString(), status: "planned", price: 0 }) }).then(function () {
+        toast("Notiță adăugată");
+        var r = jrRange();
+        if (date < r.from || date > r.to) { jr.mode = "day"; jr.anchor = parseYmd(date); }
+        loadJournal();
+      }, function (er) { toast(er.message); });
+    };
+    function findOrder(id) {
+      return jr.orders.find(function (x) { return x.id === id; }) || jr.overdue.find(function (x) { return x.id === id; });
+    }
     body.querySelectorAll("[data-id] [data-act]").forEach(function (b) {
       b.onclick = function () {
-        var id = +b.closest("[data-id]").dataset.id, o = jr.orders.find(function (x) { return x.id === id; }), act = b.dataset.act;
+        var item = b.closest("[data-id]"), id = +item.dataset.id, o = findOrder(id), act = b.dataset.act;
         if (act === "edit") return openSheet(o);
+        if (act === "purge") {
+          // a second, explicit step: nothing is deleted on the first tap
+          var box = item.querySelector(".aa-item-actions");
+          box.innerHTML = '<span class="aa-confirm is-on" style="margin:0;padding:8px 12px">Ștergi definitiv? Nu se poate anula. ' +
+            '<button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-purge="yes">Da, șterge</button><button type="button" class="aa-btn aa-btn-sm" data-purge="no">Nu</button></span>';
+          box.querySelector('[data-purge="no"]').onclick = function () { renderJournal(); };
+          box.querySelector('[data-purge="yes"]').onclick = function () {
+            this.disabled = true;
+            api("/admin-dashboard/service-orders/" + id, { method: "DELETE" }).then(function () { toast("Șters definitiv"); loadJournal(); }, function (e) { toast(e.message); renderJournal(); });
+          };
+          return;
+        }
         var status = act === "done" ? "done" : act === "cancel" ? "cancelled" : "planned";
         b.disabled = true;
         api("/admin-dashboard/service-orders/" + id, { method: "PUT", body: JSON.stringify({ status: status }) }).then(function () {
@@ -912,6 +997,15 @@
   (function bookingTools() {
     var box = document.getElementById("aaBookingTools");
     if (!box) return;
+    // only under the "Pending" filter: that is where the test requests are
+    box.hidden = true;
+    var tab = document.getElementById("bookings-tab");
+    if (tab) tab.addEventListener("click", function (e) {
+      var f = e.target.closest("button[onclick*=\"loadAllBookings('\"]");
+      if (!f) return;
+      box.hidden = f.getAttribute("onclick").indexOf("'pending'") === -1;
+      if (box.hidden) document.getElementById("aaDelConfirm").classList.remove("is-on");
+    });
     box.innerHTML =
       '<div class="aa-card aa-panel" style="margin-top:12px">' +
       '<h3 style="font-size:15px">Rezervări de test</h3>' +

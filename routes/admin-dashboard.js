@@ -132,6 +132,20 @@ router.put("/service-orders/:id", async (req, res) => {
   res.json(data);
 });
 
+/** Delete an agenda entry for good: only one that is already cancelled (owner, 1 Oct 2026). */
+router.delete("/service-orders/:id", async (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error: "Invalid id" });
+  const { data, error } = await supabaseAdmin
+    .from("service_orders")
+    .delete()
+    .eq("id", req.params.id)
+    .eq("status", "cancelled")
+    .select("id");
+  if (error) return res.status(500).json({ error: "Database error" });
+  if (!data.length) return res.status(409).json({ error: "Doar intrările anulate pot fi șterse." });
+  res.json({ deleted: data.length });
+});
+
 router.get("/site-requests", async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from("service_callbacks")

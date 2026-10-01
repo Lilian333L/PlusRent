@@ -299,3 +299,39 @@
 .aa-more { display: flex; justify-content: center; margin-top: 10px; }
 
 .aa [hidden] { display: none !important; }
+
+/* ── agenda: quick note, site switch, overdue, today ── */
+.aa-quick { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; margin: 0 0 16px; padding: 10px; }
+.aa-quick input { height: 42px; padding: 0 12px; border: 1px solid var(--aa-line); border-radius: 11px; background: #fff; color: var(--aa-ink); font-size: 15px; }
+.aa-quick #aaQuickText { min-width: 0; }
+@media (max-width: 767px) {
+  .aa-quick { grid-template-columns: 1fr 1fr; }
+  .aa-quick #aaQuickText { grid-column: 1 / -1; }
+  .aa-quick button { grid-column: 1 / -1; min-height: 42px; }
+}
+.aa-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.aa-switch { display: inline-flex; align-items: center; gap: 8px; color: var(--aa-text); font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.aa-switch input { width: 18px; height: 18px; accent-color: var(--aa-ink); }
+.aa section.aa-overdue { border-color: #fcd34d !important; background: #fffbeb !important; }
+.aa-overdue .aa-item { margin-top: 8px; }
+.aa-day.is-today { color: var(--aa-amber-deep); }
+
+/* agenda entries are notes: the whole title, phone and notes stay readable (no "…") */
+.aa-item-main strong { white-space: normal; overflow-wrap: anywhere; }
+.aa-item-main > span { display: -webkit-box; white-space: normal; overflow-wrap: anywhere; -webkit-line-clamp: 4; -webkit-box-orient: vertical; line-height: 1.5; }
+
+/* the notes of an agenda entry, in full */
+.aa-note {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border-left: 3px solid var(--aa-amber);
+  border-radius: 0 10px 10px 0;
+  background: #fffbeb;
+  color: var(--aa-text);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.aa-note a { color: #1d4ed8; font-weight: 600; }
+.aa-item-main .aa-badge { max-width: 100%; white-space: normal; }
