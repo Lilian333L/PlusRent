@@ -79,7 +79,8 @@ const validateParams = (schema) => {
 // Authentication schemas
 const loginSchema = Joi.object({
   username: Joi.string().min(3).max(50).required().trim(),
-  password: Joi.string().min(6).max(100).required()
+  password: Joi.string().min(6).max(100).required(),
+  remember: Joi.boolean().optional()
 });
 
 const registerSchema = Joi.object({

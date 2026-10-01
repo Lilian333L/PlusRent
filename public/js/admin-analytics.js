@@ -296,7 +296,9 @@
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="aa-btn aa-btn-sm" id="aaSelAll">Selectează toate</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaCancelSel" disabled>Anulează selectate</button></div></div>' +
       '<div class="aa-confirm" id="aaConfirm" role="alert"><span id="aaConfirmText"></span><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaConfirmYes">Da, anulează</button><button type="button" class="aa-btn aa-btn-sm" id="aaConfirmNo">Renunță</button></div>' +
       '<div id="aaPending"></div></section>';
-    html += '<p class="aa-rate"><label for="aaRateIn">Curs pentru lei:</label> 1 € = <input id="aaRateIn" type="number" step="0.01" min="1" value="' + rate() + '"> lei</p>';
+    html += '<div class="aa-foot"><p class="aa-rate"><label for="aaRateIn">Curs pentru lei:</label> 1 € = <input id="aaRateIn" type="number" step="0.01" min="1" value="' + rate() + '"> lei</p>' +
+      '<div><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaLogoutAll">Deconectează toate dispozitivele</button>' +
+      '<div class="aa-confirm" id="aaLogoutConfirm" role="alert" style="margin:8px 0 0">Te deconectezi și de pe acest dispozitiv; pe telefon te loghezi din nou. <button type="button" class="aa-btn aa-btn-sm aa-btn-danger" id="aaLogoutYes">Da, deconectează</button><button type="button" class="aa-btn aa-btn-sm" id="aaLogoutNo">Renunță</button></div></div></div>';
     body.innerHTML = html;
 
     body.querySelectorAll("[data-gran]").forEach(function (b) {
@@ -305,6 +307,14 @@
     body.querySelectorAll("[data-view]").forEach(function (b) {
       b.addEventListener("click", function () { ov.view = b.dataset.view; renderOverview(); });
     });
+    document.getElementById("aaLogoutAll").onclick = function () { document.getElementById("aaLogoutConfirm").classList.add("is-on"); };
+    document.getElementById("aaLogoutNo").onclick = function () { document.getElementById("aaLogoutConfirm").classList.remove("is-on"); };
+    document.getElementById("aaLogoutYes").onclick = function () {
+      api("/admin-dashboard/logout-all", { method: "POST" }).then(function () {
+        try { localStorage.removeItem("adminToken"); localStorage.removeItem("adminUser"); } catch (e) {}
+        window.location.href = "/login";
+      }, function (e) { toast(e.message); });
+    };
     document.getElementById("aaRateIn").addEventListener("change", function (e) {
       var v = parseFloat(e.target.value);
       if (v > 1) { try { localStorage.setItem("prAdminRate", String(v)); } catch (x) {} renderOverview(); }
@@ -558,9 +568,18 @@
   function journalShell() {
     JR.innerHTML =
       '<div class="aa-head"><div><h2>Agendă</h2><p>Notițele tale pe zile: transferuri, închirieri luate la telefon, șoferi, orice sarcină.</p></div>' +
-      '<button type="button" class="aa-btn aa-btn-amber" id="aaNew">' + ICON.plus + " Adaugă</button></div>" +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="aa-btn" id="aaTgNow" title="Același mesaj vine singur în fiecare seară">Agenda de mâine pe Telegram</button>' +
+      '<button type="button" class="aa-btn aa-btn-amber" id="aaNew">' + ICON.plus + " Adaugă</button></div></div>" +
       '<div id="aaJrBody"><div class="aa-empty">Se încarcă…</div></div>';
     document.getElementById("aaNew").addEventListener("click", function () { openSheet(null, null, ymd(jr.mode === "day" ? jr.anchor : today())); });
+    document.getElementById("aaTgNow").addEventListener("click", function () {
+      var b = this;
+      b.disabled = true;
+      api("/admin-dashboard/telegram/tomorrow", { method: "POST" }).then(function (r) {
+        b.disabled = false;
+        toast("Trimis pe Telegram: " + r.items + (r.items === 1 ? " intrare" : " intrări") + " pentru mâine");
+      }, function (e) { b.disabled = false; toast(e.message); });
+    });
   }
 
   function loadJournal() {
@@ -616,6 +635,7 @@
     var actions = o.status === "cancelled"
       ? '<button type="button" class="aa-btn aa-btn-sm" data-act="restore">Restabilește</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="purge">Șterge definitiv</button>'
       : (o.status === "planned" ? '<button type="button" class="aa-btn aa-btn-sm' + (overdue ? " aa-btn-amber" : "") + '" data-act="done">' + (o.service === "task" ? "Gata" : overdue ? "A avut loc? Marchează efectuat" : "Marchează efectuat") + "</button>" : "") +
+        (o.client_phone && o.service !== "task" ? '<button type="button" class="aa-btn aa-btn-sm aa-btn-wa" data-act="wa">Confirmare WhatsApp</button>' : "") +
         '<button type="button" class="aa-btn aa-btn-sm" data-act="edit">Editează</button><button type="button" class="aa-btn aa-btn-sm aa-btn-danger" data-act="cancel">Anulează</button>';
     return '<div class="aa-item" data-id="' + o.id + '"><span class="aa-item-time">' + esc(timeLabel) + "</span>" +
       '<div class="aa-item-main"><strong>' + esc(orderTitle(o)) + "</strong><span>" +
@@ -651,6 +671,15 @@
       '<select id="aaSvcFilter" aria-label="Tip"><option value="all">Toate tipurile</option>' +
       ORDER_SERVICES.map(function (s) { return '<option value="' + s.key + '"' + (jr.service === s.key ? " selected" : "") + ">" + s.label + "</option>"; }).join("") + "</select>" +
       '<label class="aa-switch"><input type="checkbox" id="aaShowSite"' + (jr.showSite ? " checked" : "") + "><span>Rezervări de pe site</span></label></div>";
+
+    // ── search the whole history ──
+    html += '<div class="aa-search"><label class="aa-sr" for="aaSearch">Caută</label><input id="aaSearch" type="search" placeholder="Caută client, telefon sau text din notițe (toată istoria)" autocomplete="off" value="' + esc(jr.q || "") + '"></div>';
+    if (jr.q && jr.q.length >= 2) {
+      body.innerHTML = html + '<div id="aaSearchRes"><div class="aa-empty">Se caută…</div></div>';
+      bindSearch(body);
+      runSearch();
+      return;
+    }
 
     // ── quick note: one line, Enter saves ──
     html += '<form class="aa-quick aa-card" id="aaQuick"><label class="aa-sr" for="aaQuickText">Notiță rapidă</label>' +
@@ -688,7 +717,10 @@
     // ── the list: own entries + site bookings, by day ──
     var items = [];
     jr.orders.forEach(function (o) {
-      if (jr.status !== "all" && o.status !== jr.status) return;
+      // a cancelled entry stays in "De făcut", struck through, with Restabilește / Șterge definitiv:
+      // a wrong tap on "Anulează" never makes it vanish
+      var visible = jr.status === "all" || o.status === jr.status || (jr.status === "planned" && o.status === "cancelled");
+      if (!visible) return;
       if (jr.service !== "all" && o.service !== jr.service) return;
       var dt = new Date(o.starts_at);
       items.push({ day: ymd(dt), time: fmtTime.format(dt), order: o });
@@ -740,6 +772,7 @@
         loadJournal();
       };
     });
+    bindSearch(body);
     var prev = document.getElementById("aaPrevM"), next = document.getElementById("aaNextM");
     if (prev) prev.onclick = function () { shift(-1); };
     if (next) next.onclick = function () { shift(1); };
@@ -763,13 +796,33 @@
         loadJournal();
       }, function (er) { toast(er.message); });
     };
+    bindItemActions(body);
+    body.querySelectorAll("[data-req]").forEach(function (b) {
+      b.onclick = function () {
+        var q = jr.requests.find(function (x) { return x.id === +b.dataset.req; });
+        if (b.dataset.act === "toOrder") return openSheet(null, q);
+        var st = b.dataset.act === "contacted" ? "contacted" : "cancelled";
+        api("/admin-dashboard/site-requests/" + q.id, { method: "PUT", body: JSON.stringify({ status: st }) }).then(function () { toast("Cererea a fost actualizată"); loadJournal(); }, function (e) { toast(e.message); });
+      };
+    });
+  }
+
+  function bindItemActions(root) {
     function findOrder(id) {
-      return jr.orders.find(function (x) { return x.id === id; }) || jr.overdue.find(function (x) { return x.id === id; });
+      return jr.orders.find(function (x) { return x.id === id; }) || jr.overdue.find(function (x) { return x.id === id; }) || (jr.found || []).find(function (x) { return x.id === id; });
     }
-    body.querySelectorAll("[data-id] [data-act]").forEach(function (b) {
+    root.querySelectorAll("[data-id] [data-act]").forEach(function (b) {
       b.onclick = function () {
         var item = b.closest("[data-id]"), id = +item.dataset.id, o = findOrder(id), act = b.dataset.act;
         if (act === "edit") return openSheet(o);
+        if (act === "wa") {
+          // open the window now (a popup opened after a request is blocked), fill it when the text arrives
+          var w = window.open("", "_blank");
+          api("/admin-dashboard/service-orders/" + id + "/confirmation").then(function (c) {
+            if (w) w.location = c.waUrl; else window.location = c.waUrl;
+          }, function (e) { if (w) w.close(); toast(e.message); });
+          return;
+        }
         if (act === "purge") {
           // a second, explicit step: nothing is deleted on the first tap
           var box = item.querySelector(".aa-item-actions");
@@ -785,20 +838,49 @@
         var status = act === "done" ? "done" : act === "cancel" ? "cancelled" : "planned";
         b.disabled = true;
         api("/admin-dashboard/service-orders/" + id, { method: "PUT", body: JSON.stringify({ status: status }) }).then(function () {
-          toast(status === "done" ? "Marcat efectuat" : status === "cancelled" ? "Anulat" : "Restabilit");
+          toast(status === "done" ? "Marcat efectuat" : status === "cancelled" ? "Anulat. Rămâne în listă: Restabilește sau Șterge definitiv" : "Restabilit");
           loadJournal();
           if (ov.data) loadOverview();
         }, function (e) { b.disabled = false; toast(e.message); });
       };
     });
-    body.querySelectorAll("[data-req]").forEach(function (b) {
-      b.onclick = function () {
-        var q = jr.requests.find(function (x) { return x.id === +b.dataset.req; });
-        if (b.dataset.act === "toOrder") return openSheet(null, q);
-        var st = b.dataset.act === "contacted" ? "contacted" : "cancelled";
-        api("/admin-dashboard/site-requests/" + q.id, { method: "PUT", body: JSON.stringify({ status: st }) }).then(function () { toast("Cererea a fost actualizată"); loadJournal(); }, function (e) { toast(e.message); });
-      };
-    });
+  }
+
+  // ── search ──
+  var searchT;
+  function bindSearch(body) {
+    var input = document.getElementById("aaSearch");
+    if (!input) return;
+    input.oninput = function () {
+      clearTimeout(searchT);
+      var v = input.value.trim();
+      searchT = setTimeout(function () {
+        var was = jr.q && jr.q.length >= 2;
+        jr.q = v;
+        if (v.length >= 2 || was) { renderJournal(); var el = document.getElementById("aaSearch"); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+      }, 300);
+    };
+  }
+  function runSearch() {
+    var q = jr.q;
+    api("/admin-dashboard/search?q=" + encodeURIComponent(q)).then(function (r) {
+      if (q !== jr.q) return;
+      var el = document.getElementById("aaSearchRes");
+      if (!el) return;
+      var html = '<div class="aa-toolbar" style="justify-content:space-between"><b>Rezultate pentru „' + esc(q) + '”: ' + (r.orders.length + r.bookings.length) + '</b><button type="button" class="aa-btn aa-btn-sm" id="aaSearchClear">Închide căutarea</button></div>';
+      if (!r.orders.length && !r.bookings.length) html += '<div class="aa-card aa-empty">Nimic găsit.</div>';
+      jr.found = r.orders;
+      r.orders.forEach(function (o) { var d = new Date(o.starts_at); html += orderItem(o, fmtShort.format(d) + " " + fmtTime.format(d)); });
+      if (r.bookings.length) html += '<p class="aa-day">Rezervări de pe site</p>';
+      r.bookings.forEach(function (b) {
+        var who = [/^not provided$/i.test(b.customer_name || "") ? "" : b.customer_name, b.customer_phone].filter(Boolean).join(" · ");
+        html += '<div class="aa-item"><span class="aa-item-time">' + esc(fmtShort.format(parseYmd(b.pickup_date))) + '</span><div class="aa-item-main"><strong>#' + esc(b.id) + " · " + esc(carName(jr.cars, b.car_id)) + "</strong><span>" + esc(who) + (b.pickup_location ? " · " + esc(b.pickup_location) : "") +
+          '</span></div><div class="aa-item-side"><b>' + eur(num(b.total_price)) + '</b><span class="aa-badge">' + esc(BOOKING_STATUS[b.status] || b.status) + "</span></div></div>";
+      });
+      el.innerHTML = html;
+      document.getElementById("aaSearchClear").onclick = function () { jr.q = ""; renderJournal(); };
+      bindItemActions(el);
+    }, function (e) { var el = document.getElementById("aaSearchRes"); if (el) el.innerHTML = errorBox(e); });
   }
 
   // ── the add / edit sheet: its fields follow the type of entry ─────────

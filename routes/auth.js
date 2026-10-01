@@ -40,7 +40,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     }
 
     // Generate JWT token
-    const token = generateToken(adminUser);
+    const token = generateToken(adminUser, req.body.remember === true);
 
     res.json({
       success: true,

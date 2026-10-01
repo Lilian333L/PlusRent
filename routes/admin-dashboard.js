@@ -18,7 +18,81 @@ const router = express.Router();
 const { supabaseAdmin } = require("../lib/supabaseClient");
 const { authenticateToken } = require("../middleware/auth");
 
+/**
+ * Daily cron (vercel.json "crons"): tomorrow's agenda to the owner's Telegram.
+ * Vercel calls it with "Authorization: Bearer <CRON_SECRET>"; without that
+ * environment variable set, nothing runs.
+ */
+router.get("/cron/daily-agenda", async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || req.headers.authorization !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const r = await require("../lib/agenda-telegram").sendTomorrow();
+    res.json({ sent: true, ...r });
+  } catch (error) {
+    console.error("cron daily-agenda:", error.message);
+    res.status(500).json({ error: "Failed" });
+  }
+});
+
 router.use(authenticateToken);
+
+/** "Trimite acum": the same message on demand (admin agenda button). */
+router.post("/telegram/tomorrow", async (req, res) => {
+  try {
+    const r = await require("../lib/agenda-telegram").sendTomorrow();
+    res.json({ sent: true, ...r });
+  } catch (error) {
+    console.error("telegram tomorrow:", error.message);
+    res.status(500).json({ error: "Telegram nu a răspuns" });
+  }
+});
+
+/** The WhatsApp confirmation for one agenda entry (lib/confirm-message.js). */
+router.get("/service-orders/:id/confirmation", async (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error: "Invalid id" });
+  const [{ data: o, error }, { data: cars }] = await Promise.all([
+    supabaseAdmin.from("service_orders").select("*").eq("id", req.params.id).single(),
+    supabaseAdmin.from("cars").select("id, make_name, model_name"),
+  ]);
+  if (error || !o) return res.status(404).json({ error: "Not found" });
+  const c = require("../lib/confirm-message").confirmation(o, cars || []);
+  if (!c) return res.status(422).json({ error: "Intrarea nu are telefon" });
+  res.json(c);
+});
+
+/** Search the whole history: agenda entries and site bookings, by name, phone or text. */
+router.get("/search", async (req, res) => {
+  const raw = String(req.query.q || "").trim();
+  // only letters, digits, spaces and + reach the filter (it is a PostgREST expression)
+  const q = raw.replace(/[^\p{L}\p{N} +]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+  if (q.length < 2) return res.json({ orders: [], bookings: [] });
+  const like = `%${q}%`;
+  const digits = q.replace(/\D/g, "");
+  const orderOr = ["client_name", "client_phone", "title", "notes", "route_from", "route_to"].map((f) => `${f}.ilike.${like}`);
+  const bookingOr = ["customer_name", "customer_phone", "customer_email"].map((f) => `${f}.ilike.${like}`);
+  if (digits.length >= 4 && digits !== q) {
+    orderOr.push(`client_phone.ilike.%${digits}%`);
+    bookingOr.push(`customer_phone.ilike.%${digits}%`);
+  }
+  const [orders, bookings] = await Promise.all([
+    supabaseAdmin.from("service_orders").select("*").or(orderOr.join(",")).order("starts_at", { ascending: false }).limit(50),
+    supabaseAdmin.from("bookings").select("id, car_id, pickup_date, return_date, pickup_time, total_price, status, customer_name, customer_phone, pickup_location").or(bookingOr.join(",")).order("pickup_date", { ascending: false }).limit(50),
+  ]);
+  if (bookings.error) return res.status(500).json({ error: "Database error" });
+  res.json({ orders: orders.error ? [] : orders.data || [], bookings: bookings.data || [] });
+});
+
+/** Sign out every device: tokens issued before now stop working (middleware/auth.js). */
+router.post("/logout-all", async (req, res) => {
+  const now = new Date().toISOString();
+  const { error } = await supabaseAdmin
+    .from("global_settings")
+    .upsert({ setting_key: "admin_tokens_valid_after", setting_value: now, description: "Admin tokens issued before this moment are refused (logout everywhere)", updated_at: now }, { onConflict: "setting_key" });
+  if (error) return res.status(500).json({ error: "Database error" });
+  require("../middleware/auth").forgetValidAfter();
+  res.json({ ok: true });
+});
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TABLE_MISSING = "service_orders_missing";

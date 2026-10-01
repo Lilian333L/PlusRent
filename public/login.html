@@ -125,6 +125,14 @@
             backdrop-filter: blur(10px);
         }
     </style>
+  <!-- the admin as an app on the phone's home screen (1 Oct 2026) -->
+  <link rel="manifest" href="/admin.webmanifest">
+  <meta name="theme-color" content="#1c1917">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PlusRent">
+  <link rel="apple-touch-icon" href="/images/admin-icon-192.png">
 </head>
 
 <body>
@@ -225,6 +233,9 @@
                                             <div class="field-set">
                                                 <input type="password" name="password" id="password" class="form-control" placeholder="Password" required />
                                             </div>
+                                            <label class="pr-remember" style="display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:14px;cursor:pointer">
+                                                <input type="checkbox" id="remember" style="width:18px;height:18px"> Ține-mă minte pe acest dispozitiv (90 de zile)
+                                            </label>
                                             <div id="submit">
                                                 <button type="submit" id="login-btn" class="btn-main btn-fullwidth rounded-3">Sign In</button>
                                             </div>
@@ -272,7 +283,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({ username, password, remember: document.getElementById('remember').checked })
                     });
 
                     const data = await response.json();
